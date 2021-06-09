@@ -316,13 +316,16 @@ function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
+
   // With boundariesElement set as property pane, EvalautedValue will appear on
   // top of property pane. We move it away with offset.
   const offset = placement === "left-start" ? "-266,0" : "320,0";

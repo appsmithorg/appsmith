@@ -77,7 +77,8 @@ public class FirestorePluginTest {
                 .build()
                 .getService();
 
-        firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false)).get();
+        firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false,
+                "category", "test")).get();
         final Map<String, Object> twoData = new HashMap<>(Map.of(
                 "value", 2,
                 "name", "two",
@@ -85,7 +86,8 @@ public class FirestorePluginTest {
                 "geo", new GeoPoint(-90, 90),
                 "dt", FieldValue.serverTimestamp(),
                 "ref", firestoreConnection.document("initial/one"),
-                "bytes", Blob.fromBytes("abc def".getBytes(StandardCharsets.UTF_8))
+                "bytes", Blob.fromBytes("abc def".getBytes(StandardCharsets.UTF_8)),
+                "category", "test"
         ));
         twoData.put("null-ref", null);
         firestoreConnection.document("initial/two").set(twoData).get();
@@ -146,6 +148,7 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
 
                     /*
@@ -184,6 +187,7 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) doc.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(doc.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("_ref"));
+                    assertEquals("test", doc.remove("category"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -240,6 +244,7 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
 
                     final Map<String, Object> second = results.stream().filter(d -> "two".equals(d.get("name"))).findFirst().orElse(null);
@@ -253,6 +258,7 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(second.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
+                    assertEquals("test", second.remove("category"));
                     assertEquals(Collections.emptyMap(), second);
 
                     final Map<String, Object> third = results.stream().filter(d -> "third".equals(d.get("name"))).findFirst().orElse(null);
@@ -637,12 +643,6 @@ public class FirestorePluginTest {
                             null, null)); // End before
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
                             null, null)); // Limit
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
-                            null, null)); // Field Path
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
-                            null, null)); // Operator
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "", null,
-                            null, null)); // Value
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
 
                 })
@@ -696,6 +696,65 @@ public class FirestorePluginTest {
     }
 
     @Test
+    public void testWhereConditional() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("initial");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
+        pluginSpecifiedTemplates.add(new Property("order", null));
+        pluginSpecifiedTemplates.add(new Property("limit", null));
+        Property whereProperty = new Property("where", null);
+        whereProperty.setValue(new ArrayList<>());
+        /*
+         * - get all documents where category == test.
+         * - this returns 2 documents.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "category");
+            put("operator", "EQ");
+            put("value", "test");
+        }});
+
+        /*
+         * - get all documents where name == two.
+         * - Of the two documents returned by above condition, this will narrow it down to one.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "name");
+            put("operator", "EQ");
+            put("value", "two");
+        }});
+
+        pluginSpecifiedTemplates.add(whereProperty);
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+
+                    final Map<String, Object> second = results.stream().findFirst().orElse(null);
+                    assertNotNull(second);
+                    assertEquals("two", second.remove("name"));
+                    assertTrue((Boolean) second.remove("isPlural"));
+                    assertEquals(2L, second.remove("value"));
+                    assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
+                    assertEquals(new GeoPoint(-90, 90), second.remove("geo"));
+                    assertNotNull(second.remove("dt"));
+                    assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
+                    assertNull(second.remove("null-ref"));
+                    assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
+                    assertEquals("test", second.remove("category"));
+                    assertEquals(Collections.emptyMap(), second);
+                })
+                .verifyComplete();
+    }
+
     public void testUpdateDocumentWithFieldValueTimestamp() {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0

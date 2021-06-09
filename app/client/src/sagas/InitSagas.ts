@@ -48,7 +48,6 @@ import PerformanceTracker, {
 import { executePageLoadActions } from "actions/widgetActions";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { resetDebuggerState } from "actions/debuggerActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -270,7 +269,6 @@ export function* initializeAppViewerSaga(
 function* resetEditorSaga() {
   yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
-  yield put(resetDebuggerState());
 }
 
 export function* waitForInit() {
