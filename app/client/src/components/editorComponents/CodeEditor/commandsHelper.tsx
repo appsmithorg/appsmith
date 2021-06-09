@@ -13,6 +13,7 @@ export const commandsHelper: HintHelper = () => {
     showHint: (
       editor: CodeMirror.Editor,
       _: string,
+      __: string,
       { actions, createNewAPI, createNewQuery, datasources, plugins },
     ) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
