@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }} # runs a test on Ubuntu, Windows and macOS
+    runs-on: ubuntu-latest # runs a test on Ubuntu, Windows and macOS
 
     steps:
       
@@ -24,5 +24,4 @@ jobs:
       # Uncomment this step to verify the use of 'deno fmt' on each commit.
 
         
-      - name: some testing
-        run: ls -ltr
+      - run: ls -ltr
