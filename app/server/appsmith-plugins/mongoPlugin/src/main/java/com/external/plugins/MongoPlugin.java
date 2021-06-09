@@ -703,14 +703,7 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        } else if (authentication != null && authentication.getUsername() != null
-                            && authentication.getPassword() != null && mongoUri.contains("****")) {
-                            
-                            // remove any default db set via form auto-fill via browser
-                            if (datasourceConfiguration.getConnection() != null) {
-                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
-                            }
-                        } else {
+                        } else if (!isAuthenticated(authentication, mongoUri)) {
                             String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             authentication = (authentication == null) ? new DBAuth(): authentication;
@@ -1018,6 +1011,15 @@ public class MongoPlugin extends BasePlugin {
         }
 
         return object;
+    }
+    
+    private static boolean isAuthenticated(DBAuth authentication, String mongoUri) {
+        if (authentication != null && authentication.getUsername() != null
+            && authentication.getPassword() != null && mongoUri.contains("****")) {
+            
+            return true;
+        }
+        return false;
     }
 
 }
