@@ -144,8 +144,6 @@ public class    CreateDBTablePageSolution {
         
     }
     
-    private ActionConfiguration createActionConfig
-    
     private Map<String, String> mapTableColumnNames(Table sourceTable, Table destTable, List<Map<String, Column>> columnMapList) {
         Map<String, String> mappedTableColumns = new HashMap<>();
         Map<String, Column> templateColumnMap = columnMapList.get(0);
@@ -168,6 +166,10 @@ public class    CreateDBTablePageSolution {
             }
         }
         return mappedTableColumns;
+    }
+    
+    private Map<String, String> mapKeys(Table sourceTable, Table destTable) {
+    
     }
 }
 
