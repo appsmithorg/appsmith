@@ -16,7 +16,7 @@ public interface UserOrganizationService {
 
     Mono<Organization> addUserToOrganizationGivenUserObject(Organization organization, User user, UserRole userRole);
 
-    Mono<Organization> removeUserRoleFromOrganization(String orgId, UserRole userRole);
+    Mono<User> leaveOrganization(String orgId);
 
     Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user);
 

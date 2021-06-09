@@ -26,7 +26,10 @@ import CommentsApi from "api/CommentsAPI";
 
 import { validateResponse } from "../ErrorSagas";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
   CreateCommentThreadPayload,
@@ -53,9 +56,11 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     action.payload,
   );
   const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   const response = yield call(CommentsApi.createNewThread, {
     ...newCommentThreadPayload,
     applicationId,
+    pageId,
   });
   const isValidResponse = yield validateResponse(response);
 
