@@ -121,9 +121,24 @@ export const getPluginGroups = (
   return actionPluginMap?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
 
-    const entries = actions?.filter((entry: any) =>
+    let entries = actions?.filter((entry: any) =>
       config.types.includes(entry.config.pluginType),
     );
+
+    // To show properly ordered entries in integrations tab
+    entries = Array.isArray(entries)
+      ? [
+          ...entries.filter(
+            (entry: any) => entry.config.pluginType === PluginType.API,
+          ),
+          ...entries.filter(
+            (entry: any) => entry.config.pluginType === PluginType.SAAS,
+          ),
+          ...entries.filter(
+            (entry: any) => entry.config.pluginType === PluginType.DB,
+          ),
+        ]
+      : entries;
 
     const filteredPlugins = plugins.filter((plugin) =>
       config.types.includes(plugin.type),
