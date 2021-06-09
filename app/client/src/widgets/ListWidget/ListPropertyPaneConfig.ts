@@ -10,7 +10,7 @@ const PropertyPaneConfig = [
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
-        propertyName: "items",
+        propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',

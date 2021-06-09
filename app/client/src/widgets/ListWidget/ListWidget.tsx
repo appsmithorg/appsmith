@@ -34,6 +34,9 @@ import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
+
+console.log({ derivedProperties });
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -49,98 +52,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      items: `{{(() => {
-        let item = {};
-
-        Object.keys(this.template).map(widgetName => {
-          item[widgetName] = {...this.template[widgetName] };
-        });
-
-        let updatedItems = [];
-
-        for (let i = 0; i < this.listData.length; i++) {
-          updatedItems[i] = JSON.parse(JSON.stringify(item));
-        }
-
-
-        updatedItems.map((currentItem, itemIndex) => {
-          const widgetKeys = Object.keys(currentItem);
-
-          widgetKeys.map(currentWidgetName => {
-            const currentWidget = currentItem[currentWidgetName];
-
-            const dynamicPaths = _.compact(
-              currentWidget.dynamicBindingPathList?.map((path) =>
-                path.key,
-              ),
-            );
-
-            dynamicPaths.forEach((path) => {
-              const evaluatedProperty = _.get(this.template, currentWidget.widgetName + "." + path);
-
-              if (
-                Array.isArray(evaluatedProperty)
-              ) {
-                const evaluatedValue = evaluatedProperty[itemIndex];
-
-                _.set(currentWidget, path, evaluatedValue);
-              }
-            });
-
-            if (this.childrenDefaultPropertiesMap) {
-              Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
-                const defaultKey = this.childrenDefaultPropertiesMap[key];
-                const widgetName = key.split(".").shift();
-
-                if (widgetName === currentWidget.widgetName) {
-                  const defaultPropertyValue = _.get(
-                    this.template,
-                    currentWidget.widgetName + "." + defaultKey,
-                    undefined
-                  );
-
-                  if (Array.isArray(defaultPropertyValue)) {
-                    const evaluatedValue = defaultPropertyValue[itemIndex];
-
-                    _.set(currentWidget, key.split(".").pop(), evaluatedValue);
-                  } else if(defaultPropertyValue) {
-                    _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
-                  }
-                }
-              });
-            }
-
-            const metaProperties = _.get(this.childMetaProperties, currentWidget.widgetName, {});
-
-            Object.keys(metaProperties).map((key) => {
-              const metaPropertyValue = _.get(metaProperties, key +  "." + itemIndex, undefined);
-
-              if (typeof metaPropertyValue !== "undefined") {
-                _.set(currentWidget, key, metaPropertyValue);
-              }
-            });
-          });
-        });
-
-        return updatedItems;
-      })()}}`,
-      selectedItem: `{{(()=>{
-        const selectedItemIndex =
-          this.selectedItemIndex === undefined ||
-          Number.isNaN(parseInt(this.selectedItemIndex))
-            ? -1
-            : parseInt(this.selectedItemIndex);
-        const items = this.listData || [];
-        if (selectedItemIndex === -1) {
-          const emptyRow = { ...items[0] };
-          Object.keys(emptyRow).forEach((key) => {
-            emptyRow[key] = "";
-          });
-          return emptyRow;
-        }
-        const selectedItem = { ...listData[selectedItemIndex] };
-        return selectedItem;
-      })()}}`,
+      selectedRow: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
+      selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
+      items: `{{(() => {${derivedProperties.getItems}})()}}`,
     };
   }
 
@@ -758,6 +672,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
+
+    console.log({
+      items: this.props.items,
+      selected: this.props.selectedItem,
+      selectedRow: this.props.selectedRow,
+    });
 
     return (
       <ListComponent
