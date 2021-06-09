@@ -18,7 +18,6 @@ export const HintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-size: 90%;
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
@@ -50,6 +49,31 @@ export const HintStyles = createGlobalStyle<{
       }
     }
   }
+
+  .CodeMirror-command-header {
+    padding: 0 8px;
+    color: #716E6E;
+    pointer-events: none !important;
+    font-weight: 500;
+    font-family: ${(props) => props.theme.fonts.text};
+  }
+
+  .CodeMirror-commands {
+    color: #4b4848;
+    font-weight: 500;
+    padding: 0 8px !important;
+    height: 25px;
+    font-family: ${(props) => props.theme.fonts.text};
+    font-style: normal;
+    &:hover, &.CodeMirror-hint-active {
+      svg {
+        path {
+          fill: #ffffff;
+        }
+      }
+    }
+  }
+
 
   .CodeMirror-hint-header {
     padding-left: 8px;

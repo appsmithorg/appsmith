@@ -41,6 +41,7 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { commandsHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -50,6 +51,8 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -59,6 +62,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  actions: ActionDataState;
+  plugins: PluginDataState;
 }
 
 export type EditorStyleProps = {
@@ -103,7 +108,7 @@ type State = {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
-    hinting: [bindingHint],
+    hinting: [bindingHint, commandsHelper],
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
@@ -295,7 +300,12 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
+    this.hinters.forEach((hinter) =>
+      hinter.showHint(cm, expected, {
+        actions: this.props.actions,
+        plugins: this.props.plugins.list,
+      }),
+    );
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -498,6 +508,8 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
+  actions: state.entities.actions,
+  plugins: state.entities.plugins,
 });
 
 export default Sentry.withProfiler(connect(mapStateToProps)(CodeEditor));

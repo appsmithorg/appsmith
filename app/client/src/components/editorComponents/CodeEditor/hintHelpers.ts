@@ -65,7 +65,7 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
 
       const shouldShow = cursorBetweenBinding;
       if (shouldShow) {
-        AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
+        AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
         ternServer.complete(editor, expected);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
