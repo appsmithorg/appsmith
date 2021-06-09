@@ -4,7 +4,7 @@ import { pageGroupIcon } from "../ExplorerIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
@@ -37,6 +37,7 @@ const pageGroupEqualityCheck = (
 };
 
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
@@ -80,7 +81,9 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
+      action={() => history.push(`${location.pathname}#edit-pages`)}
       className="group pages"
+      disabled
       entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded

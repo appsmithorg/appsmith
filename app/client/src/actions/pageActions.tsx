@@ -114,6 +114,7 @@ export const createPage = (
   applicationId: string,
   pageName: string,
   layouts: Partial<PageLayout>[],
+  blockNavigation?: boolean,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
@@ -124,15 +125,17 @@ export const createPage = (
       applicationId,
       name: pageName,
       layouts,
+      blockNavigation,
     },
   };
 };
 
-export const clonePageInit = (pageId: string) => {
+export const clonePageInit = (pageId: string, blockNavigation?: boolean) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_INIT,
     payload: {
       id: pageId,
+      blockNavigation,
     },
   };
 };
@@ -286,5 +289,42 @@ export const updateAppPersistentStore = (
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+  };
+};
+
+/**
+ * action for delete page
+ *
+ * @param pageId
+ * @param pageName
+ * @returns
+ */
+export const deletePage = (pageId: string, pageName: string) => {
+  AnalyticsUtil.logEvent("DELETE_PAGE", {
+    pageName,
+  });
+
+  return {
+    type: ReduxActionTypes.DELETE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
+/**
+ * action for set page as default
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageAsDefault = (pageId: string, applicationId?: string) => {
+  return {
+    type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+    payload: {
+      id: pageId,
+      applicationId,
+    },
   };
 };

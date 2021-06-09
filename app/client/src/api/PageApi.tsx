@@ -62,6 +62,7 @@ export interface CreatePageRequest {
   applicationId: string;
   name: string;
   layouts: Partial<PageLayout>[];
+  blockNavigation?: boolean;
 }
 
 export interface UpdatePageRequest {
@@ -93,6 +94,7 @@ export interface DeletePageRequest {
 
 export interface ClonePageRequest {
   id: string;
+  blockNavigation?: boolean;
 }
 
 export interface UpdateWidgetNameRequest {

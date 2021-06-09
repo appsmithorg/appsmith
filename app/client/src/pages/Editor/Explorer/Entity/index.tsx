@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
+  useCallback,
 } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -15,7 +16,9 @@ import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
+import { useDispatch } from "react-redux";
 import useClick from "utils/hooks/useClick";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -112,6 +115,7 @@ export const Entity = forwardRef(
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
+    const dispatch = useDispatch();
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -150,6 +154,24 @@ export const Entity = forwardRef(
       else toggleChildren();
     };
 
+    const exitEditMode = useCallback(() => {
+      dispatch({
+        type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+      });
+    }, [dispatch]);
+
+    const enterEditMode = useCallback(
+      () =>
+        props.updateEntityName &&
+        dispatch({
+          type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
+          payload: {
+            id: props.entityId,
+          },
+        }),
+      [dispatch, props.entityId, props.updateEntityName],
+    );
+
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
@@ -174,7 +196,9 @@ export const Entity = forwardRef(
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
             className={`${EntityClassNames.NAME}`}
+            enterEditMode={enterEditMode}
             entityId={props.entityId}
+            exitEditMode={exitEditMode}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}

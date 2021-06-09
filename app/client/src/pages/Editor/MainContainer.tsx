@@ -1,12 +1,14 @@
 import React from "react";
+import styled from "styled-components";
+import * as Sentry from "@sentry/react";
+import { Route, Switch } from "react-router";
+
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
-import styled from "styled-components";
-import Sidebar from "components/editorComponents/Sidebar";
-import { Route, Switch } from "react-router";
 import { BUILDER_URL } from "constants/routes";
+import PagesEditor from "pages/Editor/PagesEditor";
+import Sidebar from "components/editorComponents/Sidebar";
 
-import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -24,6 +26,7 @@ function MainContainer() {
   return (
     <Container>
       <Sidebar />
+      <PagesEditor />
       <EditorContainer>
         <Switch>
           <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />

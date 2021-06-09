@@ -466,12 +466,15 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
-      history.push(
-        BUILDER_PAGE_URL(
-          createPageAction.payload.applicationId,
-          response.data.id,
-        ),
-      );
+
+      if (!createPageAction.payload.blockNavigation) {
+        history.push(
+          BUILDER_PAGE_URL(
+            createPageAction.payload.applicationId,
+            response.data.id,
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -573,7 +576,9 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
 
       yield put(fetchActionsForPage(response.data.id));
 
-      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      if (!clonePageAction.payload.blockNavigation) {
+        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      }
     }
   } catch (error) {
     yield put({
