@@ -169,6 +169,10 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     gridGap: "number",
   },
+  IFRAME_WIDGET: {
+    source: "string",
+    title: "string",
+  },
 };
 
 export default FIELD_VALUES;
