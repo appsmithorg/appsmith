@@ -136,7 +136,6 @@ const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
   justify-content: center;
   background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
   z-index: 2;
-  padding: 0 0 3px;
 `;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
