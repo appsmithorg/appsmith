@@ -102,66 +102,38 @@ export const useActions = (searchKeyword?: string) => {
 
   const actions = useMemo(() => {
     return groupBy(reducerActions, "config.pageId");
-  }, [reducerActions]);
+  }, [updatedReducerActions]);
 
-  // console.log("Kaushik types for actions:", actions, updatedReducerActions);
-  // update actions with the latest data from
-  // state.evaluations
-  // using this method to make it O(2N)
-  // rather than using loop inside loop
-  // const tempMapOfActions = {} as any;
-  // for (const action of reducerActions) {
-  //   if (action.config?.id) {
-  //     tempMapOfActions[action.config.id] = action;
-  //   }
-  // }
-  // for (const action of updatedReducerActions) {
-  //   if (tempMapOfActions.hasOwnProperty(action.actionId)) {
-  //     tempMapOfActions[action.actionId].data = action.data;
-  //   }
-  // }
-  const updatedActions = {} as any;
-  // for (const pageId in actions) {
-  //   for (const actionIndex in actions[pageId]) {
-  //     const matchingActionFromUpdatedReducerActions = find(
-  //       updatedReducerActions,
-  //       (updatedAction) =>
-  //         updatedAction.actionId === actions[pageId][actionIndex].config.id,
-  //     );
-  //     if (!(pageId in updatedActions)) {
-  //       updatedActions[pageId] = [];
-  //     }
-  //     // const newAction = actions[pageId][actionIndex];
-  //     console.log(matchingActionFromUpdatedReducerActions);
-  //     // newAction.data = matchingActionFromUpdatedReducerActions.data;
-  //     // updatedActions[pageId].push(newAction);
-  //     // console.log("Kaushik original action: ", action, action.data);
-  //     // action.data = matchingActionFromUpdatedReducerActions.data;
-  //     // if (action && action.data) {
-  //     //   console.log("Kaushik, this shouldnt be seen: ", action);
-  //     //   action.data = matchingActionFromUpdatedReducerActions.data;
-  //     // }
-  //     // if (
-  //     //   actions[pageId] &&
-  //     //   actions[pageId][actionIndex] &&
-  //     //   actions[pageId][actionIndex].hasOwnProperty("data")
-  //     // ) {
-  //     //   if (!(pageId in updatedActions)) {
-  //     //     updatedActions[pageId] = [];
-  //     //   }
-  //     //   const newAction = {
-  //     //     ...actions[pageId][actionIndex],
-  //     //     data: matchingActionFromUpdatedReducerActions.data,
-  //     //   };
-  //     //   updatedActions[pageId].push(newAction);
-  //     // }
-  //   }
-  // }
-  console.log("kaushik actions: ", actions, updatedActions);
+  const updatedActions = {} as Record<string, any[]>;
+  for (const pageId in actions) {
+    for (const actionIndex in actions[pageId]) {
+      const matchingActionFromUpdatedReducerActions = find(
+        updatedReducerActions,
+        (updatedAction) =>
+          updatedAction.actionId === actions[pageId][actionIndex].config.id,
+      );
+      if (
+        matchingActionFromUpdatedReducerActions &&
+        matchingActionFromUpdatedReducerActions.data &&
+        actions[pageId][actionIndex]
+      ) {
+        if (!(pageId in updatedActions)) {
+          updatedActions[pageId] = [];
+        }
+        const newAction = {
+          ...actions[pageId][actionIndex],
+        };
+        console.log(matchingActionFromUpdatedReducerActions, newAction);
+        newAction.data = matchingActionFromUpdatedReducerActions.data;
+        console.log(matchingActionFromUpdatedReducerActions, newAction);
+        updatedActions[pageId].push(newAction);
+      }
+    }
+  }
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
-      const filteredActions = produce(actions, (draft) => {
+      const filteredActions = produce(updatedActions, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           if (pageIds.includes(key)) {
             draft[key] = value;
@@ -184,8 +156,8 @@ export const useActions = (searchKeyword?: string) => {
       log.debug("Filtered actions in:", performance.now() - start, "ms");
       return filteredActions;
     }
-    return actions;
-  }, [searchKeyword, actions]);
+    return updatedActions;
+  }, [searchKeyword, updatedActions]);
 };
 
 export const useWidgets = (searchKeyword?: string) => {
