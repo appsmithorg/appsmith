@@ -235,6 +235,12 @@ const commentsReducer = createReducer(initialState, {
 
     delete state.commentThreadsMap[commentThreadId];
 
+    state.commentThreadsMap = { ...state.commentThreadsMap };
+
+    state.applicationCommentThreadsByRef[appId as string] = {
+      ...state.applicationCommentThreadsByRef[appId as string],
+    };
+
     return { ...state };
   },
   [ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL]: (
