@@ -22,11 +22,12 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { has, isString, omit, set } from "lodash";
+import { get, has, isString, omit, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
+  migrateTableWidgetParentRowSpaceProperty,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -755,40 +756,24 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       canvasWidgets,
     );
     currentDSL = migrateOverFlowingTabsWidgets(currentDSL, canvasWidgets);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 22;
   }
 
   if (currentDSL.version === 22) {
-    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
     currentDSL.version = 23;
   }
 
-  return currentDSL;
-};
-
-const migrateItemsToListDataInListWidget = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
-    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
-
-    Object.keys(currentDSL.template).map((widgetName) => {
-      const currentWidget = currentDSL.template[widgetName];
-
-      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
-        currentWidget[path.key] = currentWidget[path.key].replace(
-          "items",
-          "listData",
-        );
-      });
-    });
+  if (currentDSL.version === 23) {
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
   }
 
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(
-      migrateItemsToListDataInListWidget,
-    );
+  if (currentDSL.version === 24) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 
@@ -1188,4 +1173,74 @@ export const generateWidgetProps = (
       throw Error("Failed to create widget: Parent's size cannot be calculate");
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
+};
+
+/**
+ * adds logBlackList key for all list widget children
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addLogBlackListToAllListWidgetChildren = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.LIST_WIDGET) {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      widgets.map((widget: any, index: number) => {
+        const logBlackList: { [key: string]: boolean } = {};
+
+        Object.keys(widget).map((key) => {
+          logBlackList[key] = true;
+        });
+        if (!widget.logBlackList) {
+          set(
+            children,
+            `children.0.children.0.children.0.children.${index}.logBlackList`,
+            logBlackList,
+          );
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        currentWidget[path.key] = currentWidget[path.key].replace(
+          "items",
+          "listData",
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
+  return currentDSL;
 };

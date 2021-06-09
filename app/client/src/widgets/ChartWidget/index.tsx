@@ -92,7 +92,7 @@ export interface ChartData {
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
   chartData: AllChartData;
-  customFusionChartConfig: { config: CustomFusionChartConfig };
+  customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;

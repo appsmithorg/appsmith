@@ -148,7 +148,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
@@ -543,6 +543,58 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      customFusionChartConfig: {
+        type: "column2d",
+        dataSource: {
+          chart: {
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
+            theme: "fusion",
+          },
+          data: [
+            {
+              label: "Mon",
+              value: 10000,
+            },
+            {
+              label: "Tue",
+              value: 12000,
+            },
+            {
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 14000,
+            },
+            {
+              label: "Sat",
+              value: 19000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
+            },
+          ],
+          trendlines: [
+            {
+              line: [
+                {
+                  startvalue: "38000",
+                  valueOnRight: "1",
+                  displayvalue: "Weekly Target",
+                },
+              ],
+            },
+          ],
+        },
+      },
     },
     FORM_BUTTON_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -889,6 +941,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
@@ -904,6 +957,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
                   const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 
                   for (let i = 0; i < keys.length; i++) {
@@ -930,6 +984,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     }
                   }
 
+                  Object.keys(childWidget).map((key) => {
+                    logBlackList[key] = true;
+                  });
+
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
+
                   template = {
                     ...template,
                     [childWidget.widgetName]: childWidget,
@@ -948,6 +1008,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyValue: template,
                 },
               ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
+                Object.keys(logBlackListMap).map((logBlackListMapKey) => {
+                  return {
+                    widgetId: logBlackListMapKey,
+                    propertyName: "logBlackList",
+                    propertyValue: logBlackListMap[logBlackListMapKey],
+                  };
+                }),
+              );
+
               return updatePropertyMap;
             },
           },
@@ -961,6 +1033,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+              const logBlackList: { [key: string]: boolean } = {};
 
               const disallowedWidgets = [
                 WidgetTypes.TABLE_WIDGET,
@@ -998,7 +1071,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               parent.template = template;
 
+              // add logBlackList for the children being added
+              Object.keys(widget).map((key) => {
+                logBlackList[key] = true;
+              });
+
+              widget.logBlackList = logBlackList;
+
               widgets[parentId] = parent;
+              widgets[widgetId] = widget;
 
               return { widgets };
             },
