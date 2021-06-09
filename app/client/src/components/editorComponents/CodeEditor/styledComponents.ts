@@ -52,7 +52,7 @@ export const HintStyles = createGlobalStyle<{
 
   .CodeMirror-command-header {
     padding: 0 8px;
-    color: #716E6E;
+    color: #716e6e;
     pointer-events: none !important;
     font-weight: 500;
     font-family: ${(props) => props.theme.fonts.text};
@@ -61,6 +61,7 @@ export const HintStyles = createGlobalStyle<{
   .CodeMirror-commands {
     color: #4b4848;
     font-weight: 500;
+    position: relative;
     padding: 0 8px !important;
     height: 25px;
     font-family: ${(props) => props.theme.fonts.text};
@@ -71,6 +72,17 @@ export const HintStyles = createGlobalStyle<{
           fill: #ffffff;
         }
       }
+      .shortcut {
+        color: #ffffff;
+      }
+    }
+    .shortcut {
+      font-style: italic;
+      font-size: 10px;
+      color: #a9a7a7;
+      right: 5px;
+      position: absolute;
+      top: 5px;
     }
   }
 

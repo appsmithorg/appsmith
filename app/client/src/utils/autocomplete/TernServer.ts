@@ -30,8 +30,9 @@ export type Completion = Hint & {
   isHeader?: boolean;
 };
 
-export type NavigableCompletion = Completion & {
-  isNavLink?: boolean;
+export type CommandsCompletion = Completion & {
+  action?: () => void;
+  shortcut: string;
 };
 
 type TernDocs = Record<string, TernDoc>;

@@ -1,9 +1,7 @@
 import CodeMirror from "codemirror";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
-import history from "utils/history";
-import { API_EDITOR_URL } from "constants/routes";
-import { Completion, NavigableCompletion } from "utils/autocomplete/TernServer";
+import { CommandsCompletion } from "utils/autocomplete/TernServer";
 
 const ICONS = {
   DB: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12"><path fill="#DEAB41" fill-rule="evenodd" d="M7.9135 0.561055C7.9135 0.870918 6.23457 1.12211 4.1635 1.12211C2.09243 1.12211 0.413498 0.870918 0.413498 0.561055C0.413498 0.251193 2.09243 0 4.1635 0C6.23457 0 7.9135 0.251193 7.9135 0.561055ZM3.03755 3.94381V3.20132H8.24959V1.04044C8.24959 1.04044 7.17068 1.7044 4.1248 1.7044C1.07891 1.7044 0 1.12211 0 1.12211V3.34213C0 3.34213 0.739498 3.62842 1.21327 3.72683C1.73671 3.83556 2.3448 3.90789 3.03755 3.94381ZM3.03618 6.7922C2.42801 6.76073 1.88837 6.70121 1.41063 6.61366C0.850902 6.51107 0 6.19042 0 6.19042V3.9704C0 3.9704 0.897126 4.31392 1.59814 4.41095C2.01645 4.46886 2.49801 4.50902 3.03618 4.53144V6.7922ZM1.41063 9.43546C1.88837 9.52302 2.42801 9.58253 3.03618 9.614V7.35324C2.49801 7.33082 2.01645 7.29066 1.59814 7.23276C0.897126 7.13572 0 6.7922 0 6.7922V9.01222C0 9.01222 0.850902 9.33287 1.41063 9.43546ZM9.71951 3.77119L12 6.01541H9.71951V3.77119ZM9.19505 3.77119H3.75V12H12V6.56804H9.19505V3.77119ZM10.5 7.5H5.25V8.4H10.5V7.5ZM5.25 9.375H9V10.275H5.25V9.375Z" clip-rule="evenodd"/></svg>`,
@@ -12,77 +10,139 @@ const ICONS = {
 
 export const commandsHelper: HintHelper = () => {
   return {
-    showHint: (editor: CodeMirror.Editor, _: string, { actions }) => {
+    showHint: (
+      editor: CodeMirror.Editor,
+      _: string,
+      { actions, createNewAPI, createNewQuery, datasources, plugins },
+    ) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
-      const suggestionsHeader = {
-        text: "Suggestions",
-        displayText: "Suggestions",
-        className: "CodeMirror-command-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      };
-      const createNewHeader = {
-        text: "Create New",
-        displayText: "Create New",
-        className: "CodeMirror-command-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      };
-      const newIntegration = {
-        text: "New Integration",
-        displayText: "New Integration",
+      const suggestionsHeader: CommandsCompletion = commandsHeader(
+        "Suggestions",
+      );
+      const pluginIdToIconLocationMap = plugins.list.reduce(
+        (acc: any, p: any) => {
+          acc[p.id] = p.iconLocation;
+          return acc;
+        },
+        {},
+      );
+      const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+      const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
+      const { pageId } = fetchAppAndPageId();
+      const newAPI: CommandsCompletion = {
+        text: "",
+        displayText: "New API",
         data: { doc: "" },
         origin: "",
         type: "UNKNOWN",
         className: "CodeMirror-commands",
-        isNavLink: true,
+        action: () => createNewAPI(pageId),
+        shortcut: "api.new",
+        render: (element: HTMLElement, self: any, data: any) => {
+          const span = document.createElement("span");
+          const shortcut = document.createElement("span");
+          shortcut.innerText = data.shortcut;
+          shortcut.className = "shortcut";
+          span.innerText = data.displayText;
+          element.appendChild(span);
+          element.appendChild(shortcut);
+          return element;
+        },
       };
-      let currentSelection: Completion = {
+      let currentSelection: CommandsCompletion = {
         origin: "",
         type: "UNKNOWN",
         data: {
           doc: "",
         },
         text: "",
+        shortcut: "",
       };
       const slashIndex = value.lastIndexOf("/");
       if (!cursorBetweenBinding && slashIndex > -1) {
         const searchText = value.substring(slashIndex + 1);
-        const filteredActions = actions
+        const actionCommands = actions
           .map((action: any) => action.config)
-          .filter((action: any) => {
-            return (
-              action.name &&
-              action.name.toLowerCase().startsWith(searchText.toLowerCase())
-            );
-          })
-          .slice(0, 3)
           .map((action: any) => {
             return {
-              text: `{{ ${action.name}. }}`,
+              text: `{{ ${action.name}.data }}`,
               displayText: `${action.name}`,
               className: "CodeMirror-commands",
+              shortcut: "{{}}",
               data: action,
               render: (element: HTMLElement, self: any, data: any) => {
                 const pluginType = data.data.pluginType as keyof typeof ICONS;
                 element.innerHTML = ICONS[pluginType];
                 const span = document.createElement("span");
+                const shortcut = document.createElement("span");
+                shortcut.innerText = data.shortcut;
+                shortcut.className = "shortcut";
                 span.innerText = data.data.name;
-                span.style.marginLeft = "10px";
+                span.style.marginLeft = "7px";
                 element.appendChild(span);
+                element.appendChild(shortcut);
                 return element;
               },
             };
           });
-        const list = [...filteredActions, createNewHeader, newIntegration];
-        if (filteredActions.length) list.unshift(suggestionsHeader);
+        const datasourceCommands = datasources.map((action: any) => {
+          return {
+            text: `{{ ${action.name}.data }}`,
+            displayText: `${action.name}`,
+            className: "CodeMirror-commands",
+            shortcut: `${action.name}.new`,
+            data: action,
+            action: () => createNewQuery(action, pageId),
+            render: (element: HTMLElement, self: any, data: any) => {
+              const img = document.createElement("img");
+              img.src = pluginIdToIconLocationMap[data.data.pluginId];
+              img.style.height = "12px";
+              img.style.width = "12px";
+              const span = document.createElement("span");
+              const shortcut = document.createElement("span");
+              shortcut.innerText = data.shortcut;
+              shortcut.className = "shortcut";
+              span.innerText = data.data.name;
+              span.style.marginLeft = "7px";
+              element.appendChild(img);
+              element.appendChild(span);
+              element.appendChild(shortcut);
+              return element;
+            },
+          };
+        });
+        const actionCommandsMatchSearchText = matchingCommands(
+          actionCommands,
+          searchText,
+        );
+        const datasourceCommandsMatchingSearchText = matchingCommands(
+          datasourceCommands,
+          searchText,
+        );
+        const createNewCommandsMatchingSearchText = matchingCommands(
+          [newAPI],
+          searchText,
+        );
+        let list: CommandsCompletion[] = [];
+        if (actionCommandsMatchSearchText.length) {
+          list = [suggestionsHeader, ...actionCommandsMatchSearchText];
+        }
+        if (createNewCommandsMatchingSearchText.length) {
+          list = [
+            ...list,
+            createNewHeader,
+            ...createNewCommandsMatchingSearchText,
+          ];
+        }
+        if (datasourceCommandsMatchingSearchText.length) {
+          list = [
+            ...list,
+            newQueryHeader,
+            ...datasourceCommandsMatchingSearchText,
+          ];
+        }
         const cursor = editor.getCursor();
-        const { applicationId, pageId } = fetchAppAndPageId();
         editor.showHint({
           hint: () => {
             const hints = {
@@ -94,12 +154,12 @@ export const commandsHelper: HintHelper = () => {
               to: editor.getCursor(),
               selectedHint: 1,
             };
-            CodeMirror.on(hints, "pick", (selected: NavigableCompletion) => {
-              if (selected.isNavLink) {
+            CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+              if (selected.action) {
                 editor.setValue(
                   value.slice(0, value.length - searchText.length - 1),
                 );
-                history.push(API_EDITOR_URL(applicationId, pageId));
+                selected.action();
                 return;
               } else {
                 editor.setValue(
@@ -112,7 +172,7 @@ export const commandsHelper: HintHelper = () => {
                 });
               }
             });
-            CodeMirror.on(hints, "select", (selected: Completion) => {
+            CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
               currentSelection = selected;
             });
             return hints;
@@ -137,6 +197,31 @@ export const commandsHelper: HintHelper = () => {
     },
   };
 };
+
+const matchingCommands = (list: CommandsCompletion[], searchText: string) => {
+  return list
+    .filter((action: any) => {
+      return (
+        action.displayText.toLowerCase().startsWith(searchText.toLowerCase()) ||
+        action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
+      );
+    })
+    .slice(0, 3);
+};
+
+const commandsHeader = (
+  displayText: string,
+  text = "",
+): CommandsCompletion => ({
+  text: text,
+  displayText: displayText,
+  className: "CodeMirror-command-header",
+  data: { doc: "" },
+  origin: "",
+  type: "UNKNOWN",
+  isHeader: true,
+  shortcut: "",
+});
 
 const fetchAppAndPageId = () => {
   const pathSplit = location.pathname.split("/");
