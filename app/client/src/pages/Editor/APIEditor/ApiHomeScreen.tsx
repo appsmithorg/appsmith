@@ -369,8 +369,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   componentDidMount() {
     const {
       importedCollections,
-      providersTotal,
       providerCategories,
+      providersTotal,
     } = this.props;
     if (providerCategories.length === 0 && enableRapidAPI) {
       this.props.fetchProviderCategories();
@@ -434,17 +434,17 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   render() {
     const {
       // importedCollections,
-      providers,
-      applicationId,
-      pageId,
-      location,
-      history,
-      // isFetchingProviders,
-      providerCategories,
-      providersTotal,
-      isSwitchingCategory,
       apiOrProviderSearchResults,
+      applicationId,
       fetchProvidersError,
+      history,
+      isSwitchingCategory,
+      // isFetchingProviders,
+      location,
+      pageId,
+      providerCategories,
+      providers,
+      providersTotal,
     } = this.props;
     const { showSearchResults } = this.state;
 
@@ -787,10 +787,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 const mapStateToProps = (state: AppState) => {
   const { providers } = state.ui;
   const {
-    providersTotal,
-    isSwitchingCategory,
-    fetchProvidersError,
     apiOrProviderSearchResults,
+    fetchProvidersError,
+    isSwitchingCategory,
+    providersTotal,
   } = providers;
   const formData = getFormValues(API_HOME_SCREEN_FORM)(
     state,

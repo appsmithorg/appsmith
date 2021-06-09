@@ -24,12 +24,12 @@ const ForkButton = styled(Cta)`
 
 function GetAppViewerHeaderCTA(props: any) {
   const {
-    url,
     canEdit,
     currentApplicationDetails,
     currentUser,
     forkUrl,
     loginUrl,
+    url,
   } = props;
   let CTA = null;
   const dispatch = useDispatch();

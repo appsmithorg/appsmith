@@ -10,6 +10,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
+  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
 };
 
 const store = localforage.createInstance({
@@ -180,5 +181,26 @@ export const deleteRecentAppEntities = async (appId: string) => {
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
   } catch (error) {
     console.log("An error occurred while saving recent entities", error);
+  }
+};
+
+export const setCommentsIntroSeen = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.COMMENTS_INTRO_SEEN, flag);
+    return true;
+  } catch (error) {
+    console.log("An error occurred when setting COMMENTS_INTRO_SEEN", error);
+    return false;
+  }
+};
+
+export const getCommentsIntroSeen = async () => {
+  try {
+    const commentsIntroSeen = (await store.getItem(
+      STORAGE_KEYS.COMMENTS_INTRO_SEEN,
+    )) as boolean;
+    return commentsIntroSeen;
+  } catch (error) {
+    console.log("An error occurred while fetching COMMENTS_INTRO_SEEN", error);
   }
 };

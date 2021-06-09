@@ -58,7 +58,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== SAAS_EDITOR_FORM) return;
   const { values } = yield select(getFormData, SAAS_EDITOR_FORM);

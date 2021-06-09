@@ -72,7 +72,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
 
   getChartType = () => {
-    const { chartType, allowHorizontalScroll, chartData } = this.props;
+    const { allowHorizontalScroll, chartData, chartType } = this.props;
     const dataLength = Object.keys(chartData).length;
     const isMSChart = dataLength > 1;
     switch (chartType) {
@@ -185,7 +185,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
     const dataMap: { [key: string]: string } = {};
-    if (data.length === 0) {
+
+    // if not array or (is array and array length is zero)
+    if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0)) {
       return [
         {
           value: "",
@@ -218,7 +220,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(item.data, categories);
+      >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
@@ -305,6 +307,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         renderAt: this.props.widgetId + "chart-container",
         width: "100%",
         height: "100%",
+        events: {
+          dataPlotClick: (evt: any) => {
+            const data = evt.data;
+            this.props.onDataPointClick({
+              x: data.categoryLabel,
+              y: data.dataValue,
+            });
+          },
+        },
         ...this.getCustomFusionChartDataSource(),
       };
       this.chartInstance = new FusionCharts(chartConfig);

@@ -84,7 +84,7 @@ class QueryEditor extends React.Component<Props> {
   };
 
   handleRunClick = () => {
-    const { match, dataSources } = this.props;
+    const { dataSources, match } = this.props;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { queryId: this.props.match.params.queryId },
@@ -110,19 +110,19 @@ class QueryEditor extends React.Component<Props> {
   render() {
     const {
       dataSources,
-      isRunning,
+      editorConfig,
+      isCreating,
       isDeleting,
+      isEditorInitialized,
+      isRunning,
       match: {
         params: { queryId },
       },
-      pluginImages,
       pluginIds,
+      pluginImages,
       responses,
-      isCreating,
       runErrorMessage,
-      editorConfig,
       settingConfig,
-      isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 

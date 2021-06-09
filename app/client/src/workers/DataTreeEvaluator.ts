@@ -88,7 +88,9 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+    const { errors, validatedTree } = getValidatedTree(evaluatedTree);
+    this.evalTree = validatedTree;
+    this.errors = this.errors.concat(errors);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;
@@ -110,6 +112,10 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
+    return {
+      dataTree: this.evalTree,
+      evaluationOrder: this.sortedDependencies,
+    };
   }
 
   isDynamicLeaf(unEvalTree: DataTree, propertyPath: string) {
@@ -204,7 +210,10 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-    return this.evalTree;
+    return {
+      dataTree: this.evalTree,
+      evaluationOrder: evaluationOrder,
+    };
   }
 
   getCompleteSortOrder(
@@ -391,6 +400,11 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          _.set(
+            currentTree,
+            `${entityName}.jsErrorMessages.${propertyPath}`,
+            "",
+          );
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -401,6 +415,8 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evaluationSubstitutionType,
                 false,
+                undefined,
+                fullPropertyPath,
               );
             } catch (e) {
               this.errors.push({
@@ -493,7 +509,7 @@ export default class DataTreeEvaluator {
         entityType = entity.pluginType;
       }
       this.errors.push({
-        type: EvalErrorTypes.DEPENDENCY_ERROR,
+        type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
         message: "Cyclic dependency found while evaluating.",
         context: {
           node,
@@ -545,14 +561,16 @@ export default class DataTreeEvaluator {
     evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
+    fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+    const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
     if (returnTriggers) {
       const result = this.evaluateDynamicBoundValue(
         data,
         jsSnippets[0],
         callBackData,
+        fullPropertyPath,
       );
       return result.triggers;
     }
@@ -564,6 +582,7 @@ export default class DataTreeEvaluator {
             data,
             jsSnippet,
             callBackData,
+            fullPropertyPath,
           );
           return result.result;
         } else {
@@ -590,17 +609,24 @@ export default class DataTreeEvaluator {
     data: DataTree,
     js: string,
     callbackData?: Array<any>,
+    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      this.errors.push({
-        type: EvalErrorTypes.EVAL_ERROR,
-        message: e.message,
-        context: {
-          binding: js,
-        },
-      });
+      if (fullPropertyPath) {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          fullPropertyPath,
+        );
+        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
+      } else {
+        // TODO clean up
+        // This is to handle situations with evaluation of triggers for execution
+        this.errors.push({
+          type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
+          message: e.message,
+        });
+      }
       return { result: undefined, triggers: [] };
     }
   }
@@ -622,11 +648,12 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
+        fullPropertyPath,
       );
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
-    const { parsed, isValid, message, transformed } = validateWidgetProperty(
+    const { isValid, message, parsed, transformed } = validateWidgetProperty(
       propertyPath,
       valueToValidate,
       widget,
@@ -641,18 +668,6 @@ export default class DataTreeEvaluator {
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
     if (!isValid) {
-      this.errors.push({
-        type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message: message || "",
-        context: {
-          source: {
-            id: widget.widgetId,
-            name: widget.widgetName,
-            type: ENTITY_TYPE.WIDGET,
-            propertyPath: propertyPath,
-          },
-        },
-      });
       _.set(widget, `invalidProps.${propertyPath}`, true);
       _.set(widget, `validationMessages.${propertyPath}`, message);
     } else {

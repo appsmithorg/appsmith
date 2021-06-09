@@ -61,6 +61,12 @@ export const fetchActionsForPageSuccess = (actions: Action[]) => {
   };
 };
 
+export const runActionViaShortcut = () => {
+  return {
+    type: ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
+  };
+};
+
 export const runAction = (id: string, paginationField?: PaginationField) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,
@@ -231,6 +237,12 @@ export const updateActionProperty = (
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
   });
+};
+
+export const executePageLoadActionsComplete = () => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
+  };
 };
 
 export const setActionsToExecuteOnPageLoad = (

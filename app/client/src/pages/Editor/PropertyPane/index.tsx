@@ -39,6 +39,7 @@ import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
+import { Layers } from "constants/Layers";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -178,7 +179,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
-    if (get(this.props, "widgetProperties.disablePropertyPane")) {
+    if (
+      !get(this.props, "widgetProperties") ||
+      get(this.props, "widgetProperties.disablePropertyPane")
+    ) {
       return null;
     }
 
@@ -204,7 +208,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           position={this.props?.propPanePreference?.position}
           targetNode={el}
           themeMode={this.getPopperTheme()}
-          zIndex={3}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>
@@ -228,6 +232,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
