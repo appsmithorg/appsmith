@@ -180,8 +180,25 @@ function RecaptchaComponent(
     });
     props.onClick && props.onClick(event);
   }
+
+  // Check if a string is a valid JSON string
+  const checkValidJson = (inputString: string): boolean => {
+    try {
+      JSON.parse(inputString);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  let validGoogleRecaptchaKey = props.googleRecaptchaKey;
+
+  if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
+    validGoogleRecaptchaKey = undefined;
+  }
+
   const status = useScript(
-    `https://www.google.com/recaptcha/api.js?render=${props.googleRecaptchaKey}`,
+    `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
   return (
     <div
