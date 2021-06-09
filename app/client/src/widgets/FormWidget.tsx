@@ -19,7 +19,7 @@ class FormWidget extends ContainerWidget {
             label: "Background Color",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
