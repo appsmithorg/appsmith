@@ -18,10 +18,7 @@ import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  ENTITY_EXPLORER_SEARCH_ID,
-  WIDGETS_SEARCH_ID,
-} from "constants/Explorer";
+import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
 
@@ -85,16 +82,14 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Search entities"
           onKeyDown={(e: any) => {
-            const entitySearchInput = document.getElementById(
-              ENTITY_EXPLORER_SEARCH_ID,
-            );
             const widgetSearchInput = document.getElementById(
               WIDGETS_SEARCH_ID,
             );
-            if (entitySearchInput) entitySearchInput.focus();
-            if (widgetSearchInput) widgetSearchInput.focus();
-            e.preventDefault();
-            e.stopPropagation();
+            if (widgetSearchInput) {
+              widgetSearchInput.focus();
+              e.preventDefault();
+              e.stopPropagation();
+            }
           }}
         />
         <Hotkey
