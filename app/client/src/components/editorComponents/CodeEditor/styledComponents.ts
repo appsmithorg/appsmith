@@ -524,4 +524,19 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   .lightning-menu {
     z-index: 1 !important;
   }
+  .commands-button {
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    color: #f86a2b;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    font-style: italic;
+    &:hover {
+      background: #f86a2b;
+      color: white;
+    }
+  }
 `;

@@ -58,6 +58,9 @@ import { Datasource } from "entities/Datasource";
 import { QueryAction } from "entities/Action";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import Button from "components/ads/Button";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -122,6 +125,19 @@ type State = {
   autoCompleteVisible: boolean;
 };
 
+const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
+  position: absolute;
+  top: 1px;
+  height: 33px;
+  width: 33px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
+  z-index: 2;
+  padding: 0 0 3px;
+`;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -471,7 +487,7 @@ class CodeEditor extends Component<Props, State> {
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         theme={this.props.theme}
       >
-        {showLightningMenu !== false && !this.state.isFocused && (
+        {false && showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
               isFocused={this.state.isFocused}
@@ -488,6 +504,22 @@ class CodeEditor extends Component<Props, State> {
               updateDynamicInputValue={this.updatePropertyValue}
             />
           </Suspense>
+        )}
+        {showLightningMenu !== false && (
+          <CommandBtnContainer isFocused={this.state.isFocused}>
+            <Button
+              className="commands-button"
+              onClick={() => {
+                this.editor.operation(() => {
+                  this.editor.focus();
+                  this.editor.setValue(this.editor.getValue() + "/");
+                  this.editor.setCursor(this.editor.getValue().length);
+                });
+              }}
+              tag="button"
+              text="/"
+            />
+          </CommandBtnContainer>
         )}
         <EvaluatedValuePopup
           error={validationMessage}
