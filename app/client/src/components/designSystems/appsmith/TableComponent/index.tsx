@@ -4,6 +4,7 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import { Row } from "react-table";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
@@ -46,6 +47,8 @@ interface ReactTableComponentProps {
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
+  unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
@@ -81,6 +84,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    multiRowSelection,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -88,12 +92,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     prevPageClick,
     searchKey,
     searchTableData,
+    selectAllRow,
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
     triggerRowSelection,
+    unSelectAllRow,
     updateCompactMode,
     updatePageNo,
     widgetId,
@@ -212,6 +218,17 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onRowClick(row.original, row.index);
   };
 
+  const toggleAllRowSelect = (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => {
+    if (isSelect) {
+      selectAllRow(pageData);
+    } else {
+      unSelectAllRow(pageData);
+    }
+  };
+
   return (
     <Table
       applyFilter={applyFilter}
@@ -230,6 +247,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
+      multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
@@ -241,6 +259,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
+      toggleAllRowSelect={toggleAllRowSelect}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}

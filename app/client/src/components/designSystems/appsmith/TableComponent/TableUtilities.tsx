@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
+  CellCheckboxWrapper,
+  CellCheckbox,
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
@@ -189,20 +191,43 @@ function TableAction(props: {
   );
 }
 
+export const renderCheckBoxCell = (isChecked: boolean) => (
+  <CellCheckboxWrapper className="td">
+    <CellCheckbox isChecked={isChecked} />
+  </CellCheckboxWrapper>
+);
+
+export const renderCheckBoxHeaderCell = (props: any) => (
+  <CellCheckboxWrapper
+    className="th header-reorder"
+    onClick={props.handleClick}
+    role="columnheader"
+    style={{ padding: "0px", justifyContent: "center" }}
+  >
+    <CellCheckbox isChecked={props.isChecked} />
+  </CellCheckboxWrapper>
+);
+
 export const renderEmptyRows = (
   rowCount: number,
   columns: any,
   tableWidth: number,
   page: any,
   prepareRow: any,
+  multiRowSelection = false,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
     const row = page[0];
     return rows.map((item: string, index: number) => {
       prepareRow(row);
+      const rowProps = {
+        ...row.getRowProps(),
+        style: { display: "flex" },
+      };
       return (
-        <div {...row.getRowProps()} className="tr" key={index}>
+        <div {...rowProps} className="tr" key={index}>
+          {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
               <div {...cell.getCellProps()} className="td" key={cellIndex} />

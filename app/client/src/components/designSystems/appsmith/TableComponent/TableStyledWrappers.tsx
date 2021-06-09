@@ -48,9 +48,6 @@ export const TableWrapper = styled.div<{
     display: table;
     width: 100%;
     ${hideScrollbar};
-    .tr {
-      width: 100%;
-    }
     .thead,
     .tbody {
       overflow: hidden;
@@ -60,9 +57,6 @@ export const TableWrapper = styled.div<{
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
-      .tr {
-        width: 100%;
-      }
     }
     .tr {
       width: calc(100% - 8px);
@@ -70,12 +64,9 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        & > .td > div {
-          background: ${Colors.POLAR}!important;
-        }
-        background: ${Colors.POLAR}!important;
+        background: ${Colors.OPAQ_BLUE}!important;
         &:hover {
-          background: ${Colors.POLAR};
+          background: ${Colors.OPAQ_BLUE};
         }
       }
       &:hover {
@@ -420,6 +411,18 @@ export const CellWrapper = styled.div<{
       display: inline;
     }
   }
+`;
+
+export const CellCheckboxWrapper = styled(CellWrapper)`
+  justify-content: center;
+  width: 40px;
+`;
+
+export const CellCheckbox = styled.div<{ isChecked: boolean }>`
+  height: 15px;
+  width: 15px;
+  border: 0.5px solid #e7e7e7;
+  background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
 `;
 
 export const TableHeaderWrapper = styled.div<{
