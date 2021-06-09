@@ -341,13 +341,15 @@ class CodeEditor extends Component<Props, State> {
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
     );
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName, {
-      actions: this.props.actions,
-      createNewAPI: this.props.createNewAPI,
-      datasources: this.props.datasources.list,
-      plugins: this.props.plugins,
-      createNewQuery: this.handleCreateNewQuery,
-    }));
+    this.hinters.forEach((hinter) =>
+      hinter.showHint(cm, expected, entityName, {
+        actions: this.props.actions,
+        createNewAPI: this.props.createNewAPI,
+        datasources: this.props.datasources.list,
+        plugins: this.props.plugins,
+        createNewQuery: this.handleCreateNewQuery,
+      }),
+    );
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
