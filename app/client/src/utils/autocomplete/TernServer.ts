@@ -66,6 +66,7 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   expected?: string;
+  entityName?: string;
 
   constructor(
     dataTree: DataTree,
@@ -84,8 +85,9 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string) {
+  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
     this.expected = expected;
+    this.entityName = entityName;
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -157,15 +159,18 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
+      const entityName = this.entityName;
       if (data.guess) className += " " + cls + "guess";
-      completions.push({
-        text: completion.name + after,
-        displayText: completion.displayName || completion.name,
-        className: className,
-        data: completion,
-        origin: completion.origin,
-        type: dataType,
-      });
+      if (!entityName || !completion.name.includes(entityName)) {
+        completions.push({
+          text: completion.name + after,
+          displayText: completion.displayName || completion.name,
+          className: className,
+          data: completion,
+          origin: completion.origin,
+          type: dataType,
+        });
+      }
     }
     completions = this.sortCompletions(completions);
     const indexToBeSelected = completions.length > 1 ? 1 : 0;
@@ -297,7 +302,13 @@ class TernServer {
 
   getExpectedDataType() {
     const type = this.expected;
-    if (type === "Array<Object>" || type === "Array") return "ARRAY";
+    if (
+      type === "Array<Object>" ||
+      type === "Array" ||
+      type === "Array<{ label: string, value: string }>" ||
+      type === "Array<x:string, y:number>"
+    )
+      return "ARRAY";
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";

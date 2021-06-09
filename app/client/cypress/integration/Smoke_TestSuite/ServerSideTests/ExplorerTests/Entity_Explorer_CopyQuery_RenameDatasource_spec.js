@@ -88,7 +88,7 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${datasourceName}`);
     cy.get(`.t--entity-name:contains(${datasourceName})`)

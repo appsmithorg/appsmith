@@ -990,6 +990,9 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    inspectElement: {
+      color: string;
+    };
     floatingButton: {
       background: string;
       color: string;
@@ -1161,6 +1164,7 @@ const mentionsInput = {
   focusedItemBackground: "#cee4e5",
   itemBorderBottom: "#cee4e5",
   mentionBackground: "#cee4e5",
+  mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
 export const dark: ColorType = {
@@ -1593,6 +1597,9 @@ export const dark: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+    },
+    inspectElement: {
+      color: "#D4D4D4",
     },
     blankState: {
       color: "#D4D4D4",
@@ -2044,8 +2051,11 @@ export const light: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#090707",
+    },
     blankState: {
-      color: "#716e6e",
+      color: "#090707",
       shortcut: "black",
     },
     info: {

@@ -78,6 +78,14 @@ const orgReducer = createImmerReducer(initialState, {
       }
     });
   },
+  [ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR]: (
+    draftState: OrgReduxState,
+  ) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
+      //TODO: This will change the status to false even if one role change api fails.
+      user.isChangingRole = false;
+    });
+  },
   [ReduxActionTypes.DELETE_ORG_USER_INIT]: (
     draftState: OrgReduxState,
     action: ReduxAction<{ username: string }>,
@@ -95,14 +103,6 @@ const orgReducer = createImmerReducer(initialState, {
     draftState.orgUsers = draftState.orgUsers.filter(
       (user: OrgUser) => user.username !== action.payload.username,
     );
-  },
-  [ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR]: (
-    draftState: OrgReduxState,
-  ) => {
-    draftState.orgUsers.forEach((user: OrgUser) => {
-      //TODO: This will change the status to false even if one role change api fails.
-      user.isChangingRole = false;
-    });
   },
   [ReduxActionErrorTypes.DELETE_ORG_USER_ERROR]: (
     draftState: OrgReduxState,
