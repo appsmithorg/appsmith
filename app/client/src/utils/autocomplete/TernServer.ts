@@ -26,6 +26,8 @@ type Completion = Hint & {
   data: {
     doc: string;
   };
+  render?: any;
+  isHeader?: boolean;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -57,6 +59,9 @@ class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
+  active: any;
+  expected?: string;
+  entityName?: string;
 
   constructor(
     dataTree: DataTree,
@@ -75,8 +80,27 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor) {
-    cm.showHint({ hint: this.getHint.bind(this), completeSingle: false });
+  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
+    this.expected = expected;
+    this.entityName = entityName;
+    cm.showHint({
+      hint: this.getHint.bind(this),
+      completeSingle: false,
+      extraKeys: {
+        Up: (cm: CodeMirror.Editor, handle: any) => {
+          handle.moveFocus(-1);
+          if (this.active.isHeader === true) {
+            handle.moveFocus(-1);
+          }
+        },
+        Down: (cm: CodeMirror.Editor, handle: any) => {
+          handle.moveFocus(1);
+          if (this.active.isHeader === true) {
+            handle.moveFocus(1);
+          }
+        },
+      },
+    });
   }
 
   showType(cm: CodeMirror.Editor) {
@@ -129,19 +153,28 @@ class TernServer {
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
+      const dataType = this.getDataType(completion.type);
+      const entityName = this.entityName;
       if (data.guess) className += " " + cls + "guess";
-      completions.push({
-        text: completion.name + after,
-        displayText: completion.displayName || completion.name,
-        className: className,
-        data: completion,
-        origin: completion.origin,
-        type: this.getDataType(completion.type),
-      });
+      if (!entityName || !completion.name.includes(entityName)) {
+        completions.push({
+          text: completion.name + after,
+          displayText: completion.displayName || completion.name,
+          className: className,
+          data: completion,
+          origin: completion.origin,
+          type: dataType,
+        });
+      }
     }
     completions = this.sortCompletions(completions);
-
-    const obj = { from: from, to: to, list: completions };
+    const indexToBeSelected = completions.length > 1 ? 1 : 0;
+    const obj = {
+      from: from,
+      to: to,
+      list: completions,
+      selectedHint: indexToBeSelected,
+    };
     let tooltip: HTMLElement | undefined = undefined;
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
@@ -149,6 +182,7 @@ class TernServer {
       obj,
       "select",
       (cur: { data: { doc: string } }, node: any) => {
+        this.active = cur;
         this.remove(tooltip);
         const content = cur.data.doc;
         if (content) {
@@ -199,6 +233,7 @@ class TernServer {
 
   sortCompletions(completions: Completion[]) {
     // Add data tree completions before others
+    const expectedDataType = this.getExpectedDataType();
     const dataTreeCompletions = completions
       .filter((c) => c.origin === "dataTree")
       .sort((a: Completion, b: Completion) => {
@@ -209,11 +244,44 @@ class TernServer {
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
+    const sameDataType = dataTreeCompletions.filter(
+      (c) => c.type === expectedDataType,
+    );
+    const otherDataType = dataTreeCompletions.filter(
+      (c) => c.type !== expectedDataType,
+    );
+    if (otherDataType.length && sameDataType.length) {
+      const otherDataTitle: Completion = {
+        text: "Search results",
+        displayText: "Search results",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      };
+      const sameDataTitle: Completion = {
+        text: "Best Match",
+        displayText: "Best Match",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      };
+      sameDataType.unshift(sameDataTitle);
+      otherDataType.unshift(otherDataTitle);
+    }
     const docCompletetions = completions.filter((c) => c.origin === "[doc]");
     const otherCompletions = completions.filter(
       (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
-    return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
+    return [
+      ...docCompletetions,
+      ...sameDataType,
+      ...otherDataType,
+      ...otherCompletions,
+    ];
   }
 
   getDataType(type: string): DataType {
@@ -221,9 +289,27 @@ class TernServer {
     else if (type === "number") return "NUMBER";
     else if (type === "string") return "STRING";
     else if (type === "bool") return "BOOLEAN";
+    else if (type === "array") return "ARRAY";
     else if (/^fn\(/.test(type)) return "FUNCTION";
     else if (/^\[/.test(type)) return "ARRAY";
     else return "OBJECT";
+  }
+
+  getExpectedDataType() {
+    const type = this.expected;
+    if (
+      type === "Array<Object>" ||
+      type === "Array" ||
+      type === "Array<{ label: string, value: string }>" ||
+      type === "Array<x:string, y:number>"
+    )
+      return "ARRAY";
+    if (type === "boolean") return "BOOLEAN";
+    if (type === "string") return "STRING";
+    if (type === "number") return "NUMBER";
+    if (type === "object" || type === "JSON") return "OBJECT";
+    if (type === undefined) return "UNKNOWN";
+    return undefined;
   }
 
   typeToIcon(type: string) {

@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import EmojiPicker from "components/ads/EmojiPicker";
-import MentionsInput from "components/ads/MentionsInput";
+import MentionsInput, { Trigger } from "components/ads/MentionsInput";
 import Button, { Category } from "components/ads/Button";
 
 import { BaseEmoji } from "emoji-mart";
@@ -26,6 +26,14 @@ import {
   CANCEL,
   POST,
 } from "constants/messages";
+
+import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { useDispatch } from "react-redux";
+import { change } from "redux-form";
+
+import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+
+import { isEmail } from "utils/formhelpers";
 
 const StyledInputContainer = styled.div`
   width: 100%;
@@ -123,8 +131,10 @@ function AddCommentInput({
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
 }) {
+  const dispatch = useDispatch();
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
+  const [trigger, setTrigger] = useState<Trigger>();
   useUserSuggestions(users, setSuggestions);
   const [editorState, setEditorState] = useState(
     initialEditorState || EditorState.createEmpty(),
@@ -164,22 +174,40 @@ function AddCommentInput({
   );
 
   const onSearchChange = useCallback(
-    ({ value }: { value: string }) => {
+    ({ trigger, value }: { trigger: string; value: string }) => {
       setSuggestionsQuery(value);
+      setTrigger(trigger as Trigger);
     },
     [suggestions],
   );
 
   const filteredSuggestions = useMemo(() => {
-    if (!suggestionsQuery) return suggestions;
+    let suggestionResults = suggestions;
+    if (!suggestionsQuery) return suggestionResults;
     else {
-      return suggestions.filter((suggestion) => {
-        const str = suggestion.name.toLowerCase();
+      suggestionResults = suggestions.filter((suggestion) => {
+        const name = suggestion.name.toLowerCase();
+        const username = suggestion.user?.username.toLowerCase() || "";
         const filter = suggestionsQuery.toLowerCase();
-        return str.indexOf(filter) !== -1;
+        return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
       });
     }
-  }, [suggestionsQuery, suggestions]);
+
+    if (suggestionResults.length !== 0) return suggestionResults;
+
+    if (isEmail(suggestionsQuery)) {
+      return [{ name: suggestionsQuery, isInviteTrigger: true }];
+    }
+
+    return [];
+  }, [suggestionsQuery, suggestions, trigger]);
+
+  const onAddMention = (mention: MentionData) => {
+    if (isEmail(mention.name) && mention.isInviteTrigger) {
+      dispatch(setShowAppInviteUsersDialog(true));
+      dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", mention.name));
+    }
+  };
 
   return (
     <PaddingContainer removePadding={removePadding}>
@@ -188,6 +216,7 @@ function AddCommentInput({
           <MentionsInput
             autoFocus
             editorState={editorState}
+            onAddMention={onAddMention}
             onSearchSuggestions={onSearchChange}
             onSubmit={onSaveComment}
             placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}

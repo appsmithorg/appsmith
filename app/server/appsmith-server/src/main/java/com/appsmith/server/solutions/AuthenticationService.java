@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.AuthenticationDTO;
@@ -44,14 +45,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.AUDIENCE;
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
 import static com.appsmith.external.constants.Authentication.CLIENT_ID;
 import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
 import static com.appsmith.external.constants.Authentication.CODE;
-import static com.appsmith.external.constants.Authentication.EXPIRES_IN;
 import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
 import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
 import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
+import static com.appsmith.external.constants.Authentication.RESOURCE;
 import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
@@ -179,6 +181,14 @@ public class AuthenticationService {
                     if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
                         map.add(CLIENT_ID, oAuth2.getClientId());
                         map.add(CLIENT_SECRET, oAuth2.getClientSecret());
+                        // Adding optional audience parameter
+                        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
+                            map.add(AUDIENCE, oAuth2.getAudience());
+                        }
+                        // Adding optional resource parameter
+                        if (!StringUtils.isEmpty(oAuth2.getResource())) {
+                            map.add(RESOURCE, oAuth2.getResource());
+                        }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
                         final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
@@ -207,7 +217,23 @@ public class AuthenticationService {
                                 authenticationResponse.setTokenResponse(response);
                                 authenticationResponse.setToken((String) response.get(ACCESS_TOKEN));
                                 authenticationResponse.setRefreshToken((String) response.get(REFRESH_TOKEN));
-                                authenticationResponse.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
+                                // Parse useful fields for quick access
+                                Object issuedAtResponse = response.get(Authentication.ISSUED_AT);
+                                // Default issuedAt to current time
+                                Instant issuedAt = Instant.now();
+                                if (issuedAtResponse != null) {
+                                    issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
+                                }
+                                // We expect at least one of the following to be present
+                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
+                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
+                                Instant expiresAt = null;
+                                if (expiresAtResponse != null) {
+                                    expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
+                                } else if (expiresInResponse != null) {
+                                    expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
+                                }
+                                authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
                                 if (scope != null && !scope.isBlank()) {
                                     oAuth2.setScopeString(String.join(",", scope.split(" ")));
@@ -215,8 +241,6 @@ public class AuthenticationService {
                                     oAuth2.setScopeString("");
                                 }
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                // Resetting encryption
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
@@ -369,7 +393,6 @@ public class AuthenticationService {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });
@@ -420,7 +443,6 @@ public class AuthenticationService {
                             })
                             .flatMap(authenticationResponse -> {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 // We return the same object instead of the update value because the updates value
                                 // will be in the encrypted form
