@@ -73,5 +73,9 @@ export type AppsmithUIConfigs = {
 
   cloudServicesBaseUrl: string;
 
+  googleRecaptchaSiteKey: {
+    enabled: boolean;
+    apiKey: string;
+  };
   onboardingFormEnabled: boolean;
 };
