@@ -170,6 +170,8 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.DeleteBtn)
     .last()
     .click({ force: true });
+  cy.get(homePage.leaveOrgConfirmModal).should("be.visible");
+  cy.get(homePage.leaveOrgConfirmButton).click({ force: true });
   cy.xpath(homePage.appHome)
     .first()
     .should("be.visible")
