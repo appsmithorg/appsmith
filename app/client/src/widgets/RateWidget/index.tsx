@@ -81,8 +81,8 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "isAllowHalf",
-            helpText: "Controls if the widget use half stars",
-            label: "Allow half",
+            helpText: "Controls if user can submit half stars",
+            label: "Allow half stars",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

@@ -1037,7 +1037,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     RATE_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 3 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
       maxCount: 5,
       defaultRate: 5,
       activeColor: Colors.RATE_ACTIVE,

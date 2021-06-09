@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { Icon, Position } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "styled-components";
@@ -17,18 +17,21 @@ import TooltipComponent from "components/ads/Tooltip";
   More info: https://css-tricks.com/line-clampin/
 */
 
-// export const RateContainer = styled.div`
-//   && {
-//     height: 100%;
-//     width: 100%;
-//   }
-// `;
-export const RateContainer = styled.div`
+interface RateContainerProps {
+  scrollable: boolean;
+}
+
+export const RateContainer = styled.div<RateContainerProps>`
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
+  align-content: flex-start;
   overflow: auto;
+
+  > span {
+    align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
+  }
 `;
 
 export const Star = styled(Icon)`
@@ -47,6 +50,10 @@ export interface RateComponentProps extends ComponentProps {
   inactiveColor?: string;
   isAllowHalf?: boolean;
   readonly?: boolean;
+  leftColumn?: number;
+  rightColumn?: number;
+  topRow?: number;
+  bottomRow?: number;
 }
 
 function renderStarsWithTooltip(props: RateComponentProps) {
@@ -83,38 +90,56 @@ function renderStarsWithTooltip(props: RateComponentProps) {
   return _.concat(starWithTooltip, starWithoutTooltip);
 }
 
-class RateComponent extends React.Component<RateComponentProps> {
-  render() {
-    const {
-      inactiveColor,
-      isAllowHalf,
-      maxCount,
-      onValueChanged,
-      readonly,
-      size,
-      value,
-    } = this.props;
+function RateComponent(props: RateComponentProps) {
+  const rateContainerRef = React.createRef<HTMLDivElement>();
 
-    return (
-      <RateContainer>
-        <Rating
-          emptySymbol={
-            <Star
-              color={inactiveColor}
-              icon={IconNames.STAR}
-              iconSize={RATE_SIZES[size]}
-            />
-          }
-          fractions={isAllowHalf ? 2 : 1}
-          fullSymbol={renderStarsWithTooltip(this.props)}
-          initialRating={value}
-          onChange={onValueChanged}
-          readonly={readonly}
-          stop={maxCount}
-        />
-      </RateContainer>
-    );
-  }
+  const {
+    bottomRow,
+    inactiveColor,
+    isAllowHalf,
+    leftColumn,
+    maxCount,
+    onValueChanged,
+    readonly,
+    rightColumn,
+    size,
+    topRow,
+    value,
+  } = props;
+
+  const [scrollable, setScrollable] = useState(false);
+
+  useEffect(() => {
+    const rateContainerElement = rateContainerRef.current;
+    if (
+      rateContainerElement &&
+      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
+    ) {
+      setScrollable(true);
+    } else {
+      setScrollable(false);
+    }
+  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
+
+  return (
+    <RateContainer ref={rateContainerRef} scrollable={scrollable}>
+      <Rating
+        emptySymbol={
+          <Star
+            color={inactiveColor}
+            icon={IconNames.STAR}
+            iconSize={RATE_SIZES[size]}
+          />
+        }
+        fractions={isAllowHalf ? 2 : 1}
+        fullSymbol={renderStarsWithTooltip(props)}
+        initialRating={value}
+        onChange={onValueChanged}
+        readonly={readonly}
+        stop={maxCount}
+      />
+    </RateContainer>
+  );
 }
 
 export default RateComponent;
