@@ -81,8 +81,7 @@ const removeBadHighlights = (node: HTMLElement | Document, query: string) => {
     // E.g query: "store any" won't highlight "any" nodes
     if (
       match.textContent &&
-      (match.textContent.length < Math.floor(query.length / 2) ||
-        match.textContent.length > Math.floor(query.length))
+      match.textContent.length < Math.floor(query.length / 2)
     ) {
       const innerHtml = match.innerHTML;
       match.replaceWith(innerHtml);
