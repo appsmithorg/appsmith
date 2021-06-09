@@ -50,12 +50,19 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = [
+  "Enter",
+  "Tab",
+  "Escape",
+  "Comma",
+  "Backspace",
+];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -255,6 +262,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
+    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
@@ -265,9 +273,9 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    this.setState({ isFocused: false });
+    if (!cm.state.completionActive) this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -295,7 +303,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
+    const { entityName } = getEntityNameAndPropertyPath(
+      this.props.dataTreePath || "",
+    );
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -340,16 +351,26 @@ class CodeEditor extends Component<Props, State> {
     if (!dataTreePath) {
       return { isValid: true, validationMessage: "", jsErrorMessage: "" };
     }
-    const isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
-    const validationMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "validationMessages",
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      dataTreePath,
     );
-    const jsErrorMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "jsErrorMessages",
-    );
-
+    let isValidPath, validationMessagePath, jsErrorMessagePath;
+    if (dataTreePath && dataTreePath.match(/evaluatedValues/g)) {
+      isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
+      validationMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "validationMessages",
+      );
+      jsErrorMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "jsErrorMessages",
+      );
+    } else {
+      isValidPath = entityName + "invalidProps" + propertyPath;
+      validationMessagePath =
+        entityName + ".validationMessages." + propertyPath;
+      jsErrorMessagePath = entityName + ".jsErrorMessages." + propertyPath;
+    }
     const isValid = !_.get(dataTree, isValidPath, false);
     const validationMessage = _.get(
       dataTree,
