@@ -328,6 +328,10 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_LOGS = () => "Logs";
+export const INSPECT_ENTITY = () => "Inspect Entity";
+export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
