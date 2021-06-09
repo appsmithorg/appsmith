@@ -41,7 +41,6 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { commandsHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import { createNewQueryName, retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -57,6 +56,7 @@ import { createNewApiAction } from "actions/apiPaneActions";
 import { createActionRequest } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
 import { QueryAction } from "entities/Action";
+import { commandsHelper } from "./commandsHelper";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),

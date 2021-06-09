@@ -76,13 +76,28 @@ export const HintStyles = createGlobalStyle<{
         color: #ffffff;
       }
     }
+    .command-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+    }
+    .command {
+      display: flex;
+      align-items: center;
+      span {
+        margin-left: 7px;
+      }
+      img {
+        height: 12px;
+        width: 12px;
+      }
+    }
     .shortcut {
       font-style: italic;
       font-size: 10px;
       color: #a9a7a7;
-      right: 5px;
-      position: absolute;
-      top: 5px;
+      margin-left: auto;
     }
   }
 
