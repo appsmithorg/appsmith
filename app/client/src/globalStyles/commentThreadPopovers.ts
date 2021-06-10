@@ -1,6 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
-import { Classes } from "@blueprintjs/core";
 
 export const CommentThreadPopoverStyles = createGlobalStyle`
   .bp3-portal.comment-context-menu {
