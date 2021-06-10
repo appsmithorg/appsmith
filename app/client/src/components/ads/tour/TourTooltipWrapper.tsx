@@ -75,6 +75,7 @@ function TourTooltipWrapper(props: Props) {
 
   return (
     <>
+      {/* A crude overlay which won't work with containers having overflow hidden */}
       {isOpen && props.hasOverlay && <Overlay />}
       <Container onClick={props.onClick ? props.onClick : noop}>
         {isOpen && props.showPulse && (
