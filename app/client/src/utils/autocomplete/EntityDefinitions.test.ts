@@ -1,6 +1,5 @@
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetTypes } from "../../constants/WidgetConstants";
-import { generateTypeDef } from "./dataTreeTypeDefCreator";
 
 describe("EntityDefinitions", () => {
   it("it tests list widget selectRow", () => {

@@ -1,4 +1,4 @@
-import { set, cloneDeep } from "lodash";
+import { set } from "lodash";
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";

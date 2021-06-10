@@ -1045,6 +1045,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 WidgetTypes.LIST_WIDGET,
                 WidgetTypes.TABS_WIDGET,
                 WidgetTypes.FORM_WIDGET,
+                WidgetTypes.CHART_WIDGET,
               ];
 
               if (indexOf(disallowedWidgets, widget.type) > -1) {
