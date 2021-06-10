@@ -1,18 +1,26 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
+import com.appsmith.server.domains.QNotification;
+import com.appsmith.server.dtos.PaginationDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.repositories.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.validation.Validator;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -53,7 +61,35 @@ public class NotificationServiceImpl
 
     @Override
     public Flux<Notification> get(MultiValueMap<String, String> params) {
+        Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
+        PageRequest pageRequest = PageRequest.of(0, 10, sort);
+
         return sessionUserService.getCurrentUser()
-                .flatMapMany(user -> repository.findByForUsername(user.getUsername()));
+                .flatMapMany(
+                        user -> repository.findByForUsername(user.getUsername(), pageRequest)
+                );
+    }
+
+    @Override
+    public Mono<ResponseDTO<List<Notification>>> getAll(MultiValueMap<String, String> params) {
+        Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
+        PageRequest pageRequest = getPageRequestFromParams(params, 10, sort);
+
+        return sessionUserService.getCurrentUser().flatMap(user -> {
+            Mono<Tuple2<List<Notification>, Long>> tuple2Mono = repository.findByForUsername(
+                    user.getUsername(), pageRequest).collectList()
+                    .zipWith(repository.countByForUsername(user.getUsername()));
+
+            return tuple2Mono.map(objects -> {
+                List<Notification> notificationList = objects.getT1();
+                Long resultCount = objects.getT2();
+                PaginationDTO pagination = new PaginationDTO(
+                        pageRequest.getPageNumber(), pageRequest.getPageSize(), resultCount
+                );
+                return new ResponseDTO<> (
+                        HttpStatus.OK.value(), notificationList, null, true, pagination
+                );
+            });
+        });
     }
 }

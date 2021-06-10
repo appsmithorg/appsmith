@@ -17,10 +17,9 @@ import java.io.Serializable;
 public class ResponseDTO<T> implements Serializable {
 
     private static final long serialVersionUID = 8965011907233699993L;
-
     private ResponseMetaDTO responseMeta;
-
     private T data;
+    private PaginationDTO pagination;
 
     public ResponseDTO(int status, T data, String message) {
         this.responseMeta = new ResponseMetaDTO(status, message);
@@ -30,6 +29,12 @@ public class ResponseDTO<T> implements Serializable {
     public ResponseDTO(int status, T data, String message, boolean success) {
         this.responseMeta = new ResponseMetaDTO(status, message, success);
         this.data = data;
+    }
+
+    public ResponseDTO(int status, T data, String message, boolean success, PaginationDTO pagination) {
+        this.responseMeta = new ResponseMetaDTO(status, message, success);
+        this.data = data;
+        this.pagination = pagination;
     }
 
     public ResponseDTO(int status, ErrorDTO errorDTO) {
