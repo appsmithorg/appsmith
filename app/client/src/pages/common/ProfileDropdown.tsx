@@ -80,7 +80,7 @@ export default function ProfileDropdown(props: TagProps) {
   const Profile = (
     <ProfileImage
       source={`/api/${UserApi.photoURL}`}
-      userName={props.userName}
+      userName={props.name || props.userName}
     />
   );
 

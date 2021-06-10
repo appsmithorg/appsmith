@@ -395,7 +395,7 @@ function CommentCard({
           <ProfileImage
             side={25}
             source={`/api/${UserApi.photoURL}/${authorUsername}`}
-            userName={authorName || ""}
+            userName={authorName || authorUsername}
           />
           <UserName>{authorName}</UserName>
         </HeaderSection>

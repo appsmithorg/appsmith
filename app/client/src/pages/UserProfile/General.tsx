@@ -24,12 +24,6 @@ const FieldWrapper = styled.div`
   display: flex;
 `;
 
-const InputWrapper = styled.div`
-  width: 520px;
-  display: flex;
-  align-items: center;
-`;
-
 const LabelWrapper = styled.div`
   width: 200px;
   display: flex;

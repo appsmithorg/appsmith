@@ -346,7 +346,7 @@ function OrgInviteUsersForm(props: any) {
                         <UserInfo>
                           <ProfileImage
                             source={`/api/${UserApi.photoURL}/${user.username}`}
-                            userName={user.initials}
+                            userName={user.name || user.username}
                           />
                           <UserName>
                             <Text type={TextType.H5}>{user.name}</Text>
