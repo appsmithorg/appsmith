@@ -27,4 +27,9 @@ public class ApplicationPage {
         return Boolean.TRUE.equals(isDefault);
     }
 
+    public ApplicationPage(String id, boolean isDefault){
+        this.id = id;
+        this.isDefault = isDefault;
+    }
+
 }

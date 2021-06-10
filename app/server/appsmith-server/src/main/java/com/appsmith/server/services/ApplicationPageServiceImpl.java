@@ -681,7 +681,24 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             foundPage = page;
                         }
                     }
+                    //Set the order for the pages which has null values. At present we dont store the order and hence we need to update the values
+                    for (int i = 1; i <= pages.size(); i++) {
+                        ApplicationPage page = pages.get(i - 1);
+                        if (page.getOrder() == null) {
+                            page.setOrder(i);
+                        }
+                    }
 
+                    if(foundPage != null){
+                        //Increment the order of subsequent pages
+                        for (final ApplicationPage page : pages) {
+                            if (page.getOrder() < foundPage.getOrder()) {
+                                page.setOrder(page.getOrder()+1);
+                            }
+                        }
+                        //set the selected page order to 0
+                        foundPage.setOrder(0);
+                    }
                     return applicationRepository
                             .setPages(applicationId, pages)
                             .then(applicationService.getById(applicationId));
