@@ -33,6 +33,7 @@ import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -105,37 +106,39 @@ class AppViewer extends Component<
     const { isInitialized } = this.props;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
-        <EditorContext.Provider
-          value={{
-            executeAction: this.props.executeAction,
-            updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-            resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
-          }}
-        >
-          <ContainerWithComments>
-            <AppComments isInline />
-            <AppViewerBodyContainer>
-              <AppViewerBody hasPages={this.props.pages.length > 1}>
-                {isInitialized && this.state.registered && (
-                  <Switch>
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={getApplicationViewerPageURL()}
-                    />
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={`${getApplicationViewerPageURL()}/fork`}
-                    />
-                  </Switch>
-                )}
-              </AppViewerBody>
-            </AppViewerBodyContainer>
-          </ContainerWithComments>
-          <AddCommentTourComponent />
-          <CommentShowCaseCarousel />
-        </EditorContext.Provider>
+        <GlobalHotKeys>
+          <EditorContext.Provider
+            value={{
+              executeAction: this.props.executeAction,
+              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+            }}
+          >
+            <ContainerWithComments>
+              <AppComments isInline />
+              <AppViewerBodyContainer>
+                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                  {isInitialized && this.state.registered && (
+                    <Switch>
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={getApplicationViewerPageURL()}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={`${getApplicationViewerPageURL()}/fork`}
+                      />
+                    </Switch>
+                  )}
+                </AppViewerBody>
+              </AppViewerBodyContainer>
+            </ContainerWithComments>
+            <AddCommentTourComponent />
+            <CommentShowCaseCarousel />
+          </EditorContext.Provider>
+        </GlobalHotKeys>
       </ThemeProvider>
     );
   }
