@@ -6,6 +6,7 @@ import IframeComponent from "components/designSystems/blueprint/IframeComponent"
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -93,10 +94,28 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   urlChangedHandler = (url: string) => {
     console.log(url);
+    if (url && this.props.onURLChanged) {
+      super.executeAction({
+        triggerPropertyName: "onURLChanged",
+        dynamicString: this.props.onURLChanged,
+        event: {
+          type: EventType.ON_IFRAME_URL_CHANGED,
+        },
+      });
+    }
   };
 
   messageReceivedHandler = (message: MessageEvent) => {
     console.log(message);
+    if (message && this.props.onMessageReceived) {
+      super.executeAction({
+        triggerPropertyName: "onMessageReceived",
+        dynamicString: this.props.onMessageReceived,
+        event: {
+          type: EventType.ON_IFRAME_MESSAGE_RECEIVED,
+        },
+      });
+    }
   };
 
   getPageView() {

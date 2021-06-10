@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
@@ -25,14 +25,18 @@ export const IframeWithBorder = styled(Iframe)<IframeComponentProps>`
 export interface IframeComponentProps extends ComponentProps {
   source: string;
   title?: string;
-  onURLChanged?: (url: string) => void;
-  onMessageReceived?: (message: MessageEvent) => void;
+  onURLChanged: (url: string) => void;
+  onMessageReceived: (message: MessageEvent) => void;
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
 }
 
 function IframeComponent(props: IframeComponentProps) {
+  const { onMessageReceived, onURLChanged, source } = props;
+  useEffect(() => {
+    onURLChanged(source);
+  }, [source]);
   return <IframeWithBorder {...props} />;
 }
 
