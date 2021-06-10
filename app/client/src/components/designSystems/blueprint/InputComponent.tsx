@@ -159,7 +159,7 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     );
   }
   const dropdownTriggerIcon = (
-    <DropdownTriggerIconWrapper>
+    <DropdownTriggerIconWrapper className="t--input-currency-change">
       {getSelectedItem(props.selected.value).id}
       <Icon name="downArrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>
