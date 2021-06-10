@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 
 public class RedisPlugin extends BasePlugin {
-    private static final Integer DEFAULT_PORT = 6379;
+    private static final Long DEFAULT_PORT = 6379L;
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -106,6 +106,17 @@ public class RedisPlugin extends BasePlugin {
                         result.setRequest(request);
                         return result;
                     })
+                    .doFinally(signalType -> {
+                        /*
+                         * - For some reason, Jedis throws a socket error when kept idle for like 10 min when
+                         * appsmith is setup via docker image.
+                         * - APMU, jedis.close() should disconnect the connection, causing jedis to refresh connection
+                         * during next execution.
+                         * - This is a placeholder solution till better fix is available (would connection pool fix
+                         * it ?)
+                         */
+                        jedis.close();
+                    })
                     .subscribeOn(scheduler);
         }
 
@@ -139,7 +150,7 @@ public class RedisPlugin extends BasePlugin {
                 Jedis jedis = new Jedis(endpoint.getHost(), port);
 
                 DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                if (auth != null) {
                     jedis.auth(auth.getUsername(), auth.getPassword());
                 }
 
@@ -177,9 +188,6 @@ public class RedisPlugin extends BasePlugin {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
                     invalids.add("Missing host for endpoint");
-                }
-                if (endpoint.getPort() == null) {
-                    invalids.add("Missing port for endpoint");
                 }
             }
 
