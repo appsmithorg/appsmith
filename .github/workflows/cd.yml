@@ -122,7 +122,7 @@ jobs:
           path: app/client/build/
           
 
- ui-test:
+  ui-test:
    needs: build
    # Only run if the build step is successful
    if: success()
