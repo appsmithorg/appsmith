@@ -423,6 +423,15 @@ export const CellCheckbox = styled.div<{ isChecked: boolean }>`
   width: 15px;
   border: 0.5px solid #e7e7e7;
   background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
+  position: relative;
+  .th-svg {
+    display: block;
+    position: absolute;
+    left: 2.5px;
+    top: 2px;
+    height: 8px;
+    width: 7px;
+  }
 `;
 
 export const TableHeaderWrapper = styled.div<{

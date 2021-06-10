@@ -127,10 +127,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const { columnSizeMap, multiRowSelection } = this.props;
+    const { columnSizeMap } = this.props;
     const { componentWidth } = this.getComponentDimensions();
 
-    let totalColumnSizes = multiRowSelection ? 40 : 0;
+    let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     for (const i in columnSizeMap) {
       totalColumnSizes += columnSizeMap[i];

@@ -271,10 +271,10 @@ export function Table(props: TableProps) {
                 return (
                   <div {...headerRowProps} className="tr" key={index}>
                     {props.multiRowSelection &&
-                      renderCheckBoxHeaderCell({
-                        handleClick: handleAllRowSelectClick,
-                        isChecked: !!rowSelectionState,
-                      })}
+                      renderCheckBoxHeaderCell(
+                        handleAllRowSelectClick,
+                        rowSelectionState,
+                      )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
                         return (

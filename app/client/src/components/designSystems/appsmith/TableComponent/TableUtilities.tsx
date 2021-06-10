@@ -191,20 +191,56 @@ function TableAction(props: {
   );
 }
 
+function CheckBoxLineIcon() {
+  return (
+    <svg className="th-svg" fill="none" viewBox="0 0 6 2">
+      <path
+        d="M5.5 1H0.5"
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+function CheckBoxCheckIcon() {
+  return (
+    <svg className="th-svg" fill="none" viewBox="0 0 8 6">
+      <path
+        d="M1.08325 3.41663L2.74992 5.08329L6.91659 0.916626"
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
 export const renderCheckBoxCell = (isChecked: boolean) => (
   <CellCheckboxWrapper className="td">
-    <CellCheckbox isChecked={isChecked} />
+    <CellCheckbox isChecked={isChecked}>
+      {isChecked && <CheckBoxCheckIcon />}
+    </CellCheckbox>
   </CellCheckboxWrapper>
 );
 
-export const renderCheckBoxHeaderCell = (props: any) => (
+export const renderCheckBoxHeaderCell = (
+  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
+  checkState: number | null,
+) => (
   <CellCheckboxWrapper
     className="th header-reorder"
-    onClick={props.handleClick}
+    onClick={onClick}
     role="columnheader"
     style={{ padding: "0px", justifyContent: "center" }}
   >
-    <CellCheckbox isChecked={props.isChecked} />
+    <CellCheckbox isChecked={!!checkState}>
+      {checkState === 1 && <CheckBoxCheckIcon />}
+      {checkState === 2 && <CheckBoxLineIcon />}
+    </CellCheckbox>
   </CellCheckboxWrapper>
 );
 
