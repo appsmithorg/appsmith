@@ -294,7 +294,7 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.head.ref == 'release'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -311,7 +311,7 @@ jobs:
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
       - name: Pull release-frozen server docker container and start it locally
-        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.base.ref == 'release-frozen'
+        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -328,7 +328,7 @@ jobs:
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
 
       - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
+        if: github.ref == 'refs/heads/master'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
