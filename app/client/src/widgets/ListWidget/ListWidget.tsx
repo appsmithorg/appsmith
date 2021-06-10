@@ -36,8 +36,6 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 
-console.log({ derivedProperties });
-
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -52,7 +50,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedRow: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
     };
@@ -227,8 +224,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChild = (childWidgetData: WidgetProps) => {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    console.log({ childWidgetData, props: this.props });
-
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend =
@@ -292,7 +287,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
       const dynamicPaths: string[] = compact(
         dynamicBindingPathList.map((path: Record<"key", string>) =>
-          path.key.split(".").pop(),
+          path.key.replace(`template.${widgetName}.`, ""),
         ),
       );
 
@@ -306,11 +301,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          const validationPath = get(widget, `validationPaths.${path}`);
+          const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            validationPath === VALIDATION_TYPES.BOOLEAN &&
-            isBoolean(evaluatedValue)
+            (validationPath === VALIDATION_TYPES.BOOLEAN &&
+              isBoolean(evaluatedValue)) ||
+            validationPath === VALIDATION_TYPES.CHART_SERIES_DATA
           ) {
             set(widget, path, evaluatedValue);
           } else {
