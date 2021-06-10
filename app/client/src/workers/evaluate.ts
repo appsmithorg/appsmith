@@ -17,7 +17,7 @@ export default function evaluate(
   data: DataTree,
   callbackData?: Array<any>,
 ): EvalResult {
-  const unescapedJS = unescapeJS(js).replace(/(\r\n|\n|\r)/gm, "");
+  const unescapedJS = unescapeJS(js);
   const scriptToEvaluate = `
         const result = ${unescapedJS};
         return { result, triggers: self.triggers }

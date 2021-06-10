@@ -41,14 +41,6 @@ const initialState: CommentsReduxState = {
  * They are handled separately
  */
 const commentsReducer = createReducer(initialState, {
-  // todo: remove (for dev)
-  [ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<any>,
-  ) => ({
-    ...state,
-    ...action.payload,
-  }),
   // Only one unpublished comment threads exists at a time
   [ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -234,6 +226,12 @@ const commentsReducer = createReducer(initialState, {
     }
 
     delete state.commentThreadsMap[commentThreadId];
+
+    state.commentThreadsMap = { ...state.commentThreadsMap };
+
+    state.applicationCommentThreadsByRef[appId as string] = {
+      ...state.applicationCommentThreadsByRef[appId as string],
+    };
 
     return { ...state };
   },

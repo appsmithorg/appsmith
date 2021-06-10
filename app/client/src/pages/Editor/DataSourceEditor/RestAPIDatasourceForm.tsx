@@ -618,7 +618,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderOauth2ClientCredentials = () => {
-    return this.renderOauth2Common();
+    return (
+      <>
+        {this.renderOauth2Common()}
+        {this.renderOauth2CommonAdvanced()}
+      </>
+    );
   };
 
   renderOauth2AuthorizationCode = () => {

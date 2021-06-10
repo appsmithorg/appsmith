@@ -46,11 +46,11 @@ class DatePickerControl extends BaseControl<
   year = this.now.get("year");
   maxDate: Date = this.now
     .clone()
-    .set({ month: 11, date: 31, year: this.year + 20 })
+    .set({ month: 11, date: 31, year: this.year + 100 })
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 20 })
+    .set({ month: 0, date: 1, year: this.year - 100 })
     .toDate();
 
   constructor(props: DatePickerControlProps) {
