@@ -133,47 +133,73 @@ function ToggleCommentModeButton() {
 
   return (
     <Container>
-      <ModeButton
-        active={!isCommentMode}
-        onClick={() => setCommentModeInUrl(false)}
-      >
-        <TooltipComponent
-          content={
-            <>
-              Edit Mode
-              <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
-            </>
-          }
-          hoverOpenDelay={1000}
-          position={Position.BOTTOM}
-        >
-          <Pen />
-        </TooltipComponent>
-      </ModeButton>
       <TourTooltipWrapper
+        hasOverlay
+        modifiers={{
+          offset: { enabled: true, offset: "3, 20" },
+          arrow: {
+            enabled: true,
+            fn: (data) => ({
+              ...data,
+              offsets: {
+                ...data.offsets,
+                arrow: {
+                  top: -8,
+                  left: 80,
+                },
+              },
+            }),
+          },
+        }}
         onClick={() => {
           proceedToNextTourStep();
         }}
+        pulseStyles={{
+          top: 20,
+          left: 28,
+          height: 30,
+          width: 30,
+        }}
+        showPulse
         tourIndex={0}
         tourType={TourType.COMMENTS_TOUR}
       >
-        <ModeButton
-          active={isCommentMode}
-          onClick={() => setCommentModeInUrl(true)}
-        >
-          <TooltipComponent
-            content={
-              <>
-                Comment Mode
-                <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-              </>
-            }
-            hoverOpenDelay={1000}
-            position={Position.BOTTOM}
+        <Container>
+          <ModeButton
+            active={!isCommentMode}
+            onClick={() => setCommentModeInUrl(false)}
           >
-            <CommentModeIcon />
-          </TooltipComponent>
-        </ModeButton>
+            <TooltipComponent
+              content={
+                <>
+                  Edit Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
+            >
+              <Pen />
+            </TooltipComponent>
+          </ModeButton>
+          <ModeButton
+            active={isCommentMode}
+            onClick={() => setCommentModeInUrl(true)}
+          >
+            <TooltipComponent
+              content={
+                <>
+                  Comment Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
+            >
+              <CommentModeIcon />
+            </TooltipComponent>
+          </ModeButton>
+        </Container>
       </TourTooltipWrapper>
     </Container>
   );
