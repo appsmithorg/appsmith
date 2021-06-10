@@ -22,6 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
+import { omit, get } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -38,7 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { omit, get } from "lodash";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -55,6 +56,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
+
+  const isCommentMode = useSelector(commentModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
@@ -258,7 +261,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
-
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -274,11 +276,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     return omit(allHandles, get(props, "disabledResizeHandles", []));
   }, [props]);
 
+  const isEnabled =
+    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+
   return (
     <Resizable
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
+      enable={isEnabled}
       handles={handles}
       isColliding={isColliding}
       onStart={handleResizeStart}
