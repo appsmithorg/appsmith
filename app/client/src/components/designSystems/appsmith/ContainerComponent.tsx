@@ -36,7 +36,6 @@ const StyledContainerComponent = styled.div<
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
     cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
     background: ${(props) => {
-      console.log({ backgroundColor: props.backgroundColor });
       return props.onClickCapture && props.backgroundColor
         ? tinycolor(props.backgroundColor)
             .darken(5)
