@@ -5,7 +5,7 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { MockPageDSL } from "test/testCommon";
+import { MockPageDSL, syntheticTestMouseEvent } from "test/testCommon";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 describe("Canvas selection test cases", () => {
@@ -81,49 +81,44 @@ describe("Canvas selection test cases", () => {
     const selectionCanvas: any = component.queryByTestId(
       `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
     );
-    const syntheticEvent = (
-      event: MouseEvent,
-      offsetX: number,
-      offsetY: number,
-    ) => {
-      Object.defineProperty(event, "offsetLeft", { get: () => 0 });
-      Object.defineProperty(event, "offsetTop", { get: () => 0 });
-      Object.defineProperty(event, "offsetX", { get: () => offsetX });
-      Object.defineProperty(event, "offsetY", { get: () => offsetY });
-      return event;
-    };
     fireEvent(
       selectionCanvas,
-      syntheticEvent(
+      syntheticTestMouseEvent(
         new MouseEvent("mousedown", {
           bubbles: true,
           cancelable: true,
         }),
-        10,
-        10,
+        {
+          offsetX: 10,
+          offsetY: 10,
+        },
       ),
     );
     fireEvent(
       selectionCanvas,
-      syntheticEvent(
+      syntheticTestMouseEvent(
         new MouseEvent("mousemove", {
           bubbles: true,
           cancelable: true,
         }),
-        dsl.rightColumn * 4,
-        dsl.bottomRow * 4,
+        {
+          offsetX: dsl.rightColumn * 4,
+          offsetY: dsl.bottomRow * 4,
+        },
       ),
     );
 
     fireEvent(
       selectionCanvas,
-      syntheticEvent(
+      syntheticTestMouseEvent(
         new MouseEvent("mouseup", {
           bubbles: true,
           cancelable: true,
         }),
-        dsl.rightColumn * 4,
-        dsl.bottomRow * 4,
+        {
+          offsetX: dsl.rightColumn * 4,
+          offsetY: dsl.bottomRow * 4,
+        },
       ),
     );
     const selectedWidgets = component.queryAllByTestId(

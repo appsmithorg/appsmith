@@ -35,6 +35,15 @@ export function MockPageDSL({ dsl, children }: any) {
   useMockDsl(dsl);
   return children;
 }
+
+export const syntheticTestMouseEvent = (event: MouseEvent, optionsToAdd = {}) => {
+  const options = Object.entries(optionsToAdd);
+  options.forEach(([key, value]) => {
+    Object.defineProperty(event, key, { get: () => value });
+  });
+  return event;
+};
+
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
