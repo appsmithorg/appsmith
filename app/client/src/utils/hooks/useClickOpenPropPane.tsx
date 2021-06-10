@@ -76,6 +76,27 @@ export const useClickOpenPropPane = () => {
   const dispatch = useDispatch();
 
   const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
+  const selectWidgetFn = () => {
+    const widgetToSelect = parentWidgetToOpen
+      ? parentWidgetToOpen.widgetId
+      : focusedWidgetId;
+    if (focusedWidgetId !== widgetToSelect) {
+      focusWidget(widgetToSelect);
+    }
+    if (selectedWidgetId !== widgetToSelect) {
+      selectWidget(widgetToSelect);
+    }
+  };
+  const openOrClosePropertyPaneFn = (open: boolean) => {
+    if (open) {
+      const widgetId = parentWidgetToOpen
+        ? parentWidgetToOpen.widgetId
+        : focusedWidgetId;
+      showPropertyPane(widgetId, undefined, true);
+    } else {
+      dispatch(closePropertyPane());
+    }
+  };
   const openPropertyPane = (e: any, targetWidgetId: string) => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
     if (
@@ -90,27 +111,8 @@ export const useClickOpenPropPane = () => {
       selectedWidgetId !== focusedWidgetId
     ) {
       const isMultiSelect = e.metaKey || e.ctrlKey;
-
-      if (parentWidgetToOpen) {
-        selectWidget(parentWidgetToOpen.widgetId);
-        focusWidget(parentWidgetToOpen.widgetId);
-        e.type === "dblclick" &&
-          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
-      } else {
-        selectWidget(focusedWidgetId);
-        focusWidget(focusedWidgetId);
-        e.type === "dblclick" &&
-          showPropertyPane(focusedWidgetId, undefined, true);
-      }
-      if (e.type === "dblclick") {
-        const widgetId = parentWidgetToOpen
-          ? parentWidgetToOpen.widgetId
-          : focusedWidgetId;
-        showPropertyPane(widgetId, undefined, true);
-      } else {
-        dispatch(closePropertyPane());
-      }
-
+      selectWidgetFn();
+      openOrClosePropertyPaneFn(e.type === "dblclick");
       if (isMultiSelect) {
         e.stopPropagation();
       }
