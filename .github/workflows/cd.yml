@@ -132,7 +132,7 @@ jobs:
       - name: see how many file is there.
         run: ls -ltr
       - name: upload the file to s3 bucket.
-        run: aws s3 cp --recursive  app/client/build s3://taj2/
+        run: aws s3 cp --recursive  /build s3://taj2/
 
 #  ui-test:
 #    needs: build
