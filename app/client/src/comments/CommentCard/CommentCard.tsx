@@ -31,6 +31,8 @@ import history from "utils/history";
 
 import UserApi from "api/UserApi";
 
+import { getCommentThreadURL } from "../utils";
+
 import {
   deleteCommentRequest,
   markThreadAsReadRequest,
@@ -47,6 +49,10 @@ import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -268,26 +274,23 @@ function CommentCard({
     pinnedBy = "You";
   }
 
-  const getCommentURL = () => {
-    const url = new URL(window.location.href);
-    // we only link the comment thread currently
-    // url.searchParams.set("commentId", commentId);
-    url.searchParams.set("commentThreadId", commentThreadId);
-    url.searchParams.set("isCommentMode", "true");
-    if (commentThread.resolvedState?.active) {
-      url.searchParams.set("isResolved", "true");
-    }
-    return url;
-  };
+  const pageId = useSelector(getCurrentPageId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
-  const copyCommentLink = useCallback(() => {
-    const url = getCommentURL();
-    copy(url.toString());
+  const commentThreadURL = getCommentThreadURL({
+    applicationId,
+    commentThreadId,
+    isResolved: !!commentThread?.resolvedState?.active,
+    pageId,
+  });
+
+  const copyCommentLink = () => {
+    copy(commentThreadURL.toString());
     Toaster.show({
       text: createMessage(LINK_COPIED_SUCCESSFULLY),
       variant: Variant.success,
     });
-  }, []);
+  };
 
   const pin = useCallback(() => {
     dispatch(
@@ -330,8 +333,9 @@ function CommentCard({
   // Dont make inline cards clickable
   const handleCardClick = () => {
     if (inline) return;
-    const url = getCommentURL();
-    history.push(`${url.pathname}${url.search}${url.hash}`);
+    history.push(
+      `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
+    );
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
