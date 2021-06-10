@@ -104,9 +104,10 @@ export const updateAndSaveLayout = (
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 
@@ -199,6 +200,12 @@ export type WidgetRemoveChild = {
 export type WidgetDelete = {
   widgetId?: string;
   parentId?: string;
+  disallowUndo?: boolean;
+  isShortcut?: boolean;
+};
+
+export type MultipleWidgetDeletePayload = {
+  widgetIds: string[];
   disallowUndo?: boolean;
   isShortcut?: boolean;
 };

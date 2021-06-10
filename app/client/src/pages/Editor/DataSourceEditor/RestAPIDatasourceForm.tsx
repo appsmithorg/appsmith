@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
@@ -56,6 +55,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
+
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -206,7 +206,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (!this.props.formData) return;
     const { authentication } = this.props.formData;
 
-    if (!authentication || !authentication.grantType) {
+    if (!authentication || !_.get(authentication, "grantType")) {
       this.props.change(
         "authentication.grantType",
         GrantType.ClientCredentials,
@@ -221,11 +221,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
-      this.props.change("authentication.headerPrefix", "Bearer ");
+      this.props.change("authentication.headerPrefix", "Bearer");
       return false;
     }
 
-    if (authentication.grantType === GrantType.AuthorizationCode) {
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
         return false;
@@ -253,7 +253,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   createApiAction = () => {
-    const { datasource, actions, pageId } = this.props;
+    const { actions, datasource, pageId } = this.props;
     if (
       !datasource ||
       !datasource.datasourceConfiguration ||
@@ -307,20 +307,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const {
-      isSaving,
-      isNewDatasource,
-      pluginImage,
-      applicationId,
-      pageId,
-    } = this.props;
+    const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
       <>
-        <BackButton
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        />
+        <BackButton onClick={history.goBack} />
         <br />
         <Header>
           <FormTitleContainer>
@@ -344,7 +334,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderSave = () => {
-    const { isDeleting, isSaving, datasourceId, deleteDatasource } = this.props;
+    const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
     return (
       <SaveButtonContainer>
         <ActionButton
@@ -436,6 +426,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: AuthType.NONE,
               },
               {
+                label: "Basic",
+                value: AuthType.basic,
+              },
+              {
                 label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
@@ -455,6 +449,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     let content;
     if (authType === AuthType.OAuth2) {
       content = this.renderOauth2();
+    } else if (authType === AuthType.basic) {
+      content = this.renderBasic();
     }
     if (content) {
       return (
@@ -465,11 +461,36 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
+  renderBasic = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.username"
+            label="Username"
+            placeholderText="Username"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.password"
+            dataType="PASSWORD"
+            encrypted
+            label="Password"
+            placeholderText="Password"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2 = () => {
     const { authentication } = this.props.formData;
     if (!authentication) return;
     let content;
-    switch (authentication?.grantType) {
+    switch (_.get(authentication, "grantType")) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;
@@ -525,7 +546,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
-        {formData.authentication?.isTokenHeader && (
+        {_.get(formData.authentication, "isTokenHeader") && (
           <FormInputContainer>
             <InputTextControl
               {...COMMON_INPUT_PROPS}
@@ -573,12 +594,40 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2CommonAdvanced = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.audience"
+            label="Audience"
+            placeholderText="https://example.com/oauth/audience"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.resource"
+            label="Resource"
+            placeholderText="https://example.com/oauth/resource"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2ClientCredentials = () => {
-    return this.renderOauth2Common();
+    return (
+      <>
+        {this.renderOauth2Common()}
+        {this.renderOauth2CommonAdvanced()}
+      </>
+    );
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { pageId, datasourceId, isSaving, datasource } = this.props;
+    const { datasource, datasourceId, formData, isSaving, pageId } = this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",
@@ -633,6 +682,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
+        {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
+          this.renderOauth2CommonAdvanced()}
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}

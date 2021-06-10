@@ -10,6 +10,7 @@ public enum AnalyticsEvents {
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
+    FORK
     ;
 
     private final String eventName;

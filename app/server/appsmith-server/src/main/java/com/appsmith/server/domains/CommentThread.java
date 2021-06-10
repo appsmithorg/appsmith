@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -25,6 +24,8 @@ public class CommentThread extends BaseDomain {
     Position position;
 
     String refId;
+
+    String pageId;
 
     CommentThreadState pinnedState;
 
@@ -57,7 +58,6 @@ public class CommentThread extends BaseDomain {
     public static class CommentThreadState {
         String authorName;
         String authorUsername;
-        @LastModifiedDate
         Instant updatedAt;
         Boolean active;
     }

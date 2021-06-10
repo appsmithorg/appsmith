@@ -206,19 +206,19 @@ function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
   const {
-    handleSubmit,
     allUsers,
-    submitting,
     anyTouched,
-    submitFailed,
-    submitSucceeded,
     error,
-    fetchUser,
     fetchAllRoles,
-    valid,
     fetchCurrentOrg,
+    fetchUser,
+    handleSubmit,
     isApplicationInvite,
     isLoading,
+    submitFailed,
+    submitSucceeded,
+    submitting,
+    valid,
   } = props;
 
   // set state for checking number of users invited

@@ -46,6 +46,7 @@ import { keyBy, noop } from "lodash";
 import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
+import Footer from "./Footer";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -63,12 +64,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -208,7 +205,7 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
   const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
@@ -313,7 +310,7 @@ function GlobalSearch() {
 
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { pageId, pluginType, id } = config;
+    const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(params.applicationId, pageId, id);
     toggleShow();
@@ -401,6 +398,7 @@ function GlobalSearch() {
                   <ResultsNotFound />
                 )}
               </div>
+              {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

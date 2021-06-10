@@ -29,10 +29,10 @@ jobs:
     # then we don't check for the PR approved state
     # Only PR approvals of internally created PRs should trigger this workflow
     if: |
-      github.event_name == 'workflow_dispatch' || 
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
@@ -116,6 +116,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
+            REACT_APP_SHOW_ONBOARDING_FORM=true \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -206,7 +207,7 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
@@ -221,7 +222,7 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
@@ -287,13 +288,26 @@ jobs:
   ui-test-result:
     needs: ui-test
     # Only run if the ui-test with matrices step is successful
-    if: success()
+    if: always()
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
       - run: echo "All ui-test matrices completed"
+
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
+          fi
 
   package:
     needs: ui-test
@@ -302,7 +316,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
 
     steps:
       # Checkout the code

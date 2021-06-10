@@ -42,8 +42,8 @@ describe("GlobalSearch", function() {
       .its("store")
       .invoke("getState")
       .then((state) => {
-        const { selectedWidget } = state.ui.widgetDragResize;
-        expect(selectedWidget).to.be.equal(table.widgetId);
+        const { lastSelectedWidget } = state.ui.widgetDragResize;
+        expect(lastSelectedWidget).to.be.equal(table.widgetId);
       });
   });
 
@@ -119,5 +119,6 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
+    cy.NavigateToHome();
   });
 });

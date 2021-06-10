@@ -27,48 +27,53 @@ import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
-import websocketSagas from "./WebsocketSagas";
+import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
+import tourSagas from "./TourSagas";
+import notificationsSagas from "./NotificationsSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
-export function* rootSaga() {
-  const sagas = [
-    initSagas,
-    pageSagas,
-    fetchWidgetCardsSaga,
-    watchActionSagas,
-    watchActionExecutionSagas,
-    widgetOperationSagas,
-    errorSagas,
-    watchDatasourcesSagas,
-    applicationSagas,
-    apiPaneSagas,
-    userSagas,
-    pluginSagas,
-    orgSagas,
-    importedCollectionsSagas,
-    providersSagas,
-    curlImportSagas,
-    queryPaneSagas,
-    modalSagas,
-    batchSagas,
-    themeSagas,
-    evaluationsSaga,
-    onboardingSaga,
-    actionExecutionChangeListeners,
-    utilSagas,
-    saaSPaneSagas,
-    globalSearchSagas,
-    recentEntitiesSagas,
-    commentSagas,
-    websocketSagas,
-    debuggerSagas,
-    utilSagas,
-    saaSPaneSagas,
-  ];
+const sagas = [
+  initSagas,
+  pageSagas,
+  fetchWidgetCardsSaga,
+  watchActionSagas,
+  watchActionExecutionSagas,
+  widgetOperationSagas,
+  errorSagas,
+  watchDatasourcesSagas,
+  applicationSagas,
+  apiPaneSagas,
+  userSagas,
+  pluginSagas,
+  orgSagas,
+  importedCollectionsSagas,
+  providersSagas,
+  curlImportSagas,
+  queryPaneSagas,
+  modalSagas,
+  batchSagas,
+  themeSagas,
+  evaluationsSaga,
+  onboardingSaga,
+  actionExecutionChangeListeners,
+  utilSagas,
+  saaSPaneSagas,
+  globalSearchSagas,
+  recentEntitiesSagas,
+  commentSagas,
+  websocketSagas,
+  debuggerSagas,
+  utilSagas,
+  saaSPaneSagas,
+  tourSagas,
+  notificationsSagas,
+];
+
+export function* rootSaga(sagasToRun = sagas) {
   yield all(
-    sagas.map((saga) =>
+    sagasToRun.map((saga) =>
       spawn(function*() {
         while (true) {
           try {

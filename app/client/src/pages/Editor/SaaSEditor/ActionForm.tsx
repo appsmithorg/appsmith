@@ -38,10 +38,10 @@ type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
 function ActionForm(props: Props) {
   const {
-    match: {
-      params: { pageId, applicationId, apiId },
-    },
     actionName,
+    match: {
+      params: { apiId, applicationId, pageId },
+    },
     plugin,
   } = props;
 

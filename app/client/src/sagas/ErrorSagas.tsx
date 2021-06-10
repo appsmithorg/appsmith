@@ -145,8 +145,8 @@ export interface ErrorActionPayload {
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
-  const { type, payload } = errorAction;
-  const { show = true, error } = payload || {};
+  const { payload, type } = errorAction;
+  const { error, show = true } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
   if (show) {

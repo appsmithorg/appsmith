@@ -26,7 +26,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-function DocsSearchModal({ modalOpen, toggleShow, children }: Props) {
+function DocsSearchModal({ children, modalOpen, toggleShow }: Props) {
   return (
     <StyledDocsSearchModal>
       <Overlay
