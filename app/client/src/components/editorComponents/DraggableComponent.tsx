@@ -8,7 +8,6 @@ import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   useWidgetSelection,
-  useShowPropertyPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -59,9 +58,6 @@ export const canDrag = (
 };
 
 function DraggableComponent(props: DraggableComponentProps) {
-  // Dispatch hook handy to toggle property pane
-  const showPropertyPane = useShowPropertyPane();
-
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
 
@@ -130,9 +126,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       // of the property pane is taken into account.
       // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
-      if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-      }
       // Take this to the bottom of the stack. So that it runs last.
       // We do this because, we don't want erroraneous mouse clicks to propagate.
       setTimeout(() => setIsDragging && setIsDragging(false), 0);

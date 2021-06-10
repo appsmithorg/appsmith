@@ -90,11 +90,13 @@ export const useClickOpenPropPane = () => {
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId);
         focusWidget(parentWidgetToOpen.widgetId);
-        showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
+        e.type === "dblclick" &&
+          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId);
         focusWidget(focusedWidgetId);
-        showPropertyPane(focusedWidgetId, undefined, true);
+        e.type === "dblclick" &&
+          showPropertyPane(focusedWidgetId, undefined, true);
       }
 
       if (isMultiSelect) {

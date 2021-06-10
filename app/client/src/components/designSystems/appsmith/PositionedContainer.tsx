@@ -65,6 +65,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
       onClickCapture={openPropPane}
+      onDoubleClickCapture={openPropPane}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
     >

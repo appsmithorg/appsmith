@@ -235,10 +235,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
-    // Let the propertypane show.
-    // The propertypane decides whether to show itself, based on
-    // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
 
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
