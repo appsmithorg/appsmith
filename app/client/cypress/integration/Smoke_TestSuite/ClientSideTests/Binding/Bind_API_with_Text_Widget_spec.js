@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/textAPIBindingdsl.json");
+const apiPage = require("../../../../locators/ApiEditor.json");
 
 describe("Test Create Api and Bind to Text widget", function() {
   let apiData;
