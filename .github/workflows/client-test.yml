@@ -198,7 +198,7 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.head.ref == 'release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release' || github.event.pull_request.head.ref == 'release'
         shell: bash
         run: |
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \

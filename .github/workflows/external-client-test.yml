@@ -294,7 +294,7 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.head.ref == 'release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'|| github.event.pull_request.head.ref == 'release'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
