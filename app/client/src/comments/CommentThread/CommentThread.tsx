@@ -19,7 +19,7 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 
 import styled from "styled-components";
-import { animated, useTransition } from "react-spring";
+import { animated } from "react-spring";
 import { AppState } from "reducers";
 
 const ThreadContainer = styled(animated.div)<{
@@ -74,22 +74,6 @@ function CommentThreadContainer({
   const isThreadVisible =
     shouldShowResolved || !commentThread?.resolvedState?.active;
 
-  const config = inline
-    ? {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        config: { duration: 300 },
-      }
-    : {
-        from: { opacity: 0, transform: "translateX(-100%)" },
-        enter: { opacity: 1, transform: "translateX(0)" },
-        leave: { opacity: 0, transform: "translateX(-100%)" },
-        config: { duration: 300 },
-      };
-
-  const transition = useTransition(isThreadVisible, null, config);
-
   const isVisible = useSelector(
     (state: AppState) =>
       state.ui.comments.visibleCommentThreadId === commentThreadId,
@@ -140,69 +124,55 @@ function CommentThreadContainer({
 
   if (!commentThread) return null;
 
-  return (
-    <>
-      {transition.map(
-        ({ item: show, props: springProps }: { item: boolean; props: any }) =>
-          show ? (
-            <animated.div key={commentThread.id} style={springProps}>
-              <ThreadContainer
-                inline={inline}
-                pinned={commentThread.pinnedState?.active}
-                tabIndex={0}
-                visible={isVisible}
-              >
-                <div style={{ position: "relative" }}>
-                  <CommentsContainer inline={inline} ref={commentsContainerRef}>
-                    {parentComment && (
-                      <CommentCard
-                        comment={parentComment}
-                        commentThreadId={commentThreadId}
-                        inline={inline}
-                        isParentComment
-                        key={parentComment.id}
-                        numberOfReplies={numberOfReplies}
-                        resolved={!!commentThread.resolvedState?.active}
-                        showReplies={hideChildren}
-                        showSubheader={showSubheader}
-                        toggleResolved={resolveCommentThread}
-                        unread={!commentThread.isViewed}
-                        visible={isVisible}
-                      />
-                    )}
-                    {!hideChildren &&
-                      childComments &&
-                      childComments.length > 0 && (
-                        <ChildComments>
-                          {childComments.map((comment) => (
-                            <CommentCard
-                              comment={comment}
-                              commentThreadId={commentThreadId}
-                              inline={inline}
-                              key={comment.id}
-                              visible={isVisible}
-                            />
-                          ))}
-                        </ChildComments>
-                      )}
-                    <div ref={messagesBottomRef} />
-                  </CommentsContainer>
-                  {!isScrolledToBottom && (
-                    <ScrollToLatest scrollToBottom={scrollToBottom} />
-                  )}
-                </div>
-                {!hideInput && (
-                  <AddCommentInput
-                    onCancel={handleCancel}
-                    onSave={addComment}
-                  />
-                )}
-              </ThreadContainer>
-            </animated.div>
-          ) : null,
+  return isThreadVisible ? (
+    <ThreadContainer
+      inline={inline}
+      pinned={commentThread.pinnedState?.active}
+      tabIndex={0}
+      visible={isVisible}
+    >
+      <div style={{ position: "relative" }}>
+        <CommentsContainer inline={inline} ref={commentsContainerRef}>
+          {parentComment && (
+            <CommentCard
+              comment={parentComment}
+              commentThreadId={commentThreadId}
+              inline={inline}
+              isParentComment
+              key={parentComment.id}
+              numberOfReplies={numberOfReplies}
+              resolved={!!commentThread.resolvedState?.active}
+              showReplies={hideChildren}
+              showSubheader={showSubheader}
+              toggleResolved={resolveCommentThread}
+              unread={!commentThread.isViewed}
+              visible={isVisible}
+            />
+          )}
+          {!hideChildren && childComments && childComments.length > 0 && (
+            <ChildComments>
+              {childComments.map((comment) => (
+                <CommentCard
+                  comment={comment}
+                  commentThreadId={commentThreadId}
+                  inline={inline}
+                  key={comment.id}
+                  visible={isVisible}
+                />
+              ))}
+            </ChildComments>
+          )}
+          <div ref={messagesBottomRef} />
+        </CommentsContainer>
+        {!isScrolledToBottom && (
+          <ScrollToLatest scrollToBottom={scrollToBottom} />
+        )}
+      </div>
+      {!hideInput && (
+        <AddCommentInput onCancel={handleCancel} onSave={addComment} />
       )}
-    </>
-  );
+    </ThreadContainer>
+  ) : null;
 }
 
 export default CommentThreadContainer;

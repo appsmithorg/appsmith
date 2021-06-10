@@ -74,6 +74,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
+- 👾 Ask for help on our [Forum](https://community.appsmith.com)
   <br><br>
 
 ## Demos
@@ -114,7 +115,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 - 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
 - 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
-#### Currently Contributing (36)
+#### Top Contributors (36)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
