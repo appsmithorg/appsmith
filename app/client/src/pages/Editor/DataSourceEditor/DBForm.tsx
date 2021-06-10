@@ -3,8 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
@@ -137,7 +136,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       >
         <BackButton
           onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
+            history.push(
+              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                applicationId,
+                pageId,
+                pageId,
+              ),
+            )
           }
         />
         <br />
