@@ -36,5 +36,10 @@ jobs:
           aws-region: us-east-1
       - name: Deploy static site to S3 bucket
         run: aws s3 ls
+      - run: mkdir notgood
+      - run: cd notgood
+      - run: touch abc.js
+      - run: pwd
+      
       - name: upload the file to s3 bucket.
-        run: aws s3 cp kk.js s3://taj2/
+        run: aws s3 cp --recursive notgood s3://taj2/
