@@ -6,6 +6,7 @@ import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { ReactComponent as Pen } from "assets/icons/comments/pen.svg";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
+import { Indices } from "constants/Layers";
 
 import {
   setCommentMode as setCommentModeAction,
@@ -54,6 +55,7 @@ const ModeButton = styled.div<{ active: boolean }>`
 const Container = styled.div`
   display: flex;
   flex: 1;
+  z-index: ${Indices.Layer1};
 `;
 
 /**
@@ -151,9 +153,6 @@ function ToggleCommentModeButton() {
             }),
           },
         }}
-        onClick={() => {
-          proceedToNextTourStep();
-        }}
         pulseStyles={{
           top: 20,
           left: 28,
@@ -164,7 +163,7 @@ function ToggleCommentModeButton() {
         tourIndex={0}
         tourType={TourType.COMMENTS_TOUR}
       >
-        <Container>
+        <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
             onClick={() => setCommentModeInUrl(false)}
@@ -184,7 +183,10 @@ function ToggleCommentModeButton() {
           </ModeButton>
           <ModeButton
             active={isCommentMode}
-            onClick={() => setCommentModeInUrl(true)}
+            onClick={() => {
+              setCommentModeInUrl(true);
+              proceedToNextTourStep();
+            }}
           >
             <TooltipComponent
               content={
@@ -199,7 +201,7 @@ function ToggleCommentModeButton() {
               <CommentModeIcon />
             </TooltipComponent>
           </ModeButton>
-        </Container>
+        </div>
       </TourTooltipWrapper>
     </Container>
   );

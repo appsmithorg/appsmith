@@ -43,7 +43,7 @@ const introSteps = [
   {
     title: "Invite other people to your conversations",
     content:
-      "When leaving a comment you can tag oter people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
+      "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
     banner: CommentsOnboardingStep3,
   },
   {

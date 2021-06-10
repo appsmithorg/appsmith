@@ -12,6 +12,7 @@ import styled, { CSSProperties } from "styled-components";
 import { Modifiers } from "popper.js";
 import lottie from "lottie-web";
 import pulsatingDot from "assets/lottie/pulse-dot.json";
+import { Indices } from "constants/Layers";
 
 type Props = {
   children: React.ReactNode;
@@ -25,12 +26,24 @@ type Props = {
 };
 
 const Overlay = styled.div`
-  background-color: #090707cc;
+  background-color: ${(props) => props.theme.colors.overlayColor};
   height: 100%;
   width: 100%;
   left: 0;
   top: 0;
   position: fixed;
+  z-index: ${Indices.Layer1};
+`;
+
+const PulseDot = styled.div`
+  position: absolute;
+  height: 50px;
+  width: 50px;
+`;
+
+const Container = styled.div`
+  position: relative;
+  z-index: ${Indices.Layer1};
 `;
 
 function TourTooltipWrapper(props: Props) {
@@ -50,7 +63,7 @@ function TourTooltipWrapper(props: Props) {
     const anim = lottie.loadAnimation({
       animationData: pulsatingDot,
       autoplay: true,
-      container: dotRef?.current as HTMLDivElement, // the dom element that will contain the animation
+      container: dotRef?.current as HTMLDivElement,
       renderer: "svg",
       loop: true,
     });
@@ -63,20 +76,9 @@ function TourTooltipWrapper(props: Props) {
   return (
     <>
       {isOpen && props.hasOverlay && <Overlay />}
-      <div
-        onClick={props.onClick ? props.onClick : noop}
-        style={{ position: "relative" }}
-      >
+      <Container onClick={props.onClick ? props.onClick : noop}>
         {isOpen && props.showPulse && (
-          <div
-            ref={dotRef}
-            style={{
-              position: "absolute",
-              height: 50,
-              width: 50,
-              ...props.pulseStyles,
-            }}
-          />
+          <PulseDot ref={dotRef} style={props.pulseStyles} />
         )}
         <TooltipComponent
           boundary={"viewport"}
@@ -99,7 +101,7 @@ function TourTooltipWrapper(props: Props) {
         >
           {children}
         </TooltipComponent>
-      </div>
+      </Container>
     </>
   );
 }

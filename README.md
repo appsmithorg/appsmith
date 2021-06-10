@@ -2,17 +2,19 @@
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
-    •
+  •
   <a href="https://www.appsmith.com/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Features</a>
-    •
+  •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
-  ·
+  •
+  <a href="https://community.appsmith.com/">Community</a>
+  •
   <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
-  ·
+  •
   <a href="https://blog.appsmith.com/">Blog</a>
-  ·
+  •
   <a href="https://www.youtube.com/appsmith">Youtube</a>
-  ·
+  •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
@@ -72,6 +74,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
+- 👾 Ask for help on our [Forum](https://community.appsmith.com)
   <br><br>
 
 ## Demos
@@ -112,7 +115,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 - 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
 - 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
-#### Currently Contributing (36)
+#### Top Contributors (36)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
@@ -154,7 +157,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 <a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="60px;" alt="wayne Forde"/></a>
 <a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="60px;" alt="Abhishek"/></a>
 <a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="60px;" alt=""/></a>
-
+<a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="60px;" alt="Ashok"/></a>
 <br>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
