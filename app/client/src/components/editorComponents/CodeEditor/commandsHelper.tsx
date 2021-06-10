@@ -7,6 +7,8 @@ import { CommandsCompletion } from "utils/autocomplete/TernServer";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { PluginType } from "entities/Action";
+import history from "utils/history";
+import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 
 export const commandsHelper: HintHelper = () => {
   return {
@@ -40,6 +42,22 @@ export const commandsHelper: HintHelper = () => {
         className: "CodeMirror-commands",
         action: () => createNewAPI(pageId),
         shortcut: "api.new",
+        render: (element: HTMLElement, self: any, data: any) => {
+          ReactDOM.render(
+            <Command name={data.displayText} shortcut={data.shortcut} />,
+            element,
+          );
+        },
+      };
+      const newDatasource: CommandsCompletion = {
+        text: "",
+        displayText: "New Datasource",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        className: "CodeMirror-commands",
+        action: () => history.push(QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
+        shortcut: "datasource.new",
         render: (element: HTMLElement, self: any, data: any) => {
           ReactDOM.render(
             <Command name={data.displayText} shortcut={data.shortcut} />,
@@ -110,7 +128,7 @@ export const commandsHelper: HintHelper = () => {
           searchText,
         );
         const createNewCommandsMatchingSearchText = matchingCommands(
-          [newAPI],
+          [newAPI, newDatasource],
           searchText,
         );
         let list: CommandsCompletion[] = [];
