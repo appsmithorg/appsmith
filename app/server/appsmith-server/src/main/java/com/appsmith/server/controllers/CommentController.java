@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -48,9 +49,9 @@ public class CommentController extends BaseController<CommentService, Comment, S
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
-                                                         ServerWebExchange exchange) {
+                                                         @RequestHeader(name = "Origin") String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.createThread(resource, exchange.getRequest().getHeaders().getOrigin())
+        return service.createThread(resource, originHeader)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
