@@ -31,6 +31,7 @@ export type DropdownProps = CommonComponentProps &
     height?: string;
     showLabelOnly?: boolean;
     optionWidth?: string;
+    dropdownHeight?: string;
     showDropIcon?: boolean;
     dropdownTriggerIcon?: ReactNode;
     containerClassName?: string;
@@ -55,10 +56,6 @@ const DropdownTriggerWrapper = styled.div<{
   cursor: pointer;
   ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
-  ${(props) =>
-    props.isOpen && !props.disabled
-      ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-      : null};
   .${Classes.TEXT} {
     ${(props) =>
       props.disabled
@@ -109,9 +106,22 @@ const DropdownWrapper = styled.div<{
 }>`
   width: ${(props) => props.width};
   z-index: 1;
+  .dropdown-search {
+    margin: 4px 12px 8px;
+    width: calc(100% - 24px);
+  }
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
+`;
+
+const DropdownOptionsWrapper = styled.div<{
+  height: string;
+}>`
+  display: flex;
+  flex-direction: column;
+  height: ${(props) => props.height};
+  overflow-y: auto;
 `;
 
 const OptionWrapper = styled.div<{
@@ -247,9 +257,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
+    const search = searchStr.toLocaleUpperCase();
     const filteredOptions: Array<DropdownOption> = props.options.filter(
       (option: DropdownOption) => {
-        return option.label?.includes(searchValue);
+        return (
+          option.label?.toLocaleUpperCase().includes(search) ||
+          option.value?.toLocaleUpperCase().includes(searchStr)
+        );
       },
     );
     setSearchValue(searchStr);
@@ -260,44 +274,49 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     <DropdownWrapper width={props.optionWidth || "260px"}>
       {props.enableSearch && (
         <SearchComponent
+          className="dropdown-search"
           onSearch={onOptionSearch}
           placeholder={props.searchPlaceholder || ""}
           value={searchValue}
         />
       )}
-      {options.map((option: DropdownOption, index: number) => {
-        return (
-          <OptionWrapper
-            className="t--dropdown-option"
-            key={index}
-            onClick={() => props.optionClickHandler(option)}
-            selected={props.selected.value === option.value}
-          >
-            {option.icon ? (
-              <SelectedIcon
-                fillColor={option?.iconColor}
-                name={option.icon}
-                size={option.iconSize || IconSize.XXS}
-              />
-            ) : null}
+      <DropdownOptionsWrapper height={props.dropdownHeight || "100%"}>
+        {options.map((option: DropdownOption, index: number) => {
+          return (
+            <OptionWrapper
+              className="t--dropdown-option"
+              key={index}
+              onClick={() => props.optionClickHandler(option)}
+              selected={props.selected.value === option.value}
+            >
+              {option.icon ? (
+                <SelectedIcon
+                  fillColor={option?.iconColor}
+                  name={option.icon}
+                  size={option.iconSize || IconSize.XXS}
+                />
+              ) : null}
 
-            {props.showLabelOnly ? (
-              <Text type={TextType.P1}>{option.label}</Text>
-            ) : option.label && option.value ? (
-              <LabelWrapper className="label-container">
-                <Text type={TextType.H5}>{option.value}</Text>
+              {props.showLabelOnly ? (
                 <Text type={TextType.P1}>{option.label}</Text>
-              </LabelWrapper>
-            ) : (
-              <Text type={TextType.P1}>{option.value}</Text>
-            )}
+              ) : option.label && option.value ? (
+                <LabelWrapper className="label-container">
+                  <Text type={TextType.H5}>{option.value}</Text>
+                  <Text type={TextType.P1}>{option.label}</Text>
+                </LabelWrapper>
+              ) : (
+                <Text type={TextType.P1}>{option.value}</Text>
+              )}
 
-            {option.subText ? (
-              <StyledSubText type={TextType.P3}>{option.subText}</StyledSubText>
-            ) : null}
-          </OptionWrapper>
-        );
-      })}
+              {option.subText ? (
+                <StyledSubText type={TextType.P3}>
+                  {option.subText}
+                </StyledSubText>
+              ) : null}
+            </OptionWrapper>
+          );
+        })}
+      </DropdownOptionsWrapper>
     </DropdownWrapper>
   );
 }

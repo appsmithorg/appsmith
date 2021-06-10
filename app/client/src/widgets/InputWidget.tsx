@@ -91,15 +91,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             options: [
               {
                 label: "0",
-                value: "0",
+                value: 0,
               },
               {
                 label: "1",
-                value: "1",
+                value: 1,
               },
               {
                 label: "2",
-                value: "2",
+                value: 2,
               },
             ],
             hidden: (props: InputWidgetProps) => {
@@ -311,6 +311,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  onCurrencyTypeChange = (code?: string) => {
+    this.props.updateWidgetMetaProperty("currencyType", code || "USD");
+  };
+
   handleFocusChange = (focusState: boolean) => {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
@@ -362,7 +366,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
+        allowCurrencyChange={this.props.allowCurrencyChange}
         currencyType={this.props.currencyType}
+        decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
@@ -376,6 +382,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             GRID_DENSITY_MIGRATION_V1 >
             1 && this.props.inputType === "TEXT"
         }
+        onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
@@ -416,6 +423,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   currencyType?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
+  decimalsInCurrency?: number;
   defaultText?: string;
   isDisabled?: boolean;
   text: string;

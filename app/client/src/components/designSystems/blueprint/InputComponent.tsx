@@ -42,6 +42,8 @@ const InputComponentWrapper = styled((props) => (
   numeric: boolean;
   multiline: string;
   hasError: boolean;
+  allowCurrencyChange?: boolean;
+  inputType: InputType;
 }>`
   &&&& {
     .currency-type-filter {
@@ -53,7 +55,16 @@ const InputComponentWrapper = styled((props) => (
       z-index: 16;
     }
     .${Classes.INPUT} {
-      padding-left: 45px;
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        props.allowCurrencyChange &&
+        `
+      padding-left: 45px;`};
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        !props.allowCurrencyChange &&
+        `
+      padding-left: 35px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -106,7 +117,6 @@ const InputComponentWrapper = styled((props) => (
 `;
 
 const DropdownTriggerIconWrapper = styled.div`
-  border-right: 0.8px solid #6a86ce;
   height: 19px;
   padding: 9px 5px 9px 12px;
   width: 40px;
@@ -114,15 +124,40 @@ const DropdownTriggerIconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  color: #090707;
+`;
+
+const CurrencyIconWrapper = styled.span`
+  height: 100%;
+  padding: 6px 4px 6px 12px;
+  width: 28px;
+  position: absolute;
+  left: 0;
+  z-index: 16;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  color: #090707;
 `;
 
 interface CurrencyDropdownProps {
-  onSelect?: (value?: string) => void;
+  onCurrencyTypeChange: (code?: string) => void;
   options: Array<DropdownOption>;
   selected: DropdownOption;
+  allowCurrencyChange?: boolean;
 }
 
 function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
+  if (!props.allowCurrencyChange) {
+    return (
+      <CurrencyIconWrapper>
+        {getSelectedItem(props.selected.value).id}
+      </CurrencyIconWrapper>
+    );
+  }
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper>
       {getSelectedItem(props.selected.value).id}
@@ -132,10 +167,10 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   return (
     <Dropdown
       containerClassName="currency-type-filter"
+      dropdownHeight="195px"
       dropdownTriggerIcon={dropdownTriggerIcon}
       enableSearch
-      height="195px"
-      onSelect={props.onSelect}
+      onSelect={props.onCurrencyTypeChange}
       optionWidth="260px"
       options={props.options}
       selected={props.selected}
@@ -164,10 +199,22 @@ const getSelectedItem = (currencyType?: string): DropdownOption => {
   };
 };
 
+const countryToFlag = (isoCode: string) => {
+  return typeof String.fromCodePoint !== "undefined"
+    ? isoCode
+        .toUpperCase()
+        .replace(/./g, (char) =>
+          String.fromCodePoint(char.charCodeAt(0) + 127397),
+        )
+    : isoCode;
+};
+
 export const getCurrencyOptions = (): Array<DropdownOption> => {
   return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
     return {
-      label: `${item.currency} - ${item.currency_name}`,
+      label: `${countryToFlag(item.code)} ${item.currency} - ${
+        item.currency_name
+      }`,
       value: item.currency,
     };
   });
@@ -195,7 +242,18 @@ class InputComponent extends React.Component<
   };
 
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
-    this.props.onValueChange(valueAsString);
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const fractionDigits = this.props.decimalsInCurrency || 0;
+      const formatter = new Intl.NumberFormat("en-US", {
+        style: "decimal",
+        // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: fractionDigits, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        maximumFractionDigits: fractionDigits, // (causes 2500.99 to be printed as $2,501)
+      });
+      this.props.onValueChange(formatter.format(valueAsNum));
+    } else {
+      this.props.onValueChange(valueAsString);
+    }
   };
 
   isNumberInputType(inputType: InputType) {
@@ -260,6 +318,8 @@ class InputComponent extends React.Component<
           ? this.props.leftIcon
           : this.props.inputType === InputTypes.CURRENCY && (
               <CurrencyTypeDropdown
+                allowCurrencyChange={this.props.allowCurrencyChange}
+                onCurrencyTypeChange={this.props.onCurrencyTypeChange}
                 options={getCurrencyOptions()}
                 selected={getSelectedItem(this.props.currencyType)}
               />
@@ -332,8 +392,10 @@ class InputComponent extends React.Component<
   render() {
     return (
       <InputComponentWrapper
+        allowCurrencyChange={this.props.allowCurrencyChange}
         fill
         hasError={this.props.isInvalid}
+        inputType={this.props.inputType}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
@@ -378,6 +440,7 @@ export interface InputComponentProps extends ComponentProps {
   currencyType?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
+  decimalsInCurrency?: number;
   label: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
@@ -387,6 +450,7 @@ export interface InputComponentProps extends ComponentProps {
   maxNum?: number;
   minNum?: number;
   onValueChange: (valueAsString: string) => void;
+  onCurrencyTypeChange: (code?: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;
