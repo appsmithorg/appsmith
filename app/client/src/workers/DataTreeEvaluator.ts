@@ -470,6 +470,7 @@ export default class DataTreeEvaluator {
         tree,
       );
     } catch (e) {
+      console.log({ e });
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: e.message,
@@ -653,11 +654,15 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
+    const start = performance.now();
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
       validation,
       valueToValidate,
       widget,
     );
+
+    console.log("Validation took: ", performance.now() - start, "ms");
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)

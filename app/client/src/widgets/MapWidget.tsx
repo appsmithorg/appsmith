@@ -55,6 +55,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.OBJECT,
               params: {
+                required: true,
                 allowedKeys: [
                   {
                     name: "lat",
@@ -63,6 +64,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                       min: -90,
                       max: 90,
                       default: 0,
+                      required: true,
                     },
                   },
                   {
@@ -72,6 +74,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                       min: -180,
                       max: 180,
                       default: 0,
+                      required: true,
                     },
                   },
                 ],
@@ -92,26 +95,34 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               params: {
                 children: {
                   type: ValidationTypes.OBJECT,
-                  allowedKeys: [
-                    {
-                      name: "lat",
-                      type: ValidationTypes.NUMBER,
-                      params: {
-                        min: -90,
-                        max: 90,
-                        default: 0,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "lat",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          min: -90,
+                          max: 90,
+                          default: 0,
+                          required: true,
+                        },
                       },
-                    },
-                    {
-                      name: "long",
-                      type: ValidationTypes.NUMBER,
-                      params: {
-                        min: -180,
-                        max: 180,
-                        default: 0,
+                      {
+                        name: "long",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          min: -180,
+                          max: 180,
+                          default: 0,
+                          required: true,
+                        },
                       },
-                    },
-                  ],
+                      {
+                        name: "title",
+                        type: ValidationTypes.TEXT,
+                      },
+                    ],
+                  },
                 },
               },
             },

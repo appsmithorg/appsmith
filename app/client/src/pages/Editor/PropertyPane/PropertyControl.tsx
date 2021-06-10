@@ -271,7 +271,6 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-
       additionalDynamicData: {},
     };
     const expectedValue = getExpectedValue(props.validation);

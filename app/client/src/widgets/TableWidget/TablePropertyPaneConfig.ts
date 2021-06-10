@@ -7,12 +7,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import _ from "lodash";
 
-function defaultSelectedRowValidation(value: unknown, props: string) {
-  console.log("Evaluating ========", { value }, { props });
+function defaultSelectedRowValidation(value: unknown, props: TableWidgetProps) {
   if (props) {
-    const _props = JSON.parse(props);
-    if (_props.multiRowSelection) {
-      if (_props && !_props.multiRowSelection)
+    if (props.multiRowSelection) {
+      if (props && !props.multiRowSelection)
         return { isValid: true, parsed: undefined };
 
       if (_.isString(value)) {
@@ -509,8 +507,6 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (
@@ -737,7 +733,6 @@ export default [
           type: ValidationTypes.FUNCTION,
           params: {
             fnString: defaultSelectedRowValidation.toString(),
-            expected: "1 | [1, 2]",
           },
         },
       },

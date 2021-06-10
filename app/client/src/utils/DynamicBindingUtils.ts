@@ -250,7 +250,6 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
   "setImmediate",
-  "Function",
   "XMLHttpRequest",
   "importScripts",
   "Navigator",

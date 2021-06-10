@@ -24,7 +24,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
             helpText: "Renders the url or Base64 when no image is provided",

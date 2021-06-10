@@ -12,8 +12,10 @@ import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
-export const selectedTabValidation = (value: string, _props: string) => {
-  const props = JSON.parse(_props);
+export const selectedTabValidation = (
+  value: string,
+  props: TabContainerWidgetProps,
+) => {
   const tabs: Array<{
     label: string;
     id: string;

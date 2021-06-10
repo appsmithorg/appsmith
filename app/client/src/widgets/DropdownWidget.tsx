@@ -11,11 +11,9 @@ import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-function defaultOptionValueValidation(_value: string, props: string) {
+function defaultOptionValueValidation(value: any, props: DropdownWidgetProps) {
   if (props) {
-    const _props = JSON.parse(props);
-    const value = JSON.parse(_value);
-    if (_props.selectionType === "SINGLE_SELECT") {
+    if (props.selectionType === "SINGLE_SELECT") {
       if (_.isString(value)) return { isValid: true, parsed: value };
       if (value === undefined || value === null)
         return {
@@ -24,7 +22,7 @@ function defaultOptionValueValidation(_value: string, props: string) {
           message: "This value does not evaluate to type: string",
         };
       return { isValid: true, parsed: value.toString() };
-    } else if (_props.selectionType === "MULTI_SELECT") {
+    } else if (props.selectionType === "MULTI_SELECT") {
       let values: string[] = [];
       if (typeof value === "string") {
         try {

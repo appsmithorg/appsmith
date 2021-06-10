@@ -5,10 +5,12 @@ import {
   ValidationResponse,
   Validator,
 } from "../constants/WidgetValidation";
-import { isObject, isPlainObject, isString, toString } from "lodash";
+import { isObject, isPlainObject, isString, rest, toString } from "lodash";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
+import unescapeJS from "unescape-js";
+import { getFnContents } from "./ast";
 
 function validatePlainObject(
   config: ValidationConfig,
@@ -21,8 +23,13 @@ function validatePlainObject(
     config.params.allowedKeys.forEach((entry) => {
       if (value.hasOwnProperty(entry.name)) {
         const { isValid, message } = validate(entry, value[entry.name], props);
-        _valid = isValid;
-        message && _messages.push(message);
+        if (!isValid) {
+          _valid = isValid;
+          message &&
+            _messages.push(
+              `Value of key: ${entry.name} is invalid: ${message}`,
+            );
+        }
       } else if (entry.params?.required) {
         return {
           isValid: false,
@@ -66,7 +73,21 @@ function validateArray(
       }
     });
   }
-  return { isValid: true, parsed: value };
+  const children = config.params?.children;
+  let _isValid = true;
+  const _messages: string[] = [];
+  if (children) {
+    value.forEach((entry, index) => {
+      const validation = validate(children, entry, props);
+      if (!validation.isValid) {
+        _isValid = false;
+        _messages.push(
+          `Invalid entry at index: ${index}. ${validation.message}`,
+        );
+      }
+    });
+  }
+  return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
 }
 
 export const validate = (
@@ -87,10 +108,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     props: Record<string, unknown>,
   ): ValidationResponse => {
     if (value === undefined || value === null) {
+      if (config.params && config.params.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        };
+      }
       return {
         isValid: true,
         parsed: config.params?.default || "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       };
     }
     if (isObject(value)) {
@@ -160,12 +187,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
     }
 
+    // check for min and max limits
+    let parsed: number = value as number;
     if (isString(value)) {
       if (/^\d+\.?\d*$/.test(value)) {
-        return {
-          isValid: true,
-          parsed: parseInt(value, 10),
-        };
+        parsed = Number(value);
       } else {
         return {
           isValid: false,
@@ -175,7 +201,36 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    return { isValid: true, parsed: value };
+    if (
+      config.params?.min !== undefined &&
+      Number.isFinite(config.params.min)
+    ) {
+      if (parsed < Number(config.params.min)) {
+        return {
+          isValid: false,
+          parsed,
+          message: `Minimum allowed value: ${config.params.min} `,
+        };
+      }
+    }
+
+    if (
+      config.params?.max !== undefined &&
+      Number.isFinite(config.params.max)
+    ) {
+      if (parsed > Number(config.params.max)) {
+        return {
+          isValid: false,
+          parsed,
+          message: `Maximum allowed value: ${config.params.max} `,
+        };
+      }
+    }
+
+    return {
+      isValid: true,
+      parsed,
+    };
   },
   // TODO(abhinav): Add rigorous tests for the following
   [ValidationTypes.BOOLEAN]: (
@@ -184,11 +239,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     props: Record<string, unknown>,
   ): ValidationResponse => {
     if (value === undefined || value === null) {
-      return {
-        isValid: false,
-        parsed: config.params?.default || false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
-      };
+      if (config.params && config.params.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || false,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        };
+      }
+      return { isValid: true, parsed: config.params?.default || value };
     }
     const isABoolean = value === true || value === false;
     const isStringTrueFalse = value === "true" || value === "false";
@@ -213,11 +271,21 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (
+      value === undefined ||
+      value === null ||
+      (isString(value) && value.trim().length === 0)
+    ) {
+      if (config.params && config.params.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || {},
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        };
+      }
       return {
-        isValid: false,
-        parsed: config.params?.default || {},
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        isValid: true,
+        parsed: config.params?.default || value,
       };
     }
 
@@ -259,15 +327,27 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} Array`,
     };
-    if (value === undefined || value === null || isPlainObject(value)) {
-      return invalidResponse;
+    if (value === undefined || value === null) {
+      if (config.params && config.params.required) {
+        invalidResponse.message =
+          "This property is required for the widget to function correctly";
+        return invalidResponse;
+      }
+      return {
+        isValid: true,
+        parsed: value,
+      };
     }
 
     if (isString(value)) {
       try {
         const _value = JSON.parse(value);
-        if (Array.isArray(_value)) return validateArray(config, _value, props);
+        if (Array.isArray(_value)) {
+          const result = validateArray(config, _value, props);
+          return result;
+        }
       } catch (e) {
+        console.log("Error when validating: ", { e });
         return invalidResponse;
       }
     }
@@ -288,11 +368,26 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} Array of objects`,
     };
-    if (value === undefined || value === null || !Array.isArray(value)) {
+    if (
+      value === undefined ||
+      value === null ||
+      (!isString(value) && !Array.isArray(value))
+    ) {
       return invalidResponse;
     }
-    if (Array.isArray(value)) {
-      value.forEach((entry, index) => {
+
+    let parsed = value;
+
+    if (isString(value)) {
+      try {
+        parsed = JSON.parse(value);
+      } catch (e) {
+        return invalidResponse;
+      }
+    }
+
+    if (Array.isArray(parsed)) {
+      parsed.forEach((entry, index) => {
         if (!isPlainObject(entry)) {
           return {
             ...invalidResponse,
@@ -300,7 +395,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           };
         }
       });
-      return { isValid: true, parsed: value };
+      return { isValid: true, parsed };
     }
     return invalidResponse;
   },
@@ -351,62 +446,55 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message: "Failed to validate",
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
+      const fnContents = getFnContents(config.params.fnString);
       try {
-        return eval(
-          `(${config.params.fnString})(${JSON.stringify(
-            value,
-          )}, ${JSON.stringify(props)})`,
-        );
+        const fn = Function("value", "props", fnContents);
+        return fn(value, props);
       } catch (e) {
-        return invalidResponse;
+        console.log("Validation function error: --", { e });
+      }
+    }
+    return invalidResponse;
+  },
+  [ValidationTypes.IMAGE_URL]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: config.params?.default || "",
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 string or data uri or URL`,
+    };
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    if (
+      value === undefined ||
+      value === null ||
+      (isString(value) && value.trim().length === 0)
+    ) {
+      if (config.params && config.params.required) return invalidResponse;
+      return { isValid: true, parsed: value };
+    }
+    if (isString(value)) {
+      if (imageUrlRegex.test(value.trim())) {
+        return { isValid: true, parsed: value.trim() };
+      }
+      if (base64ImageRegex.test(value)) {
+        let parsed: string = value;
+        try {
+          if (btoa(atob(value)) === value) {
+            parsed = "data:image/png;base64," + value;
+          }
+          return {
+            isValid: true,
+            parsed,
+          };
+        } catch (e) {
+          return invalidResponse;
+        }
       }
     }
     return invalidResponse;
   },
 };
-
-/*[VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
-    let parsed = value;
-    const base64ImageRegex = /^data:image\/.*;base64/;
-    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/
-/*    if (isUndefined(value) || value === null) {
-      return {
-        isValid: true,
-        parsed: value,
-        message: "",
-      };
-    }
-    if (isObject(value)) {
-      return {
-        isValid: false,
-        parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
-      };
-    }
-    if (imageUrlRegex.test(value)) {
-      return {
-        isValid: true,
-        parsed: value,
-        message: "",
-      };
-    }
-    let isValid = base64ImageRegex.test(value);
-    if (!isValid) {
-      try {
-        parsed =
-          btoa(atob(value)) === value
-            ? "data:image/png;base64," + value
-            : value;
-        isValid = true;
-      } catch (err) {
-        console.error(`Error when parsing ${value} to string`);
-        console.error(err);
-        return {
-          isValid: false,
-          parsed: "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
-        };
-      }
-    }
-    return { isValid, parsed };
-  },*/

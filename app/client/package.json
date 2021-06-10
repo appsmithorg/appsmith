@@ -52,6 +52,7 @@
     "@uppy/webcam": "^1.8.4",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "algoliasearch": "^4.2.0",
+    "astring": "^1.7.5",
     "axios": "^0.21.1",
     "caniuse-lite": "^1.0.30001208",
     "chance": "^1.1.3",

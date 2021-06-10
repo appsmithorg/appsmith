@@ -32,8 +32,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -242,7 +242,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths.${path}`);
 
           if (
-            validationPath === VALIDATION_TYPES.BOOLEAN &&
+            validationPath.type === ValidationTypes.BOOLEAN &&
             isBoolean(evaluatedValue)
           ) {
             set(widget, path, evaluatedValue);

@@ -9,10 +9,8 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
 
-function defaultDateValidation(_value: string, props: string) {
-  const _props = JSON.parse(props);
-  const value = JSON.parse(_value);
-  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
+function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === null) {
     return {
       isValid: true,
@@ -39,10 +37,8 @@ function defaultDateValidation(_value: string, props: string) {
   }
 }
 
-function minDateValidation(_value: string, props: string) {
-  const _props = JSON.parse(props);
-  const value = JSON.parse(_value);
-  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
+function minDateValidation(value: string, props: DatePickerWidgetProps) {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
     return {
       isValid: false,
@@ -54,14 +50,14 @@ function minDateValidation(_value: string, props: string) {
   const parsedMinDate = moment(value, dateFormat);
   let isValid = parsedMinDate.isValid();
 
-  if (!_props.defaultDate) {
+  if (!props.defaultDate) {
     return {
       isValid: isValid,
       parsed: value,
       message: "",
     };
   }
-  const parsedDefaultDate = moment(_props.defaultDate, dateFormat);
+  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
 
   if (
     isValid &&
@@ -85,11 +81,8 @@ function minDateValidation(_value: string, props: string) {
   };
 }
 
-function maxDateValidation(_value: string, props: string) {
-  const _props = JSON.parse(props);
-  const value = JSON.parse(_value);
-
-  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
+function maxDateValidation(value: string, props: DatePickerWidgetProps) {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
     return {
       isValid: false,
@@ -101,14 +94,14 @@ function maxDateValidation(_value: string, props: string) {
   }
   const parsedMaxDate = moment(value, dateFormat);
   let isValid = parsedMaxDate.isValid();
-  if (!_props.defaultDate) {
+  if (!props.defaultDate) {
     return {
       isValid: isValid,
       parsed: value,
       message: "",
     };
   }
-  const parsedDefaultDate = moment(_props.defaultDate, dateFormat);
+  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
 
   if (
     isValid &&
