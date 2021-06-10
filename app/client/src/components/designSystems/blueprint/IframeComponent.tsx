@@ -34,9 +34,19 @@ export interface IframeComponentProps extends ComponentProps {
 
 function IframeComponent(props: IframeComponentProps) {
   const { onMessageReceived, onURLChanged, source } = props;
+
+  useEffect(() => {
+    // add a listener
+    window.addEventListener("message", onMessageReceived, false);
+    // clean up
+    return () =>
+      window.removeEventListener("message", onMessageReceived, false);
+  }, []);
+
   useEffect(() => {
     onURLChanged(source);
   }, [source]);
+
   return <IframeWithBorder {...props} />;
 }
 

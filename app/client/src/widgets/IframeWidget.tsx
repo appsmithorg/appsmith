@@ -93,7 +93,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   }
 
   urlChangedHandler = (url: string) => {
-    console.log(url);
     if (url && this.props.onURLChanged) {
       super.executeAction({
         triggerPropertyName: "onURLChanged",
@@ -105,9 +104,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     }
   };
 
-  messageReceivedHandler = (message: MessageEvent) => {
-    console.log(message);
-    if (message && this.props.onMessageReceived) {
+  messageReceivedHandler = (event: MessageEvent) => {
+    // Accept messages only from the current iframe
+    if (!this.props.source.includes(event.origin)) {
+      return;
+    }
+    if (this.props.onMessageReceived) {
       super.executeAction({
         triggerPropertyName: "onMessageReceived",
         dynamicString: this.props.onMessageReceived,
