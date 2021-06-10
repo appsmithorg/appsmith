@@ -1,0 +1,164 @@
+name: cd_shraddhansu
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+  pull_request_review:
+    types: [submitted]
+    branches: [release, master]
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+
+jobs:
+#       - name: Pull release server docker container and start it locally
+#         shell: bash
+#         run: |
+#           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+#             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+#             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+#             --env APPSMITH_ENCRYPTION_PASSWORD=password \
+#             --env APPSMITH_ENCRYPTION_SALT=salt \
+#             --env APPSMITH_IS_SELF_HOSTED=false \
+#             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com\
+#             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+#             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+#             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
+#       - name: Pull master server docker container and start it locally
+#         run: |
+#           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+#             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+#             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+#             --env APPSMITH_ENCRYPTION_PASSWORD=password \
+#             --env APPSMITH_ENCRYPTION_SALT=salt \
+#             --env APPSMITH_IS_SELF_HOSTED=false \
+#             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com\
+#             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+#             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+#             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+#       - name: Installing Yarn serve
+#         run: |
+#           yarn global add serve
+#           echo "$(yarn global bin)" >> $GITHUB_PATH
+#       - name: Setting up the cypress tests
+#         shell: bash
+#         env:
+#           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+#           APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+#           CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+#           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+#           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+#           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+#           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+#           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+#           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+#           APPSMITH_DISABLE_TELEMETRY: true
+#           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+#           POSTGRES_PASSWORD: postgres
+#         run: |
+#           ./cypress/setup-test.sh
+#       - name: Run the cypress test
+#         uses: cypress-io/github-action@v2
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+#           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+#           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+#           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+#           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+#           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+#           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+#           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+#           APPSMITH_DISABLE_TELEMETRY: true
+#           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+#           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+#         with:
+#           browser: chrome
+#           headless: true
+#           record: true
+#           install: false
+#           parallel: true
+#           group: "Electrons on Github Action"
+#           spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+#           working-directory: app/client
+#           # tag will be either "push" or "pull_request"
+#           tag: ${{ github.event_name }}
+#           env: "NODE_ENV=development"
+
+#       # Upload the screenshots as artifacts if there's a failure
+#       - uses: actions/upload-artifact@v1
+#         if: failure()
+#         with:
+#           name: cypress-screenshots-${{ matrix.job }}
+#           path: app/client/cypress/screenshots/
+
+#   ui-test-result:
+#     needs: ui-test
+#     # Only run if the ui-test with matrices step is successful
+#     if: always()
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         shell: bash
+#     steps:
+#       - run: echo "All ui-test matrices completed"
+
+#       - name: Return status for ui-matrix
+#         run: |
+#           if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+#             exit 0
+#           else 
+#             exit 1
+#           fi
+#   package:
+#     needs: ui-test
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: app/client
+#     # Run this job only if all the previous steps are a success and the reference if the release or master branch
+#     if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/client/build
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      - name: Get the version to tag the Docker image
+        id: branch_name
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+      # Build master Docker image and push to Docker Hub
+      - name: Push production image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
