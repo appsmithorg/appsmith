@@ -244,13 +244,18 @@ class InputComponent extends React.Component<
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const fractionDigits = this.props.decimalsInCurrency || 0;
-      const formatter = new Intl.NumberFormat("en-US", {
-        style: "decimal",
-        // These options are needed to round to whole numbers if that's what you want.
-        minimumFractionDigits: fractionDigits, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-        maximumFractionDigits: fractionDigits, // (causes 2500.99 to be printed as $2,501)
-      });
-      this.props.onValueChange(formatter.format(valueAsNum));
+      const locale = navigator.languages?.[0] || "en-US";
+      if (!valueAsString.endsWith(".")) {
+        const value = parseFloat(valueAsString.split(",").join(""));
+        const formatter = new Intl.NumberFormat(locale, {
+          style: "decimal",
+          maximumFractionDigits: fractionDigits,
+        });
+        const formattedValue = formatter.format(value);
+        this.props.onValueChange(formattedValue);
+      } else {
+        this.props.onValueChange(valueAsString);
+      }
     } else {
       this.props.onValueChange(valueAsString);
     }
