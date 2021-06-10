@@ -89,7 +89,7 @@ public class Find extends MongoCommand {
         }
 
         if (!StringUtils.isNullOrEmpty(this.projection)) {
-            document.put("projection", this.projection);
+            document.put("projection", parseSafely("Projection", this.projection));
         }
 
         // Default to returning 10 documents if not mentioned

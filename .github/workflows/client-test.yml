@@ -29,10 +29,10 @@ jobs:
     # then we don't check for the PR approved state
     # Only PR approvals of internally created PRs should trigger this workflow
     if: |
-      github.event_name == 'workflow_dispatch' || 
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
@@ -298,15 +298,15 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then 
-            echo "Integration tests completed successfully!"; 
-            exit 0; 
-          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then 
-            echo "Integration tests were skipped"; 
-            exit 1; 
-          else 
-            echo "Integration tests have failed"; 
-            exit 1; 
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
           fi
 
   package:
@@ -316,7 +316,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
 
     steps:
       # Checkout the code
