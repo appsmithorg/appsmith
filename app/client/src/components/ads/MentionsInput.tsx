@@ -104,10 +104,10 @@ function SuggestionComponent(props: EntryComponentProps) {
       <ProfileImage
         side={25}
         source={`/api/${UserApi.photoURL}/${user?.username}`}
-        userName={user?.name || user?.username}
+        userName={props.mention.name}
       />
       <div>
-        <Name>{user?.name}</Name>
+        <Name>{props.mention.name}</Name>
         <Username>{user?.username}</Username>
       </div>
     </StyledSuggestionsComponent>
