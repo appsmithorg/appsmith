@@ -2,6 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import { Position, Tooltip, PopperBoundary } from "@blueprintjs/core";
 import { GLOBAL_STYLE_TOOLTIP_CLASSNAME } from "globalStyles/tooltip";
+import { Modifiers } from "popper.js";
 
 type Variant = "dark" | "light";
 
@@ -17,6 +18,7 @@ type TooltipProps = CommonComponentProps & {
   autoFocus?: boolean;
   hoverOpenDelay?: number;
   minimal?: boolean;
+  modifiers?: Modifiers;
   isOpen?: boolean;
 };
 
@@ -33,6 +35,7 @@ function TooltipComponent(props: TooltipProps) {
       minimal={props.minimal}
       modifiers={{
         preventOverflow: { enabled: false },
+        ...props.modifiers,
       }}
       openOnTargetFocus={props.openOnTargetFocus}
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}

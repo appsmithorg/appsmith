@@ -1,5 +1,6 @@
 import React from "react";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
+import { Layers } from "constants/Layers";
 
 function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
   return (
@@ -10,12 +11,14 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
       data-cy={"help-modal"}
       hasBackDrop={false}
       isOpen
+      left={25}
       onClose={() => {
         console.log("handle close");
       }}
-      right={25}
+      overlayClassName="comments-onboarding-carousel"
       scrollContents
       width={325}
+      zIndex={Layers.appComments}
     >
       {children}
     </ModalComponent>
