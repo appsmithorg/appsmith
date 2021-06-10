@@ -181,12 +181,8 @@ public class PostgresPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                //In case the prepared statement configuration is missing, default to true.
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -194,10 +190,10 @@ public class PostgresPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -206,7 +202,8 @@ public class PostgresPlugin extends BasePlugin {
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             }
 
-            //Prepared Statement
+            // Prepared Statement
+
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.

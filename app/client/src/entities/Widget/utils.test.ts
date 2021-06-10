@@ -115,7 +115,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       bindingPaths: {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
-        tableData: EvaluationSubstitutionType.TEMPLATE,
+        tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -217,7 +217,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         chartType: EvaluationSubstitutionType.TEMPLATE,
         chartName: EvaluationSubstitutionType.TEMPLATE,
         "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.data": EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
