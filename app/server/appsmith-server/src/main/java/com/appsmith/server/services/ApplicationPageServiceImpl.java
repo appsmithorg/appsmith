@@ -696,6 +696,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 page.setOrder(page.getOrder()+1);
                             }
                         }
+
                         //set the selected page order to 0
                         foundPage.setOrder(0);
                     }
