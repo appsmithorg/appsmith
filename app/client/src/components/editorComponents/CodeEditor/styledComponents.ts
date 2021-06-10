@@ -256,6 +256,9 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
+  &.js-editor {
+    height: 400px !important;
+  }
   ${(props) =>
     props.hoverInteraction
       ? `

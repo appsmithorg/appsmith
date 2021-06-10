@@ -96,6 +96,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const queryActions = useSelector(getActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
+      "datasource" in action.config &&
       isStoredDatasource(action.config.datasource) &&
       action.config.datasource.id === datasource.id,
   ).length;

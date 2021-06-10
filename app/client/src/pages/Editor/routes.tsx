@@ -9,6 +9,7 @@ import {
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
+import JSEditor from "./JSEditor";
 
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
@@ -25,6 +26,8 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
+  JS_FUNCTION_EDITOR_URL,
+  JS_FUNCTION_ID_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import {
@@ -154,6 +157,17 @@ class EditorsRouter extends React.Component<
               component={QueryEditor}
               exact
               path={QUERIES_EDITOR_ID_URL()}
+            />
+
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_FUNCTION_EDITOR_URL()}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_FUNCTION_ID_URL()}
             />
 
             <SentryRoute

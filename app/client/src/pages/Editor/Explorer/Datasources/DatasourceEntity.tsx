@@ -90,7 +90,11 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   let isDefaultExpanded = false;
   if (expandDatasourceId === props.datasource.id) {
     isDefaultExpanded = true;
-  } else if (queryAction && isStoredDatasource(queryAction.datasource)) {
+  } else if (
+    queryAction &&
+    "datasource" in queryAction &&
+    isStoredDatasource(queryAction.datasource)
+  ) {
     isDefaultExpanded = queryAction.datasource.id === props.datasource.id;
   }
 

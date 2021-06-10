@@ -2,12 +2,18 @@ import React, { ReactNode, useMemo } from "react";
 import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
-import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
+import {
+  QUERIES_EDITOR_URL,
+  API_EDITOR_URL,
+  JS_FUNCTION_EDITOR_URL,
+} from "constants/routes";
 import {
   API_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  JS_FUNCTION_URL_WITH_SELECTED_PAGE_ID,
+  JS_FUNCTION_ID_URL,
 } from "constants/routes";
 
 import { Page } from "constants/ReduxActionConstants";
@@ -117,6 +123,28 @@ export const ACTION_PLUGIN_MAP: Array<
         isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname.indexOf(
             QUERIES_EDITOR_URL(params.applicationId, pageId),
+          ) > -1,
+      };
+    case PluginType.JS:
+      return {
+        groupName: "JS Functions",
+        types: [PluginType.JS],
+        icon: dbQueryIcon,
+        key: generateReactKey(),
+        getURL: (applicationId: string, pageId: string, id: string) =>
+          `${JS_FUNCTION_ID_URL(applicationId, pageId, id)}`,
+        getIcon: (action: any, plugin: Plugin) => {
+          if (plugin && plugin.iconLocation)
+            return <QueryIcon plugin={plugin} />;
+          return dbQueryIcon;
+        },
+        generateCreatePageURL: JS_FUNCTION_URL_WITH_SELECTED_PAGE_ID,
+        isGroupActive: (params: ExplorerURLParams, pageId: string) =>
+          window.location.pathname ===
+          JS_FUNCTION_EDITOR_URL(params.applicationId, pageId),
+        isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+          window.location.pathname.indexOf(
+            JS_FUNCTION_EDITOR_URL(params.applicationId, pageId),
           ) > -1,
       };
     default:
