@@ -19,9 +19,13 @@ import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
+  EVAL_ERROR_PATH,
+  EVAL_VALUE_PATH,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  PropertyEvalErrorTypeDebugMessage,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -75,18 +79,21 @@ function getLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const jsError = _.get(entity, `jsErrorMessages.${propertyPath}`, "");
-      const validationError = _.get(
+      const allEvalErrors: EvaluationError[] = _.get(
         entity,
-        `validationMessages.${propertyPath}`,
-        "",
+        `${EVAL_ERROR_PATH}.${propertyPath}`,
+        [],
       );
       const evaluatedValue = _.get(
         entity,
-        `evaluatedValues.${propertyPath}`,
-        "",
+        `${EVAL_VALUE_PATH}.${propertyPath}`,
       );
-      const error = jsError || validationError;
+      const evalErrors = allEvalErrors.filter(
+        (error) => error.severity === Severity.ERROR,
+      );
+      const evalWarnings = allEvalErrors.filter(
+        (error) => error.severity === Severity.WARNING,
+      );
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
@@ -98,13 +105,17 @@ function getLatestEvalPropertyErrors(
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      if (_.isString(error) && error !== "") {
+      if (allEvalErrors.length) {
+        // TODO Rank and set the most critical error
+        const error = evalErrors.length ? evalErrors[0] : evalWarnings[0];
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
-          text: `The value at ${propertyPath} is invalid`,
-          message: error,
-          severity: Severity.ERROR,
+          text: PropertyEvalErrorTypeDebugMessage[error.errorType](
+            propertyPath,
+          ),
+          message: JSON.stringify(error.errorMessage),
+          severity: error.severity,
           timestamp: moment().format("hh:mm:ss"),
           source: {
             id: idField,

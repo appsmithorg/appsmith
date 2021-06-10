@@ -28,7 +28,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
-  WidgetEvaluatedProps,
+  DataTreeEvaluationProps,
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -451,7 +451,7 @@ export interface WidgetDataProps
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
-    WidgetEvaluatedProps {
+    DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;

@@ -2,19 +2,19 @@ import { ActionDescription, DataTree } from "entities/DataTree/dataTreeFactory";
 import { addFunctions } from "workers/evaluationUtils";
 import _ from "lodash";
 import {
+  EvaluationError,
   extraLibraries,
+  PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { JSHINT as jshint, LintError } from "jshint";
+import { JSHINT as jshint } from "jshint";
+import { Severity } from "entities/AppsmithConsole";
 
 export type EvalResult = {
   result: any;
   triggers?: ActionDescription<any>[];
-  errors: {
-    linting?: LintError[];
-    evaluating?: string;
-  };
+  errors: EvaluationError[];
 };
 
 export enum EvaluationScriptType {
@@ -38,8 +38,13 @@ const getScriptToEval = (userScript: string, evalArguments?: Array<any>) => {
     : evaluationScripts[EvaluationScriptType.EXPRESSION](userScript);
 };
 
-const getLintingErrors = (script: string) => {
-  jshint(script, {
+const getLintingErrors = (
+  script: string,
+  data: Record<string, unknown>,
+): EvaluationError[] => {
+  const globalData: Record<string, boolean> = {};
+  Object.keys(data).forEach((datum) => (globalData[datum] = false));
+  const options = {
     esversion: 7,
     eqeqeq: true,
     curly: true,
@@ -48,9 +53,22 @@ const getLintingErrors = (script: string) => {
     unused: true,
     asi: true,
     worker: true,
-  });
+    globals: globalData,
+  };
+  jshint(script, options);
 
-  return jshint.errors;
+  return jshint.errors.map((lintError) => ({
+    errorType: PropertyEvaluationErrorType.LINT,
+    raw: script,
+    severity: lintError.code.startsWith("W")
+      ? Severity.WARNING
+      : Severity.ERROR,
+    errorMessage: lintError.reason,
+    errorPosition: {
+      ln: lintError.line,
+      char: lintError.character,
+    },
+  }));
 };
 
 export default function evaluate(
@@ -60,10 +78,8 @@ export default function evaluate(
 ): EvalResult {
   const unescapedJS = unescapeJS(js);
   const script = getScriptToEval(unescapedJS, evalArguments);
-  const lintErrors = getLintingErrors(script);
-  console.log({ lintErrors });
 
-  const { result, triggers } = (function() {
+  const { lintErrors, result, triggers } = (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
@@ -98,6 +114,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+    const lintErrors = getLintingErrors(script, GLOBAL_DATA);
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {
@@ -112,7 +129,6 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[func] = undefined;
     });
-    debugger;
     const result = Function(script)();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -126,13 +142,11 @@ export default function evaluate(
       delete self[key];
     });
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return { result, triggers };
+    return { result, triggers, lintErrors };
   })();
   return {
     result,
     triggers,
-    errors: { linting: lintErrors },
+    errors: lintErrors,
   };
 }

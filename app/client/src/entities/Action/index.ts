@@ -73,10 +73,10 @@ interface BaseAction {
   collectionId?: string;
   pluginId: string;
   executeOnLoad: boolean;
-  dynamicBindingPathList: DynamicPath[];
+  dynamicBindingPathList: DynamicPath[]; // ["headers[0].key", "params[0].key"]
   isValid: boolean;
   invalids: string[];
-  jsonPathKeys: string[];
+  jsonPathKeys: string[]; // ["a + b", "c + d"]
   cacheResponse: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;

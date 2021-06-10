@@ -22,6 +22,7 @@ import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  EVAL_VALUE_PATH,
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
@@ -251,15 +252,14 @@ const PropertyControl = memo((props: Props) => {
     // TODO (hetu) make the dataTreePath the actual path of the property
     // and evaluatedValues should not be added by default
     let dataTreePath: string | undefined =
-      props.dataTreePath ||
-      `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+      props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
     if (childWidgetDataTreePathEnhancementFn) {
       dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
     }
 
     const evaluatedValue = _.get(
       widgetProperties,
-      `evaluatedValues.${propertyName}`,
+      `${EVAL_VALUE_PATH}.${propertyName}`,
     );
 
     const { additionalAutoComplete, ...rest } = props;

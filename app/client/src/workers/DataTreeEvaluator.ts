@@ -1,12 +1,16 @@
 import {
   DependencyMap,
+  EVAL_ERROR_PATH,
+  EVAL_VALUE_PATH,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
@@ -44,6 +48,7 @@ import {
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
+import { Severity } from "entities/AppsmithConsole";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -88,9 +93,7 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    const { errors, validatedTree } = getValidatedTree(evaluatedTree);
-    this.evalTree = validatedTree;
-    this.errors = this.errors.concat(errors);
+    this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;
@@ -402,8 +405,8 @@ export default class DataTreeEvaluator {
             isABindingPath && isDynamicValue(unEvalPropertyValue);
           _.set(
             currentTree,
-            `${entityName}.jsErrorMessages.${propertyPath}`,
-            "",
+            `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
+            [],
           );
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -567,10 +570,11 @@ export default class DataTreeEvaluator {
     const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
     if (returnTriggers) {
       const result = this.evaluateDynamicBoundValue(
-        data,
         jsSnippets[0],
+        data,
         callBackData,
       );
+      // TODO return errors here as well
       return result.triggers;
     }
     if (stringSegments.length) {
@@ -578,33 +582,25 @@ export default class DataTreeEvaluator {
       const values = jsSnippets.map((jsSnippet, index) => {
         if (jsSnippet) {
           const result = this.evaluateDynamicBoundValue(
-            data,
             jsSnippet,
+            data,
             callBackData,
           );
           if (fullPropertyPath) {
             const { entityName, propertyPath } = getEntityNameAndPropertyPath(
               fullPropertyPath,
             );
-            _.set(
-              data,
-              `${entityName}.jsErrorMessages.${propertyPath}`,
-              result.errors.evaluating,
-            );
-            const entity = data[entityName];
-            if (isWidget(entity) && result.errors.evaluating) {
-              this.errors.push({
-                type: EvalErrorTypes.EVAL_ERROR,
-                message: result.errors.evaluating,
-                context: {
-                  source: {
-                    id: entity.widgetId,
-                    name: entity.widgetName,
-                    type: ENTITY_TYPE.WIDGET,
-                    propertyPath: propertyPath,
-                  },
-                },
-              });
+            if (result.errors.length) {
+              const existingErrors = _.get(
+                data,
+                `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
+                [],
+              ) as EvaluationError[];
+              _.set(
+                data,
+                `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
+                existingErrors.concat(result.errors),
+              );
             }
           }
           return result.result;
@@ -629,28 +625,25 @@ export default class DataTreeEvaluator {
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue(
-    data: DataTree,
     js: string,
+    data: DataTree,
     callbackData?: Array<any>,
-    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      if (fullPropertyPath) {
-        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-          fullPropertyPath,
-        );
-        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
-      } else {
-        // TODO clean up
-        // This is to handle situations with evaluation of triggers for execution
-        this.errors.push({
-          type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-          message: e.message,
-        });
-      }
-      return { result: undefined, triggers: [] };
+      return {
+        result: undefined,
+        triggers: [],
+        errors: [
+          {
+            errorType: PropertyEvaluationErrorType.PARSE,
+            raw: js,
+            severity: Severity.ERROR,
+            errorMessage: e.message,
+          },
+        ],
+      };
     }
   }
 
@@ -689,13 +682,20 @@ export default class DataTreeEvaluator {
       ? evalPropertyValue
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
-    _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
+    _.set(widget, `${EVAL_VALUE_PATH}.${propertyPath}`, safeEvaluatedValue);
     if (!isValid) {
-      _.set(widget, `invalidProps.${propertyPath}`, true);
-      _.set(widget, `validationMessages.${propertyPath}`, message);
-    } else {
-      _.set(widget, `invalidProps.${propertyPath}`, false);
-      _.set(widget, `validationMessages.${propertyPath}`, "");
+      const widgetErrors: EvaluationError[] = _.get(
+        widget,
+        `${EVAL_ERROR_PATH}.${propertyPath}`,
+        [],
+      );
+      widgetErrors.push({
+        raw: unEvalPropertyValue,
+        errorMessage: message || "",
+        errorType: PropertyEvaluationErrorType.VALIDATION,
+        severity: Severity.ERROR,
+      });
+      _.set(widget, `${EVAL_ERROR_PATH}.${propertyPath}`, widgetErrors);
     }
 
     if (isPathADynamicTrigger(widget, propertyPath)) {

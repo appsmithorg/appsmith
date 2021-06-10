@@ -1,9 +1,11 @@
 import {
   DependencyMap,
-  EvalError,
-  EvalErrorTypes,
+  EVAL_ERROR_PATH,
+  EVAL_VALUE_PATH,
+  EvaluationError,
   isChildPropertyPath,
   isDynamicValue,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
@@ -18,6 +20,7 @@ import {
 import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { Severity } from "entities/AppsmithConsole";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -70,8 +73,15 @@ export function getEntityNameAndPropertyPath(
   propertyPath: string;
 } {
   const indexOfFirstDot = fullPath.indexOf(".");
+  if (indexOfFirstDot === -1) {
+    // No dot was found so path is the entity name itself
+    return {
+      entityName: fullPath,
+      propertyPath: "",
+    };
+  }
   const entityName = fullPath.substring(0, indexOfFirstDot);
-  const propertyPath = fullPath.substring(fullPath.indexOf(".") + 1);
+  const propertyPath = fullPath.substring(indexOfFirstDot + 1);
   return { entityName, propertyPath };
 }
 
@@ -279,8 +289,7 @@ export function validateWidgetProperty(
 }
 
 export function getValidatedTree(tree: DataTree) {
-  const errors: EvalError[] = [];
-  const validatedTree = Object.keys(tree).reduce((tree, entityKey: string) => {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
@@ -303,37 +312,19 @@ export function getValidatedTree(tree: DataTree) {
         ? value
         : transformed;
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
+      _.set(parsedEntity, `${EVAL_VALUE_PATH}.${property}`, safeEvaluatedValue);
       if (!isValid) {
-        errors.push({
-          type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-          message: message || "",
-          context: {
-            source: {
-              id: parsedEntity.widgetId,
-              name: parsedEntity.widgetName,
-              type: ENTITY_TYPE.WIDGET,
-              propertyPath: property,
-            },
-            state: {
-              value: safeEvaluatedValue,
-            },
-          },
-        });
-        _.set(parsedEntity, `invalidProps.${property}`, true);
-        _.set(parsedEntity, `validationMessages.${property}`, message);
-      } else {
-        _.set(parsedEntity, `invalidProps.${property}`, false);
-        _.set(parsedEntity, `validationMessages.${property}`, "");
+        const error: EvaluationError = {
+          errorType: PropertyEvaluationErrorType.VALIDATION,
+          errorMessage: message || "",
+          severity: Severity.ERROR,
+          raw: value,
+        };
+        _.set(parsedEntity, `${EVAL_ERROR_PATH}.${property}`, [error]);
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
-
-  return {
-    validatedTree,
-    errors,
-  };
 }
 
 export const getAllPaths = (
