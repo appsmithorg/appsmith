@@ -225,7 +225,12 @@ export const CanvasSelectionArena = memo(
       mainContainer.bottomRow,
     ]);
 
-    return <StyledSelectionCanvas id={`canvas-${widgetId}`} />;
+    return (
+      <StyledSelectionCanvas
+        data-testid={`canvas-${widgetId}`}
+        id={`canvas-${widgetId}`}
+      />
+    );
   },
 );
 CanvasSelectionArena.displayName = "CanvasSelectionArena";

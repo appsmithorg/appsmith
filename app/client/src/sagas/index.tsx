@@ -20,7 +20,7 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./EvaluationsSaga";
-import onboardingSaga from "./OnboardingSagas";
+import onboardingSagas from "./OnboardingSagas";
 import utilSagas from "./UtilSagas";
 import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
@@ -57,16 +57,14 @@ const sagas = [
   batchSagas,
   themeSagas,
   evaluationsSaga,
-  onboardingSaga,
+  onboardingSagas,
   actionExecutionChangeListeners,
   utilSagas,
-  saaSPaneSagas,
   globalSearchSagas,
   recentEntitiesSagas,
   commentSagas,
   websocketSagas,
   debuggerSagas,
-  utilSagas,
   saaSPaneSagas,
   tourSagas,
   notificationsSagas,
