@@ -137,7 +137,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
   });
 
   useEffect(() => {
-    setLoadError(false);
+    if (value) setLoadError(false);
   }, [value]);
 
   return (
@@ -155,8 +155,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
                 <ProfileImagePlaceholder />
               ) : (
                 <img
-                  onError={(e) => {
-                    console.log(e, "error");
+                  onError={() => {
                     setLoadError(true);
                   }}
                   onLoad={() => setLoadError(false)}
