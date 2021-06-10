@@ -14,6 +14,8 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppMode } from "selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
+import { closePropertyPane } from "actions/widgetActions";
+import { useDispatch } from "react-redux";
 
 /**
  *
@@ -71,6 +73,8 @@ export const useClickOpenPropPane = () => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
+  const dispatch = useDispatch();
+
   const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
   const openPropertyPane = (e: any, targetWidgetId: string) => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
@@ -97,6 +101,14 @@ export const useClickOpenPropPane = () => {
         focusWidget(focusedWidgetId);
         e.type === "dblclick" &&
           showPropertyPane(focusedWidgetId, undefined, true);
+      }
+      if (e.type === "dblclick") {
+        const widgetId = parentWidgetToOpen
+          ? parentWidgetToOpen.widgetId
+          : focusedWidgetId;
+        showPropertyPane(widgetId, undefined, true);
+      } else {
+        dispatch(closePropertyPane());
       }
 
       if (isMultiSelect) {

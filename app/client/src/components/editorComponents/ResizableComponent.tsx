@@ -15,7 +15,6 @@ import {
   computeRowCols,
 } from "./ResizableUtils";
 import {
-  useShowPropertyPane,
   useWidgetSelection,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
@@ -58,7 +57,6 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isCommentMode = useSelector(commentModeSelector);
 
-  const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
