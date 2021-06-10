@@ -282,6 +282,7 @@ function CommentCard({
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
     pageId,
+    mode: commentThread?.mode,
   });
 
   const copyCommentLink = () => {

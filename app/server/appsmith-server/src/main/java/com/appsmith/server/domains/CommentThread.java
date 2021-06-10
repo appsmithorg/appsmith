@@ -38,6 +38,8 @@ public class CommentThread extends BaseDomain {
     @JsonIgnore
     Set<String> viewedByUsers;
 
+    String mode;
+
     @Transient
     Boolean isViewed;
 
