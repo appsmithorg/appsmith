@@ -5,13 +5,13 @@ import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
 import Container from "./Container";
 
-function AppComments() {
+function AppComments(props: { isInline?: boolean }) {
   const isCommentMode = useSelector(commentModeSelector);
 
   if (!isCommentMode) return null;
 
   return (
-    <Container>
+    <Container isInline={props.isInline}>
       <AppCommentsHeader />
       <AppCommentThreads />
     </Container>
