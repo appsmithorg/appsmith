@@ -316,6 +316,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
+    console.log({ defaultProps: widget.defaultProps, itemIndex });
     // add default value
     Object.keys(widget.defaultProps).map((key: string) => {
       const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
@@ -621,13 +622,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         parseInt(gridGap) * (listData.length - 1) >
       componentHeight;
 
-    const totalSpaceAvailable = componentHeight - (100 + WIDGET_PADDING * 2);
+    const totalSpaceAvailable = componentHeight - (110 + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
       templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    return { shouldPaginate, perPage: round(perPage) };
+    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : round(perPage) };
   };
 
   /**
@@ -667,7 +668,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!isNumber(perPage) || perPage === 0) {
       return (
         <ListComponentEmpty>
-          Please make sure the list widget size is greater than the template
+          Please make sure the list widget height is greater than the template
+          container height.
         </ListComponentEmpty>
       );
     }
