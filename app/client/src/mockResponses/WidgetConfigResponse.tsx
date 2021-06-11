@@ -268,7 +268,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const primaryColumns = widget.primaryColumns;
+              const primaryColumns = cloneDeep(widget.primaryColumns);
               const columnIds = Object.keys(primaryColumns);
               columnIds.forEach((columnId) => {
                 set(
