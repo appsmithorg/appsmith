@@ -135,11 +135,11 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
         
         return importExportApplicationService.exportApplicationById(id)
                 .map(fetchedResource -> {
-                    
+                    String applicationName = fetchedResource.getExportedApplication().getName();
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition
                         .builder("attachment")
-                        .filename("application-file.json", StandardCharsets.UTF_8)
+                        .filename(applicationName + ".json", StandardCharsets.UTF_8)
                         .build();
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
