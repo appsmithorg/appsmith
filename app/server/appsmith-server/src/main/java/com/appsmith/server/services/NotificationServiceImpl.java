@@ -2,8 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
+import com.appsmith.server.dtos.NotificationsResponseDTO;
 import com.appsmith.server.dtos.PaginationDTO;
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.repositories.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -71,23 +71,28 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public Mono<ResponseDTO<List<Notification>>> getAll(MultiValueMap<String, String> params) {
+    public Mono<NotificationsResponseDTO> getAll(MultiValueMap<String, String> params) {
         Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
         PageRequest pageRequest = getPageRequestFromParams(params, 10, sort);
 
         return sessionUserService.getCurrentUser().flatMap(user -> {
-            Mono<Tuple2<List<Notification>, Long>> tuple2Mono = repository.findByForUsername(
+            Mono<Long> countMono = repository.countByForUsername(user.getUsername());
+            Mono<Long> unreadCountMono = repository.countByForUsernameAndIsReadIsTrue(user.getUsername());
+            Mono<Tuple2<Long, Long>> tuple2Mono1 = Mono.zip(countMono, unreadCountMono);
+
+            Mono<Tuple2<List<Notification>, Tuple2<Long, Long>>> tuple2Mono = repository.findByForUsername(
                     user.getUsername(), pageRequest).collectList()
-                    .zipWith(repository.countByForUsername(user.getUsername()));
+                    .zipWith(tuple2Mono1);
 
             return tuple2Mono.map(objects -> {
                 List<Notification> notificationList = objects.getT1();
-                Long resultCount = objects.getT2();
+                Long resultCount = objects.getT2().getT1();
+                Long unreadCount = objects.getT2().getT2();
                 PaginationDTO pagination = new PaginationDTO(
                         pageRequest.getPageNumber(), pageRequest.getPageSize(), resultCount
                 );
-                return new ResponseDTO<> (
-                        HttpStatus.OK.value(), notificationList, null, true, pagination
+                return new NotificationsResponseDTO(
+                        HttpStatus.OK.value(), notificationList, null, true, pagination, unreadCount
                 );
             });
         });

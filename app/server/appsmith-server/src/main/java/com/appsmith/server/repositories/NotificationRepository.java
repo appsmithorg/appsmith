@@ -10,4 +10,5 @@ import reactor.core.publisher.Mono;
 public interface NotificationRepository extends BaseRepository<Notification, String>, CustomNotificationRepository {
     Flux<Notification> findByForUsername(String userId, Pageable pageable);
     Mono<Long> countByForUsername(String userId);
+    Mono<Long> countByForUsernameAndIsReadIsTrue(String userId);
 }

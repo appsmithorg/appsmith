@@ -32,6 +32,9 @@ public class ResponseMetaDTO {
         this.status = status;
         this.message = message;
     }
+    public ResponseMetaDTO(int status) {
+        this.status = status;
+    }
 
     public ResponseMetaDTO(int status, ErrorDTO errorDTO) {
         this.status = status;

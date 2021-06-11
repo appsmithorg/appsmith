@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.NotificationsResponseDTO;
 import com.appsmith.server.repositories.NotificationRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,6 +59,8 @@ public class NotificationServiceImplTest {
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(currentUser));
         // mock the repository to return count as 100
         Mockito.when(repository.countByForUsername(currentUser.getUsername())).thenReturn(Mono.just(100L));
+        // mock the repository to return unread count as 5
+        Mockito.when(repository.countByForUsernameAndIsReadIsTrue(currentUser.getUsername())).thenReturn(Mono.just(5L));
     }
 
     private List<Notification> createSampleNotificationList(int numberOfSamples) {
@@ -81,7 +83,7 @@ public class NotificationServiceImplTest {
                 Flux.fromIterable(notificationList)
         );
 
-        Mono<ResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(new LinkedMultiValueMap<>());
+        Mono<NotificationsResponseDTO> responseDTOMono = notificationService.getAll(new LinkedMultiValueMap<>());
         StepVerifier
                 .create(responseDTOMono)
                 .assertNext(listResponseDTO -> {
@@ -89,6 +91,7 @@ public class NotificationServiceImplTest {
                     Assert.assertEquals(0, listResponseDTO.getPagination().getCurrentPage());
                     Assert.assertEquals(10, listResponseDTO.getPagination().getPageSize());
                     Assert.assertEquals(100, listResponseDTO.getPagination().getTotalCount());
+                    Assert.assertEquals(5, listResponseDTO.getUnreadCount());
                 })
                 .verifyComplete();
     }
@@ -107,7 +110,7 @@ public class NotificationServiceImplTest {
         params.put("pageNumber", List.of("2")); // fetch page 2
         params.put("pageSize", List.of("8")); // fetch with page size 8
 
-        Mono<ResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(params);
+        Mono<NotificationsResponseDTO> responseDTOMono = notificationService.getAll(params);
         StepVerifier
                 .create(responseDTOMono)
                 .assertNext(listResponseDTO -> {
@@ -115,6 +118,7 @@ public class NotificationServiceImplTest {
                     Assert.assertEquals(2, listResponseDTO.getPagination().getCurrentPage());
                     Assert.assertEquals(8, listResponseDTO.getPagination().getPageSize());
                     Assert.assertEquals(100, listResponseDTO.getPagination().getTotalCount());
+                    Assert.assertEquals(5, listResponseDTO.getUnreadCount());
                 })
                 .verifyComplete();
     }
