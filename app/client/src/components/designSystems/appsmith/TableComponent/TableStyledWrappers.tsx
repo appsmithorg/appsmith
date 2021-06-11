@@ -415,6 +415,9 @@ export const CellWrapper = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: ${(props) =>
+      props?.cellProperties?.horizontalAlignment &&
+      TEXT_ALIGN[props?.cellProperties?.horizontalAlignment]};
   }
   .hidden-icon {
     display: none;

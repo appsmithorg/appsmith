@@ -7,5 +7,8 @@
     "createQuery": ".t--create-query",
     "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
     "addDatasource": ".t--add-datasource",
-    "editDatasourceButton": ".t--edit-datasource"
+    "editDatasourceButton": ".t--edit-datasource",
+    "settings": "li:contains('Settings')",
+    "query": "li:contains('Query')",
+    "switch": ".t--form-control-SWITCH input"
 }

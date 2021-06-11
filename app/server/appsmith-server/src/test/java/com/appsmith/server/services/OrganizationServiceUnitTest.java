@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.AssetRepository;
@@ -15,18 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
@@ -56,7 +52,6 @@ public class OrganizationServiceUnitTest {
                 organizationRepository, analyticsService, pluginRepository, sessionUserService, userOrganizationService,
                 userRepository, roleGraph, assetRepository, assetService
         );
-        MockitoAnnotations.initMocks(this);
     }
 
     @Test
