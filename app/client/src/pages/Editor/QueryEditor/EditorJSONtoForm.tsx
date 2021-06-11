@@ -80,7 +80,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: 50%;
   // Minimum height of bottom tabs as it can be resized
@@ -146,7 +146,7 @@ const DocumentationLink = styled.a`
   top: -6px;
 `;
 
-const SecondaryWrapper = styled.div`
+export const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 50px);
@@ -209,7 +209,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 24px;
   flex: 0;
 `;
@@ -298,7 +298,7 @@ const StyledOpenDocsIcon = styled(Icon)`
   }
 `;
 
-const TabContainerView = styled.div`
+export const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
   a {
