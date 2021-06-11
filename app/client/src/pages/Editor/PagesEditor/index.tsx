@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get, sortBy } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useCallback, useMemo } from "react";
@@ -18,6 +18,7 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { createPage } from "actions/pageActions";
 import { ControlIcons } from "icons/ControlIcons";
+import { Action } from "./PageListItem";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -31,6 +32,10 @@ function PagesEditor() {
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
+
+  const sortedPages = useMemo(() => {
+    return sortBy(pages, (page) => !page.isDefault);
+  }, [pages]);
 
   // log page load
   useEffect(() => {
@@ -64,12 +69,14 @@ function PagesEditor() {
     <Wrapper>
       <Header>
         <div>
-          <CloseIcon
-            color={get(theme, "colors.text.heading")}
-            height={20}
-            onClick={onClose}
-            width={20}
-          />
+          <Action>
+            <CloseIcon
+              color={get(theme, "colors.text.heading")}
+              height={20}
+              onClick={onClose}
+              width={20}
+            />
+          </Action>
           <h1>Page Properties</h1>
         </div>
         <Button
@@ -86,7 +93,7 @@ function PagesEditor() {
           <PageListItem applicationId={params.applicationId} item={item} />
         )}
         itemHeight={70}
-        items={pages}
+        items={sortedPages}
         onUpdate={() => {
           // call update api
         }}

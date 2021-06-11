@@ -41,8 +41,34 @@ export const EditNameContainer = styled.div`
 `;
 
 const Actions = styled.div`
+  display: flex;
+  align-items: center;
   & > div {
-    margin-left: 10px;
+    margin-left: 8px;
+  }
+`;
+
+const StyledHomeIcon = styled.div`
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+`;
+
+export const Action = styled.div`
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover,
+  &:active,
+  &.active {
+    background: #e1e1e1;
   }
 `;
 
@@ -107,19 +133,11 @@ function PageListItem(props: PageListItemProps) {
   return (
     <Container>
       <ListItem>
-        {item.isDefault ? (
-          <DefaultPageIcon
-            color={get(theme, "colors.primaryOld")}
-            height={20}
-            width={20}
-          />
-        ) : (
-          <DragIcon
-            color={get(theme, "colors.propertyPane.iconColor")}
-            height={20}
-            width={20}
-          />
-        )}
+        <DragIcon
+          color={get(theme, "colors.propertyPane.iconColor")}
+          height={20}
+          width={20}
+        />
         <EditNameContainer>
           <EditName
             enterEditMode={enterEditMode}
@@ -132,6 +150,15 @@ function PageListItem(props: PageListItemProps) {
           />
         </EditNameContainer>
         <Actions>
+          {item.isDefault && (
+            <StyledHomeIcon>
+              <DefaultPageIcon
+                color={get(theme, "colors.primaryOld")}
+                height={20}
+                width={20}
+              />
+            </StyledHomeIcon>
+          )}
           <ContextMenu
             applicationId={applicationId}
             onCopy={clonePageCallback}
@@ -140,23 +167,27 @@ function PageListItem(props: PageListItemProps) {
             onSetPageHidden={setPageHidden}
             page={item}
           />
-          <CopyIcon
-            color={get(theme, "colors.propertyPane.iconColor")}
-            height={16}
-            onClick={() => clonePageCallback(item.pageId)}
-            width={16}
-          />
-          <DeleteIcon
-            color={
-              item.isDefault
-                ? get(theme, "colors.propertyPane.deleteIconColor")
-                : get(theme, "colors.propertyPane.iconColor")
-            }
-            disabled={item.isDefault}
-            height={16}
-            onClick={() => deletePageCallback(item.pageId, item.pageName)}
-            width={16}
-          />
+          <Action>
+            <CopyIcon
+              color={get(theme, "colors.propertyPane.iconColor")}
+              height={16}
+              onClick={() => clonePageCallback(item.pageId)}
+              width={16}
+            />
+          </Action>
+          <Action>
+            <DeleteIcon
+              color={
+                item.isDefault
+                  ? get(theme, "colors.propertyPane.deleteIconColor")
+                  : get(theme, "colors.propertyPane.iconColor")
+              }
+              disabled={item.isDefault}
+              height={16}
+              onClick={() => deletePageCallback(item.pageId, item.pageName)}
+              width={16}
+            />
+          </Action>
         </Actions>
       </ListItem>
     </Container>

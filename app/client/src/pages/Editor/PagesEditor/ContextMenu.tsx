@@ -11,6 +11,7 @@ import { FormIcons } from "icons/FormIcons";
 import { Page } from "constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { useParams } from "react-router";
+import { Action } from "./PageListItem";
 import { ExplorerURLParams } from "../Explorer/helpers";
 
 // render over popover portals
@@ -34,12 +35,6 @@ const Header = styled.div`
   align-items: center;
   border-bottom: 1px solid ${(props) => props.theme.borders[2].color};
   padding-bottom: 8px;
-  & > h1 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: normal;
-    flex-grow: 1;
-  }
 `;
 
 const MenuItem = styled.div`
@@ -61,6 +56,20 @@ const MenuItemToggle = styled(Toggle)`
 const Actions = styled.div`
   & > div {
     margin-left: 10px;
+  }
+`;
+
+const PageName = styled.div`
+  flex-grow: 1;
+
+  & > h1 {
+    font-weight: normal;
+    margin: 0;
+    font-size: 14px;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
@@ -99,7 +108,9 @@ function ContextMenu(props: Props) {
       content={
         <Container>
           <Header>
-            <h1>{page.pageName}</h1>
+            <PageName>
+              <h1>{page.pageName}</h1>
+            </PageName>
             <Actions>
               <CopyIcon
                 color={get(theme, "colors.propertyPane.iconColor")}
@@ -132,13 +143,15 @@ function ContextMenu(props: Props) {
           </Header>
           <main>
             <h4>General</h4>
-            <MenuItem>
-              <div>Set Homepage</div>
-              <MenuItemToggle
-                onToggle={() => onSetPageDefault(page.pageId, applicationId)}
-                value={page.isDefault}
-              />
-            </MenuItem>
+            {!page.isDefault && (
+              <MenuItem>
+                <div>Set Homepage</div>
+                <MenuItemToggle
+                  onToggle={() => onSetPageDefault(page.pageId, applicationId)}
+                  value={page.isDefault}
+                />
+              </MenuItem>
+            )}
 
             <MenuItem>
               <div>Is Visible</div>
@@ -156,14 +169,16 @@ function ContextMenu(props: Props) {
       placement={"bottom-start"}
       portalClassName="pages-editor-context-menu"
     >
-      <SettingsIcon
-        color={get(theme, "colors.propertyPane.iconColor")}
-        height={16}
-        onClick={() => {
-          //
-        }}
-        width={16}
-      />
+      <Action className={isOpen ? "active" : ""}>
+        <SettingsIcon
+          color={get(theme, "colors.propertyPane.iconColor")}
+          height={16}
+          onClick={() => {
+            //
+          }}
+          width={16}
+        />
+      </Action>
     </Popover2>
   );
 }
