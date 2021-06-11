@@ -1,5 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentNotification;
+import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.dtos.NotificationsResponseDTO;
@@ -96,5 +100,23 @@ public class NotificationServiceImpl
                 );
             });
         });
+    }
+
+    @Override
+    public Mono<Notification> createNotification(Comment comment, String forUsername) {
+        final CommentNotification notification = new CommentNotification();
+        notification.setComment(comment);
+        notification.setForUsername(forUsername);
+        notification.setIsRead(false);
+        return repository.save(notification);
+    }
+
+    @Override
+    public Mono<Notification> createNotification(CommentThread commentThread, String forUsername) {
+        final CommentThreadNotification notification = new CommentThreadNotification();
+        notification.setCommentThread(commentThread);
+        notification.setForUsername(forUsername);
+        notification.setIsRead(false);
+        return repository.save(notification);
     }
 }
