@@ -32,19 +32,41 @@ const evaluationScripts: Record<
     return userFunction.apply(self, ARGUMENTS)`,
 };
 
-const getScriptToEval = (userScript: string, evalArguments?: Array<any>) => {
-  return evalArguments
-    ? evaluationScripts[EvaluationScriptType.ANONYMOUS_FUNCTION](userScript)
-    : evaluationScripts[EvaluationScriptType.EXPRESSION](userScript);
+export type ScriptOffset = {
+  start: { line: number; ch: number };
+  end?: { line: number; ch: number };
+};
+
+const evaluationScriptOffsets: Record<EvaluationScriptType, ScriptOffset> = {
+  [EvaluationScriptType.EXPRESSION]: { start: { line: 1, ch: 6 } },
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: {
+    start: { line: 1, ch: 23 },
+    end: { line: 2, ch: 42 },
+  },
+};
+
+const getScriptToEval = (
+  userScript: string,
+  evalArguments?: Array<any>,
+): { script: string; offset: ScriptOffset } => {
+  const scriptType = evalArguments
+    ? EvaluationScriptType.ANONYMOUS_FUNCTION
+    : EvaluationScriptType.EXPRESSION;
+  return {
+    script: evaluationScripts[scriptType](userScript),
+    offset: evaluationScriptOffsets[scriptType],
+  };
 };
 
 const getLintingErrors = (
   script: string,
+  offset: ScriptOffset,
   data: Record<string, unknown>,
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
   const options = {
+    indent: 2,
     esversion: 7,
     eqeqeq: true,
     curly: true,
@@ -57,18 +79,26 @@ const getLintingErrors = (
   };
   jshint(script, options);
 
-  return jshint.errors.map((lintError) => ({
-    errorType: PropertyEvaluationErrorType.LINT,
-    raw: script,
-    severity: lintError.code.startsWith("W")
-      ? Severity.WARNING
-      : Severity.ERROR,
-    errorMessage: lintError.reason,
-    errorPosition: {
-      ln: lintError.line,
-      char: lintError.character,
-    },
-  }));
+  return jshint.errors.map((lintError) => {
+    const position = {
+      line: lintError.line - 1,
+      ch: lintError.character - 1,
+    };
+    if (lintError.line <= offset.start.line) {
+      position.line = position.line - offset.start.line;
+      position.ch = position.ch - offset.start.ch;
+    }
+
+    return {
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: lintError.code.startsWith("W")
+        ? Severity.WARNING
+        : Severity.ERROR,
+      errorMessage: lintError.reason,
+      errorSegment: lintError.evidence,
+    };
+  });
 };
 
 export default function evaluate(
@@ -77,9 +107,12 @@ export default function evaluate(
   evalArguments?: Array<any>,
 ): EvalResult {
   const unescapedJS = unescapeJS(js);
-  const script = getScriptToEval(unescapedJS, evalArguments);
+  const { offset, script } = getScriptToEval(unescapedJS, evalArguments);
 
-  const { lintErrors, result, triggers } = (function() {
+  return (function() {
+    let errors: EvaluationError[] = [];
+    let result;
+    let triggers: any[] = [];
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
@@ -114,7 +147,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    const lintErrors = getLintingErrors(script, GLOBAL_DATA);
+    errors = getLintingErrors(script, offset, GLOBAL_DATA);
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {
@@ -129,10 +162,19 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[func] = undefined;
     });
-    const result = Function(script)();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const triggers = [...self.triggers];
+    try {
+      result = Function(script)();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      triggers = [...self.triggers];
+    } catch (e) {
+      errors.push({
+        errorMessage: e.message,
+        severity: Severity.ERROR,
+        raw: script,
+        errorType: PropertyEvaluationErrorType.PARSE,
+      });
+    }
 
     // Remove it from self
     // This is needed so that next eval can have a clean sheet
@@ -142,11 +184,6 @@ export default function evaluate(
       delete self[key];
     });
 
-    return { result, triggers, lintErrors };
+    return { result, triggers, errors };
   })();
-  return {
-    result,
-    triggers,
-    errors: lintErrors,
-  };
 }

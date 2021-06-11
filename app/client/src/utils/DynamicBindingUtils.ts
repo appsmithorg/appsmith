@@ -277,10 +277,7 @@ export type EvaluationError = {
   errorType: PropertyEvaluationErrorType;
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
-  errorPosition?: {
-    ln: number;
-    char: number;
-  };
+  errorSegment?: string;
 };
 
 export interface DataTreeEvaluationProps {

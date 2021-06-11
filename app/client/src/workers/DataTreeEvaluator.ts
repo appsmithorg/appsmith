@@ -466,6 +466,15 @@ export default class DataTreeEvaluator {
               return _.set(currentTree, fullPropertyPath, parsedValue);
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
+          } else if (isAction(entity)) {
+            const safeEvaluatedValue = removeFunctions(evalPropertyValue);
+            _.set(
+              currentTree,
+              `${entityName}.${EVAL_VALUE_PATH}.${propertyPath}`,
+              safeEvaluatedValue,
+            );
+            _.set(currentTree, fullPropertyPath, evalPropertyValue);
+            return currentTree;
           } else {
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           }

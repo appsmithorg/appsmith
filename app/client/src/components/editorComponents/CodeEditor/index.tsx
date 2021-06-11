@@ -49,7 +49,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import {
   EVAL_ERROR_PATH,

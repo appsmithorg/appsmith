@@ -278,6 +278,12 @@ function PopoverContent(props: PopoverContentProps) {
     theme,
     useValidationMessage,
   } = props;
+  let error;
+  if (hasError) {
+    error = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    )[0];
+  }
 
   return (
     <ContentWrapper
@@ -286,19 +292,13 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {hasError && (
+      {hasError && error && (
         <ErrorText>
-          <ul className="t--evaluatedPopup-error">
-            {errors.map((error) => (
-              <li key={error.errorMessage}>
-                {error.errorType.toLowerCase()} error:&nbsp;
-                {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
-                !useValidationMessage
-                  ? `This value does not evaluate to type "${expected}".`
-                  : error.errorMessage}
-              </li>
-            ))}
-          </ul>
+          {error.errorType.toLowerCase()} error:&nbsp;
+          {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
+          !useValidationMessage
+            ? `This value does not evaluate to type "${expected}".`
+            : error.errorMessage}
           <StyledDebugButton
             className="evaluated-value"
             source={"EVALUATED_VALUE"}

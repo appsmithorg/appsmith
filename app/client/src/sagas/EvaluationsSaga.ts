@@ -26,6 +26,7 @@ import {
   EvalErrorTypes,
   EvaluationError,
   PropertyEvalErrorTypeDebugMessage,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -35,7 +36,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
-import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { AppState } from "reducers";
@@ -89,10 +90,7 @@ function getLatestEvalPropertyErrors(
         `${EVAL_VALUE_PATH}.${propertyPath}`,
       );
       const evalErrors = allEvalErrors.filter(
-        (error) => error.severity === Severity.ERROR,
-      );
-      const evalWarnings = allEvalErrors.filter(
-        (error) => error.severity === Severity.WARNING,
+        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
       );
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
@@ -107,7 +105,7 @@ function getLatestEvalPropertyErrors(
 
       if (allEvalErrors.length) {
         // TODO Rank and set the most critical error
-        const error = evalErrors.length ? evalErrors[0] : evalWarnings[0];
+        const error = evalErrors[0];
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
