@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
+import { createMessage, NO_ERRORS } from "constants/messages";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
@@ -23,7 +24,10 @@ function Errors(props: { hasShortCut?: boolean }) {
     <ContainerWrapper>
       <ListWrapper className="debugger-list">
         {!Object.values(errors).length ? (
-          <BlankState hasShortCut={props.hasShortCut} />
+          <BlankState
+            hasShortCut={props.hasShortCut}
+            placeholderText={createMessage(NO_ERRORS)}
+          />
         ) : (
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
