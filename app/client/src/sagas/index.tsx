@@ -27,9 +27,10 @@ import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
-import websocketSagas from "./WebsocketSagas";
+import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
+import notificationsSagas from "./NotificationsSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -67,6 +68,7 @@ const sagas = [
   utilSagas,
   saaSPaneSagas,
   tourSagas,
+  notificationsSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

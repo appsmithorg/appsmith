@@ -19,6 +19,8 @@
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
   <br>
+  <p>We're launching the <a href = "https://www.notion.so/Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Appsmith Community</a>! Be a part of the community that will help shape the future of Appsmith!
+  <br>
   <br><p><img src="static/images/integrations.png" width="320px"></p>
   <br>
 </p>
@@ -74,6 +76,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
+- 👾 Ask for help on our [Forum](https://community.appsmith.com)
   <br><br>
 
 ## Demos
@@ -114,7 +117,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 - 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
 - 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
-#### Currently Contributing (36)
+#### Top Contributors (36)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
