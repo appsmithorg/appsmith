@@ -54,8 +54,11 @@ const MenuItemToggle = styled(Toggle)`
 `;
 
 const Actions = styled.div`
+  display: flex;
+  align-items: center;
+
   & > div {
-    margin-left: 10px;
+    margin-left: 8px;
   }
 `;
 
@@ -112,33 +115,39 @@ function ContextMenu(props: Props) {
               <h1>{page.pageName}</h1>
             </PageName>
             <Actions>
-              <CopyIcon
-                color={get(theme, "colors.propertyPane.iconColor")}
-                height={20}
-                onClick={() => onCopy(page.pageId)}
-                width={20}
-              />
-              <DeleteIcon
-                color={
-                  page.isDefault
-                    ? get(theme, "colors.propertyPane.deleteIconColor")
-                    : get(theme, "colors.propertyPane.iconColor")
-                }
-                disabled={page.isDefault}
-                height={20}
-                onClick={() => onDelete(page.pageId, page.pageName)}
-                width={20}
-              />
-              <CloseIcon
-                color={
-                  page.isDefault
-                    ? get(theme, "colors.propertyPane.deleteIconColor")
-                    : get(theme, "colors.propertyPane.iconColor")
-                }
-                height={20}
-                onClick={() => setIsOpen(false)}
-                width={20}
-              />
+              <Action>
+                <CopyIcon
+                  color={get(theme, "colors.propertyPane.iconColor")}
+                  height={20}
+                  onClick={() => onCopy(page.pageId)}
+                  width={20}
+                />
+              </Action>
+              <Action>
+                <DeleteIcon
+                  color={
+                    page.isDefault
+                      ? get(theme, "colors.propertyPane.deleteIconColor")
+                      : get(theme, "colors.propertyPane.iconColor")
+                  }
+                  disabled={page.isDefault}
+                  height={20}
+                  onClick={() => onDelete(page.pageId, page.pageName)}
+                  width={20}
+                />
+              </Action>
+              <Action>
+                <CloseIcon
+                  color={
+                    page.isDefault
+                      ? get(theme, "colors.propertyPane.deleteIconColor")
+                      : get(theme, "colors.propertyPane.iconColor")
+                  }
+                  height={20}
+                  onClick={() => setIsOpen(false)}
+                  width={20}
+                />
+              </Action>
             </Actions>
           </Header>
           <main>
