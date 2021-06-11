@@ -31,9 +31,6 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
 `;
 
-// box-shadow: ${(props) =>
-//   props.highlight ? "0px 0px 0px 1px #e7e7e7" : "none"};
-
 export const EntityItem = styled.div<{
   active: boolean;
   step: number;

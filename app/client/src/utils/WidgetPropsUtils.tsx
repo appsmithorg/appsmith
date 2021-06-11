@@ -538,9 +538,8 @@ export const calculateDynamicHeight = (
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 2 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 2 * DGRH (approx)
-  // buffer = DGRH, it's not 2 * DGRH coz we already add a buffer on the canvas which is also equal to DGRH.
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
   const calculatedMinHeight =
     Math.floor(screenHeight / gridRowHeight) * gridRowHeight;
   if (
