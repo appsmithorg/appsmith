@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
@@ -29,6 +29,8 @@ import { getCommentsIntroSeen } from "utils/storage";
 import { User } from "constants/userConstants";
 import { AppState } from "reducers";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
 const ModeButton = styled.div<{ active: boolean }>`
   position: relative;
@@ -167,6 +169,16 @@ function ToggleCommentModeButton() {
   );
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
+
+  // Show comment mode button only on the canvas editor and viewer
+  const [shouldHide, setShouldHide] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    const pathName = window.location.pathname;
+    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
+    setShouldHide(!shouldShow);
+  }, [location]);
+  if (shouldHide) return null;
 
   if (!commentsEnabled) return null;
 
