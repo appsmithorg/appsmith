@@ -8,9 +8,12 @@ import {
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { setAppMode } from "actions/pageActions";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
+  dispatch(setAppMode(APP_MODE.EDIT));
   const mockResp: any = {
     data: {
       id: "page_id",
