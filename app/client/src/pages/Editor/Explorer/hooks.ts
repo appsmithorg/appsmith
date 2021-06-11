@@ -10,6 +10,8 @@ import { AppState } from "reducers";
 import { compact, groupBy, filter } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
+import { isAction } from "workers/evaluationUtils";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { debounce } from "lodash";
 import { find } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -93,11 +95,8 @@ export const useActions = (searchKeyword?: string) => {
     (state: AppState) => state.entities.actions,
   );
   const updatedReducerActions = useSelector((state: AppState) =>
-    filter(
-      state.evaluations.tree,
-      (entity: any) => entity.ENTITY_TYPE && entity.ENTITY_TYPE === "ACTION",
-    ),
-  ) as any;
+    filter(state.evaluations.tree, (entity) => isAction(entity)),
+  ) as DataTreeAction[];
   const pageIds = usePageIds(searchKeyword);
 
   const actions = useMemo(() => {
@@ -122,10 +121,8 @@ export const useActions = (searchKeyword?: string) => {
         }
         const newAction = {
           ...actions[pageId][actionIndex],
+          data: matchingActionFromUpdatedReducerActions.data,
         };
-        console.log(matchingActionFromUpdatedReducerActions, newAction);
-        newAction.data = matchingActionFromUpdatedReducerActions.data;
-        console.log(matchingActionFromUpdatedReducerActions, newAction);
         updatedActions[pageId].push(newAction);
       }
     }
