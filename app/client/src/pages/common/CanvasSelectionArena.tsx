@@ -8,6 +8,7 @@ import React, { memo, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
@@ -33,6 +34,8 @@ export interface SelectedArenaDimensions {
 export const CanvasSelectionArena = memo(
   ({ widgetId }: { widgetId: string }) => {
     const dispatch = useDispatch();
+    const appMode = useSelector(getAppMode);
+
     const mainContainer = useSelector((state: AppState) =>
       getWidget(state, MAIN_CONTAINER_WIDGET_ID),
     );
@@ -208,8 +211,9 @@ export const CanvasSelectionArena = memo(
           selectWidgetsInit(selectionDimensions, isMultiSelect);
         }
       };
-
-      init();
+      if (appMode === "EDIT") {
+        init();
+      }
       return () => {
         selectionCanvas.removeEventListener("mousedown", onMouseDown);
         selectionCanvas.removeEventListener("mouseup", onMouseUp);
