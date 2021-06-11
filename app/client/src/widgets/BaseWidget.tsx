@@ -442,14 +442,6 @@ export const WIDGET_DISPLAY_PROPS = {
   backgroundColor: true,
 };
 
-export const WIDGET_INTERNAL_PROPS = {
-  ...WIDGET_STATIC_PROPS,
-  ...WIDGET_DISPLAY_PROPS,
-  version: true,
-  dynamicTriggerPathList: true,
-  dynamicBindingPathList: true,
-};
-
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
   isVisible?: boolean;

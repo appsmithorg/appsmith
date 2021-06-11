@@ -1007,11 +1007,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyName: "template",
                   propertyValue: template,
                 },
-                {
-                  widgetId: widget.widgetId,
-                  propertyName: "internalPropertiesKeys",
-                  propertyValue: Object.keys(WIDGET_INTERNAL_PROPS),
-                },
               ];
 
               // add logBlackList to updateProperyMap for all children

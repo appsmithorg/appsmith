@@ -16,7 +16,7 @@ describe("generateDataTreeWidget", () => {
       "getWidgetMetaPropertiesMap",
     );
     getMetaProps.mockReturnValueOnce({
-      text: "",
+      text: undefined,
       isDirty: false,
       isFocused: false,
     });
