@@ -1,9 +1,13 @@
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  PageListPayload,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -12,6 +16,8 @@ export const useMockDsl = (dsl: any) => {
       id: "page_id",
       name: "Page1",
       applicationId: "app_id",
+      isDefault: true,
+      isHidden: false,
       layouts: [
         {
           id: "layout_id",
@@ -23,6 +29,30 @@ export const useMockDsl = (dsl: any) => {
     },
   };
   const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
+  dispatch({
+    type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+    payload: [
+      {
+        pageId: mockResp.data.id,
+        dsl: extractCurrentDSL(mockResp),
+      },
+    ],
+  });
+  const pages: PageListPayload = [
+    {
+      pageName: mockResp.data.name,
+      pageId: mockResp.data.id,
+      isDefault: mockResp.data.isDefault,
+      isHidden: !!mockResp.data.isHidden,
+    },
+  ];
+  dispatch({
+    type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    payload: {
+      pages,
+      applicationId: mockResp.data.applicationId,
+    },
+  });
   dispatch({
     type: "UPDATE_LAYOUT",
     payload: { widgets: canvasWidgetsPayload.widgets },
@@ -36,7 +66,10 @@ export function MockPageDSL({ dsl, children }: any) {
   return children;
 }
 
-export const syntheticTestMouseEvent = (event: MouseEvent, optionsToAdd = {}) => {
+export const syntheticTestMouseEvent = (
+  event: MouseEvent,
+  optionsToAdd = {},
+) => {
   const options = Object.entries(optionsToAdd);
   options.forEach(([key, value]) => {
     Object.defineProperty(event, key, { get: () => value });

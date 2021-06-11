@@ -169,6 +169,9 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
+          className={`${props.highlight ? "highlighted" : ""} ${
+            props.active ? "active" : ""
+          }`}
           highlight={!!props.highlight}
           spaced={!!props.children}
           step={props.step}
