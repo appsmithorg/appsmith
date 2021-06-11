@@ -122,41 +122,41 @@ jobs:
 #     # Run this job only if all the previous steps are a success and the reference if the release or master branch
 #     if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
-    steps:
+       steps:
       # Checkout the code
-      - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
-        with:
+       - name: Checkout the merged commit from PR and base branch
+         if: github.event_name == 'pull_request_review'
+         uses: actions/checkout@v2
+         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+       - name: Checkout the head commit of the branch
+         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+         uses: actions/checkout@v2
 
-      - name: Download the react build artifact
-        uses: actions/download-artifact@v2
-        with:
+       - name: Download the react build artifact
+         uses: actions/download-artifact@v2
+         with:
           name: build
           path: app/client/build
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
-      - name: Get the version to tag the Docker image
-        id: branch_name
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+       - name: Get the version to tag the Docker image
+         id: branch_name
+         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Build release Docker image and push to Docker Hub
-      - name: Push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
+       - name: Push release image to Docker Hub
+         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
       # Build master Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
+       - name: Push production image to Docker Hub with commit tag
+         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
