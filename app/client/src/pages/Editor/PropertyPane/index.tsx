@@ -81,9 +81,12 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
-  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
   padding: ${(props) => props.theme.spaces[5]}px;
   padding-top: 0px;
+`;
+
+export const PropertyPaneBodyWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
 `;
 
 function PropertyPaneView(
@@ -157,15 +160,17 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
-      {!doActionsExist && <ConnectDataCTA />}
-      <PropertyControlsWrapper>
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={theme}
-          type={widgetProperties.type}
-        />
-      </PropertyControlsWrapper>
+      <PropertyPaneBodyWrapper>
+        {!doActionsExist && <ConnectDataCTA />}
+        <PropertyControlsWrapper>
+          <PropertyControlsGenerator
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={theme}
+            type={widgetProperties.type}
+          />
+        </PropertyControlsWrapper>
+      </PropertyPaneBodyWrapper>
     </>
   );
 }

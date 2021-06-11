@@ -19,8 +19,8 @@ const StyledDiv = styled.div`
   color: #202223;
   font-size: 15px;
   background-color: rgb(248, 106, 43, 0.1);
-  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
   padding: 8px 17px;
+  margin: 6px 0px;
 
   a:first-child {
     margin-top: 6px;
