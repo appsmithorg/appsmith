@@ -478,7 +478,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         set(updatedListItemContainer, `disabledResizeHandles`, [
           "left",
           "top",
-          "bottom",
           "right",
           "bottomRight",
           "topLeft",
