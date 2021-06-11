@@ -32,9 +32,9 @@ class DividerComponent extends React.Component<DividerComponentProps> {
     return (
       <DividerWrapper>
         {isHorizontal ? (
-          <HorizontalDivider {...this.props} />
+          <HorizontalDivider data-testid="dividerHorizontal" {...this.props} />
         ) : (
-          <VerticalDivider {...this.props} />
+          <VerticalDivider data-testid="dividerVertical" {...this.props} />
         )}
       </DividerWrapper>
     );
