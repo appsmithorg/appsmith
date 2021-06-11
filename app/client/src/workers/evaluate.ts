@@ -32,35 +32,18 @@ const evaluationScripts: Record<
     return userFunction.apply(self, ARGUMENTS)`,
 };
 
-export type ScriptOffset = {
-  start: { line: number; ch: number };
-  end?: { line: number; ch: number };
-};
-
-const evaluationScriptOffsets: Record<EvaluationScriptType, ScriptOffset> = {
-  [EvaluationScriptType.EXPRESSION]: { start: { line: 1, ch: 6 } },
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: {
-    start: { line: 1, ch: 23 },
-    end: { line: 2, ch: 42 },
-  },
-};
-
 const getScriptToEval = (
   userScript: string,
   evalArguments?: Array<any>,
-): { script: string; offset: ScriptOffset } => {
+): string => {
   const scriptType = evalArguments
     ? EvaluationScriptType.ANONYMOUS_FUNCTION
     : EvaluationScriptType.EXPRESSION;
-  return {
-    script: evaluationScripts[scriptType](userScript),
-    offset: evaluationScriptOffsets[scriptType],
-  };
+  return evaluationScripts[scriptType](userScript);
 };
 
 const getLintingErrors = (
   script: string,
-  offset: ScriptOffset,
   data: Record<string, unknown>,
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
@@ -80,15 +63,6 @@ const getLintingErrors = (
   jshint(script, options);
 
   return jshint.errors.map((lintError) => {
-    const position = {
-      line: lintError.line - 1,
-      ch: lintError.character - 1,
-    };
-    if (lintError.line <= offset.start.line) {
-      position.line = position.line - offset.start.line;
-      position.ch = position.ch - offset.start.ch;
-    }
-
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
@@ -107,7 +81,7 @@ export default function evaluate(
   evalArguments?: Array<any>,
 ): EvalResult {
   const unescapedJS = unescapeJS(js);
-  const { offset, script } = getScriptToEval(unescapedJS, evalArguments);
+  const script = getScriptToEval(unescapedJS, evalArguments);
 
   return (function() {
     let errors: EvaluationError[] = [];
@@ -147,7 +121,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, offset, GLOBAL_DATA);
+    errors = getLintingErrors(script, GLOBAL_DATA);
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {
