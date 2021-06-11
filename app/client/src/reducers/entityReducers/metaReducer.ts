@@ -1,5 +1,5 @@
-import { set } from "lodash";
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { set, cloneDeep } from "lodash";
+import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 
@@ -7,12 +7,12 @@ export type MetaState = Record<string, Record<string, unknown>>;
 
 const initialState: MetaState = {};
 
-export const metaReducer = createImmerReducer(initialState, {
+export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
-    const next = state;
+    const next = cloneDeep(state);
 
     set(
       next,
