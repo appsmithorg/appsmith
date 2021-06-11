@@ -3,39 +3,53 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
+import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
-import com.sun.mail.imap.ACL;
-import lombok.NoArgsConstructor;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.security.acl.Acl;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
-public class    CreateDBTablePageSolution {
+public class CreateDBTablePageSolution {
     
     private DatasourceStructureSolution datasourceStructureSolution;
     
@@ -45,13 +59,13 @@ public class    CreateDBTablePageSolution {
     
     private NewPageService newPageService;
     
+    private NewActionService newActionService;
+    
     private ApplicationService applicationService;
     
-    private ApplicationPageService applicationPageService;
-    
-    private ConfigService configService;
-    
     private LayoutActionService layoutActionService;
+    
+    private PluginExecutor pluginExecutor;
     
     private String templateDBName = "mock-DB-to-create-CRUD-page";
     
@@ -59,89 +73,141 @@ public class    CreateDBTablePageSolution {
     
     private final String DATABASE_TABLE = "database table";
     
+    private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
+    
+    @Autowired
+    public CreateDBTablePageSolution(NewPageService newPageService,
+                                     DatasourceService datasourceService,
+                                     ApplicationService applicationService,
+                                     NewActionService newActionService,
+                                     LayoutActionService layoutActionService) {
+        this.newPageService = newPageService;
+        this.datasourceService = datasourceService;
+        this.applicationService = applicationService;
+        this.newActionService = newActionService;
+        this.layoutActionService = layoutActionService;
+    }
+    
     private enum DBActionType {
         CREATE, READ, SELECT, UPDATE, DELETE
     }
     
-    public PageDTO createPageFromDBTable(String appId, String pageId, String datasourceId, String tableName) {
-        
-        Mono<DatasourceStructure> templateDSStructureMono = configService.getTemplateDatasources()
-            .filter(datasource -> StringUtils.equals(datasource.getName(), templateDBName))
-            .next()
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)))
-            .map(datasource -> datasource.getStructure())
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, templateDBName)));
-        
-        Mono<NewPage> templatePageMono = configService.getTemplateApplications()
-            .filter(application -> StringUtils.equals(application.getName(), templateApplicationName))
-            .next()
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, templateApplicationName)))
-            .flatMap(application -> {
-                ApplicationPage defaultAppPage = application.getPages()
-                    .stream()
-                    .filter(ApplicationPage::isDefault)
-                    .findFirst()
-                    .orElse(null);
-                
-                return newPageService.getById(defaultAppPage.getId());
-            });
-        
-        return datasourceStructureSolution.getStructure(datasourceId, true)
+    public Mono<PageDTO> createPageFromDBTable(String pageId, Object tableObject) {
+    
+        final String tableName = ((HashMap<String, String>) tableObject).get("tableName");
+        Mono<Datasource> datasourceMono = newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
             .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasourceId))
+                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
             )
-            .zipWith(datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
-                )
+            .flatMap(newPage -> applicationService.findById(newPage.getApplicationId()))
+            .flatMap(application ->
+                datasourceService
+                    .findAllByOrganizationId(application.getOrganizationId(), AclPermission.MANAGE_DATASOURCES)
+                    .filter(datasource ->
+                        datasource.getStructure() != null && !datasource.getStructure().getTables().isEmpty()
+                        && datasource.getStructure().getTables()
+                            .stream().filter(table -> StringUtils.equals(table.getName(), tableName)).findFirst() != null
+                    )
+                    .next()
             )
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE)))
+            .cache();
+        
+        Mono<NewPage> pageMono = newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
+        
+        return datasourceMono
+            .zipWhen(datasource -> getTable(datasource, tableName))
             .flatMap(tuple -> {
-                DatasourceStructure datasourceStructure = tuple.getT1();
-                Datasource currDatasource = tuple.getT2();
-                
-                Table currTable = datasourceStructure.getTables()
-                    .stream()
-                    .filter(t -> StringUtils.equals(tableName, t.getName()))
-                    .findFirst()
-                    .orElse(null);
-                
-                if (currTable == null) {
-                    return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName));
+                Datasource datasource = tuple.getT1();
+                Table table = tuple.getT2();
+            
+                ApplicationJson applicationJson = new ApplicationJson();
+                try {
+                    applicationJson = fetchTemplateApplication(FILE_PATH);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                return Mono.zip(
-                    Mono.just(currTable),
-                    templateDSStructureMono,
-                    templatePageMono
-                );
-            })
-            .map(tuple -> {
-                Table currTable = tuple.getT1();
                 //We are expecting only one table will be present
-                Table templateTable = tuple.getT2().getTables().get(0);
-                NewPage templatePage = tuple.getT3();
+                Table templateTable = applicationJson.getDatasourceList().get(0).getStructure().getTables().get(0);
                 Map<String, Column> templateTableNameToColumnMap = new HashMap<>();
                 Map<String, Column> currTableNameToColumnMap = new HashMap<>();
                 List<Map<String, Column>> columnMapList = List.of(templateTableNameToColumnMap, currTableNameToColumnMap);
-                Map<String, String> mappedColumns = mapTableColumnNames(templateTable, currTable, columnMapList);
-                cloneAction()
+                Map<String, String> mappedColumns = mapTableColumnNames(templateTable, table, columnMapList);
+                
+                List<NewAction> templateActionList = applicationJson.getActionList();
+                return cloneActions(datasource, tableName, pageId, templateActionList, mappedColumns)
+                    .collectList();
+            })
+            .map(actionList -> {
+                
+                PageDTO generatedPage = new PageDTO();
+                return generatedPage;
             });
     }
     
-    private Mono<ActionDTO> cloneAction(Datasource datasource, String pageId,
-                                        ActionDTO templateAction, DBActionType actionType) {
+    private Mono<Table> getTable(Datasource datasource, String tableName) {
+        DatasourceStructure datasourceStructure = datasource.getStructure();
+        if (datasourceStructure != null) {
+            return Mono.justOrEmpty(getTable(datasourceStructure, tableName))
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)));
+        }
+        return datasourceStructureSolution.getStructure(datasource.getId(), true)
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)))
+            .map(datasourceStructure1 -> getTable(datasourceStructure1, tableName));
+    }
+    
+    private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
+        return datasourceStructure.getTables()
+            .stream()
+            .filter(table1 -> StringUtils.equals(table1.getName(),tableName))
+            .findAny()
+            .orElse(null);
+    }
+    
+    private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
+        final String jsonContent = StreamUtils.copyToString(
+            new DefaultResourceLoader().getResource(filePath).getInputStream(),
+            Charset.defaultCharset()
+        );
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+            .create();
         
-        ActionDTO action = templateAction;
-        action.setDatasource(datasource);
-        action.setPageId(pageId);
+        return gson.fromJson(jsonContent, ApplicationJson.class);
+    }
+    
+    
+    private Flux<ActionDTO> cloneActions(Datasource datasource, String tableName, String pageId,
+                                         List<NewAction> templateActionList, Map<String, String> mappedColumns) {
         
-        datasource.getStructure().getTables().get(0).getTemplates()
-        
-        return pluginService.findById(datasource.getPluginId())
-            .map(plugin -> {
-                String pluginPackageName = plugin.getPackageName();
-                
+        return Flux.fromIterable(templateActionList)
+            .flatMap(templateAction -> {
+                ActionDTO actionDTO = new ActionDTO();
+                ActionConfiguration actionConfiguration = templateAction.getUnpublishedAction().getActionConfiguration();
+                actionDTO.setPluginId(datasource.getPluginId());
+                actionDTO.setId(null);
+                actionDTO.setDatasource(datasource);
+                actionDTO.setPageId(pageId);
+                actionDTO.setName(templateAction.getUnpublishedAction().getName());
+                return Mono.zip(layoutActionService.createAction(actionDTO), Mono.just(actionConfiguration));
             })
-        
+            .flatMap(tuple -> {
+                ActionDTO actionDTO = tuple.getT1();
+                ActionConfiguration actionConfiguration = tuple.getT2();
+                String actionBody = actionConfiguration.getBody();
+                actionDTO.setActionConfiguration(actionConfiguration);
+                
+                String fieldRegex = "(?<=\")([^ \n,{}]*?)(?=\")";
+                
+                String body = actionBody.replaceFirst("tableName", tableName);
+                final Pattern pattern = Pattern.compile(fieldRegex);
+                final Matcher matcher = pattern.matcher(body);
+                
+                actionDTO.getActionConfiguration().setBody(matcher.replaceAll(key -> mappedColumns.get(key.group())));
+                actionDTO.setActionConfiguration(actionConfiguration);
+                return layoutActionService.updateAction(actionDTO.getId(), actionDTO);
+            });
     }
     
     private Map<String, String> mapTableColumnNames(Table sourceTable, Table destTable, List<Map<String, Column>> columnMapList) {
@@ -150,12 +216,15 @@ public class    CreateDBTablePageSolution {
         Map<String, Column> currTableColumnMap = columnMapList.get(1);
         List<Column> sourceTableColumns = sourceTable.getColumns(), destTableColumns = destTable.getColumns();
         
+        mappedTableColumns = mapKeys(sourceTable, destTable);
         int idx = 0;
         while (idx < sourceTableColumns.size() && idx < destTableColumns.size()) {
             
             templateColumnMap.put(sourceTableColumns.get(idx).getName(), sourceTableColumns.get(idx));
             currTableColumnMap.put(destTableColumns.get(idx).getName(), destTableColumns.get(idx));
-            mappedTableColumns.put(sourceTableColumns.get(idx).getName(), destTableColumns.get(idx).getName());
+            if (!mappedTableColumns.containsKey(sourceTableColumns.get(idx).getName())) {
+                mappedTableColumns.put(sourceTableColumns.get(idx).getName(), destTableColumns.get(idx).getName());
+            }
             idx++;
         }
         
@@ -169,7 +238,29 @@ public class    CreateDBTablePageSolution {
     }
     
     private Map<String, String> mapKeys(Table sourceTable, Table destTable) {
-    
+        Map<String, String> primaryKeyNameMap = new HashMap<>();
+        //keyType vs keyName
+        List<String> sourceKeys = new ArrayList<>();
+        List<String> destKeys = new ArrayList<>();
+        
+        if (sourceTable.getKeys() == null || sourceTable.getKeys().isEmpty()
+            || destTable.getKeys() == null || destTable.getKeys().isEmpty()) {
+            return primaryKeyNameMap;
+        }
+        sourceTable.getKeys().stream().forEach(key -> {
+            if (key instanceof PrimaryKey) {
+                PrimaryKey pKey = (PrimaryKey) key;
+                sourceKeys.addAll(pKey.getColumnNames());
+            }
+        });
+        destTable.getKeys().stream().forEach(key -> {
+            if (key instanceof PrimaryKey) {
+                PrimaryKey pKey = (PrimaryKey) key;
+                destKeys.addAll(pKey.getColumnNames());
+            }
+        });
+        return Streams.zip(sourceKeys.stream(), destKeys.stream(), Maps::immutableEntry)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
 
