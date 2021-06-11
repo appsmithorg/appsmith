@@ -114,7 +114,9 @@ export const renderCell = (
           tableWidth={tableWidth}
           title={value.toString()}
         >
-          {value.toString()}
+          {value && columnType === ColumnTypes.URL && cellProperties.displayText
+            ? cellProperties.displayText
+            : value.toString()}
         </AutoToolTipComponent>
       );
   }
