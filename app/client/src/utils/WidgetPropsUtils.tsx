@@ -39,6 +39,7 @@ import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { theme } from "../../src/constants/DefaultTheme";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -523,6 +524,13 @@ export function migrateChartDataFromArrayToObject(
   return currentDSL;
 }
 
+const pixelToNumber = (pixel: string) => {
+  if (pixel.includes("px")) {
+    return parseInt(pixel.split("px").join(""));
+  }
+  return 0;
+};
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -540,8 +548,10 @@ export const calculateDynamicHeight = (
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
   const calculatedMinHeight =
-    Math.floor(screenHeight / gridRowHeight) * gridRowHeight;
+    Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
   if (
     calculatedCanvasHeight < screenHeight &&
     calculatedMinHeight !== presentMinimumHeight
