@@ -35,7 +35,7 @@ const content1 =
 const content2 =
   "Comment on your co-worker’s work and share your thoughts on what works and what needs change.";
 const content3 =
-  "When leaving a comment you can tag oter people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.";
+  "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.";
 const content4 =
   "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.";
 

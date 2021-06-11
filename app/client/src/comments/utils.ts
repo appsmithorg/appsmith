@@ -1,4 +1,5 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -77,4 +78,35 @@ export const getOffsetPos = (
     left: offsetLeftPercent,
     top: offsetTopPercent,
   };
+};
+
+export const getCommentThreadURL = ({
+  applicationId,
+  commentThreadId,
+  isResolved,
+  pageId,
+}: {
+  applicationId?: string;
+  commentThreadId: string;
+  isResolved?: boolean;
+  pageId?: string;
+}) => {
+  const queryParams: Record<string, any> = {
+    commentThreadId,
+    isCommentMode: true,
+  };
+
+  if (isResolved) {
+    queryParams.isResolved = true;
+  }
+
+  const url = new URL(
+    `${window.location.origin}${BUILDER_PAGE_URL(
+      applicationId,
+      pageId,
+      queryParams,
+    )}`,
+  );
+
+  return url;
 };

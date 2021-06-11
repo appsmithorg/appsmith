@@ -25,6 +25,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
+import { PluginType } from "entities/Action";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -158,10 +159,13 @@ function ActionItem(props: {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = getActionConfig(pluginType)?.getIcon(
-    item.config,
-    pluginGroups[item.config.datasource.pluginId],
-  );
+  const icon =
+    pluginType === PluginType.API
+      ? getActionConfig(pluginType)?.icon
+      : getActionConfig(pluginType)?.getIcon(
+          item.config,
+          pluginGroups[item.config.datasource.pluginId],
+        );
 
   let title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
@@ -293,9 +297,7 @@ function SearchItemComponent(props: ItemProps) {
           itemType !== SEARCH_ITEM_TYPES.placeholder
         ) {
           setActiveItemIndex(index);
-          if (itemType !== SEARCH_ITEM_TYPES.document) {
-            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
-          }
+          searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
         }
       }}
       ref={itemRef}

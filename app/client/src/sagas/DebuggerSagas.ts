@@ -1,6 +1,5 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { WidgetTypes } from "constants/WidgetConstants";
 import {
   ENTITY_TYPE,
   LogActionPayload,
@@ -8,76 +7,24 @@ import {
 } from "entities/AppsmithConsole";
 import {
   all,
+  call,
+  fork,
   put,
-  takeEvery,
   select,
   take,
-  fork,
-  call,
+  takeEvery,
 } from "redux-saga/effects";
-import {
-  getDataTree,
-  getEvaluationInverseDependencyMap,
-} from "selectors/dataTreeSelectors";
-import { isEmpty, set, get } from "lodash";
+import { get, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
-  getEntityNameAndPropertyPath,
-  isWidget,
-} from "workers/evaluationUtils";
-import { getWidget } from "./selectors";
-import { WidgetProps } from "widgets/BaseWidget";
-
-function* onWidgetUpdateSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
-  // Wait for data tree update
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const widget = dataTree[payload.source.name];
-
-  if (
-    !isWidget(widget) ||
-    !widget.validationMessages ||
-    !widget.jsErrorMessages
-  )
-    return;
-
-  // Ignore canvas widget updates
-  if (widget.type === WidgetTypes.CANVAS_WIDGET) {
-    return;
-  }
-  const source = payload.source;
-
-  // If widget properties no longer have validation errors update the same
-  if (payload.state) {
-    const propertyPath = Object.keys(payload.state)[0];
-
-    const validationMessages = widget.validationMessages;
-    const validationMessage = validationMessages[propertyPath];
-    const jsErrorMessages = widget.jsErrorMessages;
-    const jsErrorMessage = jsErrorMessages[propertyPath];
-    const errors = yield select(getDebuggerErrors);
-    const errorId = `${source.id}-${propertyPath}`;
-    const widgetErrorLog = errors[errorId];
-    if (!widgetErrorLog) return;
-
-    const noError = isEmpty(validationMessage);
-    const noJsError = isEmpty(jsErrorMessage);
-
-    if (noError && noJsError) {
-      delete errors[errorId];
-
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-        payload: errors,
-      });
-    }
-  }
-}
+  getDataTree,
+  getEvaluationInverseDependencyMap,
+} from "selectors/dataTreeSelectors";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -172,7 +119,7 @@ function* logDependentEntityProperties(payload: Message) {
         source: {
           type: ENTITY_TYPE.WIDGET,
           name: entityInfo.entityName,
-          id: widget.widge,
+          id: widget.widgetId,
         },
         state: {
           [entityInfo.propertyPath]: get(dataTree, path),
@@ -188,7 +135,6 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
       return;
@@ -239,42 +185,6 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
-// Pass through error list once after on page load actions executions are complete
-function* onExecutePageActionsCompleteSaga() {
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-
-  const dataTree: DataTree = yield select(getDataTree);
-  const errors = yield select(getDebuggerErrors);
-  const updatedErrors = { ...errors };
-  const errorIds = Object.keys(errors);
-
-  for (const id of errorIds) {
-    const splits = id.split("-");
-    const entityId = splits[0];
-    const propertyName = splits[1];
-    const widget: WidgetProps | null = yield select(getWidget, entityId);
-
-    if (widget) {
-      const dataTreeWidget = dataTree[widget.widgetName] as DataTreeWidget;
-
-      if (!get(dataTreeWidget.invalidProps, propertyName, null)) {
-        delete updatedErrors[id];
-      }
-    }
-  }
-
-  yield put({
-    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-    payload: updatedErrors,
-  });
-}
-
 export default function* debuggerSagasListeners() {
-  yield all([
-    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
-    takeEvery(
-      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
-      onExecutePageActionsCompleteSaga,
-    ),
-  ]);
+  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
 }

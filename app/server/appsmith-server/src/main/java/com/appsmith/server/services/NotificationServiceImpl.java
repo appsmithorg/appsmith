@@ -29,8 +29,7 @@ public class NotificationServiceImpl
             ReactiveMongoTemplate reactiveMongoTemplate,
             NotificationRepository repository,
             AnalyticsService analyticsService,
-            SessionUserService sessionUserService
-    ) {
+            SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
     }
@@ -57,5 +56,4 @@ public class NotificationServiceImpl
         return sessionUserService.getCurrentUser()
                 .flatMapMany(user -> repository.findByForUsername(user.getUsername()));
     }
-
 }
