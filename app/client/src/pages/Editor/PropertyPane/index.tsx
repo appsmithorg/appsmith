@@ -81,7 +81,9 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
   padding: ${(props) => props.theme.spaces[5]}px;
+  padding-top: 0px;
 `;
 
 function PropertyPaneView(
