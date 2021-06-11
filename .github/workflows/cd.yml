@@ -136,15 +136,15 @@ jobs:
      matrix:
        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
    # Service containers to run with this job. Required for running tests
-   services:
+  services:
       Label used to access the service container
-     redis:
+      redis:
        # Docker Hub image for Redis
-       image: redis
+         image: redis
        ports:
           Opens tcp port 6379 on the host and service container
          - 6379:6379
-     mongo:
+   mongo:
        image: mongo
        ports:
          - 27017:27017
