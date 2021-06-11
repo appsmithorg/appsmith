@@ -4,22 +4,26 @@ import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { hexToRgba } from "components/ads/common";
 
-function Iframe(props: IframeComponentProps) {
-  return <iframe {...props} src={props.source} />;
+interface IframeContainerProps {
+  borderColor?: string;
+  borderOpacity?: number;
+  borderWidth?: number;
 }
 
-export const IframeWithBorder = styled(Iframe)<IframeComponentProps>`
-  width: 100%;
-  height: 100%;
-  border-color: ${(props) =>
-    hexToRgba(
-      props.borderColor || "#f2f2f2",
-      (props.borderOpacity && !isNaN(props.borderOpacity)
-        ? props.borderOpacity
-        : 100) / 100,
-    )};
-  border-width: ${(props) =>
-    props.borderWidth ? Number(props.borderWidth) : 0}px;
+export const IframeContainer = styled.div<IframeContainerProps>`
+  iframe {
+    width: 100%;
+    height: 100%;
+    border-color: ${(props) =>
+      hexToRgba(
+        props.borderColor || props.theme.colors.border,
+        (props.borderOpacity && !isNaN(props.borderOpacity)
+          ? props.borderOpacity
+          : 100) / 100,
+      )};
+    border-width: ${(props) =>
+      props.borderWidth ? Number(props.borderWidth) : 0}px;
+  }
 `;
 
 export interface IframeComponentProps extends ComponentProps {
@@ -33,7 +37,15 @@ export interface IframeComponentProps extends ComponentProps {
 }
 
 function IframeComponent(props: IframeComponentProps) {
-  const { onMessageReceived, onURLChanged, source } = props;
+  const {
+    borderColor,
+    borderOpacity,
+    borderWidth,
+    onMessageReceived,
+    onURLChanged,
+    source,
+    title,
+  } = props;
 
   useEffect(() => {
     // add a listener
@@ -47,7 +59,15 @@ function IframeComponent(props: IframeComponentProps) {
     onURLChanged(source);
   }, [source]);
 
-  return <IframeWithBorder {...props} />;
+  return (
+    <IframeContainer
+      borderColor={borderColor}
+      borderOpacity={borderOpacity}
+      borderWidth={borderWidth}
+    >
+      <iframe src={source} title={title} />
+    </IframeContainer>
+  );
 }
 
 export default IframeComponent;

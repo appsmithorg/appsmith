@@ -106,7 +106,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   messageReceivedHandler = (event: MessageEvent) => {
     // Accept messages only from the current iframe
-    if (!this.props.source.includes(event.origin)) {
+    if (!this.props.source?.includes(event.origin)) {
       return;
     }
     if (this.props.onMessageReceived) {
