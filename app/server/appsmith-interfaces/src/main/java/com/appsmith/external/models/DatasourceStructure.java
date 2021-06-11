@@ -2,10 +2,12 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Data
@@ -118,4 +120,22 @@ public class DatasourceStructure {
             this.error.setCode(((BaseException)error).getAppErrorCode());
         }
     }
+    
+    /**
+     * Instance creator is required while de-serialising using Gson as key instance can't be invoked with
+     * no-args constructor
+     */
+    public static class KeyInstanceCreator implements InstanceCreator<Key> {
+        @Override
+        public Key createInstance(Type type) {
+            Key key = new Key() {
+                @Override
+                public String getType() {
+                    return null;
+                }
+            };
+            return key;
+        }
+    }
+    
 }

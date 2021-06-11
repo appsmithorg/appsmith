@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,11 +31,16 @@ import javax.validation.Valid;
 public class PageController {
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
-
+    private final CreateDBTablePageSolution createDBTablePageSolution;
+    
     @Autowired
-    public PageController(ApplicationPageService applicationPageService, NewPageService newPageService) {
+    public PageController(ApplicationPageService applicationPageService,
+                          NewPageService newPageService,
+                          CreateDBTablePageSolution createDBTablePageSolution
+    ) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
+        this.createDBTablePageSolution = createDBTablePageSolution;
     }
 
     @PostMapping
@@ -45,6 +51,14 @@ public class PageController {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return applicationPageService.createPage(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+    
+    @PutMapping("/crud-page/{pageId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@PathVariable String pageId, @RequestBody Object tableName) {
+        log.debug("Going to update resource {}", pageId);
+        return createDBTablePageSolution.createPageFromDBTable(pageId, tableName)
+            .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @Deprecated
