@@ -19,12 +19,16 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getDataTree,
   getEvaluationInverseDependencyMap,
 } from "selectors/dataTreeSelectors";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/evaluationUtils";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -112,19 +116,36 @@ function* logDependentEntityProperties(payload: Message) {
   yield all(
     finalValue.map((path) => {
       const entityInfo = getEntityNameAndPropertyPath(path);
-      const widget = dataTree[entityInfo.entityName] as DataTreeWidget;
-      const log = {
+      const entity = dataTree[entityInfo.entityName];
+      let log = {
         ...payload,
-        text: "Widget properties were updated",
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          name: entityInfo.entityName,
-          id: widget.widgetId,
-        },
         state: {
           [entityInfo.propertyPath]: get(dataTree, path),
         },
       };
+
+      if (isAction(entity)) {
+        log = {
+          ...log,
+          text: "Configuration updated",
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: entityInfo.entityName,
+            id: entity.actionId,
+          },
+        };
+      } else if (isWidget(entity)) {
+        log = {
+          ...log,
+          text: "Widget properties were updated",
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: entityInfo.entityName,
+            id: entity.widgetId,
+          },
+        };
+      }
+
       return put(debuggerLog(log));
     }),
   );
@@ -135,6 +156,10 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
+      yield put(debuggerLog(payload));
+      yield call(logDependentEntityProperties, payload);
+      return;
+    case LOG_TYPE.ACTION_UPDATE:
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
       return;
