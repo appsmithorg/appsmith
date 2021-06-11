@@ -36,9 +36,15 @@ export const generateDataTreeAction = (
     config: action.config.actionConfiguration,
     dynamicBindingPathList,
     data: action.data ? action.data.body : {},
+    responseMeta: {
+      statusCode: action.data?.statusCode,
+      isExecutionSuccess: action.data?.isExecutionSuccess || false,
+      headers: action.data?.headers,
+    },
     ENTITY_TYPE: ENTITY_TYPE.ACTION,
     isLoading: action.isLoading,
     bindingPaths: getBindingPathsOfAction(action.config, editorConfig),
     dependencyMap,
+    logBlackList: {},
   };
 };

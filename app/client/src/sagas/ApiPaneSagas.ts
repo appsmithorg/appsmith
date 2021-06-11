@@ -1,7 +1,9 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit, cloneDeep } from "lodash";
+import get from "lodash/get";
+import omit from "lodash/omit";
+import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -66,7 +68,11 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getIndextoUpdate } from "utils/ApiPaneUtils";
+import {
+  getIndextoUpdate,
+  parseUrlForQueryParams,
+  queryParamsRegEx,
+} from "utils/ApiPaneUtils";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -74,54 +80,25 @@ function* syncApiParamsSaga(
 ) {
   const field = actionPayload.meta.field;
   //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
-  let value = actionPayload.payload;
+  const value = actionPayload.payload;
   // Regular expression to find the query params group
-  const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
-  value = (value.match(queryParamsRegEx) || [])[2] || "";
-  const padQueryParams = { key: "", value: "" };
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
-    if (value.indexOf("?") > -1) {
-      const paramsString = value.substr(value.indexOf("?") + 1);
-      const params = paramsString.split("&").map((p) => {
-        const keyValue = p.split("=");
-        return { key: keyValue[0], value: keyValue[1] || "" };
-      });
-      if (params.length < 2) {
-        while (params.length < 2) {
-          params.push(padQueryParams);
-        }
-      }
-      yield put(
-        autofill(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          params,
-        ),
-      );
-      yield put(
-        setActionProperty({
-          actionId: actionId,
-          propertyName: "actionConfiguration.queryParameters",
-          value: params,
-        }),
-      );
-    } else {
-      yield put(
-        autofill(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          Array(2).fill(padQueryParams),
-        ),
-      );
-      yield put(
-        setActionProperty({
-          actionId: actionId,
-          propertyName: "actionConfiguration.queryParameters",
-          value: Array(2).fill(padQueryParams),
-        }),
-      );
-    }
+    const params = parseUrlForQueryParams(value);
+    yield put(
+      autofill(
+        API_EDITOR_FORM_NAME,
+        "actionConfiguration.queryParameters",
+        params,
+      ),
+    );
+    yield put(
+      setActionProperty({
+        actionId: actionId,
+        propertyName: "actionConfiguration.queryParameters",
+        value: params,
+      }),
+    );
   } else if (field.includes("actionConfiguration.queryParameters")) {
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     const path = values.actionConfiguration.path || "";
@@ -147,7 +124,7 @@ function* syncApiParamsSaga(
 function* handleUpdateBodyContentType(
   action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
 ) {
-  const { title, apiId } = action.payload;
+  const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
     (el) => el.label === title,
@@ -348,7 +325,7 @@ function* updateFormFields(
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);

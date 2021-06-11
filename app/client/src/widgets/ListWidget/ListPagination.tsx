@@ -29,6 +29,7 @@ const StyledPagination = styled(Pagination)<{
   bottom: 4px;
   left: 0;
   right: 0;
+  z-index: 3;
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
 

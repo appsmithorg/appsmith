@@ -35,7 +35,6 @@ import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -45,6 +44,8 @@ import PerformanceTracker, {
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+import { getAppsmithConfigs } from "configs";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
@@ -53,6 +54,13 @@ if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -76,11 +84,16 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  const { error, submitting, pristine, valid, emailValue: email } = props;
+  const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
+
+  const recaptchaStatus = useScript(
+    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
+    AddScriptTo.HEAD,
+  );
 
   let showError = false;
   let errorMessage = "";
@@ -93,8 +106,11 @@ export function SignUp(props: SignUpFormProps) {
   let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
   if (queryParams.has("appId")) {
     signupURL += `?appId=${queryParams.get("appId")}`;
-  } else if (queryParams.has("redirectUrl")) {
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  } else {
+    const redirectUrl = queryParams.get("redirectUrl");
+    if (redirectUrl != null) {
+      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+    }
   }
 
   return (
@@ -115,7 +131,37 @@ export function SignUp(props: SignUpFormProps) {
       {SocialLoginList.length > 0 && (
         <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm action={signupURL} method="POST">
+      <SpacedSubmitForm
+        action={signupURL}
+        id="signup-form"
+        method="POST"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formElement: HTMLFormElement = document.getElementById(
+            "signup-form",
+          ) as HTMLFormElement;
+          if (
+            googleRecaptchaSiteKey.enabled &&
+            recaptchaStatus === ScriptStatus.READY
+          ) {
+            window.grecaptcha
+              .execute(googleRecaptchaSiteKey.apiKey, {
+                action: "submit",
+              })
+              .then(function(token: any) {
+                formElement &&
+                  formElement.setAttribute(
+                    "action",
+                    `${signupURL}?recaptchaToken=${token}`,
+                  );
+                formElement && formElement.submit();
+              });
+          } else {
+            formElement && formElement.submit();
+          }
+          return false;
+        }}
+      >
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}

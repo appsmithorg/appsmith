@@ -127,7 +127,7 @@ const ReadMore = withTheme(
 );
 
 function ReleaseComponent({ release }: ReleaseProps) {
-  const { name, publishedAt, descriptionHtml } = release;
+  const { descriptionHtml, name, publishedAt } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);

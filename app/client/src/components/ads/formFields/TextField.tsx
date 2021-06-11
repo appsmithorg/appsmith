@@ -19,7 +19,9 @@ const renderComponent = (
   return (
     <>
       <InputComponent {...componentProps} {...componentProps.input} fill />
-      <FormFieldError error={showError && componentProps.meta.error} />
+      {!componentProps.hideErrorMessage && (
+        <FormFieldError error={showError && componentProps.meta.error} />
+      )}
     </>
   );
 };
@@ -32,6 +34,7 @@ type FormTextFieldProps = {
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
+  hideErrorMessage?: boolean;
 };
 
 function FormTextField(props: FormTextFieldProps) {

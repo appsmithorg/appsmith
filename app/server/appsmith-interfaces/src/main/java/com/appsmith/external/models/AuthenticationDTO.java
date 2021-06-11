@@ -43,9 +43,6 @@ public class AuthenticationDTO implements AppsmithDomain {
 
     Set<Property> customAuthenticationParameters;
 
-    @JsonIgnore
-    private Boolean isEncrypted;
-
     private Boolean isAuthorized;
 
     @JsonIgnore

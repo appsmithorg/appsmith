@@ -28,6 +28,53 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Appsmith Live Demo #4, 3rd Jun 2021:  Building a CMS with the Notion API</strong>
+
+<a href = "https://youtu.be/O8GyCI-nRLI">Video Link</a>
+
+#### Summary
+
+Akshay and Confidence show the community how we internally used the recently released Notion API to build a CMS with features not available natively in notion. This demo also shows how to work with APIs having complex responses.
+
+------------------
+
+<strong>Appsmith Live Demo #3, 29th May 2021:  Stitching APIs together to automate workflows</strong>
+
+<a href = "https://youtu.be/_8qLbyWwXeA">Video Link</a>
+
+#### Summary
+
+Confidence shows the community how we internally use APIs from multiple services to build apps that simplifies our workflow within Appsmith. Top questions from members of our community was also discussed.
+
+------------------
+
+<strong>Office Hours May 13th, 2021: Product roadmap discussion</strong>
+
+<a href = "https://youtu.be/1sw84i_M4_Y">Video Link</a>
+
+#### Summary
+
+Abhishek shows the community our current product road map and explains how members can contribute to it. Abhishek also hosted an interactive section where members of the community voted for the top features they want to see on Appsmith. 
+
+Some of the most requested features are: 
+1. Generate form from DB schema
+2. Custom NPM packages
+3. Custom theming
+4. Keyboard first navigation
+
+You can vote for your favorite features [here](https://miro.com/app/board/o9J_lE-dkdM=/)
+
+------------------
+
+<strong>Appsmith Live Demo #2, 6th May 2021: Building a support helpdesk using Gmail and Postgres</strong>
+
+<a href = "https://youtu.be/X_x_nRZf418">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a ticket support dashboard to assign emails to various org members using the Gmail API and Postgres. Questions from members of our community was also discussed.
+
+------------------
 
 <strong>29th April 2021: List widget, Release roadmap and more</strong>
 
