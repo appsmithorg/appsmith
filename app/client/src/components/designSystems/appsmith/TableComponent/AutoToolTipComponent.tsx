@@ -85,7 +85,7 @@ function AutoToolTipComponent(props: Props) {
       updateToolTip(false);
     }
   }, [ref]);
-  if (props.columnType === ColumnTypes.URL) {
+  if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
   return (
