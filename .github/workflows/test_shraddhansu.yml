@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
            name: build
-           path: app/client/build/
+           path: build/
            
   cheking:
     needs: Download
