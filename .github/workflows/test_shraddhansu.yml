@@ -60,11 +60,12 @@ jobs:
   cheking:
     needs: Download
     runs-on: Ubuntu-Latest
-    defaults:
-      run:
-        working-directory: /home/runner/work/appsmith/appsmith
-        shell: bash
     steps:
+      - name: Upload react build bundle.
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          
       - name: see the directory 
         run: ls -ltr
       - name: goinside the directory
