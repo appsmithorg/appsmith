@@ -5,7 +5,6 @@ import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import IframeComponent from "components/designSystems/blueprint/IframeComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
-import withMeta, { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
@@ -121,11 +120,24 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const {
+      borderColor,
+      borderOpacity,
+      borderWidth,
+      source,
+      title,
+      widgetId,
+    } = this.props;
     return (
       <IframeComponent
-        {...this.props}
+        borderColor={borderColor}
+        borderOpacity={borderOpacity}
+        borderWidth={borderWidth}
         onMessageReceived={this.messageReceivedHandler}
         onURLChanged={this.urlChangedHandler}
+        source={source}
+        title={title}
+        widgetId={widgetId}
       />
     );
   }
@@ -135,7 +147,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   }
 }
 
-export interface IframeWidgetProps extends WidgetProps, WithMeta {
+export interface IframeWidgetProps extends WidgetProps {
   source: string;
   title?: string;
   onURLChanged?: string;
@@ -146,4 +158,4 @@ export interface IframeWidgetProps extends WidgetProps, WithMeta {
 }
 
 export default IframeWidget;
-export const ProfiledIframeWidget = Sentry.withProfiler(withMeta(IframeWidget));
+export const ProfiledIframeWidget = Sentry.withProfiler(IframeWidget);

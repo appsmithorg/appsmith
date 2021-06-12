@@ -245,10 +245,11 @@ export const entityDefinitions = {
     selectedItem: generateTypeDef(widget.selectedItem),
   }),
   IFRAME_WIDGET: {
-    "!doc":
-      "‌Text widget is used to display textual information. Whether you want to display a paragraph or information or add a heading to a container, a text widget makes it easy to style and display text",
-    "!url": "https://docs.appsmith.com/widget-reference/text",
+    "!doc": "Iframe widget is used to display iframes in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/iframe",
     isVisible: isVisible,
+    source: "string",
+    title: "string",
   },
 };
 
