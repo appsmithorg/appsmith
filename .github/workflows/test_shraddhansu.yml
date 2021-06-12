@@ -58,6 +58,10 @@ jobs:
   cheking:
     needs: Download
     runs-on: Ubuntu-Latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
     steps:
       - name: see the directory 
         run: ls -ltr
