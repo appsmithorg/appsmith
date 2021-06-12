@@ -60,7 +60,7 @@ jobs:
     runs-on: Ubuntu-Latest
     defaults:
       run:
-        working-directory: app/client
+        working-directory: /home/runner/work/appsmith/appsmith/build
         shell: bash
     steps:
       - name: see the directory 
