@@ -53,14 +53,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
            name: build
-           path: build/
+           path: /build/
            
   cheking:
     needs: Download
     runs-on: Ubuntu-Latest
     defaults:
       run:
-        working-directory: /home/runner/work/appsmith/appsmith/build
+        working-directory: /build
         shell: bash
     steps:
       - name: see the directory 
