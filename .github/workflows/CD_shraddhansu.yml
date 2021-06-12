@@ -41,11 +41,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-     - name: see the directory
-       run: pwd
-     - name: see how many file is there.
-       run: ls -ltr
-     - name: upload the file to s3 bucket.
+
+     - name: Download the file from s3 bucket.
        run: aws s3 cp --recursive s3://taj2/build build/
       # Checkout the code
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
