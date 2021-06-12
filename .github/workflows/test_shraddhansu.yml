@@ -62,7 +62,7 @@ jobs:
     runs-on: Ubuntu-Latest
     steps:
       - name: Upload react build bundle.
-        uses: actions/upload-artifact@v2
+        uses: actions/download-artifact@v2
         with:
           name: build
           
