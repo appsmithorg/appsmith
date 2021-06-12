@@ -27,6 +27,9 @@ jobs:
       - run: ls -ltr
       - run: touch kk.js
       - run: ls -ltr
+  Download:
+    runs-on: ubuntu-latest
+    steps:
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -40,9 +43,9 @@ jobs:
       - run: cd notgood
       - run: touch abc.js
       - run: pwd
-      
+
       - name: upload the file to s3 bucket.
         run: aws s3 cp --recursive s3://taj2/build build
       - name: see the directory
         run: ls -ltr
-      
+
