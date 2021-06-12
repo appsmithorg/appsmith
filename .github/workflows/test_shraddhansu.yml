@@ -53,7 +53,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
            name: build
-           path: /build/
+           path: build/
+      - name: see the present diretory
+        run: pwd
            
   cheking:
     needs: Download
