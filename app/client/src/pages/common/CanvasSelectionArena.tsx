@@ -2,6 +2,7 @@ import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
+import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { throttle } from "lodash";
 import React, { memo, useEffect, useCallback } from "react";
@@ -72,9 +73,6 @@ export const CanvasSelectionArena = memo(
         const selectionCanvas: any = document.getElementById(
           `canvas-${widgetId}`,
         );
-        const { height, width } = selectionCanvas.getBoundingClientRect();
-        selectionCanvas.width = width;
-        selectionCanvas.height = height;
         const canvasCtx = selectionCanvas.getContext("2d");
         const initRectangle = (): SelectedArenaDimensions => ({
           top: 0,
@@ -87,6 +85,12 @@ export const CanvasSelectionArena = memo(
         let isDragging = false;
 
         const init = () => {
+          const { height, width } = selectionCanvas.getBoundingClientRect();
+          if (height && width) {
+            selectionCanvas.width = mainContainer.rightColumn;
+            selectionCanvas.height =
+              mainContainer.bottomRow + theme.canvasBottomPadding;
+          }
           selectionCanvas.addEventListener("click", onClick, false);
           selectionCanvas.addEventListener("mousedown", onMouseDown, false);
           selectionCanvas.addEventListener("mouseup", onMouseUp, false);
