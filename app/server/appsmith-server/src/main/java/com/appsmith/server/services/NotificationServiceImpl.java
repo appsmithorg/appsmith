@@ -8,6 +8,9 @@ import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.dtos.NotificationsResponseDTO;
 import com.appsmith.server.dtos.PaginationDTO;
+import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
+import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.repositories.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -118,5 +121,23 @@ public class NotificationServiceImpl
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
         return repository.save(notification);
+    }
+
+    @Override
+    public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(UpdateIsReadNotificationByIdDTO dto) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user ->
+                        repository.updateIsReadByForUsernameAndIdList(
+                                user.getUsername(), dto.getIdList(), dto.getIsRead()
+                        ).thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true))
+                );
+    }
+
+    @Override
+    public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(UpdateIsReadNotificationDTO dto) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> repository.updateIsReadByForUsername(user.getUsername(), dto.getIsRead())
+                        .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true))
+                );
     }
 }

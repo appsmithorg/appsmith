@@ -3,7 +3,10 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.NotificationsResponseDTO;
+import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
+import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.repositories.NotificationRepository;
+import com.mongodb.client.result.UpdateResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -119,6 +123,48 @@ public class NotificationServiceImplTest {
                     Assert.assertEquals(8, listResponseDTO.getPagination().getPageSize());
                     Assert.assertEquals(100, listResponseDTO.getPagination().getTotalCount());
                     Assert.assertEquals(5, listResponseDTO.getUnreadCount());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updateIsRead_WhenUpdateAll_ReturnSuccessfully() {
+        UpdateIsReadNotificationDTO dto = new UpdateIsReadNotificationDTO();
+        dto.setIsRead(true);
+
+        Mockito.when(repository.updateIsReadByForUsername(currentUser.getUsername(), true)).thenReturn(
+                Mono.just(Mockito.mock(UpdateResult.class))
+        );
+
+        StepVerifier
+                .create(notificationService.updateIsRead(dto))
+                .assertNext(responseDTO -> {
+                    Assert.assertTrue(responseDTO.getResponseMeta().isSuccess());
+                    Assert.assertEquals(responseDTO.getResponseMeta().getStatus(), HttpStatus.OK.value());
+                    Assert.assertTrue(responseDTO.getData().getIsRead());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updateIsRead_WhenUpdateById_ReturnSuccessfully() {
+        UpdateIsReadNotificationByIdDTO dto = new UpdateIsReadNotificationByIdDTO();
+        dto.setIsRead(true);
+        dto.setIdList(List.of("sample-id-1", "sample-id-2", "sample-id-3"));
+
+        Mockito.when(repository.updateIsReadByForUsernameAndIdList(
+                currentUser.getUsername(), dto.getIdList(), true)
+        ).thenReturn(
+                Mono.just(Mockito.mock(UpdateResult.class))
+        );
+
+        StepVerifier
+                .create(notificationService.updateIsRead(dto))
+                .assertNext(responseDTO -> {
+                    Assert.assertTrue(responseDTO.getResponseMeta().isSuccess());
+                    Assert.assertEquals(responseDTO.getResponseMeta().getStatus(), HttpStatus.OK.value());
+                    Assert.assertTrue(responseDTO.getData().getIsRead());
+                    Assert.assertArrayEquals(dto.getIdList().toArray(), responseDTO.getData().getIdList().toArray());
                 })
                 .verifyComplete();
     }
