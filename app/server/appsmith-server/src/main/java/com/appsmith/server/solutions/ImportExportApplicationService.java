@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -17,6 +18,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -92,17 +94,28 @@ public class ImportExportApplicationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
+        Mono<Application> applicationMono = applicationService
+            .findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+            .switchIfEmpty(Mono.error(new AppsmithException(
+                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+            .cache();
+
         return pluginRepository
             .findAll()
             .map(plugin -> {
                 pluginMap.put(plugin.getId(), plugin.getPackageName());
                 return plugin;
             })
-            .then(applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
-            )
-            .flatMap(application -> {
+            .then(applicationMono)
+            .zipWhen(application -> isAdminRole(application))
+            .flatMap(tuple -> {
+                Application application = tuple.getT1();
+                Boolean isAdmin = tuple.getT2();
+                if (!isAdmin) {
+                    return Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION + " with id", application.getOrganizationId())
+                    );
+                }
                 ApplicationPage unpublishedDefaultPage = application.getPages()
                     .stream()
                     .filter(ApplicationPage::getIsDefault)
@@ -245,6 +258,26 @@ public class ImportExportApplicationService {
                 })
                 .then()
                 .thenReturn(applicationJson);
+    }
+
+    Mono<Boolean> isAdminRole(Application application) {
+        String organizationId = application.getOrganizationId();
+        return organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION + " with id", organizationId))
+            )
+            .zipWith(sessionUserService.getCurrentUser())
+            .map(tuple -> {
+                Organization organization = tuple.getT1();
+                User user = tuple.getT2();
+                return organization.getUserRoles()
+                    .stream()
+                    .filter(userRole -> StringUtils.equals(userRole.getUsername(), user.getUsername()))
+                    .findAny()
+                    .map(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)
+                        || userRole.getRole().equals(AppsmithRole.APPLICATION_ADMIN))
+                    .orElse(false);
+            });
     }
 
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
