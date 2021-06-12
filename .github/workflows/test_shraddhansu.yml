@@ -49,4 +49,18 @@ jobs:
         run: aws s3 cp --recursive s3://taj2/build build
       - name: see the directory
         run: ls -ltr
-
+      - name: Upload react build bundle.
+        uses: actions/upload-artifact@v2
+        with:
+           name: build
+           path: app/client/build/
+           
+  cheking:
+    needs: Download
+    runs-on: Ubuntu-Latest
+    steps:
+      - name: see the directory 
+        run: ls -ltr
+      - name: goinside the directory
+        run: cd build
+      - run: ls -ltr
