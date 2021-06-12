@@ -13,7 +13,11 @@ on:
     branches: [release]
   pull_request:
     branches: [release]
-
+    
+defaults:
+  run:
+    working-directory: app/client
+    
 jobs:
   test:
     runs-on: ubuntu-latest # runs a test on Ubuntu, Windows and macOS
