@@ -62,7 +62,7 @@ jobs:
     runs-on: Ubuntu-Latest
     defaults:
       run:
-        working-directory: /build
+        working-directory: /home/runner/work/appsmith/appsmith
         shell: bash
     steps:
       - name: see the directory 
