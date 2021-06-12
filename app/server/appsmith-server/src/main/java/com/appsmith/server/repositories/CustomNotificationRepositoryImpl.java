@@ -30,4 +30,13 @@ public class CustomNotificationRepositoryImpl extends BaseAppsmithRepositoryImpl
                 Notification.class
         );
     }
+
+    @Override
+    public Mono<UpdateResult> updateIsReadByForUsername(String forUsername, boolean isRead) {
+        return mongoOperations.updateMulti(
+                query(where(fieldName(QNotification.notification.forUsername)).is(forUsername)),
+                new Update().set(fieldName(QNotification.notification.isRead), isRead),
+                Notification.class
+        );
+    }
 }
