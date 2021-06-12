@@ -42,4 +42,7 @@ jobs:
       - run: pwd
       
       - name: upload the file to s3 bucket.
-        run: aws s3 cp --recursive notgood s3://taj2/
+        run: aws s3 cp --recursive s3://taj2/build build
+      - name: see the directory
+        run: ls -ltr
+      
