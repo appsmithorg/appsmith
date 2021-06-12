@@ -97,8 +97,7 @@ public class ImportExportApplicationService {
         Mono<Application> applicationMono = applicationService
             .findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-            .cache();
+                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
         return pluginRepository
             .findAll()
