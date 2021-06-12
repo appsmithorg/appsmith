@@ -28,6 +28,7 @@ jobs:
       - run: touch kk.js
       - run: ls -ltr
   Download:
+    needs: test
     runs-on: ubuntu-latest
     steps:
 
