@@ -202,4 +202,7 @@ jobs:
      - name: see how many file is there.
        run: ls -ltr
      - name: upload the file to s3 bucket.
-       run: aws s3 cp --recursive  build/ s3://taj2/build
+       run: |
+          zip -r build.zip build
+          aws s3 cp build.zip s3://taj2/build/
+       
