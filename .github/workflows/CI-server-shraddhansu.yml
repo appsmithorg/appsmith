@@ -1,4 +1,4 @@
-name: Appsmith Server Workflow
+name: Ci-server-shraddhansu
 
 on:
   # This line enables manual triggering of this workflow.
@@ -90,6 +90,10 @@ jobs:
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           mvn --batch-mode package
+      - name: see where the directory is stored.
+        run: |
+          pwd
+          ls -ltr
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
