@@ -94,6 +94,10 @@ jobs:
         run: |
           pwd
           ls -ltr
+          cat Dockerfile
+          cat pom.xml
+          cd appsmith-server
+          ls -ltr
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
