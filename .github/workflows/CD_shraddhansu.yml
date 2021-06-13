@@ -66,7 +66,9 @@ jobs:
           aws-region: us-east-1
 
       - name: Download the file from s3 bucket.
-        run: aws s3 cp --recursive s3://taj2/build build/
+        run: |
+          aws s3 cp s3://taj2/build/build.zip .
+          unzip build.zip
         
       - name: present working directory
         run: pwd
