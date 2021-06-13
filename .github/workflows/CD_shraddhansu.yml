@@ -160,7 +160,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
+            appsmith/appsmith-server:release
       - name: Pull release-frozen server docker container and start it locally
         if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
         shell: bash
@@ -174,7 +174,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
+            appsmith/appsmith-server:release-frozen
       - name: Pull master server docker container and start it locally
         if: github.ref == 'refs/heads/master'
         shell: bash
@@ -188,7 +188,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+            appsmith/appsmith-server:nightly
       - name: Installing Yarn serve
         run: |
           yarn global add serve
