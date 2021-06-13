@@ -6,6 +6,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.NotificationsResponseDTO;
 import com.appsmith.server.dtos.PaginationDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -120,17 +121,21 @@ public class NotificationServiceImpl
         notification.setIsRead(false);
         notification.setApplicationId(commentThread.getApplicationId());
         notification.setApplicationName(commentThread.getApplicationName());
+        notification.setPageId(commentThread.getPageId());
+        notification.setFromUser(new Notification.FromUser(comment.getAuthorUsername(), comment.getAuthorName()));
         return repository.save(notification);
     }
 
     @Override
-    public Mono<Notification> createNotification(CommentThread commentThread, String forUsername) {
+    public Mono<Notification> createNotification(CommentThread commentThread, String forUsername, User authorUser) {
         final CommentThreadNotification notification = new CommentThreadNotification();
         notification.setCommentThread(commentThread);
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
         notification.setApplicationId(commentThread.getApplicationId());
         notification.setApplicationName(commentThread.getApplicationName());
+        notification.setPageId(commentThread.getPageId());
+        notification.setFromUser(new Notification.FromUser(authorUser.getUsername(), authorUser.getName()));
         return repository.save(notification);
     }
 

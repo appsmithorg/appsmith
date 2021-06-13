@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,6 +25,7 @@ public class Notification extends BaseDomain {
 
     private String applicationId;
     private String applicationName;
+    private String pageId;
 
     /**
      * This method has been added because the createdAt property in base domain has @JsonIgnore annotation
@@ -31,6 +33,15 @@ public class Notification extends BaseDomain {
      */
     public String getCreationTime() {
         return this.createdAt.toString();
+    }
+
+    private FromUser fromUser;
+
+    @Data
+    @AllArgsConstructor
+    public static class FromUser {
+        String username;
+        String displayName;
     }
 
 }

@@ -243,7 +243,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<Mono<Notification>> monos = new ArrayList<>();
                     for (String username : usernames) {
                         if (!username.equals(user.getUsername())) {
-                            monos.add(notificationService.createNotification(commentThread, username));
+                            monos.add(notificationService.createNotification(commentThread, username, user));
                         }
                     }
                     return Flux.concat(monos).then(Mono.just(commentThread));
