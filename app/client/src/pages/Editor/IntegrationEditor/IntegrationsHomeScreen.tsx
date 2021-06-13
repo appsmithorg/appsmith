@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 // import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
@@ -44,7 +44,6 @@ import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 // import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -58,7 +57,6 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDBDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
-const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
   display: flex;
@@ -139,9 +137,11 @@ const SectionGrid = styled.div`
   gap: 10px;
 `;
 const NewIntegrationsContainer = styled.div`
+  scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 210px);
-  padding-bottom: 100px;
+  max-height: calc(100vh - 440px);
+  padding-bottom: 75px;
+  margin-top: 16px;
   & > div {
     margin-bottom: 16px;
   }
@@ -223,11 +223,6 @@ const PRIMARY_MENU_IDS = {
 };
 
 const SECONDARY_MENU: TabProp[] = [
-  // {
-  //   key: "MOST_USED",
-  //   title: "Most Used",
-  //   panelComponent: <div />,
-  // },
   {
     key: "API",
     title: "API",
@@ -238,11 +233,6 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-  // {
-  //   key: "SAAS",
-  //   title: "SaaS Integrations",
-  //   panelComponent: <div />,
-  // },
 ];
 
 const SECONDARY_MENU_IDS = {
@@ -269,6 +259,55 @@ const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
   MOCK_DATABASE: 1,
 };
+
+function CreateNewAPI({ active, applicationId, history, pageId }: any) {
+  const newAPIRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (active) {
+      newAPIRef.current?.scrollIntoView({ behavior: "smooth" });
+      newAPIRef.current?.click();
+    }
+  }, [active]);
+  return (
+    <div id="new-api" ref={newAPIRef}>
+      <Text type={TextType.H2}>APIs</Text>
+      <NewApiScreen
+        applicationId={applicationId}
+        history={history}
+        location={location}
+        pageId={pageId}
+      />
+    </div>
+  );
+}
+
+function CreateNewDatasource({
+  active,
+  applicationId,
+  history,
+  isCreating,
+  pageId,
+}: any) {
+  const newDatasourceRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (active) {
+      newDatasourceRef.current?.scrollIntoView({ behavior: "smooth" });
+      newDatasourceRef.current?.click();
+    }
+  }, [active]);
+  return (
+    <div id="new-datasources" ref={newDatasourceRef}>
+      <Text type={TextType.H2}>Databases</Text>
+      <NewQueryScreen
+        applicationId={applicationId}
+        history={history}
+        isCreating={isCreating}
+        location={location}
+        pageId={pageId}
+      />
+    </div>
+  );
+}
 
 class IntegrationsHomeScreen extends React.Component<
   Props,
@@ -304,43 +343,6 @@ class IntegrationsHomeScreen extends React.Component<
   onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
     this.setState({ activeSecondaryMenuId });
   };
-
-  componentDidMount() {
-    const {
-      importedCollections,
-      providerCategories,
-      providersTotal,
-    } = this.props;
-    if (providerCategories.length === 0 && enableRapidAPI) {
-      this.props.fetchProviderCategories();
-    }
-    if (importedCollections.length === 0 && enableRapidAPI) {
-      this.props.fetchImportedCollections();
-    }
-    if (!providersTotal && enableRapidAPI) {
-      this.props.clearProviders();
-      this.props.change("category", DEFAULT_PROVIDER_OPTION);
-      this.props.fetchProvidersWithCategory({
-        category: DEFAULT_PROVIDER_OPTION,
-        page: 1,
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.currentCategory !== this.props.currentCategory &&
-      this.props.currentCategory !== this.props.previouslySetCategory &&
-      enableRapidAPI
-    ) {
-      this.props.setCurrentCategory(this.props.currentCategory);
-      this.props.clearProviders();
-      this.props.fetchProvidersWithCategory({
-        category: this.props.currentCategory,
-        page: 1,
-      });
-    }
-  }
 
   handleCreateNew = () => {
     const pageId = new URLSearchParams(this.props.location.search).get(
@@ -401,31 +403,30 @@ class IntegrationsHomeScreen extends React.Component<
     }
 
     let currentScreen = null;
-    const { activePrimaryMenuId } = this.state;
+    const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
-        <NewIntegrationsContainer>
+        <div>
           <AddDatasourceSecurely />
-          <div id="new-api">
-            <Text type={TextType.H2}>APIs</Text>
-            <NewApiScreen
+          <NewIntegrationsContainer>
+            <CreateNewAPI
+              active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
               applicationId={applicationId}
               history={history}
-              location={location}
-              pageId={pageId}
-            />
-          </div>
-          <div id="new-datasources">
-            <Text type={TextType.H2}>Databases</Text>
-            <NewQueryScreen
-              applicationId={applicationId}
-              history={this.props.history}
               isCreating={isCreating}
               location={location}
               pageId={pageId}
             />
-          </div>
-        </NewIntegrationsContainer>
+            <CreateNewDatasource
+              active={activeSecondaryMenuId === SECONDARY_MENU_IDS.DATABASE}
+              applicationId={applicationId}
+              history={history}
+              isCreating={isCreating}
+              location={location}
+              pageId={pageId}
+            />
+          </NewIntegrationsContainer>
+        </div>
       );
     } else {
       currentScreen = (
