@@ -54,8 +54,10 @@ import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveQueryScreen from "./ActiveQuery";
+import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDBDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
+import Text, { TextType } from "components/ads/Text";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -89,8 +91,7 @@ const ApiHomePage = styled.div`
   /* margin-left: 10px; */
   min-height: 95vh;
   max-height: 95vh;
-  overflow: auto;
-  padding-bottom: 50px;
+  overflow: hidden !important;
   .closeBtn {
     position: absolute;
     left: 70%;
@@ -136,6 +137,14 @@ const SectionGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 180px;
   gap: 10px;
+`;
+const NewIntegrationsContainer = styled.div`
+  overflow: auto;
+  max-height: calc(100vh - 210px);
+  padding-bottom: 100px;
+  & > div {
+    margin-bottom: 16px;
+  }
 `;
 
 type IntegrationsHomeScreenProps = {
@@ -214,11 +223,11 @@ const PRIMARY_MENU_IDS = {
 };
 
 const SECONDARY_MENU: TabProp[] = [
-  {
-    key: "MOST_USED",
-    title: "Most Used",
-    panelComponent: <div />,
-  },
+  // {
+  //   key: "MOST_USED",
+  //   title: "Most Used",
+  //   panelComponent: <div />,
+  // },
   {
     key: "API",
     title: "API",
@@ -229,18 +238,18 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-  {
-    key: "SAAS",
-    title: "SaaS Integrations",
-    panelComponent: <div />,
-  },
+  // {
+  //   key: "SAAS",
+  //   title: "SaaS Integrations",
+  //   panelComponent: <div />,
+  // },
 ];
 
 const SECONDARY_MENU_IDS = {
-  MOST_USED: 0,
-  API: 1,
-  DATABASE: 2,
-  SAAS: 3,
+  // MOST_USED: 0,
+  API: 0,
+  DATABASE: 1,
+  // SAAS: 3,
 };
 
 const TERTIARY_MENU: TabProp[] = [
@@ -272,7 +281,7 @@ class IntegrationsHomeScreen extends React.Component<
       page: 1,
       showSearchResults: false,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: SECONDARY_MENU_IDS.MOST_USED,
+      activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
     };
   }
 
@@ -287,7 +296,7 @@ class IntegrationsHomeScreen extends React.Component<
     } else {
       this.setState({
         activePrimaryMenuId,
-        activeSecondaryMenuId: SECONDARY_MENU_IDS.MOST_USED,
+        activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
       });
     }
   };
@@ -392,47 +401,37 @@ class IntegrationsHomeScreen extends React.Component<
     }
 
     let currentScreen = null;
-    const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
-    if (
-      activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW &&
-      activeSecondaryMenuId === SECONDARY_MENU_IDS.MOST_USED
-    ) {
+    const { activePrimaryMenuId } = this.state;
+    if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
-        <NewQueryScreen
-          applicationId={applicationId}
-          history={this.props.history}
-          isCreating={isCreating}
-          location={location}
-          pageId={pageId}
-        />
+        <NewIntegrationsContainer>
+          <AddDatasourceSecurely />
+          <div id="new-api">
+            <Text type={TextType.H2}>APIs</Text>
+            <NewApiScreen
+              applicationId={applicationId}
+              history={history}
+              location={location}
+              pageId={pageId}
+            />
+          </div>
+          <div id="new-datasources">
+            <Text type={TextType.H2}>Databases</Text>
+            <NewQueryScreen
+              applicationId={applicationId}
+              history={this.props.history}
+              isCreating={isCreating}
+              location={location}
+              pageId={pageId}
+            />
+          </div>
+        </NewIntegrationsContainer>
       );
-    } else if (
-      activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW &&
-      activeSecondaryMenuId === SECONDARY_MENU_IDS.API
-    ) {
-      currentScreen = (
-        <NewApiScreen
-          applicationId={applicationId}
-          history={history}
-          location={location}
-          pageId={pageId}
-        />
-      );
-    } else if (activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE) {
+    } else {
       currentScreen = (
         <ActiveQueryScreen
           applicationId={applicationId}
           dataSources={dataSources}
-          history={this.props.history}
-          isCreating={isCreating}
-          location={location}
-          pageId={pageId}
-        />
-      );
-    } else {
-      currentScreen = (
-        <NewQueryScreen
-          applicationId={applicationId}
           history={this.props.history}
           isCreating={isCreating}
           location={location}

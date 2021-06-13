@@ -13,9 +13,7 @@ import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button, { Size, Category } from "components/ads/Button";
 
 const DatasourceHomePage = styled.div`
-  padding: 20px 0;
   max-height: 95vh;
-  padding-bottom: 50px;
   .textBtn {
     justify-content: center;
     text-align: center;

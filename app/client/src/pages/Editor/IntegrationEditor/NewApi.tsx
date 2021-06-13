@@ -17,6 +17,7 @@ import Button, { Category, Size } from "components/ads/Button";
 
 const StyledContainer = styled.div`
   flex: 1;
+  margin-top: 8px;
   .textBtn {
     font-size: 16px;
     line-height: 24px;

@@ -8,17 +8,14 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest } from "actions/actionActions";
 import { Page } from "constants/ReduxActionConstants";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DataSourceHome from "./DatasourceHome";
 
 const QueryHomePage = styled.div`
-  padding: 5px;
   display: flex;
   flex-direction: column;
-  /* height: calc(100vh - ${(props) => props.theme.smallHeaderHeight}); */
-
+  margin-top: 8px;
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
     font-size: ${(props) => props.theme.fontSizes[4]}px;
@@ -71,8 +68,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        {/* <Boundary /> */}
-        <AddDatasourceSecurely />
         <DataSourceHome
           applicationId={applicationId}
           history={history}
