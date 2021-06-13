@@ -20,6 +20,7 @@ const Top = styled.div`
 
 type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
+  setResizeWindowHeight?: (height: number) => void;
 };
 
 function Resizer(props: ResizerProps) {
@@ -41,8 +42,14 @@ function Resizer(props: ResizerProps) {
       updatedHeight > minHeight
     ) {
       panel.style.height = `${height - movementY}px`;
+      props.setResizeWindowHeight &&
+        props.setResizeWindowHeight(height - movementY);
     }
   };
+
+  useEffect(() => {
+    handleResize(0);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
