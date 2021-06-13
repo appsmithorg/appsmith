@@ -27,6 +27,13 @@ jobs:
   build:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
+    # Only PR approvals of internally created PRs should trigger this workflow
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,21 +41,39 @@ jobs:
         shell: bash
 
     steps:
-    
-     - name: Configure AWS Credentials
-       uses: aws-actions/configure-aws-credentials@v1
-       with:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-     - name: Download the file from s3 bucket.
-       run: aws s3 cp --recursive s3://taj2/build build/
-      # Checkout the code
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-     - name: Upload react build bundle.
-       uses: actions/upload-artifact@v2
-       with:
+      - name: Download the file from s3 bucket.
+        run: aws s3 cp --recursive s3://taj2/build build/
+        
+      - name: present working directory
+        run: pwd
+        
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
           name: build
           path: app/client/build/
 
