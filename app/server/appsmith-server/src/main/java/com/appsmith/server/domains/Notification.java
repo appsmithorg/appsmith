@@ -22,4 +22,15 @@ public class Notification extends BaseDomain {
         return getClass().getSimpleName();
     }
 
+    private String applicationId;
+    private String applicationName;
+
+    /**
+     * This method has been added because the createdAt property in base domain has @JsonIgnore annotation
+     * @return created time as a string
+     */
+    public String getCreationTime() {
+        return this.createdAt.toString();
+    }
+
 }
