@@ -105,12 +105,21 @@ public class NotificationServiceImpl
         });
     }
 
+    /**
+     * Creates a notification for the provided comment which is under provided comment thread
+     * @param comment
+     * @param forUsername
+     * @param commentThread
+     * @return
+     */
     @Override
-    public Mono<Notification> createNotification(Comment comment, String forUsername) {
+    public Mono<Notification> createNotification(Comment comment, String forUsername, CommentThread commentThread) {
         final CommentNotification notification = new CommentNotification();
         notification.setComment(comment);
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
+        notification.setApplicationId(commentThread.getApplicationId());
+        notification.setApplicationName(commentThread.getApplicationName());
         return repository.save(notification);
     }
 
@@ -120,6 +129,8 @@ public class NotificationServiceImpl
         notification.setCommentThread(commentThread);
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
+        notification.setApplicationId(commentThread.getApplicationId());
+        notification.setApplicationName(commentThread.getApplicationName());
         return repository.save(notification);
     }
 

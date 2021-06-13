@@ -35,6 +35,8 @@ public class CommentThread extends BaseDomain {
 
     String applicationId;
 
+    String applicationName;
+
     @JsonIgnore
     Set<String> viewedByUsers;
 

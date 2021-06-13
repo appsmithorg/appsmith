@@ -148,10 +148,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         List<Mono<Notification>> notificationMonos = new ArrayList<>();
                         for (String username : usernames) {
                             if (!username.equals(user.getUsername())) {
-                                final CommentNotification notification = new CommentNotification();
-                                notification.setComment(savedComment);
-                                notification.setForUsername(username);
-                                Mono<Notification> notificationMono = notificationService.create(notification);
+                                Mono<Notification> notificationMono = notificationService.createNotification(
+                                        savedComment, username, commentThread);
                                 notificationMonos.add(notificationMono);
                             }
                         }
@@ -194,6 +192,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final Application application = tuple.getT2();
+                    commentThread.setApplicationName(application.getName());
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             application.getPolicies(),
@@ -244,10 +243,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<Mono<Notification>> monos = new ArrayList<>();
                     for (String username : usernames) {
                         if (!username.equals(user.getUsername())) {
-                            final CommentThreadNotification notification = new CommentThreadNotification();
-                            notification.setCommentThread(commentThread);
-                            notification.setForUsername(username);
-                            monos.add(notificationService.create(notification));
+                            monos.add(notificationService.createNotification(commentThread, username));
                         }
                     }
                     return Flux.concat(monos).then(Mono.just(commentThread));
