@@ -103,7 +103,7 @@ function getLatestEvalPropertyErrors(
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      if (allEvalErrors.length) {
+      if (evalErrors.length) {
         // TODO Rank and set the most critical error
         const error = evalErrors[0];
         // Add or update

@@ -403,11 +403,13 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
-          _.set(
-            currentTree,
-            `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
-            [],
-          );
+          if (propertyPath) {
+            _.set(
+              currentTree,
+              `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
+              [],
+            );
+          }
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -599,7 +601,7 @@ export default class DataTreeEvaluator {
             const { entityName, propertyPath } = getEntityNameAndPropertyPath(
               fullPropertyPath,
             );
-            if (result.errors.length) {
+            if (result.errors.length && propertyPath) {
               const existingErrors = _.get(
                 data,
                 `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
