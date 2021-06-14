@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { every } from "lodash";
+import { reduce } from "lodash";
 import {
   useTable,
   usePagination,
@@ -174,19 +174,18 @@ export function Table(props: TableProps) {
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
+    // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
-    // if all rows are un-selected
-    if (every(subPage, (row) => !selectedRowIndices.includes(row.index))) {
-      return 0;
-    }
-    // check if all rows are selected
-    else if (every(subPage, (row) => selectedRowIndices.includes(row.index))) {
-      return 1;
-    }
-    // some rows are selected
-    else {
-      return 2;
-    }
+    const selectedRowCount = reduce(
+      subPage,
+      (count, row) => {
+        return selectedRowIndices.includes(row.index) ? count + 1 : count;
+      },
+      0,
+    );
+    const result =
+      selectedRowCount === 0 ? 0 : selectedRowCount === subPage.length ? 1 : 2;
+    return result;
   }, [selectedRowIndices, subPage]);
   const handleAllRowSelectClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,

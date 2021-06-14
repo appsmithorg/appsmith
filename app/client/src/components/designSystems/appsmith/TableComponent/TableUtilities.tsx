@@ -195,9 +195,9 @@ function TableAction(props: {
 
 function CheckBoxLineIcon() {
   return (
-    <svg className="th-svg" fill="none" viewBox="0 0 6 2">
+    <svg className="th-svg" fill="none" height="15" width="15">
       <path
-        d="M5.5 1H0.5"
+        d="M11.183673404886235,7.5 H3.81632661819458 "
         stroke="white"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -209,9 +209,9 @@ function CheckBoxLineIcon() {
 
 function CheckBoxCheckIcon() {
   return (
-    <svg className="th-svg" fill="none" viewBox="0 0 8 6">
+    <svg className="th-svg" fill="none" height="15" width="15">
       <path
-        d="M1.08325 3.41663L2.74992 5.08329L6.91659 0.916626"
+        d="M3.523326302644791,8.068102895600848 L5.7957131234862,10.340476082148596 L11.476673358442884,4.659524027768102 "
         stroke="white"
         strokeLinecap="round"
         strokeLinejoin="round"

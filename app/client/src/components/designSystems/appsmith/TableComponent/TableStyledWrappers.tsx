@@ -424,16 +424,16 @@ export const CellCheckboxWrapper = styled(CellWrapper)`
 export const CellCheckbox = styled.div<{ isChecked: boolean }>`
   height: 15px;
   width: 15px;
-  border: 0.5px solid #e7e7e7;
+  border: 0.5px solid ${Colors.GEYSER_LIGHT};
   background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
   position: relative;
   .th-svg {
     display: block;
     position: absolute;
-    left: 2.5px;
-    top: 2px;
-    height: 8px;
-    width: 7px;
+    left: -1px;
+    top: -1px;
+    height: 15px;
+    width: 15px;
   }
 `;
 
