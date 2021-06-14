@@ -22,8 +22,7 @@ describe("Duplicate application", function() {
     cy.get(widgetsPage.defaultInput).type("A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").then((httpResponse) => {
-      const data = httpResponse.response.body.data;
-      parentApplicationDsl = data.dsl;
+      parentApplicationDsl = httpResponse.response.body.data.dsl;
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);

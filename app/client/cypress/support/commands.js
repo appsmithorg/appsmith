@@ -1648,6 +1648,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
       });
     });
   });
+  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
