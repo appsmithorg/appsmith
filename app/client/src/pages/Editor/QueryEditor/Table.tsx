@@ -12,7 +12,7 @@ import AutoToolTipComponent from "components/designSystems/appsmith/TableCompone
 
 interface TableProps {
   data: Record<string, any>[];
-  resizeWindowHeight?: number;
+  tableBodyHeight?: number;
 }
 
 const TABLE_SIZES = {
@@ -293,7 +293,7 @@ function Table(props: TableProps) {
 
             <div {...getTableBodyProps()} className="tbody">
               <FixedSizeList
-                height={props.resizeWindowHeight || window.innerHeight}
+                height={props.tableBodyHeight || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
                 width={totalColumnsWidth + scrollBarSize}
