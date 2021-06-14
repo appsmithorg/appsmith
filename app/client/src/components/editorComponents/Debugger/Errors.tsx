@@ -28,12 +28,20 @@ function Errors(props: { hasShortCut?: boolean }) {
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
             const id = Object.keys(errors)[index];
+            // If the error has a propertyPath and state to show
+            // we add a submessage saying `<property-path> evaluated value`
+            // followed by the value of `state`
+            const subMessage =
+              e.state && e.source && e.source.propertyPath
+                ? `${e.source.propertyPath} evaluated value`
+                : undefined;
 
             return (
               <LogItem
                 key={`debugger-${index}`}
                 {...logItemProps}
                 expand={id === expandId}
+                subMessage={subMessage}
               />
             );
           })

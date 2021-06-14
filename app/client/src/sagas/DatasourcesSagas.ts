@@ -229,7 +229,9 @@ function* updateDatasourceSaga(
           type: ENTITY_TYPE.DATASOURCE,
         },
         state: {
-          datasourceConfiguration: response.data.datasourceConfiguration,
+          value: {
+            datasourceConfiguration: response.data.datasourceConfiguration,
+          },
         },
       });
     }
@@ -404,10 +406,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             type: ENTITY_TYPE.DATASOURCE,
           },
           state: {
-            message:
-              responseData.invalids && responseData.invalids.length
-                ? responseData.invalids[0]
-                : "",
+            value: {
+              message:
+                responseData.invalids && responseData.invalids.length
+                  ? responseData.invalids[0]
+                  : "",
+            },
           },
         });
       } else {
@@ -445,7 +449,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         type: ENTITY_TYPE.DATASOURCE,
       },
       state: {
-        message: error,
+        value: {
+          message: error,
+        },
       },
     });
   }

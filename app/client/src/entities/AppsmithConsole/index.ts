@@ -57,7 +57,11 @@ export interface LogActionPayload {
   // "where" source entity and propertyPsath.
   source?: SourceEntity;
   // Snapshot KV pair of scope variables or state associated with this event.
-  state?: Record<string, any>;
+  // This is not state: any directly because sometimes state can be undefined
+  // and that might be the value to be shown(instead of ignoring this with `if(state)` check)
+  state?: {
+    value: any;
+  };
 }
 
 export interface Message extends LogActionPayload {

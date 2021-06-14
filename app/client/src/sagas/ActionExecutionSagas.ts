@@ -172,7 +172,7 @@ function* navigateActionSaga(
     AppsmithConsole.info({
       text: `navigateTo('${page.pageName}') was triggered`,
       state: {
-        params,
+        value: params,
       },
     });
     if (event.callback) event.callback({ success: true });
@@ -533,7 +533,9 @@ export function* executeActionSaga(
           name: api.name,
           id: actionId,
         },
-        state: response.data?.request ?? null,
+        state: {
+          value: response.data?.request ?? null,
+        },
         message: payload.body as string,
       });
       PerformanceTracker.stopAsyncTracking(
@@ -578,8 +580,10 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: {
-          response: payload.body,
-          request: response.data.request,
+          value: {
+            response: payload.body,
+            request: response.data.request,
+          },
         },
       });
       if (onSuccess) {
@@ -855,8 +859,10 @@ function* runActionSaga(
             id: actionId,
           },
           state: {
-            response: payload.body,
-            request: response.data.request,
+            value: {
+              response: payload.body,
+              request: response.data.request,
+            },
           },
         });
         Toaster.show({
@@ -875,7 +881,9 @@ function* runActionSaga(
           message: !isString(payload.body)
             ? JSON.stringify(payload.body)
             : payload.body,
-          state: response.data?.request ?? null,
+          state: response.data?.request && {
+            value: response.data?.request,
+          },
         });
 
         Toaster.show({
@@ -897,7 +905,9 @@ function* runActionSaga(
           name: actionObject.name,
           id: actionId,
         },
-        state: response.data?.request ?? null,
+        state: response.data?.request && {
+          value: response.data?.request,
+        },
       });
 
       yield put({
@@ -982,7 +992,9 @@ function* executePageLoadAction(pageAction: PageAction) {
           name: pageAction.name,
           id: pageAction.id,
         },
-        state: response.data?.request ?? null,
+        state: response.data?.request && {
+          value: response.data?.request,
+        },
         message: JSON.stringify(body),
       });
 

@@ -191,7 +191,9 @@ const PropertyControl = memo((props: Props) => {
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
           },
-          state: allUpdates,
+          state: {
+            value: allUpdates,
+          },
         });
       }
       if (!propertiesToUpdate) {
@@ -212,7 +214,9 @@ const PropertyControl = memo((props: Props) => {
             id: widgetProperties.widgetId,
           },
           state: {
-            [propertyName]: propertyValue,
+            value: {
+              [propertyName]: propertyValue,
+            },
           },
         });
       }

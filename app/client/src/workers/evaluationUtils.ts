@@ -312,7 +312,9 @@ export function getValidatedTree(tree: DataTree) {
               type: ENTITY_TYPE.WIDGET,
               propertyPath: property,
             },
-            state: safeEvaluatedValue,
+            state: {
+              value: safeEvaluatedValue,
+            },
           },
         });
         _.set(parsedEntity, `invalidProps.${property}`, true);

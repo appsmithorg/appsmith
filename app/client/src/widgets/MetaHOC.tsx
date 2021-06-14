@@ -93,7 +93,9 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           name: this.props.widgetName,
         },
         state: {
-          [propertyName]: propertyValue,
+          value: {
+            [propertyName]: propertyValue,
+          },
         },
       });
       this.setState(

@@ -8,12 +8,15 @@ import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
-function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
-  if (!payload.source || !payload.state || !request || !request.headers) {
+function* formatActionRequestSaga(
+  payload: LogActionPayload,
+  request?: Message["state"],
+) {
+  if (!payload.source || !payload.state || !request || !request.value.headers) {
     return;
   }
 
-  const headers = request.headers;
+  const headers = request.value.headers;
 
   const source = payload.source;
   const action: Action = yield select(getAction, source.id);
@@ -96,13 +99,12 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         const res = yield call(
           formatActionRequestSaga,
           payload,
-          payload.state?.request ?? {},
+          payload.state?.value.request ?? {},
         );
 
         yield put(
           updateErrorLog({
             ...payload,
-            state: {},
           }),
         );
 

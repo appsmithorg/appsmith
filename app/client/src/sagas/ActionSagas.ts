@@ -638,7 +638,9 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
       propertyPath: fieldToBeUpdated,
     },
     state: {
-      [fieldToBeUpdated]: value,
+      value: {
+        [fieldToBeUpdated]: value,
+      },
     },
   });
 
