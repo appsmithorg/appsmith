@@ -49,6 +49,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Edit column name and validate test for computed value based on column type selected", function() {
+    cy.get(commonlocators.editPropCrossButton).click();
     cy.SearchEntityandOpen("Table1");
     cy.editColumn("customColumn1");
     cy.readTabledataPublish("1", "9").then((tabData) => {
