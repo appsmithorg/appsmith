@@ -1,9 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.InstanceConfig;
-import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -12,7 +10,6 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -20,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
