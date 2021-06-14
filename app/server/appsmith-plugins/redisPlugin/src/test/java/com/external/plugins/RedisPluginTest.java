@@ -19,8 +19,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple4;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
@@ -265,42 +263,6 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("value", node.get("result").asText());
-                }).verifyComplete();
-    }
-
-    @Test
-    public void executeMultipleCommandsSimultaneously() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("PING");
-
-        Mono<ActionExecutionResult> actionExecutionResultMono1 = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
-
-        Mono<ActionExecutionResult> actionExecutionResultMono2 = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
-
-        Mono<ActionExecutionResult> actionExecutionResultMono3 = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
-
-        Mono<ActionExecutionResult> actionExecutionResultMono4 = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
-
-        Mono<Tuple4<ActionExecutionResult, ActionExecutionResult, ActionExecutionResult, ActionExecutionResult>> resultsMono = Mono.zip(actionExecutionResultMono1, actionExecutionResultMono2, actionExecutionResultMono3, actionExecutionResultMono4);
-
-        StepVerifier.create(resultsMono)
-                .assertNext(tuple -> {
-                    ActionExecutionResult r1 = tuple.getT1();
-                    ActionExecutionResult r2 = tuple.getT1();
-                    ActionExecutionResult r3 = tuple.getT1();
-                    ActionExecutionResult r4 = tuple.getT1();
-
-                    /*Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertEquals("PONG", node.get("result").asText());*/
                 }).verifyComplete();
     }
 }
