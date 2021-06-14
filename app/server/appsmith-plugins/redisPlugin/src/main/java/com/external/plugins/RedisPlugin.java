@@ -153,6 +153,12 @@ public class RedisPlugin extends BasePlugin {
             }
         }
 
+
+        /**
+         * - Config taken from https://www.baeldung.com/jedis-java-redis-client-library
+         * - To understand what these config mean:
+         * https://www.infoworld.com/article/2071834/pool-resources-using-apache-s-commons-pool-framework.html
+         */
         private JedisPoolConfig buildPoolConfig() {
             final JedisPoolConfig poolConfig = new JedisPoolConfig();
             poolConfig.setMaxTotal(128);
