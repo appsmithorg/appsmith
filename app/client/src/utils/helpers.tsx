@@ -110,11 +110,13 @@ export const flashElementById = (id: string) => {
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[^\w\s]/;
+  // ensures that all special characters are disallowed
+  // while allowing all utf-8 characters
+  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
-    .split(separatorRegex)
-    .join("")
+    .split(removeSpecialCharsRegex)
+    .join(" ")
     .split(duplicateSpaceRegex)
     .join(" ")
     .slice(0, limit || 30);
