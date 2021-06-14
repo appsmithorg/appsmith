@@ -640,6 +640,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
+    const { componentHeight } = this.getComponentDimensions();
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
       this.props.children,
@@ -683,7 +684,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
 
-    if (isNaN(templateHeight)) {
+    if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
       return (
         <ListComponentEmpty>
           Please make sure the list widget height is greater than the template
