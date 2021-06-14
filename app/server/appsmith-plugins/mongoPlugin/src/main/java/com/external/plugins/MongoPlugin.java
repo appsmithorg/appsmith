@@ -688,6 +688,7 @@ public class MongoPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isUsingURI(datasourceConfiguration)) {
                 if (!hasNonEmptyURI(datasourceConfiguration)) {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
@@ -702,11 +703,10 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        } else {
+                        } else if (!isAuthenticated(authentication, mongoUri)) {
                             String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
-                            DBAuth authentication = datasourceConfiguration.getAuthentication() == null ?
-                                    new DBAuth() : (DBAuth) datasourceConfiguration.getAuthentication();
+                            authentication = (authentication == null) ? new DBAuth(): authentication;
                             authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
                             authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
                             authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
@@ -746,8 +746,7 @@ public class MongoPlugin extends BasePlugin {
                                 " directly.");
                     }
                 }
-
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                
                 if (authentication != null) {
                     DBAuth.Type authType = authentication.getAuthType();
 
@@ -1012,6 +1011,15 @@ public class MongoPlugin extends BasePlugin {
         }
 
         return object;
+    }
+    
+    private static boolean isAuthenticated(DBAuth authentication, String mongoUri) {
+        if (authentication != null && authentication.getUsername() != null
+            && authentication.getPassword() != null && mongoUri.contains("****")) {
+            
+            return true;
+        }
+        return false;
     }
 
 }

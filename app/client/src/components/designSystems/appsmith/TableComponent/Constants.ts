@@ -96,6 +96,7 @@ export interface CellLayoutProperties {
   buttonLabel?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
+  displayText?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -147,6 +148,7 @@ export interface ColumnProperties {
   inputFormat?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
+  displayText?: string;
 }
 
 export const ConditionFunctions: {

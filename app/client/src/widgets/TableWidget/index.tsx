@@ -135,6 +135,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnProperties.isDisabled || false,
         rowIndex,
       ),
+      displayText: this.getPropertyValue(
+        columnProperties.displayText,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
