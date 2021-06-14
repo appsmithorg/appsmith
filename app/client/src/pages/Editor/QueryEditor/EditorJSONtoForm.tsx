@@ -339,6 +339,11 @@ const TabContainerView = styled.div`
   position: relative;
 `;
 
+const InlineButton = styled(Button)`
+  display: inline-flex;
+  margin: 0 8px;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -556,7 +561,18 @@ export function EditorJSONtoForm(props: Props) {
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
-              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+              <Text type={TextType.P1}>
+                🙌 Click on
+                <InlineButton
+                  isLoading={isRunning}
+                  onClick={props.onRunClick}
+                  size={Size.medium}
+                  tag="button"
+                  text="Run"
+                  type="button"
+                />
+                after adding your query
+              </Text>
             </NoResponseContainer>
           )}
         </ResponseContentWrapper>
