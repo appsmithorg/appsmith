@@ -40,6 +40,10 @@ export interface FetchUserRequest {
   id: string;
 }
 
+export interface LeaveOrgRequest {
+  orgId: string;
+}
+
 export interface InviteUserRequest {
   email: string;
   groupIds: string[];
@@ -60,6 +64,7 @@ class UserApi extends Api {
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
+  static leaveOrgURL = `${UserApi.usersURL}/leaveOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
@@ -135,6 +140,10 @@ class UserApi extends Api {
 
   static deletePhoto(): AxiosPromise<ApiResponse> {
     return Api.delete(UserApi.photoURL);
+  }
+
+  static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
+    return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
   }
 }
 

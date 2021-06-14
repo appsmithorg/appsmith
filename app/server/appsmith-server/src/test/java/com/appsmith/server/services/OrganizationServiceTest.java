@@ -607,8 +607,10 @@ public class OrganizationServiceTest {
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
-        Mono<Datasource> readDatasourceByNameMono = datasourceRepository.findByName("test datasource", READ_DATASOURCES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")));
+        Mono<Datasource> readDatasourceByNameMono = organizationMono.flatMap(organization1 ->
+                datasourceRepository.findByNameAndOrganizationId("test datasource", organization1.getId(),READ_DATASOURCES)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
+        );
 
         Mono<Tuple3<Application, Organization, Datasource>> testMono = organizationMono
                 // create application and datasource

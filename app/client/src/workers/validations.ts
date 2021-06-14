@@ -7,6 +7,7 @@ import {
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
+  indexOf,
   isBoolean,
   isNil,
   isNumber,
@@ -18,6 +19,10 @@ import _, {
   toString,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
+import {
+  CUSTOM_CHART_TYPES,
+  CUSTOM_CHART_DEFAULT_PARSED,
+} from "../constants/CustomChartConstants";
 import moment from "moment";
 
 export function validateDateString(
@@ -155,7 +160,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (!isValid) {
       return {
         isValid: isValid,
-        parsed: parsed,
+        parsed: !!parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
@@ -276,7 +281,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<Object>"`,
       };
     }
 
@@ -293,7 +298,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<Object>"`,
       };
     }
     return { isValid, parsed };
@@ -364,7 +369,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       if (!isValid) {
         parsed = [];
         transformed = validatedResponse.transformed;
-        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<x:string, y:number>"`;
       } else {
         parsed = validatedResponse.parsed;
         transformed = validatedResponse.parsed;
@@ -413,6 +418,15 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
+      };
+    }
+    // check custom chart exist or not
+    const typeExist = indexOf(CUSTOM_CHART_TYPES, parsed.type) !== -1;
+    if (!typeExist) {
+      return {
+        isValid: false,
+        parsed: { ...CUSTOM_CHART_DEFAULT_PARSED },
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
@@ -511,9 +525,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (props.dateFormat ? props.dateFormat : ""),
       };
     }
     const isValid = validateDateString(dateString, dateFormat, props.version);
@@ -562,9 +575,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
 
@@ -604,9 +616,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
@@ -631,7 +642,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     return {
@@ -653,9 +666,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
@@ -680,7 +692,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     return {

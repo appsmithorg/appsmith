@@ -28,10 +28,7 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
-} from "actions/metaActions";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
@@ -186,7 +183,6 @@ export function* closeModalSaga(
           widgetIds.map((widgetId: string) => {
             return [
               put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
-              put(resetChildrenMetaProperty(widgetId)),
             ];
           }),
         ),

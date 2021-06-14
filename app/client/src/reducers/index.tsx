@@ -45,6 +45,7 @@ import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
 import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
+import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -88,6 +89,7 @@ export interface AppState {
     websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
+    notifications: NotificationReducerState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
