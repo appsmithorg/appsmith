@@ -117,11 +117,6 @@ public class RedisPlugin extends BasePlugin {
                          * - Return resource back to the pool.
                          * - https://stackoverflow.com/questions/54902337/is-it-necessary-to-use-jedis-close
                          * - https://www.baeldung.com/jedis-java-redis-client-library:
-                         * '''
-                         * We used the Java try-with-resources statement to avoid having to manually close the
-                         * Jedis resource, but if you cannot use this statement you can also close the resource
-                         * manually in the finally clause.
-                         * '''
                          */
                         if (jedis != null) {
                             jedis.close();
