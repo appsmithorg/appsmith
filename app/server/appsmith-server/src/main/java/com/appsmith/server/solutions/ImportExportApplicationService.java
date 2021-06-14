@@ -95,7 +95,7 @@ public class ImportExportApplicationService {
         }
 
         Mono<Application> applicationMono = applicationService
-            .findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+            .findById(applicationId, AclPermission.EXPORT_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(
                 AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
@@ -106,11 +106,11 @@ public class ImportExportApplicationService {
                 return plugin;
             })
             .then(applicationMono)
-            .zipWhen(application -> isAdminRole(application))
+            .zipWhen(application -> applicationExportPermitted(application))
             .flatMap(tuple -> {
                 Application application = tuple.getT1();
-                Boolean isAdmin = tuple.getT2();
-                if (!isAdmin) {
+                Boolean hasValidPermission = tuple.getT2();
+                if (!hasValidPermission) {
                     return Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION + " with id", application.getOrganizationId())
                     );
@@ -259,9 +259,9 @@ public class ImportExportApplicationService {
                 .thenReturn(applicationJson);
     }
 
-    Mono<Boolean> isAdminRole(Application application) {
+    Mono<Boolean> applicationExportPermitted(Application application) {
         String organizationId = application.getOrganizationId();
-        return organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+        return organizationService.findById(organizationId, AclPermission.ORGANIZATION_EXPORT_APPLICATIONS)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION + " with id", organizationId))
             )
