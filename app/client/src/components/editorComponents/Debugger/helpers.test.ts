@@ -49,8 +49,8 @@ describe("getDependencies", () => {
       "Input1.isValid": ["Input1"],
       "Input1.value": ["Input1"],
     };
-    const output = ["Button1.text", "Input1.defaultText", "Checkbox1.label"];
+    const output = ["Input1.defaultText", "Checkbox1.label"];
 
-    expect(getDependencyChain("Button1.text", input)).toStrictEqual(output);
+    expect(getDependencyChain("Button1.text", input)).toEqual(output);
   });
 });
