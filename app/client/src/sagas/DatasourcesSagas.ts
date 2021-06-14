@@ -575,7 +575,7 @@ function* storeAsDatasourceSaga() {
   datasource = _.omit(datasource, ["name"]);
   const originalHeaders = _.get(values, "actionConfiguration.headers", []);
   const datasourceHeaders = originalHeaders.filter(
-    ({ key, value }: { key: string; value: string }) => {
+    ({ value }: { key: string; value: string }) => {
       const bindOpen = value.indexOf("{{");
       const bindClose = value.indexOf("}}");
       return !(bindOpen > -1 && bindClose > -1 && bindOpen < bindClose);
