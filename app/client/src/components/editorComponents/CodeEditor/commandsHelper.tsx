@@ -32,6 +32,16 @@ export const commandsHelper: HintHelper = () => {
       );
       const createNewHeader: CommandsCompletion = commandsHeader("Create New");
       const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
+      const actionsHeader: CommandsCompletion = commandsHeader("Actions");
+      const insertBinding: CommandsCompletion = {
+        text: "{{  }}",
+        displayText: "Insert Binding",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        className: "CodeMirror-commands command-container",
+        shortcut: "{{ }}",
+      };
       const { pageId } = fetchAppAndPageId();
       const newAPI: CommandsCompletion = {
         text: "",
@@ -131,10 +141,11 @@ export const commandsHelper: HintHelper = () => {
           [newAPI, newDatasource],
           searchText,
         );
-        let list: CommandsCompletion[] = [];
-        if (actionCommandsMatchSearchText.length) {
-          list = [suggestionsHeader, ...actionCommandsMatchSearchText];
-        }
+        let list: CommandsCompletion[] = [actionsHeader, insertBinding];
+        // if (actionCommandsMatchSearchText.length) {
+        //   list = [suggestionsHeader, ...actionCommandsMatchSearchText];
+        // }
+
         if (createNewCommandsMatchingSearchText.length) {
           list = [
             ...list,
@@ -213,7 +224,7 @@ const matchingCommands = (list: CommandsCompletion[], searchText: string) => {
         action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
       );
     })
-    .slice(0, 3);
+    .slice(0, 2);
 };
 
 const commandsHeader = (

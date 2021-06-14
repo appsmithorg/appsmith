@@ -127,15 +127,17 @@ type State = {
 
 const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
   position: absolute;
-  top: 1px;
+  right: ${(props) => (props.isFocused ? "-34px" : "1px")};
   height: 33px;
   width: 33px;
-  right: 0;
+  top: 1px;
   display: flex;
+  transition: 0.3s all ease;
   align-items: center;
   justify-content: center;
   background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
   z-index: 2;
+  visibility: ${(props) => (props.isFocused ? "hidden" : "")};
 `;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
