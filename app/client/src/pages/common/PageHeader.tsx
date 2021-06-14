@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -12,6 +12,9 @@ import Button from "components/editorComponents/Button";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import ProfileDropdown from "./ProfileDropdown";
+import Bell from "notifications/Bell";
+
+import { areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector } from "selectors/commentsSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -40,7 +43,7 @@ type PageHeaderProps = {
   user?: User;
 };
 
-export const PageHeader = (props: PageHeaderProps) => {
+export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -50,31 +53,38 @@ export const PageHeader = (props: PageHeaderProps) => {
     =${queryParams.get("redirectUrl")}`;
   }
 
+  const areCommentsEnabledForUserAndApp = useSelector(
+    areCommentsEnabledForUserAndAppSelector,
+  );
+
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL} className="t--appsmith-logo">
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+        <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </Link>
       </HeaderSection>
       {user && (
-        <StyledDropDownContainer>
-          {user.username === ANONYMOUS_USERNAME ? (
-            <Button
-              filled
-              text="Sign In"
-              intent={"primary"}
-              size="small"
-              onClick={() => history.push(loginUrl)}
-            />
-          ) : (
-            <ProfileDropdown userName={user.username} name={user.name} />
-          )}
-        </StyledDropDownContainer>
+        <>
+          {areCommentsEnabledForUserAndApp && <Bell />}
+          <StyledDropDownContainer>
+            {user.username === ANONYMOUS_USERNAME ? (
+              <Button
+                filled
+                intent={"primary"}
+                onClick={() => history.push(loginUrl)}
+                size="small"
+                text="Sign In"
+              />
+            ) : (
+              <ProfileDropdown name={user.name} userName={user.username} />
+            )}
+          </StyledDropDownContainer>
+        </>
       )}
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

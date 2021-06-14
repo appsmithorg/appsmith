@@ -19,7 +19,7 @@ import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
 import { PropertyControlsWrapper } from ".";
 
-const PanelHeader = (props: PanelHeaderProps) => {
+function PanelHeader(props: PanelHeaderProps) {
   return (
     <div
       onClick={(e: any) => {
@@ -27,10 +27,6 @@ const PanelHeader = (props: PanelHeaderProps) => {
       }}
     >
       <PropertyPaneTitle
-        title={props.title}
-        updatePropertyTitle={props.updatePropertyTitle}
-        onBackClick={props.closePanel}
-        isPanelTitle={true}
         actions={[
           {
             tooltipContent: (
@@ -46,22 +42,26 @@ const PanelHeader = (props: PanelHeaderProps) => {
             tooltipContent: "Close",
             icon: (
               <Icon
+                className={"t--property-pane-close-btn"}
+                icon="cross"
+                iconSize={16}
                 onClick={(e: any) => {
                   props.hidePropertyPane();
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                iconSize={16}
-                icon="cross"
-                className={"t--property-pane-close-btn"}
               />
             ),
           },
         ]}
+        isPanelTitle
+        onBackClick={props.closePanel}
+        title={props.title}
+        updatePropertyTitle={props.updatePropertyTitle}
       />
     </div>
   );
-};
+}
 
 const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
   return config.map((_childConfig) => {
@@ -82,11 +82,11 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
   });
 };
 
-export const PanelPropertiesEditor = (
+export function PanelPropertiesEditor(
   props: PanelPropertiesEditorProps &
     PanelPropertiesEditorPanelProps &
     IPanelProps,
-) => {
+) {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const hidePropertyPane = useCallback(() => {
@@ -98,10 +98,10 @@ export const PanelPropertiesEditor = (
   }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
   const {
-    panelConfig,
-    panelProps,
     closePanel,
+    panelConfig,
     panelParentPropertyPath,
+    panelProps,
     theme,
   } = props;
 
@@ -127,7 +127,7 @@ export const PanelPropertiesEditor = (
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex) {
+    if (currentIndex !== undefined) {
       let path: string | undefined = undefined;
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
@@ -147,7 +147,7 @@ export const PanelPropertiesEditor = (
   );
 
   useEffect(() => {
-    if (panelProps.widgetId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties.widgetId) {
       props.closePanel();
     }
   }, [widgetProperties.widgetId]);
@@ -183,10 +183,10 @@ export const PanelPropertiesEditor = (
   return (
     <>
       <PanelHeader
+        closePanel={closePanel}
+        hidePropertyPane={hidePropertyPane}
         isEditable={panelConfig.editableTitle}
         propertyName={panelConfig.titlePropertyName}
-        hidePropertyPane={hidePropertyPane}
-        closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
@@ -201,7 +201,7 @@ export const PanelPropertiesEditor = (
       </PropertyControlsWrapper>
     </>
   );
-};
+}
 
 interface PanelPropertiesEditorProps {
   panelProps: any;

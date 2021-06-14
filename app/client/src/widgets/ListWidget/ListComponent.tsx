@@ -32,7 +32,7 @@ const ScrollableCanvasWrapper = styled.div<
   height: 100%;
 `;
 
-const ListComponent = (props: GridComponentProps) => {
+function ListComponent(props: GridComponentProps) {
   // using memoized class name
   const scrollableCanvasClassName = useMemo(() => {
     return `${
@@ -47,13 +47,15 @@ const ListComponent = (props: GridComponentProps) => {
       </ScrollableCanvasWrapper>
     </GridContainer>
   );
-};
+}
 
-export const ListComponentEmpty = styled.div`
+export const ListComponentEmpty = styled.div<{
+  backgroundColor?: string;
+}>`
   height: 100%;
   width: 100%;
   position: relative;
-  background: white;
+  background: ${(props) => props.backgroundColor ?? "white"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,7 +63,22 @@ export const ListComponentEmpty = styled.div`
   font-size: 10px;
   text-anchor: middle;
   color: rgb(102, 102, 102);
+  box-shadow: ${(props) => `0px 0px 0px 1px ${props.theme.borders[2].color}`};
+`;
+
+export const ListComponentLoading = styled.div<{
+  backgroundColor?: string;
+}>`
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+
+  & > div {
+    background: ${(props) => props.backgroundColor ?? "white"};
+    margin: 8px;
+  }
 `;
 
 export default ListComponent;

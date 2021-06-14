@@ -12,6 +12,8 @@ type MenuProps = CommonComponentProps & {
   onOpening?: (node: HTMLElement) => void;
   onClosing?: (node: HTMLElement) => void;
   modifiers?: PopperModifiers;
+  isOpen?: boolean;
+  onClose?: () => void;
 };
 
 const MenuWrapper = styled.div`
@@ -24,18 +26,20 @@ const MenuOption = styled.div`
   font-family: ${(props) => props.theme.fonts[3]};
 `;
 
-const Menu = (props: MenuProps) => {
+function Menu(props: MenuProps) {
   return (
     <Popover
-      minimal
-      position={props.position || Position.BOTTOM}
-      onOpening={props.onOpening}
-      onClosing={props.onClosing}
       className={props.className}
-      portalClassName={props.className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
+      isOpen={props.isOpen}
+      minimal
       modifiers={props.modifiers}
+      onClose={props.onClose}
+      onClosing={props.onClosing}
+      onOpening={props.onOpening}
+      portalClassName={props.className}
+      position={props.position || Position.BOTTOM}
     >
       {props.target}
       <MenuWrapper>
@@ -46,6 +50,6 @@ const Menu = (props: MenuProps) => {
       </MenuWrapper>
     </Popover>
   );
-};
+}
 
 export default Menu;

@@ -13,7 +13,13 @@ import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
+import {
+  CHECK_REQUEST_BODY,
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
@@ -25,11 +31,13 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
+import EntityDeps from "./Debugger/EntityDependecies";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
   height: 60%;
+  width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
@@ -156,7 +164,7 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
-const ApiResponseView = (props: Props) => {
+function ApiResponseView(props: Props) {
   const {
     match: {
       params: { apiId },
@@ -193,20 +201,18 @@ const ApiResponseView = (props: Props) => {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
-            <>
-              <Callout
-                text={createMessage(CHECK_REQUEST_BODY)}
-                label={
-                  <FailedMessage>
-                    <DebugButton onClick={onDebugClick} />
-                  </FailedMessage>
-                }
-                variant={Variant.danger}
-                fill
-                closeButton
-                onClose={() => setRequestDebugVisible(false)}
-              />
-            </>
+            <Callout
+              closeButton
+              fill
+              label={
+                <FailedMessage>
+                  <DebugButton onClick={onDebugClick} />
+                </FailedMessage>
+              }
+              onClose={() => setRequestDebugVisible(false)}
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.danger}
+            />
           )}
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
@@ -215,29 +221,48 @@ const ApiResponseView = (props: Props) => {
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor
+              folding
+              height={"100%"}
               input={{
                 value: response.body
                   ? JSON.stringify(response.body, null, 2)
                   : "",
               }}
-              height={"100%"}
-              folding={true}
             />
           )}
         </ResponseTabWrapper>
       ),
     },
     {
-      key: "error-logs",
-      title: "Errors",
+      key: "ERROR",
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "logs",
-      title: "Logs",
+      key: "LOGS",
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
+    },
   ];
+
+  const onTabSelect = (index: number) => {
+    const debuggerTabKeys = ["ERROR", "LOGS"];
+    if (
+      debuggerTabKeys.includes(tabs[index].key) &&
+      debuggerTabKeys.includes(tabs[selectedIndex].key)
+    ) {
+      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+        tabName: tabs[index].key,
+      });
+    }
+
+    setSelectedIndex(index);
+  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -279,18 +304,28 @@ const ApiResponseView = (props: Props) => {
                   </Text>
                 </Flex>
               )}
+              {!_.isEmpty(response.body) && Array.isArray(response.body) && (
+                <Flex>
+                  <Text type={TextType.P3}>Result: </Text>
+                  <Text type={TextType.H5}>
+                    {`${response.body.length} Record${
+                      response.body.length > 1 ? "s" : ""
+                    }`}
+                  </Text>
+                </Flex>
+              )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          tabs={tabs}
+          onSelect={onTabSelect}
           selectedIndex={selectedIndex}
-          onSelect={setSelectedIndex}
+          tabs={tabs}
         />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {

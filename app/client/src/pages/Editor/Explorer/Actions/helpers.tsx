@@ -164,13 +164,13 @@ export const getPluginGroups = (
 
     return (
       <PluginGroup
-        key={page.pageId + "_" + config.types.join("_")}
+        actionConfig={config}
         actions={entries}
         datasources={filteredDatasources}
-        step={step}
-        searchKeyword={searchKeyword}
+        key={page.pageId + "_" + config.types.join("_")}
         page={page}
-        actionConfig={config}
+        searchKeyword={searchKeyword}
+        step={step}
       />
     );
   });
@@ -185,7 +185,11 @@ export const useNewActionName = () => {
   const groupedActions = useMemo(() => {
     return groupBy(actions, "config.pageId");
   }, [actions]);
-  return (name: string, destinationPageId: string) => {
+  return (
+    name: string,
+    destinationPageId: string,
+    isCopyOperation?: boolean,
+  ) => {
     const pageActions = groupedActions[destinationPageId];
     // Get action names of the destination page only
     const actionNames = pageActions
@@ -193,7 +197,11 @@ export const useNewActionName = () => {
       : [];
 
     return actionNames.indexOf(name) > -1
-      ? getNextEntityName(name, actionNames)
+      ? getNextEntityName(
+          isCopyOperation ? `${name}Copy` : name,
+          actionNames,
+          true,
+        )
       : name;
   };
 };

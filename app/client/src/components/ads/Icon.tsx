@@ -46,7 +46,26 @@ import { ReactComponent as WandIcon } from "assets/icons/ads/wand.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
-
+import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
+import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
+import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
+import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
+import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
+import { ReactComponent as ContextMenu } from "assets/icons/ads/context-menu.svg";
+import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
+import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
+import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
+import { ReactComponent as CommentContextMenu } from "assets/icons/comments/context-menu.svg";
+import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
+import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
+import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
+import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
+import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
+import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
+import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -100,6 +119,8 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "upload",
+  "download",
   "book",
   "bug",
   "cancel",
@@ -148,11 +169,30 @@ export const IconCollection = [
   "mobile",
   "tablet",
   "fluid",
+  "card-context-menu",
+  "send-button",
+  "emoji",
+  "pin",
+  "oval-check",
   "HEADING_ONE",
   "HEADING_TWO",
   "HEADING_THREE",
   "PARAGRAPH",
   "PARAGRAPH_TWO",
+  "context-menu",
+  "trash",
+  "link-2",
+  "close-x",
+  "comment-context-menu",
+  "down-arrow-2",
+  "read-pin",
+  "unread-pin",
+  "filter",
+  "chat",
+  "pin-3",
+  "unpin",
+  "reaction",
+  "reaction-2",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -185,17 +225,22 @@ export const IconWrapper = styled.span<IconProps>`
       !props.keepColors
         ? `
     path {
-      fill: ${props.theme.colors.icon.hover};
+      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
     }
     `
         : ""}
   }
 
-  &:active {
+  &:hover {
     cursor: pointer;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) => props.theme.colors.icon.active};
+      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
     }
+    `
+        : ""}
   }
 `;
 
@@ -206,6 +251,7 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  hoverFillColor?: string;
   keepColors?: boolean;
 };
 
@@ -325,6 +371,7 @@ const Icon = forwardRef(
         returnIcon = <HelpIcon />;
         break;
       case "close-modal":
+      case "close-x":
         returnIcon = <CloseModalIcon />;
         break;
       case "no-response":
@@ -357,6 +404,21 @@ const Icon = forwardRef(
       case "fluid":
         returnIcon = <FluidIcon />;
         break;
+      case "card-context-menu":
+        returnIcon = <CardContextMenu />;
+        break;
+      case "send-button":
+        returnIcon = <SendButton />;
+        break;
+      case "emoji":
+        returnIcon = <Emoji />;
+        break;
+      case "pin":
+        returnIcon = <Pin />;
+        break;
+      case "oval-check":
+        returnIcon = <OvalCheck />;
+        break;
 
       case "HEADING_ONE":
       case "HEADING_TWO":
@@ -364,7 +426,67 @@ const Icon = forwardRef(
       case "PARAGRAPH":
       case "PARAGRAPH_TWO":
         const ControlIcon = ControlIcons[props.name];
-        returnIcon = <ControlIcon width={24} height={24} />;
+        returnIcon = <ControlIcon height={24} width={24} />;
+        break;
+
+      case "context-menu":
+        returnIcon = <ContextMenu />;
+        break;
+
+      case "read-pin":
+        returnIcon = <ReadPin />;
+        break;
+
+      case "unread-pin":
+        returnIcon = <UnreadPin />;
+        break;
+
+      case "link-2":
+        returnIcon = <Link2 />;
+        break;
+
+      case "trash":
+        returnIcon = <Trash />;
+        break;
+
+      case "comment-context-menu":
+        returnIcon = <CommentContextMenu />;
+        break;
+
+      case "down-arrow-2":
+        returnIcon = <DownArrow2 />;
+        break;
+
+      case "filter":
+        returnIcon = <Filter />;
+        break;
+
+      case "chat":
+        returnIcon = <Chat />;
+        break;
+
+      case "pin-3":
+        returnIcon = <Pin3 />;
+        break;
+
+      case "unpin":
+        returnIcon = <Unpin />;
+        break;
+
+      case "reaction":
+        returnIcon = <Reaction />;
+        break;
+
+      case "reaction-2":
+        returnIcon = <Reaction2 />;
+        break;
+
+      case "upload":
+        returnIcon = <Upload />;
+        break;
+
+      case "download":
+        returnIcon = <Download />;
         break;
 
       default:

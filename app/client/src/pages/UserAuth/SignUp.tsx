@@ -35,7 +35,6 @@ import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -45,6 +44,8 @@ import PerformanceTracker, {
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+import { getAppsmithConfigs } from "configs";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
@@ -53,6 +54,13 @@ if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -75,12 +83,17 @@ type SignUpFormProps = InjectedFormProps<
 > &
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
-export const SignUp = (props: SignUpFormProps) => {
-  const { error, submitting, pristine, valid, emailValue: email } = props;
+export function SignUp(props: SignUpFormProps) {
+  const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
+
+  const recaptchaStatus = useScript(
+    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
+    AddScriptTo.HEAD,
+  );
 
   let showError = false;
   let errorMessage = "";
@@ -93,8 +106,11 @@ export const SignUp = (props: SignUpFormProps) => {
   let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
   if (queryParams.has("appId")) {
     signupURL += `?appId=${queryParams.get("appId")}`;
-  } else if (queryParams.has("redirectUrl")) {
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  } else {
+    const redirectUrl = queryParams.get("redirectUrl");
+    if (redirectUrl != null) {
+      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+    }
   }
 
   return (
@@ -106,25 +122,55 @@ export const SignUp = (props: SignUpFormProps) => {
       <SignUpLinkSection>
         {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
         <AuthCardNavLink
-          to={AUTH_LOGIN_URL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={AUTH_LOGIN_URL}
         >
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm method="POST" action={signupURL}>
+      <SpacedSubmitForm
+        action={signupURL}
+        id="signup-form"
+        method="POST"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formElement: HTMLFormElement = document.getElementById(
+            "signup-form",
+          ) as HTMLFormElement;
+          if (
+            googleRecaptchaSiteKey.enabled &&
+            recaptchaStatus === ScriptStatus.READY
+          ) {
+            window.grecaptcha
+              .execute(googleRecaptchaSiteKey.apiKey, {
+                action: "submit",
+              })
+              .then(function(token: any) {
+                formElement &&
+                  formElement.setAttribute(
+                    "action",
+                    `${signupURL}?recaptchaToken=${token}`,
+                  );
+                formElement && formElement.submit();
+              });
+          } else {
+            formElement && formElement.submit();
+          }
+          return false;
+        }}
+      >
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
         >
           <FormTextField
-            name="email"
-            type="email"
-            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
             autoFocus
+            name="email"
+            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+            type="email"
           />
         </FormGroup>
         <FormGroup
@@ -132,20 +178,16 @@ export const SignUp = (props: SignUpFormProps) => {
           label={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
-            type="password"
             name="password"
             placeholder={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
+            type="password"
           />
         </FormGroup>
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={pristine || !isFormValid}
-            isLoading={submitting}
-            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
             fill
-            size={Size.large}
+            isLoading={submitting}
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                 signupMethod: "EMAIL",
@@ -155,12 +197,16 @@ export const SignUp = (props: SignUpFormProps) => {
               );
               initiateOnboarding();
             }}
+            size={Size.large}
+            tag="button"
+            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>
     </>
   );
-};
+}
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
 export default connect((state: AppState, props: SignUpFormProps) => {

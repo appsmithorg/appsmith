@@ -8,6 +8,13 @@ import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import EntityDeps from "./EntityDependecies";
+import {
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -41,17 +48,22 @@ type DebuggerTabsProps = {
 const DEBUGGER_TABS = [
   {
     key: "ERROR",
-    title: "Errors",
+    title: createMessage(DEBUGGER_ERRORS),
     panelComponent: <Errors hasShortCut />,
   },
   {
     key: "LOGS",
-    title: "Logs",
+    title: createMessage(DEBUGGER_LOGS),
     panelComponent: <DebuggerLogs hasShortCut />,
+  },
+  {
+    key: "INSPECT_ELEMENTS",
+    title: createMessage(INSPECT_ENTITY),
+    panelComponent: <EntityDeps />,
   },
 ];
 
-const DebuggerTabs = (props: DebuggerTabsProps) => {
+function DebuggerTabs(props: DebuggerTabsProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
@@ -68,18 +80,18 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
     <Container ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabComponent
-        selectedIndex={selectedIndex}
         onSelect={onTabSelect}
+        selectedIndex={selectedIndex}
         tabs={DEBUGGER_TABS}
       />
       <Icon
         className="close-debugger"
         name="cross"
-        size={IconSize.SMALL}
         onClick={onClose}
+        size={IconSize.SMALL}
       />
     </Container>
   );
-};
+}
 
 export default DebuggerTabs;

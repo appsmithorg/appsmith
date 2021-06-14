@@ -209,7 +209,7 @@ export class JSONtoForm<
   renderMainSection = (section: any, index: number) => {
     if (isHidden(this.props.formData, section.hidden)) return null;
     return (
-      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
+      <Collapsible defaultIsOpen={index === 0} title={section.sectionName}>
         {this.renderEachConfig(section)}
       </Collapsible>
     );
@@ -237,7 +237,7 @@ export class JSONtoForm<
   };
 
   setupConfig = (config: ControlProps) => {
-    const { controlType, isRequired, configProperty } = config;
+    const { configProperty, controlType, isRequired } = config;
     this.configDetails[configProperty] = controlType;
 
     if (isRequired) {

@@ -13,6 +13,7 @@ import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -201,8 +202,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             if (parsedRegex) {
               return parsedRegex.test(this.text);
             }
+            if (this.isRequired) {
+              return !(this.text === '' || isNaN(this.text));
+            }
 
-            return !isNaN(this.text);
+            return (this.text === '' || !isNaN(this.text || ''));
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
@@ -303,25 +307,27 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
-        value={value}
-        isInvalid={isInvalid}
-        onValueChange={this.onValueChange}
-        widgetId={this.props.widgetId}
-        inputType={this.props.inputType}
-        disabled={this.props.isDisabled}
-        label={this.props.label}
         defaultValue={this.props.defaultText}
-        placeholder={this.props.placeholderText}
-        isLoading={this.props.isLoading}
-        multiline={
-          this.props.bottomRow - this.props.topRow > 1 &&
-          this.props.inputType === "TEXT"
-        }
-        stepSize={1}
-        onFocusChange={this.handleFocusChange}
-        showError={!!this.props.isFocused}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        disabled={this.props.isDisabled}
+        inputType={this.props.inputType}
+        isInvalid={isInvalid}
+        isLoading={this.props.isLoading}
+        label={this.props.label}
+        multiline={
+          // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
+          (this.props.bottomRow - this.props.topRow) /
+            GRID_DENSITY_MIGRATION_V1 >
+            1 && this.props.inputType === "TEXT"
+        }
+        onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
+        onValueChange={this.onValueChange}
+        placeholder={this.props.placeholderText}
+        showError={!!this.props.isFocused}
+        stepSize={1}
+        value={value}
+        widgetId={this.props.widgetId}
         {...conditionalProps}
       />
     );

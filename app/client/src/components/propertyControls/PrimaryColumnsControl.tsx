@@ -39,6 +39,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-bottom: 2px;
   width: 100%;
   padding-left: 30px;
+  padding-right: 60px;
+  text-overflow: ellipsis;
   &&& {
     input {
       padding-left: 24px;
@@ -93,12 +95,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
 
   const {
-    updateOption,
-    onEdit,
-    item,
     deleteOption,
-    toggleVisibility,
     index,
+    item,
+    onEdit,
+    toggleVisibility,
+    updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = debounce(updateOption, 1000);
@@ -114,48 +116,48 @@ function ColumnControlComponent(props: RenderComponentProps) {
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        placeholder="Column Title"
+        defaultValue={value}
         onChange={(value: string) => {
           onChange(index, value);
         }}
-        defaultValue={value}
+        placeholder="Column Title"
       />
       <StyledEditIcon
         className="t--edit-column-btn"
         height={20}
-        width={20}
         onClick={() => {
           onEdit && onEdit(index);
         }}
+        width={20}
       />
       {!!item.isDerived ? (
         <StyledDeleteIcon
           className="t--delete-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             deleteOption && deleteOption(index);
           }}
+          width={20}
         />
       ) : visibility ? (
         <StyledVisibleIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       ) : (
         <StyledHiddenIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       )}
     </ItemWrapper>
@@ -198,25 +200,25 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={draggableComponentColumns}
-          itemHeight={45}
-          renderComponent={ColumnControlComponent}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
           deleteOption={this.deleteOption}
-          toggleVisibility={this.toggleVisibility}
+          itemHeight={45}
+          items={draggableComponentColumns}
           onEdit={this.onEdit}
+          renderComponent={ColumnControlComponent}
+          toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
 
         <AddColumnButton
+          category={Category.tertiary}
           className="t--add-column-btn"
           icon="plus"
-          tag="button"
-          type="button"
-          text="Add a new column"
           onClick={this.addNewColumn}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="Add a new column"
+          type="button"
         />
       </TabsWrapper>
     );
@@ -257,7 +259,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
     this.props.openNextPanel({
       ...originalColumn,
-      widgetId: this.props.widgetProperties.widgetId,
+      propPaneId: this.props.widgetProperties.widgetId,
     });
   };
   //Used to reorder columns

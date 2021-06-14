@@ -1,5 +1,5 @@
 import React from "react";
-import { get, has, isString } from "lodash";
+import { get, isString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -81,10 +81,7 @@ type RenderComponentProps = {
   index: string;
   item: ChartData;
   length: number;
-  validationMessage: {
-    data: string;
-    seriesName: string;
-  };
+  dataTreePath: string;
   deleteOption: (index: string) => void;
   updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
@@ -96,13 +93,13 @@ type RenderComponentProps = {
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
+    dataTreePath,
     deleteOption,
-    updateOption,
-    item,
-    index,
-    length,
     evaluated,
-    validationMessage,
+    index,
+    item,
+    length,
+    updateOption,
   } = props;
 
   return (
@@ -112,15 +109,17 @@ function DataControlComponent(props: RenderComponentProps) {
         {length > 1 && (
           <StyledDeleteIcon
             height={20}
-            width={20}
             onClick={() => {
               deleteOption(index);
             }}
+            width={20}
           />
         )}
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
+          dataTreePath={`${dataTreePath}.seriesName`}
+          evaluatedValue={evaluated?.seriesName}
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -134,12 +133,11 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated?.seriesName}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -147,6 +145,8 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
+          dataTreePath={`${dataTreePath}.data`}
+          evaluatedValue={evaluated?.data}
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
@@ -160,21 +160,14 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated?.data}
-          meta={{
-            error: has(validationMessage, "data")
-              ? get(validationMessage, "data")
-              : "",
-            touched: true,
-          }}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledDynamicInput>
-      <Box></Box>
+      <Box />
     </StyledOptionControlWrapper>
   );
 }
@@ -186,7 +179,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
       : this.props.propertyValue;
 
     const dataLength = Object.keys(chartData).length;
-    const { validationMessage } = this.props;
 
     const evaluatedValue = this.props.evaluatedValue;
     const firstKey = Object.keys(chartData)[0] as string;
@@ -201,50 +193,50 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
       return (
         <DataControlComponent
+          dataTreePath={`${this.props.dataTreePath}.${firstKey}`}
+          deleteOption={this.deleteOption}
+          evaluated={get(evaluatedValue, `${firstKey}`)}
           index={firstKey}
           item={data}
           length={1}
-          deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          validationMessage={get(validationMessage, `${firstKey}`)}
-          evaluated={get(evaluatedValue, `${firstKey}`)}
           theme={this.props.theme}
+          updateOption={this.updateOption}
         />
       );
     }
 
     return (
-      <React.Fragment>
+      <>
         <Wrapper>
           {Object.keys(chartData).map((key: string) => {
             const data = get(chartData, `${key}`);
 
             return (
               <DataControlComponent
-                key={key}
+                dataTreePath={`${this.props.dataTreePath}.${key}`}
+                deleteOption={this.deleteOption}
+                evaluated={get(evaluatedValue, `${key}`)}
                 index={key}
                 item={data}
+                key={key}
                 length={dataLength}
-                deleteOption={this.deleteOption}
-                updateOption={this.updateOption}
-                validationMessage={get(validationMessage, `${key}`)}
-                evaluated={get(evaluatedValue, `${key}`)}
                 theme={this.props.theme}
+                updateOption={this.updateOption}
               />
             );
           })}
         </Wrapper>
 
         <StyledPropertyPaneButton
+          category={Category.tertiary}
           icon="plus"
-          tag="button"
-          type="button"
-          text="Add Series"
           onClick={this.addOption}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="Add Series"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 

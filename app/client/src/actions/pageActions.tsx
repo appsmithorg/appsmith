@@ -104,9 +104,10 @@ export const updateAndSaveLayout = (
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 
@@ -203,6 +204,12 @@ export type WidgetDelete = {
   isShortcut?: boolean;
 };
 
+export type MultipleWidgetDeletePayload = {
+  widgetIds: string[];
+  disallowUndo?: boolean;
+  isShortcut?: boolean;
+};
+
 export type WidgetResize = {
   widgetId: string;
   leftColumn: number;
@@ -227,12 +234,23 @@ export type WidgetAddChildren = {
   }>;
 };
 
+export type WidgetUpdateProperty = {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+  | WidgetAddChild
+  | WidgetMove
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
+  | WidgetUpdateProperty
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

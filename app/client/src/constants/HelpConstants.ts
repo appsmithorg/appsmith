@@ -41,7 +41,7 @@ export const HelpMap = {
   },
   DROP_DOWN_WIDGET: {
     path: "/widget-reference/dropdown",
-    searchKey: "Dropdown",
+    searchKey: "Select",
   },
   RADIO_GROUP_WIDGET: {
     path: "/widget-reference/radio",
@@ -82,6 +82,10 @@ export const HelpMap = {
   TABS_WIDGET: {
     path: "",
     searchKey: "Tabs",
+  },
+  TABS_MIGRATOR_WIDGET: {
+    path: "",
+    searchKey: "",
   },
   MODAL_WIDGET: {
     path: "",

@@ -9,6 +9,10 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+/*
+ ********************************{Grid Density Migration}*********************************
+ */
+export const GRID_DENSITY_MIGRATION_V1 = 4;
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -18,8 +22,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     BUTTON_WIDGET: {
       text: "Submit",
       buttonStyle: "PRIMARY_BUTTON",
-      rows: 1,
-      columns: 2,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -32,15 +36,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       fontStyle: "BOLD",
       textAlign: "LEFT",
       textColor: Colors.THUNDER,
-      rows: 1,
-      columns: 4,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Text",
       version: 1,
     },
     RICH_TEXT_EDITOR_WIDGET: {
       defaultText: "This is the initial <b>content</b> of the editor",
-      rows: 5,
-      columns: 8,
+      rows: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isDisabled: false,
       isVisible: true,
       widgetName: "RichTextEditor",
@@ -54,16 +58,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       image: "",
-      rows: 3,
-      columns: 4,
+      rows: 3 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Image",
       version: 1,
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
-      rows: 1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
       label: "",
-      columns: 5,
+      columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
       resetOnSubmit: true,
@@ -72,8 +76,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     SWITCH_WIDGET: {
       label: "Label",
-      rows: 1,
-      columns: 2,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
       defaultSwitchState: true,
       widgetName: "Switch",
       alignWidget: "LEFT",
@@ -82,14 +86,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     ICON_WIDGET: {
       widgetName: "Icon",
-      rows: 1,
-      columns: 1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
       version: 1,
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
-      rows: 10,
-      columns: 8,
+      rows: 10 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Container",
       containerStyle: "card",
       children: [],
@@ -112,89 +116,174 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     DATE_PICKER_WIDGET: {
       isDisabled: false,
       datePickerType: "DATE_PICKER",
-      rows: 1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
       label: "",
-      dateFormat: "DD/MM/YYYY HH:mm",
-      columns: 5,
+      dateFormat: "YYYY-MM-DD HH:mm",
+      columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "DatePicker",
-      defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+      defaultDate: moment().format("YYYY-MM-DD HH:mm"),
       version: 1,
     },
     DATE_PICKER_WIDGET2: {
       isDisabled: false,
       datePickerType: "DATE_PICKER",
-      rows: 1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
       label: "",
-      dateFormat: "DD/MM/YYYY HH:mm",
-      columns: 5,
+      dateFormat: "YYYY-MM-DD HH:mm",
+      columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
+      minDate: "2001-01-01 00:00",
+      maxDate: "2041-12-31 23:59",
       version: 2,
       isRequired: false,
     },
     VIDEO_WIDGET: {
-      rows: 7,
-      columns: 7,
+      rows: 7 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Video",
       url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
       autoPlay: false,
       version: 1,
     },
     TABLE_WIDGET: {
-      rows: 7,
-      columns: 8,
+      rows: 7 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: {},
+      dynamicBindingPathList: [
+        {
+          key: "primaryColumns.step.computedValue",
+        },
+        {
+          key: "primaryColumns.task.computedValue",
+        },
+        {
+          key: "primaryColumns.status.computedValue",
+        },
+        {
+          key: "primaryColumns.action.computedValue",
+        },
+      ],
+      primaryColumns: {
+        step: {
+          index: 0,
+          width: 150,
+          id: "step",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "step",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+        },
+        task: {
+          index: 1,
+          width: 150,
+          id: "task",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "task",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+        },
+        status: {
+          index: 2,
+          width: 150,
+          id: "status",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "status",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+        },
+        action: {
+          index: 3,
+          width: 150,
+          id: "action",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "button",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "action",
+          onClick:
+            "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+        },
+      },
       derivedColumns: {},
       tableData: [
         {
-          id: 2381224,
-          email: "michael.lawson@reqres.in",
-          userName: "Michael Lawson",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
+          step: "#1",
+          task: "Drop a table",
+          status: "✅",
+          action: "",
         },
         {
-          id: 2736212,
-          email: "lindsay.ferguson@reqres.in",
-          userName: "Lindsay Ferguson",
-          productName: "Tuna Salad",
-          orderAmount: 9.99,
+          step: "#2",
+          task: "Create a query fetch_users with the Mock DB",
+          status: "--",
+          action: "",
         },
         {
-          id: 6788734,
-          email: "tobias.funke@reqres.in",
-          userName: "Tobias Funke",
-          productName: "Beef steak",
-          orderAmount: 19.99,
+          step: "#3",
+          task: "Bind the query using {{fetch_users.data}}",
+          status: "--",
+          action: "",
         },
       ],
+      columnSizeMap: {
+        task: 245,
+        step: 62,
+        status: 75,
+      },
       version: 1,
     },
     DROP_DOWN_WIDGET: {
-      rows: 1,
-      columns: 5,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 5 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
-        { label: "Vegetarian", value: "VEG" },
-        { label: "Non-Vegetarian", value: "NON_VEG" },
-        { label: "Vegan", value: "VEGAN" },
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
       ],
-      widgetName: "Dropdown",
-      defaultOptionValue: "VEG",
+      widgetName: "Select",
+      defaultOptionValue: "GREEN",
       version: 1,
       isRequired: false,
       isDisabled: false,
     },
     CHECKBOX_WIDGET: {
-      rows: 1,
-      columns: 3,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 3 * GRID_DENSITY_MIGRATION_V1,
       label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
@@ -204,24 +293,25 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
     },
     RADIO_GROUP_WIDGET: {
-      rows: 2,
-      columns: 3,
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 3 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       options: [
-        { label: "Male", value: "M" },
-        { label: "Female", value: "F" },
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
       ],
-      defaultOptionValue: "M",
+      defaultOptionValue: "Y",
       widgetName: "RadioGroup",
       version: 1,
       isRequired: false,
       isDisabled: false,
     },
     FILE_PICKER_WIDGET: {
-      rows: 1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
+      allowedFileTypes: [],
       label: "Select Files",
-      columns: 4,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       maxNumFiles: 1,
       maxFileSize: 5,
       fileDataType: FileDataTypes.Base64,
@@ -232,14 +322,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     TABS_WIDGET: {
-      rows: 7,
-      columns: 8,
+      rows: 7 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       shouldScrollContents: false,
       widgetName: "Tabs",
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
+      },
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
@@ -247,18 +349,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = [...widget.tabs];
-
-              const newTabs = tabs.map((tab: any) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
-                return newTab;
-              });
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
               const updatePropertyMap = [
                 {
                   widgetId: widget.widgetId,
-                  propertyName: "tabs",
-                  propertyValue: newTabs,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;
@@ -266,11 +368,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 1,
+      version: 3,
     },
     MODAL_WIDGET: {
-      rows: 6,
-      columns: 6,
+      rows: 6 * GRID_DENSITY_MIGRATION_V1,
+      columns: 6 * GRID_DENSITY_MIGRATION_V1,
       size: "MODAL_SMALL",
       canEscapeKeyClose: true,
       // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -298,8 +400,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "ICON_WIDGET",
-                    position: { left: 14, top: 0 },
-                    size: { rows: 1, cols: 2 },
+                    position: { left: 14 * GRID_DENSITY_MIGRATION_V1, top: 1 },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       iconName: "cross",
                       iconSize: 24,
@@ -309,18 +414,27 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "TEXT_WIDGET",
-                    position: { left: 0, top: 0 },
-                    size: { rows: 1, cols: 10 },
+                    position: { left: 1, top: 1 },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 10 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       text: "Modal Title",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 9, top: 4 },
-                    size: { rows: 1, cols: 3 },
+                    position: {
+                      left: 9 * GRID_DENSITY_MIGRATION_V1,
+                      top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       text: "Cancel",
                       buttonStyle: "SECONDARY_BUTTON",
@@ -329,8 +443,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 12, top: 4 },
-                    size: { rows: 1, cols: 4 },
+                    position: {
+                      left: 12 * GRID_DENSITY_MIGRATION_V1,
+                      top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -377,11 +497,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     CHART_WIDGET: {
-      rows: 8,
-      columns: 6,
+      rows: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Chart",
       chartType: "LINE_CHART",
-      chartName: "Sales on working days",
+      chartName: "Last week's revenue",
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
@@ -421,18 +541,70 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      customFusionChartConfig: {
+        type: "column2d",
+        dataSource: {
+          chart: {
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
+            theme: "fusion",
+          },
+          data: [
+            {
+              label: "Mon",
+              value: 10000,
+            },
+            {
+              label: "Tue",
+              value: 12000,
+            },
+            {
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 14000,
+            },
+            {
+              label: "Sat",
+              value: 19000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
+            },
+          ],
+          trendlines: [
+            {
+              line: [
+                {
+                  startvalue: "38000",
+                  valueOnRight: "1",
+                  displayvalue: "Weekly Target",
+                },
+              ],
+            },
+          ],
+        },
+      },
     },
     FORM_BUTTON_WIDGET: {
-      rows: 1,
-      columns: 3,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 3 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
       version: 1,
     },
     FORM_WIDGET: {
-      rows: 13,
-      columns: 7,
+      rows: 13 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Form",
       backgroundColor: "white",
       children: [],
@@ -451,18 +623,27 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "TEXT_WIDGET",
-                    size: { rows: 1, cols: 12 },
-                    position: { top: 0, left: 0 },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 1, left: 1.5 },
                     props: {
                       text: "Form",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
                   {
                     type: "FORM_BUTTON_WIDGET",
-                    size: { rows: 1, cols: 4 },
-                    position: { top: 11, left: 12 },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                      left: 11.6 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -473,8 +654,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "FORM_BUTTON_WIDGET",
-                    size: { rows: 1, cols: 4 },
-                    position: { top: 11, left: 8 },
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                      left: 7.5 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     props: {
                       text: "Reset",
                       buttonStyle: "SECONDARY_BUTTON",
@@ -491,8 +678,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     MAP_WIDGET: {
-      rows: 12,
-      columns: 8,
+      rows: 12 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isDisabled: false,
       isVisible: true,
       widgetName: "Map",
@@ -500,11 +687,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       zoomLevel: 50,
       enablePickLocation: true,
       allowZoom: true,
-      mapCenter: { lat: -34.397, long: 150.644 },
-      defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+      mapCenter: { lat: 25.122, long: 50.132 },
+      defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Test A" }],
       version: 1,
     },
     SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Skeleton",
+      version: 1,
+    },
+    TABS_MIGRATOR_WIDGET: {
       isLoading: true,
       rows: 1,
       columns: 1,
@@ -514,19 +708,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
       itemBackgroundColor: "white",
-      rows: 10,
-      columns: 8,
+      rows: 10 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       gridType: "vertical",
       enhancements: {
         child: {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
-          hideEvaluatedValue: () => true,
+          updateDataTreePath: (parentProps: any, dataTreePath: string) => {
+            return `${
+              parentProps.widgetName
+            }.evaluatedValues.template.${dataTreePath.replace(
+              "evaluatedValues.",
+              "",
+            )}`;
+          },
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
-            propertyPath: string, // onClick
+            propertyPath: string,
             propertyValue: string,
             isTriggerProperty: boolean,
           ) => {
@@ -543,7 +744,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               "",
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            value = `{{${parentProps.widgetName}.items.map((currentItem) => {
+              return (function(){
+                return  ${modifiedAction};
+              })();
+            })}}`;
+
+            if (!modifiedAction) {
+              value = propertyValue;
+            }
+
             const path = `template.${widgetName}.${propertyPath}`;
 
             return [
@@ -608,13 +818,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropDisabled: true,
+              openParentPropertyPane: true,
               noPad: true,
               children: [],
               blueprint: {
                 view: [
                   {
                     type: "CONTAINER_WIDGET",
-                    size: { rows: 4, cols: 16 },
+                    size: {
+                      rows: 4 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 16 * GRID_DENSITY_MIGRATION_V1,
+                    },
                     position: { top: 0, left: 0 },
                     props: {
                       backgroundColor: "white",
@@ -623,6 +837,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       isDeletable: false,
                       disallowCopy: true,
                       disablePropertyPane: true,
+                      openParentPropertyPane: true,
                       children: [],
                       blueprint: {
                         view: [
@@ -639,7 +854,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                 view: [
                                   {
                                     type: "IMAGE_WIDGET",
-                                    size: { rows: 3, cols: 4 },
+                                    size: {
+                                      rows: 3 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    },
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
@@ -657,8 +875,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 6 },
-                                    position: { top: 0, left: 4 },
+                                    size: {
+                                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                                    },
+                                    position: {
+                                      top: 0,
+                                      left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    },
                                     props: {
                                       text: "{{currentItem.name}}",
                                       textStyle: "HEADING",
@@ -673,8 +897,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 6 },
-                                    position: { top: 1, left: 4 },
+                                    size: {
+                                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                                    },
+                                    position: {
+                                      top: 1 * GRID_DENSITY_MIGRATION_V1,
+                                      left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    },
                                     props: {
                                       text: "{{currentItem.num}}",
                                       textStyle: "BODY",
@@ -708,6 +938,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
@@ -723,6 +954,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
                   const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 
                   for (let i = 0; i < keys.length; i++) {
@@ -749,6 +981,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     }
                   }
 
+                  Object.keys(childWidget).map((key) => {
+                    logBlackList[key] = true;
+                  });
+
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
+
                   template = {
                     ...template,
                     [childWidget.widgetName]: childWidget,
@@ -767,6 +1005,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyValue: template,
                 },
               ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
+                Object.keys(logBlackListMap).map((logBlackListMapKey) => {
+                  return {
+                    widgetId: logBlackListMapKey,
+                    propertyName: "logBlackList",
+                    propertyValue: logBlackListMap[logBlackListMapKey],
+                  };
+                }),
+              );
+
               return updatePropertyMap;
             },
           },
@@ -783,6 +1033,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+              const logBlackList: { [key: string]: boolean } = {};
 
               const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
 
@@ -820,7 +1071,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               parent.template = template;
 
+              // add logBlackList for the children being added
+              Object.keys(widget).map((key) => {
+                logBlackList[key] = true;
+              });
+
+              widget.logBlackList = logBlackList;
+
               widgets[parentId] = parent;
+              widgets[widgetId] = widget;
 
               return { widgets };
             },

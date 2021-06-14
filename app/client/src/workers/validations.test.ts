@@ -2,6 +2,7 @@ import { VALIDATORS, validateDateString } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import moment from "moment";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -34,7 +35,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
@@ -44,7 +45,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: undefined,
         },
@@ -59,7 +60,21 @@ describe("Validate Validators", () => {
       expect(response).toStrictEqual(testCase.output);
     }
   });
-
+  it("Correctly validates image string", () => {
+    const input =
+      "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png";
+    const result = VALIDATORS.IMAGE(input, DUMMY_WIDGET, undefined);
+    const expectedResult: {
+      isValid: boolean;
+      parsed: string;
+      message?: string;
+    } = {
+      isValid: true,
+      parsed: input,
+      message: "",
+    };
+    expect(result).toStrictEqual(expectedResult);
+  });
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
     const expected = [1, 1, 1, 1, 2, 1, 1, 1];
@@ -111,7 +126,7 @@ describe("Chart Custom Config validator", () => {
     const cases = [
       {
         input: {
-          type: "area2d",
+          type: "area",
           dataSource: {
             chart: {
               caption: "Countries With Most Oil Reserves [2017-18]",
@@ -160,7 +175,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: true,
           parsed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -207,7 +222,7 @@ describe("Chart Custom Config validator", () => {
           },
 
           transformed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -295,83 +310,14 @@ describe("Chart Custom Config validator", () => {
           },
         },
         output: {
-          isValid: true,
+          isValid: false,
+          message:
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
-            type: "area2d",
+            type: "",
             dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
-            },
-          },
-          transformed: {
-            type: "area2d",
-            dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
+              chart: {},
+              data: [],
             },
           },
         },
@@ -501,8 +447,7 @@ describe("List data validator", () => {
         input: "sting text",
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: "sting text",
         },
@@ -511,8 +456,7 @@ describe("List data validator", () => {
         input: undefined,
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: undefined,
         },
@@ -521,8 +465,7 @@ describe("List data validator", () => {
         input: {},
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: {},
         },
@@ -539,5 +482,29 @@ describe("List data validator", () => {
       const response = validator(testCase.input, DUMMY_WIDGET, {});
       expect(response).toStrictEqual(testCase.output);
     }
+  });
+
+  it("Validates DEFAULT_OPTION_VALUE correctly (string trim and integers)", () => {
+    const validator = VALIDATORS[VALIDATION_TYPES.DEFAULT_OPTION_VALUE];
+    const widgetProps = { ...DUMMY_WIDGET, selectionType: "SINGLE_SELECT" };
+    const inputs = [100, "something ", "something\n"];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "100",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const response = validator(input, widgetProps);
+      expect(response).toStrictEqual(expected[index]);
+    });
   });
 });

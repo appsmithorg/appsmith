@@ -34,7 +34,7 @@ class ContainerWidget extends BaseWidget<
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
             label: "Background Color",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
@@ -82,7 +82,7 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -111,7 +111,8 @@ class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
       <ContainerComponent {...props}>
-        {this.renderChildren()}
+        {/* without the wrapping div onClick events are triggered twice */}
+        <>{this.renderChildren()}</>
       </ContainerComponent>
     );
   }

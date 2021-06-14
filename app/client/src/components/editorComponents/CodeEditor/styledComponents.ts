@@ -34,7 +34,8 @@ export const HintStyles = createGlobalStyle<{
       props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
     cursor: pointer;
     display: flex;
-    width: 220px;
+    min-width: 220px;
+    width: auto;
     align-items: center;
     font-size: 12px;
     line-height: 15px;
@@ -50,16 +51,42 @@ export const HintStyles = createGlobalStyle<{
     }
   }
 
+  .CodeMirror-hint-header {
+    padding-left: 8px;
+    color: #4B4848;
+    pointer-events: none !important;
+    font-weight: 600;
+  }
+
   .datasource-hint {
-    padding: 10px;
+    padding: 10px 20px 10px 10px !important;
     display: block;
     width: 500px;
     height: 32px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: #FAFAFA;
+    color: black;
+    &.custom {
+      height: unset;
+      background: #ebebeb;
+      width: 600px;
+      &:hover{
+        background: #ffffff;
+        color: black;
+      }
+      &.CodeMirror-hint-active {
+        background: #ffffff;
+      }
+    }
+
+    &.invalid {
+      color: ${(props) => props.theme.colors.errorMessage};
+    }
   }
   .CodeMirror-Tern-completion {
+    display: flex;
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
@@ -95,14 +122,16 @@ export const HintStyles = createGlobalStyle<{
     background: ${(props) => props.theme.colors.dataTypeBg.number};
   }
   .CodeMirror-Tern-completion:after {
-    position: absolute;
-    right: 8px;
-    bottom: 6px;
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+    padding-right: 10px;
     font-style: italic;
     font-weight: normal;
     font-size: 10px;
     line-height: 13px;
     letter-spacing: -0.24px;
+    padding-left: 10px;
     color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
   }
   .CodeMirror-Tern-completion-fn:after {
@@ -418,20 +447,13 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border-color: ${(props) =>
-    !props.isError && props.isActive && props.skin === Skin.DARK
-      ? Colors.ALABASTER
-      : "transparent"};
+  border: 1px solid ${(props) => (!props.isError ? "transparent" : "red")};
   > span:first-of-type {
     width: 30px;
     position: absolute;
     right: 0px;
   }
   &:hover {
-    border-color: ${(props) =>
-      !props.isError && props.skin === Skin.DARK
-        ? Colors.ALABASTER
-        : "transparent"};
     .lightning-menu {
       background: ${(props) => (!props.isNotHover ? "#090707" : "")};
       svg {
@@ -447,7 +469,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
   }
-  border: 0px;
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;

@@ -15,7 +15,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -60,10 +62,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -71,9 +77,19 @@ public class PostgresPlugin extends BasePlugin {
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private static final String SSL = "useSSL";
-
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+
+    private static final String TIMESTAMP_TYPE_NAME = "timestamp";
+
+    private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
+
+    private static final String TIME_TYPE_NAME = "time";
+
+    private static final String TIMETZ_TYPE_NAME = "timetz";
+
+    private static final String INTERVAL_TYPE_NAME = "interval";
+
+    private static final String JSONB_TYPE_NAME = "jsonb";
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
@@ -165,12 +181,8 @@ public class PostgresPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                //In case the prepared statement configuration is missing, default to true.
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -178,10 +190,10 @@ public class PostgresPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -190,7 +202,8 @@ public class PostgresPlugin extends BasePlugin {
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             }
 
-            //Prepared Statement
+            // Prepared Statement
+
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
@@ -210,6 +223,10 @@ public class PostgresPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
 
@@ -260,6 +277,12 @@ public class PostgresPlugin extends BasePlugin {
                                 parameters,
                                 connectionFromPool);
 
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PsParameterDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
+
                         requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
@@ -294,7 +317,7 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                                } else if ("timestamp".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             LocalDateTime.of(
                                                     resultSet.getDate(i).toLocalDate(),
@@ -302,23 +325,25 @@ public class PostgresPlugin extends BasePlugin {
                                             )
                                     ) + "Z";
 
-                                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
 
-                                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                                } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getString(i);
 
-                                } else if ("interval".equalsIgnoreCase(typeName)) {
+                                } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getObject(i).toString();
 
                                 } else if (typeName.startsWith("_")) {
                                     value = resultSet.getArray(i).getArray();
 
+                                } else if (JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                    value = resultSet.getString(i);
+
                                 } else {
                                     value = resultSet.getObject(i);
-
                                 }
 
                                 row.put(metaData.getColumnName(i), value);
@@ -402,6 +427,7 @@ public class PostgresPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -666,15 +692,15 @@ public class PostgresPlugin extends BasePlugin {
 
                         final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                         table.getTemplates().addAll(List.of(
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
                                 new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                         + " (" + String.join(", ", columnNames) + ")\n"
-                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                        + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                                 new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                         + setFragments.toString() + "\n"
-                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                 new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                         ));
                     }
 

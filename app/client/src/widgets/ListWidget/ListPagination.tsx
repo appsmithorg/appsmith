@@ -29,6 +29,7 @@ const StyledPagination = styled(Pagination)<{
   bottom: 4px;
   left: 0;
   right: 0;
+  z-index: 3;
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
 
@@ -310,17 +311,17 @@ interface ListPaginationProps {
   onChange: (page: number) => void;
 }
 
-const ListPagination = (props: ListPaginationProps) => {
+function ListPagination(props: ListPaginationProps) {
   return (
     <StyledPagination
-      locale={locale}
-      total={props.total}
       current={props.current}
-      pageSize={props.perPage}
-      onChange={props.onChange}
       disabled={props.disabled}
+      locale={locale}
+      onChange={props.onChange}
+      pageSize={props.perPage}
+      total={props.total}
     />
   );
-};
+}
 
 export default ListPagination;

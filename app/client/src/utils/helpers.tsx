@@ -110,11 +110,13 @@ export const flashElementById = (id: string) => {
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[^\w\s]/;
+  // ensures that all special characters are disallowed
+  // while allowing all utf-8 characters
+  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
-    .split(separatorRegex)
-    .join("")
+    .split(removeSpecialCharsRegex)
+    .join(" ")
     .split(duplicateSpaceRegex)
     .join(" ")
     .slice(0, limit || 30);
@@ -286,4 +288,29 @@ export const scrollbarWidth = () => {
   const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
   document.body.removeChild(scrollDiv);
   return scrollbarWidth;
+};
+
+// Flatten object
+// From { isValid: false, settings: { color: false}}
+// To { isValid: false, settings.color: false}
+export const flattenObject = (data: Record<string, any>) => {
+  const result: Record<string, any> = {};
+  function recurse(cur: any, prop: any) {
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      for (let i = 0, l = cur.length; i < l; i++)
+        recurse(cur[i], prop + "[" + i + "]");
+      if (cur.length == 0) result[prop] = [];
+    } else {
+      let isEmpty = true;
+      for (const p in cur) {
+        isEmpty = false;
+        recurse(cur[p], prop ? prop + "." + p : p);
+      }
+      if (isEmpty && prop) result[prop] = {};
+    }
+  }
+  recurse(data, "");
+  return result;
 };

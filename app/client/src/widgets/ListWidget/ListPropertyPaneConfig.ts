@@ -2,6 +2,7 @@ import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const PropertyPaneConfig = [
   {
@@ -17,6 +18,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.LIST_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         propertyName: "backgroundColor",
@@ -41,8 +43,10 @@ const PropertyPaneConfig = [
         propertyName: "gridGap",
         label: "Item Spacing (px)",
         controlType: "INPUT_TEXT",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: VALIDATION_TYPES.NUMBER,
       },
       {
         propertyName: "isVisible",
@@ -67,14 +71,20 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          let items = get(props, "evaluatedValues.items", []);
+
+          if (Array.isArray(items)) {
+            items = items.filter(Boolean);
+          } else {
+            items = [];
+          }
+
           return {
             currentItem: Object.assign(
               {},
-              ...Object.keys(get(props, "evaluatedValues.items.0", {})).map(
-                (key) => ({
-                  [key]: "",
-                }),
-              ),
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
             ),
           };
         },

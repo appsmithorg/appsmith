@@ -38,13 +38,13 @@ const StyledAction = styled.div<{ intent: Intent }>`
   }
 `;
 
-export const ActionButton = (props: MessageAction) => {
+export function ActionButton(props: MessageAction) {
   if (props.url) {
     const isExternal = props.url.indexOf("//") !== -1;
     return (
       <StyledAction intent={props.intent}>
         {isExternal ? (
-          <a href={props.url} target="_blank" rel="noreferrer">
+          <a href={props.url} rel="noreferrer" target="_blank">
             {props.text}
           </a>
         ) : (
@@ -54,13 +54,13 @@ export const ActionButton = (props: MessageAction) => {
     );
   } else if (props.onClick) {
     return (
-      <StyledAction onClick={props.onClick} intent={props.intent}>
+      <StyledAction intent={props.intent} onClick={props.onClick}>
         {props.text}
       </StyledAction>
     );
   }
   return null;
-};
+}
 
 export type FormMessageProps = {
   intent: Intent;
@@ -68,18 +68,18 @@ export type FormMessageProps = {
   actions?: MessageAction[];
 };
 
-export const FormMessage = (props: FormMessageProps) => {
+export function FormMessage(props: FormMessageProps) {
   const actions =
     props.actions &&
     props.actions.map((action) => (
       <ActionButton key={action.text} {...action} intent={props.intent} />
     ));
   return (
-    <StyledMessage intent={props.intent} className="form-message-container">
+    <StyledMessage className="form-message-container" intent={props.intent}>
       {props.message}
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
     </StyledMessage>
   );
-};
+}
 
 export default FormMessage;

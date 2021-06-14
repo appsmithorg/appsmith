@@ -46,10 +46,11 @@ import { keyBy, noop } from "lodash";
 import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
+import Footer from "./Footer";
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 45vh;
+  height: 60vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
@@ -63,12 +64,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -92,12 +89,17 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
-const GlobalSearch = () => {
+function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
-  const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
+  const toggleShow = () => {
+    if (modalOpen) {
+      setQuery("");
+    }
+    dispatch(toggleShowGlobalSearchModal());
+  };
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
     setQueryInState(query);
@@ -203,7 +205,7 @@ const GlobalSearch = () => {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
   const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
@@ -308,7 +310,7 @@ const GlobalSearch = () => {
 
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { pageId, pluginType, id } = config;
+    const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(params.applicationId, pageId, id);
     toggleShow();
@@ -370,7 +372,7 @@ const GlobalSearch = () => {
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
-        <SearchModal toggleShow={toggleShow} modalOpen={modalOpen}>
+        <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
               <SearchBox query={query} setQuery={setQuery} />
@@ -381,8 +383,8 @@ const GlobalSearch = () => {
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
-                      searchResults={searchResults}
                       query={query}
+                      searchResults={searchResults}
                     />
                     <Separator />
                     <Description
@@ -396,12 +398,13 @@ const GlobalSearch = () => {
                   <ResultsNotFound />
                 )}
               </div>
+              {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>
       </GlobalSearchHotKeys>
     </SearchContext.Provider>
   );
-};
+}
 
 export default GlobalSearch;

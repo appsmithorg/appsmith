@@ -111,14 +111,31 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { url, autoPlay, onEnd, onPause, onPlay } = this.props;
+    const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
-          player={this._player}
-          url={url}
           autoplay={autoPlay}
-          controls={true}
+          controls
+          onEnded={() => {
+            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+              triggerPropertyName: "onEnd",
+              dynamicString: onEnd,
+              event: {
+                type: EventType.ON_VIDEO_END,
+              },
+            });
+          }}
+          onPause={() => {
+            //TODO: We do not want the pause event for onSeek or onEnd.
+            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
+              triggerPropertyName: "onPause",
+              dynamicString: onPause,
+              event: {
+                type: EventType.ON_VIDEO_PAUSE,
+              },
+            });
+          }}
           onPlay={() => {
             this.props.updateWidgetMetaProperty(
               "playState",
@@ -132,25 +149,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               },
             );
           }}
-          onPause={() => {
-            //TODO: We do not want the pause event for onSeek or onEnd.
-            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
-              triggerPropertyName: "onPause",
-              dynamicString: onPause,
-              event: {
-                type: EventType.ON_VIDEO_PAUSE,
-              },
-            });
-          }}
-          onEnded={() => {
-            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
-              triggerPropertyName: "onEnd",
-              dynamicString: onEnd,
-              event: {
-                type: EventType.ON_VIDEO_END,
-              },
-            });
-          }}
+          player={this._player}
+          url={url}
         />
       </Suspense>
     );

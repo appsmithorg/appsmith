@@ -16,7 +16,8 @@ const Wrapper = styled.span<{
   background-color: ${(props) =>
     props.theme.colors.codeMirror.background.hoverState};
   position: absolute;
-  bottom: ${(props) => -props.bottomOffset}px;
+  bottom: ${(props) => props.bottomOffset}px;
+  transform: translateY(100%);
   width: 100%;
   line-height: 13px;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
@@ -31,39 +32,33 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
 `;
 
-const BindingPrompt = (props: {
+function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
-}): JSX.Element => {
+}): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
-  let bottomOffset = 30;
   const customMessage = !!props.promptMessage;
-  if (promptRef.current) {
-    const boundingRect = promptRef.current.getBoundingClientRect();
-    bottomOffset = boundingRect.height;
-  }
-  if (customMessage) {
-    bottomOffset = 36;
-  }
+  const bottomOffset = customMessage ? 6 : 0;
+
   return (
     <Wrapper
-      className="t--no-binding-prompt"
-      ref={promptRef}
       bottomOffset={bottomOffset}
-      visible={props.isOpen}
+      className="t--no-binding-prompt"
       customMessage={customMessage}
       editorTheme={props.editorTheme}
+      ref={promptRef}
+      visible={props.isOpen}
     >
       {props.promptMessage ? (
         props.promptMessage
       ) : (
-        <React.Fragment>
+        <>
           Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
-        </React.Fragment>
+        </>
       )}
     </Wrapper>
   );
-};
+}
 
 export default BindingPrompt;

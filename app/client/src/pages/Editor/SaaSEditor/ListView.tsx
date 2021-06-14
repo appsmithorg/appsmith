@@ -81,11 +81,11 @@ class ListView extends React.Component<Props> {
 
   handleCreateNewAPI = (datasource: Datasource) => {
     const {
+      actions,
+      location,
       match: {
         params: { pageId },
       },
-      actions,
-      location,
     } = this.props;
     const params: string = location.search;
     let pgId = new URLSearchParams(params).get("importTo");
@@ -107,7 +107,7 @@ class ListView extends React.Component<Props> {
   };
 
   render() {
-    const { plugin, isCreating, isEditorInitialized } = this.props;
+    const { isCreating, isEditorInitialized, plugin } = this.props;
     if (!plugin) {
       return this.renderNotFound();
     }
@@ -129,18 +129,18 @@ class ListView extends React.Component<Props> {
 
         <AddDatasource
           className="t--add-datasource"
-          onClick={() => this.handleCreateNewDatasource(plugin.id)}
           fill
-          minimal
-          text="New Datasource"
           icon={"plus"}
+          minimal
+          onClick={() => this.handleCreateNewDatasource(plugin.id)}
+          text="New Datasource"
         />
 
         {datasources.map((datasource) => {
           return (
             <DatasourceCard
-              key={datasource.id}
               datasource={datasource}
+              key={datasource.id}
               onCreate={this.handleCreateNewAPI}
             />
           );
@@ -159,19 +159,19 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
+      history,
       match: {
         params: { applicationId, pageId },
       },
-      history,
     } = this.props;
     return (
       <IntegrationHomePage>
         <NotFound
-          title="Integration Not found"
           buttonText="Go back to Integrations"
           onBackButton={() =>
             history.push(API_EDITOR_URL(applicationId, pageId))
           }
+          title="Integration Not found"
         />
       </IntegrationHomePage>
     );

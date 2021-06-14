@@ -17,13 +17,10 @@ export default function evaluate(
   data: DataTree,
   callbackData?: Array<any>,
 ): EvalResult {
-  const unescapedJS = unescapeJS(js).replace(/(\r\n|\n|\r)/gm, "");
+  const unescapedJS = unescapeJS(js);
   const scriptToEvaluate = `
-        function closedFunction () {
-          const result = ${unescapedJS};
-          return { result, triggers: self.triggers }
-        }
-        closedFunction()
+        const result = ${unescapedJS};
+        return { result, triggers: self.triggers }
       `;
   const scriptWithCallback = `
          function callback (script) {
@@ -31,9 +28,11 @@ export default function evaluate(
             const result = userFunction.apply(self, CALLBACK_DATA);
             return { result, triggers: self.triggers };
          }
-         callback(${unescapedJS});
+         return callback(${unescapedJS});
       `;
-  const script = callbackData ? scriptWithCallback : scriptToEvaluate;
+  const script = callbackData
+    ? Function(scriptWithCallback)
+    : Function(scriptToEvaluate);
   const { result, triggers } = (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
@@ -84,7 +83,7 @@ export default function evaluate(
       self[func] = undefined;
     });
 
-    const evalResult = eval(script);
+    const evalResult = script();
 
     // Remove it from self
     // This is needed so that next eval can have a clean sheet

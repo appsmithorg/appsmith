@@ -46,7 +46,7 @@ type AppViewerHeaderProps = {
   pages: PageListPayload;
 };
 
-export const PageTabsContainer = (props: AppViewerHeaderProps) => {
+export function PageTabsContainer(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, pages } = props;
 
   // Mark default page as first page
@@ -67,7 +67,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
 
   const setShowScrollArrows = useCallback(() => {
     if (tabsRef.current) {
-      const { scrollWidth, offsetWidth, scrollLeft } = tabsRef.current;
+      const { offsetWidth, scrollLeft, scrollWidth } = tabsRef.current;
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
@@ -76,7 +76,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
     if (node !== null) {
-      const { scrollWidth, offsetWidth } = node;
+      const { offsetWidth, scrollWidth } = node;
       setTabsScrollable(scrollWidth > offsetWidth);
       setShowScrollArrows();
     }
@@ -120,33 +120,33 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
     <Container>
       <ScrollBtnContainer
         onMouseDown={() => startScrolling(true)}
-        onMouseUp={stopScrolling}
         onMouseLeave={stopScrolling}
-        onTouchStart={() => startScrolling(true)}
+        onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
+        onTouchStart={() => startScrolling(true)}
         visible={shouldShowLeftArrow}
       >
         <Icon name="chevron-left" />
       </ScrollBtnContainer>
       <PageTabs
-        measuredTabsRef={measuredTabsRef}
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
-        tabsScrollable={tabsScrollable}
+        measuredTabsRef={measuredTabsRef}
         setShowScrollArrows={setShowScrollArrows}
+        tabsScrollable={tabsScrollable}
       />
       <ScrollBtnContainer
         onMouseDown={() => startScrolling(false)}
-        onMouseUp={stopScrolling}
         onMouseLeave={stopScrolling}
-        onTouchStart={() => startScrolling(false)}
+        onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
+        onTouchStart={() => startScrolling(false)}
         visible={shouldShowRightArrow}
       >
         <Icon name="chevron-right" />
       </ScrollBtnContainer>
     </Container>
   ) : null;
-};
+}
 
 export default PageTabsContainer;

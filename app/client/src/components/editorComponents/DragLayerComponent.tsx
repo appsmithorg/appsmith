@@ -31,8 +31,9 @@ const WrappedDragLayer = styled.div<{
   );
   background-size: ${(props) => props.columnWidth}px
     ${(props) => props.rowHeight}px;
-  background-position: -${(props) => props.columnWidth / 2}px -${(props) =>
-      props.rowHeight / 2}px;
+  background-position: -${(props) => props.columnWidth / 2 - 3.5}px -${(
+      props,
+    ) => props.rowHeight / 2 - 1.5}px;
 `;
 
 type DragLayerProps = {
@@ -51,7 +52,7 @@ type DragLayerProps = {
   noPad: boolean;
 };
 
-const DragLayerComponent = (props: DragLayerProps) => {
+function DragLayerComponent(props: DragLayerProps) {
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -71,7 +72,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
     x: 0,
     y: 0,
   });
-  const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
+  const { canDrop, currentOffset, isDragging, widget } = useDragLayer(
     (monitor) => ({
       isDragging: monitor.isDragging(),
       currentOffset: monitor.getSourceClientOffset(),
@@ -146,26 +147,26 @@ const DragLayerComponent = (props: DragLayerProps) => {
   return (
     <WrappedDragLayer
       columnWidth={props.parentColumnWidth}
-      rowHeight={props.parentRowHeight}
-      ref={dropTargetMask}
       noPad={props.noPad}
+      ref={dropTargetMask}
+      rowHeight={props.parentRowHeight}
     >
       {props.visible &&
         props.isOver &&
         currentOffset &&
         isParentOffsetCalculated && (
           <DropZone
+            canDrop={canDrop}
+            currentOffset={currentOffset as XYCoord}
+            height={widgetHeight}
+            parentColumnWidth={props.parentColumnWidth}
             parentOffset={dropTargetOffset.current}
             parentRowHeight={props.parentRowHeight}
-            parentColumnWidth={props.parentColumnWidth}
-            width={widgetWidth}
-            height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
-            canDrop={canDrop}
             ref={dropZoneRef}
+            width={widgetWidth}
           />
         )}
     </WrappedDragLayer>
   );
-};
+}
 export default DragLayerComponent;

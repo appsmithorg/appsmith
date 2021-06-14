@@ -1,5 +1,6 @@
 import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
+import tinycolor from "tinycolor2";
 import { ComponentProps } from "./BaseComponent";
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
@@ -23,15 +24,27 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
-
+  opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
+  position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
-  opacity: ${(props) => (props.resizeDisabled ? "0.5" : "1")};
-  pointer-events: ${(props) => (props.resizeDisabled ? "none" : "inherit")};
-  overflow: hidden;
+  box-shadow: ${(props) =>
+    props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+  z-index: ${(props) => (props.selected ? "2" : "1")};
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
+
+  &:hover {
+    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
+    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
+    background: ${(props) =>
+      props.onClickCapture
+        ? tinycolor(props.backgroundColor)
+            .darken(5)
+            .toString()
+        : props.backgroundColor};
+  }
 }`;
 
-const ContainerComponent = (props: ContainerComponentProps) => {
+function ContainerComponent(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
@@ -51,18 +64,18 @@ const ContainerComponent = (props: ContainerComponentProps) => {
   return (
     <StyledContainerComponent
       {...props}
-      ref={containerRef}
-      containerStyle={containerStyle}
-      // Before you remove: generateClassName is used for bounding the resizables within this canvas
-      // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)}`}
+      containerStyle={containerStyle}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
+      ref={containerRef}
     >
       {props.children}
     </StyledContainerComponent>
   );
-};
+}
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
@@ -73,6 +86,7 @@ export interface ContainerComponentProps extends ComponentProps {
   backgroundColor?: Color;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
+  selected?: boolean;
 }
 
 export default ContainerComponent;
