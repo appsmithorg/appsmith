@@ -129,6 +129,7 @@ public class RedisPlugin extends BasePlugin {
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (auth != null && StringUtils.isNotNullOrEmpty(auth.getPassword())) {
                 if (StringUtils.isNullOrEmpty(auth.getUsername())) {
+                    // If username is empty, then authenticate with password only.
                     jedis.auth(auth.getPassword());
                 }
                 else {
