@@ -8,6 +8,18 @@ On your development machine, please ensure that:
 
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 1. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
+
+  Note:
+  - On Linux you can easily install `mkcert` using the following command
+  ```
+  curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest \
+  | grep "browser_download_url.*linux-amd64" \
+  | cut -d : -f 2,3 | tr -d \" \
+  | wget -i - -O mkcert
+  chmod +x  mkcert
+  sudo mv mkcert /usr/local/bin
+  ```
+
 1. You have `envsubst` installed. use `brew install gettext` on MacOS. Linux machines usually have this installed.
 1. You have cloned the repo in your local machine.
 1. You have yarn installed as a global npm package i.e. `npm install -g yarn`
@@ -71,7 +83,6 @@ On your development machine, please ensure that:
 
 - By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
 - In case you are unable to setup the api server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
-- In case you are using a M1 chip Macbook please run the client with `yarn start-m1`.
 
 #### If yarn start throws mismatch node version error
 

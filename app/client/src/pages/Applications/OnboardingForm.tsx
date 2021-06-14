@@ -19,7 +19,7 @@ function OnboardingForm() {
   const status = useScript(`https://embed.typeform.com/embed.js`);
   const currentUser = useSelector(getCurrentUser);
 
-  if (status !== ScriptStatus.READY) return null;
+  if (status !== ScriptStatus.READY || !currentUser) return null;
 
   return (
     <TypeformContainer>
