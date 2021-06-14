@@ -29,6 +29,7 @@ import {
   isAction,
   isWidget,
 } from "workers/evaluationUtils";
+import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -82,24 +83,6 @@ function* onEntityDeleteSaga(payload: Message) {
     payload: updatedErrors,
   });
   yield put(debuggerLog(payload));
-}
-
-// Recursively find out dependency chain
-function getDependencyChain(propertyPath: string, inverseMap: any) {
-  let currentChain: string[] = [];
-  const dependents = inverseMap[propertyPath];
-
-  if (!dependents) return currentChain;
-
-  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
-
-  dependents.map((e: any) => {
-    if (!e.includes(dependentInfo.entityName)) {
-      currentChain.push(e);
-      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
-    }
-  });
-  return currentChain;
 }
 
 function* logDependentEntityProperties(payload: Message) {
