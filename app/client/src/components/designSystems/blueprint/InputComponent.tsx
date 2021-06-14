@@ -53,6 +53,11 @@ const InputComponentWrapper = styled((props) => (
       display: inline-block;
       left: 0;
       z-index: 16;
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.icon.hover};
+        }
+      }
     }
     .${Classes.INPUT} {
       ${(props) =>
@@ -173,7 +178,7 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
       onSelect={props.onCurrencyTypeChange}
       optionWidth="260px"
       options={props.options}
-      searchPlaceholder="Search by code or name"
+      searchPlaceholder="Search by currency or country"
       selected={props.selected}
       showLabelOnly
     />
@@ -189,15 +194,12 @@ const getSelectedItem = (currencyType?: string): DropdownOption => {
   if (selectedCurrency) {
     return {
       label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
+      searchText: selectedCurrency.label,
       value: selectedCurrency.currency,
       id: selectedCurrency.symbol_native,
     };
   }
-  return {
-    label: "USD - US Dollar",
-    value: "USD",
-    id: "$",
-  };
+  return CurrencyTypeOptions[0];
 };
 
 const countryToFlag = (isoCode: string) => {
@@ -213,9 +215,9 @@ const countryToFlag = (isoCode: string) => {
 export const getCurrencyOptions = (): Array<DropdownOption> => {
   return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
     return {
-      label: `${countryToFlag(item.code)} ${item.currency} - ${
-        item.currency_name
-      }`,
+      leftElement: countryToFlag(item.code),
+      searchText: item.label,
+      label: `${item.currency} - ${item.currency_name}`,
       value: item.currency,
     };
   });

@@ -61,7 +61,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           {
             propertyName: "allowCurrencyChange",
             label: "Allow currency change",
-            helpText: "Allow currency type to be changed",
+            helpText: "Search by currency or country",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,

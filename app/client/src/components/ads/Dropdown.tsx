@@ -11,6 +11,8 @@ export type DropdownOption = {
   value?: string;
   id?: string;
   icon?: IconName;
+  leftElement?: string;
+  searchText?: string;
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
@@ -202,6 +204,13 @@ const StyledSubText = styled(Text)`
   }
 `;
 
+const LeftIconWrapper = styled.span`
+  margin-right: 15px;
+  height: 100%;
+  position: relative;
+  top: 1px;
+`;
+
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
@@ -262,7 +271,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       (option: DropdownOption) => {
         return (
           option.label?.toLocaleUpperCase().includes(search) ||
-          option.value?.toLocaleUpperCase().includes(searchStr)
+          option.searchText?.toLocaleUpperCase().includes(search)
         );
       },
     );
@@ -289,6 +298,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               onClick={() => props.optionClickHandler(option)}
               selected={props.selected.value === option.value}
             >
+              {option.leftElement && (
+                <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+              )}
               {option.icon ? (
                 <SelectedIcon
                   fillColor={option?.iconColor}
