@@ -75,7 +75,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Changes the type of currency",
             propertyName: "currencyType",
             label: "Currency",
+            enableSearch: true,
+            dropdownHeight: "195px",
             controlType: "DROP_DOWN",
+            placeholderText: "Search by code or name",
             options: getCurrencyOptions(),
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;

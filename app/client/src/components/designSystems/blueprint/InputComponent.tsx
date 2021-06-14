@@ -173,6 +173,7 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
       onSelect={props.onCurrencyTypeChange}
       optionWidth="260px"
       options={props.options}
+      searchPlaceholder="Search by code or name"
       selected={props.selected}
       showLabelOnly
     />

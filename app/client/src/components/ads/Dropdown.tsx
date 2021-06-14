@@ -106,13 +106,13 @@ const DropdownWrapper = styled.div<{
 }>`
   width: ${(props) => props.width};
   z-index: 1;
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
   }
-  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-  margin-top: ${(props) => -props.theme.spaces[3]}px;
-  padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
