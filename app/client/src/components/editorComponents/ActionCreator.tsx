@@ -482,6 +482,9 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 1);
     },
     setter: (value: any, currentValue: string) => {
+      if (!value) {
+        value = " ";
+      }
       return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
