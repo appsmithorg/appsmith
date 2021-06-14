@@ -1,7 +1,7 @@
 import { get, sortBy } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { useParams, useLocation, useHistory } from "react-router";
 
 import { AppState } from "reducers";
@@ -62,6 +62,7 @@ function PagesEditor() {
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
+  const [order, setOrder] = useState(pages.map((_: any, index: any) => index));
 
   const sortedPages = useMemo(() => {
     return sortBy(pages, (page) => !page.isDefault);
@@ -122,10 +123,17 @@ function PagesEditor() {
         ItemRenderer={({ item }: any) => (
           <PageListItem applicationId={params.applicationId} item={item} />
         )}
+        initialOrder={order}
         itemHeight={70}
         items={sortedPages}
-        onUpdate={() => {
-          // call update api
+        onUpdate={(
+          newOrder: any,
+          originalIndex: number,
+          currentIndex: number,
+        ) => {
+          setOrder(newOrder);
+
+          // call the sort api here
         }}
       />
     </Wrapper>
