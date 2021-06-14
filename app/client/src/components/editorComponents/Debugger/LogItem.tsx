@@ -19,7 +19,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import { getType, Types } from "utils/TypeHelpers";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
