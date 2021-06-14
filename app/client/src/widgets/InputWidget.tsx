@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
   getCurrencyOptions,
@@ -284,6 +284,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         }()
       }}`,
       value: `{{this.text}}`,
+      selectedCurrencyType: `{{ this.currencyType }}`,
     };
   }
 
@@ -298,6 +299,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       text: undefined,
       isFocused: false,
       isDirty: false,
+      selectedCurrencyType: undefined,
     };
   }
 
@@ -315,7 +317,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onCurrencyTypeChange = (code?: string) => {
-    this.props.updateWidgetMetaProperty("currencyType", code || "USD");
+    const currencyType = code || "USD";
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      this.props.updateWidgetProperty("currencyType", currencyType);
+    } else {
+      this.props.updateWidgetMetaProperty("selectedCurrencyType", currencyType);
+    }
   };
 
   handleFocusChange = (focusState: boolean) => {
@@ -370,7 +377,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
-        currencyType={this.props.currencyType}
+        currencyType={this.props.selectedCurrencyType}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
