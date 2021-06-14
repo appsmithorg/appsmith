@@ -27,7 +27,7 @@
           "initialValue": "FIND",
           "options": [
             {
-              "label": "Insert a document",
+              "label": "Insert one or more documents",
               "value": "INSERT"
             },
             {

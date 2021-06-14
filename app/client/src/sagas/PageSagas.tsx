@@ -371,7 +371,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     });
 
     if (error instanceof IncorrectBindingError) {
-      const { isRetry } = action.payload;
+      const { isRetry } = action?.payload;
       const incorrectBindingError = JSON.parse(error.message);
       const { message } = incorrectBindingError;
       if (isRetry) {
@@ -428,10 +428,7 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVE_PAGE_INIT,
-      payload: action.payload,
-    });
+    yield put(saveLayout(action.payload.isRetry));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

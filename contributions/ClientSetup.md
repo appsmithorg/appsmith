@@ -8,6 +8,18 @@ On your development machine, please ensure that:
 
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 1. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
+
+  Note:
+  - On Linux you can easily install `mkcert` using the following command
+  ```
+  curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest \
+  | grep "browser_download_url.*linux-amd64" \
+  | cut -d : -f 2,3 | tr -d \" \
+  | wget -i - -O mkcert
+  chmod +x  mkcert
+  sudo mv mkcert /usr/local/bin
+  ```
+
 1. You have `envsubst` installed. use `brew install gettext` on MacOS. Linux machines usually have this installed.
 1. You have cloned the repo in your local machine.
 1. You have yarn installed as a global npm package i.e. `npm install -g yarn`

@@ -4,8 +4,8 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 
-const ExplorerSearchWrapper = styled.div`
-  display: grid;
+const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
+  display: ${(props) => (props.isHidden ? "none" : "grid")};
   grid-template-columns: 30px 1fr 30px;
   margin-bottom: 5px;
   height: 48px;
@@ -64,11 +64,16 @@ const Underline = styled.div`
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
   (
-    props: { clear: () => void; placeholder?: string; autoFocus?: boolean },
+    props: {
+      clear: () => void;
+      placeholder?: string;
+      autoFocus?: boolean;
+      isHidden?: boolean;
+    },
     ref: Ref<HTMLInputElement>,
   ) => {
     return (
-      <ExplorerSearchWrapper>
+      <ExplorerSearchWrapper isHidden={props.isHidden}>
         <Icon icon="search" iconSize={12} />
         <input
           autoComplete="off"

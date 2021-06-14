@@ -123,7 +123,8 @@ export type EventName =
   | "GSHEET_AUTH_INIT"
   | "GSHEET_AUTH_COMPLETE"
   | "CYCLICAL_DEPENDENCY_ERROR"
-  | "PAGES_LIST_LOAD";
+  | "PAGES_LIST_LOAD"
+  | "DISCORD_LINK_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

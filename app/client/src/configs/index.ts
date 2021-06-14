@@ -42,6 +42,7 @@ export type INJECTED_CONFIGS = {
   mailEnabled: boolean;
   disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
+  googleRecaptchaSiteKey: string;
   onboardingFormEnabled: boolean;
 };
 declare global {
@@ -116,6 +117,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
+    googleRecaptchaSiteKey:
+      process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
   };
 };
@@ -166,6 +169,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.fusioncharts.licenseKey,
   );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
+
+  const googleRecaptchaSiteKey = getConfig(
+    ENV_CONFIG.googleRecaptchaSiteKey,
+    APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey,
+  );
 
   // As the following shows, the config variables can be set using a combination
   // of env variables and injected configs
@@ -244,6 +252,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     google: {
       enabled: google.enabled,
       apiKey: google.value,
+    },
+    googleRecaptchaSiteKey: {
+      enabled: googleRecaptchaSiteKey.enabled,
+      apiKey: googleRecaptchaSiteKey.value,
     },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
