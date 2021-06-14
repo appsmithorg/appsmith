@@ -641,6 +641,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { perPage, shouldPaginate } = this.shouldPaginate();
+    const { componentHeight } = this.getComponentDimensions();
+    const templateBottomRow = get(
+      this.props.children,
+      "0.children.0.bottomRow",
+    );
+    const templateHeight =
+      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     if (this.props.isLoading) {
       return (
@@ -669,21 +676,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
     }
 
-    if (!isNumber(perPage) || perPage === 0) {
-      return (
-        <ListComponentEmpty>
-          Please make sure the list widget height is greater than the template
-          container height.
-        </ListComponentEmpty>
-      );
-    }
-
     if (
       Array.isArray(this.props.listData) &&
       this.props.listData.length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
+    }
+
+    if (isNaN(templateHeight)) {
+      return (
+        <ListComponentEmpty>
+          Please make sure the list widget height is greater than the template
+          container height.
+        </ListComponentEmpty>
+      );
     }
 
     return (
