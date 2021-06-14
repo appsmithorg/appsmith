@@ -42,6 +42,8 @@ const InputComponentWrapper = styled((props) => (
 }>`
   &&&& {
     .${Classes.INPUT} {
+      /* Added to disable textarea resizing Fix-Issue-1001 */
+      resize: none;
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
