@@ -294,7 +294,6 @@ function PopoverContent(props: PopoverContentProps) {
     >
       {hasError && error && (
         <ErrorText>
-          {error.errorType.toLowerCase()} error:&nbsp;
           {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
           !useValidationMessage
             ? `This value does not evaluate to type "${expected}".`
