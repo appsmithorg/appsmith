@@ -510,7 +510,9 @@ export function* executeActionSaga(
         name: api.name,
         id: actionId,
       },
-      state: api.actionConfiguration,
+      state: {
+        value: api.actionConfiguration,
+      },
     });
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
@@ -806,10 +808,12 @@ function* runActionSaga(
         id: actionId,
       },
       state: {
-        ...actionObject.actionConfiguration,
-        ...(datasourceUrl && {
-          url: datasourceUrl,
-        }),
+        value: {
+          ...actionObject.actionConfiguration,
+          ...(datasourceUrl && {
+            url: datasourceUrl,
+          }),
+        },
       },
     });
 
