@@ -41,4 +41,6 @@ public class PageDTO {
 
     Boolean isHidden;
 
+    Integer order;
+
 }

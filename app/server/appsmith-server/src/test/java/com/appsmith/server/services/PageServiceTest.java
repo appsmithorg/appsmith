@@ -4,12 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -49,6 +44,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -154,6 +150,7 @@ public class PageServiceTest {
         testPage.setName("PageServiceTest TestApp");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
+        testPage.setOrder(0);
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
 
@@ -171,6 +168,7 @@ public class PageServiceTest {
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                    assertTrue(page.getOrder() == 0);
                 })
                 .verifyComplete();
     }
@@ -187,6 +185,7 @@ public class PageServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
+        testPage.setOrder(1);
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
@@ -209,6 +208,7 @@ public class PageServiceTest {
 
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
+                    assertTrue(page.getOrder() == 1);
                 })
                 .verifyComplete();
     }
@@ -385,6 +385,103 @@ public class PageServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void reOrderPageMovingUp() {
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp1");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(0);
+        String pageId1 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp2");
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(1);
+        String pageId2 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp3");
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(2);
+        String pageId3 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        Mono<Application> applicationMono = applicationPageService.reorderPage(application.getId(), pageId3, 0);
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application ->{
+                    final List<ApplicationPage> pages = application.getPages();
+                    for(ApplicationPage page : pages){
+                        if(pageId3.equals(page.getId())){
+                            assertTrue(page.getOrder() == 0);
+                        }
+                        if(pageId2.equals(page.getId())){
+                            assertTrue(page.getOrder() == 2);
+                        }
+                        if(pageId1.equals(page.getId())){
+                            assertTrue(page.getOrder() == 1);
+                        }
+                    }
+                } )
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value ="aps_user")
+    public void reOrderPageMovingDown() {
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp1");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(0);
+        String pageId1 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp2");
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(1);
+        String pageId2 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        testPage = new PageDTO();
+        testPage.setName("PageReorder TestApp3");
+        testPage.setApplicationId(application.getId());
+        testPage.setOrder(2);
+        String pageId3 = testPage.getId();
+
+        applicationPageService.createPage(testPage);
+
+        Mono<Application> applicationMono = applicationPageService.reorderPage(application.getId(), pageId1, 2);
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application ->{
+                    final List<ApplicationPage> pages = application.getPages();
+                    for(ApplicationPage page : pages){
+                        if(pageId3.equals(page.getId())){
+                            assertTrue(page.getOrder() == 1);
+                        }
+                        if(pageId2.equals(page.getId())){
+                            assertTrue(page.getOrder() == 0);
+                        }
+                        if(pageId1.equals(page.getId())){
+                            assertTrue(page.getOrder() == 2);
+                        }
+                    }
+                } )
+                .verifyComplete();
+    }
 
     @After
     public void purgeAllPages() {
