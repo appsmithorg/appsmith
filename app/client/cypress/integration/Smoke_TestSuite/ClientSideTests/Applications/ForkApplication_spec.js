@@ -2,7 +2,6 @@ const dsl = require("../../../../fixtures/basicDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const testdata = require("../../../../fixtures/testdata.json");
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -20,8 +19,11 @@ describe("Fork application across orgs", function() {
     cy.wait("@updateLayout").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
     cy.NavigateToHome();
     cy.get(homePage.searchInput).type(appname);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
