@@ -211,6 +211,10 @@ function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
+        log.debug(error);
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
@@ -250,12 +254,13 @@ function* evaluateTreeSaga(
     evaluationOrder,
     logs,
   } = workerResponse;
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  log.debug({ dataTree: dataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
+
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
