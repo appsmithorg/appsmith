@@ -55,7 +55,7 @@ const Actions = styled.div`
   align-items: center;
 
   & > div {
-    margin-left: 8px;
+    margin-left: 4px;
   }
 `;
 
@@ -115,9 +115,9 @@ function ContextMenu(props: Props) {
               <Action>
                 <CopyIcon
                   color={get(theme, "colors.propertyPane.iconColor")}
-                  height={20}
+                  height={16}
                   onClick={() => onCopy(page.pageId)}
-                  width={20}
+                  width={16}
                 />
               </Action>
               <Action>
@@ -128,9 +128,9 @@ function ContextMenu(props: Props) {
                       : get(theme, "colors.propertyPane.iconColor")
                   }
                   disabled={page.isDefault}
-                  height={20}
+                  height={16}
                   onClick={() => onDelete(page.pageId, page.pageName)}
-                  width={20}
+                  width={16}
                 />
               </Action>
               <Action>
@@ -140,9 +140,9 @@ function ContextMenu(props: Props) {
                       ? get(theme, "colors.propertyPane.deleteIconColor")
                       : get(theme, "colors.propertyPane.iconColor")
                   }
-                  height={20}
+                  height={16}
                   onClick={() => setIsOpen(false)}
-                  width={20}
+                  width={16}
                 />
               </Action>
             </Actions>
@@ -160,7 +160,7 @@ function ContextMenu(props: Props) {
             )}
 
             <MenuItem>
-              <div>Is Visible</div>
+              <div>IsVisible</div>
               <MenuItemToggle
                 onToggle={onSetPageHidden}
                 value={!page.isHidden}
@@ -175,7 +175,7 @@ function ContextMenu(props: Props) {
       placement={"bottom-start"}
       portalClassName="pages-editor-context-menu"
     >
-      <Action className={isOpen ? "active" : ""}>
+      <Action className={isOpen ? "active" : ""} type="button">
         <SettingsIcon
           color={get(theme, "colors.propertyPane.iconColor")}
           height={16}

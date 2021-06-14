@@ -43,7 +43,7 @@ export const EditNameContainer = styled.div`
 const Actions = styled.div`
   display: flex;
   align-items: center;
-  & > div {
+  & > button {
     margin-left: 8px;
   }
 `;
@@ -57,18 +57,25 @@ const StyledHomeIcon = styled.div`
   margin-right: 8px;
 `;
 
-export const Action = styled.div`
+export const Action = styled.button`
   cursor: pointer;
   height: 28px;
   width: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
+  border: none;
+  background: transparent;
 
   &:hover,
   &:active,
   &.active {
     background: #e1e1e1;
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -167,7 +174,7 @@ function PageListItem(props: PageListItemProps) {
             onSetPageHidden={setPageHidden}
             page={item}
           />
-          <Action>
+          <Action type="button">
             <CopyIcon
               color={get(theme, "colors.propertyPane.iconColor")}
               height={16}
@@ -175,7 +182,7 @@ function PageListItem(props: PageListItemProps) {
               width={16}
             />
           </Action>
-          <Action>
+          <Action type="button">
             <DeleteIcon
               color={
                 item.isDefault

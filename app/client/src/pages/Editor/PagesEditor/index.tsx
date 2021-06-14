@@ -1,8 +1,8 @@
 import { get, sortBy } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { useParams, useLocation, useHistory } from "react-router";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 
 import { AppState } from "reducers";
 import { Action } from "./PageListItem";
@@ -10,6 +10,7 @@ import PageListItem from "./PageListItem";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createPage } from "actions/pageActions";
 import { ControlIcons } from "icons/ControlIcons";
+import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -47,6 +48,16 @@ const Header = styled.div`
       color: ${(props) => props.theme.colors.text.heading};
       margin-left: 10px;
     }
+  }
+`;
+
+const NewPageButton = styled(Button)`
+  & > ${IconWrapper} svg {
+    margin-right: 4px;
+  }
+
+  & > ${IconWrapper} path {
+    stroke: white !important;
   }
 `;
 
@@ -100,7 +111,7 @@ function PagesEditor() {
     <Wrapper>
       <Header>
         <div>
-          <Action>
+          <Action type="button">
             <CloseIcon
               color={get(theme, "colors.text.heading")}
               height={20}
@@ -110,7 +121,8 @@ function PagesEditor() {
           </Action>
           <h1>Page Properties</h1>
         </div>
-        <Button
+        <NewPageButton
+          icon="plus"
           onClick={createPageCallback}
           size={Size.medium}
           tag="button"

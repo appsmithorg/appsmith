@@ -93,3 +93,12 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
+
+/* translate interaction on button click */
+*[type="button"] {
+  transition: 0.2s all ease-in-out;
+}
+
+*[type="button"]:active {
+  transform: translateY(2px);
+}
