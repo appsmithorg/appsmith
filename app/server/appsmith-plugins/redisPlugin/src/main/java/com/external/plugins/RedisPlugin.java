@@ -40,6 +40,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 
 public class RedisPlugin extends BasePlugin {
     private static final Long DEFAULT_PORT = 6379L;
+    private static final int CONNECTION_TIMEOUT = 60;
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -80,7 +81,6 @@ public class RedisPlugin extends BasePlugin {
                 }
 
                 Object commandOutput;
-                authenticateJedis(datasourceConfiguration, jedis);
                 if (bodySplitted.length > 1) {
                     commandOutput = jedis.sendCommand(command, Arrays.copyOfRange(bodySplitted, 1, bodySplitted.length));
                 } else {
@@ -123,19 +123,6 @@ public class RedisPlugin extends BasePlugin {
                         }
                     })
                     .subscribeOn(scheduler);
-        }
-
-        private void authenticateJedis(DatasourceConfiguration datasourceConfiguration, Jedis jedis) {
-            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (auth != null && StringUtils.isNotNullOrEmpty(auth.getPassword())) {
-                if (StringUtils.isNullOrEmpty(auth.getUsername())) {
-                    // If username is empty, then authenticate with password only.
-                    jedis.auth(auth.getPassword());
-                }
-                else {
-                    jedis.auth(auth.getUsername(), auth.getPassword());
-                }
-            }
         }
 
         // This will be updated as we encounter different outputs.
@@ -187,7 +174,23 @@ public class RedisPlugin extends BasePlugin {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
                 final JedisPoolConfig poolConfig = buildPoolConfig();
-                JedisPool jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port);
+                DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+                int timeout = (int)Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
+                JedisPool jedisPool;
+                if (auth != null && StringUtils.isNotNullOrEmpty(auth.getPassword())) {
+                    if (StringUtils.isNullOrEmpty(auth.getUsername())) {
+                        // If username is empty, then authenticate with password only.
+                         jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout, auth.getPassword());
+                    }
+                    else {
+                        jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout,
+                                auth.getUsername(), auth.getPassword());
+                    }
+                }
+                else {
+                    jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port);
+                }
+
                 return Mono.just(jedisPool);
             })
                     .flatMap(obj -> obj)
@@ -262,7 +265,6 @@ public class RedisPlugin extends BasePlugin {
                     datasourceCreate(datasourceConfiguration)
                     .map(jedisPool -> {
                         Jedis jedis = jedisPool.getResource();
-                        authenticateJedis(datasourceConfiguration, jedis);
                         verifyPing(jedis).block();
                         datasourceDestroy(jedisPool);
                         return new DatasourceTestResult();
