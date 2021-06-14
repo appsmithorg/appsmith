@@ -573,7 +573,23 @@ function* storeAsDatasourceSaga() {
   const pageId = yield select(getCurrentPageId);
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
-
+  const originalHeaders = _.get(values, "actionConfiguration.headers", []);
+  const datasourceHeaders = originalHeaders.filter(
+    ({ key, value }: { key: string; value: string }) => {
+      const bindOpen = value.indexOf("{{");
+      const bindClose = value.indexOf("}}");
+      return !(bindOpen > -1 && bindClose > -1 && bindOpen < bindClose);
+    },
+  );
+  const actionHeaders = _.difference(originalHeaders, datasourceHeaders);
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: "actionConfiguration.headers",
+      value: actionHeaders,
+    }),
+  );
+  _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
   history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
 
   yield put(createDatasourceFromForm(datasource));
