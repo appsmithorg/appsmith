@@ -530,6 +530,7 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
   };
@@ -1178,6 +1179,7 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
@@ -1631,6 +1633,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
