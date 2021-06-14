@@ -138,11 +138,7 @@ function PagesEditor() {
         initialOrder={order}
         itemHeight={70}
         items={sortedPages}
-        onUpdate={(
-          newOrder: any,
-          originalIndex: number,
-          currentIndex: number,
-        ) => {
+        onUpdate={(newOrder: any) => {
           setOrder(newOrder);
 
           // call the sort api here

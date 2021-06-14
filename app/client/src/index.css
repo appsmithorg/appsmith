@@ -100,5 +100,5 @@ div.bp3-popover-arrow {
 }
 
 *[type="button"]:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
 }
