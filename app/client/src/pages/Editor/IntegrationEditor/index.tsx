@@ -131,7 +131,6 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-  console.log({ apiName });
   const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
   const settingsConfig = getPluginSettingConfigs(state, pluginId);
