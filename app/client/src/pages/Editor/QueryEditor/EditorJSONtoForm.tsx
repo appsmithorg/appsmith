@@ -341,7 +341,7 @@ const TabContainerView = styled.div`
 
 const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 8px;
+  margin: 0 4px;
 `;
 
 type QueryFormProps = {

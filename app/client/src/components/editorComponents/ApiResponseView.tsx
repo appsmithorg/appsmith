@@ -137,7 +137,7 @@ const FailedMessage = styled.div`
 
 const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 8px;
+  margin: 0 4px;
 `;
 
 interface ReduxStateProps {
@@ -234,7 +234,7 @@ function ApiResponseView(props: Props) {
                   text="Run"
                   type="button"
                 />
-                after configuring your api
+                to get a response
               </Text>
             </NoResponseContainer>
           ) : (
