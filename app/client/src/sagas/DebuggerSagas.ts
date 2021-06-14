@@ -89,7 +89,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       {
         const res = yield call(formatActionRequestSaga, payload, payload.state);
         const log = { ...payload };
-        res && set(log, "state.headers", res);
+        res && set(log, "state.value.headers", res);
         yield put(errorLog(log));
         yield put(debuggerLog(log));
       }
@@ -109,7 +109,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         );
 
         const log = { ...payload };
-        res && set(log, "state.request.headers", res);
+        res && set(log, "state.value.request.headers", res);
         yield put(debuggerLog(log));
       }
       break;
