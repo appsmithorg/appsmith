@@ -641,7 +641,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { perPage, shouldPaginate } = this.shouldPaginate();
-    const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(
       this.props.children,
       "0.children.0.bottomRow",
