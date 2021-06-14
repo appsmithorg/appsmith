@@ -30,6 +30,11 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
+import {
+  ACTION_CONFIGURATION_UPDATED,
+  createMessage,
+  WIDGET_PROPERTIES_UPDATED,
+} from "constants/messages";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -110,7 +115,7 @@ function* logDependentEntityProperties(payload: Message) {
       if (isAction(entity)) {
         log = {
           ...log,
-          text: "Configuration updated",
+          text: createMessage(ACTION_CONFIGURATION_UPDATED),
           source: {
             type: ENTITY_TYPE.ACTION,
             name: entityInfo.entityName,
@@ -120,7 +125,7 @@ function* logDependentEntityProperties(payload: Message) {
       } else if (isWidget(entity)) {
         log = {
           ...log,
-          text: "Widget properties were updated",
+          text: createMessage(WIDGET_PROPERTIES_UPDATED),
           source: {
             type: ENTITY_TYPE.WIDGET,
             name: entityInfo.entityName,
