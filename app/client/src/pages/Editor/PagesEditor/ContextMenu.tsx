@@ -1,6 +1,5 @@
 import { get } from "lodash";
-import React, { useCallback, useMemo, useState } from "react";
-import Icon, { IconSize } from "components/ads/Icon";
+import React, { useCallback, useState } from "react";
 import styled, { useTheme } from "styled-components";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
@@ -10,9 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import { Page } from "constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
-import { useParams } from "react-router";
 import { Action } from "./PageListItem";
-import { ExplorerURLParams } from "../Explorer/helpers";
 
 // render over popover portals
 const Container = styled.div`

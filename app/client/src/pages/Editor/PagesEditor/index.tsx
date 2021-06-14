@@ -5,10 +5,11 @@ import React, { useEffect, useCallback, useMemo } from "react";
 import { useParams, useLocation, useHistory } from "react-router";
 
 import { AppState } from "reducers";
-import Header from "./Header";
-import Wrapper from "./Wrapper";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Action } from "./PageListItem";
 import PageListItem from "./PageListItem";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createPage } from "actions/pageActions";
+import { ControlIcons } from "icons/ControlIcons";
 import Button, { Size } from "components/ads/Button";
 import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -16,9 +17,38 @@ import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { createPage } from "actions/pageActions";
-import { ControlIcons } from "icons/ControlIcons";
-import { Action } from "./PageListItem";
+
+const Wrapper = styled.div`
+  padding: 20px;
+  margin-left: 250px;
+  position: absolute;
+  left: 0;
+  width: calc(100% - 250px);
+  z-index: 2;
+  height: calc(100% - 35px);
+  overflow-y: scroll;
+  background-color: ${(props) => props.theme.colors.artboard};
+`;
+
+const Header = styled.div`
+  display: flex;
+  padding-bottom: 20px;
+  button {
+    margin-left: auto;
+  }
+
+  & > div {
+    display: flex;
+    align-items: center;
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      color: ${(props) => props.theme.colors.text.heading};
+      margin-left: 10px;
+    }
+  }
+`;
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 

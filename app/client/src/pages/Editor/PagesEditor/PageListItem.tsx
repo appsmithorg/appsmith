@@ -1,20 +1,20 @@
 import { get } from "lodash";
+import { useDispatch } from "react-redux";
 import React, { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
 
-import ContextMenu from "./ContextMenu";
-import { ControlIcons } from "icons/ControlIcons";
-import { FormIcons } from "icons/FormIcons";
-import { resolveAsSpaceChar } from "utils/helpers";
-import { Page } from "constants/ReduxActionConstants";
-import EditName from "pages/Editor/Explorer/Entity/Name";
 import {
   updatePage,
   clonePageInit,
   deletePage,
   setPageAsDefault,
 } from "actions/pageActions";
+import ContextMenu from "./ContextMenu";
+import { FormIcons } from "icons/FormIcons";
+import { ControlIcons } from "icons/ControlIcons";
+import { resolveAsSpaceChar } from "utils/helpers";
+import { Page } from "constants/ReduxActionConstants";
+import EditName from "pages/Editor/Explorer/Entity/Name";
 
 export const Container = styled.div`
   display: flex;

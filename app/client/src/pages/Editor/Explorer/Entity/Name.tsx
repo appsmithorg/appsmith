@@ -12,7 +12,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { Page } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { WidgetTypes } from "constants/WidgetConstants";
 
