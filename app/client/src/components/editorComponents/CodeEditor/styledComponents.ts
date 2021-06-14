@@ -85,12 +85,10 @@ export const HintStyles = createGlobalStyle<{
     .command {
       display: flex;
       align-items: center;
-      span {
-        margin-left: 7px;
-      }
       img {
         height: 12px;
         width: 12px;
+        margin-right: 7px;
       }
     }
     .shortcut {
