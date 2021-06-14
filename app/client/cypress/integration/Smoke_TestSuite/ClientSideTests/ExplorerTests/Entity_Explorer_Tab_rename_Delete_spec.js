@@ -31,10 +31,9 @@ describe("Tab widget test", function() {
     cy.RenameEntity(tabname);
     cy.validateMessage(tabname);
     cy.deleteEntity();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
-      .clear()
-      .type("Tab 2");
+      .clear({ force: true })
+      .type("Tab 2", { force: true });
     cy.get(
       commonlocators.entitySearchResult.concat("Tab 2").concat("')"),
     ).should("not.exist");
