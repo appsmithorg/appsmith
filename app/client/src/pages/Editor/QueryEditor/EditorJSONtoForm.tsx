@@ -10,7 +10,6 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
@@ -118,7 +117,7 @@ const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 5px 30px;
+  padding: 16px 30px;
   overflow-y: auto;
   height: 100%;
 `;
@@ -320,6 +319,7 @@ const StyledOpenDocsIcon = styled(Icon)`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   a {
     font-size: 14px;
     line-height: 20px;
@@ -645,8 +645,7 @@ export function EditorJSONtoForm(props: Props) {
               <StyledOpenDocsIcon icon="document-open" />
             </DocumentationLink>
           )}
-
-          <BaseTabbedView
+          <TabComponent
             tabs={[
               {
                 key: "query",
