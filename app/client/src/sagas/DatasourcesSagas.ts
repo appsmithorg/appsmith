@@ -76,6 +76,7 @@ import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -575,10 +576,10 @@ function* storeAsDatasourceSaga() {
   datasource = _.omit(datasource, ["name"]);
   const originalHeaders = _.get(values, "actionConfiguration.headers", []);
   const datasourceHeaders = originalHeaders.filter(
-    ({ value }: { key: string; value: string }) => {
-      const bindOpen = value.indexOf("{{");
-      const bindClose = value.indexOf("}}");
-      return !(bindOpen > -1 && bindClose > -1 && bindOpen < bindClose);
+    ({ key, value }: { key: string; value: string }) => {
+      return !(
+        DATA_BIND_REGEX_GLOBAL.test(key) || DATA_BIND_REGEX_GLOBAL.test(value)
+      );
     },
   );
   const actionHeaders = _.difference(originalHeaders, datasourceHeaders);
