@@ -89,6 +89,7 @@ import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
+import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
@@ -118,8 +119,6 @@ public class MongoPlugin extends BasePlugin {
     private static final String VALUES = "values";
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
-
-    private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
     /*
      * - The regex matches the following two pattern types:
@@ -213,8 +212,8 @@ public class MongoPlugin extends BasePlugin {
                 smartBsonSubstitution = false;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null) {
-                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
+            } else if (properties.get(SMART_BSON_SUBSTITUTION) != null) {
+                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION).getValue();
                 if (ssubValue instanceof Boolean) {
                     smartBsonSubstitution = (Boolean) ssubValue;
                 } else if (ssubValue instanceof String) {
@@ -249,9 +248,9 @@ public class MongoPlugin extends BasePlugin {
                         }
                     }
                 }
-            } else {
-                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
             }
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
