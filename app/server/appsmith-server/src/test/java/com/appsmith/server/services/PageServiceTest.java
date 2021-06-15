@@ -44,7 +44,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -168,7 +167,7 @@ public class PageServiceTest {
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
-                    assertTrue(page.getOrder() == 0);
+                    assertThat(page.getOrder()).isEqualTo(0);
                 })
                 .verifyComplete();
     }
@@ -208,7 +207,7 @@ public class PageServiceTest {
 
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
-                    assertTrue(page.getOrder() == 1);
+                    assertThat(page.getOrder()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -421,13 +420,13 @@ public class PageServiceTest {
                     final List<ApplicationPage> pages = application.getPages();
                     for(ApplicationPage page : pages){
                         if(pageId3.equals(page.getId())){
-                            assertTrue(page.getOrder() == 0);
+                            assertThat(page.getOrder()).isEqualTo(0);
                         }
                         if(pageId2.equals(page.getId())){
-                            assertTrue(page.getOrder() == 2);
+                            assertThat(page.getOrder()).isEqualTo(2);
                         }
                         if(pageId1.equals(page.getId())){
-                            assertTrue(page.getOrder() == 1);
+                            assertThat(page.getOrder()).isEqualTo(1);
                         }
                     }
                 } )
@@ -470,13 +469,13 @@ public class PageServiceTest {
                     final List<ApplicationPage> pages = application.getPages();
                     for(ApplicationPage page : pages){
                         if(pageId3.equals(page.getId())){
-                            assertTrue(page.getOrder() == 1);
+                            assertThat(page.getOrder()).isEqualTo(1);
                         }
                         if(pageId2.equals(page.getId())){
-                            assertTrue(page.getOrder() == 0);
+                            assertThat(page.getOrder()).isEqualTo(0);
                         }
                         if(pageId1.equals(page.getId())){
-                            assertTrue(page.getOrder() == 2);
+                            assertThat(page.getOrder()).isEqualTo(2);
                         }
                     }
                 } )

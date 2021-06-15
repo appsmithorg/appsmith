@@ -667,7 +667,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    /** This function walks thorugh all the pages and reorders them and updates the order as per the user preference.
+    /** This function walks through all the pages and reorders them and updates the order as per the user preference.
      * A page can be moved up or down from the current position and accordingly the order of the remaining page changes.
      * @param applicationId The id of the Application
      * @param pageId Targetted page id
@@ -686,13 +686,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     for (final ApplicationPage page : pages) {
                         if (pageId.equals(page.getId())) {
                             foundPage = page;
-                        }
-                    }
-                    //Set the order for the pages which has null values. At present we dont store the order and hence we need to update the values
-                    for (int i = 1; i <= pages.size(); i++) {
-                        ApplicationPage page = pages.get(i - 1);
-                        if (page.getOrder() == null) {
-                            page.setOrder(i);
                         }
                     }
 
@@ -716,7 +709,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 }
                             }
                         }
-                        //set the selected page order to 0
+                        //set the selected page order to the given order
                         foundPage.setOrder(order);
                     }
                     return applicationRepository
