@@ -10,8 +10,7 @@ import {
 } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   BUILDER_PAGE_URL,
 } from "constants/routes";
 
@@ -96,24 +95,17 @@ export function getDependenciesFromInverseDependencies(
   };
 }
 
-export const onApiEditor = (
+export const onIntegrationsEditor = (
   applicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
-};
-
-export const onQueryEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
+      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        applicationId,
+        currentPageId,
+        currentPageId,
+      ),
     ) > -1
   );
 };
