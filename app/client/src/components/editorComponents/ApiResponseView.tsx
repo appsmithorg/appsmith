@@ -131,6 +131,16 @@ const FailedMessage = styled.div`
   display: flex;
   align-items: center;
   margin-left: 5px;
+
+  .api-debugcta {
+    margin-top: 0px;
+  }
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
 `;
 
 interface ReduxStateProps {
@@ -195,11 +205,14 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && (
-            <Callout
+            <StyledCallout
               fill
               label={
                 <FailedMessage>
-                  <DebugButton onClick={onDebugClick} />
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
                 </FailedMessage>
               }
               text={createMessage(CHECK_REQUEST_BODY)}
