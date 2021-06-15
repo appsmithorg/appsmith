@@ -20,9 +20,9 @@ export const commandsHelper: HintHelper = () => {
     ) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
-      const suggestionsHeader: CommandsCompletion = commandsHeader(
-        "Suggestions",
-      );
+      // const suggestionsHeader: CommandsCompletion = commandsHeader(
+      //   "Suggestions",
+      // );
       const pluginIdToIconLocationMap = plugins.list.reduce(
         (acc: any, p: any) => {
           acc[p.id] = p.iconLocation;
@@ -39,8 +39,14 @@ export const commandsHelper: HintHelper = () => {
         data: { doc: "" },
         origin: "",
         type: "UNKNOWN",
-        className: "CodeMirror-commands command-container",
-        shortcut: "{{ }}",
+        className: "CodeMirror-commands",
+        shortcut: "{{}}",
+        render: (element: HTMLElement, self: any, data: any) => {
+          ReactDOM.render(
+            <Command name={data.displayText} shortcut={data.shortcut} />,
+            element,
+          );
+        },
       };
       const { pageId } = fetchAppAndPageId();
       const newAPI: CommandsCompletion = {
@@ -129,10 +135,10 @@ export const commandsHelper: HintHelper = () => {
             },
           };
         });
-        const actionCommandsMatchSearchText = matchingCommands(
-          actionCommands,
-          searchText,
-        );
+        // const actionCommandsMatchSearchText = matchingCommands(
+        //   actionCommands,
+        //   searchText,
+        // );
         const datasourceCommandsMatchingSearchText = matchingCommands(
           datasourceCommands,
           searchText,
