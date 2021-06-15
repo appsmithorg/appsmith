@@ -120,6 +120,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
+      displayText: this.getPropertyValue(
+        columnProperties.displayText,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -634,6 +639,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalRecordsCount,
       defaultPageSize,
       filteredTableData = [],
+      isVisibleCompactMode,
+      isVisibleDownload,
+      isVisibleFilters,
+      isVisiblePagination,
+      isVisibleSearch,
     } = this.props;
     const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
     const tableColumns = this.getTableColumns() || [];
@@ -658,6 +668,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       tableColumns,
     );
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const isVisibleHeaderOptions =
+      isVisibleCompactMode ||
+      isVisibleDownload ||
+      isVisibleFilters ||
+      isVisiblePagination ||
+      isVisibleSearch;
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -674,12 +690,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isVisibleCompactMode={isVisibleCompactMode}
+          isVisibleDownload={isVisibleDownload}
+          isVisibleFilters={isVisibleFilters}
+          isVisiblePagination={isVisiblePagination}
+          isVisibleSearch={isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
           onCommandClick={this.onCommandClick}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={Math.max(1, pageSize)}
+          pageSize={
+            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
+          }
           prevPageClick={this.handlePrevPageClick}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}

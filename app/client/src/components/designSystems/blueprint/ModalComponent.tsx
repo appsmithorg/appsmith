@@ -62,6 +62,7 @@ export type ModalComponentProps = {
   className?: string;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
+  overlayClassName?: string;
   scrollContents: boolean;
   height?: number;
   top?: number;
@@ -103,6 +104,7 @@ export function ModalComponent(props: ModalComponentProps) {
       <Overlay
         canEscapeKeyClose={props.canEscapeKeyClose}
         canOutsideClickClose={props.canOutsideClickClose}
+        className={props.overlayClassName}
         enforceFocus={false}
         hasBackdrop={
           props.hasBackDrop !== undefined ? !!props.hasBackDrop : true

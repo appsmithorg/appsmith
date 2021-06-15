@@ -69,6 +69,11 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleSearch?: boolean;
+  isVisibleFilters?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleCompactMode?: boolean;
+  isVisiblePagination?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -85,6 +90,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    isVisibleCompactMode,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -237,6 +247,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
+      isVisibleCompactMode={isVisibleCompactMode}
+      isVisibleDownload={isVisibleDownload}
+      isVisibleFilters={isVisibleFilters}
+      isVisiblePagination={isVisiblePagination}
+      isVisibleSearch={isVisibleSearch}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
@@ -272,6 +287,11 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.handleResizeColumn === next.handleResizeColumn &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
+    prev.isVisibleCompactMode === next.isVisibleCompactMode &&
+    prev.isVisibleDownload === next.isVisibleDownload &&
+    prev.isVisibleFilters === next.isVisibleFilters &&
+    prev.isVisiblePagination === next.isVisiblePagination &&
+    prev.isVisibleSearch === next.isVisibleSearch &&
     prev.nextPageClick === next.nextPageClick &&
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&
