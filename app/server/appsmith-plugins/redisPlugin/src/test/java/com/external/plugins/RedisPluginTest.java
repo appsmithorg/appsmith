@@ -19,7 +19,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,13 +59,13 @@ public class RedisPluginTest {
     @Test
     public void itShouldCreateDatasource() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<Jedis> jedisMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
-        StepVerifier.create(jedisMono)
+        StepVerifier.create(jedisPoolMono)
                 .assertNext(Assert::assertNotNull)
                 .verifyComplete();
 
-        pluginExecutor.datasourceDestroy(jedisMono.block());
+        pluginExecutor.datasourceDestroy(jedisPoolMono.block());
     }
 
     @Test
@@ -152,12 +152,12 @@ public class RedisPluginTest {
     @Test
     public void itShouldThrowErrorIfEmptyBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<Jedis> jedisMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -171,13 +171,13 @@ public class RedisPluginTest {
     @Test
     public void itShouldThrowErrorIfInvalidRedisCommand() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<Jedis> jedisMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("LOL");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -191,13 +191,13 @@ public class RedisPluginTest {
     @Test
     public void itShouldExecuteCommandWithoutArgs() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<Jedis> jedisMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("PING");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
@@ -211,13 +211,14 @@ public class RedisPluginTest {
     @Test
     public void itShouldExecuteCommandWithArgs() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<Jedis> jedisMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
         // Getting a non-existent key
         ActionConfiguration getActionConfiguration = new ActionConfiguration();
         getActionConfiguration.setBody("GET key");
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, getActionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
+                        getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
@@ -225,8 +226,8 @@ public class RedisPluginTest {
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("null", node.get("result").asText());
 
-                    /*
-                     * - Adding only in this test as the query editor form for Redis plugin is exactly same for each
+
+                    /* - Adding only in this test as the query editor form for Redis plugin is exactly same for each
                      *  query type. Hence, checking with only one query should suffice.
                      * - RequestParamDTO object only have attributes configProperty and value at this point.
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
@@ -241,8 +242,9 @@ public class RedisPluginTest {
         // Setting a key
         ActionConfiguration setActionConfiguration = new ActionConfiguration();
         setActionConfiguration.setBody("SET key value");
-        actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, setActionConfiguration));
+        actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
+                        setActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
@@ -252,8 +254,9 @@ public class RedisPluginTest {
                 }).verifyComplete();
 
         // Getting the key
-        actionExecutionResultMono = jedisMono
-                .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, getActionConfiguration));
+        actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
+                        getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);

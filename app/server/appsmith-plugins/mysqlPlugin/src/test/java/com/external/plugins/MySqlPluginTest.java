@@ -34,6 +34,7 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -299,7 +300,7 @@ public class MySqlPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            actionConfiguration.getBody(), null, null, new HashMap<>()));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
