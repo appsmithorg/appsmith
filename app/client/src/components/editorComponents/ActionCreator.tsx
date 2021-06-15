@@ -917,7 +917,7 @@ function renderField(props: {
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
-        fieldLabel = "Page Name";
+        fieldLabel = "Page Name or URL";
       } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
         fieldLabel = "Key";
       } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
