@@ -42,7 +42,7 @@ import { Datasource } from "entities/Datasource";
 import {
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
@@ -120,7 +120,13 @@ export function* deleteDatasourceSaga(
         window.location.pathname ===
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
       ) {
-        history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+        history.push(
+          INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+            applicationId,
+            pageId,
+            pageId,
+          ),
+        );
       }
 
       Toaster.show({
@@ -574,7 +580,9 @@ function* storeAsDatasourceSaga() {
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
 
-  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+  history.push(
+    INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
+  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(

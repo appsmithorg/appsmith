@@ -74,7 +74,7 @@ import { createActionRequest, runActionInit } from "actions/actionActions";
 import {
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
@@ -612,7 +612,7 @@ function* createQuery() {
 
     yield put(createActionRequest(payload));
     history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         applicationId,
         currentPageId,
         currentPageId,

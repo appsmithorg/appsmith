@@ -2,11 +2,13 @@ import React, { ReactNode, useMemo } from "react";
 import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
-import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
 import {
   API_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
   INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 
 import { Page } from "constants/ReduxActionConstants";
@@ -87,11 +89,15 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     generateCreatePageURL: INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
     isGroupActive: (params: ExplorerURLParams, pageId: string) =>
       [
+        INTEGRATION_EDITOR_URL(params.applicationId, pageId),
         API_EDITOR_URL(params.applicationId, pageId),
         SAAS_BASE_URL(params.applicationId, pageId),
         QUERIES_EDITOR_URL(params.applicationId, pageId),
       ].includes(window.location.pathname),
     isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+      window.location.pathname.indexOf(
+        INTEGRATION_EDITOR_URL(params.applicationId, pageId),
+      ) > -1 ||
       window.location.pathname.indexOf(
         API_EDITOR_URL(params.applicationId, pageId),
       ) > -1 ||

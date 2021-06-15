@@ -11,7 +11,7 @@ import { createActionRequest } from "actions/actionActions";
 import { Page } from "constants/ReduxActionConstants";
 import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
@@ -131,7 +131,13 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         {dataSources.length < 2 ? (
           <AddDatasourceSecurely
             onAddDatasource={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+              history.push(
+                INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                  applicationId,
+                  pageId,
+                  pageId,
+                ),
+              );
             }}
           />
         ) : (
@@ -141,7 +147,13 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
             icon={"plus"}
             minimal
             onClick={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+              history.push(
+                INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                  applicationId,
+                  pageId,
+                  pageId,
+                ),
+              );
             }}
             text="New Datasource"
           />

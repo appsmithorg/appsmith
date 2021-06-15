@@ -10,10 +10,7 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import history from "utils/history";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
-import {
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
@@ -107,7 +104,7 @@ function Connected() {
 
     dispatch(createActionRequest(payload));
     history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         params.applicationId,
         currentPageId,
         currentPageId,
@@ -148,7 +145,7 @@ function Connected() {
       }),
     );
     history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         params.applicationId,
         currentPageId,
         currentPageId,

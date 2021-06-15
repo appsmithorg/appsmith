@@ -13,7 +13,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import BackButton from "./BackButton";
 
 const DatasourceHomePage = styled.div`
@@ -142,7 +142,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
         <BackButton
           onClick={() =>
             history.push(
-              QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
                 applicationId,
                 pageId,
                 pageId,
