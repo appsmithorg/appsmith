@@ -19,17 +19,6 @@ export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
 });
 
-// todo remove (for dev)
-export const setCommentThreadsSuccess = (payload: any) => ({
-  type: ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS,
-  payload,
-});
-
-// todo remove (for dev)
-export const initCommentThreads = () => ({
-  type: ReduxActionTypes.INIT_COMMENT_THREADS,
-});
-
 export const commentEvent = (payload: CommentEventPayload) => ({
   type: COMMENT_EVENTS_CHANNEL,
   payload,

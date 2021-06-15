@@ -1043,6 +1043,7 @@ function* setWidgetDynamicPropertySaga(
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
+
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   if (isDynamic) {
     const keyExists =

@@ -12,7 +12,13 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
+import {
+  CHECK_REQUEST_BODY,
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
@@ -24,6 +30,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
+import EntityDeps from "./Debugger/EntityDependecies";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -220,13 +227,18 @@ function ApiResponseView(props: Props) {
     },
     {
       key: "ERROR",
-      title: "Errors",
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
       key: "LOGS",
-      title: "Logs",
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
+    },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
     },
   ];
 
