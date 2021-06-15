@@ -28,6 +28,7 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
+  migrateTableWidgetHeaderVisibilityProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -770,6 +771,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = 25;
+  }
+
+  if (currentDSL.version === 25) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
