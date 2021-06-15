@@ -50,9 +50,14 @@ export interface LogActionPayload {
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
   text: string;
-  // More contextual message
-  message?: string;
   // Time taken for the event to complete
+  messages?: Array<{
+    // More contextual message than `text`
+    message: string;
+    // The section of code being referred to
+    // codeSegment?: string;
+  }>;
+
   timeTaken?: string;
   // "where" source entity and propertyPsath.
   source?: SourceEntity;

@@ -103,7 +103,11 @@ function getLatestEvalPropertyErrors(
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
           text: `The value at ${propertyPath} is invalid`,
-          message: error,
+          messages: [
+            {
+              message: error,
+            },
+          ],
           severity: Severity.ERROR,
           timestamp: moment().format("hh:mm:ss"),
           source: {
