@@ -15,16 +15,12 @@ import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
   getCurlImportPageURL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
@@ -100,10 +96,9 @@ class EditorsRouter extends React.Component<
   isMatchPath = () => {
     return matchPath(this.props.location.pathname, {
       path: [
-        API_EDITOR_URL(),
+        INTEGRATION_EDITOR_URL(),
+        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
         API_EDITOR_ID_URL(),
-        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
-        QUERIES_EDITOR_URL(),
         QUERIES_EDITOR_ID_URL(),
       ],
       exact: true,
@@ -147,21 +142,10 @@ class EditorsRouter extends React.Component<
               exact
               path={INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
             />
-            <SentryRoute component={ApiEditor} exact path={API_EDITOR_URL()} />
             <SentryRoute
               component={ApiEditor}
               exact
               path={API_EDITOR_ID_URL()}
-            />
-            <SentryRoute
-              component={ApiEditor}
-              exact
-              path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-            />
-            <SentryRoute
-              component={QueryEditor}
-              exact
-              path={QUERIES_EDITOR_URL()}
             />
             <SentryRoute
               component={QueryEditor}
@@ -177,11 +161,6 @@ class EditorsRouter extends React.Component<
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
             ))}
-            <SentryRoute
-              component={DataSourceEditor}
-              exact
-              path={DATA_SOURCES_EDITOR_URL()}
-            />
             <SentryRoute
               component={DataSourceEditor}
               exact
