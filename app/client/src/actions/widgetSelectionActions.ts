@@ -49,7 +49,7 @@ export const selectAllWidgetsInitAction = () => {
   };
 };
 
-export const shiftSelectWidgetsInitAction = (
+export const shiftSelectWidgetsEntityExplorerInitAction = (
   widgetId: string,
   siblingWidgets: string[],
 ): ReduxAction<{ widgetId: string; siblingWidgets: string[] }> => ({

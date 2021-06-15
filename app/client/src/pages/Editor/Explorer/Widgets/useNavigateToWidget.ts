@@ -15,7 +15,10 @@ import { navigateToCanvas } from "./utils";
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
-  const { selectWidget, shiftSelectWidget } = useWidgetSelection();
+  const {
+    selectWidget,
+    shiftSelectWidgetEntityExplorer,
+  } = useWidgetSelection();
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
     flashElementById(widgetId);
@@ -52,7 +55,7 @@ export const useNavigateToWidget = () => {
       widgetsInStep?: string[],
     ) => {
       if (isShiftSelect) {
-        shiftSelectWidget(widgetId, widgetsInStep || []);
+        shiftSelectWidgetEntityExplorer(widgetId, widgetsInStep || []);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

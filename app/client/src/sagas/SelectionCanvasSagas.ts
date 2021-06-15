@@ -17,7 +17,7 @@ import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidget } from "./selectors";
 
-interface StartingSelectionSate {
+interface StartingSelectionState {
   lastSelectedWidgets: string[];
   mainContainer: WidgetProps;
   widgetOccupiedSpaces:
@@ -27,14 +27,14 @@ interface StartingSelectionSate {
     | undefined;
 }
 function* selectAllWidgetsInAreaSaga(
-  startingSelectionSate: StartingSelectionSate,
+  StartingSelectionState: StartingSelectionState,
   action: ReduxAction<any>,
 ) {
   const {
     lastSelectedWidgets,
     mainContainer,
     widgetOccupiedSpaces,
-  } = startingSelectionSate;
+  } = StartingSelectionState;
   const {
     isMultiSelect,
     selectionArena,

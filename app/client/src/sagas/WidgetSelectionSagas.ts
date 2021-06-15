@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgetImmediateChildren, getWidgets } from "./selectors";
 import log from "loglevel";
 import {
@@ -13,7 +13,6 @@ import {
 import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
-import { getWidgetChildren } from "./WidgetOperationUtils";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 
 // The following is computed to be used in the entity explorer
@@ -75,16 +74,26 @@ function* selectAllWidgetsSaga() {
   }
 }
 
-function* deselectChildrenSaga(
+function* deselectNonSiblingsOfWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   const { isMultiSelect, widgetId } = action.payload;
   if (isMultiSelect) {
-    const childWidgets: string[] = yield call(getWidgetChildren, widgetId);
-    if (childWidgets && childWidgets.length) {
+    const allWidgets = yield select(getWidgets);
+    const parentId = allWidgets[widgetId].parentId;
+    const childWidgets: string[] = yield select(
+      getWidgetImmediateChildren,
+      parentId,
+    );
+    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
+
+    const nonSiblings = currentSelectedWidgets.filter(
+      (each) => !childWidgets.includes(each),
+    );
+    if (nonSiblings && nonSiblings.length) {
       yield put(
         deselectMultipleWidgetsAction(
-          childWidgets.filter((each) => each !== widgetId),
+          nonSiblings.filter((each) => each !== widgetId),
         ),
       );
     }
@@ -132,7 +141,10 @@ export function* widgetSelectionSagas() {
     ),
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectedWidgetAncestrySaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, deselectChildrenSaga),
+    takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      deselectNonSiblingsOfWidgetSaga,
+    ),
     takeLatest(
       ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
       selectAllWidgetsSaga,

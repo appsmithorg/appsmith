@@ -56,8 +56,8 @@ describe("Entity Explorer tests", () => {
 
   it("CMD + click Multi Select widget on entity explorer", () => {
     const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET" },
-      { type: "SWITCH_WIDGET" },
+      { type: "CHECKBOX_WIDGET", parentId: "0" },
+      { type: "SWITCH_WIDGET", parentId: "0" },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children,
@@ -95,9 +95,9 @@ describe("Entity Explorer tests", () => {
 
   it("Shift + Click Multi Select widget on entity explorer", () => {
     const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET" },
-      { type: "SWITCH_WIDGET" },
-      { type: "BUTTON_WIDGET" },
+      { type: "CHECKBOX_WIDGET", parentId: "0" },
+      { type: "SWITCH_WIDGET", parentId: "0" },
+      { type: "BUTTON_WIDGET", parentId: "0" },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children,
@@ -128,15 +128,30 @@ describe("Entity Explorer tests", () => {
     expect(active.length).toBe(3);
   });
 
-  it("Shift + Click Deselect Parents", () => {
+  it("Shift + Click Deselect Non Siblings", () => {
     const containerId = generateReactKey();
+    const canvasId = generateReactKey();
     const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET", parentId: containerId },
-      { type: "SWITCH_WIDGET", parentId: containerId },
-      { type: "BUTTON_WIDGET", parentId: containerId },
+      { type: "CHECKBOX_WIDGET", parentId: canvasId },
+      { type: "SWITCH_WIDGET", parentId: canvasId },
+      { type: "BUTTON_WIDGET", parentId: canvasId },
+    ]);
+    const canvasWidget = buildChildren([
+      {
+        type: "CANVAS_WIDGET",
+        parentId: containerId,
+        children,
+        widgetId: canvasId,
+      },
     ]);
     const containerChildren: any = buildChildren([
-      { type: "CONTAINER_WIDGET", children: children, widgetId: containerId },
+      {
+        type: "CONTAINER_WIDGET",
+        children: canvasWidget,
+        widgetId: containerId,
+        parentId: "0",
+      },
+      { type: "CHART_WIDGET" },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
@@ -195,5 +210,20 @@ describe("Entity Explorer tests", () => {
     active = component.container.querySelectorAll("div.widget > .active");
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(3);
+    const chartWidget: any = component.queryByText(
+      containerChildren[1].widgetName,
+    );
+    act(() => {
+      fireEvent.click(chartWidget, {
+        shiftKey: true,
+      });
+      jest.runAllTimers();
+    });
+    highlighted = component.container.querySelectorAll(
+      "div.widget > .highlighted.active",
+    );
+    active = component.container.querySelectorAll("div.widget > .active");
+    expect(highlighted.length).toBe(1);
+    expect(active.length).toBe(1);
   });
 });
