@@ -56,11 +56,13 @@ const Content = styled.div<{
 export type ModalComponentProps = {
   isOpen: boolean;
   onClose: (e: any) => void;
+  onModalClose?: () => void;
   children: ReactNode;
   width?: number;
   className?: string;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
+  overlayClassName?: string;
   scrollContents: boolean;
   height?: number;
   top?: number;
@@ -76,6 +78,14 @@ export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
+  useEffect(() => {
+    return () => {
+      // handle modal close events when this component unmounts
+      // will be called in all cases :-
+      //  escape key press, click out side, close click from other btn widget
+      if (props.onModalClose) props.onModalClose();
+    };
+  }, []);
   useEffect(() => {
     if (!props.scrollContents) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -94,6 +104,7 @@ export function ModalComponent(props: ModalComponentProps) {
       <Overlay
         canEscapeKeyClose={props.canEscapeKeyClose}
         canOutsideClickClose={props.canOutsideClickClose}
+        className={props.overlayClassName}
         enforceFocus={false}
         hasBackdrop={
           props.hasBackDrop !== undefined ? !!props.hasBackDrop : true

@@ -79,7 +79,7 @@ public class ImportExportApplicationService {
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     public final String INVALID_JSON_FILE = "invalid json file";
     private enum PublishType {
-        UNPUBLISH, PUBLISH
+        UNPUBLISHED, PUBLISHED
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId) {
@@ -141,7 +141,7 @@ public class ImportExportApplicationService {
     
                             if (newPage.getUnpublishedPage() != null) {
                                 pageIdToNameMap.put(
-                                    newPage.getId() + PublishType.UNPUBLISH, newPage.getUnpublishedPage().getName()
+                                    newPage.getId() + PublishType.UNPUBLISHED, newPage.getUnpublishedPage().getName()
                                 );
                                 PageDTO unpublishedPageDTO = newPage.getUnpublishedPage();
                                 if (StringUtils.equals(
@@ -160,7 +160,7 @@ public class ImportExportApplicationService {
 
                             if (newPage.getPublishedPage() != null) {
                                 pageIdToNameMap.put(
-                                    newPage.getId() + PublishType.PUBLISH, newPage.getPublishedPage().getName()
+                                    newPage.getId() + PublishType.PUBLISHED, newPage.getPublishedPage().getName()
                                 );
                                 PageDTO publishedPageDTO = newPage.getPublishedPage();
                                 if (applicationJson.getPublishedDefaultPageName() != null &&
@@ -215,11 +215,11 @@ public class ImportExportApplicationService {
                             }
                             if (newAction.getUnpublishedAction() != null) {
                                 ActionDTO actionDTO = newAction.getUnpublishedAction();
-                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISH));
+                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISHED));
                             }
                             if (newAction.getPublishedAction() != null) {
                                 ActionDTO actionDTO = newAction.getPublishedAction();
-                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.PUBLISH));
+                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.PUBLISHED));
                             }
                         });
                         applicationJson
@@ -363,8 +363,8 @@ public class ImportExportApplicationService {
             .flatMap(savedApp -> {
                 importedApplication.setId(savedApp.getId());
                 Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
-                    PublishType.UNPUBLISH, new ArrayList<>(),
-                    PublishType.PUBLISH, new ArrayList<>()
+                    PublishType.UNPUBLISHED, new ArrayList<>(),
+                    PublishType.PUBLISHED, new ArrayList<>()
                 );
                 
                 return importAndSavePages(
@@ -396,16 +396,16 @@ public class ImportExportApplicationService {
                         publishedAppPage.setId(newPage.getId());
                         pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                     }
-                    applicationPages.get(PublishType.UNPUBLISH).add(unpublishedAppPage);
-                    applicationPages.get(PublishType.PUBLISH).add(publishedAppPage);
+                    applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                    applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                     return applicationPages;
                 })
                 .then()
                 .thenReturn(applicationPages);
             })
             .flatMap(applicationPageMap -> {
-                importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISH));
-                importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISH));
+                importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
+                importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISHED));
                 
                 importedNewActionList.forEach(newAction -> {
                     NewPage parentPage = new NewPage();

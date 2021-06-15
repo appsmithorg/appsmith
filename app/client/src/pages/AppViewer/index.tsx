@@ -28,6 +28,8 @@ import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -40,6 +42,16 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
     100vh -
       ${(props) => (!props.hasPages ? props.theme.smallHeaderHeight : "72px")}
   );
+`;
+
+const ContainerWithComments = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const AppViewerBodyContainer = styled.div<{ width?: string }>`
+  overflow: auto;
+  margin: 0 auto;
 `;
 
 export type AppViewerProps = {
@@ -93,22 +105,28 @@ class AppViewer extends Component<
           resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}
       >
-        <AppViewerBody hasPages={this.props.pages.length > 1}>
-          {isInitialized && this.state.registered && (
-            <Switch>
-              <SentryRoute
-                component={AppViewerPageContainer}
-                exact
-                path={getApplicationViewerPageURL()}
-              />
-              <SentryRoute
-                component={AppViewerPageContainer}
-                exact
-                path={`${getApplicationViewerPageURL()}/fork`}
-              />
-            </Switch>
-          )}
-        </AppViewerBody>
+        <ContainerWithComments>
+          <AppComments isInline />
+          <AppViewerBodyContainer>
+            <AppViewerBody hasPages={this.props.pages.length > 1}>
+              {isInitialized && this.state.registered && (
+                <Switch>
+                  <SentryRoute
+                    component={AppViewerPageContainer}
+                    exact
+                    path={getApplicationViewerPageURL()}
+                  />
+                  <SentryRoute
+                    component={AppViewerPageContainer}
+                    exact
+                    path={`${getApplicationViewerPageURL()}/fork`}
+                  />
+                </Switch>
+              )}
+            </AppViewerBody>
+          </AppViewerBodyContainer>
+        </ContainerWithComments>
+        <AddCommentTourComponent />
       </EditorContext.Provider>
     );
   }
