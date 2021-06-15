@@ -7,7 +7,7 @@ import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.NotificationsResponseDTO;
+import com.appsmith.server.dtos.PaginatedNotificationResponseDTO;
 import com.appsmith.server.dtos.PaginationDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
@@ -79,7 +79,7 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public Mono<NotificationsResponseDTO> getAll(MultiValueMap<String, String> params) {
+    public Mono<PaginatedNotificationResponseDTO<List<Notification>>> getAll(MultiValueMap<String, String> params) {
         Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
         PageRequest pageRequest = getPageRequestFromParams(params, 10, sort);
 
@@ -99,7 +99,7 @@ public class NotificationServiceImpl
                 PaginationDTO pagination = new PaginationDTO(
                         pageRequest.getPageNumber(), pageRequest.getPageSize(), resultCount
                 );
-                return new NotificationsResponseDTO(
+                return new PaginatedNotificationResponseDTO<>(
                         HttpStatus.OK.value(), notificationList, null, true, pagination, unreadCount
                 );
             });

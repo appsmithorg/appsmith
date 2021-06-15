@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.NotificationsResponseDTO;
+import com.appsmith.server.dtos.PaginatedNotificationResponseDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.repositories.NotificationRepository;
@@ -87,7 +87,7 @@ public class NotificationServiceImplTest {
                 Flux.fromIterable(notificationList)
         );
 
-        Mono<NotificationsResponseDTO> responseDTOMono = notificationService.getAll(new LinkedMultiValueMap<>());
+        Mono<PaginatedNotificationResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(new LinkedMultiValueMap<>());
         StepVerifier
                 .create(responseDTOMono)
                 .assertNext(listResponseDTO -> {
@@ -114,7 +114,7 @@ public class NotificationServiceImplTest {
         params.put("pageNumber", List.of("2")); // fetch page 2
         params.put("pageSize", List.of("8")); // fetch with page size 8
 
-        Mono<NotificationsResponseDTO> responseDTOMono = notificationService.getAll(params);
+        Mono<PaginatedNotificationResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(params);
         StepVerifier
                 .create(responseDTOMono)
                 .assertNext(listResponseDTO -> {
