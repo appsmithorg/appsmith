@@ -148,7 +148,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
@@ -263,6 +263,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         step: 62,
         status: 75,
       },
+      isVisibleSearch: true,
+      isVisibleFilters: true,
+      isVisibleDownload: true,
+      isVisibleCompactMode: true,
+      isVisiblePagination: true,
       version: 1,
     },
     DROP_DOWN_WIDGET: {
@@ -541,6 +546,58 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      customFusionChartConfig: {
+        type: "column2d",
+        dataSource: {
+          chart: {
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
+            theme: "fusion",
+          },
+          data: [
+            {
+              label: "Mon",
+              value: 10000,
+            },
+            {
+              label: "Tue",
+              value: 12000,
+            },
+            {
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 14000,
+            },
+            {
+              label: "Sat",
+              value: 19000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
+            },
+          ],
+          trendlines: [
+            {
+              line: [
+                {
+                  startvalue: "38000",
+                  valueOnRight: "1",
+                  displayvalue: "Weekly Target",
+                },
+              ],
+            },
+          ],
+        },
+      },
     },
     FORM_BUTTON_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
