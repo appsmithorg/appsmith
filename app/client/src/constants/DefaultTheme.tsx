@@ -2032,7 +2032,7 @@ export const light: ColorType = {
     },
   },
   propertyPane: {
-    title: darkShades[11],
+    title: darkShades[7],
     bg: darkShades[1],
     label: darkShades[7],
     jsIconBg: darkShades[5],

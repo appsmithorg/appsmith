@@ -194,6 +194,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
+      return null;
 
       return (
         <Popper
