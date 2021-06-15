@@ -15,7 +15,7 @@ import {
   CSSUnit,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
-import { memoize } from "lodash";
+import { memoize, get } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -29,14 +29,15 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
   DataTreeEvaluationProps,
-} from "../utils/DynamicBindingUtils";
+  EvaluationError,
+  EVAL_ERROR_PATH,
+} from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { flattenObject } from "utils/helpers";
 
 /***
  * BaseWidget
@@ -178,8 +179,11 @@ abstract class BaseWidget<
     };
   }
 
-  getErrorCount = memoize((invalidProps) => {
-    return Object.values(flattenObject(invalidProps)).filter((e) => !!e).length;
+  getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
+    return Object.values(evalErrors).reduce(
+      (prev, curr) => curr.length + prev,
+      0,
+    );
   }, JSON.stringify);
 
   render() {
@@ -215,7 +219,9 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
-            errorCount={this.getErrorCount(this.props.invalidProps)}
+            errorCount={this.getErrorCount(
+              get(this.props, EVAL_ERROR_PATH, {}),
+            )}
             parentId={this.props.parentId}
             showControls={showControls}
             topRow={this.props.detachFromLayout ? 4 : this.props.topRow}

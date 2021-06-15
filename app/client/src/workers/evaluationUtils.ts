@@ -1,8 +1,9 @@
 import {
   DependencyMap,
   EVAL_ERROR_PATH,
-  EVAL_VALUE_PATH,
   EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
@@ -312,15 +313,24 @@ export function getValidatedTree(tree: DataTree) {
         ? value
         : transformed;
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(parsedEntity, `${EVAL_VALUE_PATH}.${property}`, safeEvaluatedValue);
+      _.set(
+        parsedEntity,
+        getEvalValuePath(`${entityKey}.${property}`, false),
+        safeEvaluatedValue,
+      );
       if (!isValid) {
-        const error: EvaluationError = {
-          errorType: PropertyEvaluationErrorType.VALIDATION,
-          errorMessage: message || "",
-          severity: Severity.ERROR,
-          raw: value,
-        };
-        _.set(parsedEntity, `${EVAL_ERROR_PATH}.${property}`, [error]);
+        addErrorToEntityProperty(
+          [
+            {
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message || "",
+              severity: Severity.ERROR,
+              raw: value,
+            },
+          ],
+          tree,
+          getEvalErrorPath(`${entityKey}.${property}`, false),
+        );
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
@@ -514,3 +524,25 @@ export function getSafeToRenderDataTree(
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
+
+export const addErrorToEntityProperty = (
+  errors: EvaluationError[],
+  dataTree: DataTree,
+  path: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
+  if (propertyPath && !(propertyPath in logBlackList)) {
+    const existingErrors = _.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[];
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingErrors.concat(errors),
+    );
+  }
+  return dataTree;
+};

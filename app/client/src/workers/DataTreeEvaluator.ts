@@ -1,12 +1,11 @@
 import {
   DependencyMap,
-  EVAL_ERROR_PATH,
-  EVAL_VALUE_PATH,
   EvalError,
   EvalErrorTypes,
-  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  getEvalErrorPath,
+  getEvalValuePath,
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
@@ -24,6 +23,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
+  addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
   DataTreeDiffEvent,
@@ -142,7 +142,10 @@ export default class DataTreeEvaluator {
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
-      return this.evalTree;
+      return {
+        dataTree: this.evalTree,
+        evaluationOrder: [],
+      };
     }
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
@@ -404,11 +407,7 @@ export default class DataTreeEvaluator {
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
           if (propertyPath) {
-            _.set(
-              currentTree,
-              `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
-              [],
-            );
+            _.set(currentTree, getEvalErrorPath(fullPropertyPath), []);
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -472,7 +471,7 @@ export default class DataTreeEvaluator {
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
             _.set(
               currentTree,
-              `${entityName}.${EVAL_VALUE_PATH}.${propertyPath}`,
+              getEvalValuePath(fullPropertyPath),
               safeEvaluatedValue,
             );
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
@@ -597,22 +596,8 @@ export default class DataTreeEvaluator {
             data,
             callBackData,
           );
-          if (fullPropertyPath) {
-            const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-              fullPropertyPath,
-            );
-            if (result.errors.length && propertyPath) {
-              const existingErrors = _.get(
-                data,
-                `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
-                [],
-              ) as EvaluationError[];
-              _.set(
-                data,
-                `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`,
-                existingErrors.concat(result.errors),
-              );
-            }
+          if (fullPropertyPath && result.errors.length) {
+            addErrorToEntityProperty(result.errors, data, fullPropertyPath);
           }
           return result.result;
         } else {
@@ -693,20 +678,24 @@ export default class DataTreeEvaluator {
       ? evalPropertyValue
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
-    _.set(widget, `${EVAL_VALUE_PATH}.${propertyPath}`, safeEvaluatedValue);
+    _.set(
+      widget,
+      getEvalValuePath(fullPropertyPath, false),
+      safeEvaluatedValue,
+    );
     if (!isValid) {
-      const widgetErrors: EvaluationError[] = _.get(
-        widget,
-        `${EVAL_ERROR_PATH}.${propertyPath}`,
-        [],
+      addErrorToEntityProperty(
+        [
+          {
+            raw: unEvalPropertyValue,
+            errorMessage: message || "",
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            severity: Severity.ERROR,
+          },
+        ],
+        currentTree,
+        fullPropertyPath,
       );
-      widgetErrors.push({
-        raw: unEvalPropertyValue,
-        errorMessage: message || "",
-        errorType: PropertyEvaluationErrorType.VALIDATION,
-        severity: Severity.ERROR,
-      });
-      _.set(widget, `${EVAL_ERROR_PATH}.${propertyPath}`, widgetErrors);
     }
 
     if (isPathADynamicTrigger(widget, propertyPath)) {
@@ -1194,11 +1183,6 @@ const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
 function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
   if (!_.isObject(entity)) {
-    // ERRORS.push({
-    //   type: EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
-    //   message: "Data tree entity is not an object",
-    //   context: entity,
-    // });
     return false;
   }
   return "ENTITY_TYPE" in entity;

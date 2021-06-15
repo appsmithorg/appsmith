@@ -19,12 +19,12 @@ import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
-  EVAL_ERROR_PATH,
-  EVAL_VALUE_PATH,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
   EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
   PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -82,12 +82,12 @@ function getLatestEvalPropertyErrors(
       }
       const allEvalErrors: EvaluationError[] = _.get(
         entity,
-        `${EVAL_ERROR_PATH}.${propertyPath}`,
+        getEvalErrorPath(evaluatedPath, false),
         [],
       );
       const evaluatedValue = _.get(
         entity,
-        `${EVAL_VALUE_PATH}.${propertyPath}`,
+        getEvalValuePath(evaluatedPath, false),
       );
       const evalErrors = allEvalErrors.filter(
         (error) => error.errorType !== PropertyEvaluationErrorType.LINT,

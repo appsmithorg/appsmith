@@ -52,9 +52,9 @@ import * as Sentry from "@sentry/react";
 import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import {
-  EVAL_ERROR_PATH,
-  EVAL_VALUE_PATH,
   EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
 } from "utils/DynamicBindingUtils";
 
 const LightningMenu = lazy(() =>
@@ -360,15 +360,13 @@ class CodeEditor extends Component<Props, State> {
         pathEvaluatedValue: undefined,
       };
     }
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      dataTreePath,
-    );
 
-    const errorsPath = `${entityName}.${EVAL_ERROR_PATH}.${propertyPath}`;
-    const evaluatedValuePath = `${entityName}.${EVAL_VALUE_PATH}.${propertyPath}`;
-
-    const errors = _.get(dataTree, errorsPath, []) as EvaluationError[];
-    const pathEvaluatedValue = _.get(dataTree, evaluatedValuePath);
+    const errors = _.get(
+      dataTree,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
       isInvalid: errors.length > 0,
