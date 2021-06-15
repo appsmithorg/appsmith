@@ -1041,13 +1041,10 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
 // });
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
-  cy.get(widgetsPage.buttonOnClick)
-    .last()
+  cy.get(widgetsPage.actionSelect)
+    .first()
     .click({ force: true });
-  cy.get("ul.bp3-menu")
-    .children()
-    .contains("Open Modal")
-    .click();
+  cy.selectOnClickOption("Open Modal");
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
@@ -1080,14 +1077,18 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
+Cypress.Commands.add("selectOnClickOption", (option) => {
+  cy.get("ul.bp3-menu div.bp3-fill")
+    .wait(500)
+    .contains(option)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("updateModal", (modalType, ModalName) => {
-  cy.get(".t--open-dropdown-Select-Action")
+  cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
-  cy.get("ul.bp3-menu")
-    .children()
-    .contains("Open Modal")
-    .click();
+  cy.selectOnClickOption("Open Modal");
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
@@ -1130,6 +1131,13 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).uncheck({
     force: true,
   });
+  cy.assertPageSave();
+});
+
+Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
+  cy.get(checkboxCss)
+    .click()
+    .type(inputJS);
   cy.assertPageSave();
 });
 
@@ -1756,17 +1764,20 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .first()
+    .click({ force: true })
+    .selectOnClickOption("Execute a DB Query")
+    .selectOnClickOption(QueryName);
+});
+
 Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
+    .first()
     .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains("Call An API")
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains(ApiName)
-    .click({ force: true });
+    .selectOnClickOption("Call An API")
+    .selectOnClickOption(ApiName);
 });
 
 Cypress.Commands.add("radioInput", (index, text) => {
@@ -2041,6 +2052,22 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("CreateMockQuery", (queryName) => {
+  cy.get(queryEditor.addNewQueryBtn).click({ force: true });
+  cy.get(queryEditor.createQuery)
+    .first()
+    .click({ force: true });
+  cy.get(queryEditor.queryNameField).type(queryName + "{enter}", {
+    force: true,
+  });
+  cy.get(queryEditor.templateMenu + " div")
+    .contains("Select")
+    .click({ force: true });
+  cy.wait(3000);
+  // cy.get(queryEditor.runQuery)
+  //   .click({force: true});
+});
+
 Cypress.Commands.add("openPropertyPane", (widgetType) => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
@@ -2056,10 +2083,81 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.get(selector)
+    .last()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
+    .first()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
+  cy.get(widgetsPage.buttonStyleDropdown).click({ force: true });
+  cy.get(
+    ".bp3-popover-content .t--dropdown-option:nth-child(" + index + ")",
+  ).click({ force: true });
+  cy.PublishtheApp();
+  cy.get(widgetsPage.widgetBtn).should(
+    "have.css",
+    "background-color",
+    buttonColor,
+  );
+  // cy.get(buttonBackground)
+  //   .first()
+  //   .trigger('mouseover', { force: true });
+  // cy.get(buttonBackground)
+  //   .should('have.css', 'background-color', hoverColor);
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
+Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
+  // Filling the messages for success/failure in the onClickAction of the button widget.
+  // For Success
+  cy.get(".code-highlight")
+    .children()
+    .contains("No Action")
+    .first()
+    .click({ force: true })
+    .selectOnClickOption("Show Message")
+    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .click()
+    .type(forSuccess)
+    .get("button.t--open-dropdown-Select-type")
+    .click()
+    .get("a.single-select div")
+    .contains(forSuccess)
+    .click();
+
+  cy.wait(2000);
+  // For Failure
+  cy.get(".code-highlight")
+    .children()
+    .contains("No Action")
+    .last()
+    .click({ force: true })
+    .selectOnClickOption("Show Message")
+    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .last()
+    .click()
+    .type(forFailure)
+    .get("button.t--open-dropdown-Select-type")
+    .last()
+    .click()
+    .get("a.single-select div")
+    .contains(forFailure)
+    .click();
+});
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
   cy.testCreateApiButton();
