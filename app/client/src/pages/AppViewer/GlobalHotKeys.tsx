@@ -20,7 +20,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="esc"
           global
           group="Canvas"
-          label="Deselect all Widget"
+          label="Reset"
           onKeyDown={(e: any) => {
             this.props.resetCommentMode();
             e.preventDefault();
