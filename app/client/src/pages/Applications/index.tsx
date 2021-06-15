@@ -909,9 +909,23 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    const isFromSignUp = getIsFromSignup();
     this.setState({
-      showOnboardingForm: getIsFromSignup() && onboardingFormEnabled,
+      showOnboardingForm: isFromSignUp && onboardingFormEnabled,
     });
+
+    // Redirect directly in case we're not showing the onboarding form
+    if (isFromSignUp && !onboardingFormEnabled) {
+      const urlObject = new URL(window.location.href);
+      const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+      if (redirectUrl) {
+        try {
+          window.location.replace(redirectUrl);
+        } catch (e) {
+          console.error("Error handling the redirect url");
+        }
+      }
+    }
   }
 
   public render() {
