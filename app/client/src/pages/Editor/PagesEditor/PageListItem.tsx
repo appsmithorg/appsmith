@@ -34,12 +34,12 @@ export const EditNameContainer = styled.div`
   flex-grow: 1;
   display: flex;
   align-items: center;
+  padding-left: 4px;
 
   & > .page-list-item-edit-icon {
     display: none;
-    margin-left: 5px;
+    margin-left: 8px;
     align-items: center;
-    opacity: 0.6;
   }
 
   &:hover .page-list-item-edit-icon {
@@ -86,7 +86,7 @@ const DeleteIcon = FormIcons.DELETE_ICON;
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DragIcon = ControlIcons.DRAG_CONTROL;
 const HideIcon = ControlIcons.HIDE_COLUMN;
-const EditIcon = ControlIcons.EDIT_CONTROL;
+const EditIcon = ControlIcons.EDIT_WHITE;
 
 const DefaultPageIcon = styled(HomeIcon)`
   margin-right: 5px;
@@ -165,10 +165,10 @@ function PageListItem(props: PageListItemProps) {
           {!isEditing && (
             <div className="page-list-item-edit-icon">
               <EditIcon
-                color={get(theme, "colors.appBackground")}
-                height={16}
+                color={get(theme, "colors.propertyPane.iconColor")}
+                height={14}
                 onClick={enterEditMode}
-                width={16}
+                width={14}
               />
             </div>
           )}
