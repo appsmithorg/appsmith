@@ -90,6 +90,9 @@ export const HintStyles = createGlobalStyle<{
         width: 12px;
         margin-right: 7px;
       }
+      svg {
+        margin-right: 7px;
+      }
     }
     .shortcut {
       font-style: italic;
@@ -516,6 +519,9 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
               : ""};
         }
       }
+    }
+    .slash-commands {
+      visibility: ${(props) => (!props.isNotHover ? "hidden" : "")};
     }
   }
   border-radius: 0px;

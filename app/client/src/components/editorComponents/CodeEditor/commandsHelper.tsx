@@ -16,25 +16,29 @@ export const commandsHelper: HintHelper = () => {
       editor: CodeMirror.Editor,
       _: string,
       __: string,
-      { actions, createNewAPI, createNewQuery, datasources, plugins },
+      {
+        actions,
+        createNewAPI,
+        createNewQuery,
+        datasources,
+        plugins,
+        updatePropertyValue,
+      },
     ) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
-      // const suggestionsHeader: CommandsCompletion = commandsHeader(
-      //   "Suggestions",
-      // );
-      const pluginIdToIconLocationMap = plugins.list.reduce(
-        (acc: any, p: any) => {
-          acc[p.id] = p.iconLocation;
-          return acc;
-        },
-        {},
+      const suggestionsHeader: CommandsCompletion = commandsHeader(
+        "Suggestions",
       );
+      const pluginIdToIconLocationMap = plugins.reduce((acc: any, p: any) => {
+        acc[p.id] = p.iconLocation;
+        return acc;
+      }, {});
       const createNewHeader: CommandsCompletion = commandsHeader("Create New");
       const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
       const actionsHeader: CommandsCompletion = commandsHeader("Actions");
       const insertBinding: CommandsCompletion = {
-        text: "{{  }}",
+        text: "{{}}",
         displayText: "Insert Binding",
         data: { doc: "" },
         origin: "",
@@ -97,7 +101,7 @@ export const commandsHelper: HintHelper = () => {
           .map((action: any) => action.config)
           .map((action: any) => {
             return {
-              text: `{{ ${action.name}.data }}`,
+              text: `{{${action.name}.data}}`,
               displayText: `${action.name}`,
               className: "CodeMirror-commands",
               shortcut: "{{}}",
@@ -117,7 +121,7 @@ export const commandsHelper: HintHelper = () => {
           });
         const datasourceCommands = datasources.map((action: any) => {
           return {
-            text: `{{ ${action.name}.data }}`,
+            text: `{{${action.name}.data}}`,
             displayText: `${action.name}`,
             className: "CodeMirror-commands",
             shortcut: `${action.name}.new`,
@@ -135,22 +139,23 @@ export const commandsHelper: HintHelper = () => {
             },
           };
         });
-        // const actionCommandsMatchSearchText = matchingCommands(
-        //   actionCommands,
-        //   searchText,
-        // );
+        const actionCommandsMatchSearchText = matchingCommands(
+          actionCommands,
+          searchText,
+        );
         const datasourceCommandsMatchingSearchText = matchingCommands(
           datasourceCommands,
           searchText,
         );
         const createNewCommandsMatchingSearchText = matchingCommands(
-          [newAPI, newDatasource],
+          [insertBinding, newAPI, newDatasource],
           searchText,
+          3,
         );
-        let list: CommandsCompletion[] = [actionsHeader, insertBinding];
-        // if (actionCommandsMatchSearchText.length) {
-        //   list = [suggestionsHeader, ...actionCommandsMatchSearchText];
-        // }
+        let list: CommandsCompletion[] = [];
+        if (actionCommandsMatchSearchText.length) {
+          list = [suggestionsHeader, ...actionCommandsMatchSearchText];
+        }
 
         if (createNewCommandsMatchingSearchText.length) {
           list = [
@@ -180,20 +185,15 @@ export const commandsHelper: HintHelper = () => {
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
               if (selected.action) {
-                editor.setValue(
+                updatePropertyValue(
                   value.slice(0, value.length - searchText.length - 1),
                 );
                 selected.action();
-                return;
               } else {
-                editor.setValue(
+                updatePropertyValue(
                   value.slice(0, value.length - searchText.length - 1) +
                     selected.text,
                 );
-                editor.setCursor({
-                  line: cursor.line,
-                  ch: cursor.ch + selected.text.length - searchText.length - 4,
-                });
               }
             });
             CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
@@ -222,7 +222,11 @@ export const commandsHelper: HintHelper = () => {
   };
 };
 
-const matchingCommands = (list: CommandsCompletion[], searchText: string) => {
+const matchingCommands = (
+  list: CommandsCompletion[],
+  searchText: string,
+  limit = 2,
+) => {
   return list
     .filter((action: any) => {
       return (
@@ -230,7 +234,7 @@ const matchingCommands = (list: CommandsCompletion[], searchText: string) => {
         action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
       );
     })
-    .slice(0, 2);
+    .slice(0, limit);
 };
 
 const commandsHeader = (

@@ -61,6 +61,7 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { Plugin } from "api/PluginApi";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -78,12 +79,13 @@ interface ReduxStateProps {
   dynamicData: DataTree;
   actions: ActionDataState;
   datasources: any;
-  plugins: PluginDataState;
+  plugins: Plugin[];
 }
 
 interface ReduxDispatchProps {
   createNewAPI: (pageId: string) => void;
   createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
+  executeCommand: (action: any) => void;
 }
 
 export type EditorStyleProps = {
@@ -117,7 +119,9 @@ export type EditorProps = EditorStyleProps &
     hideEvaluatedValue?: boolean;
   };
 
-type Props = ReduxStateProps & EditorProps & ReduxDispatchProps;
+type Props = ReduxStateProps &
+  EditorProps &
+  ReduxDispatchProps & { dispatch?: () => void };
 
 type State = {
   isFocused: boolean;
@@ -365,6 +369,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         plugins: this.props.plugins,
         createNewQuery: this.handleCreateNewQuery,
+        updatePropertyValue: this.updatePropertyValue,
       }),
     );
   };
@@ -507,7 +512,10 @@ class CodeEditor extends Component<Props, State> {
           </Suspense>
         )}
         {showLightningMenu !== false && (
-          <CommandBtnContainer isFocused={this.state.isFocused}>
+          <CommandBtnContainer
+            className="slash-commands"
+            isFocused={this.state.isFocused}
+          >
             <Button
               className="commands-button"
               onClick={() => {
@@ -597,7 +605,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   actions: state.entities.actions,
   datasources: state.entities.datasources,
-  plugins: state.entities.plugins,
+  plugins: state.entities.plugins.list,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
@@ -606,6 +614,7 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
   },
+  executeCommand: (action) => dispatch(action),
 });
 
 export default Sentry.withProfiler(
