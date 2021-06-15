@@ -14,6 +14,7 @@ export const TableWrapper = styled.div<{
   tableSizes: TableSizes;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
+  isHeaderVisible?: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -53,7 +54,8 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      height: ${(props) => props.height - 80}px;
+      height: ${(props) =>
+        props.isHeaderVisible ? props.height - 80 : props.height - 40}px;
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
@@ -102,8 +104,10 @@ export const TableWrapper = styled.div<{
     }
     .th {
       padding: 0 10px 0 0;
-      height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-      line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+      height: ${(props) =>
+        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
+      line-height: ${(props) =>
+        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
