@@ -169,6 +169,9 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     gridGap: "number",
   },
+  MENU_WIDGET: {
+    isVisible: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

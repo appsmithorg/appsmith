@@ -115,6 +115,10 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
+  MENU_WIDGET: {
+    path: "/widget-reference/menu",
+    searchKey: "Menu",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

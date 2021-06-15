@@ -22,6 +22,7 @@ import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
 import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
 import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
+import { ReactComponent as MenuIcon } from "assets/icons/widget/menu.svg";
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -140,6 +141,11 @@ export const WidgetIcons: {
   LIST_WIDGET: (props: IconProps) => (
     <IconWrapper {...props} data-testid="list-widget-icon">
       <ListIcon />
+    </IconWrapper>
+  ),
+  MENU_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MenuIcon />
     </IconWrapper>
   ),
 };
