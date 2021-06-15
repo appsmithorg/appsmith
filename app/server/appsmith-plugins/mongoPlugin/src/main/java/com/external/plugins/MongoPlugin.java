@@ -230,13 +230,16 @@ public class MongoPlugin extends BasePlugin {
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 if (isFormInput(actionConfiguration.getPluginSpecifiedTemplates())) {
-
+                    List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
+                            executeActionDTO.getParams(), parameters);
+                    actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
                 } else {
                     // For raw queries do smart replacements in BSON body
                     if (actionConfiguration.getBody() != null) {
                         try {
-                            actionConfiguration.setBody(smartSubstituteBSON(actionConfiguration.getBody(),
-                                    executeActionDTO.getParams(), parameters));
+                            String updatedRawQuery = smartSubstituteBSON(actionConfiguration.getBody(),
+                                    executeActionDTO.getParams(), parameters);
+                            actionConfiguration.setBody(updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
                             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -246,9 +249,10 @@ public class MongoPlugin extends BasePlugin {
                         }
                     }
                 }
+            } else {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
             }
 
-            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
             if (parsedRawCommand != null) {
