@@ -42,8 +42,6 @@ const InputComponentWrapper = styled((props) => (
 }>`
   &&&& {
     .${Classes.INPUT} {
-      /* Added to disable textarea resizing Fix-Issue-1001 */
-      resize: none;
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -203,6 +201,7 @@ class InputComponent extends React.Component<
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
       placeholder={this.props.placeholder}
+      style={{ resize: "none" }}
       value={this.props.value}
     />
   );
