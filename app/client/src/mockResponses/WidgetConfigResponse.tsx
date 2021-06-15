@@ -92,6 +92,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
+      borderColor: "transparent",
+      borderWidth: "0px",
+      borderRadius: "0px",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Container",

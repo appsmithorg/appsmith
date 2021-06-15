@@ -2,7 +2,7 @@ import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import { ComponentProps } from "./BaseComponent";
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 
@@ -18,12 +18,14 @@ const StyledContainerComponent = styled.div<
   ${(props) =>
     props.containerStyle !== "none"
       ? `
-  border: ${getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;`
+  border-width: ${props.borderWidth};
+  border-color: ${props.borderColor || "transparent"};
+  border-style: solid;`
       : ""}
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
+  border-radius: ${(props) => props.borderRadius};
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
@@ -84,6 +86,9 @@ export interface ContainerComponentProps extends ComponentProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;
+  borderColor?: string;
+  borderWidth?: string;
+  borderRadius?: string;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
   selected?: boolean;
