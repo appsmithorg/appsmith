@@ -575,12 +575,12 @@ function* storeAsDatasourceSaga() {
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
   const originalHeaders = _.get(values, "actionConfiguration.headers", []);
-  const datasourceHeaders = originalHeaders.filter(
+  const [datasourceHeaders, actionHeaders] = _.partition(
+    originalHeaders,
     ({ key, value }: { key: string; value: string }) => {
       return !(isDynamicValue(key) || isDynamicValue(value));
     },
   );
-  const actionHeaders = _.difference(originalHeaders, datasourceHeaders);
   yield put(
     setActionProperty({
       actionId: values.id,
