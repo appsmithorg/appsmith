@@ -6,7 +6,6 @@ import { getCurlImportPageURL } from "constants/routes";
 import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
-import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
@@ -139,7 +138,6 @@ const newApiScreen = (props: Props) => {
   const {
     applicationId,
     createNewApiAction,
-    history,
     location,
     pageId,
     plugins,
@@ -151,15 +149,6 @@ const newApiScreen = (props: Props) => {
       createNewApiAction(pageId, "API_PANE");
     }
   };
-
-  let destinationPageId = new URLSearchParams(location.search).get("importTo");
-
-  if (!destinationPageId) {
-    destinationPageId = pageId;
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
-  }
   const curlImportURL =
     getCurlImportPageURL(applicationId, pageId) + location.search;
 

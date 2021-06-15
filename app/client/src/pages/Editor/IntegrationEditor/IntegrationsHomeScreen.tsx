@@ -1,54 +1,14 @@
 import React, { useEffect, useRef } from "react";
-// import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
-// import { Icon, Card } from "@blueprintjs/core";
+import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
-// import InfiniteScroll from "react-infinite-scroller";
-import { DEFAULT_PROVIDER_OPTION } from "constants/ApiEditorConstants";
-// import {
-//   getCurlImportPageURL,
-//   // getProviderTemplatesURL,
-// } from "constants/routes";
-// import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { getImportedCollections } from "selectors/applicationSelectors";
-import { TemplateList } from "constants/collectionsConstants";
-import {
-  ProvidersDataArray,
-  SearchResultsProviders,
-} from "constants/providerConstants";
-import {
-  getProviders,
-  getProvidersLoadingState,
-} from "selectors/applicationSelectors";
-import { getProviderCategories } from "selectors/editorSelectors";
-import { fetchImportedCollections } from "actions/collectionAction";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
-import {
-  fetchProviders,
-  fetchProviderCategories,
-  fetchProvidersWithCategory,
-  clearProviders,
-  searchApiOrProvider,
-} from "actions/providerActions";
+import { searchApiOrProvider } from "actions/providerActions";
 import { Colors } from "constants/Colors";
-// import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
-import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-// import DropdownField from "components/editorComponents/form/fields/DropdownField";
-// import Spinner from "components/editorComponents/Spinner";
-// import CurlLogo from "assets/images/Curl-logo.svg";
-import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
-import { Plugin } from "api/PluginApi";
-import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
-import { EventLocation } from "utils/AnalyticsUtil";
-import { getAppCardColorPalette } from "selectors/themeSelectors";
-// import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { TabComponent, TabProp } from "components/ads/Tabs";
-// import { PluginType } from "entities/Action";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
@@ -148,46 +108,16 @@ const NewIntegrationsContainer = styled.div`
 `;
 
 type IntegrationsHomeScreenProps = {
-  initialValues: {
-    category: string;
-  };
-  currentCategory: string;
-  importedCollections: TemplateList[];
-  fetchImportedCollections: () => void;
-  providers: ProvidersDataArray[];
-  fetchProviders: () => void;
-  clearProviders: () => void;
-  fetchProviderCategories: () => void;
   searchApiOrProvider: (searchKey: string) => void;
-  providerCategories: string[];
-  apiOrProviderSearchResults: {
-    providers: SearchResultsProviders[];
-  };
   pageId: string;
-  plugins: Plugin[];
   applicationId: string;
-  actions: ActionDataState;
-  fetchProvidersWithCategory: (
-    request: FetchProviderWithCategoryRequest,
-  ) => void;
   location: {
     search: string;
-  };
-  match: {
-    url: string;
   };
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  isFetchingProviders: boolean;
-  providersTotal: number;
-  isSwitchingCategory: boolean;
-  createNewApiAction: (pageId: string, from: EventLocation) => void;
-  setCurrentCategory: (category: string) => void;
-  previouslySetCategory: string;
-  fetchProvidersError: boolean;
-  colorPalette: string[];
   isCreating: boolean;
   dataSources: Datasource[];
 };
@@ -315,6 +245,7 @@ class IntegrationsHomeScreen extends React.Component<
 > {
   constructor(props: Props) {
     super(props);
+    console.log("INtegrations Home screen");
 
     this.state = {
       page: 1,
@@ -344,15 +275,6 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({ activeSecondaryMenuId });
   };
 
-  handleCreateNew = () => {
-    const pageId = new URLSearchParams(this.props.location.search).get(
-      "importTo",
-    );
-    if (pageId) {
-      this.props.createNewApiAction(pageId, "API_PANE");
-    }
-  };
-
   handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
     const { searchApiOrProvider } = this.props;
     const value = e.target.value;
@@ -364,44 +286,16 @@ class IntegrationsHomeScreen extends React.Component<
     }
   };
 
-  handleFetchMoreProviders = (page: number) => {
-    const { currentCategory } = this.props;
-    this.props.fetchProvidersWithCategory({
-      category: currentCategory,
-      page: page,
-    });
-  };
-
   render() {
     const {
-      // importedCollections,
-      // apiOrProviderSearchResults,
       applicationId,
-      // fetchProvidersError,
       dataSources,
-      // isSwitchingCategory,
-      // isFetchingProviders,
       history,
       isCreating,
       location,
       pageId,
-      // providerCategories,
-      // providers,
-      // providersTotal,
     } = this.props;
     const { showSearchResults } = this.state;
-
-    let destinationPageId = new URLSearchParams(location.search).get(
-      "importTo",
-    );
-
-    if (!destinationPageId) {
-      destinationPageId = pageId;
-      history.push(
-        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
-    }
-
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
@@ -442,7 +336,7 @@ class IntegrationsHomeScreen extends React.Component<
     }
     return (
       <ApiHomePage
-        className="t--apiHomePage"
+        className="t--integrationsHomePage"
         style={{ overflow: showSearchResults ? "hidden" : "auto" }}
       >
         <HeaderFlex>
@@ -494,62 +388,15 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const { providers } = state.ui;
-  const {
-    apiOrProviderSearchResults,
-    fetchProvidersError,
-    isSwitchingCategory,
-    providersTotal,
-  } = providers;
-  const formData = getFormValues(API_HOME_SCREEN_FORM)(
-    state,
-  ) as FetchProviderWithCategoryRequest;
-  let category = DEFAULT_PROVIDER_OPTION;
-
-  if (formData) {
-    category = formData.category;
-  }
-
-  let initialCategoryValue;
-  if (state.ui.apiPane.currentCategory === "") {
-    initialCategoryValue = DEFAULT_PROVIDER_OPTION;
-  } else {
-    initialCategoryValue = state.ui.apiPane.currentCategory;
-  }
-
   return {
-    currentCategory: category,
-    importedCollections: getImportedCollections(state),
-    providers: getProviders(state),
-    isFetchingProviders: getProvidersLoadingState(state),
-    actions: state.entities.actions,
-    providersTotal,
-    providerCategories: getProviderCategories(state),
-    plugins: state.entities.plugins.list,
     dataSources: getDBDatasources(state),
-    isSwitchingCategory,
-    apiOrProviderSearchResults,
-    previouslySetCategory: state.ui.apiPane.currentCategory,
-    initialValues: { category: initialCategoryValue },
-    fetchProvidersError,
-    colorPalette: getAppCardColorPalette(state),
     isCreating: state.ui.apiPane.isCreating,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchImportedCollections: () => dispatch(fetchImportedCollections()),
-  fetchProviders: () => dispatch(fetchProviders()),
-  clearProviders: () => dispatch(clearProviders()),
-  fetchProviderCategories: () => dispatch(fetchProviderCategories()),
-  fetchProvidersWithCategory: (request: FetchProviderWithCategoryRequest) =>
-    dispatch(fetchProvidersWithCategory(request)),
   searchApiOrProvider: (searchKey: string) =>
     dispatch(searchApiOrProvider({ searchKey })),
-  createNewApiAction: (pageId: string, from: EventLocation) =>
-    dispatch(createNewApiAction(pageId, from)),
-  setCurrentCategory: (category: string) =>
-    dispatch(setCurrentCategory(category)),
 });
 
 export default connect(

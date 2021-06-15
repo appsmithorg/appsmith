@@ -4,12 +4,9 @@ import { Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
-import { Page } from "constants/ReduxActionConstants";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
@@ -46,8 +43,6 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  pages: Page[];
-  pluginImages: Record<string, string>;
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
@@ -76,24 +71,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   };
 
   render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
-
-    const destinationPageId = new URLSearchParams(location.search).get(
-      "importTo",
-    );
-
-    if (!destinationPageId) {
-      history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
-    }
+    const { dataSources, isCreating } = this.props;
 
     if (isCreating) {
       return (
@@ -120,9 +98,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  pluginImages: getPluginImages(state),
   actions: state.entities.actions,
-  pages: state.entities.pageList.pages,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

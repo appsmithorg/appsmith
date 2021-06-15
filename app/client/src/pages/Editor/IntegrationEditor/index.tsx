@@ -19,7 +19,6 @@ const integrationsEditor = (props: Props) => {
         applicationId={match.params.applicationId}
         history={history}
         location={location}
-        match={match}
         pageId={match.params.pageId}
       />
     </div>
