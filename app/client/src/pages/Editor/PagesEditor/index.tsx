@@ -1,7 +1,7 @@
 import { get, sortBy } from "lodash";
 import styled, { useTheme } from "styled-components";
+import { useParams, useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useLocation, useHistory } from "react-router";
 import React, { useEffect, useCallback, useMemo, useState } from "react";
 
 import { AppState } from "reducers";
@@ -54,6 +54,8 @@ const Header = styled.div`
 const NewPageButton = styled(Button)`
   & > ${IconWrapper} svg {
     margin-right: 4px;
+    height: 11px;
+    width: 11px;
   }
 
   & > ${IconWrapper} path {
@@ -65,7 +67,6 @@ const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 function PagesEditor() {
   const theme = useTheme();
-  const location = useLocation();
   const dispatch = useDispatch();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();

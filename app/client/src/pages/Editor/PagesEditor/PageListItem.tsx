@@ -32,10 +32,23 @@ export const ListItem = styled.div`
 
 export const EditNameContainer = styled.div`
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+
+  & > .page-list-item-edit-icon {
+    display: none;
+    margin-left: 5px;
+    align-items: center;
+    opacity: 0.6;
+  }
+
+  &:hover .page-list-item-edit-icon {
+    display: flex;
+  }
+
   & > div {
     display: flex;
     min-height: 36px;
-
     align-items: center;
   }
 `;
@@ -43,18 +56,6 @@ export const EditNameContainer = styled.div`
 const Actions = styled.div`
   display: flex;
   align-items: center;
-  & > button {
-    margin-left: 8px;
-  }
-`;
-
-const StyledHomeIcon = styled.div`
-  height: 28px;
-  width: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 8px;
 `;
 
 export const Action = styled.button`
@@ -67,11 +68,12 @@ export const Action = styled.button`
   outline: none;
   border: none;
   background: transparent;
+  margin-left: 8px;
 
   &:hover,
   &:active,
   &.active {
-    background: #e1e1e1;
+    background: ${(props) => (props.disabled ? "initial" : "#e1e1e1")};
   }
 
   &:focus {
@@ -83,6 +85,8 @@ const HomeIcon = FormIcons.HOME_ICON;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DragIcon = ControlIcons.DRAG_CONTROL;
+const HideIcon = ControlIcons.HIDE_COLUMN;
+const EditIcon = ControlIcons.EDIT_CONTROL;
 
 const DefaultPageIcon = styled(HomeIcon)`
   margin-right: 5px;
@@ -128,7 +132,7 @@ function PageListItem(props: PageListItemProps) {
   );
 
   const setPageHidden = useCallback(() => {
-    return dispatch(updatePage(item.pageId, item.pageName, true));
+    return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch]);
 
   const exitEditMode = useCallback(() => {
@@ -137,11 +141,14 @@ function PageListItem(props: PageListItemProps) {
 
   const enterEditMode = useCallback(() => setIsEditing(true), []);
 
+  console.log({ isEditing });
+
   return (
     <Container>
       <ListItem>
         <DragIcon
           color={get(theme, "colors.propertyPane.iconColor")}
+          cursor="move"
           height={20}
           width={20}
         />
@@ -155,16 +162,35 @@ function PageListItem(props: PageListItemProps) {
             nameTransformFn={resolveAsSpaceChar}
             updateEntityName={updateNameCallback}
           />
+          {!isEditing && (
+            <div className="page-list-item-edit-icon">
+              <EditIcon
+                color={get(theme, "colors.appBackground")}
+                height={16}
+                onClick={enterEditMode}
+                width={16}
+              />
+            </div>
+          )}
         </EditNameContainer>
         <Actions>
           {item.isDefault && (
-            <StyledHomeIcon>
+            <Action disabled title="Default page">
               <DefaultPageIcon
                 color={get(theme, "colors.primaryOld")}
-                height={20}
-                width={20}
+                height={16}
+                width={16}
               />
-            </StyledHomeIcon>
+            </Action>
+          )}
+          {item.isHidden && (
+            <Action disabled title="Hidden">
+              <HideIcon
+                color={get(theme, "colors.propertyPane.iconColor")}
+                height={16}
+                width={16}
+              />
+            </Action>
           )}
           <ContextMenu
             applicationId={applicationId}
@@ -174,7 +200,7 @@ function PageListItem(props: PageListItemProps) {
             onSetPageHidden={setPageHidden}
             page={item}
           />
-          <Action type="button">
+          <Action title="Clone" type="button">
             <CopyIcon
               color={get(theme, "colors.propertyPane.iconColor")}
               height={16}
@@ -182,7 +208,7 @@ function PageListItem(props: PageListItemProps) {
               width={16}
             />
           </Action>
-          <Action type="button">
+          <Action title="Delete" type="button">
             <DeleteIcon
               color={
                 item.isDefault
