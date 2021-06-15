@@ -71,6 +71,7 @@ it("Cmd + A - select all widgets on canvas", () => {
   if (canvasWidgets[1].firstChild) {
     fireEvent.mouseOver(canvasWidgets[1].firstChild);
     fireEvent.click(canvasWidgets[1].firstChild);
+    fireEvent.click(canvasWidgets[1].firstChild);
   }
   propPane = component.queryByTestId("t--propertypane");
   expect(propPane).not.toBeNull();

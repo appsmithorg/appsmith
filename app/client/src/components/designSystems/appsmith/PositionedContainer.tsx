@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
+import { useRef } from "react";
+import useClick from "utils/hooks/useClick";
 
 const PositionedWidget = styled.div``;
 
@@ -52,20 +54,24 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
-  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
-    props.widgetId,
-    openPropertyPane,
-  ]);
-
+  const openPropPane = useCallback(
+    (e) => openPropertyPane(e, props.widgetId, false),
+    [props.widgetId, openPropertyPane],
+  );
+  const handlePropertyPaneDoubleClick = useCallback(
+    (e) => openPropertyPane(e, props.widgetId, true),
+    [props.widgetId, openPropertyPane],
+  );
+  // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
+  const positionRef = useRef<HTMLDivElement | null>(null);
+  useClick(positionRef, openPropPane, handlePropertyPaneDoubleClick, true);
   return (
     <PositionedWidget
       className={containerClassName}
       data-testid="test-widget"
       id={props.widgetId}
       onClick={stopEventPropagation}
-      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
-      onClickCapture={openPropPane}
-      onDoubleClickCapture={openPropPane}
+      ref={positionRef}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
     >

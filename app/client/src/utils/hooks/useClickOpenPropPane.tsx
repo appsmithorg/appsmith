@@ -3,10 +3,7 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
-import {
-  getCurrentWidgetId,
-  getIsPropertyPaneVisible,
-} from "selectors/propertyPaneSelectors";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "store";
 import { AppState } from "reducers";
@@ -16,6 +13,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
+import { getSelectedWidget } from "selectors/ui";
 
 /**
  *
@@ -58,7 +56,7 @@ export const useClickOpenPropPane = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
-  const selectedWidgetId = useSelector(getCurrentWidgetId);
+  const selectedWidgetId = useSelector(getSelectedWidget);
   const focusedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
@@ -97,7 +95,11 @@ export const useClickOpenPropPane = () => {
       dispatch(closePropertyPane());
     }
   };
-  const openPropertyPane = (e: any, targetWidgetId: string) => {
+  const openPropertyPane = (
+    e: any,
+    targetWidgetId: string,
+    isDoubleClick = false,
+  ) => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
     if (
       isResizing ||
@@ -112,7 +114,7 @@ export const useClickOpenPropPane = () => {
     ) {
       const isMultiSelect = e.metaKey || e.ctrlKey;
       selectWidgetFn();
-      openOrClosePropertyPaneFn(e.type === "dblclick");
+      openOrClosePropertyPaneFn(isDoubleClick);
       if (isMultiSelect) {
         e.stopPropagation();
       }

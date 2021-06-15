@@ -4,6 +4,7 @@ export default (
   currentRef: MutableRefObject<HTMLElement | null>,
   singleClk: (e: MouseEvent<HTMLElement>) => void,
   doubleClk?: (e: MouseEvent<HTMLElement>) => void,
+  capture?: boolean,
 ) => {
   useEffect(() => {
     let clickCount = 0;
@@ -28,9 +29,9 @@ export default (
     };
 
     const el = currentRef.current;
-    el?.addEventListener("click", handleClick);
+    el?.addEventListener("click", handleClick, !!capture);
     return () => {
-      el?.removeEventListener("click", handleClick);
+      el?.removeEventListener("click", handleClick, !!capture);
     };
   }, [currentRef, singleClk, doubleClk]);
 };
