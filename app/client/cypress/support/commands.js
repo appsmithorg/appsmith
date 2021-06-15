@@ -2060,10 +2060,12 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
   cy.get(queryEditor.queryNameField).type(queryName + "{enter}", {
     force: true,
   });
+  cy.assertPageSave();
   cy.get(queryEditor.templateMenu + " div")
     .contains("Select")
     .click({ force: true });
-  cy.wait(3000);
+  cy.runQuery();
+  // cy.wait(3000);
   // cy.get(queryEditor.runQuery)
   //   .click({force: true});
 });

@@ -212,7 +212,7 @@ describe("Button Widget Functionality", function() {
   it("Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    cy.CreateMockQuery("mockQuery");
+    cy.CreateMockQuery("Query1");
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(widgetsPage.NavHomePage).click({ force: true });
@@ -220,10 +220,26 @@ describe("Button Widget Functionality", function() {
     cy.openPropertyPane("buttonwidget");
 
     // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("mockQuery");
+    cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error");
     cy.wait(2000);
+
+    cy.PublishtheApp();
+
+    // Clicking the button to verify the success message
+    cy.get(publishPage.buttonWidget).click();
+    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
+  });
+
+  it("Toggle JS - Button-Call-Query Validation", function() {
+    //creating a query and calling it from the onClickAction of the button widget.
+    // Creating a mock query
+    cy.get(widgetsPage.toggleOnClick).click({ force: true });
+    cy.testJsontext(
+      "onclick",
+      "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+    );
 
     cy.PublishtheApp();
 
