@@ -85,7 +85,7 @@ export const PropertyControlsWrapper = styled.div`
   margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
 `;
 
-function PropertyPaneView(
+export function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
     theme: EditorTheme;
@@ -99,7 +99,9 @@ function PropertyPaneView(
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
-
+  if (!widgetProperties) {
+    return null;
+  }
   return (
     <>
       <PropertyPaneTitle
@@ -221,9 +223,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   renderPropertyPane() {
     const { widgetProperties } = this.props;
 
-    if (!widgetProperties) {
-      return null;
-    }
+    return null;
 
     // if settings control is disabled, don't render anything
     // for e.g - this will be true for list widget tempalte container widget

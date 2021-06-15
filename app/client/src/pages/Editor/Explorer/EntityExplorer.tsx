@@ -19,9 +19,13 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { PropertyPaneView } from "../PropertyPane";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -83,10 +87,23 @@ function EntityExplorer(props: IPanelProps) {
     },
     [openPanel, applicationId],
   );
+  const dispatch = useDispatch();
+  const hidePropertyPane = () =>
+    dispatch({
+      type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+    });
+  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
 
-  return (
+  return isPropPaneVisible ? (
+    <PropertyPaneView
+      hidePropertyPane={hidePropertyPane}
+      {...props}
+      theme={EditorTheme.DARK}
+    />
+  ) : (
     <Wrapper ref={explorerRef}>
       <Search clear={clearSearch} isHidden ref={searchInputRef} />
+
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
