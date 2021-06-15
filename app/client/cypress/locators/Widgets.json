@@ -88,5 +88,6 @@
     "selectToday": ".DayPicker-Day--today",
     "switchWidgetActive": ".t--switch-widget-active",
     "switchWidgetInactive": ".t--switch-widget-inactive",
-    "switchWidgetLoading": ".t--switch-widget-loading"
+    "switchWidgetLoading": ".t--switch-widget-loading",
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
 }

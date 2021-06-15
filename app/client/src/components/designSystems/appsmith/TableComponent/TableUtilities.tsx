@@ -195,7 +195,12 @@ function TableAction(props: {
 
 function CheckBoxLineIcon() {
   return (
-    <svg className="th-svg" fill="none" height="15" width="15">
+    <svg
+      className="th-svg t--table-multiselect-header-half-check-svg"
+      fill="none"
+      height="15"
+      width="15"
+    >
       <path
         d="M11.183673404886235,7.5 H3.81632661819458 "
         stroke="white"
@@ -222,7 +227,7 @@ function CheckBoxCheckIcon() {
 }
 
 export const renderCheckBoxCell = (isChecked: boolean) => (
-  <CellCheckboxWrapper className="td">
+  <CellCheckboxWrapper className="td t--table-multiselect">
     <CellCheckbox isChecked={isChecked}>
       {isChecked && <CheckBoxCheckIcon />}
     </CellCheckbox>
@@ -234,7 +239,7 @@ export const renderCheckBoxHeaderCell = (
   checkState: number | null,
 ) => (
   <CellCheckboxWrapper
-    className="th header-reorder"
+    className="th header-reorder t--table-multiselect-header"
     onClick={onClick}
     role="columnheader"
     style={{ padding: "0px", justifyContent: "center" }}
