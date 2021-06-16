@@ -1,7 +1,7 @@
 package com.external.plugins.constants;
 
 public class ConfigurationIndex {
-    public static final int BSON = 0;
+    public static final int SMART_BSON_SUBSTITUTION = 0;
     public static final int INPUT_TYPE = 1;
     public static final int COMMAND = 2;
     public static final int COLLECTION = 19;
