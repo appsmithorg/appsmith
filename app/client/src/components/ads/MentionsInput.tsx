@@ -107,7 +107,7 @@ function SuggestionComponent(props: EntryComponentProps) {
         userName={user?.username || ""}
       />
       <div>
-        <Name>{user?.username}</Name>
+        <Name>{props.mention.name}</Name>
         <Username>{user?.username}</Username>
       </div>
     </StyledSuggestionsComponent>
