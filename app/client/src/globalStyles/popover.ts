@@ -18,4 +18,7 @@ export const PopoverStyles = createGlobalStyle`
       min-width: 233px !important ;
     }
   }
+  .comments-onboarding-carousel .${Classes.OVERLAY_CONTENT} {
+    filter: drop-shadow(0px 6px 20px rgba(0, 0, 0, 0.15));
+  }
 `;

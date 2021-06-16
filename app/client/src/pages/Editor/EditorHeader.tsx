@@ -91,7 +91,7 @@ const HeaderSection = styled.div`
   top: -1px;
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;

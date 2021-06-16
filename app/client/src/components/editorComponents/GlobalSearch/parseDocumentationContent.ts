@@ -140,20 +140,27 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
     // Combine adjacent highlighted nodes into a single one
     let adjacentMatches: string[] = [];
+    const letterRegex = /[a-zA-Z]/g;
     // Get highlighted tags
     Array.from(documentObj.querySelectorAll(algoliaHighlightTag)).forEach(
       (match) => {
         // If adjacent element is an `algoliaHighlightTag` and the next
-        // text content is a `space`
+        // text content does not include a letter
         if (
-          match.nextSibling?.textContent === " " &&
+          match.nextSibling?.textContent &&
+          !letterRegex.test(match.nextSibling?.textContent) &&
           match.nextElementSibling?.nodeName.toLowerCase() ===
             algoliaHighlightTag &&
           !adjacentMatches.length &&
           match.textContent
         ) {
-          // Store the matched word and `space`(space exists for a group of words)
-          adjacentMatches = adjacentMatches.concat([match.textContent, " "]);
+          // Store the matched word and the text content
+          adjacentMatches = adjacentMatches.concat([
+            match.textContent,
+            match.nextSibling?.textContent,
+          ]);
+          // Remove the text node as we have stored this above
+          match.nextSibling.remove();
           // Remove the node as we have it's text content
           match.remove();
         }
@@ -164,12 +171,14 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
           // If there are more adjacent highlight nodes ahead
           if (
-            match.nextSibling?.textContent === " " &&
             match.nextElementSibling?.nodeName.toLowerCase() ===
-              algoliaHighlightTag
+              algoliaHighlightTag &&
+            match.nextSibling?.textContent &&
+            !letterRegex.test(match.nextSibling?.textContent)
           ) {
-            // store the space
-            adjacentMatches.push(" ");
+            // store the text content
+            adjacentMatches.push(match.nextSibling?.textContent);
+            match.nextSibling.remove();
             // delete the node
             match.remove();
           }
