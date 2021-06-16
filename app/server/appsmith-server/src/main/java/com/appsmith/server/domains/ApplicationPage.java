@@ -22,11 +22,6 @@ public class ApplicationPage {
 
     Integer order;
 
-    public ApplicationPage(String id, boolean isDefault){
-        this.id = id;
-        this.isDefault = isDefault;
-    }
-
     @JsonIgnore
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);

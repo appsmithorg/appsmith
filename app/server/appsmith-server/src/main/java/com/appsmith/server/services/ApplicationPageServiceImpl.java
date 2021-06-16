@@ -139,7 +139,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
+        Integer order = application.getPages() != null ? application.getPages().size() : FieldName.DEFAULT_PAGE_ORDER;
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, order)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");

@@ -14,34 +14,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Collection;
-import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Group;
-import com.appsmith.server.domains.InviteUser;
-import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QDatasource;
-import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QOrganization;
-import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.Role;
-import com.appsmith.server.domains.Sequence;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -2385,5 +2358,36 @@ public class DatabaseChangelog {
          */
         firestoreActionQueries.stream()
                 .forEach(action -> mongoTemplate.save(action));
+    }
+
+    /**
+     * - Older order file where not present for the pages created within the application because page reordering with in
+     * the application was not supported.
+     * - New Form order field will be added to the Page object and is used to order the pages with in the application
+     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
+     * created pages of all the application present.
+     * - []
+     */
+    @ChangeSet(order = "071", id = "add-and-update-order-for-all-pages", author = "")
+    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if(application.getPages() != null) {
+                int i = 0;
+                for (ApplicationPage page : application.getPages()) {
+                    page.setOrder(i);
+                    i++;
+                }
+                if(application.getPublishedPages() != null) {
+                    for (ApplicationPage page : application.getPublishedPages()) {
+                        for(ApplicationPage npage: application.getPages()) {
+                            if(npage.getId().equals(page.getId())) {
+                                page.setOrder(npage.getOrder());
+                            }
+                        }
+                    }
+                }
+                mongoTemplate.save(application);
+            }
+        }
     }
 }

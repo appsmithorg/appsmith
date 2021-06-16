@@ -149,7 +149,6 @@ public class PageServiceTest {
         testPage.setName("PageServiceTest TestApp");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
-        testPage.setOrder(0);
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
 
@@ -167,7 +166,6 @@ public class PageServiceTest {
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
-                    assertThat(page.getOrder()).isEqualTo(0);
                 })
                 .verifyComplete();
     }
@@ -184,7 +182,6 @@ public class PageServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
-        testPage.setOrder(1);
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
@@ -207,7 +204,6 @@ public class PageServiceTest {
 
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
-                    assertThat(page.getOrder()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -392,7 +388,6 @@ public class PageServiceTest {
         testPage.setName("PageReorder TestApp1");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
-        testPage.setOrder(0);
         String pageId1 = testPage.getId();
 
         applicationPageService.createPage(testPage);
@@ -400,7 +395,6 @@ public class PageServiceTest {
         testPage = new PageDTO();
         testPage.setName("PageReorder TestApp2");
         testPage.setApplicationId(application.getId());
-        testPage.setOrder(1);
         String pageId2 = testPage.getId();
 
         applicationPageService.createPage(testPage);
@@ -408,7 +402,6 @@ public class PageServiceTest {
         testPage = new PageDTO();
         testPage.setName("PageReorder TestApp3");
         testPage.setApplicationId(application.getId());
-        testPage.setOrder(2);
         String pageId3 = testPage.getId();
 
         applicationPageService.createPage(testPage);
@@ -434,33 +427,39 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value ="aps_user")
+    @WithUserDetails(value ="api_user")
     public void reOrderPageMovingDown() {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageReorder TestApp1");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
-        testPage.setOrder(0);
+        testPage.setId("a");
         String pageId1 = testPage.getId();
 
-        applicationPageService.createPage(testPage);
+        Mono<PageDTO> pageDTO = applicationPageService.createPage(testPage);
+        StepVerifier.create(pageDTO);
+        applicationPageService.publish(application.getId());
 
-        testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp2");
-        testPage.setApplicationId(application.getId());
-        testPage.setOrder(1);
-        String pageId2 = testPage.getId();
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("PageReorder TestApp2");
+        testPage1.setApplicationId(application.getId());
+        testPage1.setId("b");
+        String pageId2 = testPage1.getId();
 
-        applicationPageService.createPage(testPage);
+        pageDTO = applicationPageService.createPage(testPage1);
+        StepVerifier.create(pageDTO);
+        applicationPageService.publish(application.getId());
 
-        testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp3");
-        testPage.setApplicationId(application.getId());
-        testPage.setOrder(2);
-        String pageId3 = testPage.getId();
+        PageDTO testPage2 = new PageDTO();
+        testPage2.setName("PageReorder TestApp3");
+        testPage2.setApplicationId(application.getId());
+        testPage.setId("c");
+        String pageId3 = testPage2.getId();
 
-        applicationPageService.createPage(testPage);
+        pageDTO = applicationPageService.createPage(testPage2);
+        StepVerifier.create(pageDTO);
+        applicationPageService.publish(application.getId());
 
         Mono<Application> applicationMono = applicationPageService.reorderPage(application.getId(), pageId1, 2);
         StepVerifier
