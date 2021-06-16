@@ -2368,7 +2368,7 @@ public class DatabaseChangelog {
      * created pages of all the application present.
      * - []
      */
-    @ChangeSet(order = "071", id = "add-and-update-order-for-all-pages", author = "")
+    @ChangeSet(order = "072", id = "add-and-update-order-for-all-pages", author = "")
     public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
             if(application.getPages() != null) {
