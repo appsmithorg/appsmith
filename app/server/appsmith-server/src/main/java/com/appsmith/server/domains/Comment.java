@@ -38,6 +38,10 @@ public class Comment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorUsername;
 
+    private String applicationId;
+    private String applicationName;
+    private String pageId;
+
     Body body;
 
     List<Reaction> reactions;
