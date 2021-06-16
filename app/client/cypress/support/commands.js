@@ -790,6 +790,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
     .click();
 });
 
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
 Cypress.Commands.add("assertDateFormat", () => {
   cy.get(".t--draggable-datepickerwidget2 input")
     .first()
