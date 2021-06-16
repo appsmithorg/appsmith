@@ -92,17 +92,20 @@ public class ImportExportApplicationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.EXPORT_APPLICATIONS)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+            );
+
         return pluginRepository
             .findAll()
             .map(plugin -> {
                 pluginMap.put(plugin.getId(), plugin.getPackageName());
                 return plugin;
             })
-            .then(applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
-            )
+            .then(applicationMono)
             .flatMap(application -> {
+
                 ApplicationPage unpublishedDefaultPage = application.getPages()
                     .stream()
                     .filter(ApplicationPage::getIsDefault)
