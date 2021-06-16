@@ -41,7 +41,7 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { createNewQueryName, retryPromise } from "utils/AppsmithUtils";
+import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import ScrollIndicator from "components/ads/ScrollIndicator";
@@ -50,18 +50,13 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
-import { createNewApiAction } from "actions/apiPaneActions";
-import { createActionRequest } from "actions/actionActions";
-import { Datasource } from "entities/Datasource";
-import { QueryAction } from "entities/Action";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Plugin } from "api/PluginApi";
+import { RecentEntity } from "../GlobalSearch/utils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -77,15 +72,13 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
 
 interface ReduxStateProps {
   dynamicData: DataTree;
-  actions: ActionDataState;
   datasources: any;
   plugins: Plugin[];
+  recentEntities: RecentEntity[];
 }
 
 interface ReduxDispatchProps {
-  createNewAPI: (pageId: string) => void;
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
-  executeCommand: (action: any) => void;
+  executeCommand: (payload: any) => void;
 }
 
 export type EditorStyleProps = {
@@ -131,7 +124,7 @@ type State = {
 
 const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
   position: absolute;
-  right: ${(props) => (props.isFocused ? "-34px" : "1px")};
+  right: 1px;
   height: 33px;
   width: 33px;
   top: 1px;
@@ -141,7 +134,6 @@ const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
   justify-content: center;
   background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
   z-index: 2;
-  visibility: ${(props) => (props.isFocused ? "hidden" : "")};
 `;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
@@ -337,26 +329,6 @@ class CodeEditor extends Component<Props, State> {
     this.updateMarkings();
   };
 
-  handleCreateNewQuery = (dataSource: Datasource, pageId: string) => {
-    const { actions } = this.props;
-    const newQueryName = createNewQueryName(actions, pageId);
-
-    this.props.createAction({
-      name: newQueryName,
-      pageId,
-      datasource: {
-        id: dataSource.id,
-      },
-      eventData: {
-        actionType: "Query",
-        from: "home-screen",
-        dataSource: dataSource.name,
-      },
-      pluginId: dataSource.pluginId,
-      actionConfiguration: {},
-    });
-  };
-
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
     const { entityName } = getEntityNameAndPropertyPath(
@@ -364,12 +336,19 @@ class CodeEditor extends Component<Props, State> {
     );
     this.hinters.forEach((hinter) =>
       hinter.showHint(cm, expected, entityName, {
-        actions: this.props.actions,
-        createNewAPI: this.props.createNewAPI,
         datasources: this.props.datasources.list,
         plugins: this.props.plugins,
-        createNewQuery: this.handleCreateNewQuery,
         updatePropertyValue: this.updatePropertyValue,
+        recentEntities: this.props.recentEntities,
+        executeCommand: (payload: any) => {
+          this.props.executeCommand({
+            ...payload,
+            callback: (binding: string) => {
+              const value = this.editor.getValue();
+              this.updatePropertyValue(value + binding);
+            },
+          });
+        },
       }),
     );
   };
@@ -603,18 +582,13 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
-  actions: state.entities.actions,
   datasources: state.entities.datasources,
   plugins: state.entities.plugins.list,
+  recentEntities: state.ui.globalSearch.recentEntities,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  createNewAPI: (pageId: string) =>
-    dispatch(createNewApiAction(pageId, "LIGHTNING_MENU")),
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
-    dispatch(createActionRequest(data));
-  },
-  executeCommand: (action) => dispatch(action),
+  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
 });
 
 export default Sentry.withProfiler(

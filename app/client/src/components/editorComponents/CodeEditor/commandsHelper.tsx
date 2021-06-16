@@ -7,126 +7,113 @@ import { CommandsCompletion } from "utils/autocomplete/TernServer";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { PluginType } from "entities/Action";
-import history from "utils/history";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { RecentEntity } from "../GlobalSearch/utils";
+import sortBy from "lodash/sortBy";
 
-export const commandsHelper: HintHelper = () => {
+export const commandsHelper: HintHelper = (editor, data: any) => {
+  let entitiesForSuggestions = Object.values(data).filter(
+    (entity: any) => entity.ENTITY_TYPE && entity.ENTITY_TYPE !== "APPSMITH",
+  );
   return {
     showHint: (
       editor: CodeMirror.Editor,
       _: string,
-      __: string,
+      entityName: string,
       {
-        actions,
-        createNewAPI,
-        createNewQuery,
         datasources,
+        executeCommand,
         plugins,
+        recentEntities,
         updatePropertyValue,
       },
     ) => {
+      const currentEntityType = data[entityName]?.ENTITY_TYPE;
+      entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
+        return currentEntityType === "WIDGET"
+          ? entity.ENTITY_TYPE !== "WIDGET"
+          : true;
+      });
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
-      const suggestionsHeader: CommandsCompletion = commandsHeader(
-        "Suggestions",
-      );
-      const pluginIdToIconLocationMap = plugins.reduce((acc: any, p: any) => {
-        acc[p.id] = p.iconLocation;
-        return acc;
-      }, {});
-      const createNewHeader: CommandsCompletion = commandsHeader("Create New");
-      const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
-      const actionsHeader: CommandsCompletion = commandsHeader("Actions");
-      const insertBinding: CommandsCompletion = {
-        text: "{{}}",
-        displayText: "Insert Binding",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        className: "CodeMirror-commands",
-        shortcut: "{{}}",
-        render: (element: HTMLElement, self: any, data: any) => {
-          ReactDOM.render(
-            <Command name={data.displayText} shortcut={data.shortcut} />,
-            element,
-          );
-        },
-      };
-      const { pageId } = fetchAppAndPageId();
-      const newAPI: CommandsCompletion = {
-        text: "",
-        displayText: "New API",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        className: "CodeMirror-commands",
-        action: () => createNewAPI(pageId),
-        shortcut: "api.new",
-        render: (element: HTMLElement, self: any, data: any) => {
-          ReactDOM.render(
-            <Command name={data.displayText} shortcut={data.shortcut} />,
-            element,
-          );
-        },
-      };
-      const newDatasource: CommandsCompletion = {
-        text: "",
-        displayText: "New Datasource",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        className: "CodeMirror-commands",
-        action: () => history.push(QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
-        shortcut: "datasource.new",
-        render: (element: HTMLElement, self: any, data: any) => {
-          ReactDOM.render(
-            <Command name={data.displayText} shortcut={data.shortcut} />,
-            element,
-          );
-        },
-      };
-      let currentSelection: CommandsCompletion = {
-        origin: "",
-        type: "UNKNOWN",
-        data: {
-          doc: "",
-        },
-        text: "",
-        shortcut: "",
-      };
       const slashIndex = value.lastIndexOf("/");
       if (!cursorBetweenBinding && slashIndex > -1) {
-        const searchText = value.substring(slashIndex + 1);
-        const actionCommands = actions
-          .map((action: any) => action.config)
-          .map((action: any) => {
-            return {
-              text: `{{${action.name}.data}}`,
-              displayText: `${action.name}`,
-              className: "CodeMirror-commands",
-              shortcut: "{{}}",
-              data: action,
-              render: (element: HTMLElement, self: any, data: any) => {
-                const pluginType = data.data.pluginType as PluginType;
-                ReactDOM.render(
-                  <Command
-                    name={data.displayText}
-                    pluginType={pluginType}
-                    shortcut={data.shortcut}
-                  />,
-                  element,
-                );
+        const suggestionsHeader: CommandsCompletion = commandsHeader(
+          "Suggestions",
+        );
+        const pluginIdToIconLocationMap = plugins.reduce((acc: any, p: any) => {
+          acc[p.id] = p.iconLocation;
+          return acc;
+        }, {});
+        const createNewHeader: CommandsCompletion = commandsHeader(
+          "Create New",
+        );
+        const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
+        const newBinding: CommandsCompletion = generateCreateNewCommand({
+          text: "{{}}",
+          displayText: "New Binding",
+          shortcut: "{{}}",
+        });
+        const newAPI: CommandsCompletion = generateCreateNewCommand({
+          text: "",
+          displayText: "New API",
+          action: () =>
+            executeCommand({
+              actionType: "NEW_API",
+              args: {
+                callback: updatePropertyValue,
               },
-            };
-          });
+            }),
+          shortcut: "api.new",
+        });
+        const newDatasource: CommandsCompletion = generateCreateNewCommand({
+          text: "",
+          displayText: "New Datasource",
+          action: () => executeCommand({ actionType: "NEW_DATASOURCE" }),
+          shortcut: "datasource.new",
+        });
+        let currentSelection: CommandsCompletion = {
+          origin: "",
+          type: "UNKNOWN",
+          data: {
+            doc: "",
+          },
+          text: "",
+          shortcut: "",
+        };
+        const searchText = value.substring(slashIndex + 1);
+        const suggestions = entitiesForSuggestions.map((suggestion: any) => {
+          const name = suggestion.name || suggestion.widgetName;
+          return {
+            text: `{{${name}.data}}`,
+            displayText: `${name}`,
+            className: "CodeMirror-commands",
+            shortcut: "{{}}",
+            data: suggestion,
+            render: (element: HTMLElement, self: any, data: any) => {
+              const pluginType = data.data.pluginType as PluginType;
+              ReactDOM.render(
+                <Command
+                  name={data.displayText}
+                  pluginType={pluginType}
+                  shortcut={data.shortcut}
+                />,
+                element,
+              );
+            },
+          };
+        });
         const datasourceCommands = datasources.map((action: any) => {
           return {
-            text: `{{${action.name}.data}}`,
+            text: "",
             displayText: `${action.name}`,
             className: "CodeMirror-commands",
             shortcut: `${action.name}.new`,
             data: action,
-            action: () => createNewQuery(action, pageId),
+            action: () =>
+              executeCommand({
+                actionType: "NEW_QUERY",
+                args: { datasource: action },
+              }),
             render: (element: HTMLElement, self: any, data: any) => {
               ReactDOM.render(
                 <Command
@@ -139,22 +126,30 @@ export const commandsHelper: HintHelper = () => {
             },
           };
         });
-        const actionCommandsMatchSearchText = matchingCommands(
-          actionCommands,
+        const suggestionsMatchingSearchText = matchingCommands(
+          suggestions,
           searchText,
+          recentEntities.map((r: RecentEntity) => r.id),
+          currentEntityType === "WIDGET" ? 2 : 3,
         );
         const datasourceCommandsMatchingSearchText = matchingCommands(
           datasourceCommands,
           searchText,
+          recentEntities.map((r: RecentEntity) => r.id),
         );
+        let createNewCommands = [newBinding];
+        if (currentEntityType === "WIDGET") {
+          createNewCommands = [...createNewCommands, newAPI, newDatasource];
+        }
         const createNewCommandsMatchingSearchText = matchingCommands(
-          [insertBinding, newAPI, newDatasource],
+          createNewCommands,
           searchText,
+          [],
           3,
         );
         let list: CommandsCompletion[] = [];
-        if (actionCommandsMatchSearchText.length) {
-          list = [suggestionsHeader, ...actionCommandsMatchSearchText];
+        if (suggestionsMatchingSearchText.length) {
+          list = [suggestionsHeader, ...suggestionsMatchingSearchText];
         }
 
         if (createNewCommandsMatchingSearchText.length) {
@@ -164,7 +159,10 @@ export const commandsHelper: HintHelper = () => {
             ...createNewCommandsMatchingSearchText,
           ];
         }
-        if (datasourceCommandsMatchingSearchText.length) {
+        if (
+          datasourceCommandsMatchingSearchText.length &&
+          currentEntityType === "WIDGET"
+        ) {
           list = [
             ...list,
             newQueryHeader,
@@ -184,7 +182,7 @@ export const commandsHelper: HintHelper = () => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
-              if (selected.action) {
+              if (selected.action && typeof selected.action === "function") {
                 updatePropertyValue(
                   value.slice(0, value.length - searchText.length - 1),
                 );
@@ -223,18 +221,25 @@ export const commandsHelper: HintHelper = () => {
 };
 
 const matchingCommands = (
-  list: CommandsCompletion[],
+  list: any,
   searchText: string,
+  recentEntities: string[] = [],
   limit = 2,
 ) => {
-  return list
-    .filter((action: any) => {
-      return (
-        action.displayText.toLowerCase().startsWith(searchText.toLowerCase()) ||
-        action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
-      );
-    })
-    .slice(0, limit);
+  list = list.filter((action: any) => {
+    return (
+      action.displayText.toLowerCase().startsWith(searchText.toLowerCase()) ||
+      action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
+    );
+  });
+  list = sortBy(list, (a: any) => {
+    return (
+      (a.data.ENTITY_TYPE === "WIDGET"
+        ? recentEntities.indexOf(a.data.widgetId)
+        : recentEntities.indexOf(a.data.actionId)) * -1
+    );
+  });
+  return list.slice(0, limit);
 };
 
 const commandsHeader = (
@@ -250,17 +255,6 @@ const commandsHeader = (
   isHeader: true,
   shortcut: "",
 });
-
-const fetchAppAndPageId = () => {
-  const pathSplit = location.pathname.split("/");
-  const applicationsIndex = pathSplit.findIndex(
-    (path) => path === "applications",
-  );
-  const pagesIndex = pathSplit.findIndex((path) => path === "pages");
-  const applicationId = pathSplit[applicationsIndex + 1];
-  const pageId = pathSplit[pagesIndex + 1];
-  return { applicationId, pageId };
-};
 
 const computeCursorIndex = (editor: CodeMirror.Editor) => {
   const cursor = editor.getCursor();
@@ -301,6 +295,28 @@ const checkIfCursorInsideBinding = (editor: CodeMirror.Editor): boolean => {
   });
   return cursorBetweenBinding;
 };
+
+const generateCreateNewCommand = ({
+  action,
+  displayText,
+  shortcut,
+  text,
+}: any): CommandsCompletion => ({
+  text: text,
+  displayText: displayText,
+  data: { doc: "" },
+  origin: "",
+  type: "UNKNOWN",
+  className: "CodeMirror-commands",
+  shortcut: shortcut,
+  action: action,
+  render: (element: HTMLElement, self: any, data: any) => {
+    ReactDOM.render(
+      <Command name={data.displayText} shortcut={data.shortcut} />,
+      element,
+    );
+  },
+});
 
 function Command(props: {
   pluginType?: PluginType;

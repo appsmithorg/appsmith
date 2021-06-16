@@ -11,7 +11,8 @@ export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
   | "QUERY_PANE"
-  | "QUERY_TEMPLATE";
+  | "QUERY_TEMPLATE"
+  | "QUICK_COMMANDS";
 
 export type EventName =
   | "LOGIN_CLICK"

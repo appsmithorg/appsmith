@@ -9,6 +9,7 @@ import {
   call,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
@@ -20,6 +21,7 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
+  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -55,6 +57,7 @@ import {
   getPlugin,
   getSettingConfig,
   getDatasources,
+  getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
@@ -62,6 +65,7 @@ import {
   API_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -78,12 +82,14 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import _, { merge } from "lodash";
+import _, { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { createNewQueryName } from "utils/AppsmithUtils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -721,6 +727,47 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* executeCommand(
+  actionPayload: ReduxAction<{
+    actionType: string;
+    callback: (binding: string) => void;
+    args: any;
+  }>,
+) {
+  const pageId = yield select(getCurrentPageId);
+  switch (actionPayload.payload.actionType) {
+    case "NEW_DATASOURCE":
+      history.push(QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID());
+      break;
+    case "NEW_QUERY":
+      const datasource = get(actionPayload, "payload.args.datasource");
+      const actions = yield select(getActions);
+      const newQueryName = createNewQueryName(actions, pageId);
+      yield put(
+        createActionRequest({
+          name: newQueryName,
+          pageId,
+          datasource: {
+            id: datasource.id,
+          },
+          eventData: {
+            actionType: "Query",
+            from: "Quick-Commands",
+            dataSource: datasource.name,
+          },
+          pluginId: datasource.pluginId,
+          actionConfiguration: {},
+        }),
+      );
+      break;
+    case "NEW_API":
+      yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
+      const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      break;
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -747,5 +794,6 @@ export function* watchActionSagas() {
       ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
       toggleActionExecuteOnLoadSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommand),
   ]);
 }
