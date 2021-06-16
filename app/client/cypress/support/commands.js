@@ -167,7 +167,11 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(homePage.DeleteBtn).click({ force: true });
+  cy.get(homePage.DeleteBtn)
+    .last()
+    .click({ force: true });
+  cy.get(homePage.leaveOrgConfirmModal).should("be.visible");
+  cy.get(homePage.leaveOrgConfirmButton).click({ force: true });
   cy.xpath(homePage.appHome)
     .first()
     .should("be.visible")
@@ -455,10 +459,9 @@ Cypress.Commands.add("SearchApp", (appname) => {
 });
 
 Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
   cy.get(commonlocators.entityExplorersearch)
-    .clear()
-    .type(apiname1);
+    .clear({ force: true })
+    .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
@@ -470,10 +473,10 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
 });
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  // entity explorer search will be hidden
   cy.get(commonlocators.entityExplorersearch)
-    .clear()
-    .type(apiname1);
+    .clear({ force: true })
+    .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
@@ -630,8 +633,7 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
-  cy.get(commonlocators.entityExplorersearch).clear();
+  cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 });
 
 Cypress.Commands.add(
@@ -645,8 +647,8 @@ Cypress.Commands.add(
     const lastChar = text.slice(-1);
 
     cy.get(commonlocators.entityExplorersearch)
-      .clear()
-      .click()
+      .clear({ force: true })
+      .click({ force: true })
       .then(() => {
         $element.text(subString);
         $element.val(subString);
@@ -656,10 +658,9 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
   cy.get(commonlocators.entityExplorersearch)
-    .clear()
-    .type(apiname1);
+    .clear({ force: true })
+    .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
@@ -1644,6 +1645,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
       });
     });
   });
+  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
@@ -2210,6 +2212,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
+  cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );

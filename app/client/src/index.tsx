@@ -26,11 +26,7 @@ import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
 
-import useRemoveSignUpCompleteParam from "utils/hooks/useRemoveSignUpCompleteParam";
-
 function App() {
-  useRemoveSignUpCompleteParam();
-
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
