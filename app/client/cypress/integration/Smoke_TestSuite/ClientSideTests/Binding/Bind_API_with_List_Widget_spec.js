@@ -43,7 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal("Barty Crouch Jr");
       });
     cy.PublishtheApp();
     cy.get(".t--widget-textwidget span").should("have.length", 4);
@@ -51,7 +51,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal("Barty Crouch Jr");
       });
   });
 
@@ -73,7 +73,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal("Barty Crouch Jr");
       });
     cy.PublishtheApp();
     cy.get(".t--widget-textwidget span").should("have.length", 2);
@@ -81,7 +81,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal("Barty Crouch Jr");
       });
   });
 
