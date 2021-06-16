@@ -31,7 +31,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
         return currentEntityType === "WIDGET"
           ? entity.ENTITY_TYPE !== "WIDGET"
-          : true;
+          : entity.ENTITY_TYPE !== "ACTION";
       });
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
