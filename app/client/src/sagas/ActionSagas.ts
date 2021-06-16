@@ -759,6 +759,8 @@ function* executeCommand(
           actionConfiguration: {},
         }),
       );
+      const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
       break;
     case "NEW_API":
       yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));

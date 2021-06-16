@@ -331,7 +331,7 @@ function Command(props: {
           {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
-            SAAS: "",
+            SAAS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
         <span>{props.name}</span>
