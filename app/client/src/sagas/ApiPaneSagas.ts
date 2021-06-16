@@ -394,7 +394,6 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -419,13 +418,6 @@ function* handleCreateNewApiActionSaga(
         },
         pageId,
       } as ApiAction), // We don't have recursive partial in typescript for now.
-    );
-    history.push(
-      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-        applicationId,
-        pageId,
-        pageId,
-      ),
     );
   }
 }
@@ -483,13 +475,6 @@ function* handleCreateNewQueryActionSaga(
     }
 
     yield put(createActionRequest(createActionPayload));
-    history.push(
-      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-        applicationId,
-        pageId,
-        pageId,
-      ),
-    );
   } else {
     history.push(
       INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
