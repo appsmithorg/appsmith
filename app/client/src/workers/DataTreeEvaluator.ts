@@ -170,14 +170,6 @@ export default class DataTreeEvaluator {
 
     const calculateSortOrderStop = performance.now();
 
-    this.logs.push({
-      differences,
-      subTreeSortOrder,
-      sortedDependencies: this.sortedDependencies,
-      inverse: this.inverseDependencyMap,
-      updatedDependencyMap: this.dependencyMap,
-    });
-
     // Evaluate
     const evalStart = performance.now();
 
@@ -191,6 +183,13 @@ export default class DataTreeEvaluator {
         return true;
       }
       return false;
+    });
+    this.logs.push({
+      differences,
+      evaluationOrder,
+      sortedDependencies: this.sortedDependencies,
+      inverse: this.inverseDependencyMap,
+      updatedDependencyMap: this.dependencyMap,
     });
 
     // Remove any deleted paths from the eval tree

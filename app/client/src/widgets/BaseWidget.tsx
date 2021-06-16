@@ -4,33 +4,32 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  WidgetType,
+  CONTAINER_GRID_PADDING,
+  CSSUnit,
+  CSSUnits,
+  PositionType,
+  PositionTypes,
   RenderMode,
   RenderModes,
-  CSSUnits,
+  WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import {
-  PositionType,
-  CSSUnit,
-  CONTAINER_GRID_PADDING,
-} from "constants/WidgetConstants";
-import { memoize, get } from "lodash";
+import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
-  WidgetDynamicPathListProps,
   DataTreeEvaluationProps,
-  EvaluationError,
   EVAL_ERROR_PATH,
+  EvaluationError,
+  PropertyEvaluationErrorType,
+  WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -181,7 +180,10 @@ abstract class BaseWidget<
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
-      (prev, curr) => curr.length + prev,
+      (prev, curr) =>
+        curr.filter(
+          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+        ).length + prev,
       0,
     );
   }, JSON.stringify);
