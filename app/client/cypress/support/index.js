@@ -36,8 +36,8 @@ before(function() {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
-  const username = Cypress.env("USERNAME");
-  const password = Cypress.env("PASSWORD");
+  const username = "marks.s.t.johns@gmail.com";
+  const password = "My@9963755367";
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
   cy.wait("@applications").should(

@@ -2319,7 +2319,7 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "250px",
+  sidebarWidth: "450px",
   homePage: {
     header: 52,
     leftPane: {
