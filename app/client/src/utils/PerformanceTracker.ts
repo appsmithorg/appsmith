@@ -37,8 +37,8 @@ export enum PerformanceTransactionName {
 }
 
 export type PerfTag = {
-  name: "string";
-  value: "string";
+  name: string;
+  value: string;
 };
 export interface PerfLog {
   sentrySpan: Span;
