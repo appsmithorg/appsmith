@@ -183,24 +183,6 @@ describe("Button Widget Functionality", function() {
     cy.addAPIFromLightningMenu("buttonApi");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error");
-    cy.wait(2000);
-
-    cy.PublishtheApp();
-
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
-  });
-
-  it("Toggle JS - Button-CallAnApi Validation", function() {
-    //creating an api and calling it from the onClickAction of the button widget.
-    // calling the existing api
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.testJsontext(
-      "onclick",
-      "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
-    );
-    cy.wait(2000);
 
     cy.PublishtheApp();
 
@@ -223,7 +205,22 @@ describe("Button Widget Functionality", function() {
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error");
-    cy.wait(2000);
+
+    cy.PublishtheApp();
+
+    // Clicking the button to verify the success message
+    cy.get(publishPage.buttonWidget).click();
+    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
+  });
+
+  it("Toggle JS - Button-CallAnApi Validation", function() {
+    //creating an api and calling it from the onClickAction of the button widget.
+    // calling the existing api
+    cy.get(widgetsPage.toggleOnClick).click({ force: true });
+    cy.testJsontext(
+      "onclick",
+      "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+    );
 
     cy.PublishtheApp();
 
@@ -235,7 +232,6 @@ describe("Button Widget Functionality", function() {
   it("Toggle JS - Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.testJsontext(
       "onclick",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
