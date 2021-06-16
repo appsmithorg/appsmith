@@ -6,13 +6,9 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.events.CommentAddedEvent;
-import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -113,6 +109,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                     comment.setAuthorId(user.getId());
                     comment.setThreadId(threadId);
+                    comment.setApplicationId(thread.getApplicationId());
+                    comment.setApplicationName(thread.getApplicationName());
+                    comment.setPageId(thread.getPageId());
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             thread.getPolicies(),
@@ -149,7 +148,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         for (String username : usernames) {
                             if (!username.equals(user.getUsername())) {
                                 Mono<Notification> notificationMono = notificationService.createNotification(
-                                        savedComment, username, commentThread);
+                                        savedComment, username
+                                );
                                 notificationMonos.add(notificationMono);
                             }
                         }
