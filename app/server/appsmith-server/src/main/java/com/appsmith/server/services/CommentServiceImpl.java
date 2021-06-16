@@ -193,6 +193,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     final User user = tuple.getT1();
                     final Application application = tuple.getT2();
                     commentThread.setApplicationName(application.getName());
+                    commentThread.setAuthorName(user.getName());
+                    commentThread.setAuthorUsername(user.getUsername());
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             application.getPolicies(),

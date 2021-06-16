@@ -115,7 +115,6 @@ public class NotificationServiceImpl
         notification.setComment(comment);
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
-        notification.setFromUser(new Notification.FromUser(comment.getAuthorUsername(), comment.getAuthorName()));
         return repository.save(notification);
     }
 
@@ -125,7 +124,6 @@ public class NotificationServiceImpl
         notification.setCommentThread(commentThread);
         notification.setForUsername(forUsername);
         notification.setIsRead(false);
-        notification.setFromUser(new Notification.FromUser(authorUser.getUsername(), authorUser.getName()));
         return repository.save(notification);
     }
 

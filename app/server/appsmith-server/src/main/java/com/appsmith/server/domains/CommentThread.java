@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Transient;
@@ -39,6 +40,15 @@ public class CommentThread extends BaseDomain {
 
     @JsonIgnore
     Set<String> viewedByUsers;
+
+    /**
+     * Display name of the user, who authored this comment thread.
+     */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorName;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorUsername;
 
     @Transient
     Boolean isViewed;
