@@ -29,7 +29,7 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
-import UserApi from "api/UserApi";
+import { USER_PHOTO_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -394,7 +394,7 @@ function CommentCard({
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>
