@@ -766,13 +766,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 23) {
-    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
   }
 
-  if (currentDSL.version === 22) {
-    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
-    currentDSL.version = 23;
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
