@@ -6,11 +6,12 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.time.Instant;
 
 @Repository
 public interface NotificationRepository extends BaseRepository<Notification, String>, CustomNotificationRepository {
     Flux<Notification> findByForUsername(String userId, Pageable pageable);
+    Flux<Notification> findByForUsernameAndCreatedAtBefore(String userId, Instant instant, Pageable pageable);
     Mono<Long> countByForUsername(String userId);
     Mono<Long> countByForUsernameAndIsReadIsTrue(String userId);
 }

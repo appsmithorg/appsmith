@@ -47,7 +47,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      * @return
      */
     @GetMapping("")
-    public Mono<? extends ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources");
         return service.get(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

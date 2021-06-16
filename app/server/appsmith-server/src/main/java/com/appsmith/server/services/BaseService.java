@@ -4,17 +4,13 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.NumberUtils;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -260,22 +256,5 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
                 .stream()
                 .collect(Collectors.groupingBy(Policy::getPermission,
                         Collectors.mapping(Function.identity(), toSet())));
-    }
-
-    protected PageRequest getPageRequestFromParams(MultiValueMap<String, String> params,
-                                                   int defaultPageSize, Sort sort) {
-        int pageSize = defaultPageSize;
-        int pageNumber = 0;
-
-        if(params.containsKey("pageSize")) {
-            String param = params.get("pageSize").get(0);
-            pageSize = NumberUtils.parseInteger(param, 1, defaultPageSize);
-        }
-
-        if(params.containsKey("pageNumber")) {
-            String param = params.get("pageNumber").get(0);
-            pageNumber = NumberUtils.parseInteger(param, 0, 0);
-        }
-        return PageRequest.of(pageNumber, pageSize, sort);
     }
 }

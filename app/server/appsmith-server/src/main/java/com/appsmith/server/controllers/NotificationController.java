@@ -8,18 +8,16 @@ import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.NotificationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.List;
 
 import static com.appsmith.server.exceptions.AppsmithError.UNSUPPORTED_OPERATION;
 
@@ -32,20 +30,20 @@ public class NotificationController extends BaseController<NotificationService, 
         super(service);
     }
 
-    @GetMapping("")
-    public Mono<? extends ResponseDTO<List<Notification>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all resources");
-        return service.getAll(params);
+    @GetMapping("count/unread")
+    public Mono<ResponseDTO<Long>> getUnreadCount() {
+        return service.getUnreadCount()
+                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
-    @PutMapping("isRead")
+    @PatchMapping("isRead")
     public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationByIdDTO body) {
         log.debug("Going to set isRead to notifications by id");
         return service.updateIsRead(body);
     }
 
-    @PutMapping("isRead/all")
+    @PatchMapping("isRead/all")
     public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationDTO body) {
         log.debug("Going to set isRead to all notifications");

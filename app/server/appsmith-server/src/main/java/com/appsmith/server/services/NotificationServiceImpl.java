@@ -7,11 +7,12 @@ import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.PaginatedNotificationResponseDTO;
-import com.appsmith.server.dtos.PaginationDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.NumberUtils;
 import com.appsmith.server.repositories.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +26,10 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.util.function.Tuple2;
 
 import javax.validation.Validator;
-import java.util.List;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 @Slf4j
 @Service
@@ -69,41 +70,37 @@ public class NotificationServiceImpl
 
     @Override
     public Flux<Notification> get(MultiValueMap<String, String> params) {
+        // results will be sorted in descending order of createdAt
         Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
-        PageRequest pageRequest = PageRequest.of(0, 10, sort);
+
+        // get page size from query params, default is 10 if param not present
+        int pageSize = 10;
+        if(params.containsKey("pageSize")) {
+            String param = params.get("pageSize").get(0);
+            pageSize = NumberUtils.parseInteger(param, 1, 10);
+        }
+        PageRequest pageRequest = PageRequest.of(0, pageSize, sort);
+
+        // get the beforeDate parameter from query param
+        final Instant instant;
+        String paramKey = "beforeDate";
+        if(params.containsKey(paramKey)) {
+            String beforeParam = params.get(paramKey).get(0);
+            try {
+                instant = Instant.parse(beforeParam);
+            } catch (DateTimeParseException e) {
+                return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "as " + paramKey));
+            }
+        } else {
+            instant = Instant.now(); // param not present, use current time
+        }
 
         return sessionUserService.getCurrentUser()
                 .flatMapMany(
-                        user -> repository.findByForUsername(user.getUsername(), pageRequest)
+                        user -> repository.findByForUsernameAndCreatedAtBefore(
+                                user.getUsername(), instant, pageRequest
+                        )
                 );
-    }
-
-    @Override
-    public Mono<PaginatedNotificationResponseDTO<List<Notification>>> getAll(MultiValueMap<String, String> params) {
-        Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
-        PageRequest pageRequest = getPageRequestFromParams(params, 10, sort);
-
-        return sessionUserService.getCurrentUser().flatMap(user -> {
-            Mono<Long> countMono = repository.countByForUsername(user.getUsername());
-            Mono<Long> unreadCountMono = repository.countByForUsernameAndIsReadIsTrue(user.getUsername());
-            Mono<Tuple2<Long, Long>> tuple2Mono1 = Mono.zip(countMono, unreadCountMono);
-
-            Mono<Tuple2<List<Notification>, Tuple2<Long, Long>>> tuple2Mono = repository.findByForUsername(
-                    user.getUsername(), pageRequest).collectList()
-                    .zipWith(tuple2Mono1);
-
-            return tuple2Mono.map(objects -> {
-                List<Notification> notificationList = objects.getT1();
-                Long resultCount = objects.getT2().getT1();
-                Long unreadCount = objects.getT2().getT2();
-                PaginationDTO pagination = new PaginationDTO(
-                        pageRequest.getPageNumber(), pageRequest.getPageSize(), resultCount
-                );
-                return new PaginatedNotificationResponseDTO<>(
-                        HttpStatus.OK.value(), notificationList, null, true, pagination, unreadCount
-                );
-            });
-        });
     }
 
     /**
@@ -155,5 +152,12 @@ public class NotificationServiceImpl
                 .flatMap(user -> repository.updateIsReadByForUsername(user.getUsername(), dto.getIsRead())
                         .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true))
                 );
+    }
+
+    @Override
+    public Mono<Long> getUnreadCount() {
+        return sessionUserService.getCurrentUser().flatMap(user ->
+            repository.countByForUsernameAndIsReadIsTrue(user.getUsername())
+        );
     }
 }

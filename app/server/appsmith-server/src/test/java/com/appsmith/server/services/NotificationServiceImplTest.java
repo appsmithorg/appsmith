@@ -2,12 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.PaginatedNotificationResponseDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.mongodb.client.result.UpdateResult;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,9 +25,11 @@ import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import javax.validation.Validator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -67,10 +68,10 @@ public class NotificationServiceImplTest {
         Mockito.when(repository.countByForUsernameAndIsReadIsTrue(currentUser.getUsername())).thenReturn(Mono.just(5L));
     }
 
-    private List<Notification> createSampleNotificationList(int numberOfSamples) {
+    private List<Notification> createSampleNotificationList() {
         // create some sample notification
         List<Notification> notificationList = new ArrayList<>();
-        for(int i = 1; i <= numberOfSamples; i++) {
+        for(int i = 1; i <= 5; i++) {
             Notification notification = new Notification();
             notification.setId("test-id-" + i);
             notificationList.add(notification);
@@ -79,52 +80,60 @@ public class NotificationServiceImplTest {
     }
 
     @Test
-    public void getAll_WhenNoPaginationParam_ReturnsDefaultPaginatedData() {
-        List<Notification> notificationList = createSampleNotificationList(5);
+    public void get_WhenNoBeforeParamProvided_ReturnsData() {
+        List<Notification> notificationList = createSampleNotificationList();
 
-        // mock the repository to return the sample list of notification
-        Mockito.when(repository.findByForUsername(eq(currentUser.getUsername()), Mockito.any(Pageable.class))).thenReturn(
-                Flux.fromIterable(notificationList)
-        );
+        // mock the repository to return the sample list of notification when called with current time
+        Mockito.when(repository.findByForUsernameAndCreatedAtBefore(
+                eq(currentUser.getUsername()), Mockito.any(Instant.class), Mockito.any(Pageable.class))
+        ).thenReturn(Flux.fromIterable(notificationList));
 
-        Mono<PaginatedNotificationResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(new LinkedMultiValueMap<>());
+        Flux<Notification> notificationFlux = notificationService.get(new LinkedMultiValueMap<>());
         StepVerifier
-                .create(responseDTOMono)
+                .create(notificationFlux.collectList())
                 .assertNext(listResponseDTO -> {
-                    Assert.assertEquals(notificationList.size(), listResponseDTO.getData().size());
-                    Assert.assertEquals(0, listResponseDTO.getPagination().getCurrentPage());
-                    Assert.assertEquals(10, listResponseDTO.getPagination().getPageSize());
-                    Assert.assertEquals(100, listResponseDTO.getPagination().getTotalCount());
-                    Assert.assertEquals(5, listResponseDTO.getUnreadCount());
+                    assertThat(listResponseDTO.size()).isEqualTo(notificationList.size());
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void getAll_WhenPaginationParamExists_ReturnsPaginatedData() {
-        List<Notification> notificationList = createSampleNotificationList(5);
+    public void get_WhenValidBeforeParamExists_ReturnsData() {
+        List<Notification> notificationList = createSampleNotificationList();
+
+        Instant instant = Instant.now();
 
         // mock the repository to return the sample list of notification
-        Mockito.when(repository.findByForUsername(eq(currentUser.getUsername()), Mockito.any(Pageable.class))).thenReturn(
-                Flux.fromIterable(notificationList)
-        );
+        Mockito.when(repository.findByForUsernameAndCreatedAtBefore(
+                eq(currentUser.getUsername()), eq(instant), Mockito.any(Pageable.class))
+        ).thenReturn(Flux.fromIterable(notificationList));
 
         // add the sample pagination parameters
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.put("pageNumber", List.of("2")); // fetch page 2
-        params.put("pageSize", List.of("8")); // fetch with page size 8
+        params.put("beforeDate", List.of(instant.toString()));
 
-        Mono<PaginatedNotificationResponseDTO<List<Notification>>> responseDTOMono = notificationService.getAll(params);
+        Flux<Notification> notificationFlux = notificationService.get(params);
+
         StepVerifier
-                .create(responseDTOMono)
+                .create(notificationFlux.collectList())
                 .assertNext(listResponseDTO -> {
-                    Assert.assertEquals(notificationList.size(), listResponseDTO.getData().size());
-                    Assert.assertEquals(2, listResponseDTO.getPagination().getCurrentPage());
-                    Assert.assertEquals(8, listResponseDTO.getPagination().getPageSize());
-                    Assert.assertEquals(100, listResponseDTO.getPagination().getTotalCount());
-                    Assert.assertEquals(5, listResponseDTO.getUnreadCount());
+                    assertThat(listResponseDTO.size()).isEqualTo(notificationList.size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void get_WhenInvalidValidBeforeParam_ThrowsException() {
+        // add the sample pagination parameters
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.put("beforeDate", List.of("abcd"));
+
+        Flux<Notification> notificationFlux = notificationService.get(params);
+
+        StepVerifier
+                .create(notificationFlux.collectList())
+                .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage("as beforeDate"))
+                .verify();
     }
 
     @Test
@@ -139,9 +148,9 @@ public class NotificationServiceImplTest {
         StepVerifier
                 .create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
-                    Assert.assertTrue(responseDTO.getResponseMeta().isSuccess());
-                    Assert.assertEquals(responseDTO.getResponseMeta().getStatus(), HttpStatus.OK.value());
-                    Assert.assertTrue(responseDTO.getData().getIsRead());
+                    assertThat(responseDTO.getResponseMeta().isSuccess()).isTrue();
+                    assertThat(responseDTO.getResponseMeta().getStatus()).isEqualTo(HttpStatus.OK.value());
+                    assertThat(responseDTO.getData().getIsRead()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -161,10 +170,10 @@ public class NotificationServiceImplTest {
         StepVerifier
                 .create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
-                    Assert.assertTrue(responseDTO.getResponseMeta().isSuccess());
-                    Assert.assertEquals(responseDTO.getResponseMeta().getStatus(), HttpStatus.OK.value());
-                    Assert.assertTrue(responseDTO.getData().getIsRead());
-                    Assert.assertArrayEquals(dto.getIdList().toArray(), responseDTO.getData().getIdList().toArray());
+                    assertThat(responseDTO.getResponseMeta().isSuccess()).isTrue();
+                    assertThat(responseDTO.getResponseMeta().getStatus()).isEqualTo(HttpStatus.OK.value());
+                    assertThat(responseDTO.getData().getIsRead()).isTrue();
+                    assertThat(responseDTO.getData().getIdList()).isEqualTo(dto.getIdList());
                 })
                 .verifyComplete();
     }
