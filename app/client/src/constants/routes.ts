@@ -175,6 +175,7 @@ export const BASE_SIGNUP_URL = `/signup`;
 export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
 export const BASE_LOGIN_URL = `/login`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
+export const SIGNUP_SUCCESS_URL = `/signup-success`;
 
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
