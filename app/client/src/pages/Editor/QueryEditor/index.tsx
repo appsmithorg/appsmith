@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
-  DATA_SOURCES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QueryEditorRouteParams,
 } from "constants/routes";
 import history from "utils/history";
@@ -147,7 +147,13 @@ class QueryEditor extends React.Component<Props> {
     }));
 
     const onCreateDatasourceClick = () => {
-      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+      history.push(
+        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+          applicationId,
+          pageId,
+          pageId,
+        ),
+      );
     };
     return queryId ? (
       <QueryEditorForm

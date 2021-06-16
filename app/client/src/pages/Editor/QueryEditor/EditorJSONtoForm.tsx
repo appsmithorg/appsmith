@@ -10,14 +10,12 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { Colors } from "constants/Colors";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
@@ -34,7 +32,7 @@ import { TabComponent } from "components/ads/Tabs";
 import AdsIcon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
-import Button from "components/editorComponents/Button";
+import EditorButton from "components/editorComponents/Button";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
@@ -55,6 +53,11 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "constants/messages";
+import { useParams } from "react-router";
+import { AppState } from "reducers";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import Button, { Size } from "components/ads/Button";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -114,7 +117,7 @@ const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 5px 30px;
+  padding: 16px 30px;
   overflow-y: auto;
   height: 100%;
 `;
@@ -236,6 +239,14 @@ const ActionsWrapper = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
+
+  & > div {
+    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
+  }
+
+  button:last-child {
+    margin-left: ${(props) => props.theme.spaces[7]}px;
+  }
 `;
 
 const DropdownSelect = styled.div`
@@ -274,14 +285,14 @@ const Container = styled.div`
   }
 `;
 
-const ActionButton = styled(BaseButton)`
-  &&&& {
-    min-width: 72px;
-    width: auto;
-    margin: 0 5px;
-    min-height: 30px;
-  }
-`;
+// const ActionButton = styled(BaseButton)`
+//   &&&& {
+//     min-width: 72px;
+//     width: auto;
+//     margin: 0 5px;
+//     min-height: 30px;
+//   }
+// `;
 
 const NoDataSourceContainer = styled.div`
   align-items: center;
@@ -308,6 +319,7 @@ const StyledOpenDocsIcon = styled(Icon)`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   a {
     font-size: 14px;
     line-height: 20px;
@@ -325,6 +337,11 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
+`;
+
+const InlineButton = styled(Button)`
+  display: inline-flex;
+  margin: 0 4px;
 `;
 
 type QueryFormProps = {
@@ -372,10 +389,8 @@ export function EditorJSONtoForm(props: Props) {
     executedQueryData,
     formName,
     handleSubmit,
-    isDeleting,
     isRunning,
     onCreateDatasourceClick,
-    onDeleteClick,
     onRunClick,
     responseType,
     runErrorMessage,
@@ -386,6 +401,16 @@ export function EditorJSONtoForm(props: Props) {
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  const actions: Action[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: Action | undefined = actions.find(
+    (action) => action.id === params.apiId || action.id === params.queryId,
+  );
+  const { pageId } = useParams<ExplorerURLParams>();
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -536,7 +561,18 @@ export function EditorJSONtoForm(props: Props) {
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
-              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+              <Text type={TextType.P1}>
+                🙌 Click on
+                <InlineButton
+                  isLoading={isRunning}
+                  onClick={props.onRunClick}
+                  size={Size.medium}
+                  tag="button"
+                  text="Run"
+                  type="button"
+                />
+                after adding your query
+              </Text>
             </NoResponseContainer>
           )}
         </ResponseContentWrapper>
@@ -581,6 +617,12 @@ export function EditorJSONtoForm(props: Props) {
           <ActionNameEditor />
         </NameWrapper>
         <ActionsWrapper>
+          <MoreActionsMenu
+            className="t--more-action-menu"
+            id={currentActionConfig ? currentActionConfig.id : ""}
+            name={currentActionConfig ? currentActionConfig.name : ""}
+            pageId={pageId}
+          />
           <DropdownSelect>
             <DropdownField
               className={"t--switch-datasource"}
@@ -592,25 +634,18 @@ export function EditorJSONtoForm(props: Props) {
               width={232}
             />
           </DropdownSelect>
-          <ActionButton
-            accent="error"
-            className="t--delete-query"
-            loading={isDeleting}
-            onClick={onDeleteClick}
-            text="Delete"
-          />
-
           <OnboardingIndicator
             step={OnboardingStep.EXAMPLE_DATABASE}
             width={75}
           >
-            <ActionButton
-              accent="primary"
+            <Button
               className="t--run-query"
-              filled
-              loading={isRunning}
+              isLoading={isRunning}
               onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
               text="Run"
+              type="button"
             />
           </OnboardingIndicator>
         </ActionsWrapper>
@@ -626,8 +661,7 @@ export function EditorJSONtoForm(props: Props) {
               <StyledOpenDocsIcon icon="document-open" />
             </DocumentationLink>
           )}
-
-          <BaseTabbedView
+          <TabComponent
             tabs={[
               {
                 key: "query",
@@ -658,7 +692,7 @@ export function EditorJSONtoForm(props: Props) {
                           Seems like you don’t have any Datasources to create a
                           query
                         </p>
-                        <Button
+                        <EditorButton
                           filled
                           icon="plus"
                           intent="primary"

@@ -59,9 +59,8 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -373,13 +372,14 @@ export function* deleteActionSaga(
       }
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
-      if (isApi || isSaas) {
-        history.push(API_EDITOR_URL(applicationId, pageId));
-      }
 
-      if (isQuery) {
-        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
-      }
+      history.push(
+        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+          applicationId,
+          pageId,
+          pageId,
+        ),
+      );
 
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,

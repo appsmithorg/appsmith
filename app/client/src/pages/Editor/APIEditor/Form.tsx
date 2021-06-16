@@ -631,7 +631,11 @@ function ApiEditorForm(props: Props) {
               </DatasourceListTrigger>
             )}
           </TabbedViewContainer>
-          <ApiResponseView apiName={actionName} theme={theme} />
+          <ApiResponseView
+            apiName={actionName}
+            onRunClick={onRunClick}
+            theme={theme}
+          />
         </SecondaryWrapper>
         {showDatasources && (
           <>

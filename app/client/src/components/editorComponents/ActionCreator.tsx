@@ -221,6 +221,7 @@ type ActionCreatorProps = {
 
 const ActionType = {
   none: "none",
+  integration: "integration",
   api: "api",
   query: "query",
   showModal: "showModal",
@@ -547,6 +548,10 @@ const baseOptions: any = [
     value: ActionType.none,
   },
   {
+    label: "Execute an Integration",
+    value: ActionType.integration,
+  },
+  {
     label: "Call An API",
     value: ActionType.api,
   },
@@ -587,25 +592,6 @@ const baseOptions: any = [
     value: ActionType.resetWidget,
   },
 ];
-function getOptionsWithChildren(
-  options: TreeDropdownOption[],
-  actions: ActionDataState,
-  createActionOption: TreeDropdownOption,
-) {
-  const option = options.find((option) => option.value === ActionType.api);
-  if (option) {
-    option.children = [createActionOption];
-    actions.forEach((action) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: action.config.name,
-        id: action.config.id,
-        value: action.config.name,
-        type: option.value,
-      } as TreeDropdownOption);
-    });
-  }
-  return options;
-}
 
 function getFieldFromValue(
   value: string | undefined,
@@ -952,6 +938,7 @@ function Fields(props: {
   fields: any;
   label?: string;
   apiOptionTree: TreeDropdownOption[];
+  integrationOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
@@ -983,6 +970,7 @@ function Fields(props: {
                     apiOptionTree={props.apiOptionTree}
                     depth={props.depth + 1}
                     fields={field}
+                    integrationOptionTree={props.integrationOptionTree}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
@@ -1025,6 +1013,7 @@ function Fields(props: {
             apiOptionTree={props.apiOptionTree}
             depth={props.depth + 1}
             fields={field}
+            integrationOptionTree={props.integrationOptionTree}
             key={index}
             label={selectorField.label}
             maxDepth={props.maxDepth}
@@ -1082,6 +1071,39 @@ function useModalDropdownList() {
   return finalList;
 }
 
+function useWidgetOptionTree() {
+  const widgets = useSelector(getWidgets) || {};
+  return Object.values(widgets)
+    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
+    .map((w) => {
+      return {
+        label: w.widgetName,
+        id: w.widgetName,
+        value: `"${w.widgetName}"`,
+      };
+    });
+}
+
+function getOptionsWithChildren(
+  options: TreeDropdownOption[],
+  actions: ActionDataState,
+  createActionOption: TreeDropdownOption,
+) {
+  const option = options.find((option) => option.value === ActionType.api);
+  if (option) {
+    option.children = [createActionOption];
+    actions.forEach((action) => {
+      (option.children as TreeDropdownOption[]).push({
+        label: action.config.name,
+        id: action.config.id,
+        value: action.config.name,
+        type: option.value,
+      } as TreeDropdownOption);
+    });
+  }
+  return options;
+}
+
 function useApiOptionTree() {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) || "";
@@ -1123,18 +1145,93 @@ function useApiOptionTree() {
   return apiOptionTree;
 }
 
-function useWidgetOptionTree() {
-  const widgets = useSelector(getWidgets) || {};
-  return Object.values(widgets)
-    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
-    .map((w) => {
-      return {
-        label: w.widgetName,
-        id: w.widgetName,
-        value: `"${w.widgetName}"`,
-      };
+function getIntegrationOptionsWithChildren(
+  options: TreeDropdownOption[],
+  apis: ActionDataState,
+  createApiOption: TreeDropdownOption,
+  queries: ActionDataState,
+  createQueryOption: TreeDropdownOption,
+) {
+  const option = options.find(
+    (option) => option.value === ActionType.integration,
+  );
+  if (option) {
+    option.children = [createApiOption];
+    apis.forEach((api) => {
+      (option.children as TreeDropdownOption[]).push({
+        label: api.config.name,
+        id: api.config.id,
+        value: api.config.name,
+        type: option.value,
+      } as TreeDropdownOption);
     });
+    option.children.push(createQueryOption);
+    queries.forEach((query) => {
+      (option.children as TreeDropdownOption[]).push({
+        label: query.config.name,
+        id: query.config.id,
+        value: query.config.name,
+        type: option.value,
+      } as TreeDropdownOption);
+    });
+  }
+  return options;
 }
+
+function useIntegrationsOptionTree() {
+  const dispatch = useDispatch();
+  const pageId = useSelector(getCurrentPageId) || "";
+
+  const queries = useSelector(getActionsForCurrentPage).filter(
+    (action) => action.config.pluginType === PluginType.DB,
+  );
+  const apis = useSelector(getActionsForCurrentPage).filter(
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
+  );
+  const integrationOptionTree = getIntegrationOptionsWithChildren(
+    baseOptions,
+    apis,
+    {
+      label: "Create API",
+      value: "api",
+      id: "create",
+      className: "t--create-api-btn",
+      icon: "plus",
+      onSelect: (option: TreeDropdownOption, setter?: Function) => {
+        const apiName = createNewApiName(apis, pageId);
+        if (setter) {
+          setter({
+            value: `${apiName}`,
+            type: ActionType.api,
+          });
+          dispatch(createNewApiAction(pageId, "API_PANE"));
+        }
+      },
+    },
+    queries,
+    {
+      label: "Create Query",
+      value: "query",
+      id: "create",
+      icon: "plus",
+      className: "t--create-query-btn",
+      onSelect: (option: TreeDropdownOption, setter?: Function) => {
+        const queryName = createNewQueryName(queries, pageId);
+        if (setter) {
+          setter({
+            value: `${queryName}`,
+            type: ActionType.query,
+          });
+          dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
+        }
+      },
+    },
+  );
+  return integrationOptionTree;
+}
+
 function getQueryOptionsWithChildren(
   options: TreeDropdownOption[],
   queries: ActionDataState,
@@ -1184,6 +1281,7 @@ function useQueryOptionTree() {
 
 export function ActionCreator(props: ActionCreatorProps) {
   const apiOptionTree = useApiOptionTree();
+  const integrationOptionTree = useIntegrationsOptionTree();
   const widgetOptionTree = useWidgetOptionTree();
   const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
@@ -1196,6 +1294,7 @@ export function ActionCreator(props: ActionCreatorProps) {
         apiOptionTree={apiOptionTree}
         depth={1}
         fields={fields}
+        integrationOptionTree={integrationOptionTree}
         maxDepth={1}
         modalDropdownList={modalDropdownList}
         onValueChange={props.onValueChange}
