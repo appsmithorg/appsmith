@@ -19,6 +19,7 @@ import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
+  DynamicPath,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
@@ -55,6 +56,8 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -223,6 +226,36 @@ function* evalErrorHandler(
   });
 }
 
+function* logSuccessfulBindings(dataTree: DataTree, evaluationOrder: string[]) {
+  const appMode = yield select(getAppMode);
+  if (appMode === APP_MODE.PUBLISHED) return;
+  evaluationOrder.forEach((evaluatedPath) => {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      evaluatedPath,
+    );
+    const entity = dataTree[entityName];
+    if (isAction(entity) || isWidget(entity)) {
+      const isABinding = _.find(entity.dynamicBindingPathList, {
+        key: propertyPath,
+      });
+      const logBlackList = entity.logBlackList;
+      const errors: EvaluationError[] = _.get(
+        dataTree,
+        getEvalErrorPath(evaluatedPath),
+        [],
+      ) as EvaluationError[];
+      const criticalErrors = errors.filter(
+        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+      );
+      const hasErrors = criticalErrors.length > 0;
+
+      if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
+        console.log("BindingSuccess: Successfully bound to ", evaluatedPath);
+      }
+    }
+  });
+}
+
 function* postEvalActionDispatcher(
   actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
@@ -260,6 +293,7 @@ function* evaluateTreeSaga(
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
+  yield fork(logSuccessfulBindings, dataTree, evaluationOrder);
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
