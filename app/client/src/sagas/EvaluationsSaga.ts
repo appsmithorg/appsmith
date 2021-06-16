@@ -225,7 +225,11 @@ function* evalErrorHandler(
   });
 }
 
-function* logSuccessfulBindings(dataTree: DataTree, evaluationOrder: string[]) {
+function* logSuccessfulBindings(
+  unEvalTree: DataTree,
+  dataTree: DataTree,
+  evaluationOrder: string[],
+) {
   const appMode = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   evaluationOrder.forEach((evaluatedPath) => {
@@ -234,6 +238,8 @@ function* logSuccessfulBindings(dataTree: DataTree, evaluationOrder: string[]) {
     );
     const entity = dataTree[entityName];
     if (isAction(entity) || isWidget(entity)) {
+      const unevalValue = _.get(unEvalTree, evaluatedPath);
+      const entityType = isAction(entity) ? entity.pluginType : entity.type;
       const isABinding = _.find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
@@ -249,7 +255,16 @@ function* logSuccessfulBindings(dataTree: DataTree, evaluationOrder: string[]) {
       const hasErrors = criticalErrors.length > 0;
 
       if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
-        console.log("BindingSuccess: Successfully bound to ", evaluatedPath);
+        AnalyticsUtil.logEvent("BINDING_SUCCESS", {
+          unevalValue,
+          entityType,
+          propertyPath,
+        });
+        console.log("BindingSuccess:", {
+          unevalValue,
+          entityType,
+          propertyPath,
+        });
       }
     }
   });
@@ -292,7 +307,7 @@ function* evaluateTreeSaga(
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
-  yield fork(logSuccessfulBindings, dataTree, evaluationOrder);
+  yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
