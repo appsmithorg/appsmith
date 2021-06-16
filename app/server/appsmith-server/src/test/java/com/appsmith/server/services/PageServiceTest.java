@@ -386,7 +386,7 @@ public class PageServiceTest {
     public void reOrderPageMovingUp() {
 
         Application app = new Application();
-        app.setName("validGetApplicationPagesMultiPageApp-Test");
+        app.setName("reOrderPageMovingUp-Test");
         setupTestApplication();
 
         Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
@@ -415,10 +415,10 @@ public class PageServiceTest {
                     return applicationPageService.createPage(testPage);
                 })
                 .block();
-        String pageId = application.getPages().get(3).getId();
+        String pageId = application.getPages().get(0).getId();
         Mono<Application> applicationM = createApplicationMono.
                 flatMap( application -> {
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 0);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 0);
                 });
         StepVerifier
                 .create(applicationM)
@@ -439,7 +439,7 @@ public class PageServiceTest {
     public void reOrderPageMovingDown() {
 
         Application app = new Application();
-        app.setName("validGetApplicationPagesMultiPageApp-Test");
+        app.setName("reOrderPageMovingDown-Test");
         setupTestApplication();
 
         Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
