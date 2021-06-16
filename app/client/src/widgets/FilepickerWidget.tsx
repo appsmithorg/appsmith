@@ -285,7 +285,11 @@ class FilePickerWidget extends BaseWidget<
             plugin.closeModal();
           }
         },
-        locale: {},
+        locale: {
+          strings: {
+            closeModal: "Close",
+          },
+        },
       })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
