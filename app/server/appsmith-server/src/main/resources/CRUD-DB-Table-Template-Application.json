@@ -23,7 +23,7 @@
           "tables": [
             {
               "type": "TABLE",
-              "name": "tableName",
+              "name": "templateTableName",
               "columns": [
                 {
                   "name": "id",
@@ -544,8 +544,8 @@
                             "dynamicTriggerPathList": [],
                             "leftColumn": 0,
                             "dynamicBindingPathList": [],
-                            "fontSize": "HEADING1",
-                            "text": "tableName Data"
+                            "fontSize": "HEADING2",
+                            "text": "templateTableName Data"
                           }
                         ]
                       }
@@ -1994,7 +1994,7 @@
                             "leftColumn": 0,
                             "dynamicBindingPathList": [],
                             "fontSize": "HEADING1",
-                            "text": "tableName Data"
+                            "text": "templateTableName Data"
                           }
                         ]
                       }
@@ -3029,7 +3029,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "SELECT * FROM tableName \nORDER BY \"{{Select1.selectedOptionValue || \"id\"}}\" {{Select2.selectedOptionValue || DESC}}\nOFFSET {{(Table1.pageNo - 1) * Table1.pageSize}} \nLIMIT {{Table1.pageSize}}; \n-- Use widget data in a query using {{ widgetName.property }}. Read more at http://bit.ly/capture-widget-data.",
+            "body": "SELECT * FROM templateTableName \nORDER BY \"{{Select1.selectedOptionValue || \"id\"}}\" {{Select2.selectedOptionValue || DESC}}\nOFFSET {{(Table1.pageNo - 1) * Table1.pageSize}} \nLIMIT {{Table1.pageSize}}; \n-- Use widget data in a query using {{ widgetName.property }}. Read more at http://bit.ly/capture-widget-data.",
             "pluginSpecifiedTemplates": [
               {
                 "value": false
@@ -3067,7 +3067,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "SELECT * FROM tableName \nORDER BY \"{{Select1.selectedOptionValue || id}}\" {{Select2.selectedOptionValue || DESC}}\nOFFSET {{(Table1.pageNo - 1) * Table1.pageSize}} \nLIMIT {{Table1.pageSize}}; \n-- Use widget data in a query using {{ widgetName.property }}. Read more at http://bit.ly/capture-widget-data.",
+            "body": "SELECT * FROM templateTableName \nORDER BY \"{{Select1.selectedOptionValue || id}}\" {{Select2.selectedOptionValue || DESC}}\nOFFSET {{(Table1.pageNo - 1) * Table1.pageSize}} \nLIMIT {{Table1.pageSize}}; \n-- Use widget data in a query using {{ widgetName.property }}. Read more at http://bit.ly/capture-widget-data.",
             "pluginSpecifiedTemplates": [
               {
                 "value": false
@@ -3116,7 +3116,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "DELETE FROM tableName\n  WHERE \"id\" = '{{Table1.selectedRow.id}}'; -- Specify a valid condition here. Removing the condition may delete everything in the table!"
+            "body": "DELETE FROM templateTableName\n  WHERE \"id\" = '{{Table1.selectedRow.id}}'; -- Specify a valid condition here. Removing the condition may delete everything in the table!"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
@@ -3145,7 +3145,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "DELETE FROM tableName\n  WHERE \"id\" = '{{Table1.selectedRow.id}}'; -- Specify a valid condition here. Removing the condition may delete everything in the table!"
+            "body": "DELETE FROM templateTableName\n  WHERE \"id\" = '{{Table1.selectedRow.id}}'; -- Specify a valid condition here. Removing the condition may delete everything in the table!"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
@@ -3185,7 +3185,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "UPDATE tableName SET\n    \"orderDate\" = '{{Input1.text}}',\n\t\t\"orderAmount\" = '{{Input2.text}}',\n    \"status\" = '{{Input3.text}}',\n    \"deliveryAddress\" = '{{Input4.text}}'\n  WHERE \"id\" = {{Text27.text}}; -- Specify a valid condition here. Removing the condition may update every row in the table!"
+            "body": "UPDATE templateTableName SET\n    \"orderDate\" = '{{Input1.text}}',\n\t\t\"orderAmount\" = '{{Input2.text}}',\n    \"status\" = '{{Input3.text}}',\n    \"deliveryAddress\" = '{{Input4.text}}'\n  WHERE \"id\" = {{Text27.text}}; -- Specify a valid condition here. Removing the condition may update every row in the table!"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
@@ -3218,7 +3218,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "UPDATE tableName SET\n    \"orderDate\" = '{{Input1.text}}',\n\t\t\"orderAmount\" = '{{Input2.text}}',\n    \"status\" = '{{Input3.text}}',\n    \"deliveryAddress\" = '{{Input4.text}}'\n  WHERE \"id\" = {{Text27.text}}; -- Specify a valid condition here. Removing the condition may update every row in the table!"
+            "body": "UPDATE templateTableName SET\n    \"orderDate\" = '{{Input1.text}}',\n\t\t\"orderAmount\" = '{{Input2.text}}',\n    \"status\" = '{{Input3.text}}',\n    \"deliveryAddress\" = '{{Input4.text}}'\n  WHERE \"id\" = {{Text27.text}}; -- Specify a valid condition here. Removing the condition may update every row in the table!"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
@@ -3262,7 +3262,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "INSERT INTO tableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES ('{{Input11.text}}','{{Input5.text}}', '{{Input6.text}}', '{{Input7.selectedDate}}', '{{Input8.text}}', '{{Input9.text}}', '{{Input10.text}}');"
+            "body": "INSERT INTO templateTableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES ('{{Input11.text}}','{{Input5.text}}', '{{Input6.text}}', '{{Input7.selectedDate}}', '{{Input8.text}}', '{{Input9.text}}', '{{Input10.text}}');"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
@@ -3297,7 +3297,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "INSERT INTO tableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES ('{{Input11.text}}','{{Input5.text}}', '{{Input6.text}}', '{{Input7.selectedDate}}', '{{Input8.text}}', '{{Input9.text}}', '{{Input10.text}}');"
+            "body": "INSERT INTO templateTableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES ('{{Input11.text}}','{{Input5.text}}', '{{Input6.text}}', '{{Input7.selectedDate}}', '{{Input8.text}}', '{{Input9.text}}', '{{Input10.text}}');"
           },
           "executeOnLoad": false,
           "dynamicBindingPathList": [
