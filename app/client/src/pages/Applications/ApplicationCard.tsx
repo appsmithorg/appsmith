@@ -300,7 +300,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--fork-app",
       });
     }
-    if (!!props.enableImportExport && hasEditPermission) {
+    if (!!props.enableImportExport && hasExportPermission) {
       moreActionItems.push({
         onSelect: exportApplicationAsJSONFile,
         text: "Export",
@@ -322,6 +322,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const hasReadPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
+  );
+  const hasExportPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
   );
   const updateColor = (color: string) => {
     setSelectedColor(color);
