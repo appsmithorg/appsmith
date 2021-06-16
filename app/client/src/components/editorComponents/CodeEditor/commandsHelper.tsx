@@ -27,7 +27,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         updatePropertyValue,
       },
     ) => {
-      const currentEntityType = data[entityName]?.ENTITY_TYPE;
+      const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
         return currentEntityType === "WIDGET"
           ? entity.ENTITY_TYPE !== "WIDGET"
@@ -59,9 +59,6 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
           action: () =>
             executeCommand({
               actionType: "NEW_API",
-              args: {
-                callback: updatePropertyValue,
-              },
             }),
           shortcut: "api.new",
         });
@@ -84,7 +81,10 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         const suggestions = entitiesForSuggestions.map((suggestion: any) => {
           const name = suggestion.name || suggestion.widgetName;
           return {
-            text: `{{${name}.data}}`,
+            text:
+              currentEntityType === "WIDGET"
+                ? `{{${name}.data}}`
+                : `{{${name}}}`,
             displayText: `${name}`,
             className: "CodeMirror-commands",
             shortcut: "{{}}",

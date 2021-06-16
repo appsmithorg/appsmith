@@ -338,7 +338,7 @@ class CodeEditor extends Component<Props, State> {
       hinter.showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
         plugins: this.props.plugins,
-        updatePropertyValue: this.updatePropertyValue,
+        updatePropertyValue: this.updatePropertyValue.bind(this),
         recentEntities: this.props.recentEntities,
         executeCommand: (payload: any) => {
           this.props.executeCommand({
