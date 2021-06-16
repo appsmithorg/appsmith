@@ -17,7 +17,7 @@ import actionExecutionChangeListeners from "../src/sagas/WidgetLoadingSaga";
 import globalSearchSagas from "../src/sagas/GlobalSearchSagas";
 import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import commentSagas from "../src/sagas/CommentSagas";
-import websocketSagas from "../src/sagas/WebsocketSagas";
+import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import { fetchWidgetCardsSaga } from "../src/sagas/WidgetSidebarSagas";
 import { watchActionSagas } from "../src/sagas/ActionSagas";
