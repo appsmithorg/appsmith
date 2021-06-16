@@ -3,7 +3,7 @@ import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementById } from "utils/helpers";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   forceOpenPropertyPane,
   showModal,
@@ -11,9 +11,11 @@ import {
 } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
+import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
+  const allWidgets = useSelector(getCurrentPageWidgets);
   const dispatch = useDispatch();
   const {
     selectWidget,
@@ -54,6 +56,10 @@ export const useNavigateToWidget = () => {
       isShiftSelect?: boolean,
       widgetsInStep?: string[],
     ) => {
+      // restrict multi-select across pages
+      if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
+        return;
+
       if (isShiftSelect) {
         shiftSelectWidgetEntityExplorer(widgetId, widgetsInStep || []);
       } else if (isMultiSelect) {
@@ -62,7 +68,7 @@ export const useNavigateToWidget = () => {
         selectSingleWidget(widgetId, widgetType, pageId, parentModalId);
       }
     },
-    [dispatch, params, selectWidget],
+    [dispatch, params, selectWidget, allWidgets],
   );
 
   return { navigateToWidget };

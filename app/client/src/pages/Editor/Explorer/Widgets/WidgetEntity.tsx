@@ -54,7 +54,14 @@ const useWidget = (
         widgetsInStep,
       );
     },
-    [widgetId, widgetType, pageId, isWidgetSelected, parentModalId],
+    [
+      widgetId,
+      widgetType,
+      pageId,
+      isWidgetSelected,
+      parentModalId,
+      widgetsInStep,
+    ],
   );
 
   return {
