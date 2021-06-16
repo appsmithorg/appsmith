@@ -84,11 +84,11 @@ class PerformanceTracker {
           );
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
-        if (Array.isArray(tags)) {
-          tags.forEach(({ name: tagName, value }) => {
-            newTransaction.setTag(tagName, value);
-          });
-        }
+
+        tags.forEach(({ name: tagName, value }) => {
+          newTransaction.setTag(tagName, value);
+        });
+
         newTransaction.setData("startData", data);
         Sentry.getCurrentHub().configureScope((scope) =>
           scope.setSpan(newTransaction),
