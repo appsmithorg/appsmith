@@ -44,6 +44,7 @@ public enum AclPermission {
     ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Organization.class),
     ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Organization.class),
     ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Organization.class),
+    ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Organization.class),
 
     // Invitation related permissions
     ORGANIZATION_INVITE_USERS("inviteUsers:organization", Organization.class),
@@ -51,6 +52,7 @@ public enum AclPermission {
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
+    EXPORT_APPLICATIONS("export:applications", Application.class),
 
     // Making an application public permission at Organization level
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
