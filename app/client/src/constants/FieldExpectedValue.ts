@@ -135,7 +135,6 @@ const FIELD_VALUES: Record<
     allowedFileTypes: "Array<string>",
     isRequired: "boolean",
     isVisible: "boolean",
-    uploadedFileUrls: "string",
     // onFilesSelected: "Function Call",
   },
   CHECKBOX_WIDGET: {
