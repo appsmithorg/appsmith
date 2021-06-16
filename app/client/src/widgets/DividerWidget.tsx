@@ -13,13 +13,23 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
         children: [
           {
             helpText: "Controls widget orientation",
-            propertyName: "isHorizontal",
-            label: "Horizontal",
-            controlType: "SWITCH",
+            propertyName: "orientation",
+            label: "Orientation",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Horizontal",
+                value: "horizontal",
+              },
+              {
+                label: "Vertical",
+                value: "vertical",
+              },
+            ],
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -39,7 +49,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           {
             helpText: "Controls divider stroke style",
             propertyName: "strokeStyle",
-            label: "Stroke Style",
+            label: "Dash Style",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -60,14 +70,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
-            helpText: "Controls stroke color of divider",
-            propertyName: "dividerColor",
-            label: "Divider Colour",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
             helpText: "Controls thickness of divider",
             propertyName: "thickness",
             label: "Thickness (px)",
@@ -77,6 +79,61 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.NUMBER,
           },
+          {
+            helpText: "Controls stroke color of divider",
+            propertyName: "dividerColor",
+            label: "Divider Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "capType",
+            label: "Cap",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "No Cap",
+                value: "",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Arrow",
+                value: "arrow",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Dot",
+                value: "dot",
+                icon: "HEADING_THREE",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "capSide",
+            label: "Cap Side",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: -1,
+              },
+              {
+                icon: "CENTER_ALIGN",
+                value: 0,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: 1,
+              },
+            ],
+            defaultValue: "LEFT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            hidden: (props: DividerWidgetProps) => !props.capType,
+          },
         ],
       },
     ];
@@ -85,9 +142,11 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DividerComponent
+        capSide={this.props.capSide}
+        capType={this.props.capType}
         className="t--divider-widget"
         dividerColor={this.props.dividerColor}
-        isHorizontal={this.props.isHorizontal}
+        orientation={this.props.orientation}
         strokeStyle={this.props.strokeStyle}
         thickness={this.props.thickness}
         widgetId={this.props.widgetId}
@@ -101,7 +160,9 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
 }
 
 export interface DividerWidgetProps extends WidgetProps {
-  isHorizontal: boolean;
+  orientation: string;
+  capType: string;
+  capSide?: number;
   strokeStyle?: "solid" | "dashed" | "dotted";
   dividerColor?: string;
   thickness?: number;
