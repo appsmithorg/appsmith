@@ -309,6 +309,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             validationPath === VALIDATION_TYPES.CHART_SERIES_DATA
           ) {
             set(widget, path, evaluatedValue);
+            set(widget, `validationMessages.${path}`, "");
+            set(widget, `invalidProps.${path}`, "");
           } else {
             set(widget, path, toString(evaluatedValue));
           }
@@ -316,7 +318,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    console.log({ defaultProps: widget.defaultProps, itemIndex });
     // add default value
     Object.keys(widget.defaultProps).map((key: string) => {
       const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
