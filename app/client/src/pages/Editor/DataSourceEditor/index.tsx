@@ -16,7 +16,6 @@ import {
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
@@ -188,17 +187,6 @@ class DatasourceEditorRouter extends React.Component<Props> {
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
-    }
-    if (!datasourceId) {
-      return (
-        <DatasourceHome
-          applicationId={applicationId}
-          history={history}
-          isSaving={isSaving}
-          location={location}
-          pageId={pageId}
-        />
-      );
     }
 
     // Check for specific form types first
