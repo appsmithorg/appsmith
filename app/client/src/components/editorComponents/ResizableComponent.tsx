@@ -38,6 +38,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -54,6 +55,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
+
+  const isCommentMode = useSelector(commentModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
@@ -258,11 +261,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     });
   };
 
+  const isEnabled =
+    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+
   return (
     <Resizable
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
+      enable={isEnabled}
       handles={{
         left: LeftHandleStyles,
         top: TopHandleStyles,

@@ -126,12 +126,8 @@ public class RestApiPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
-                /**
-                 * TODO :
-                 * In case the smart json substitution configuration is missing, default to true once smart json
-                 * substitution is no longer in beta.
-                 */
-                smartJsonSubstitution = false;
+                // In case the smart json substitution configuration is missing, default to true
+                smartJsonSubstitution = true;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
@@ -141,10 +137,10 @@ public class RestApiPlugin extends BasePlugin {
                 } else if (ssubValue instanceof String) {
                     smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
                 } else {
-                    smartJsonSubstitution = false;
+                    smartJsonSubstitution = true;
                 }
             } else {
-                smartJsonSubstitution = false;
+                smartJsonSubstitution = true;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
