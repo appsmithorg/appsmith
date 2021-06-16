@@ -19,7 +19,6 @@ import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
-  DynamicPath,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
