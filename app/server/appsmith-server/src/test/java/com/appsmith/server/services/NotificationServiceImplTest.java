@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -148,9 +147,7 @@ public class NotificationServiceImplTest {
         StepVerifier
                 .create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
-                    assertThat(responseDTO.getResponseMeta().isSuccess()).isTrue();
-                    assertThat(responseDTO.getResponseMeta().getStatus()).isEqualTo(HttpStatus.OK.value());
-                    assertThat(responseDTO.getData().getIsRead()).isTrue();
+                    assertThat(responseDTO.getIsRead()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -170,10 +167,8 @@ public class NotificationServiceImplTest {
         StepVerifier
                 .create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
-                    assertThat(responseDTO.getResponseMeta().isSuccess()).isTrue();
-                    assertThat(responseDTO.getResponseMeta().getStatus()).isEqualTo(HttpStatus.OK.value());
-                    assertThat(responseDTO.getData().getIsRead()).isTrue();
-                    assertThat(responseDTO.getData().getIdList()).isEqualTo(dto.getIdList());
+                    assertThat(responseDTO.getIsRead()).isTrue();
+                    assertThat(responseDTO.getIdList()).isEqualTo(dto.getIdList());
                 })
                 .verifyComplete();
     }

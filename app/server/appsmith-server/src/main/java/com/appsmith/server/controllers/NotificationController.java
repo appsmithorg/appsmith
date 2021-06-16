@@ -40,14 +40,18 @@ public class NotificationController extends BaseController<NotificationService, 
     public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationByIdDTO body) {
         log.debug("Going to set isRead to notifications by id");
-        return service.updateIsRead(body);
+        return service.updateIsRead(body).map(
+                dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true)
+        );
     }
 
     @PatchMapping("isRead/all")
     public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationDTO body) {
         log.debug("Going to set isRead to all notifications");
-        return service.updateIsRead(body);
+        return service.updateIsRead(body).map(
+                dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true)
+        );
     }
 
     @Override

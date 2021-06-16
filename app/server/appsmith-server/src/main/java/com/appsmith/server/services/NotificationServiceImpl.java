@@ -7,7 +7,6 @@ import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -128,20 +126,20 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(UpdateIsReadNotificationByIdDTO dto) {
+    public Mono<UpdateIsReadNotificationByIdDTO> updateIsRead(UpdateIsReadNotificationByIdDTO dto) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->
                         repository.updateIsReadByForUsernameAndIdList(
                                 user.getUsername(), dto.getIdList(), dto.getIsRead()
-                        ).thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true))
+                        ).thenReturn(dto)
                 );
     }
 
     @Override
-    public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(UpdateIsReadNotificationDTO dto) {
+    public Mono<UpdateIsReadNotificationDTO> updateIsRead(UpdateIsReadNotificationDTO dto) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> repository.updateIsReadByForUsername(user.getUsername(), dto.getIsRead())
-                        .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true))
+                        .thenReturn(dto)
                 );
     }
 
