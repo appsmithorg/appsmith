@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { get, has, isString, omit, set } from "lodash";
+import { cloneDeep, get, has, isString, omit, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -1225,19 +1225,30 @@ const migrateItemsToListDataInListWidget = (
   if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
     currentDSL = renameKeyInObject(currentDSL, "items", "listData");
 
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (get(currentDSL, path.key)) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key).replace("items", "listData"),
+        );
+      }
+    });
+
     Object.keys(currentDSL.template).map((widgetName) => {
-      const currentWidget = currentDSL.template[widgetName];
+      const currentWidget = cloneDeep(currentDSL.template[widgetName]);
 
       currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
-        currentWidget[path.key] = currentWidget[path.key].replace(
-          "items",
-          "listData",
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
         );
       });
     });
   }
 
-  if (currentDSL.children && currentDSL.children.length) {
+  if (currentDSL.children && currentDSL.children.length > 0) {
     currentDSL.children = currentDSL.children.map(
       migrateItemsToListDataInListWidget,
     );
