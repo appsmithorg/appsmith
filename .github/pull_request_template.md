@@ -3,10 +3,12 @@
 > Use this template to quickly create a well written pull request. Delete all quotes before creating the pull request.
 
 ## Description
-> Please include a summary of the changes and which issue has been fixed. Please also include relevant motivation 
+
+> Please include a summary of the changes and which issue has been fixed. Please also include relevant motivation
 > and context. List any dependencies that are required for this change.
 
 Fixes # (issue)
+
 > if no issue exists, please create an issue and ask the maintainers about this first
 
 ## Type of change
@@ -20,7 +22,7 @@ Fixes # (issue)
 
 ## How Has This Been Tested?
 
-> Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce. 
+> Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce.
 > Please also list any relevant details for your test configuration.
 
 - Test A

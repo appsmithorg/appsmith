@@ -19,13 +19,14 @@ import {
   websocketConnectedEvent,
 } from "constants/WebsocketConstants";
 
-import { commentEvent } from "actions/commentActions";
 import {
   setIsWebsocketConnected,
   retrySocketConnection,
 } from "actions/websocketActions";
 
 import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
+
+import handleSocketEvent from "./handleSocketEvent";
 
 function connect() {
   const socket = io();
@@ -68,8 +69,9 @@ function* read(socket: any) {
       case WEBSOCKET_EVENTS.CONNECTED:
         yield put(setIsWebsocketConnected(true));
         break;
-      default:
-        yield put(commentEvent(action));
+      default: {
+        yield call(handleSocketEvent, action);
+      }
     }
   }
 }
