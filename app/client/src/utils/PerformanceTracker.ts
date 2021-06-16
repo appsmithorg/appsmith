@@ -56,7 +56,7 @@ class PerformanceTracker {
     eventName: PerformanceTransactionName,
     data?: any,
     skipLog = false,
-    tags: null | Array<PerfTag> = null,
+    tags: Array<PerfTag> = [],
   ) => {
     if (appsmithConfigs.sentry.enabled) {
       const currentTransaction = Sentry.getCurrentHub()
@@ -84,7 +84,7 @@ class PerformanceTracker {
           );
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
-        if (tags && Array.isArray(tags)) {
+        if (Array.isArray(tags)) {
           tags.forEach(({ name: tagName, value }) => {
             newTransaction.setTag(tagName, value);
           });
