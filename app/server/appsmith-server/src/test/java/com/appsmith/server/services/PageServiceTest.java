@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -384,42 +385,49 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void reOrderPageMovingUp() {
 
-        PageDTO testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp1");
+        Application app = new Application();
+        app.setName("validGetApplicationPagesMultiPageApp-Test");
         setupTestApplication();
-        testPage.setApplicationId(application.getId());
-        String pageId1 = testPage.getId();
 
-        applicationPageService.createPage(testPage);
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
+                .cache();
 
-        testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp2");
-        testPage.setApplicationId(application.getId());
-        String pageId2 = testPage.getId();
-
-        applicationPageService.createPage(testPage);
-
-        testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp3");
-        testPage.setApplicationId(application.getId());
-        String pageId3 = testPage.getId();
-
-        applicationPageService.createPage(testPage);
-
-        Mono<Application> applicationMono = applicationPageService.reorderPage(application.getId(), pageId3, 0);
+        // Create all the pages for this application in a blocking manner.
+        createApplicationMono
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page2");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page3");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage);
+                })
+                .block();
+        String pageId = application.getPages().get(3).getId();
+        Mono<Application> applicationM = createApplicationMono.
+                flatMap( application -> {
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 0);
+                });
         StepVerifier
-                .create(applicationMono)
+                .create(applicationM)
                 .assertNext(application ->{
                     final List<ApplicationPage> pages = application.getPages();
+                    assertThat(application.getPages().size()).isEqualTo(4);
                     for(ApplicationPage page : pages){
-                        if(pageId3.equals(page.getId())){
+                        if(pageId.equals(page.getId())){
                             assertThat(page.getOrder()).isEqualTo(0);
-                        }
-                        if(pageId2.equals(page.getId())){
-                            assertThat(page.getOrder()).isEqualTo(2);
-                        }
-                        if(pageId1.equals(page.getId())){
-                            assertThat(page.getOrder()).isEqualTo(1);
                         }
                     }
                 } )
@@ -430,51 +438,49 @@ public class PageServiceTest {
     @WithUserDetails(value ="api_user")
     public void reOrderPageMovingDown() {
 
-        PageDTO testPage = new PageDTO();
-        testPage.setName("PageReorder TestApp1");
+        Application app = new Application();
+        app.setName("validGetApplicationPagesMultiPageApp-Test");
         setupTestApplication();
-        testPage.setApplicationId(application.getId());
-        testPage.setId("a");
-        String pageId1 = testPage.getId();
 
-        Mono<PageDTO> pageDTO = applicationPageService.createPage(testPage);
-        StepVerifier.create(pageDTO);
-        applicationPageService.publish(application.getId());
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
+                .cache();
 
-        PageDTO testPage1 = new PageDTO();
-        testPage1.setName("PageReorder TestApp2");
-        testPage1.setApplicationId(application.getId());
-        testPage1.setId("b");
-        String pageId2 = testPage1.getId();
-
-        pageDTO = applicationPageService.createPage(testPage1);
-        StepVerifier.create(pageDTO);
-        applicationPageService.publish(application.getId());
-
-        PageDTO testPage2 = new PageDTO();
-        testPage2.setName("PageReorder TestApp3");
-        testPage2.setApplicationId(application.getId());
-        testPage.setId("c");
-        String pageId3 = testPage2.getId();
-
-        pageDTO = applicationPageService.createPage(testPage2);
-        StepVerifier.create(pageDTO);
-        applicationPageService.publish(application.getId());
-
-        Mono<Application> applicationMono = applicationPageService.reorderPage(application.getId(), pageId1, 2);
+        // Create all the pages for this application in a blocking manner.
+        createApplicationMono
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page2");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page3");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage);
+                })
+                .block();
+        String pageId = application.getPages().get(0).getId();
+        Mono<Application> applicationM = createApplicationMono.
+                flatMap( application -> {
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3);
+                });
         StepVerifier
-                .create(applicationMono)
+                .create(applicationM)
                 .assertNext(application ->{
                     final List<ApplicationPage> pages = application.getPages();
+                    assertThat(application.getPages().size()).isEqualTo(4);
                     for(ApplicationPage page : pages){
-                        if(pageId3.equals(page.getId())){
-                            assertThat(page.getOrder()).isEqualTo(1);
-                        }
-                        if(pageId2.equals(page.getId())){
-                            assertThat(page.getOrder()).isEqualTo(0);
-                        }
-                        if(pageId1.equals(page.getId())){
-                            assertThat(page.getOrder()).isEqualTo(2);
+                        if(pageId.equals(page.getId())){
+                            assertThat(page.getOrder()).isEqualTo(3);
                         }
                     }
                 } )
