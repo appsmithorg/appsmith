@@ -2479,6 +2479,6 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-        
+
     }
 }

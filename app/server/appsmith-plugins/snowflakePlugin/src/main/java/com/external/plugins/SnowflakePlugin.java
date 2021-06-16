@@ -156,12 +156,18 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             if (datasourceConfiguration.getProperties() != null
-                    && datasourceConfiguration.getProperties().get(0) == null) {
+                    && (datasourceConfiguration.getProperties().size() < 1
+                    || datasourceConfiguration.getProperties().get(0) == null
+                    || datasourceConfiguration.getProperties().get(0).getValue() == null
+                    || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(0).getValue())))) {
                 invalids.add("Missing warehouse name.");
             }
 
             if (datasourceConfiguration.getProperties() != null
-                    && datasourceConfiguration.getProperties().get(1) == null) {
+                    && (datasourceConfiguration.getProperties().size() < 2
+                    || datasourceConfiguration.getProperties().get(1) == null
+                    || datasourceConfiguration.getProperties().get(1).getValue() == null
+                    || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(1).getValue())))) {
                 invalids.add("Missing database name.");
             }
 

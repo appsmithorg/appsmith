@@ -1,17 +1,15 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionExecutionResult;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Property;
 import lombok.extern.log4j.Log4j;
-import org.junit.Assert;
 import org.junit.Test;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.sql.Connection;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Log4j
 public class SnowflakePluginTest {
@@ -19,28 +17,19 @@ public class SnowflakePluginTest {
     SnowflakePlugin.SnowflakePluginExecutor pluginExecutor = new SnowflakePlugin.SnowflakePluginExecutor();
 
     @Test
-    public void testConnectSnowflakeConnection() {
-        Mono<Connection> connectionMono = pluginExecutor.datasourceCreate(null);
-        StepVerifier.create(connectionMono)
-                .assertNext(conn -> {
-                    System.out.println(conn.toString());
-                    assertNotNull(conn);
-                })
-                .verifyComplete();
-        Assert.assertTrue(true);
-    }
-
-    @Test
-    public void executeTest() {
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(null)
-                .flatMap(conn -> pluginExecutor.execute(conn, null, null));
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
-                    System.out.println(node.toString());
-                })
-                .verifyComplete();
+    public void testValidateDatasource_InvalidCredentials_returnsInvalids() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setUsername(null);
+        auth.setPassword(null);
+        datasourceConfiguration.setAuthentication(auth);
+        datasourceConfiguration.setProperties(List.of(new Property(), new Property()));
+        Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertTrue(output.contains("Missing username for authentication."));
+        assertTrue(output.contains("Missing password for authentication."));
+        assertTrue(output.contains("Missing Snowflake URL."));
+        assertTrue(output.contains("Missing warehouse name."));
+        assertTrue(output.contains("Missing database name."));
     }
 
 }

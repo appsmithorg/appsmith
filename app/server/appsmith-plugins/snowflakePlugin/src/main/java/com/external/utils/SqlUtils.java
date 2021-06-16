@@ -11,6 +11,17 @@ import java.util.stream.Collectors;
 
 public class SqlUtils {
 
+    /**
+     * Example output for COLUMNS_QUERY:
+     * +------------+-----------+-------------+-------------+-------------+----------------+
+     * | TABLE_NAME | COLUMN_ID | COLUMN_NAME | COLUMN_TYPE | IS_NULLABLE | COLUMN_DEFAULT |
+     * +------------+-----------+-------------+-------------+-------------+----------------+
+     * | test       |         1 | id          | int         |           0 |                |
+     * | test       |         2 | firstname   | varchar     |           1 | Foo            |
+     * | test       |         3 | middlename  | varchar     |           1 |                |
+     * | test       |         4 | lastname    | varchar     |           1 |                |
+     * +------------+-----------+-------------+-------------+-------------+----------------+
+     */
     public static final String COLUMNS_QUERY =
             "SELECT " +
                     "cols.table_name as table_name, " +
@@ -24,8 +35,24 @@ public class SqlUtils {
                     "WHERE " +
                     "cols.table_schema = ";
 
+    /**
+     * Example output for PRIMARY_KEYS_QUERY:
+     * +------------+---------------+-------------+------------+-------------+--------------+--------------------+---------+
+     * | created_on | database_name | schema_name | table_name | column_name | key_sequence | constraint_name    | comment |
+     * +------------+---------------+-------------+------------+-------------+--------------+--------------------+---------+
+     * | test       | test_db       | test_schema | test       | id          |            1 | SYS_CONSTRAINT_hex |         |
+     * +------------+---------------+-------------+------------+-------------+--------------+--------------------+---------+
+     */
     public static final String PRIMARY_KEYS_QUERY = "SHOW PRIMARY KEYS";
 
+    /**
+     * Example output for FOREIGN_KEYS_QUERY:
+     * +------------+------------------+----------------+---------------+----------------+------------------+----------------+---------------+----------------+--------------+----------------+-------------+--------------------+--------------------+-----------------+------------+
+     * | created_on | pk_database_name | pk_schema_name | pk_table_name | pk_column_name | fk_database_name | fk_schema_name | fk_table_name | pk_column_name | key_sequence | update_rule    | delete_rule | fk_name            | pk_name            | deferrability   | comment    |
+     * +------------+------------------+----------------+---------------+----------------+------------------+----------------+---------------+----------------+--------------+----------------+-------------+--------------------+--------------------+-----------------+------------+
+     * | test       | test_db          | test_schema    | test          | id             | test_db          | test_schema    | test2         | f_id           |            1 | NO ACTION      | NO ACTION   | SYS_CONSTRAINT_hex | SYS_CONSTRAINT_hex |                 |            |
+     * +------------+------------------+----------------+---------------+----------------+------------------+----------------+---------------+----------------+--------------+----------------+-------------+--------------------+--------------------+-----------------+------------+
+     */
     public static final String FOREIGN_KEYS_QUERY = "SHOW IMPORTED KEYS";
 
     public static String getDefaultValueByDataType(String datatype) {
