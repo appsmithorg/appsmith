@@ -2386,4 +2386,25 @@ public class DatabaseChangelog {
         firestoreActionQueries.stream()
                 .forEach(action -> mongoTemplate.save(action));
     }
+
+    @ChangeSet(order = "071", id = "add-snowflake-plugin", author = "")
+    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Snowflake");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("snowflake-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
 }

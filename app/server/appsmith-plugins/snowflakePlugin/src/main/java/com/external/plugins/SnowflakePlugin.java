@@ -1,6 +1,8 @@
 package com.external.plugins;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -9,10 +11,11 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -24,6 +27,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,108 +44,205 @@ public class SnowflakePlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class SnowflakePluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
+    public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
-        /**
-         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
-         * to use PreparedStatement (if configured) which requires the variable substitution, etc. to happen in a particular format
-         * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
-         * prepared (binding replacement) using PluginExecutor.variableSubstitution
-         *
-         * @param connection              : This is the connection that is established to the data source. This connection is according
-         *                                to the parameters in Datasource Configuration
-         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
-         *                                which would be used for substitution
-         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
-         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
-         * @return
-         */
-        @Override
-        public Mono<ActionExecutionResult> executeParameterized(Connection connection,
-                                                                ExecuteActionDTO executeActionDTO,
-                                                                DatasourceConfiguration datasourceConfiguration,
-                                                                ActionConfiguration actionConfiguration) {
-            return null;
-        }
-
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-            ResultSet resultSet = null;
-            List<Map<String, Object>> rowsList = new ArrayList<>(50);
-            try {
-                Statement statement = connection.createStatement();
-                String sqlCommand = "select * from \"SNOWFLAKE_SAMPLE_DATA\".\"TPCDS_SF100TCL\".\"CUSTOMER\" limit 10;";
-                resultSet = statement.executeQuery(sqlCommand);
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int colCount = metaData.getColumnCount();
 
+            String query = actionConfiguration.getBody();
 
-                while (resultSet.next()) {
-                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                    Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                    for (int i = 1; i <= colCount; i++) {
-                        Object value = resultSet.getObject(i);
-                        row.put(metaData.getColumnName(i), value);
-                    }
-                    rowsList.add(row);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if (resultSet != null) {
-                    try {
-                        resultSet.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Missing required parameter: Query."));
             }
-            ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(rowsList));
-            result.setIsExecutionSuccess(true);
 
-            return Mono.just(result);
+            return Mono
+                    .fromCallable(() -> {
+                        ResultSet resultSet = null;
+                        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                        try {
+                            // We do not use keep alive threads for our connections since these might become expensive
+                            // Instead for every execution, we check for connection validity,
+                            // and reset the connection if required
+                            if (!connection.isValid(30)) {
+                                return Mono.error(new StaleConnectionException());
+                            }
+
+                            Statement statement = connection.createStatement();
+                            resultSet = statement.executeQuery(query);
+                            ResultSetMetaData metaData = resultSet.getMetaData();
+                            int colCount = metaData.getColumnCount();
+
+                            while (resultSet.next()) {
+                                // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+                                Map<String, Object> row = new LinkedHashMap<>(colCount);
+
+                                for (int i = 1; i <= colCount; i++) {
+                                    Object value = resultSet.getObject(i);
+                                    row.put(metaData.getColumnName(i), value);
+                                }
+                                rowsList.add(row);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        } finally {
+                            if (resultSet != null) {
+                                try {
+                                    resultSet.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        return rowsList;
+                    })
+                    .map(rowsList -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setIsExecutionSuccess(true);
+
+                        return result;
+                    });
         }
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            try {
+                Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
+            } catch (ClassNotFoundException ex) {
+                System.err.println("Driver not found");
+                return Mono.error(ex);
+            }
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            
             Properties properties = new Properties();
             properties.setProperty("user", authentication.getUsername());
             properties.setProperty("password", authentication.getPassword());
-            properties.setProperty("db", "SNOWFLAKE_SAMPLE_DATA");
-            properties.setProperty("warehouse", "COMPUTE_WH");
-            Connection conn = null;
+            properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
+            properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+            Connection conn;
             try {
-                conn = DriverManager.getConnection("jdbc:snowflake://uc42599.ap-south-1.aws.snowflakecomputing.com", properties);
+                conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
             } catch (SQLException e) {
                 e.printStackTrace();
+                return Mono.error(e);
+            }
+            if (conn == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL"));
             }
             return Mono.just(conn);
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
-
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            Set<String> invalids = new HashSet<>();
+
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
+                invalids.add("Missing Snowflake URL.");
+            }
+
+            if (datasourceConfiguration.getProperties() != null
+                    && datasourceConfiguration.getProperties().get(0) == null) {
+                invalids.add("Missing warehouse name.");
+            }
+
+            if (datasourceConfiguration.getProperties() != null
+                    && datasourceConfiguration.getProperties().get(1) == null) {
+                invalids.add("Missing database name.");
+            }
+
+            if (datasourceConfiguration.getAuthentication() == null) {
+                invalids.add("Missing authentication details.");
+            } else {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (StringUtils.isEmpty(authentication.getUsername())) {
+                    invalids.add("Missing username for authentication.");
+                }
+
+                if (StringUtils.isEmpty(authentication.getPassword())) {
+                    invalids.add("Missing password for authentication.");
+                }
+            }
+
+            return invalids;
         }
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> {
+                        if (connection != null) {
+                            try {
+                                connection.close();
+                            } catch (SQLException throwable) {
+                                throwable.printStackTrace();
+                                return Mono.error(throwable);
+                            }
+                        }
+
+                        return Mono.just(new DatasourceTestResult());
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
         @Override
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            final DatasourceStructure structure = new DatasourceStructure();
+            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
+
+            return Mono.fromSupplier(() -> {
+                try {
+                    if (connection.isValid(30)) {
+                        Statement statement = connection.createStatement();
+                        final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
+                                + datasourceConfiguration.getProperties().get(2).getValue() + "'";
+                        ResultSet resultSet = statement.executeQuery(columnsQuery);
+
+                        while (resultSet.next()) {
+                            SqlUtils.getTableInfo(resultSet, tablesByName);
+                        }
+
+                        resultSet = statement.executeQuery(SqlUtils.PRIMARY_KEYS_QUERY);
+                        while (resultSet.next()) {
+                            SqlUtils.getPrimaryKeyInfo(resultSet, tablesByName, keyRegistry);
+                        }
+
+                        resultSet = statement.executeQuery(SqlUtils.FOREIGN_KEYS_QUERY);
+                        while (resultSet.next()) {
+                            SqlUtils.getForeignKeyInfo(resultSet, tablesByName, keyRegistry);
+                        }
+
+                        /* Get templates for each table and put those in. */
+                        SqlUtils.getTemplates(tablesByName);
+                        structure.setTables(new ArrayList<>(tablesByName.values()));
+                        for (DatasourceStructure.Table table : structure.getTables()) {
+                            table.getKeys().sort(Comparator.naturalOrder());
+                        }
+                    } else {
+                        throw new StaleConnectionException();
+                    }
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
+                }
+                return structure;
+            })
+                    .subscribeOn(scheduler);
         }
     }
 }
