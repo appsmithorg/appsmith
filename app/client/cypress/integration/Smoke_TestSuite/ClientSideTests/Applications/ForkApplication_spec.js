@@ -17,7 +17,6 @@ describe("Fork application across orgs", function() {
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.get(widgetsPage.defaultInput).type("A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait(2000);
     cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });
