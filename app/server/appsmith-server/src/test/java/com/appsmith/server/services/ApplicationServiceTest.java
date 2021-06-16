@@ -766,6 +766,7 @@ public class ApplicationServiceTest {
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
         applicationPage.setIsDefault(false);
+        applicationPage.setOrder(FieldName.DEFAULT_PAGE_ORDER+1);
 
         StepVerifier
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
@@ -811,13 +812,13 @@ public class ApplicationServiceTest {
         Mono<Application> updatedDefaultPageApplicationMono = applicationMono
                 .flatMap(application -> applicationPageService.makePageDefault(application.getId(), newPage.getId()));
 
-        ApplicationPage unpublishedEditedPage = new ApplicationPage();
-        unpublishedEditedPage.setId(newPage.getId());
-        unpublishedEditedPage.setIsDefault(true);
-
         ApplicationPage publishedEditedPage = new ApplicationPage();
         publishedEditedPage.setId(newPage.getId());
         publishedEditedPage.setIsDefault(false);
+
+        ApplicationPage unpublishedEditedPage = new ApplicationPage();
+        unpublishedEditedPage.setId(newPage.getId());
+        unpublishedEditedPage.setIsDefault(true);
 
         StepVerifier
                 .create(updatedDefaultPageApplicationMono)
@@ -825,11 +826,23 @@ public class ApplicationServiceTest {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
                     assertThat(publishedPages).size().isEqualTo(2);
-                    assertThat(publishedPages).containsAnyOf(publishedEditedPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: publishedPages) {
+                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault() == publishedEditedPage.getIsDefault()) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(unpublishedEditedPage);
+                    isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault() == unpublishedEditedPage.getIsDefault()) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }
@@ -873,7 +886,13 @@ public class ApplicationServiceTest {
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(applicationPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault() == applicationPage.getIsDefault()) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }
