@@ -128,7 +128,7 @@ const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
   height: 33px;
   width: 33px;
   top: 1px;
-  display: flex;
+  display: none;
   transition: 0.3s all ease;
   align-items: center;
   justify-content: center;
@@ -490,7 +490,7 @@ class CodeEditor extends Component<Props, State> {
             />
           </Suspense>
         )}
-        {showLightningMenu !== false && (
+        {showLightningMenu !== false && !this.state.isFocused && (
           <CommandBtnContainer
             className="slash-commands"
             isFocused={this.state.isFocused}

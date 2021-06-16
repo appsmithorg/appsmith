@@ -521,7 +521,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
     .slash-commands {
-      visibility: ${(props) => (!props.isNotHover ? "" : "hidden")};
+      display: flex;
     }
   }
   border-radius: 0px;
