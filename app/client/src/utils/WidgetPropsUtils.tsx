@@ -1250,11 +1250,16 @@ const migrateItemsToListDataInListWidget = (
     );
 
     currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
-      if (get(currentDSL, path.key)) {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
         set(
           currentDSL,
           path.key,
-          get(currentDSL, path.key).replace("items", "listData"),
+          get(currentDSL, path.key, "").replace("items", "listData"),
         );
       }
     });

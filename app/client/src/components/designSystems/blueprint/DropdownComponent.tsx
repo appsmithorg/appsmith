@@ -343,7 +343,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     this.props.onOptionSelected(item);
   };
 
-  onItemRemoved = (_tag: string, index: number) => {
+  onItemRemoved = (_tag: ReactNode, index: number) => {
     this.props.onOptionRemoved(this.props.selectedIndexArr[index]);
   };
 
