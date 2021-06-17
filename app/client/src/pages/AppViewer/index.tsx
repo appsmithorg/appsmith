@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps, Route } from "react-router";
 import { Switch } from "react-router-dom";
@@ -28,6 +28,12 @@ import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { Theme } from "constants/DefaultTheme";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -40,6 +46,18 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
     100vh -
       ${(props) => (!props.hasPages ? props.theme.smallHeaderHeight : "72px")}
   );
+`;
+
+const ContainerWithComments = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+`;
+
+const AppViewerBodyContainer = styled.div<{ width?: string }>`
+  flex: 1;
+  overflow: auto;
+  margin: 0 auto;
 `;
 
 export type AppViewerProps = {
@@ -59,6 +77,7 @@ export type AppViewerProps = {
   ) => void;
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
+  lightTheme: Theme;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
@@ -86,30 +105,41 @@ class AppViewer extends Component<
   public render() {
     const { isInitialized } = this.props;
     return (
-      <EditorContext.Provider
-        value={{
-          executeAction: this.props.executeAction,
-          updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-          resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
-        }}
-      >
-        <AppViewerBody hasPages={this.props.pages.length > 1}>
-          {isInitialized && this.state.registered && (
-            <Switch>
-              <SentryRoute
-                component={AppViewerPageContainer}
-                exact
-                path={getApplicationViewerPageURL()}
-              />
-              <SentryRoute
-                component={AppViewerPageContainer}
-                exact
-                path={`${getApplicationViewerPageURL()}/fork`}
-              />
-            </Switch>
-          )}
-        </AppViewerBody>
-      </EditorContext.Provider>
+      <ThemeProvider theme={this.props.lightTheme}>
+        <GlobalHotKeys>
+          <EditorContext.Provider
+            value={{
+              executeAction: this.props.executeAction,
+              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+            }}
+          >
+            <ContainerWithComments>
+              <AppComments isInline />
+              <AppViewerBodyContainer>
+                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                  {isInitialized && this.state.registered && (
+                    <Switch>
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={getApplicationViewerPageURL()}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={`${getApplicationViewerPageURL()}/fork`}
+                      />
+                    </Switch>
+                  )}
+                </AppViewerBody>
+              </AppViewerBodyContainer>
+            </ContainerWithComments>
+            <AddCommentTourComponent />
+            <CommentShowCaseCarousel />
+          </EditorContext.Provider>
+        </GlobalHotKeys>
+      </ThemeProvider>
     );
   }
 }
@@ -117,6 +147,7 @@ class AppViewer extends Component<
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -10,7 +10,11 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import "draft-js/dist/Draft.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSuggestions/Entry/Entry";
-import UserApi from "api/UserApi";
+
+import Icon from "components/ads/Icon";
+
+import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
+import { USER_PHOTO_URL } from "constants/userConstants";
 
 const StyledMention = styled.span`
   color: ${(props) => props.theme.colors.comments.mention};
@@ -22,6 +26,11 @@ export function MentionComponent(props: {
 }) {
   const { children } = props;
   return <StyledMention>@{children}</StyledMention>;
+}
+
+export enum Trigger {
+  "@" = "@",
+  "+" = "+",
 }
 
 const StyledSuggestionsComponent = styled.div<{ isFocused?: boolean }>`
@@ -56,20 +65,50 @@ const Username = styled.div`
   color: ${(props) => props.theme.colors.mentionSuggestion.usernameText};
 `;
 
+const PlusCircle = styled.div`
+  width: 25px;
+  height: 25px;
+  display: flex;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background-color: ${(props) =>
+    props.theme.colors.mentionsInput.mentionsInviteBtnPlusIcon};
+  & svg path {
+    stroke: #fff;
+  }
+  margin-right: ${(props) => props.theme.spaces[4]}px;
+`;
+
 function SuggestionComponent(props: EntryComponentProps) {
   // eslint-disable-next-line  @typescript-eslint/no-unused-vars
   const { theme, ...parentProps } = props;
   const { user } = props.mention;
+
+  if (props.mention?.isInviteTrigger) {
+    return (
+      <StyledSuggestionsComponent {...parentProps}>
+        <PlusCircle>
+          <Icon fillColor="#fff" name="plus" />
+        </PlusCircle>
+        <div>
+          <Name>{createMessage(INVITE_A_NEW_USER)}</Name>
+          <Username>{props.mention.name}</Username>
+        </div>
+      </StyledSuggestionsComponent>
+    );
+  }
+
   return (
     <StyledSuggestionsComponent {...parentProps}>
       <ProfileImage
         side={25}
-        source={`/api/${UserApi.photoURL}/${user.username}`}
-        userName={user.username || ""}
+        source={`/api/${USER_PHOTO_URL}/${user?.username}`}
+        userName={user?.username || ""}
       />
       <div>
-        <Name>{user.username}</Name>
-        <Username>{user.username}</Username>
+        <Name>{props.mention.name}</Name>
+        <Username>{user?.username}</Username>
       </div>
     </StyledSuggestionsComponent>
   );
@@ -90,14 +129,16 @@ type Props = {
   editorState: EditorState;
   setEditorState: (editorState: EditorState) => void;
   readOnly?: boolean;
-  onSearchSuggestions: ({ value }: { value: string }) => void;
+  onSearchSuggestions: (props: { value: string; trigger: string }) => void;
   autoFocus: boolean;
   placeholder?: string;
+  onAddMention?: (mention: MentionData) => void;
 };
 
 function MentionsInput({
   autoFocus,
   editorState,
+  onAddMention,
   onSearchSuggestions,
   onSubmit,
   placeholder,
@@ -108,7 +149,8 @@ function MentionsInput({
   const [open, setOpen] = useState(false);
   const { MentionSuggestions, plugins } = useMemo(() => {
     const mentionPlugin = createMentionPlugin({
-      mentionTrigger: "@",
+      mentionRegExp: "[\\w@\\._]",
+      mentionTrigger: ["@", "+"],
       mentionComponent: MentionComponent,
     });
     const { MentionSuggestions } = mentionPlugin;
@@ -154,13 +196,15 @@ function MentionsInput({
       />
       <MentionSuggestions
         entryComponent={SuggestionComponent}
+        onAddMention={(mention: MentionData) => {
+          if (onAddMention) {
+            onAddMention(mention);
+          }
+        }}
         onOpenChange={onOpenChange}
         onSearchChange={onSearchSuggestions}
         open={open}
         suggestions={suggestions}
-        // onAddMention={() => {
-        //   // get the mention object selected
-        // }}
       />
     </StyledContainer>
   );

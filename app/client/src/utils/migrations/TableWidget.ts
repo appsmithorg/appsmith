@@ -4,6 +4,7 @@ import {
   WidgetTypes,
   FontStyleTypes,
   TextSizes,
+  GridDefaults,
 } from "constants/WidgetConstants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import {
@@ -209,6 +210,42 @@ export const migrateTablePrimaryColumnsBindings = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTablePrimaryColumnsBindings(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetParentRowSpaceProperty = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (child.parentRowSpace === 40) {
+        child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetParentRowSpaceProperty(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetHeaderVisibilityProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!("isVisibleSearch" in child)) {
+        child.isVisibleSearch = true;
+        child.isVisibleFilters = true;
+        child.isVisibleDownload = true;
+        child.isVisibleCompactMode = true;
+        child.isVisiblePagination = true;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetHeaderVisibilityProperties(child);
     }
     return child;
   });

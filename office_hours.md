@@ -28,6 +28,26 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Community Call Jun 10, 2021: New Upcoming Widgets and Latest Releases</strong>
+
+<a href = "https://youtu.be/B6T6L6GYARM">Video Link</a>
+
+#### Summary
+
+Somangshu and Abhishek talked about the latest releases from the past two weeks. Somangshu also demoed a few of our upcoming widgets and share designs for those that are in the works.
+
+------------------
+
+<strong>Appsmith Live Demo #4, 3rd Jun 2021:  Building a CMS with the Notion API</strong>
+
+<a href = "https://youtu.be/O8GyCI-nRLI">Video Link</a>
+
+#### Summary
+
+Akshay and Confidence show the community how we internally used the recently released Notion API to build a CMS with features not available natively in notion. This demo also shows how to work with APIs having complex responses.
+
+------------------
+
 <strong>Appsmith Live Demo #3, 29th May 2021:  Stitching APIs together to automate workflows</strong>
 
 <a href = "https://youtu.be/_8qLbyWwXeA">Video Link</a>
