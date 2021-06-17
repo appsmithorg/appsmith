@@ -260,10 +260,8 @@ function GlobalSearch() {
   ]);
 
   const activeItem = useMemo(() => {
-    return recentEntities.length > 1 && !query
-      ? searchResults[2]
-      : searchResults[activeItemIndex] || {};
-  }, [searchResults, activeItemIndex, recentEntities.length, query]);
+    return searchResults[activeItemIndex] || {};
+  }, [searchResults, activeItemIndex]);
 
   const getNextActiveItem = (nextIndex: number) => {
     const max = Math.max(searchResults.length - 1, 0);
