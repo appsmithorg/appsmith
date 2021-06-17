@@ -61,6 +61,7 @@ const useWidget = (
       isWidgetSelected,
       parentModalId,
       widgetsInStep,
+      navigateToWidget,
     ],
   );
 

@@ -71,7 +71,7 @@ function WidgetLink(props: EntityLinkProps) {
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",
     });
-  }, []);
+  }, [navigateToWidget]);
 
   return (
     <Link
