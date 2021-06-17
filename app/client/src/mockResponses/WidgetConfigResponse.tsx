@@ -296,7 +296,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Red", value: "RED" },
       ],
       widgetName: "Select",
-      defaultOptionValue: "green",
+      defaultOptionValue: ["GREEN", "RED"],
       version: 1,
       isRequired: false,
       isDisabled: false,
