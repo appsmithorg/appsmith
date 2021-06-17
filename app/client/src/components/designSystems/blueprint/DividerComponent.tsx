@@ -27,7 +27,7 @@ const VerticalDivider = styled.div<DividerComponentProps>`
       "solid"} ${props.dividerColor || "black"};`};
 `;
 
-const SvgWrapper = styled.div<{
+const CapWrapper = styled.div<{
   isHorizontal: boolean;
   isStartCap: boolean;
   size: number;
@@ -53,6 +53,17 @@ const SvgWrapper = styled.div<{
     display: block;
     height: ${(props) => props.size}px;
     width: ${(props) => props.size}px;
+
+    &.arrow {
+      ${(props) =>
+        props.isStartCap
+          ? props.isHorizontal
+            ? "transform: rotate(0deg);"
+            : "transform: rotate(90deg);"
+          : props.isHorizontal
+          ? "transform: rotate(180deg);"
+          : "transform: rotate(270deg);"}
+    }
   }
 `;
 
@@ -81,17 +92,19 @@ class DividerComponent extends React.Component<DividerComponentProps> {
   renderCap = (isStartCap: boolean) => {
     const { capType, dividerColor, orientation, thickness } = this.props;
     const isHorizontal = orientation === "horizontal";
+    // size calculations
+    const strokeSize = thickness || 1;
+    const sizeMultiplier = capType === "dot" ? 3.5 : 5;
+    const capSize = strokeSize * sizeMultiplier;
+    const halfCapSize = capSize / 2;
 
-    if (capType === "dot") {
-      const capSize = (thickness || 1) * 3.5;
-      const halfCapSize = capSize / 2;
-
-      return (
-        <SvgWrapper
-          isHorizontal={isHorizontal}
-          isStartCap={isStartCap}
-          size={capSize}
-        >
+    return (
+      <CapWrapper
+        isHorizontal={isHorizontal}
+        isStartCap={isStartCap}
+        size={capSize}
+      >
+        {capType === "dot" ? (
           <svg>
             <circle
               cx={halfCapSize}
@@ -100,9 +113,20 @@ class DividerComponent extends React.Component<DividerComponentProps> {
               r={halfCapSize}
             />
           </svg>
-        </SvgWrapper>
-      );
-    }
+        ) : (
+          <svg className="arrow">
+            <path
+              d={`M ${halfCapSize} ${strokeSize / 2} L ${strokeSize /
+                sizeMultiplier} ${halfCapSize} 
+              L ${halfCapSize} ${capSize - strokeSize / 2}`}
+              fill="transparent"
+              stroke={dividerColor}
+              strokeWidth={thickness}
+            />
+          </svg>
+        )}
+      </CapWrapper>
+    );
   };
 }
 
