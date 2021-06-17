@@ -7,7 +7,7 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set, unset } from "lodash";
+import { set } from "lodash";
 
 export const snapToGrid = (
   columnWidth: number,
