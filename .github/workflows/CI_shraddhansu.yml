@@ -186,7 +186,7 @@ jobs:
        run: yarn install
        
   package:   
-    needs: build
+    needs: ui-test
    # Only run if the build step is successful
     runs-on: ubuntu-latest
     defaults:
