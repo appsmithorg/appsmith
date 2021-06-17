@@ -184,6 +184,18 @@ jobs:
       #Install all the dependencies
      - name: Install dependencies
        run: yarn install
+       
+  Push_to_s3:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    # Only PR approvals of internally created PRs should trigger this workflow
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
 
      - name: Download the react build artifact
        uses: actions/download-artifact@v2
@@ -205,4 +217,3 @@ jobs:
        run: |
           zip -r build.zip build
           aws s3 cp build.zip s3://taj2/build/
-       
