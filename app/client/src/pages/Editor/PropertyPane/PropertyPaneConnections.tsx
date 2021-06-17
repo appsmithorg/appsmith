@@ -216,7 +216,7 @@ function PropertyPaneConnections(props: any) {
           />
         )}
         className="layout-control"
-        disabled={!!dependencies.dependencyOptions.length}
+        disabled={!dependencies.dependencyOptions.length}
         headerLabel="Incoming connections"
         height="28px"
         onSelect={navigateToEntity}
@@ -239,7 +239,7 @@ function PropertyPaneConnections(props: any) {
           />
         )}
         className="layout-control"
-        disabled={!!dependencies.inverseDependencyOptions.length}
+        disabled={!dependencies.inverseDependencyOptions.length}
         headerLabel="Outgoing connections"
         height="28px"
         onSelect={navigateToEntity}
