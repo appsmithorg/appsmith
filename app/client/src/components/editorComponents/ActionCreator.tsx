@@ -483,7 +483,7 @@ const fieldConfigs: FieldConfigs = {
     },
     setter: (value: any, currentValue: string) => {
       if (!value) {
-        value = " ";
+        value = undefined;
       }
       return textSetter(value, currentValue, 1);
     },
