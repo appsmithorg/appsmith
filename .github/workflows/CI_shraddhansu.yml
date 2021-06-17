@@ -186,7 +186,7 @@ jobs:
 #        run: yarn install
        
   Push_to_s3:
-    needs: build
+#     needs: build
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
     # Only PR approvals of internally created PRs should trigger this workflow
