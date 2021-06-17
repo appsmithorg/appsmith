@@ -313,7 +313,7 @@ jobs:
             exit 1;
           fi
   package:
-    needs: ui-test
+    needs: ui-test-result
     runs-on: ubuntu-latest
     defaults:
       run:
