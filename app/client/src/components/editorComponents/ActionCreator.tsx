@@ -5,7 +5,10 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +34,8 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import history from "utils/history";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -551,14 +556,7 @@ const baseOptions: any = [
     label: "Execute an Integration",
     value: ActionType.integration,
   },
-  {
-    label: "Call An API",
-    value: ActionType.api,
-  },
-  {
-    label: "Execute a DB Query",
-    value: ActionType.query,
-  },
+
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -1148,15 +1146,14 @@ function useApiOptionTree() {
 function getIntegrationOptionsWithChildren(
   options: TreeDropdownOption[],
   apis: ActionDataState,
-  createApiOption: TreeDropdownOption,
   queries: ActionDataState,
-  createQueryOption: TreeDropdownOption,
+  createIntegrationOption: TreeDropdownOption,
 ) {
   const option = options.find(
     (option) => option.value === ActionType.integration,
   );
   if (option) {
-    option.children = [createApiOption];
+    option.children = [createIntegrationOption];
     apis.forEach((api) => {
       (option.children as TreeDropdownOption[]).push({
         label: api.config.name,
@@ -1165,7 +1162,6 @@ function getIntegrationOptionsWithChildren(
         type: option.value,
       } as TreeDropdownOption);
     });
-    option.children.push(createQueryOption);
     queries.forEach((query) => {
       (option.children as TreeDropdownOption[]).push({
         label: query.config.name,
@@ -1179,8 +1175,8 @@ function getIntegrationOptionsWithChildren(
 }
 
 function useIntegrationsOptionTree() {
-  const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) || "";
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const queries = useSelector(getActionsForCurrentPage).filter(
     (action) => action.config.pluginType === PluginType.DB,
@@ -1193,39 +1189,21 @@ function useIntegrationsOptionTree() {
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     baseOptions,
     apis,
-    {
-      label: "Create API",
-      value: "api",
-      id: "create",
-      className: "t--create-api-btn",
-      icon: "plus",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const apiName = createNewApiName(apis, pageId);
-        if (setter) {
-          setter({
-            value: `${apiName}`,
-            type: ActionType.api,
-          });
-          dispatch(createNewApiAction(pageId, "API_PANE"));
-        }
-      },
-    },
     queries,
     {
-      label: "Create Query",
-      value: "query",
+      label: "Create New Integration",
+      value: "integration",
       id: "create",
       icon: "plus",
-      className: "t--create-query-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const queryName = createNewQueryName(queries, pageId);
-        if (setter) {
-          setter({
-            value: `${queryName}`,
-            type: ActionType.query,
-          });
-          dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
-        }
+      className: "t--create-integration-btn",
+      onSelect: () => {
+        history.push(
+          INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+            applicationId,
+            pageId,
+            pageId,
+          ),
+        );
       },
     },
   );
