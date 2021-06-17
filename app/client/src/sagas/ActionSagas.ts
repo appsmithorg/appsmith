@@ -64,7 +64,6 @@ import {
   API_EDITOR_ID_URL,
   INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
@@ -767,6 +766,9 @@ function* executeCommand(
       yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      break;
+    case "NEW_INTEGRATION":
+      history.push(INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID());
       break;
   }
 }

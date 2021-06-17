@@ -1,14 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import CodeMirror from "codemirror";
-import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CommandsCompletion } from "utils/autocomplete/TernServer";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { PluginType } from "entities/Action";
-import { RecentEntity } from "../GlobalSearch/utils";
 import sortBy from "lodash/sortBy";
+import { checkIfCursorInsideBinding } from "./hintHelpers";
 
 export const commandsHelper: HintHelper = (editor, data: any) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -22,7 +21,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       {
         datasources,
         executeCommand,
-        plugins,
+        pluginIdToImageLocation,
         recentEntities,
         updatePropertyValue,
       },
@@ -38,35 +37,24 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       const slashIndex = value.lastIndexOf("/");
       if (!cursorBetweenBinding && slashIndex > -1) {
         const suggestionsHeader: CommandsCompletion = commandsHeader(
-          "Suggestions",
+          "Bind Data",
         );
-        const pluginIdToIconLocationMap = plugins.reduce((acc: any, p: any) => {
-          acc[p.id] = p.iconLocation;
-          return acc;
-        }, {});
         const createNewHeader: CommandsCompletion = commandsHeader(
           "Create New",
         );
-        const newQueryHeader: CommandsCompletion = commandsHeader("New Query");
         const newBinding: CommandsCompletion = generateCreateNewCommand({
           text: "{{}}",
           displayText: "New Binding",
           shortcut: "{{}}",
         });
-        const newAPI: CommandsCompletion = generateCreateNewCommand({
+        const newIntegration: CommandsCompletion = generateCreateNewCommand({
           text: "",
-          displayText: "New API",
+          displayText: "New Integration",
           action: () =>
             executeCommand({
-              actionType: "NEW_API",
+              actionType: "NEW_INTEGRATION",
             }),
-          shortcut: "api.new",
-        });
-        const newDatasource: CommandsCompletion = generateCreateNewCommand({
-          text: "",
-          displayText: "New Datasource",
-          action: () => executeCommand({ actionType: "NEW_DATASOURCE" }),
-          shortcut: "datasource.new",
+          shortcut: "integration.new",
         });
         let currentSelection: CommandsCompletion = {
           origin: "",
@@ -117,7 +105,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
             render: (element: HTMLElement, self: any, data: any) => {
               ReactDOM.render(
                 <Command
-                  imgSrc={pluginIdToIconLocationMap[data.data.pluginId]}
+                  imgSrc={pluginIdToImageLocation[data.data.pluginId]}
                   name={data.displayText}
                   shortcut={data.shortcut}
                 />,
@@ -129,17 +117,12 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         const suggestionsMatchingSearchText = matchingCommands(
           suggestions,
           searchText,
-          recentEntities.map((r: RecentEntity) => r.id),
+          recentEntities,
           currentEntityType === "WIDGET" ? 2 : 3,
         );
-        const datasourceCommandsMatchingSearchText = matchingCommands(
-          datasourceCommands,
-          searchText,
-          recentEntities.map((r: RecentEntity) => r.id),
-        );
-        let createNewCommands = [newBinding];
+        let createNewCommands: any = [];
         if (currentEntityType === "WIDGET") {
-          createNewCommands = [...createNewCommands, newAPI, newDatasource];
+          createNewCommands = [...datasourceCommands]; //[newAPI, newDatasource];
         }
         const createNewCommandsMatchingSearchText = matchingCommands(
           createNewCommands,
@@ -147,9 +130,16 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
           [],
           3,
         );
+        createNewCommandsMatchingSearchText.push(
+          ...matchingCommands([newIntegration], searchText, []),
+        );
         let list: CommandsCompletion[] = [];
         if (suggestionsMatchingSearchText.length) {
-          list = [suggestionsHeader, ...suggestionsMatchingSearchText];
+          list = [
+            suggestionsHeader,
+            ...suggestionsMatchingSearchText,
+            newBinding,
+          ];
         }
 
         if (createNewCommandsMatchingSearchText.length) {
@@ -157,16 +147,6 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
             ...list,
             createNewHeader,
             ...createNewCommandsMatchingSearchText,
-          ];
-        }
-        if (
-          datasourceCommandsMatchingSearchText.length &&
-          currentEntityType === "WIDGET"
-        ) {
-          list = [
-            ...list,
-            newQueryHeader,
-            ...datasourceCommandsMatchingSearchText,
           ];
         }
         const cursor = editor.getCursor();
@@ -255,46 +235,6 @@ const commandsHeader = (
   isHeader: true,
   shortcut: "",
 });
-
-const computeCursorIndex = (editor: CodeMirror.Editor) => {
-  const cursor = editor.getCursor();
-  let cursorIndex = cursor.ch;
-  if (cursor.line > 0) {
-    for (let lineIndex = 0; lineIndex < cursor.line; lineIndex++) {
-      const line = editor.getLine(lineIndex);
-      cursorIndex = cursorIndex + line.length + 1;
-    }
-  }
-  return cursorIndex;
-};
-
-const checkIfCursorInsideBinding = (editor: CodeMirror.Editor): boolean => {
-  let cursorBetweenBinding = false;
-  const value = editor.getValue();
-  const cursorIndex = computeCursorIndex(editor);
-  const stringSegments = getDynamicStringSegments(value);
-  // count of chars processed
-  let cumulativeCharCount = 0;
-  stringSegments.forEach((segment: string) => {
-    const start = cumulativeCharCount;
-    const dynamicStart = segment.indexOf("{{");
-    const dynamicDoesStart = dynamicStart > -1;
-    const dynamicEnd = segment.indexOf("}}");
-    const dynamicDoesEnd = dynamicEnd > -1;
-    const dynamicStartIndex = dynamicStart + start + 2;
-    const dynamicEndIndex = dynamicEnd + start;
-    if (
-      dynamicDoesStart &&
-      cursorIndex >= dynamicStartIndex &&
-      ((dynamicDoesEnd && cursorIndex <= dynamicEndIndex) ||
-        (!dynamicDoesEnd && cursorIndex >= dynamicStartIndex))
-    ) {
-      cursorBetweenBinding = true;
-    }
-    cumulativeCharCount = start + segment.length;
-  });
-  return cursorBetweenBinding;
-};
 
 const generateCreateNewCommand = ({
   action,

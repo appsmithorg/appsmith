@@ -55,8 +55,7 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Plugin } from "api/PluginApi";
-import { RecentEntity } from "../GlobalSearch/utils";
+import { getPluginIdToImageLocation } from "sagas/selectors";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -73,8 +72,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
-  plugins: Plugin[];
-  recentEntities: RecentEntity[];
+  pluginIdToImageLocation: Record<string, string>;
+  recentEntities: string[];
 }
 
 interface ReduxDispatchProps {
@@ -337,7 +336,7 @@ class CodeEditor extends Component<Props, State> {
     this.hinters.forEach((hinter) =>
       hinter.showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
-        plugins: this.props.plugins,
+        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         updatePropertyValue: this.updatePropertyValue.bind(this),
         recentEntities: this.props.recentEntities,
         executeCommand: (payload: any) => {
@@ -583,8 +582,8 @@ class CodeEditor extends Component<Props, State> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
-  plugins: state.entities.plugins.list,
-  recentEntities: state.ui.globalSearch.recentEntities,
+  pluginIdToImageLocation: getPluginIdToImageLocation(state),
+  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
