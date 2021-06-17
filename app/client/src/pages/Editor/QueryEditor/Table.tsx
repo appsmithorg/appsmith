@@ -51,7 +51,7 @@ export const TableWrapper = styled.div`
       overflow: hidden;
     }
     .tbody {
-      height: calc(100% - 38px);
+      height: calc(100% - ${(props) => props.theme.tableHeaderHeight});
       .tr {
         width: 100%;
       }
