@@ -2532,8 +2532,12 @@ public class DatabaseChangelog {
                 action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
 
             }
+        }
 
+        // Now that all the actions have been updated, save all the actions
+        for (NewAction action : updateMongoActions) {
             mongockTemplate.save(action);
         }
+
     }
 }

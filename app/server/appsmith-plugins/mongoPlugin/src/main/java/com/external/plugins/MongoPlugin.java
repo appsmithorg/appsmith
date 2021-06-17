@@ -32,6 +32,7 @@ import com.external.plugins.commands.Find;
 import com.external.plugins.commands.Insert;
 import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
+import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -439,6 +440,9 @@ public class MongoPlugin extends BasePlugin {
                             break;
                         case "UPDATE":
                             command = new UpdateMany(actionConfiguration);
+                            break;
+                        case "UPDATE_ONE":
+                            command = new UpdateOne(actionConfiguration);
                             break;
                         case "DELETE":
                             command = new Delete(actionConfiguration);
