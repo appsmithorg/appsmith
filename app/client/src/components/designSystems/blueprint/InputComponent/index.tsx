@@ -26,9 +26,14 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import Icon, { IconSize } from "components/ads/Icon";
+import CurrencyTypeDropdown, {
+  getCurrencyOptions,
+  getSelectedCurrency,
+} from "components/designSystems/blueprint/InputComponent/CurrencyCodeDropdown";
+import PhoneNumberTypeDropdown, {
+  getPhoneNumberCodeOptions,
+  getSelectedCountryCode,
+} from "components/designSystems/blueprint/InputComponent/PhoneNumberCodeDropdown";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -46,7 +51,8 @@ const InputComponentWrapper = styled((props) => (
   inputType: InputType;
 }>`
   &&&& {
-    .currency-type-filter {
+    .currency-type-filter,
+    .country-type-filter {
       width: 40px;
       height: 32px;
       position: absolute;
@@ -120,109 +126,6 @@ const InputComponentWrapper = styled((props) => (
     }
   }
 `;
-
-const DropdownTriggerIconWrapper = styled.div`
-  height: 19px;
-  padding: 9px 5px 9px 12px;
-  width: 40px;
-  height: 19px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: -0.24px;
-  color: #090707;
-`;
-
-const CurrencyIconWrapper = styled.span`
-  height: 100%;
-  padding: 6px 4px 6px 12px;
-  width: 28px;
-  position: absolute;
-  left: 0;
-  z-index: 16;
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: -0.24px;
-  color: #090707;
-`;
-
-interface CurrencyDropdownProps {
-  onCurrencyTypeChange: (code?: string) => void;
-  options: Array<DropdownOption>;
-  selected: DropdownOption;
-  allowCurrencyChange?: boolean;
-}
-
-function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
-  if (!props.allowCurrencyChange) {
-    return (
-      <CurrencyIconWrapper>
-        {getSelectedItem(props.selected.value).id}
-      </CurrencyIconWrapper>
-    );
-  }
-  const dropdownTriggerIcon = (
-    <DropdownTriggerIconWrapper className="t--input-currency-change">
-      {getSelectedItem(props.selected.value).id}
-      <Icon name="downArrow" size={IconSize.XXS} />
-    </DropdownTriggerIconWrapper>
-  );
-  return (
-    <Dropdown
-      containerClassName="currency-type-filter"
-      dropdownHeight="195px"
-      dropdownTriggerIcon={dropdownTriggerIcon}
-      enableSearch
-      onSelect={props.onCurrencyTypeChange}
-      optionWidth="260px"
-      options={props.options}
-      searchPlaceholder="Search by currency or country"
-      selected={props.selected}
-      showLabelOnly
-    />
-  );
-}
-
-const getSelectedItem = (currencyType?: string): DropdownOption => {
-  const selectedCurrency: CurrencyOptionProps | undefined = currencyType
-    ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.currency === currencyType;
-      })
-    : undefined;
-  if (selectedCurrency) {
-    return {
-      label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
-      searchText: selectedCurrency.label,
-      value: selectedCurrency.currency,
-      id: selectedCurrency.symbol_native,
-    };
-  }
-  return CurrencyTypeOptions[0];
-};
-
-const countryToFlag = (isoCode: string) => {
-  return typeof String.fromCodePoint !== "undefined"
-    ? isoCode
-        .toUpperCase()
-        .replace(/./g, (char) =>
-          String.fromCodePoint(char.charCodeAt(0) + 127397),
-        )
-    : isoCode;
-};
-
-export const getCurrencyOptions = (): Array<DropdownOption> => {
-  return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
-    return {
-      leftElement: countryToFlag(item.code),
-      searchText: item.label,
-      label: `${item.currency} - ${item.currency_name}`,
-      value: item.currency,
-    };
-  });
-};
-
 class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
@@ -268,7 +171,8 @@ class InputComponent extends React.Component<
     return (
       inputType === "INTEGER" ||
       inputType === "NUMBER" ||
-      inputType === "CURRENCY"
+      inputType === "CURRENCY" ||
+      inputType === "PHONE_NUMBER"
     );
   }
 
@@ -320,18 +224,24 @@ class InputComponent extends React.Component<
       disabled={this.props.disabled}
       intent={this.props.intent}
       leftIcon={
-        this.props.inputType === "PHONE_NUMBER"
-          ? "phone"
-          : this.props.inputType !== InputTypes.CURRENCY
-          ? this.props.leftIcon
-          : this.props.inputType === InputTypes.CURRENCY && (
-              <CurrencyTypeDropdown
-                allowCurrencyChange={this.props.allowCurrencyChange}
-                onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-                options={getCurrencyOptions()}
-                selected={getSelectedItem(this.props.currencyType)}
-              />
-            )
+        this.props.inputType === "PHONE_NUMBER" ? (
+          <PhoneNumberTypeDropdown
+            onCountryCodeChange={this.props.onCountryCodeChange}
+            options={getPhoneNumberCodeOptions()}
+            selected={getSelectedCountryCode(this.props.countryCode)}
+          />
+        ) : this.props.inputType !== InputTypes.CURRENCY ? (
+          this.props.leftIcon
+        ) : (
+          this.props.inputType === InputTypes.CURRENCY && (
+            <CurrencyTypeDropdown
+              allowCurrencyChange={this.props.allowCurrencyChange}
+              onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+              options={getCurrencyOptions()}
+              selected={getSelectedCurrency(this.props.currencyType)}
+            />
+          )
+        )
       }
       max={this.props.maxNum}
       maxLength={this.props.maxChars}
@@ -342,7 +252,7 @@ class InputComponent extends React.Component<
       onValueChange={this.onNumberChange}
       placeholder={this.props.placeholder}
       stepSize={this.props.stepSize}
-      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+      // type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
       value={this.props.value}
     />
   );
@@ -398,6 +308,7 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
+    console.log(this.props);
     return (
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}
@@ -447,6 +358,7 @@ export interface InputComponentProps extends ComponentProps {
   defaultValue?: string;
   currencyType?: string;
   noOfDecimals?: number;
+  countryCode?: string;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
@@ -459,6 +371,7 @@ export interface InputComponentProps extends ComponentProps {
   minNum?: number;
   onValueChange: (valueAsString: string) => void;
   onCurrencyTypeChange: (code?: string) => void;
+  onCountryCodeChange: (code?: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;

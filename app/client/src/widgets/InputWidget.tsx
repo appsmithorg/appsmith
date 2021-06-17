@@ -3,7 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
-  getCurrencyOptions,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -15,6 +14,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { getPhoneNumberCodeOptions } from "components/designSystems/blueprint/InputComponent/PhoneNumberCodeDropdown";
+import { getCurrencyOptions } from "components/designSystems/blueprint/InputComponent/CurrencyCodeDropdown";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -54,6 +55,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Currency",
                 value: "CURRENCY",
               },
+              {
+                label: "Phone Number",
+                value: "PHONE_NUMBER",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -70,6 +75,21 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+          },
+          {
+            helpText: "Changes the country code",
+            propertyName: "countryCode",
+            label: "Default Country Code",
+            enableSearch: true,
+            dropdownHeight: "195px",
+            controlType: "DROP_DOWN",
+            placeholderText: "Search by code or country name",
+            options: getPhoneNumberCodeOptions(),
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.PHONE_NUMBER;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText: "Changes the type of currency",
@@ -285,6 +305,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       }}`,
       value: `{{this.text}}`,
       selectedCurrencyType: `{{ this.currencyType }}`,
+      selectedCountryCode: `{{ this.countryCode }}`,
     };
   }
 
@@ -300,6 +321,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isFocused: false,
       isDirty: false,
       selectedCurrencyType: undefined,
+      selectedCountryCode: undefined,
     };
   }
 
@@ -322,6 +344,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       this.props.updateWidgetProperty("currencyType", currencyType);
     } else {
       this.props.updateWidgetMetaProperty("selectedCurrencyType", currencyType);
+    }
+  };
+
+  onCountryCodeChange = (code?: string) => {
+    const countryCode = code || "+91";
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("countryCode", countryCode);
+    } else {
+      this.props.updateWidgetMetaProperty("selectedCountryCode", countryCode);
     }
   };
 
@@ -377,6 +408,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
+        countryCode={this.props.selectedCountryCode}
         currencyType={this.props.selectedCurrencyType}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
@@ -392,6 +424,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             GRID_DENSITY_MIGRATION_V1 >
             1 && this.props.inputType === "TEXT"
         }
+        onCountryCodeChange={this.onCountryCodeChange}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
@@ -433,6 +466,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   currencyType?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
+  countryCode?: string;
   decimalsInCurrency?: number;
   defaultText?: string;
   isDisabled?: boolean;

@@ -8,6 +8,7 @@ export interface CurrencyOptionProps {
   label: string;
   phone: string;
   symbol_native: string;
+  country_code?: string;
 }
 
 export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
@@ -842,6 +843,7 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     label: "India",
     phone: "91",
     symbol_native: "₹",
+    country_code: "+91",
   },
   {
     code: "IO",
