@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { AppState } from "reducers";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import {
@@ -36,6 +36,13 @@ import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
 import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import history from "utils/history";
+import { keyBy } from "lodash";
+import {
+  QueryIcon,
+  dbQueryIcon,
+  apiIcon,
+  MethodTag,
+} from "pages/Editor/Explorer/ExplorerIcons";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -1143,7 +1150,18 @@ function useApiOptionTree() {
   return apiOptionTree;
 }
 
+function getIcon(action: any, plugin: any) {
+  if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
+    return <QueryIcon plugin={plugin} />;
+  else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
+
+  const method = action.actionConfiguration.httpMethod;
+  if (!method) return apiIcon;
+  return <MethodTag type={method} />;
+}
+
 function getIntegrationOptionsWithChildren(
+  plugins: any,
   options: TreeDropdownOption[],
   apis: ActionDataState,
   queries: ActionDataState,
@@ -1160,6 +1178,10 @@ function getIntegrationOptionsWithChildren(
         id: api.config.id,
         value: api.config.name,
         type: option.value,
+        icon: getIcon(
+          api.config,
+          plugins[(api as any).config.datasource.pluginId],
+        ),
       } as TreeDropdownOption);
     });
     queries.forEach((query) => {
@@ -1168,6 +1190,10 @@ function getIntegrationOptionsWithChildren(
         id: query.config.id,
         value: query.config.name,
         type: option.value,
+        icon: getIcon(
+          query.config,
+          plugins[(query as any).config.datasource.pluginId],
+        ),
       } as TreeDropdownOption);
     });
   }
@@ -1178,6 +1204,11 @@ function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId);
 
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
+
   const queries = useSelector(getActionsForCurrentPage).filter(
     (action) => action.config.pluginType === PluginType.DB,
   );
@@ -1187,6 +1218,7 @@ function useIntegrationsOptionTree() {
       action.config.pluginType === PluginType.SAAS,
   );
   const integrationOptionTree = getIntegrationOptionsWithChildren(
+    pluginGroups,
     baseOptions,
     apis,
     queries,
