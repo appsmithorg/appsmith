@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -68,7 +69,7 @@ public class SnowflakePlugin extends BasePlugin {
                             // Instead for every execution, we check for connection validity,
                             // and reset the connection if required
                             if (!connection.isValid(30)) {
-                                return Mono.error(new StaleConnectionException());
+                                throw new StaleConnectionException();
                             }
 
                             Statement statement = connection.createStatement();
@@ -88,7 +89,7 @@ public class SnowflakePlugin extends BasePlugin {
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
                         } finally {
                             if (resultSet != null) {
                                 try {
@@ -104,9 +105,12 @@ public class SnowflakePlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setIsExecutionSuccess(true);
-
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        result.setRequest(request);
                         return result;
-                    });
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -115,7 +119,7 @@ public class SnowflakePlugin extends BasePlugin {
                 Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
             } catch (ClassNotFoundException ex) {
                 System.err.println("Driver not found");
-                return Mono.error(ex);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
             }
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             Properties properties = new Properties();
@@ -123,17 +127,22 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("password", authentication.getPassword());
             properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
-            Connection conn;
-            try {
-                conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return Mono.error(e);
-            }
-            if (conn == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL"));
-            }
-            return Mono.just(conn);
+
+            return Mono
+                    .fromCallable(() -> {
+                        Connection conn;
+                        try {
+                            conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
+                        }
+                        if (conn == null) {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL");
+                        }
+                        return conn;
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -211,43 +220,44 @@ public class SnowflakePlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Mono.fromSupplier(() -> {
-                try {
-                    if (connection.isValid(30)) {
-                        Statement statement = connection.createStatement();
-                        final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
-                                + datasourceConfiguration.getProperties().get(2).getValue() + "'";
-                        ResultSet resultSet = statement.executeQuery(columnsQuery);
+            return Mono
+                    .fromSupplier(() -> {
+                        try {
+                            if (connection.isValid(30)) {
+                                Statement statement = connection.createStatement();
+                                final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
+                                        + datasourceConfiguration.getProperties().get(2).getValue() + "'";
+                                ResultSet resultSet = statement.executeQuery(columnsQuery);
 
-                        while (resultSet.next()) {
-                            SqlUtils.getTableInfo(resultSet, tablesByName);
-                        }
+                                while (resultSet.next()) {
+                                    SqlUtils.getTableInfo(resultSet, tablesByName);
+                                }
 
-                        resultSet = statement.executeQuery(SqlUtils.PRIMARY_KEYS_QUERY);
-                        while (resultSet.next()) {
-                            SqlUtils.getPrimaryKeyInfo(resultSet, tablesByName, keyRegistry);
-                        }
+                                resultSet = statement.executeQuery(SqlUtils.PRIMARY_KEYS_QUERY);
+                                while (resultSet.next()) {
+                                    SqlUtils.getPrimaryKeyInfo(resultSet, tablesByName, keyRegistry);
+                                }
 
-                        resultSet = statement.executeQuery(SqlUtils.FOREIGN_KEYS_QUERY);
-                        while (resultSet.next()) {
-                            SqlUtils.getForeignKeyInfo(resultSet, tablesByName, keyRegistry);
-                        }
+                                resultSet = statement.executeQuery(SqlUtils.FOREIGN_KEYS_QUERY);
+                                while (resultSet.next()) {
+                                    SqlUtils.getForeignKeyInfo(resultSet, tablesByName, keyRegistry);
+                                }
 
-                        /* Get templates for each table and put those in. */
-                        SqlUtils.getTemplates(tablesByName);
-                        structure.setTables(new ArrayList<>(tablesByName.values()));
-                        for (DatasourceStructure.Table table : structure.getTables()) {
-                            table.getKeys().sort(Comparator.naturalOrder());
+                                /* Get templates for each table and put those in. */
+                                SqlUtils.getTemplates(tablesByName);
+                                structure.setTables(new ArrayList<>(tablesByName.values()));
+                                for (DatasourceStructure.Table table : structure.getTables()) {
+                                    table.getKeys().sort(Comparator.naturalOrder());
+                                }
+                            } else {
+                                throw new StaleConnectionException();
+                            }
+                        } catch (SQLException throwable) {
+                            throwable.printStackTrace();
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
                         }
-                    } else {
-                        throw new StaleConnectionException();
-                    }
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
-                }
-                return structure;
-            })
+                        return structure;
+                    })
                     .subscribeOn(scheduler);
         }
     }
