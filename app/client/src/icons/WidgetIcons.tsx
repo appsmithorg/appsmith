@@ -72,6 +72,11 @@ export const WidgetIcons: {
       <DropDownIcon />
     </IconWrapper>
   ),
+  MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DropDownIcon />
+    </IconWrapper>
+  ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <RadioGroupIcon />

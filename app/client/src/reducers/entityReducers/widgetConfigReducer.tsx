@@ -29,6 +29,7 @@ import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
+import { MultiSelectWidgetProps } from "widgets/MultiSelectWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -64,6 +65,7 @@ export interface WidgetConfigReducerState {
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
+    MULTI_SELECT_WIDGET: Partial<MultiSelectWidgetProps> & WidgetConfigProps;
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
     SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;

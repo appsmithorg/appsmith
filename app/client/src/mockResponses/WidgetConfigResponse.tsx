@@ -286,6 +286,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
       isDisabled: false,
     },
+    MULTI_SELECT_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      label: "",
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      widgetName: "Select",
+      defaultOptionValue: "green",
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+    },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 3 * GRID_DENSITY_MIGRATION_V1,

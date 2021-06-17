@@ -97,6 +97,13 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     // onOptionChange: "Function Call",
   },
+  MULTI_SELECT_WIDGET: {
+    label: "string",
+    options: "Array<{ label: string, value: string }>",
+    defaultOptionValue: "string",
+    isRequired: "boolean",
+    isVisible: "boolean",
+  },
   FORM_BUTTON_WIDGET: {
     text: "string",
     buttonStyle: "PRIMARY_BUTTON | SECONDARY_BUTTON | DANGER_BUTTON",

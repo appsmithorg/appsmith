@@ -103,6 +103,10 @@ import SwitchWidget, {
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import MultiSelectWidget, {
+  MultiSelectWidgetProps,
+  ProfiledMultiSelectWidget,
+} from "widgets/MultiSelectWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -453,6 +457,18 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: MultiSelectWidgetProps): JSX.Element {
+          return <ProfiledMultiSelectWidget {...widgetData} />;
+        },
+      },
+      MultiSelectWidget.getDerivedPropertiesMap(),
+      MultiSelectWidget.getDefaultPropertiesMap(),
+      MultiSelectWidget.getMetaPropertiesMap(),
+      MultiSelectWidget.getPropertyPaneConfig(),
     );
   }
 }
