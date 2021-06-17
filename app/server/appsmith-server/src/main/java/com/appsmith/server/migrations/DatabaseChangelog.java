@@ -2472,7 +2472,29 @@ public class DatabaseChangelog {
         return templates;
     }
 
-    @ChangeSet(order = "072", id = "mongo-form-merge-update-commands", author = "")
+    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
+    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Snowflake");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("snowflake-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+
+    }
+
+    @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
     public void migrateUpdateOneToUpdateManyMongoFormCommand(MongockTemplate mongockTemplate) {
 
         Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
@@ -2538,6 +2560,7 @@ public class DatabaseChangelog {
         for (NewAction action : updateMongoActions) {
             mongockTemplate.save(action);
         }
-
     }
+
+
 }
