@@ -1,19 +1,50 @@
 import React, { useContext } from "react";
 import Select, { SelectProps } from "rc-select";
-import { Checkbox } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import "./index.css";
 import styled from "styled-components";
 import { LayersContext } from "constants/Layers";
+import { Colors } from "constants/Colors";
+import { createGlobalStyle } from "constants/DefaultTheme";
+
+const DropdownStyles = createGlobalStyle`
+  .multi-select-dropdown {
+      &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+      background: white;
+      box-shadow: none;
+      border-width: 2px;
+      border-style: solid;
+      border-color: ${Colors.GEYSER};
+      &::before {
+        width: auto;
+        height: 1em;
+      }
+    }
+    .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${(props) => props.theme.colors.primaryOld};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      border-color: ${(props) => props.theme.colors.primaryOld};
+    }
+  }
+`;
 
 export const MultiSelectContainer = styled.div``;
+const StyledCheckbox = styled(Checkbox)`
+  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    margin: 0;
+  }
+`;
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
-  return <Checkbox checked={props.isSelected} />;
+  return <StyledCheckbox checked={props.isSelected} />;
 };
 
 export interface MultiSelectProps
   extends Required<
-    Pick<SelectProps, "disabled" | "onChange" | "options" | "placeholder">
+    Pick<
+      SelectProps,
+      "disabled" | "onChange" | "options" | "placeholder" | "loading"
+    >
   > {
   mode?: "multiple" | "tags";
   value: string[];
@@ -21,6 +52,7 @@ export interface MultiSelectProps
 
 function MultiSelectComponent({
   disabled,
+  loading,
   onChange,
   options,
   placeholder,
@@ -30,13 +62,14 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer>
+      <DropdownStyles />
       <Select
-        // {...props}
         animation="slide-up"
         autoFocus
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
+        dropdownClassName="multi-select-dropdown"
         dropdownStyle={{
           zIndex: layer.portals,
         }}
@@ -57,6 +90,7 @@ function MultiSelectComponent({
             />
           </svg>
         }
+        loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
         menuItemSelectedIcon={menuItemSelectedIcon}

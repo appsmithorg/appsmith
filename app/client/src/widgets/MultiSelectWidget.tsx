@@ -129,6 +129,7 @@ class MultiSelectWidget extends BaseWidget<
     return (
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}
+        loading={this.props.isLoading}
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText ?? "Select a value"}
@@ -167,6 +168,7 @@ export interface MultiSelectWidgetProps extends WidgetProps, WithMeta {
   onOptionChange: string;
   defaultOptionValue: string | string[];
   isRequired: boolean;
+  isLoading: boolean;
   selectedOptionValueArr: string[];
   selectedOptionValues: string[];
   selectedOptionLabels: string[];

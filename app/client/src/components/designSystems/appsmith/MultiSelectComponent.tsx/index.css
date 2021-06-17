@@ -227,34 +227,14 @@
 	cursor: pointer;
 }
 
-.rc-select-item-option-state .bp3-control input {
-	z-index: 1;
-	opacity: 0;
-	cursor: pointer;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-}
 .rc-select-item-option-state .bp3-control.bp3-checkbox {
 	margin-bottom: 0;
 }
 .rc-select-item-option-state .bp3-control input:checked ~ .bp3-control-indicator {
-	background: rgb(3, 179, 101);
+	background: rgb(3, 179, 101) !important;
 	color: rgb(255, 255, 255);
 	border-color: rgb(3, 179, 101) !important;
 	box-shadow: none;
-	outline: none !important;
-}
-.rc-select-item-option-state .bp3-control input:checked ~ .bp3-control-indicator::before {
-	width: auto;
-}
-.rc-select-item-option-state .bp3-control .bp3-control-indicator {
-	background: white;
-	border-width: 2px;
-	border-style: solid;
-	box-shadow: none;
-	border-color: rgb(211, 222, 227);
-	border-radius: 3px;
 	outline: none !important;
 }
 
