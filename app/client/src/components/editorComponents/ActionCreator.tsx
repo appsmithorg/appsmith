@@ -1,6 +1,10 @@
 import React, { useMemo } from "react";
 import { AppState } from "reducers";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import {
+  getActionsForCurrentPage,
+  getDBDatasources,
+} from "selectors/entitiesSelector";
+import { createActionRequest } from "actions/actionActions";
 import {
   getModalDropdownList,
   getNextModalName,
@@ -9,6 +13,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useDispatch, useSelector } from "react-redux";
@@ -1161,12 +1166,22 @@ function getIcon(action: any, plugin: any) {
 }
 
 function getIntegrationOptionsWithChildren(
+  pageId: string,
   plugins: any,
   options: TreeDropdownOption[],
-  apis: ActionDataState,
-  queries: ActionDataState,
+  actions: any[],
+  datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
+  dispatch: any,
 ) {
+  const queries = actions.filter(
+    (action) => action.config.pluginType === PluginType.DB,
+  );
+  const apis = actions.filter(
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
+  );
   const option = options.find(
     (option) => option.value === ActionType.integration,
   );
@@ -1196,6 +1211,34 @@ function getIntegrationOptionsWithChildren(
         ),
       } as TreeDropdownOption);
     });
+    datasources.forEach((dataSource: Datasource) => {
+      (option.children as TreeDropdownOption[]).push({
+        label: dataSource.name,
+        id: dataSource.id,
+        value: dataSource.name,
+        type: option.value,
+        onSelect: () => {
+          const newQueryName = createNewQueryName(actions, pageId);
+
+          dispatch(
+            createActionRequest({
+              name: newQueryName,
+              pageId,
+              datasource: {
+                id: dataSource.id,
+              },
+              eventData: {
+                actionType: "Query",
+                from: "home-screen",
+                dataSource: dataSource.name,
+              },
+              pluginId: dataSource.pluginId,
+              actionConfiguration: {},
+            }),
+          );
+        },
+      } as TreeDropdownOption);
+    });
   }
   return options;
 }
@@ -1203,25 +1246,20 @@ function getIntegrationOptionsWithChildren(
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId);
-
+  const datasources: Datasource[] = useSelector(getDBDatasources);
+  const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const actions = useSelector(getActionsForCurrentPage);
 
-  const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === PluginType.DB,
-  );
-  const apis = useSelector(getActionsForCurrentPage).filter(
-    (action) =>
-      action.config.pluginType === PluginType.API ||
-      action.config.pluginType === PluginType.SAAS,
-  );
   const integrationOptionTree = getIntegrationOptionsWithChildren(
+    pageId,
     pluginGroups,
     baseOptions,
-    apis,
-    queries,
+    actions,
+    datasources,
     {
       label: "Create New Integration",
       value: "integration",
@@ -1238,6 +1276,7 @@ function useIntegrationsOptionTree() {
         );
       },
     },
+    dispatch,
   );
   return integrationOptionTree;
 }
