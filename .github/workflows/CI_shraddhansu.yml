@@ -41,8 +41,6 @@ jobs:
 
     steps:
       # Checkout the code
-      - name: ls-ltr
-        run: ls -ltr
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
