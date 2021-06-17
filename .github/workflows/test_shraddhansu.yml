@@ -27,8 +27,6 @@ jobs:
 
       # Uncomment this step to verify the use of 'deno fmt' on each commit.
 
-        
-      - run: ls -ltr
       - run: touch kk.js
       - run: ls -ltr
   Download:
