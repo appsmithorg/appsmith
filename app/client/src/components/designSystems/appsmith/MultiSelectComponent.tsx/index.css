@@ -196,7 +196,7 @@
 	transform: translateY(5px);
 }
 
-.rc-select-focused .rc-select-selector {
+.rc-select-show-arrow.rc-select-multiple.rc-select-focused .rc-select-selector {
 	border: 1px solid rgb(128, 189, 255);
 	outline: 0px;
 	box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 0px 0.1rem;
