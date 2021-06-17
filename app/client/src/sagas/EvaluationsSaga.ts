@@ -260,11 +260,6 @@ function* logSuccessfulBindings(
           entityType,
           propertyPath,
         });
-        console.log("BindingSuccess:", {
-          unevalValue,
-          entityType,
-          propertyPath,
-        });
       }
     }
   });
