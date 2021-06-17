@@ -28,6 +28,7 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
+  migrateTableWidgetHeaderVisibilityProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -761,12 +762,17 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 22) {
     currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 23;
   }
 
-  if (currentDSL.version === 22) {
+  if (currentDSL.version === 23) {
     currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
-    currentDSL.version = 23;
+    currentDSL.version = 24;
+  }
+
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
