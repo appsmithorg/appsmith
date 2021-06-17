@@ -290,6 +290,5 @@ export const Resizable = forwardRef(function Resizable(
     </Spring>
   );
 });
-Resizable.whyDidYouRender = true;
 
 export default Resizable;
