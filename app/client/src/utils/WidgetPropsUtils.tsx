@@ -1231,15 +1231,15 @@ const migrateItemsToListDataInListWidget = (
   if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
     currentDSL = renameKeyInObject(currentDSL, "items", "listData");
 
-    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.filter(
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
       (path: { key: string }) => {
-        return path.key !== "items";
+        if (path.key === "items") {
+          return { key: "listData " };
+        }
+
+        return path;
       },
     );
-
-    currentDSL.dynamicBindingPathList?.push({
-      key: "listData",
-    });
 
     currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
       if (get(currentDSL, path.key)) {
