@@ -27,11 +27,11 @@
           "initialValue": "FIND",
           "options": [
             {
-              "label": "Insert one or more documents",
+              "label": "Insert Document(s)",
               "value": "INSERT"
             },
             {
-              "label": "Find one or more documents",
+              "label": "Find Document(s)",
               "value": "FIND"
             },
             {
@@ -43,7 +43,7 @@
               "value": "UPDATE_MANY"
             },
             {
-              "label": "Delete one or more documents",
+              "label": "Delete Document(s)",
               "value": "DELETE"
             },
             {
