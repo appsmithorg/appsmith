@@ -55,14 +55,20 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
               {
                 label: "Solid",
                 value: "solid",
+                icon: "cap-solid",
+                iconSize: "large",
               },
               {
                 label: "Dashed",
                 value: "dashed",
+                icon: "line-dashed",
+                iconSize: "large",
               },
               {
                 label: "Dotted",
                 value: "dotted",
+                icon: "line-dotted",
+                iconSize: "large",
               },
             ],
             isBindProperty: true,
@@ -95,17 +101,20 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
               {
                 label: "No Cap",
                 value: "",
-                icon: "HEADING_ONE",
+                icon: "cap-solid",
+                iconSize: "large",
               },
               {
                 label: "Arrow",
                 value: "arrow",
-                icon: "HEADING_TWO",
+                icon: "arrow-forward",
+                iconSize: "large",
               },
               {
                 label: "Dot",
                 value: "dot",
-                icon: "HEADING_THREE",
+                icon: "cap-dot",
+                iconSize: "large",
               },
             ],
             isBindProperty: false,
@@ -117,15 +126,15 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                icon: "DIVIDER_CAP_LEFT",
                 value: -1,
               },
               {
-                icon: "CENTER_ALIGN",
+                icon: "DIVIDER_CAP_ALL",
                 value: 0,
               },
               {
-                icon: "RIGHT_ALIGN",
+                icon: "DIVIDER_CAP_RIGHT",
                 value: 1,
               },
             ],
