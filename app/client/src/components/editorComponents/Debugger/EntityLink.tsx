@@ -2,7 +2,7 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { PluginType } from "entities/Action";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -71,7 +71,7 @@ function WidgetLink(props: EntityLinkProps) {
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",
     });
-  }, []);
+  }, [navigateToWidget]);
 
   return (
     <Link
