@@ -41,6 +41,8 @@ public class CommentThread extends BaseDomain {
     @JsonIgnore
     Set<String> viewedByUsers;
 
+    String mode;
+
     /**
      * Display name of the user, who authored this comment thread.
      */
