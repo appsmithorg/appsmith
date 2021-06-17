@@ -1,20 +1,18 @@
 import React from "react";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 
-import styled from "styled-components";
-
 import UserApi from "api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
-
 import { getTypographyByKey } from "constants/DefaultTheme";
-// import moment from "moment";
-
 import { getCommentThreadURL } from "comments/utils";
+import { markThreadAsReadRequest } from "actions/commentActions";
 
 import history from "utils/history";
 import { useDispatch } from "react-redux";
-import { markThreadAsReadRequest } from "actions/commentActions";
+
+import moment from "moment";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
@@ -61,7 +59,19 @@ const UnreadIndicator = styled.div`
 
 // eslint-disable-next-line
 function CommentNotification(props: { notification?: AppsmithNotification }) {
-  // TODO handle click
+  const { comment, isRead } = props.notification;
+  const {
+    _id,
+    applicationId,
+    applicationName,
+    authorName,
+    authorUsername,
+    id,
+    // mode, TODO get from comment thread
+    pageId,
+    // resolvedState, TODO get from comment thread
+  } = comment;
+
   return (
     <FlexContainer>
       <ProfileImage
@@ -73,8 +83,7 @@ function CommentNotification(props: { notification?: AppsmithNotification }) {
         <div>
           <b>Comment</b> notification body
         </div>
-        {/* <Time>{moment().fromNow()}</Time> */}
-        <Time>An hour ago</Time>
+        <Time>{moment().fromNow()}</Time>
       </NotificationBodyContainer>
     </FlexContainer>
   );
@@ -84,11 +93,28 @@ function CommentThreadNotification(props: {
   notification: AppsmithNotification;
 }) {
   const dispatch = useDispatch();
-  const { commentThread } = props.notification;
-  // TODO add isResolved, applicationId, pageId
-  // mode: commentThread?.mode
+  const { commentThread, isRead } = props.notification;
+
+  const {
+    _id,
+    applicationId,
+    applicationName,
+    authorName,
+    authorUsername,
+    id,
+    mode,
+    pageId,
+    resolvedState,
+  } = commentThread;
+
+  const commentThreadId = _id || id;
+
   const commentThreadUrl = getCommentThreadURL({
-    commentThreadId: commentThread?.id,
+    applicationId,
+    commentThreadId,
+    isResolved: resolvedState?.active,
+    mode,
+    pageId,
   });
 
   const handleClick = () => {
@@ -99,25 +125,24 @@ function CommentThreadNotification(props: {
     dispatch(markThreadAsReadRequest(commentThread?.id));
   };
 
-  // TODO use notification isRead state
-  const isRead = true;
+  const createdAt = commentThread.createdAd || commentThread.creationTime;
+  const displayName = authorName || authorUsername;
 
   return (
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
           side={25}
-          source={`/api/${UserApi.photoURL}`}
-          userName={""}
+          source={`/api/${UserApi.photoURL}/${authorUsername}`}
+          userName={displayName}
         />
         {!isRead && <UnreadIndicator />}
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>Comment Thread</b> notification body
+          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
         </div>
-        {/* <Time>{moment().fromNow()}</Time> */}
-        <Time>An hour ago</Time>
+        <Time>{moment(createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
     </FlexContainer>
   );
@@ -129,8 +154,12 @@ const notificationByType = {
 };
 
 function NotificationListItem(props: { notification: AppsmithNotification }) {
-  const Component =
-    notificationByType[NotificationTypes.CommentThreadNotification];
+  // TODO fix this, use type from api response
+  const type = props.notification.comment
+    ? NotificationTypes.CommentNotification
+    : NotificationTypes.CommentThreadNotification;
+
+  const Component = notificationByType[type];
 
   return (
     <Container>
