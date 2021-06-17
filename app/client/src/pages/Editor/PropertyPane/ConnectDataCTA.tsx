@@ -7,7 +7,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import history from "utils/history";
 import {
   setGlobalSearchQuery,
@@ -60,7 +60,7 @@ function ConnectDataCTA() {
         category={Category.primary}
         onClick={() =>
           history.push(
-            QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+            INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
               applicationId,
               pageId,
               pageId,
