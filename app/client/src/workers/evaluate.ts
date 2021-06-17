@@ -75,12 +75,17 @@ const getLintingErrors = (
   });
 };
 
+const beginsWithLineBreakRegex = /^\s+|\s+$/;
+
 export default function evaluate(
   js: string,
   data: DataTree,
   evalArguments?: Array<any>,
 ): EvalResult {
-  const unescapedJS = unescapeJS(js);
+  // We remove any line breaks from the beginning of the script because that
+  // makes the final function invalid. We also unescape any escaped characters
+  // so that eval can happen
+  const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
   const script = getScriptToEval(unescapedJS, evalArguments);
 
   return (function() {
