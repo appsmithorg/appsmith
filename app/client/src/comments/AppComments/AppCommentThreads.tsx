@@ -10,10 +10,7 @@ import {
   shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
 } from "selectors/commentsSelectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
@@ -41,8 +38,6 @@ function AppCommentThreads() {
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
 
-  const currentPageId = useSelector(getCurrentPageId);
-
   const commentThreadIds = useMemo(
     () =>
       getSortedAndFilteredAppCommentThreadIds(
@@ -51,7 +46,6 @@ function AppCommentThreads() {
         shouldShowResolved,
         appCommentsFilter,
         currentUsername,
-        currentPageId,
       ),
     [
       appCommentThreadIds,
@@ -59,7 +53,6 @@ function AppCommentThreads() {
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
-      currentPageId,
     ],
   );
 
