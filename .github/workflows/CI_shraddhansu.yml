@@ -197,7 +197,10 @@ jobs:
         shell: bash
 
     steps:
-
+     - name: see how many file is there.
+       run: ls -ltr
+     - name: see the present working dir.
+       run:  pwd
      - name: Download the react build artifact
        uses: actions/download-artifact@v2
        with:
