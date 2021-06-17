@@ -163,13 +163,18 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(1);
+      if (!query)
+        recentEntities.length > 1
+          ? setActiveItemIndex(2)
+          : setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    setActiveItemIndex(1);
-  }, [query]);
+    !query && recentEntities.length > 1
+      ? setActiveItemIndex(2)
+      : setActiveItemIndex(1);
+  }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
