@@ -99,7 +99,9 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -2385,5 +2387,98 @@ public class DatabaseChangelog {
          */
         firestoreActionQueries.stream()
                 .forEach(action -> mongoTemplate.save(action));
+    }
+
+    @ChangeSet(order = "071", id = "add-application-export-permissions", author = "")
+    public void addApplicationExportPermissions(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(where("userRoles").exists(true)),
+                Organization.class
+        );
+
+        for (final Organization organization : organizations) {
+            Set<String> adminUsernames = organization.getUserRoles()
+                    .stream()
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                    .map(role -> role.getUsername())
+                    .collect(Collectors.toSet());
+
+            if (adminUsernames.isEmpty()) {
+                continue;
+            }
+            // All the administrators of the organization should be allowed to export applications permission
+            Set<String> exportApplicationPermissionUsernames = new HashSet<>();
+            exportApplicationPermissionUsernames.addAll(adminUsernames);
+
+            Set<Policy> policies = organization.getPolicies();
+            if (policies == null) {
+                policies = new HashSet<>();
+            }
+
+            Optional<Policy> exportAppOrgLevelOptional = policies.stream()
+                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+
+            if (exportAppOrgLevelOptional.isPresent()) {
+                Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
+                exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
+            } else {
+                // this policy doesnt exist. create and add this to the policy set
+                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                        .users(exportApplicationPermissionUsernames).build();
+                organization.getPolicies().add(inviteUserPolicy);
+            }
+
+            mongoTemplate.save(organization);
+
+            // Update the applications with export applications policy for all administrators of the organization
+            List<Application> orgApplications = mongoTemplate.find(
+                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
+                    Application.class
+            );
+
+            for (final Application application : orgApplications) {
+                Set<Policy> applicationPolicies = application.getPolicies();
+                if (applicationPolicies == null) {
+                    applicationPolicies = new HashSet<>();
+                }
+
+                Optional<Policy> exportAppOptional = applicationPolicies.stream()
+                        .filter(policy -> policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())).findFirst();
+
+                if (exportAppOptional.isPresent()) {
+                    Policy exportAppPolicy = exportAppOptional.get();
+                    exportAppPolicy.getUsers().addAll(adminUsernames);
+                } else {
+                    // this policy doesn't exist, create and add this to the policy set
+                    Policy newExportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
+                            .users(adminUsernames).build();
+                    application.getPolicies().add(newExportAppPolicy);
+                }
+
+                mongoTemplate.save(application);
+            }
+        }
+    }
+
+    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
+    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Snowflake");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("snowflake-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+
     }
 }

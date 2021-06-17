@@ -194,14 +194,14 @@ export const getInitialsAndColorCode = (
 ): string[] => {
   let inits = "";
   // if name contains space. eg: "Full Name"
-  if (fullName.includes(" ")) {
+  if (fullName && fullName.includes(" ")) {
     const namesArr = fullName.split(" ");
     let initials = namesArr.map((name: string) => name.charAt(0));
     initials = initials.join("").toUpperCase();
     inits = initials.slice(0, 2);
   } else {
     // handle for camelCase
-    const str = fullName.replace(/([a-z])([A-Z])/g, "$1 $2");
+    const str = fullName ? fullName.replace(/([a-z])([A-Z])/g, "$1 $2") : "";
     const namesArr = str.split(" ");
     let initials = namesArr.map((name: string) => name.charAt(0));
     initials = initials.join("").toUpperCase();

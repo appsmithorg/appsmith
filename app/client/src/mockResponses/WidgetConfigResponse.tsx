@@ -263,6 +263,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         step: 62,
         status: 75,
       },
+      isVisibleSearch: true,
+      isVisibleFilters: true,
+      isVisibleDownload: true,
+      isVisibleCompactMode: true,
+      isVisiblePagination: true,
       version: 1,
     },
     DROP_DOWN_WIDGET: {
