@@ -2,7 +2,9 @@ import React, { ReactNode, useState, useEffect, forwardRef, Ref } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { useDrag } from "react-use-gesture";
 import { Spring } from "react-spring/renderprops";
-
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const ResizeWrapper = styled.div<{ pevents: boolean }>`
   display: block;
   & {
@@ -80,192 +82,214 @@ type ResizableProps = {
     position: { x: number; y: number },
   ) => boolean;
   className?: string;
+  zWidgetType?: string;
+  zWidgetId?: string;
 };
 
-export const Resizable = forwardRef(
-  (props: ResizableProps, ref: Ref<HTMLDivElement>) => {
-    const [pointerEvents, togglePointerEvents] = useState(true);
-    const [newDimensions, set] = useState({
+export const Resizable = forwardRef(function Resizable(
+  props: ResizableProps,
+  ref: Ref<HTMLDivElement>,
+) {
+  // Performance tracking start
+  const sentryPerfTags = props.zWidgetType
+    ? [{ name: "widget_type", value: props.zWidgetType }]
+    : [];
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SHOW_RESIZE_HANDLES,
+    { widgetId: props.zWidgetId },
+    true,
+    sentryPerfTags,
+  );
+
+  useEffect(() => {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.SHOW_RESIZE_HANDLES,
+    );
+  });
+  //end
+
+  const [pointerEvents, togglePointerEvents] = useState(true);
+  const [newDimensions, set] = useState({
+    width: props.componentWidth,
+    height: props.componentHeight,
+    x: 0,
+    y: 0,
+    reset: false,
+  });
+
+  const setNewDimensions = (rect: {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+  }) => {
+    const { height, width, x, y } = rect;
+    const isColliding = props.isColliding({ width, height }, { x, y });
+    if (!isColliding) {
+      set({ ...rect, reset: false });
+    }
+  };
+
+  useEffect(() => {
+    set({
       width: props.componentWidth,
       height: props.componentHeight,
       x: 0,
       y: 0,
-      reset: false,
+      reset: true,
     });
+  }, [props.componentHeight, props.componentWidth]);
 
-    const setNewDimensions = (rect: {
-      width: number;
-      height: number;
-      x: number;
-      y: number;
-    }) => {
-      const { height, width, x, y } = rect;
-      const isColliding = props.isColliding({ width, height }, { x, y });
-      if (!isColliding) {
-        set({ ...rect, reset: false });
-      }
-    };
-
-    useEffect(() => {
-      set({
-        width: props.componentWidth,
-        height: props.componentHeight,
-        x: 0,
-        y: 0,
-        reset: true,
-      });
-    }, [props.componentHeight, props.componentWidth]);
-
-    const handles = [
-      {
-        dragCallback: (x: number) => {
-          setNewDimensions({
-            width: props.componentWidth - x,
-            height: newDimensions.height,
-            x,
-            y: newDimensions.y,
-          });
-        },
-        component: props.handles.left,
-      },
-      {
-        dragCallback: (x: number) => {
-          setNewDimensions({
-            width: props.componentWidth + x,
-            height: newDimensions.height,
-            x: newDimensions.x,
-            y: newDimensions.y,
-          });
-        },
-        component: props.handles.right,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: newDimensions.width,
-            height: props.componentHeight - y,
-            y: y,
-            x: newDimensions.x,
-          });
-        },
-        component: props.handles.top,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: newDimensions.width,
-            height: props.componentHeight + y,
-            x: newDimensions.x,
-            y: newDimensions.y,
-          });
-        },
-        component: props.handles.bottom,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: props.componentWidth + x,
-            height: props.componentHeight + y,
-            x: newDimensions.x,
-            y: newDimensions.y,
-          });
-        },
-        component: props.handles.bottomRight,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: props.componentWidth - x,
-            height: props.componentHeight + y,
-            x,
-            y: newDimensions.y,
-          });
-        },
-        component: props.handles.bottomLeft,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: props.componentWidth + x,
-            height: props.componentHeight - y,
-            x: newDimensions.x,
-            y: y,
-          });
-        },
-        component: props.handles.topRight,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: props.componentWidth - x,
-            height: props.componentHeight - y,
-            x: x,
-            y: y,
-          });
-        },
-        component: props.handles.topLeft,
-      },
-    ];
-
-    const onResizeStop = () => {
-      togglePointerEvents(true);
-      props.onStop(
-        {
-          width: newDimensions.width,
+  const handles = [
+    {
+      dragCallback: (x: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
           height: newDimensions.height,
-        },
-        {
+          x,
+          y: newDimensions.y,
+        });
+      },
+      component: props.handles.left,
+    },
+    {
+      dragCallback: (x: number) => {
+        setNewDimensions({
+          width: props.componentWidth + x,
+          height: newDimensions.height,
           x: newDimensions.x,
           y: newDimensions.y,
-        },
-      );
-    };
-
-    const renderHandles = handles.map((handle, index) => (
-      <ResizableHandle
-        {...handle}
-        key={index}
-        onStart={() => {
-          togglePointerEvents(false);
-          props.onStart();
-        }}
-        onStop={onResizeStop}
-        snapGrid={props.snapGrid}
-      />
-    ));
-
-    return (
-      <Spring
-        config={{
-          clamp: true,
-          friction: 0,
-          tension: 999,
-        }}
-        from={{
-          width: props.componentWidth,
-          height: props.componentHeight,
-        }}
-        immediate={newDimensions.reset ? true : false}
-        to={{
+        });
+      },
+      component: props.handles.right,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
           width: newDimensions.width,
-          height: newDimensions.height,
-          transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
-        }}
-      >
-        {(_props) => (
-          <ResizeWrapper
-            className={props.className}
-            pevents={pointerEvents}
-            ref={ref}
-            style={_props}
-          >
-            {props.children}
-            {props.enable && renderHandles}
-          </ResizeWrapper>
-        )}
-      </Spring>
+          height: props.componentHeight - y,
+          y: y,
+          x: newDimensions.x,
+        });
+      },
+      component: props.handles.top,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: newDimensions.width,
+          height: props.componentHeight + y,
+          x: newDimensions.x,
+          y: newDimensions.y,
+        });
+      },
+      component: props.handles.bottom,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth + x,
+          height: props.componentHeight + y,
+          x: newDimensions.x,
+          y: newDimensions.y,
+        });
+      },
+      component: props.handles.bottomRight,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
+          height: props.componentHeight + y,
+          x,
+          y: newDimensions.y,
+        });
+      },
+      component: props.handles.bottomLeft,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth + x,
+          height: props.componentHeight - y,
+          x: newDimensions.x,
+          y: y,
+        });
+      },
+      component: props.handles.topRight,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
+          height: props.componentHeight - y,
+          x: x,
+          y: y,
+        });
+      },
+      component: props.handles.topLeft,
+    },
+  ];
+
+  const onResizeStop = () => {
+    togglePointerEvents(true);
+    props.onStop(
+      {
+        width: newDimensions.width,
+        height: newDimensions.height,
+      },
+      {
+        x: newDimensions.x,
+        y: newDimensions.y,
+      },
     );
-  },
-);
+  };
+
+  const renderHandles = handles.map((handle, index) => (
+    <ResizableHandle
+      {...handle}
+      key={index}
+      onStart={() => {
+        togglePointerEvents(false);
+        props.onStart();
+      }}
+      onStop={onResizeStop}
+      snapGrid={props.snapGrid}
+    />
+  ));
+
+  return (
+    <Spring
+      config={{
+        clamp: true,
+        friction: 0,
+        tension: 999,
+      }}
+      from={{
+        width: props.componentWidth,
+        height: props.componentHeight,
+      }}
+      immediate={newDimensions.reset ? true : false}
+      to={{
+        width: newDimensions.width,
+        height: newDimensions.height,
+        transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
+      }}
+    >
+      {(_props) => (
+        <ResizeWrapper
+          className={props.className}
+          pevents={pointerEvents}
+          ref={ref}
+          style={_props}
+        >
+          {props.children}
+          {props.enable && renderHandles}
+        </ResizeWrapper>
+      )}
+    </Spring>
+  );
+});
+Resizable.whyDidYouRender = true;
 
 export default Resizable;
