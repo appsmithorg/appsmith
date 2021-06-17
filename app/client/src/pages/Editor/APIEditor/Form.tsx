@@ -432,7 +432,9 @@ function ImportedHeaders(props: { headers: any }) {
 
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showDatasources, toggleDatasources] = useState(false);
+  const [showDatasources, toggleDatasources] = useState(
+    !!props.datasources.length,
+  );
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -629,7 +631,11 @@ function ApiEditorForm(props: Props) {
               </DatasourceListTrigger>
             )}
           </TabbedViewContainer>
-          <ApiResponseView apiName={actionName} theme={theme} />
+          <ApiResponseView
+            apiName={actionName}
+            onRunClick={onRunClick}
+            theme={theme}
+          />
         </SecondaryWrapper>
         {showDatasources && (
           <>

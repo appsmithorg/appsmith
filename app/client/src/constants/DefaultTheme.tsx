@@ -530,6 +530,7 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
   };
@@ -1025,6 +1026,16 @@ type ColorType = {
   mentionsInput: Record<string, string>;
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
+  notifications: Record<string, string>;
+};
+
+const notifications = {
+  time: "#858282",
+  listHeaderTitle: "#090707",
+  markAllAsReadButtonBackground: "#f0f0f0",
+  markAllAsReadButtonText: "#716E6E",
+  unreadIndicator: "#F86A2B",
+  bellIndicator: "#E22C2C",
 };
 
 const displayImageUpload = {
@@ -1168,6 +1179,8 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
@@ -1620,6 +1633,8 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,

@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
-import { API_EDITOR_URL } from "constants/routes";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -169,7 +169,13 @@ class ListView extends React.Component<Props> {
         <NotFound
           buttonText="Go back to Integrations"
           onBackButton={() =>
-            history.push(API_EDITOR_URL(applicationId, pageId))
+            history.push(
+              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                applicationId,
+                pageId,
+                pageId,
+              ),
+            )
           }
           title="Integration Not found"
         />

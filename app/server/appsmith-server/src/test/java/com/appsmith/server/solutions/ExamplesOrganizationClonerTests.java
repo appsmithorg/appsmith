@@ -473,6 +473,7 @@ public class ExamplesOrganizationClonerTests {
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
                     ds1.setOrganizationId(organization.getId());
+                    ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -483,6 +484,7 @@ public class ExamplesOrganizationClonerTests {
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setOrganizationId(organization.getId());
+                    ds2.setPluginId(installedPlugin.getId());
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");

@@ -2,7 +2,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { cloneDeep, get, isString } from "lodash";
+import { cloneDeep, get, isString, filter, set } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
@@ -169,6 +169,28 @@ export const handleSpecificCasesWhilePasting = (
     });
 
     widgets[widget.widgetId] = widget;
+  } else if (widget.type === WidgetTypes.MODAL_WIDGET) {
+    // if Modal is being coppied handle all onClose action rename
+    const oldWidgetName = Object.keys(widgetNameMap).find(
+      (key) => widgetNameMap[key] === widget.widgetName,
+    );
+    // get all the button, icon widgets
+    const copiedBtnIcnWidgets = filter(
+      newWidgetList,
+      (copyWidget) =>
+        copyWidget.type === "BUTTON_WIDGET" ||
+        copyWidget.type === "ICON_WIDGET",
+    );
+    // replace oldName with new one if any of this widget have onClick action for old modal
+    copiedBtnIcnWidgets.map((copyWidget) => {
+      if (copyWidget.onClick) {
+        const newOnClick = widgets[copyWidget.widgetId].onClick.replace(
+          oldWidgetName,
+          widget.widgetName,
+        );
+        set(widgets[copyWidget.widgetId], "onClick", newOnClick);
+      }
+    });
   }
 
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
