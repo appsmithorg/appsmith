@@ -83,6 +83,8 @@ public class CreateDBTablePageSolution {
     private final String TEMPLATE_TABLE_NAME = "templateTableName";
 
     private final String TEMPLATE_APPLICATION_FILE = "template application file";
+
+    private final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
     
     @Autowired
     public CreateDBTablePageSolution(NewPageService newPageService,
@@ -251,9 +253,10 @@ public class CreateDBTablePageSolution {
 
                 /** When the connected datasource have less number of columns than template datasource, delete the
                  * unwanted fields
-                 * "delete" : '{{Widget.property}}', => "" : As mapping is not present
+                 * "DELETE_FIELD" : '{{Widget.property}}',\n => "" : As mapping is not present
                  */
-                actionConfiguration.setBody(actionConfiguration.getBody().replaceAll("\\\"delete.*,", ""));
+                final String regex = "\\\"" + DELETE_FIELD + ".*\n";
+                actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(regex, ""));
                 actionDTO.setActionConfiguration(actionConfiguration);
                 return layoutActionService.updateAction(actionDTO.getId(), actionDTO);
             });
@@ -275,8 +278,8 @@ public class CreateDBTablePageSolution {
         
         if (idx < sourceTableColumns.size()) {
             while (idx < sourceTableColumns.size()) {
-                //We can put delete logic here
-                mappedTableColumns.put(sourceTableColumns.get(idx).getName(), "delete");
+                //This will act as a ref to delete the unwanted fields from actions and layout
+                mappedTableColumns.put(sourceTableColumns.get(idx).getName(), DELETE_FIELD);
                 idx++;
             }
         }
@@ -319,7 +322,7 @@ public class CreateDBTablePageSolution {
         updateTemplateWidget(dsl, mappedColumnsAndTableNames);
 
         // Updates in dynamicBindingPathlist not required as it updates on the fly by FE code
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate over them
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
@@ -330,7 +333,9 @@ public class CreateDBTablePageSolution {
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
                     JSONObject child = extractAndUpdateAllWidgetFromDSL(object, mappedColumnsAndTableNames);
-                    newChildren.add(child);
+                    if (!child.toString().contains(DELETE_FIELD)) {
+                        newChildren.add(child);
+                    }
                 }
             }
             dsl.put(FieldName.CHILDREN, newChildren);
