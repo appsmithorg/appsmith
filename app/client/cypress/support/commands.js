@@ -2053,7 +2053,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
 });
 
 Cypress.Commands.add("CreateMockQuery", (queryName) => {
-  cy.get(queryEditor.addNewQueryBtn).click({ force: true });
+  // cy.get(queryEditor.addNewQueryBtn).click({ force: true });
   cy.get(queryEditor.createQuery)
     .first()
     .click({ force: true });
@@ -2160,6 +2160,40 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .contains(forFailure)
     .click();
 });
+
+Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  //Copy widget and verify all properties
+  cy.get(widgetsPage.propertypaneText)
+    .children()
+    .last()
+    .invoke("text")
+    .then((originalWidget) => {
+      cy.log(originalWidget);
+      cy.get(widgetsPage.copyWidget).click();
+      cy.reload();
+      // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
+      cy.get(widgetLocator).should("be.visible");
+      cy.get("body").type(`{${modifierKey}}v`);
+      cy.wait(2000);
+      cy.openPropertyPaneCopy(widget);
+      cy.get(widgetsPage.propertypaneText)
+        .children()
+        .last()
+        .invoke("text")
+        .then((copiedWidget) => {
+          cy.log(copiedWidget);
+          expect(originalWidget).to.be.equal(copiedWidget);
+        });
+    });
+});
+
+Cypress.Commands.add("deleteWidget", (widget) => {
+  // Delete the button widget
+  cy.get(widgetsPage.removeWidget).click();
+  cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
+});
+
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
   cy.testCreateApiButton();
