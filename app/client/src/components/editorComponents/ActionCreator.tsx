@@ -47,6 +47,7 @@ import {
   dbQueryIcon,
   apiIcon,
   MethodTag,
+  getPluginIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -1217,9 +1218,9 @@ function getIntegrationOptionsWithChildren(
         id: dataSource.id,
         value: dataSource.name,
         type: option.value,
+        icon: getPluginIcon(plugins[dataSource.pluginId]) as React.ReactNode,
         onSelect: () => {
           const newQueryName = createNewQueryName(actions, pageId);
-
           dispatch(
             createActionRequest({
               name: newQueryName,
