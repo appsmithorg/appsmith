@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
-import ApiHomeScreen from "./ApiHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
@@ -182,15 +181,6 @@ class ApiEditor extends React.Component<Props> {
       }
     }
 
-    const apiHomeScreen = (
-      <ApiHomeScreen
-        applicationId={this.props.match.params.applicationId}
-        history={this.props.history}
-        location={this.props.location}
-        match={this.props.match}
-        pageId={this.props.match.params.pageId}
-      />
-    );
     return (
       <div
         style={{
@@ -198,57 +188,51 @@ class ApiEditor extends React.Component<Props> {
           height: "100%",
         }}
       >
-        {apiId ? (
-          <>
-            {formUiComponent === "ApiEditorForm" && (
-              <ApiEditorForm
-                apiName={this.props.apiName}
-                appName={
-                  this.props.currentApplication
-                    ? this.props.currentApplication.name
-                    : ""
-                }
-                isDeleting={isDeleting}
-                isRunning={isRunning}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
-                paginationType={paginationType}
-                pluginId={pluginId}
-                settingsConfig={this.props.settingsConfig}
-              />
-            )}
-
-            {formUiComponent === "RapidApiEditorForm" && (
-              <RapidApiEditorForm
-                apiId={this.props.match.params.apiId}
-                apiName={this.props.apiName}
-                appName={
-                  this.props.currentApplication
-                    ? this.props.currentApplication.name
-                    : ""
-                }
-                isDeleting={isDeleting}
-                isRunning={isRunning}
-                location={this.props.location}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
-                paginationType={paginationType}
-              />
-            )}
-
-            {formUiComponent === "SaaSEditorForm" &&
-              history.push(
-                SAAS_EDITOR_API_ID_URL(
-                  this.props.match.params.applicationId,
-                  this.props.match.params.pageId,
-                  this.props.plugins[this.props.pluginId]?.packageName ?? "",
-                  this.props.match.params.apiId,
-                ),
-              )}
-          </>
-        ) : (
-          apiHomeScreen
+        {formUiComponent === "ApiEditorForm" && (
+          <ApiEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
         )}
+
+        {formUiComponent === "RapidApiEditorForm" && (
+          <RapidApiEditorForm
+            apiId={this.props.match.params.apiId}
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            location={this.props.location}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+          />
+        )}
+
+        {formUiComponent === "SaaSEditorForm" &&
+          history.push(
+            SAAS_EDITOR_API_ID_URL(
+              this.props.match.params.applicationId,
+              this.props.match.params.pageId,
+              this.props.plugins[this.props.pluginId]?.packageName ?? "",
+              this.props.match.params.apiId,
+            ),
+          )}
       </div>
     );
   }
