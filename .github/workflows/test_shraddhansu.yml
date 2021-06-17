@@ -56,7 +56,9 @@ jobs:
 
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
-
+      - name: yo yo yo 
+        run: echo ${{ github.sha }}
+        
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
         with:
