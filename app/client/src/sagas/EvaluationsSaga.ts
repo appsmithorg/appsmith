@@ -103,9 +103,16 @@ function getLatestEvalPropertyErrors(
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
           text: `The value at ${propertyPath} is invalid`,
+          // TODO: Remove test errors
           messages: [
             {
               message: error,
+            },
+            {
+              message: "l is not defined (test)",
+            },
+            {
+              message: "maps is not a function ln:2, ch: 3 (test)",
             },
           ],
           severity: Severity.ERROR,

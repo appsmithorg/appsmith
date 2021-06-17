@@ -101,7 +101,7 @@ const Log = styled.div<{ collapsed: boolean }>`
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: 4px;
+  padding-top: 8px;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -139,7 +139,7 @@ const StyledSearchIcon = styled(Icon)`
 `;
 
 const MessageWrapper = styled.div`
-  margin-top: 5px;
+  padding-top: 5px;
 `;
 
 export const getLogItemProps = (e: Message) => {
@@ -252,25 +252,7 @@ function LogItem(props: LogItemProps) {
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
-            {!!messages.length && (
-              <div>
-                <span
-                  className="debugger-message"
-                  onClick={(event) => openHelpModal(event, messages[0].message)}
-                >
-                  {messages[0].message}
-                </span>
-              </div>
-            )}
-            {props.state && (
-              <JsonWrapper
-                className="t--debugger-log-state"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ReactJson src={props.state} {...reactJsonProps} />
-              </JsonWrapper>
-            )}
-            {messages.slice(1).map((e) => {
+            {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
                   <span
@@ -282,6 +264,14 @@ function LogItem(props: LogItemProps) {
                 </MessageWrapper>
               );
             })}
+            {props.state && (
+              <JsonWrapper
+                className="t--debugger-log-state"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ReactJson src={props.state} {...reactJsonProps} />
+              </JsonWrapper>
+            )}
           </StyledCollapse>
         )}
       </div>
