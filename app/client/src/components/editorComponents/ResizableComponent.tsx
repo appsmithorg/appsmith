@@ -284,6 +284,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       ref={resizableRef}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      // Used only for performance tracking, can be removed after optimization.
+      zWidgetId={props.widgetId}
+      zWidgetType={props.type}
     >
       <VisibilityContainer
         padding={props.paddingOffset}
@@ -294,5 +297,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-
 export default ResizableComponent;
