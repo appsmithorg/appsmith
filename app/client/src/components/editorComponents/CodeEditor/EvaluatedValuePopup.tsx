@@ -294,10 +294,12 @@ function PopoverContent(props: PopoverContentProps) {
     >
       {hasError && error && (
         <ErrorText>
-          {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
-          !useValidationMessage
-            ? `This value does not evaluate to type "${expected}".`
-            : error.errorMessage}
+          <span className="t--evaluatedPopup-error">
+            {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
+            !useValidationMessage
+              ? `This value does not evaluate to type "${expected}".`
+              : error.errorMessage}
+          </span>
           <StyledDebugButton
             className="evaluated-value"
             source={"EVALUATED_VALUE"}
