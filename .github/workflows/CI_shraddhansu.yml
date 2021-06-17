@@ -187,16 +187,16 @@ jobs:
      - name: Install dependencies
        run: yarn install
        
-  package:   
-    needs: build
-   # Only run if the build step is successful
-    if: success()
-    runs-on: ubuntu-latest
-    defaults:
-     run:
-       working-directory: app/client
-       shell: bash
-    steps:
+#   package:   
+#     needs: build
+#    # Only run if the build step is successful
+#     if: success()
+#     runs-on: ubuntu-latest
+#     defaults:
+#      run:
+#        working-directory: app/client
+#        shell: bash
+#     steps:
      - name: Download the react build artifact
        uses: actions/download-artifact@v2
        with:
