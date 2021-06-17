@@ -43,14 +43,12 @@ describe("Test Create Api and Bind to Table widget", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", "Green");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "background-color", "rgb(0, 128, 0)");
   });
 
   it("Edit column name and validate test for computed value based on column type selected", function() {
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.SearchEntityandOpen("Table1");
     cy.editColumn("customColumn1");
     cy.readTabledataPublish("1", "9").then((tabData) => {
       const tabValue = tabData;

@@ -116,7 +116,9 @@ const useUserSuggestions = (
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
 ) => {
   useEffect(() => {
-    setSuggestions(users.map((user) => ({ name: user.username, user })));
+    setSuggestions(
+      users.map((user) => ({ name: user.name || user.username, user })),
+    );
   }, [users]);
 };
 
