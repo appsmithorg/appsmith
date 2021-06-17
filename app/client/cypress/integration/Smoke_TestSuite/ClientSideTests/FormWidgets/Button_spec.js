@@ -5,6 +5,8 @@ const homePage = require("../../../../locators/HomePage.json");
 const pages = require("../../../../locators/Pages.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Button Widget Functionality", function() {
   before(() => {
@@ -194,6 +196,30 @@ describe("Button Widget Functionality", function() {
   it("Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
+    // cy.CreateMockQuery("Query1");
+    let postgresDatasourceName;
+
+    cy.startRoutesForDatasource();
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasource.PostgreSQL).click();
+    cy.generateUUID().then((uid) => {
+      postgresDatasourceName = uid;
+
+      cy.get(".t--edit-datasource-name").click();
+      cy.get(".t--edit-datasource-name input")
+        .clear()
+        .type(postgresDatasourceName, { force: true })
+        .should("have.value", postgresDatasourceName)
+        .blur();
+    });
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.fillPostgresDatasourceForm();
+    cy.saveDatasource();
+
     cy.CreateMockQuery("Query1");
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
@@ -247,36 +273,14 @@ describe("Button Widget Functionality", function() {
   it("Button-Copy Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy button and verify all properties
-    cy.get(widgetsPage.propertypaneText)
-      .children()
-      .last()
-      .invoke("text")
-      .then((originalButton) => {
-        cy.log(originalButton);
-        cy.get(widgetsPage.copyWidget).click();
-        cy.reload();
-        // Wait for the button to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
-        cy.get(widgetsPage.buttonWidget).should("exist");
-        cy.get("body").type(`{${modifierKey}}v`);
-        cy.wait(2000);
-        cy.openPropertyPaneCopy("buttonwidget");
-        cy.get(widgetsPage.propertypaneText)
-          .children()
-          .last()
-          .invoke("text")
-          .then((copiedButton) => {
-            cy.log(copiedButton);
-            expect(originalButton).to.be.equal(copiedButton);
-          });
-      });
+    cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
 
     cy.PublishtheApp();
   });
 
   it("Button-Delete Verification", function() {
     // Delete the button widget
-    cy.get(widgetsPage.removeWidget).click();
-    cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
+    cy.deleteWidget(widgetsPage.buttonWidget);
     cy.PublishtheApp();
     cy.get(widgetsPage.buttonWidget).should("not.exist");
   });
