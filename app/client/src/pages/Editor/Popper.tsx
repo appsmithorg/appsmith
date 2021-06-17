@@ -1,5 +1,4 @@
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
-import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
