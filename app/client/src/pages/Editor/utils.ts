@@ -135,8 +135,9 @@ const createDragHandler = (
   const dragElement = document.createElement("div");
   dragElement.setAttribute("id", `${id}-draghandler`);
   dragElement.style.position = "absolute";
-  dragElement.style.left = "0px";
+  dragElement.style.left = "135px";
   dragElement.style.top = "0px";
+  dragElement.style.zIndex = "3";
   oldDragHandler
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);
