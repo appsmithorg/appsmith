@@ -1640,6 +1640,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
         "api/v1/layouts/" + layoutId + "/pages/" + pageid,
         dsl,
       ).then((response) => {
+        cy.log(response.body);
         expect(response.status).equal(200);
         cy.reload();
       });

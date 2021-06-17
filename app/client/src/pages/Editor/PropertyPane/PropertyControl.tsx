@@ -249,8 +249,6 @@ const PropertyControl = memo((props: Props) => {
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
     // get the dataTreePath and apply enhancement if exists
-    // TODO (hetu) make the dataTreePath the actual path of the property
-    // and evaluatedValues should not be added by default
     let dataTreePath: string =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
     if (childWidgetDataTreePathEnhancementFn) {
@@ -277,12 +275,10 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      // config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
       delete config.expected;
-      // config.jsErrorMessage = "";
     }
 
     const isDynamic: boolean = isPathADynamicProperty(

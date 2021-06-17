@@ -148,6 +148,8 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
+    console.log(JSON.stringify(canvasWidgets));
+    console.log(JSON.stringify(evaluatedDataTree));
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
