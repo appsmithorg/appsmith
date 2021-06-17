@@ -8,3 +8,6 @@ export const unreadCountSelector = (state: AppState) =>
 
 export const isNotificationsListVisibleSelector = (state: AppState) =>
   state.ui.notifications.showNotificationsMenu;
+
+export const fetchingNotificationsSelector = (state: AppState) =>
+  state.ui.notifications.fetchingNotifications;

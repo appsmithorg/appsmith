@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 
 import {
   fetchNotificationsRequest,
+  fetchUnreadNotificationsCountRequest,
   setIsNotificationsListVisible,
 } from "actions/notificationActions";
 import styled from "styled-components";
@@ -58,6 +59,7 @@ function Bell() {
 
   useEffect(() => {
     dispatch(fetchNotificationsRequest());
+    dispatch(fetchUnreadNotificationsCountRequest());
   }, []);
 
   const unreadCount = useSelector(unreadCountSelector);

@@ -2,7 +2,10 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { notificationsSelector } from "selectors/notificationSelectors";
+import {
+  notificationsSelector,
+  fetchingNotificationsSelector,
+} from "selectors/notificationSelectors";
 import NotificationListItem from "./NotificationListItem";
 import { AppsmithNotification } from "entities/Notification";
 
@@ -13,7 +16,10 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Virtuoso } from "react-virtuoso";
 
-import { markAllNotificationsAsReadRequest } from "actions/notificationActions";
+import {
+  fetchNotificationsRequest,
+  markAllNotificationsAsReadRequest,
+} from "actions/notificationActions";
 
 const Container = styled.div`
   width: 326px;
@@ -62,7 +68,9 @@ function NotificationsListHeader() {
 const NOTIFICATION_HEIGHT = 63;
 
 function NotificationsList() {
+  const dispatch = useDispatch();
   const notifications = useSelector(notificationsSelector);
+  const fetchingNotifications = useSelector(fetchingNotificationsSelector);
   const height = Math.min(4, notifications.length) * NOTIFICATION_HEIGHT;
 
   return (
@@ -71,6 +79,8 @@ function NotificationsList() {
       <Virtuoso
         components={{
           Footer() {
+            if (!fetchingNotifications) return null;
+
             return (
               <div
                 style={{
@@ -85,8 +95,11 @@ function NotificationsList() {
           },
         }}
         data={notifications}
-        endReached={() => {
-          return Promise.resolve([]);
+        endReached={(index: number) => {
+          const last = notifications[index];
+          const { createdAt, creationTime } = last || {};
+          const _createdTime = createdAt || creationTime;
+          dispatch(fetchNotificationsRequest(_createdTime));
         }}
         itemContent={(index: number, notification: AppsmithNotification) => (
           <NotificationListItem
