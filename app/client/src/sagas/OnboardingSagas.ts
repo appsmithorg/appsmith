@@ -83,7 +83,7 @@ import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   batchUpdateWidgetProperty,
   updateWidgetPropertyRequest,
@@ -674,7 +674,7 @@ function* addWidget(widgetConfig: any) {
       newWidget.newWidgetId,
     );
     yield put({
-      type: ReduxActionTypes.SELECT_WIDGET,
+      type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
@@ -792,7 +792,7 @@ function* addOnSubmitHandler() {
         inputWidget.widgetId,
       );
       yield put({
-        type: ReduxActionTypes.SELECT_WIDGET,
+        type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },
       });
       yield put(forceOpenPropertyPane(inputWidget.widgetId));
