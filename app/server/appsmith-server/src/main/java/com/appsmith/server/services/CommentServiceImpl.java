@@ -6,13 +6,9 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.events.CommentAddedEvent;
-import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -113,6 +109,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                     comment.setAuthorId(user.getId());
                     comment.setThreadId(threadId);
+                    comment.setApplicationId(thread.getApplicationId());
+                    comment.setApplicationName(thread.getApplicationName());
+                    comment.setPageId(thread.getPageId());
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             thread.getPolicies(),
@@ -148,10 +147,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         List<Mono<Notification>> notificationMonos = new ArrayList<>();
                         for (String username : usernames) {
                             if (!username.equals(user.getUsername())) {
-                                final CommentNotification notification = new CommentNotification();
-                                notification.setComment(savedComment);
-                                notification.setForUsername(username);
-                                Mono<Notification> notificationMono = notificationService.create(notification);
+                                Mono<Notification> notificationMono = notificationService.createNotification(
+                                        savedComment, username
+                                );
                                 notificationMonos.add(notificationMono);
                             }
                         }
@@ -194,6 +192,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final Application application = tuple.getT2();
+                    commentThread.setApplicationName(application.getName());
+                    commentThread.setAuthorName(user.getName());
+                    commentThread.setAuthorUsername(user.getUsername());
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             application.getPolicies(),
@@ -244,10 +245,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<Mono<Notification>> monos = new ArrayList<>();
                     for (String username : usernames) {
                         if (!username.equals(user.getUsername())) {
-                            final CommentThreadNotification notification = new CommentThreadNotification();
-                            notification.setCommentThread(commentThread);
-                            notification.setForUsername(username);
-                            monos.add(notificationService.create(notification));
+                            monos.add(notificationService.createNotification(commentThread, username, user));
                         }
                     }
                     return Flux.concat(monos).then(Mono.just(commentThread));

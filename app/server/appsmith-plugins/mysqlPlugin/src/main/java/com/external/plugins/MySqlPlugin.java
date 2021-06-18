@@ -642,6 +642,7 @@ public class MySqlPlugin extends BasePlugin {
             if (!tablesByName.containsKey(tableName)) {
                 tablesByName.put(tableName, new DatasourceStructure.Table(
                         DatasourceStructure.TableType.TABLE,
+                        null,
                         tableName,
                         new ArrayList<>(),
                         new ArrayList<>(),
