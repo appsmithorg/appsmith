@@ -90,11 +90,11 @@ import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -164,8 +164,8 @@ public class MongoPlugin extends BasePlugin {
             FIND_SORT,
             FIND_PROJECTION,
             INSERT_DOCUMENT,
-            UPDATE_MANY_QUERY,
-            UPDATE_MANY_UPDATE,
+            UPDATE_QUERY,
+            UPDATE_UPDATE,
             UPDATE_ONE_QUERY,
             UPDATE_ONE_SORT,
             UPDATE_ONE_UPDATE
@@ -438,11 +438,11 @@ public class MongoPlugin extends BasePlugin {
                         case "FIND":
                             command = new Find(actionConfiguration);
                             break;
+                        case "UPDATE":
+                            command = new UpdateMany(actionConfiguration);
+                            break;
                         case "UPDATE_ONE":
                             command = new UpdateOne(actionConfiguration);
-                            break;
-                        case "UPDATE_MANY":
-                            command = new UpdateMany(actionConfiguration);
                             break;
                         case "DELETE":
                             command = new Delete(actionConfiguration);
@@ -899,6 +899,7 @@ public class MongoPlugin extends BasePlugin {
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                         tables.add(new DatasourceStructure.Table(
                                 DatasourceStructure.TableType.COLLECTION,
+                                null,
                                 collectionName,
                                 columns,
                                 new ArrayList<>(),
