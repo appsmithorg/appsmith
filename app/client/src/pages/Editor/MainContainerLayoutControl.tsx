@@ -110,7 +110,7 @@ export function MainContainerLayoutControl() {
               <Icon
                 fillColor={Colors.BLACK}
                 name={selected.icon}
-                size={IconSize.SMALL}
+                size={selected.iconSize || IconSize.SMALL}
               />
             );
           }}
