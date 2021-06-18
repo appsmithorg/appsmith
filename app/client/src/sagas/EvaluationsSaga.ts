@@ -232,6 +232,7 @@ function* logSuccessfulBindings(
 ) {
   const appMode = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
+  if (!evaluationOrder) return;
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
