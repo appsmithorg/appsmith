@@ -105,6 +105,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Modal",
     key: generateReactKey(),
   },
+  {
+    type: "MENU_WIDGET",
+    widgetCardName: "Menu",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

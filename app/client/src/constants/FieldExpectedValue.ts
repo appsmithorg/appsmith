@@ -171,6 +171,7 @@ const FIELD_VALUES: Record<
   },
   MENU_WIDGET: {
     isVisible: "boolean",
+    label: "string",
   },
 };
 

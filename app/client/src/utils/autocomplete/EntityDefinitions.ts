@@ -244,6 +244,12 @@ export const entityDefinitions = {
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
   }),
+  MENU_WIDGET: {
+    "!doc": "Menus are used to represent a set of actions in a group.",
+    "!url": "https://docs.appsmith.com/widget-reference/menu",
+    isVisible: isVisible,
+    label: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

@@ -103,6 +103,11 @@ import SwitchWidget, {
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import MenuWidget, {
+  MenuWidgetProps,
+  ProfiledMenuWidget,
+} from "widgets/MenuWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -453,6 +458,19 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "MENU_WIDGET",
+      {
+        buildWidget(widgetData: MenuWidgetProps): JSX.Element {
+          return <ProfiledMenuWidget {...widgetData} />;
+        },
+      },
+      MenuWidget.getDerivedPropertiesMap(),
+      MenuWidget.getDefaultPropertiesMap(),
+      MenuWidget.getMetaPropertiesMap(),
+      MenuWidget.getPropertyPaneConfig(),
     );
   }
 }
