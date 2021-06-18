@@ -11,12 +11,12 @@ import {
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
+  ReactTableFilter,
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
@@ -208,6 +208,7 @@ export function Table(props: TableProps) {
               tableSizes={tableSizes}
               updateCompactMode={props.updateCompactMode}
               updatePageNo={props.updatePageNo}
+              widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
           </TableHeaderInnerWrapper>
