@@ -64,12 +64,6 @@ class GlobalHotKeys extends React.Component<Props> {
     return false;
   }
 
-  public areMultipleWidgetsSelected() {
-    const multipleWidgetsSelected =
-      this.props.selectedWidgets && this.props.selectedWidgets.length >= 2;
-    return !!multipleWidgetsSelected;
-  }
-
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
     this.props.toggleShowGlobalSearchModal();
@@ -129,10 +123,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Copy Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
             }
           }}
@@ -174,10 +165,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Cut Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.cutSelectedWidget();
             }
           }}
