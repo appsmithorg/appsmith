@@ -106,7 +106,6 @@ interface TableHeaderProps {
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
@@ -124,7 +123,6 @@ function TableHeader(props: TableHeaderProps) {
         <TableFilters
           applyFilter={props.applyFilter}
           columns={props.columns}
-          editMode={props.editMode}
           filters={props.filters}
           widgetId={props.widgetId}
         />

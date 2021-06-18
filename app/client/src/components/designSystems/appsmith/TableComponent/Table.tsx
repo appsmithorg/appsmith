@@ -193,7 +193,6 @@ export function Table(props: TableProps) {
               columns={tableHeadercolumns}
               compactMode={props.compactMode}
               currentPageIndex={currentPageIndex}
-              editMode={props.editMode}
               filters={props.filters}
               nextPageClick={props.nextPageClick}
               pageCount={pageCount}

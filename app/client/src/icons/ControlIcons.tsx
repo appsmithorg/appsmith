@@ -11,7 +11,8 @@ import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.sv
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
-import { ReactComponent as CloseCircleIcon } from "assets/icons/ads/close.svg";
+import { ReactComponent as CloseCircleIcon } from "assets/icons/control/close-circle.svg";
+import { ReactComponent as AddCircleIcon } from "assets/icons/control/add-circle.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
@@ -105,6 +106,11 @@ export const ControlIcons: {
   CLOSE_CIRCLE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CloseCircleIcon />
+    </IconWrapper>
+  ),
+  ADD_CIRCLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AddCircleIcon />
     </IconWrapper>
   ),
   PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (

@@ -3,7 +3,9 @@ import { connect } from "react-redux";
 import { get } from "lodash";
 import * as log from "loglevel";
 import { AppState } from "reducers";
+import styled from "styled-components";
 
+import { Colors } from "constants/Colors";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
@@ -17,13 +19,32 @@ import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { selectWidget } from "actions/widgetActions";
+import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+
+const DragBlock = styled.div`
+  height: 41px;
+  width: 83px;
+  background: ${Colors.ATHENS_GRAY_DARKER};
+  box-sizing: border-box;
+  font-size: 12px;
+  color: ${Colors.SLATE_GRAY};
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  span {
+    padding-left: 8px;
+    color: ${Colors.GRAY};
+  }
+`;
 
 export interface TableFilterPaneProps {
   widgetId: string;
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
 }
 
 interface PositionPropsInt {
@@ -65,6 +86,12 @@ class TableFilterPane extends Component<Props> {
           onPositionChange={this.handlePositionUpdate}
           placement="top"
           position={get(this.props, "metaProps.position") as PositionPropsInt}
+          renderDragBlock={
+            <DragBlock>
+              <DragHandleIcon />
+              <span>Move</span>
+            </DragBlock>
+          }
           targetNode={el}
           themeMode={this.getPopperTheme()}
           zIndex={Layers.tableFilterPane}

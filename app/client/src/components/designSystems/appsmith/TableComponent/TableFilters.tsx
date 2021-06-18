@@ -44,7 +44,6 @@ interface TableFilterProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   widgetId: string;
 }
 

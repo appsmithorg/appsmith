@@ -511,7 +511,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
-        color={Colors.RIVER_BED}
+        color={Colors.GRAY}
         height={16}
         onClick={handleRemoveFilter}
         width={16}

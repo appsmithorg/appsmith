@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
+import styled, { AnyStyledComponent } from "styled-components";
 import { Colors } from "constants/Colors";
 import {
   ReactTableColumnProps,
@@ -14,6 +14,21 @@ import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "constants/messages";
+import { ControlIcons } from "icons/ControlIcons";
+
+const StyledPlusCircleIcon = styled(
+  ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+  svg {
+    circle {
+      fill: none !important;
+      stroke: ${Colors.GREEN};
+    }
+  }
+`;
 
 const TableFilterOuterWrapper = styled.div`
   display: flex;
@@ -41,8 +56,8 @@ const ButtonWrapper = styled.div`
     background: transparent;
   }
 `;
+// margin-left is same as move block width in TableFilterPane.tsx
 const ColumnTypeBindingMessage = styled.div`
-  width: 100%;
   height: 41px;
   line-height: 41px;
   background: ${Colors.ATHENS_GRAY_DARKER};
@@ -52,6 +67,7 @@ const ColumnTypeBindingMessage = styled.div`
   letter-spacing: 0.04em;
   font-weight: 500;
   padding: 0 16px;
+  margin-left: 83px;
   min-width: 350px;
   text-align: right;
 `;
@@ -60,7 +76,6 @@ interface TableFilterProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   hideFilterPane: (widgetId: string) => void;
   widgetId: string;
 }
@@ -123,11 +138,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
         e.stopPropagation();
       }}
     >
-      {props.editMode && (
-        <ColumnTypeBindingMessage>
-          {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
-        </ColumnTypeBindingMessage>
-      )}
+      <ColumnTypeBindingMessage>
+        {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
+      </ColumnTypeBindingMessage>
       <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
         {filters.map((filter: ReactTableFilter, index: number) => {
           return (
@@ -170,7 +183,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <ButtonWrapper>
             <Button
               className="t--add-filter-btn"
-              icon="plus"
+              icon={<StyledPlusCircleIcon height={16} width={16} />}
               intent="primary"
               onClick={addFilter}
               size="small"
