@@ -132,6 +132,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
               {
                 icon: "DIVIDER_CAP_ALL",
                 value: 0,
+                width: 48,
               },
               {
                 icon: "DIVIDER_CAP_RIGHT",
