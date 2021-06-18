@@ -198,7 +198,7 @@ class CodeEditor extends Component<Props, State> {
         if (this.props.size === EditorSize.COMPACT) {
           this.editor.setValue(removeNewLineChars(inputValue));
         } else if (inputValue !== editorValue) {
-          this.editor.setValue(inputValue);
+          this.editor.setValue(JSON.stringify(inputValue, null, "\t"));
         }
       }
       this.updateMarkings();

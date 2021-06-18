@@ -12,6 +12,7 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -99,6 +100,9 @@ export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
+
+export const getJSActions = (state: AppState): JSActionDataState =>
+  state.entities.jsActions;
 
 export const getDatasource = (
   state: AppState,

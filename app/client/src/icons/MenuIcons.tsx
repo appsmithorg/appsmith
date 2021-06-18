@@ -16,6 +16,7 @@ import { ReactComponent as PrimaryKeyIcon } from "assets/icons/menu/primary-key.
 import { ReactComponent as ForeignKeyIcon } from "assets/icons/menu/foreign-key.svg";
 import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/datasource-column.svg";
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
+import { ReactComponent as JSIcon } from "assets/icons/menu/js.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
@@ -27,6 +28,11 @@ export const MenuIcons: {
   WIDGETS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <WidgetsIcon />
+    </IconWrapper>
+  ),
+  JS_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <JSIcon />
     </IconWrapper>
   ),
   APIS_ICON: (props: IconProps) => (

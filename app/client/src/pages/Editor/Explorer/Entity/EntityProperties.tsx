@@ -48,6 +48,7 @@ export const EntityProperties = memo(
     let entityProperties: Array<EntityPropertyProps> = [];
     switch (props.entityType) {
       case ENTITY_TYPE.ACTION:
+      case ENTITY_TYPE.JSACTION:
         config = entityDefinitions.ACTION(entity as DataTreeAction);
         if (config) {
           entityProperties = Object.keys(config)

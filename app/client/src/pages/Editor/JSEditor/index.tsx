@@ -5,6 +5,7 @@ import { AppState } from "reducers";
 import { connect } from "react-redux";
 import JSEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
+import { getJSActionById } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   jsAction: Action | undefined;
@@ -19,8 +20,8 @@ class JSEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
-  const jsAction = state.ui.jsPane;
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const jsAction = getJSActionById(state, props);
   return { jsAction };
 };
 

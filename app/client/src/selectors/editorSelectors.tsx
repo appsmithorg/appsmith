@@ -20,7 +20,7 @@ import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "selectors/entitiesSelector";
+import { getActions, getJSActions } from "selectors/entitiesSelector";
 
 import { getCanvasWidgets } from "./entitiesSelector";
 import { WidgetTypes } from "../constants/WidgetConstants";
@@ -267,3 +267,15 @@ const createLoadingWidget = (
     isLoading: true,
   };
 };
+
+export const getJSActionById = createSelector(
+  [getJSActions, (state: any, props: any) => props.match.params.functionId],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action.config;
+    } else {
+      return undefined;
+    }
+  },
+);

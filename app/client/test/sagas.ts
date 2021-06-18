@@ -25,6 +25,7 @@ import { watchActionExecutionSagas } from "../src/sagas/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
+import { watchJSActionSagas } from "../src/sagas/JSActionSagas";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -56,4 +57,5 @@ export const sagasToRunForTests = [
   debuggerSagas,
   utilSagas,
   saaSPaneSagas,
+  watchJSActionSagas,
 ];

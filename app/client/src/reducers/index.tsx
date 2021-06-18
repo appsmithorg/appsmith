@@ -46,6 +46,7 @@ import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
+import { JSActionDataState } from "./entityReducers/jsActionsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -100,6 +101,7 @@ export interface AppState {
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
+    jsActions: JSActionDataState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

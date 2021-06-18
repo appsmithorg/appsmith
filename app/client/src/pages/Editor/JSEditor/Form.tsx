@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { JS_EDITOR_FORM } from "constants/forms";
 import { Action } from "entities/Action";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
@@ -27,6 +26,7 @@ import {
   SecondaryWrapper,
   StyledFormRow,
 } from "../QueryEditor/EditorJSONtoForm";
+import JSActionNameEditor from "./JSActionNameEditor";
 
 const Form = styled.form`
   display: flex;
@@ -123,12 +123,22 @@ function JSEditorForm(props: Props) {
     setSelectedIndex(index);
   };
 
+  const handleOnChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement> | string,
+  ) => {
+    try {
+      const jsObject = event && eval("(" + event + ")");
+    } catch (e) {
+      console.log("error", e);
+    }
+  };
+
   return (
     <Form>
       <StyledFormRow className="form-row-header">
         <NameWrapper className="t--nameOfApi">
           <CloseEditor />
-          <ActionNameEditor />
+          <JSActionNameEditor />
         </NameWrapper>
         <ActionButtons className="t--formActionButtons">
           <MoreActionsMenu
@@ -161,9 +171,7 @@ function JSEditorForm(props: Props) {
                     className={"js-editor"}
                     input={{
                       value: body,
-                      onChange: () => {
-                        //change code goes here
-                      },
+                      onChange: handleOnChange,
                     }}
                     mode={EditorModes.JAVASCRIPT}
                     placeholder="code goes here"

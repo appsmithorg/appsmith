@@ -2,6 +2,7 @@ import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
+import { watchJSActionSagas } from "./JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
@@ -38,6 +39,7 @@ const sagas = [
   pageSagas,
   fetchWidgetCardsSaga,
   watchActionSagas,
+  watchJSActionSagas,
   watchActionExecutionSagas,
   widgetOperationSagas,
   errorSagas,

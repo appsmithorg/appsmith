@@ -27,6 +27,7 @@ import {
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
+import { fetchJSActions } from "actions/jsActionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -113,7 +114,13 @@ function* initializeEditorSaga(
       ],
     );
     if (!applicationAndLayoutCalls) return;
+    const jsActionsCall = yield failFastApiCalls(
+      [fetchJSActions(applicationId)],
+      [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
+    );
 
+    if (!jsActionsCall) return;
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources()],
       [
