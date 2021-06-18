@@ -24,10 +24,11 @@ class MultiSelectWidget extends BaseWidget<
               "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
             label: "Options",
-            controlType: "INPUT_TEXT",
+            controlType: "OPTION_INPUT",
             placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
+            isJSConvertible: true,
             validation: VALIDATION_TYPES.OPTIONS_DATA,
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -35,7 +36,7 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Option",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
             isBindProperty: true,
