@@ -299,7 +299,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
-
+export const getCurrentPageWidgets = createSelector(
+  getPageWidgets,
+  getCurrentPageId,
+  (widgetsByPage, currentPageId) =>
+    currentPageId ? widgetsByPage[currentPageId] : {},
+);
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {

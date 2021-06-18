@@ -188,6 +188,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         overflow: hidden;
         display: flex;
         height: ${(props) => props.height - WIDGET_PADDING * 2 - 2}px;
+        align-content: flex-start;
       }
 
       .${Classes.TAG} {

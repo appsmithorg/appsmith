@@ -317,6 +317,9 @@ export const FULL_NAME = () => "Full Name";
 export const DISPLAY_NAME = () => "Display Name";
 export const EMAIL_ADDRESS = () => "Email Address";
 export const FIRST_AND_LAST_NAME = () => "First and last name";
+export const MARK_ALL_AS_READ = () => "Mark all as read";
+export const INVITE_A_NEW_USER = () => "Invite a new user";
+export const REMOVE = () => "Remove";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -327,8 +330,16 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_LOGS = () => "Logs";
+export const INSPECT_ENTITY = () => "Inspect Entity";
+export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+
+export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
+  `You want to remove ${name} from this organization`;

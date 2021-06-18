@@ -78,7 +78,11 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
+import OnboardingForm from "./OnboardingForm";
+import { getAppsmithConfigs } from "configs";
+import { SIGNUP_SUCCESS_URL } from "constants/routes";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -524,6 +528,8 @@ function ApplicationsSection(props: any) {
       });
     }
   };
+  const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -543,6 +549,8 @@ function ApplicationsSection(props: any) {
   const Form: any = OrgInviteUsersForm;
 
   const leaveOrg = (orgId: string) => {
+    setWarnLeavingOrganization(false);
+    setOrgToOpenMenu(null);
     dispatch(leaveOrganization(orgId));
   };
 
@@ -563,7 +571,11 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name" disabled={disabled}>
+      <OrgNameWrapper
+        className="t--org-name"
+        disabled={disabled}
+        onClick={() => setOrgToOpenMenu(orgSlug)}
+      >
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -635,6 +647,13 @@ function ApplicationsSection(props: any) {
                   className="t--org-name"
                   cypressSelector="t--org-name"
                   disabled={isFetchingApplications}
+                  isOpen={organization.slug === orgToOpenMenu}
+                  onClose={() => {
+                    setOrgToOpenMenu(null);
+                  }}
+                  onClosing={() => {
+                    setWarnLeavingOrganization(false);
+                  }}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
                     orgName: organization.name,
@@ -704,8 +723,17 @@ function ApplicationsSection(props: any) {
                   )}
                   <MenuItem
                     icon="logout"
-                    onSelect={() => leaveOrg(organization.id)}
-                    text="Leave Organization"
+                    onSelect={() =>
+                      !warnLeavingOrganization
+                        ? setWarnLeavingOrganization(true)
+                        : leaveOrg(organization.id)
+                    }
+                    text={
+                      !warnLeavingOrganization
+                        ? "Leave Organization"
+                        : "Are you sure?"
+                    }
+                    type={!warnLeavingOrganization ? undefined : "warning"}
                   />
                 </Menu>
               )}
@@ -743,6 +771,7 @@ function ApplicationsSection(props: any) {
                         <ProfileImage
                           className="org-share-user-icons"
                           key={el.username}
+                          source={`/api/${UserApi.photoURL}/${el.username}`}
                           userName={el.name ? el.name : el.username}
                         />
                       ))}
@@ -859,15 +888,22 @@ type ApplicationProps = {
   currentUser?: User;
   searchKeyword: string | undefined;
 };
+
+const getIsFromSignup = () => {
+  return window.location?.pathname === SIGNUP_SUCCESS_URL;
+};
+
+const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string }
+  { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
+      showOnboardingForm: false,
     };
   }
 
@@ -875,20 +911,43 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    const isFromSignUp = getIsFromSignup();
+    this.setState({
+      showOnboardingForm: isFromSignUp && onboardingFormEnabled,
+    });
+
+    // Redirect directly in case we're not showing the onboarding form
+    if (isFromSignUp && !onboardingFormEnabled) {
+      const urlObject = new URL(window.location.href);
+      const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+      if (redirectUrl) {
+        try {
+          window.location.replace(redirectUrl);
+        } catch (e) {
+          console.error("Error handling the redirect url");
+        }
+      }
+    }
   }
 
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        <ProductUpdatesModal />
-        <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: "Search for apps...",
-            queryFn: this.props.searchApplications,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        {this.state.showOnboardingForm ? (
+          <OnboardingForm />
+        ) : (
+          <>
+            <ProductUpdatesModal />
+            <LeftPane />
+            <SubHeader
+              search={{
+                placeholder: "Search for apps...",
+                queryFn: this.props.searchApplications,
+              }}
+            />
+            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+          </>
+        )}
       </PageWrapper>
     );
   }
