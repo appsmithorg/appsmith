@@ -1631,9 +1631,13 @@ Cypress.Commands.add("addDsl", (dsl) => {
     //Fetch the layout id
     cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
-      const len = JSON.stringify(response.body);
-      cy.log(len);
-      layoutId = JSON.parse(len).data.layouts[0].id;
+      const respBody = JSON.stringify(response.body);
+      cy.log(respBody);
+      layoutId = JSON.parse(respBody).data.layouts[0].id;
+      const version = JSON.parse(respBody).data.layouts[0].dsl.version;
+      if (!version || version !== 26) {
+        cy.wait("@updateLayout");
+      }
       // Dumpimg the DSL to the created page
       cy.request(
         "PUT",
