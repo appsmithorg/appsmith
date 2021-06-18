@@ -63,10 +63,6 @@ jobs:
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           echo $pull_number
           
-      - name: lo lo lo
-        run: |
-          numnum = ${{github.event.number}}
-          echo $numnum
       
       - name: pull request number.
         run: echo ${{ github.event.pull_request.number }}
