@@ -11,7 +11,7 @@ interface GridComponentProps extends ComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   backgroundColor?: Color;
-  items: Array<Record<string, unknown>>;
+  listData: Array<Record<string, unknown>>;
   hasPagination?: boolean;
 }
 
