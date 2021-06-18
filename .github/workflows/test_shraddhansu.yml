@@ -62,6 +62,12 @@ jobs:
         run: | 
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           echo $pull_number
+          
+      - name: lo lo lo
+        run: |
+          numnum = ${{github.event.number}}
+          echo $numnum
+          
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
         with:
