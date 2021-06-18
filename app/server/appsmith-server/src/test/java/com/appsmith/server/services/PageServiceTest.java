@@ -4,7 +4,13 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -451,23 +457,20 @@ public class PageServiceTest {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page2");
                     testPage.setApplicationId(application.getId());
-                    return applicationPageService.createPage(testPage)
-                            .then(Mono.just(application));
+                    return applicationPageService.createPage(testPage);
                 })
                 .flatMap(application -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
                     testPage.setApplicationId(application.getId());
-                    return applicationPageService.createPage(testPage)
-                            .then(Mono.just(application));
+                    return applicationPageService.createPage(testPage);
                 })
                 .flatMap(application -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page4");
                     testPage.setApplicationId(application.getId());
                     return applicationPageService.createPage(testPage);
-                })
-                .block();
+                });
         String pageId = application.getPages().get(0).getId();
         Mono<Application> applicationM = createApplicationMono.
                 flatMap( application -> {
