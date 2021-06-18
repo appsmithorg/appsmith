@@ -139,7 +139,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        Integer order = application.getPages() != null ? application.getPages().size() : FieldName.DEFAULT_PAGE_ORDER;
+        Integer order = application.getPages() != null ? application.getPages().size() : 0;
         return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, order)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
@@ -695,15 +695,15 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                      *
                      * Case 2(isMovingUp == false): p2 to p5, order of p3,p4,p5 decreases by 1.
                      **/
-                    if(foundPage != null){
+                    if(foundPage != null) {
                         boolean isMovingUp = order < foundPage.getOrder();
-                        if(isMovingUp){
+                        if(isMovingUp) {
                             for (final ApplicationPage page : pages) {
                                 if (page.getOrder() < foundPage.getOrder() && page.getOrder() >= order) {
                                     page.setOrder(page.getOrder()+1);
                                 }
                             }
-                        } else{
+                        } else {
                             for (final ApplicationPage page : pages) {
                                 if (page.getOrder() > foundPage.getOrder() && page.getOrder() <= order) {
                                     page.setOrder(page.getOrder()-1);

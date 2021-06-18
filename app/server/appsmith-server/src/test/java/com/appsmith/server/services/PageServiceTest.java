@@ -389,7 +389,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void reOrderPageMovingUp() {
+    public void reOrderPageFromHighOrderToLowOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
@@ -450,7 +450,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value ="api_user")
-    public void reOrderPageMovingDown() {
+    public void reOrderPageFromLowOrderToHighOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();

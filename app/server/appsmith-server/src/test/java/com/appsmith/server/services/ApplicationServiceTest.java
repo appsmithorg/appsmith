@@ -766,7 +766,7 @@ public class ApplicationServiceTest {
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
         applicationPage.setIsDefault(false);
-        applicationPage.setOrder(FieldName.DEFAULT_PAGE_ORDER+1);
+        applicationPage.setOrder(1);
 
         StepVerifier
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
@@ -828,7 +828,7 @@ public class ApplicationServiceTest {
                     assertThat(publishedPages).size().isEqualTo(2);
                     boolean isFound = false;
                     for( ApplicationPage page: publishedPages) {
-                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault() == publishedEditedPage.getIsDefault()) {
+                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault().equals(publishedEditedPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
@@ -838,7 +838,7 @@ public class ApplicationServiceTest {
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     isFound = false;
                     for( ApplicationPage page: editedApplicationPages) {
-                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault() == unpublishedEditedPage.getIsDefault()) {
+                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault().equals(unpublishedEditedPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
@@ -888,7 +888,7 @@ public class ApplicationServiceTest {
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     boolean isFound = false;
                     for( ApplicationPage page: editedApplicationPages) {
-                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault() == applicationPage.getIsDefault()) {
+                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault().equals(applicationPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
