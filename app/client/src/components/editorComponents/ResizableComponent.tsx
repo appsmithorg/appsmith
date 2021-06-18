@@ -16,7 +16,6 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
-  useWidgetSelection,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
@@ -39,6 +38,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

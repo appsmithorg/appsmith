@@ -50,7 +50,7 @@ describe("Onboarding", function() {
 
         // Add widget
         cy.get(".t--add-widget").click();
-        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 20 });
+        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 40 });
 
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting
