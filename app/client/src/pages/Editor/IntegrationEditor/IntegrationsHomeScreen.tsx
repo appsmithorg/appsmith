@@ -17,6 +17,7 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDBDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 const SearchContainer = styled.div`
   display: flex;
@@ -99,9 +100,9 @@ const SectionGrid = styled.div`
 const NewIntegrationsContainer = styled.div`
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 440px);
-  padding-bottom: 75px;
-  margin-top: 16px;
+  max-height: calc(100vh - 200px);
+  padding-bottom: 300px;
+  /* margin-top: 16px; */
   & > div {
     margin-bottom: 16px;
   }
@@ -192,10 +193,18 @@ const TERTIARY_MENU_IDS = {
 
 function CreateNewAPI({ active, applicationId, history, pageId }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
+  const isMounted = useRef(false);
   useEffect(() => {
-    if (active) {
-      newAPIRef.current?.scrollIntoView({ behavior: "smooth" });
-      newAPIRef.current?.click();
+    if (active && newAPIRef.current) {
+      isMounted.current &&
+        scrollIntoView(newAPIRef.current, {
+          behavior: "smooth",
+          scrollMode: "always",
+          block: "start",
+          boundary: document.getElementById("new-integrations-wrapper"),
+        });
+    } else {
+      isMounted.current = true;
     }
   }, [active]);
   return (
@@ -220,9 +229,13 @@ function CreateNewDatasource({
 }: any) {
   const newDatasourceRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (active) {
-      newDatasourceRef.current?.scrollIntoView({ behavior: "smooth" });
-      newDatasourceRef.current?.click();
+    if (active && newDatasourceRef.current) {
+      scrollIntoView(newDatasourceRef.current, {
+        behavior: "smooth",
+        scrollMode: "always",
+        block: "start",
+        boundary: document.getElementById("new-integrations-wrapper"),
+      });
     }
   }, [active]);
   return (
@@ -300,27 +313,25 @@ class IntegrationsHomeScreen extends React.Component<
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
-        <div>
+        <NewIntegrationsContainer id="new-integrations-wrapper">
           <AddDatasourceSecurely />
-          <NewIntegrationsContainer>
-            <CreateNewAPI
-              active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
-              applicationId={applicationId}
-              history={history}
-              isCreating={isCreating}
-              location={location}
-              pageId={pageId}
-            />
-            <CreateNewDatasource
-              active={activeSecondaryMenuId === SECONDARY_MENU_IDS.DATABASE}
-              applicationId={applicationId}
-              history={history}
-              isCreating={isCreating}
-              location={location}
-              pageId={pageId}
-            />
-          </NewIntegrationsContainer>
-        </div>
+          <CreateNewAPI
+            active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
+            applicationId={applicationId}
+            history={history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+          />
+          <CreateNewDatasource
+            active={activeSecondaryMenuId === SECONDARY_MENU_IDS.DATABASE}
+            applicationId={applicationId}
+            history={history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+          />
+        </NewIntegrationsContainer>
       );
     } else {
       currentScreen = (
