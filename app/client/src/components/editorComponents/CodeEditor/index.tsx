@@ -250,6 +250,12 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
+  componentWillUnmount() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    this.editor.closeHint();
+  }
+
   startAutocomplete() {
     this.hinters = this.props.hinting.map((helper) => {
       return helper(
@@ -471,24 +477,6 @@ class CodeEditor extends Component<Props, State> {
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         theme={this.props.theme}
       >
-        {false && showLightningMenu !== false && !this.state.isFocused && (
-          <Suspense fallback={<div />}>
-            <LightningMenu
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
-              }}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              skin={
-                this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
-              }
-              updateDynamicInputValue={this.updatePropertyValue}
-            />
-          </Suspense>
-        )}
         {showLightningMenu !== false && !this.state.isFocused && (
           <CommandBtnContainer
             className="slash-commands"
@@ -496,13 +484,9 @@ class CodeEditor extends Component<Props, State> {
           >
             <Button
               className="commands-button"
-              onClick={() => {
-                this.editor.operation(() => {
-                  this.editor.focus();
-                  this.editor.setValue(this.editor.getValue() + "/");
-                  this.editor.setCursor(this.editor.getValue().length);
-                });
-              }}
+              onClick={() =>
+                this.updatePropertyValue(this.props.input.value + "/")
+              }
               tag="button"
               text="/"
             />
