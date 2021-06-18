@@ -124,7 +124,9 @@ class MultiSelectWidget extends BaseWidget<
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
-    const values: string[] = this.props.selectedOptionValues;
+    const values: string[] = _.isArray(this.props.selectedOptionValues)
+      ? this.props.selectedOptionValues
+      : [];
 
     return (
       <MultiSelectComponent
