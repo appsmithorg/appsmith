@@ -6,6 +6,7 @@ import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ContainerComponent, {
@@ -14,7 +15,7 @@ import ContainerComponent, {
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-
+import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -63,11 +64,21 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    // For all widgets inside a container, we remove both container padding as well as widget padding from component width
+    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    if (
+      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+      this.props.type === "CONTAINER_WIDGET"
+    ) {
+      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+      padding = CONTAINER_GRID_PADDING * 2;
+    }
+    if (this.props.noPad) {
+      // Widgets like ListWidget choose to have no container padding so will only have widget padding
+      padding = WIDGET_PADDING * 2;
+    }
     let width = componentWidth;
-    if (!this.props.noPad) width -= padding;
-    else width -= WIDGET_PADDING * 2;
-
+    width -= padding;
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       snapColumnSpace: componentWidth
@@ -111,6 +122,9 @@ class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
       <ContainerComponent {...props}>
+        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
+          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        )}
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

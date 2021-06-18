@@ -562,7 +562,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Publishes a Boolean true, when the application has been published.
      */
     @Override
-    public Mono<Boolean> publish(String applicationId) {
+    public Mono<Application> publish(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
@@ -643,13 +643,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return Mono.when(
                 publishApplicationAndPages.collectList(),
-                publishedActionsFlux.collectList(),
-                applicationMono.flatMap(this::sendApplicationPublishedEvent)
+                publishedActionsFlux.collectList()
         )
-                .thenReturn(true);
+                .then(applicationMono);
     }
 
-    private Mono<Void> sendApplicationPublishedEvent(Application application) {
+    @Override
+    public Mono<Void> sendApplicationPublishedEvent(Application application) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
