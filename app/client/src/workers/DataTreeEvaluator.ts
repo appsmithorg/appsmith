@@ -142,10 +142,7 @@ export default class DataTreeEvaluator {
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
-      return {
-        dataTree: this.evalTree,
-        evaluationOrder: [],
-      };
+      return this.evalTree;
     }
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
