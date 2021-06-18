@@ -88,7 +88,8 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewQueryName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -741,24 +742,36 @@ function* executeCommand(
       break;
     case "NEW_QUERY":
       const datasource = get(actionPayload, "payload.args.datasource");
+      const pluginId = get(datasource, "pluginId");
+      const plugin = yield select(getPlugin, pluginId);
       const actions = yield select(getActions);
-      const newQueryName = createNewQueryName(actions, pageId);
-      yield put(
-        createActionRequest({
-          name: newQueryName,
-          pageId,
-          datasource: {
-            id: datasource.id,
-          },
-          eventData: {
-            actionType: "Query",
-            from: "Quick-Commands",
-            dataSource: datasource.name,
-          },
-          pluginId: datasource.pluginId,
-          actionConfiguration: {},
-        }),
+      const pageActions = actions.filter(
+        (a: ActionData) => a.config.pageId === pageId,
       );
+      const newQueryName =
+        plugin.type === "DB"
+          ? createNewQueryName(actions, pageId)
+          : createNewApiName(pageActions, pageId);
+      const nextPayload: Partial<Action> = {
+        name: newQueryName,
+        pageId,
+        eventData: {
+          actionType: "Query",
+          from: "Quick-Commands",
+          dataSource: datasource.name,
+        },
+        pluginId: datasource.pluginId,
+        actionConfiguration: {},
+      };
+      if (plugin.type === "API") {
+        nextPayload.datasource = datasource;
+        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
+      } else {
+        nextPayload.datasource = {
+          id: datasource.id,
+        };
+      }
+      yield put(createActionRequest(nextPayload));
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
       break;
