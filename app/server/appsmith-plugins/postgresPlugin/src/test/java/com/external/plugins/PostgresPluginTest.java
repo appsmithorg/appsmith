@@ -125,6 +125,12 @@ public class PostgresPluginTest {
                         "    id timestamptz default now(),\n" +
                         "    name timestamptz default now()\n" +
                         ")");
+
+                statement.execute("CREATE TABLE jsontest (\n" +
+                        "    id serial PRIMARY KEY,\n" +
+                        "    item json,\n" +
+                        "    origin jsonb" +
+                        ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -157,6 +163,14 @@ public class PostgresPluginTest {
                                 " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
                                 " '0 years'," +
                                 " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                ")");
+            }
+
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                        "INSERT INTO jsontest VALUES (" +
+                                "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}'," +
+                                "'{\"country\":\"japan\", \"city\":\"kyoto\"}'"+
                                 ")");
             }
 
@@ -336,7 +350,7 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(3, structure.getTables().size());
+                    assertEquals(4, structure.getTables().size());
 
                     final DatasourceStructure.Table campusTable = structure.getTables().get(0);
                     assertEquals("public.campus", campusTable.getName());
@@ -350,7 +364,21 @@ public class PostgresPluginTest {
                     );
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(1);
+                    final DatasourceStructure.Table jsonTestTable = structure.getTables().get(1);
+                    assertEquals("public.jsontest", jsonTestTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int4", "nextval('jsontest_id_seq" +
+                                            "'::regclass)"),
+                                    new DatasourceStructure.Column("item", "json", null),
+                                    new DatasourceStructure.Column("origin", "jsonb", null)
+                            },
+                            jsonTestTable.getColumns().toArray()
+                    );
+                    assertEquals(jsonTestTable.getKeys().size(), 1);
+
+                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(2);
                     assertEquals("public.possessions", possessionsTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
@@ -389,7 +417,7 @@ public class PostgresPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(2);
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(3);
                     assertEquals("public.users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
@@ -1060,6 +1088,30 @@ public class PostgresPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testJsonTypes() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM jsontest");
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> connectionPoolMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> resultMono = connectionPoolMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("racket", node.get("item").get("type").asText());
+                    assertEquals("butterfly", node.get("item").get("manufacturer").asText());
+                    assertEquals("japan", node.get("origin").get("country").asText());
+                    assertEquals("kyoto", node.get("origin").get("city").asText());
                 })
                 .verifyComplete();
     }

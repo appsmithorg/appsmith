@@ -92,17 +92,20 @@ public class ImportExportApplicationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.EXPORT_APPLICATIONS)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+            );
+
         return pluginRepository
             .findAll()
             .map(plugin -> {
                 pluginMap.put(plugin.getId(), plugin.getPackageName());
                 return plugin;
             })
-            .then(applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
-            )
+            .then(applicationMono)
             .flatMap(application -> {
+
                 ApplicationPage unpublishedDefaultPage = application.getPages()
                     .stream()
                     .filter(ApplicationPage::getIsDefault)
@@ -207,10 +210,10 @@ public class ImportExportApplicationService {
                             //Collect Datasource names to filter only required datasources
                             if (newAction.getPluginType() == PluginType.DB || newAction.getPluginType() == PluginType.API) {
                                 concernedDBNames.add(
-                                    mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceIdToNameMap)
+                                    sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
                                 );
                                 concernedDBNames.add(
-                                    mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceIdToNameMap)
+                                    sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null)
                                 );
                             }
                             if (newAction.getUnpublishedAction() != null) {
@@ -277,7 +280,7 @@ public class ImportExportApplicationService {
                 });
     }
     
-    public Mono<Application> importApplicationInOrganization(String orgId, ApplicationJson importedDoc) {
+    public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -289,7 +292,7 @@ public class ImportExportApplicationService {
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
-        final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(orgId).cache();
+        final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(organizationId).cache();
         
         String errorField = "";
         if (importedNewPageList == null || importedNewPageList.isEmpty()) {
@@ -311,9 +314,9 @@ public class ImportExportApplicationService {
                 pluginMap.put(plugin.getPackageName(), plugin.getId());
                 return plugin;
             })
-            .then(organizationService.findById(orgId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
+            .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
             .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId))
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
             )
             .flatMap(organization -> Flux.fromIterable(importedDatasourceList)
                 //Check for duplicate datasources to avoid duplicates in target organization
@@ -329,7 +332,7 @@ public class ImportExportApplicationService {
                         
                         updateAuthenticationDTO(datasource, decryptedFields);
                     }
-                    return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, orgId);
+                    return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
                 })
                 .map(datasource -> {
                     datasourceMap.put(datasource.getName(), datasource.getId());
@@ -339,9 +342,9 @@ public class ImportExportApplicationService {
             )
             .then(
                 
-                applicationPageService.setApplicationPolicies(currUserMono, orgId, importedApplication)
+                applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication)
                     .flatMap(application -> applicationService
-                        .findByOrganizationId(orgId, AclPermission.MANAGE_APPLICATIONS)
+                        .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
                         .collectList()
                         .flatMap(applicationList -> {
                             
@@ -351,7 +354,7 @@ public class ImportExportApplicationService {
                                 .findAny()
                                 .orElse(null);
                             
-                            return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, orgId)
+                            return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
                                 .map(suffix -> {
                                     importedApplication.setName(importedApplication.getName() + suffix);
                                     return importedApplication;
@@ -413,18 +416,18 @@ public class ImportExportApplicationService {
                         parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
                         actionIdMap.put(newAction.getUnpublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getUnpublishedAction().setPageId(parentPage.getId());
-                        mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap);
+                        sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
                     
                     if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
                         parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
                         actionIdMap.put(newAction.getPublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getPublishedAction().setPageId(parentPage.getId());
-                        mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap);
+                        sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
                     
                     examplesOrganizationCloner.makePristine(newAction);
-                    newAction.setOrganizationId(orgId);
+                    newAction.setOrganizationId(organizationId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
@@ -505,17 +508,25 @@ public class ImportExportApplicationService {
                 .flatMap(newPageService::save);
     }
 
-    private String mapDatasourceIdToNewAction(ActionDTO actionDTO, Map<String, String> datasourceMap) {
+    private String sanitizeDatasourceInActionDTO(ActionDTO actionDTO, Map<String, String> datasourceMap, Map<String, String> pluginMap, String organizationId) {
         
-        if (actionDTO != null && actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
+        if (actionDTO != null && actionDTO.getDatasource() != null) {
 
             Datasource ds = actionDTO.getDatasource();
-            //Mapping ds name in id field
-            ds.setId(datasourceMap.get(ds.getId()));
-            ds.setOrganizationId(null);
-            ds.setPluginId(null);
-            return ds.getId();
+            if (ds.getId() != null) {
+                //Mapping ds name in id field
+                ds.setId(datasourceMap.get(ds.getId()));
+                ds.setOrganizationId(null);
+                ds.setPluginId(null);
+                return ds.getId();
+            } else {
+                // This means we don't have regular datasource it can be simple REST_API
+                ds.setOrganizationId(organizationId);
+                ds.setPluginId(pluginMap.get(ds.getPluginId()));
+                return "";
+            }
         }
+
         return "";
     }
 
