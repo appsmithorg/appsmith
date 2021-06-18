@@ -596,6 +596,7 @@ public class PostgresPlugin extends BasePlugin {
                             if (!tablesByName.containsKey(fullTableName)) {
                                 tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                         kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                                        schemaName,
                                         fullTableName,
                                         new ArrayList<>(),
                                         new ArrayList<>(),
