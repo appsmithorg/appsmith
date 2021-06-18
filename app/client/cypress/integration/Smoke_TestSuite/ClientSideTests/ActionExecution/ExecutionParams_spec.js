@@ -6,13 +6,16 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("API Panel Test Functionality", function() {
   let datasourceName;
-  before(() => {
-    cy.addDsl(dsl);
-  });
+  // before(() => {
+  //   cy.addDsl(dsl);
+  // });
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
   it("Create a postgres datasource", function() {
+    before(() => {
+      cy.addDsl(dsl);
+    });
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
 

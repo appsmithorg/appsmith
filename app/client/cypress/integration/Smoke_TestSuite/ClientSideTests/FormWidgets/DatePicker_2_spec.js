@@ -5,11 +5,12 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
+  // before(() => {
+  //   cy.addDsl(dsl);
+  // });
 
   it("Datepicker default date validation with js binding", function() {
+    cy.addDsl(dsl);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();

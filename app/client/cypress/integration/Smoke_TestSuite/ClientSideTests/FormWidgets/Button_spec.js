@@ -7,15 +7,17 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
 describe("Button Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
+  // before(() => {
+  //   cy.addDsl(dsl);
+  // });
 
-  beforeEach(() => {
-    cy.openPropertyPane("buttonwidget");
-  });
+  // beforeEach(() => {
+  //   cy.openPropertyPane("buttonwidget");
+  // });
 
   it("Button-Name validation", function() {
+    cy.addDsl(dsl);
+    cy.openPropertyPane("buttonwidget");
     //changing the Button Name
     cy.widgetText(
       this.data.ButtonName,

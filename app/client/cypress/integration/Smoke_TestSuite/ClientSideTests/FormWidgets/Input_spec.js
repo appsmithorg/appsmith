@@ -4,9 +4,9 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Input Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
+  // before(() => {
+  //   cy.addDsl(dsl);
+  // });
 
   // Note: commenting it out because Drag/Drop feature is not stable on cypress.
   // it("Checks if default values are not persisted in cache after delete", function() {
@@ -29,6 +29,7 @@ describe("Input Widget Functionality", function() {
   // });
 
   it("Input Widget Functionality", function() {
+    cy.addDsl(dsl);
     cy.openPropertyPane("inputwidget");
     /**
      * @param{Text} Random Text
