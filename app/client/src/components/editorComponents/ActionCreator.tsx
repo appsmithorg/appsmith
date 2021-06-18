@@ -1,11 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { AppState } from "reducers";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import {
+  getActionsForCurrentPage,
+  getDBDatasources,
+} from "selectors/entitiesSelector";
+import { createActionRequest } from "actions/actionActions";
 import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +39,16 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
+import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import history from "utils/history";
+import { keyBy } from "lodash";
+import {
+  QueryIcon,
+  dbQueryIcon,
+  apiIcon,
+  MethodTag,
+  getPluginIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -551,14 +569,7 @@ const baseOptions: any = [
     label: "Execute an Integration",
     value: ActionType.integration,
   },
-  {
-    label: "Call An API",
-    value: ActionType.api,
-  },
-  {
-    label: "Execute a DB Query",
-    value: ActionType.query,
-  },
+
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -1145,33 +1156,88 @@ function useApiOptionTree() {
   return apiOptionTree;
 }
 
+function getIcon(action: any, plugin: any) {
+  if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
+    return <QueryIcon plugin={plugin} />;
+  else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
+
+  const method = action.actionConfiguration.httpMethod;
+  if (!method) return apiIcon;
+  return <MethodTag type={method} />;
+}
+
 function getIntegrationOptionsWithChildren(
+  pageId: string,
+  plugins: any,
   options: TreeDropdownOption[],
-  apis: ActionDataState,
-  createApiOption: TreeDropdownOption,
-  queries: ActionDataState,
-  createQueryOption: TreeDropdownOption,
+  actions: any[],
+  datasources: Datasource[],
+  createIntegrationOption: TreeDropdownOption,
+  dispatch: any,
 ) {
+  const queries = actions.filter(
+    (action) => action.config.pluginType === PluginType.DB,
+  );
+  const apis = actions.filter(
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
+  );
   const option = options.find(
     (option) => option.value === ActionType.integration,
   );
   if (option) {
-    option.children = [createApiOption];
+    option.children = [createIntegrationOption];
     apis.forEach((api) => {
       (option.children as TreeDropdownOption[]).push({
         label: api.config.name,
         id: api.config.id,
         value: api.config.name,
         type: option.value,
+        icon: getIcon(
+          api.config,
+          plugins[(api as any).config.datasource.pluginId],
+        ),
       } as TreeDropdownOption);
     });
-    option.children.push(createQueryOption);
     queries.forEach((query) => {
       (option.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
         value: query.config.name,
         type: option.value,
+        icon: getIcon(
+          query.config,
+          plugins[(query as any).config.datasource.pluginId],
+        ),
+      } as TreeDropdownOption);
+    });
+    datasources.forEach((dataSource: Datasource) => {
+      (option.children as TreeDropdownOption[]).push({
+        label: dataSource.name,
+        id: dataSource.id,
+        value: dataSource.name,
+        type: option.value,
+        icon: getPluginIcon(plugins[dataSource.pluginId]) as React.ReactNode,
+        onSelect: () => {
+          const newQueryName = createNewQueryName(actions, pageId);
+          dispatch(
+            createActionRequest({
+              name: newQueryName,
+              pageId,
+              datasource: {
+                id: dataSource.id,
+              },
+              eventData: {
+                actionType: "Query",
+                from: "home-screen",
+                dataSource: dataSource.name,
+              },
+              pluginId: dataSource.pluginId,
+              actionConfiguration: {},
+            }),
+          );
+        },
       } as TreeDropdownOption);
     });
   }
@@ -1179,55 +1245,39 @@ function getIntegrationOptionsWithChildren(
 }
 
 function useIntegrationsOptionTree() {
-  const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) || "";
+  const applicationId = useSelector(getCurrentApplicationId);
+  const datasources: Datasource[] = useSelector(getDBDatasources);
+  const dispatch = useDispatch();
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const actions = useSelector(getActionsForCurrentPage);
 
-  const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === PluginType.DB,
-  );
-  const apis = useSelector(getActionsForCurrentPage).filter(
-    (action) =>
-      action.config.pluginType === PluginType.API ||
-      action.config.pluginType === PluginType.SAAS,
-  );
   const integrationOptionTree = getIntegrationOptionsWithChildren(
+    pageId,
+    pluginGroups,
     baseOptions,
-    apis,
+    actions,
+    datasources,
     {
-      label: "Create API",
-      value: "api",
-      id: "create",
-      className: "t--create-api-btn",
-      icon: "plus",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const apiName = createNewApiName(apis, pageId);
-        if (setter) {
-          setter({
-            value: `${apiName}`,
-            type: ActionType.api,
-          });
-          dispatch(createNewApiAction(pageId, "API_PANE"));
-        }
-      },
-    },
-    queries,
-    {
-      label: "Create Query",
-      value: "query",
+      label: "Create New Integration",
+      value: "integration",
       id: "create",
       icon: "plus",
-      className: "t--create-query-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const queryName = createNewQueryName(queries, pageId);
-        if (setter) {
-          setter({
-            value: `${queryName}`,
-            type: ActionType.query,
-          });
-          dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
-        }
+      className: "t--create-integration-btn",
+      onSelect: () => {
+        history.push(
+          INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+            applicationId,
+            pageId,
+            pageId,
+          ),
+        );
       },
     },
+    dispatch,
   );
   return integrationOptionTree;
 }

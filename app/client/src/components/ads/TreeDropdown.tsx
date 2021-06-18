@@ -19,6 +19,7 @@ export type TreeDropdownOption = DropdownOption & {
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  icon?: React.ReactNode;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
