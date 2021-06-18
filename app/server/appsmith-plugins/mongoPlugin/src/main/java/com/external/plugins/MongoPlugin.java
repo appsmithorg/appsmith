@@ -899,6 +899,7 @@ public class MongoPlugin extends BasePlugin {
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                         tables.add(new DatasourceStructure.Table(
                                 DatasourceStructure.TableType.COLLECTION,
+                                null,
                                 collectionName,
                                 columns,
                                 new ArrayList<>(),
