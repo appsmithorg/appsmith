@@ -749,7 +749,7 @@ function* executeCommand(
         (a: ActionData) => a.config.pageId === pageId,
       );
       const newQueryName =
-        plugin.type === "DB"
+        plugin.type === PluginType.DB
           ? createNewQueryName(actions, pageId)
           : createNewApiName(pageActions, pageId);
       const nextPayload: Partial<Action> = {
