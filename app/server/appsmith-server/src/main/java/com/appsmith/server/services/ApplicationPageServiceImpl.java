@@ -696,7 +696,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                      * Case 2(isMovingUp == false): p2 to p5, order of p3,p4,p5 decreases by 1.
                      **/
                     if(foundPage != null){
-                        boolean isMovingUp = order > foundPage.getOrder();
+                        boolean isMovingUp = order < foundPage.getOrder();
                         if(isMovingUp){
                             for (final ApplicationPage page : pages) {
                                 if (page.getOrder() < foundPage.getOrder() && page.getOrder() >= order) {
@@ -705,7 +705,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             }
                         } else{
                             for (final ApplicationPage page : pages) {
-                                if (page.getOrder() >= foundPage.getOrder() && page.getOrder() < order) {
+                                if (page.getOrder() > foundPage.getOrder() && page.getOrder() <= order) {
                                     page.setOrder(page.getOrder()-1);
                                 }
                             }

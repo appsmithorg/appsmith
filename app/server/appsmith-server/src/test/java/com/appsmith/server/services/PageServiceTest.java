@@ -391,49 +391,57 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void reOrderPageMovingUp() {
 
-        Application app = new Application();
-        app.setName("reOrderPageMovingUp-Test");
-        setupTestApplication();
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
 
-        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
-                .cache();
+        application = applicationPageService.createApplication(newApp, orgId).block();
+        applicationId = application.getId();
+        final String[] pageIds = new String[4];
 
-        // Create all the pages for this application in a blocking manner.
-        createApplicationMono
-                .flatMap(application -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page2");
-                    testPage.setApplicationId(application.getId());
-                    return applicationPageService.createPage(testPage)
-                            .then(Mono.just(application));
-                })
-                .flatMap(application -> {
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("Page2");
+        testPage1.setApplicationId(applicationId);
+        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+                .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
-                    testPage.setApplicationId(application.getId());
-                    return applicationPageService.createPage(testPage)
-                            .then(Mono.just(application));
-                })
-                .flatMap(application -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page4");
-                    testPage.setApplicationId(application.getId());
+                    testPage.setApplicationId(applicationId);
                     return applicationPageService.createPage(testPage);
                 })
-                .block();
-        String pageId = application.getPages().get(0).getId();
-        Mono<Application> applicationM = createApplicationMono.
-                flatMap( application -> {
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 0);
+                .flatMap(pageDTO -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(applicationId);
+                    return applicationPageService.createPage(testPage);
+                })
+                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                .flatMap( application -> {
+                    pageIds[0] = application.getPages().get(0).getId();
+                    pageIds[1] = application.getPages().get(1).getId();
+                    pageIds[2] = application.getPages().get(2).getId();
+                    pageIds[3] = application.getPages().get(3).getId();
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1);
                 });
+
         StepVerifier
-                .create(applicationM)
-                .assertNext(application ->{
+                .create(applicationPageReOrdered)
+                .assertNext(application -> {
                     final List<ApplicationPage> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
-                    for(ApplicationPage page : pages){
-                        if(pageId.equals(page.getId())){
+                    for(ApplicationPage page : pages) {
+                        if(pageIds[0].equals(page.getId())) {
                             assertThat(page.getOrder()).isEqualTo(0);
+                        }
+                        if(pageIds[1].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(2);
+                        }
+                        if(pageIds[2].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(3);
+                        }
+                        if(pageIds[3].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(1);
                         }
                     }
                 } )
@@ -444,46 +452,57 @@ public class PageServiceTest {
     @WithUserDetails(value ="api_user")
     public void reOrderPageMovingDown() {
 
-        Application app = new Application();
-        app.setName("reOrderPageMovingDown-Test");
-        setupTestApplication();
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
 
-        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
-                .cache();
+        application = applicationPageService.createApplication(newApp, orgId).block();
+        applicationId = application.getId();
+        final String[] pageIds = new String[4];
 
-        // Create all the pages for this application in a blocking manner.
-        createApplicationMono
-                .flatMap(application -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page2");
-                    testPage.setApplicationId(application.getId());
-                    return applicationPageService.createPage(testPage);
-                })
-                .flatMap(application -> {
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("Page2");
+        testPage1.setApplicationId(applicationId);
+        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+                .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
-                    testPage.setApplicationId(application.getId());
+                    testPage.setApplicationId(applicationId);
                     return applicationPageService.createPage(testPage);
                 })
-                .flatMap(application -> {
+                .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page4");
-                    testPage.setApplicationId(application.getId());
+                    testPage.setApplicationId(applicationId);
                     return applicationPageService.createPage(testPage);
-                });
-        String pageId = application.getPages().get(0).getId();
-        Mono<Application> applicationM = createApplicationMono.
-                flatMap( application -> {
+                })
+                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                .flatMap( application -> {
+                    pageIds[0] = application.getPages().get(0).getId();
+                    pageIds[1] = application.getPages().get(1).getId();
+                    pageIds[2] = application.getPages().get(2).getId();
+                    pageIds[3] = application.getPages().get(3).getId();
                     return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3);
                 });
+
         StepVerifier
-                .create(applicationM)
-                .assertNext(application ->{
+                .create(applicationPageReOrdered)
+                .assertNext(application -> {
                     final List<ApplicationPage> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
-                    for(ApplicationPage page : pages){
-                        if(pageId.equals(page.getId())){
+                    for(ApplicationPage page : pages) {
+                        if(pageIds[0].equals(page.getId())) {
                             assertThat(page.getOrder()).isEqualTo(3);
+                        }
+                        if(pageIds[1].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(0);
+                        }
+                        if(pageIds[2].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(1);
+                        }
+                        if(pageIds[3].equals(page.getId())) {
+                            assertThat(page.getOrder()).isEqualTo(2);
                         }
                     }
                 } )
