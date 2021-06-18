@@ -103,6 +103,7 @@ const FIELD_VALUES: Record<
     defaultOptionValue: "string",
     isRequired: "boolean",
     isVisible: "boolean",
+    isDisabled: "boolean",
   },
   FORM_BUTTON_WIDGET: {
     text: "string",

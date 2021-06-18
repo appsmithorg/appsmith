@@ -114,19 +114,9 @@ export const entityDefinitions = {
   },
   MULTI_SELECT_WIDGET: {
     "!doc":
-      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
+      "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
-    selectedOptionValue: {
-      "!type": "string",
-      "!doc": "The value selected in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabel: {
-      "!type": "string",
-      "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",

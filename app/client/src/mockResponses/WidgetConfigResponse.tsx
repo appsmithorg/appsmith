@@ -299,7 +299,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Kakashi Hatake", value: "Six" },
         { label: "Naruto Uzumaki", value: "Seventh" },
       ],
-      widgetName: "Select",
+      widgetName: "MultiSelect",
       defaultOptionValue: ["First", "Seventh"],
       version: 1,
       isRequired: false,

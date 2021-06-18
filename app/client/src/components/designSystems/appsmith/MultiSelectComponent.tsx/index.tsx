@@ -102,16 +102,18 @@ function MultiSelectComponent({
         dropdownClassName="multi-select-dropdown"
         dropdownRender={(menu) => (
           <>
-            <StyledCheckbox
-              alignIndicator="left"
-              checked={isSelectAll}
-              label="Select all"
-              onChange={handleSelectAll}
-              style={{
-                paddingBottom: "10px",
-                marginLeft: "16px",
-              }}
-            />
+            {options.length ? (
+              <StyledCheckbox
+                alignIndicator="left"
+                checked={isSelectAll}
+                label="Select all"
+                onChange={handleSelectAll}
+                style={{
+                  paddingBottom: "10px",
+                  marginLeft: "16px",
+                }}
+              />
+            ) : null}
             {menu}
           </>
         )}
