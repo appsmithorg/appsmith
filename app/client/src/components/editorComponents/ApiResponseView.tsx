@@ -12,7 +12,6 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
@@ -132,6 +131,16 @@ const FailedMessage = styled.div`
   display: flex;
   align-items: center;
   margin-left: 5px;
+
+  .api-debugcta {
+    margin-top: 0px;
+  }
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
 `;
 
 interface ReduxStateProps {
@@ -181,11 +190,6 @@ function ApiResponseView(props: Props) {
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
-  const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
-    "requestDebugVisible",
-    "true",
-  );
-
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
@@ -200,16 +204,17 @@ function ApiResponseView(props: Props) {
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {hasFailed && !isRunning && requestDebugVisible && (
-            <Callout
-              closeButton
+          {hasFailed && !isRunning && (
+            <StyledCallout
               fill
               label={
                 <FailedMessage>
-                  <DebugButton onClick={onDebugClick} />
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
                 </FailedMessage>
               }
-              onClose={() => setRequestDebugVisible(false)}
               text={createMessage(CHECK_REQUEST_BODY)}
               variant={Variant.danger}
             />

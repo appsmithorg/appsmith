@@ -83,7 +83,6 @@ describe("API Panel Test Functionality", function() {
 
     // Publish the app
     cy.PublishtheApp();
-    cy.wait("@postExecute");
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {

@@ -6,12 +6,12 @@ import { Colors } from "constants/Colors";
 export function CollapseToggle(props: {
   isOpen: boolean;
   isVisible: boolean;
-  onClick: () => void;
+  onClick: (e: any) => void;
   disabled: boolean;
   className: string;
 }) {
   const handleClick = (e: any) => {
-    props.onClick();
+    props.onClick(e);
     e.stopPropagation();
   };
   const icon: IconName = props.isOpen
