@@ -2392,16 +2392,16 @@ public class DatabaseChangelog {
     @ChangeSet(order = "071", id = "add-application-export-permissions", author = "")
     public void addApplicationExportPermissions(MongoTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
-            query(where("userRoles").exists(true)),
-            Organization.class
+                query(where("userRoles").exists(true)),
+                Organization.class
         );
 
         for (final Organization organization : organizations) {
             Set<String> adminUsernames = organization.getUserRoles()
-                .stream()
-                .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
-                .map(role -> role.getUsername())
-                .collect(Collectors.toSet());
+                    .stream()
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                    .map(role -> role.getUsername())
+                    .collect(Collectors.toSet());
 
             if (adminUsernames.isEmpty()) {
                 continue;
@@ -2416,7 +2416,7 @@ public class DatabaseChangelog {
             }
 
             Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
@@ -2424,7 +2424,7 @@ public class DatabaseChangelog {
             } else {
                 // this policy doesnt exist. create and add this to the policy set
                 Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
-                    .users(exportApplicationPermissionUsernames).build();
+                        .users(exportApplicationPermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
 
@@ -2432,8 +2432,8 @@ public class DatabaseChangelog {
 
             // Update the applications with export applications policy for all administrators of the organization
             List<Application> orgApplications = mongoTemplate.find(
-                query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
-                Application.class
+                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
+                    Application.class
             );
 
             for (final Application application : orgApplications) {
@@ -2443,7 +2443,7 @@ public class DatabaseChangelog {
                 }
 
                 Optional<Policy> exportAppOptional = applicationPolicies.stream()
-                    .filter(policy -> policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())).findFirst();
+                        .filter(policy -> policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())).findFirst();
 
                 if (exportAppOptional.isPresent()) {
                     Policy exportAppPolicy = exportAppOptional.get();
@@ -2451,12 +2451,34 @@ public class DatabaseChangelog {
                 } else {
                     // this policy doesn't exist, create and add this to the policy set
                     Policy newExportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
-                        .users(adminUsernames).build();
+                            .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
 
                 mongoTemplate.save(application);
             }
         }
+    }
+
+    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
+    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Snowflake");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("snowflake-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+
     }
 }

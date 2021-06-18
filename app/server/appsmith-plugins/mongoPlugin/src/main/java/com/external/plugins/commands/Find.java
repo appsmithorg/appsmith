@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.BSON;
+import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
 import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
@@ -125,7 +125,7 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
         Map<Integer, Object> configMap = new HashMap<>();
 
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "FIND");
         configMap.put(COLLECTION, collectionName);
@@ -162,7 +162,7 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
         Map<Integer, Object> configMap = new HashMap<>();
 
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "FIND");
         configMap.put(FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");

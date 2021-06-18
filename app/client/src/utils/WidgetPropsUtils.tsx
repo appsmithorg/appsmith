@@ -39,6 +39,7 @@ import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { theme } from "../../src/constants/DefaultTheme";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -523,13 +524,20 @@ export function migrateChartDataFromArrayToObject(
   return currentDSL;
 }
 
+const pixelToNumber = (pixel: string) => {
+  if (pixel.includes("px")) {
+    return parseInt(pixel.split("px").join(""));
+  }
+  return 0;
+};
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = {},
   presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
 ) => {
-  let minmumHeight = presentMinimumHeight;
+  let minimumHeight = presentMinimumHeight;
   const nextAvailableRow = nextAvailableRowInContainer(
     MAIN_CONTAINER_WIDGET_ID,
     canvasWidgets,
@@ -538,19 +546,19 @@ export const calculateDynamicHeight = (
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 2 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 2 * DGRH (approx)
-  // buffer = DGRH, it's not 2 * DGRH coz we already add a buffer on the canvas which is also equal to DGRH.
-  const buffer = gridRowHeight;
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
   if (
     calculatedCanvasHeight < screenHeight &&
     calculatedMinHeight !== presentMinimumHeight
   ) {
-    minmumHeight = calculatedMinHeight;
+    minimumHeight = calculatedMinHeight;
   }
-  return minmumHeight;
+  return minimumHeight;
 };
 
 export const migrateInitialValues = (
@@ -766,13 +774,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 23) {
-    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
   }
 
-  if (currentDSL.version === 22) {
-    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
-    currentDSL.version = 23;
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
@@ -940,7 +948,7 @@ export const getDropZoneOffsets = (
   );
 };
 
-const areIntersecting = (r1: Rect, r2: Rect) => {
+export const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(
     r2.left >= r1.right ||
     r2.right <= r1.left ||
