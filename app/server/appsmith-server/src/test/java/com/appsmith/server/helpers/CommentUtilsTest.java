@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class CommentUtilsTest {
     @Test
     void getCommentBody_WhenBodyIsNull_ReturnsEmptyList() {
@@ -87,5 +89,34 @@ class CommentUtilsTest {
         Assert.assertTrue(CommentUtils.isUserMentioned(comment, "2"));
         Assert.assertTrue(CommentUtils.isUserMentioned(comment, "3"));
         Assert.assertFalse(CommentUtils.isUserMentioned(comment, "4"));
+    }
+
+    @Test
+    public void getSubscriberUsernames_WhenNoMention_ContainsAuthorOnly() {
+        Comment comment = new Comment();
+        comment.setAuthorUsername("abc");
+
+        List<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
+        assertThat(subscriberUsernames.size()).isEqualTo(1);
+        assertThat(subscriberUsernames).contains("abc");
+    }
+
+    @Test
+    public void getSubscriberUsernames_WhenMentionExists_ContainsAuthorAndMentions() {
+        Map<String, Comment.Entity> entityMap = createEntityMapForUsers(
+                List.of("1", "2", "3")
+        );
+        Comment.Body body = new Comment.Body();
+        body.setEntityMap(entityMap);
+        Comment comment = new Comment();
+        comment.setBody(body);
+        comment.setAuthorUsername("abc");
+
+        List<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
+        assertThat(subscriberUsernames.size()).isEqualTo(4);
+        assertThat(subscriberUsernames).contains("abc");
+        assertThat(subscriberUsernames).contains("1");
+        assertThat(subscriberUsernames).contains("2");
+        assertThat(subscriberUsernames).contains("3");
     }
 }
