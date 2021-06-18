@@ -1621,6 +1621,11 @@ Cypress.Commands.add("addDsl", (dsl) => {
   let currentURL;
   let pageid;
   let layoutId;
+  /* The server created app always has an old dsl so the layout will migrate
+   * To avoid race conditions between that update layout and this one
+   * we wait for that to finish before updating layout here
+   */
+  cy.wait("@updateLayout");
   cy.url().then((url) => {
     currentURL = url;
     const myRegexp = /pages(.*)/;
@@ -1632,13 +1637,8 @@ Cypress.Commands.add("addDsl", (dsl) => {
     cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
-      cy.log(respBody);
       layoutId = JSON.parse(respBody).data.layouts[0].id;
-      const version = JSON.parse(respBody).data.layouts[0].dsl.version;
-      if (!version || version !== 26) {
-        cy.wait("@updateLayout");
-      }
-      // Dumpimg the DSL to the created page
+      // Dumping the DSL to the created page
       cy.request(
         "PUT",
         "api/v1/layouts/" + layoutId + "/pages/" + pageid,
