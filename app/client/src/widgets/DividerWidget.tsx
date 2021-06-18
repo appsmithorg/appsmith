@@ -100,7 +100,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             options: [
               {
                 label: "No Cap",
-                value: "",
+                value: "nc",
                 icon: "cap-solid",
                 iconSize: "large",
               },
@@ -138,10 +138,10 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: 1,
               },
             ],
-            defaultValue: "LEFT",
+            defaultValue: "-1",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: DividerWidgetProps) => !props.capType,
+            hidden: (props: DividerWidgetProps) => props.capType === "nc",
           },
         ],
       },

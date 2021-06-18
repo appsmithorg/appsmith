@@ -54,8 +54,10 @@ const CapWrapper = styled.div<{
     height: ${(props) => props.size}px;
     width: ${(props) => props.size}px;
 
-    &.arrow {
-      ${(props) =>
+    &.rotate-icon {
+      ${(
+        props, // rotate icon according to its pos
+      ) =>
         props.isStartCap
           ? props.isHorizontal
             ? "transform: rotate(0deg);"
@@ -71,9 +73,9 @@ class DividerComponent extends React.Component<DividerComponentProps> {
   render() {
     const { capSide, capType, orientation } = this.props;
     const showStartCap =
-      !!capType && (isUndefined(capSide) ? false : capSide <= 0);
+      capType !== "nc" && (isUndefined(capSide) ? false : capSide <= 0);
     const showEndCap =
-      !!capType && (isUndefined(capSide) ? false : capSide >= 0);
+      capType !== "nc" && (isUndefined(capSide) ? false : capSide >= 0);
 
     return (
       <DividerWrapper>
@@ -114,7 +116,7 @@ class DividerComponent extends React.Component<DividerComponentProps> {
             />
           </svg>
         ) : (
-          <svg className="arrow">
+          <svg className="rotate-icon">
             <path
               d={`M ${halfCapSize} ${strokeSize / 2} L ${strokeSize /
                 sizeMultiplier} ${halfCapSize} 

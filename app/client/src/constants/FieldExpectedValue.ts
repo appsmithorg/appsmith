@@ -170,7 +170,9 @@ const FIELD_VALUES: Record<
     gridGap: "number",
   },
   DIVIDER_WIDGET: {
-    isHorizontal: "boolean",
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
     isVisible: "boolean",
     strokeStyle: "solid | dashed | dotted",
     dividerColor: "string",

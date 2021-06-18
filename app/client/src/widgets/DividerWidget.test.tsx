@@ -26,7 +26,9 @@ describe("<DividerWidget />", () => {
 
   function renderDividerWidget(props: Partial<DividerWidgetProps> = {}) {
     const defaultProps: DividerWidgetProps = {
-      isHorizontal: true,
+      orientation: "horizontal",
+      capType: "nc",
+      capSide: -1,
       strokeStyle: "solid",
       dividerColor: "black",
       thickness: 2,
@@ -66,7 +68,7 @@ describe("<DividerWidget />", () => {
   });
 
   test("should render Divider vertical", async () => {
-    const { queryByTestId } = renderDividerWidget({ isHorizontal: false });
+    const { queryByTestId } = renderDividerWidget({ orientation: "vertical" });
 
     expect(queryByTestId("dividerVertical")).toBeTruthy();
   });
