@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Select, { SelectProps } from "rc-select";
 import { Checkbox, Classes } from "@blueprintjs/core";
 import "./index.css";
@@ -6,9 +6,16 @@ import styled from "styled-components";
 import { LayersContext } from "constants/Layers";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
+import { DefaultValueType } from "rc-select/lib/interface/generator";
 
 const DropdownStyles = createGlobalStyle`
   .multi-select-dropdown {
+    .${Classes.ALIGN_LEFT} {
+        font-size: 16px;
+      .${Classes.CONTROL_INDICATOR} {
+        margin-right: 20px;
+      }
+    }
       &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
       background: white;
       box-shadow: none;
@@ -28,7 +35,7 @@ const DropdownStyles = createGlobalStyle`
   }
 `;
 
-export const MultiSelectContainer = styled.div``;
+const MultiSelectContainer = styled.div``;
 const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     margin: 0;
@@ -41,13 +48,11 @@ const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
 
 export interface MultiSelectProps
   extends Required<
-    Pick<
-      SelectProps,
-      "disabled" | "onChange" | "options" | "placeholder" | "loading"
-    >
+    Pick<SelectProps, "disabled" | "options" | "placeholder" | "loading">
   > {
   mode?: "multiple" | "tags";
   value: string[];
+  onChange: (value: DefaultValueType) => void;
 }
 
 function MultiSelectComponent({
@@ -59,6 +64,31 @@ function MultiSelectComponent({
   value,
 }: MultiSelectProps): JSX.Element {
   const layer = useContext(LayersContext);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+
+  const handleSelectAll = () => {
+    if (!isSelectAll) {
+      const allOption: string[] = options.map((option) => option.value);
+      onChange(allOption);
+      setIsSelectAll(true);
+      return;
+    }
+    setIsSelectAll(false);
+    return onChange([]);
+  };
+  useEffect(() => {
+    if (
+      !isSelectAll &&
+      options.length &&
+      value.length &&
+      options.length === value.length
+    ) {
+      setIsSelectAll(true);
+    }
+    if (isSelectAll && options.length !== value.length) {
+      setIsSelectAll(false);
+    }
+  }, [options, value]);
 
   return (
     <MultiSelectContainer>
@@ -70,6 +100,21 @@ function MultiSelectComponent({
         className="rc-select"
         disabled={disabled}
         dropdownClassName="multi-select-dropdown"
+        dropdownRender={(menu) => (
+          <>
+            <StyledCheckbox
+              alignIndicator="left"
+              checked={isSelectAll}
+              label="Select all"
+              onChange={handleSelectAll}
+              style={{
+                paddingBottom: "10px",
+                marginLeft: "16px",
+              }}
+            />
+            {menu}
+          </>
+        )}
         dropdownStyle={{
           zIndex: layer.portals,
         }}

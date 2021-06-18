@@ -230,7 +230,7 @@
 .rc-select-item-option-state .bp3-control.bp3-checkbox {
 	margin-bottom: 0;
 }
-.rc-select-item-option-state .bp3-control input:checked ~ .bp3-control-indicator {
+.multi-select-dropdown .bp3-control input:checked ~ .bp3-control-indicator  {
 	background: rgb(3, 179, 101) !important;
 	color: rgb(255, 255, 255);
 	border-color: rgb(3, 179, 101) !important;
