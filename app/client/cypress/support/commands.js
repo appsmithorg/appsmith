@@ -273,6 +273,11 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  /* The server created app always has an old dsl so the layout will migrate
+   * To avoid race conditions between that update layout and this one
+   * we wait for that to finish before updating layout here
+   */
+  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add(
@@ -1621,11 +1626,6 @@ Cypress.Commands.add("addDsl", (dsl) => {
   let currentURL;
   let pageid;
   let layoutId;
-  /* The server created app always has an old dsl so the layout will migrate
-   * To avoid race conditions between that update layout and this one
-   * we wait for that to finish before updating layout here
-   */
-  cy.wait("@updateLayout");
   cy.url().then((url) => {
     currentURL = url;
     const myRegexp = /pages(.*)/;
