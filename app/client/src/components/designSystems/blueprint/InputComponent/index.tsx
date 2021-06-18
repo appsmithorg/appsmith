@@ -29,11 +29,11 @@ import {
 import CurrencyTypeDropdown, {
   getCurrencyOptions,
   getSelectedCurrency,
-} from "components/designSystems/blueprint/InputComponent/CurrencyCodeDropdown";
+} from "components/ads/CurrencyCodeDropdown";
 import PhoneNumberTypeDropdown, {
   getPhoneNumberCodeOptions,
   getSelectedCountryCode,
-} from "components/designSystems/blueprint/InputComponent/PhoneNumberCodeDropdown";
+} from "components/ads/PhoneNumberCodeDropdown";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -76,6 +76,8 @@ const InputComponentWrapper = styled((props) => (
         !props.allowCurrencyChange &&
         `
       padding-left: 35px;`};
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>

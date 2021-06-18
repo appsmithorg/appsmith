@@ -1,14 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "components/designSystems/blueprint/InputComponent/utilties";
+import {
+  DialingCodeOptions,
+  DialingCodeOptionProps,
+} from "constants/DialingCodes";
 
 const DropdownTriggerIconWrapper = styled.div`
   height: 19px;
-  padding: 9px 5px 9px 12px;
-  width: 40px;
+  padding: 9px 0px 9px 12px;
+  width: 85px;
+  min-width: 85px;
   height: 19px;
   display: flex;
   align-items: center;
@@ -17,15 +21,24 @@ const DropdownTriggerIconWrapper = styled.div`
   line-height: 19px;
   letter-spacing: -0.24px;
   color: #090707;
+  .code {
+    margin-right: 4px;
+    pointer-events: none;
+  }
+  .icon-dropdown {
+    display: flex;
+    width: 30px;
+    justify-content: space-between;
+  }
 `;
 
 export const getPhoneNumberCodeOptions = (): Array<DropdownOption> => {
-  return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
+  return DialingCodeOptions.map((item: DialingCodeOptionProps) => {
     return {
       leftElement: countryToFlag(item.code),
-      searchText: item.label,
-      label: `${item.label} (${item.country_code})`,
-      value: item.country_code,
+      searchText: item.name,
+      label: `${item.name} (${item.dial_code})`,
+      value: item.dial_code,
     };
   });
 };
@@ -33,22 +46,18 @@ export const getPhoneNumberCodeOptions = (): Array<DropdownOption> => {
 export const getSelectedCountryCode = (
   countryCode?: string,
 ): DropdownOption => {
-  const selectedCountryCode: CurrencyOptionProps | undefined = countryCode
-    ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.country_code === countryCode;
-      })
-    : undefined;
-  if (selectedCountryCode) {
-    return {
-      label: `${
-        selectedCountryCode.label
-      } (${selectedCountryCode.country_code || "+91"})`,
-      searchText: selectedCountryCode.label,
-      value: selectedCountryCode.country_code,
-      id: selectedCountryCode.code,
-    };
-  }
-  return CurrencyTypeOptions[0];
+  const selectedCountry: DialingCodeOptionProps =
+    (countryCode
+      ? DialingCodeOptions.find((item: DialingCodeOptionProps) => {
+          return item.dial_code === countryCode;
+        })
+      : undefined) || DialingCodeOptions[0];
+  return {
+    label: `${selectedCountry.name} (${selectedCountry.dial_code})`,
+    searchText: selectedCountry.name,
+    value: selectedCountry.dial_code,
+    id: selectedCountry.code,
+  };
 };
 
 interface CountryCodeDropdownProps {
@@ -61,11 +70,16 @@ interface CountryCodeDropdownProps {
 export default function PhoneNumberTypeDropdown(
   props: CountryCodeDropdownProps,
 ) {
-  const selectedCountryCode = getSelectedCountryCode(props.selected.value);
+  const selectedCountry = getSelectedCountryCode(props.selected.value);
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper className="t--input-country-code-change">
-      {countryToFlag(selectedCountryCode.id || "AD")}
-      <Icon name="downArrow" size={IconSize.XXS} />
+      <div className="icon-dropdown">
+        {selectedCountry.id && countryToFlag(selectedCountry.id)}
+        <Icon name="downArrow" size={IconSize.XXS} />
+      </div>
+      <div className="code">
+        {selectedCountry.value && selectedCountry.value}
+      </div>
     </DropdownTriggerIconWrapper>
   );
   return (
