@@ -67,7 +67,16 @@ jobs:
         run: |
           numnum = ${{github.event.number}}
           echo $numnum
-          
+      
+      - name: pull request number.
+        run: echo ${{ github.event.pull_request.number }}
+        
+      - name: merge request number.
+        run: echo ${{ github.event.push_request.number }}
+        
+      - name: merge request number.
+        run: echo ${{ github.event.merge_request.number }}
+        
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
         with:
