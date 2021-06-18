@@ -122,7 +122,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         );
         let createNewCommands: any = [];
         if (currentEntityType === "WIDGET") {
-          createNewCommands = [...datasourceCommands]; //[newAPI, newDatasource];
+          createNewCommands = [...datasourceCommands];
         }
         const createNewCommandsMatchingSearchText = matchingCommands(
           createNewCommands,
