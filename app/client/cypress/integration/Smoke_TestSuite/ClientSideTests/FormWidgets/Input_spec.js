@@ -140,7 +140,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Functionality To check currency input type", function() {
-    cy.openPropertyPane("inputwidget");
+    // cy.openPropertyPane("inputwidget");
     cy.selectDropdownValue(commonlocators.dataType, "Currency");
     cy.togglebar(commonlocators.allowCurrencyChange);
     cy.testJsontext("regex", "");
@@ -161,6 +161,17 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .then((text) => {
         expect(text).to.equal("13,242.2");
+      });
+  });
+
+  it("Input Functionality To check phone number input type", function() {
+    // cy.openPropertyPane("inputwidget");
+    cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
+    cy.selectDropdownValue(commonlocators.phoneNumberCodeType, "India (+91)");
+    cy.get(commonlocators.inputCountryCodeChangeType)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("🇮🇳+91");
       });
   });
 });
