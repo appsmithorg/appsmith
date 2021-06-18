@@ -1,4 +1,4 @@
-import React, { Component, lazy, Suspense } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
@@ -41,7 +41,6 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import ScrollIndicator from "components/ads/ScrollIndicator";
@@ -56,10 +55,6 @@ import Button from "components/ads/Button";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { getPluginIdToImageLocation } from "sagas/selectors";
-
-const LightningMenu = lazy(() =>
-  retryPromise(() => import("components/editorComponents/LightningMenu")),
-);
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
