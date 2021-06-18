@@ -4,17 +4,16 @@ const dsl = require("../../../../fixtures/TextTabledsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Text-Table Binding Functionality", function() {
-  // Cypress.on("uncaught:exception", (err, runnable) => {
-  //   // returning false here prevents Cypress from
-  //   // failing the test
-  //   return false;
-  // });
-  //
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
-  it("Text-Table Binding Functionality For Id", function() {
+  Cypress.on("uncaught:exception", (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+  });
+
+  before(() => {
     cy.addDsl(dsl);
+  });
+  it("Text-Table Binding Functionality For Id", function() {
     cy.openPropertyPane("tablewidget");
     /**
      * @param(Index)  Provide index value to select the row.

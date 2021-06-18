@@ -7,11 +7,10 @@ const formWidgetDsl = require("../../../../fixtures/formWidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Checkbox Widget Functionality", function() {
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
-  it("Checkbox Widget Functionality", function() {
+  before(() => {
     cy.addDsl(dsl);
+  });
+  it("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
     /**
      * @param{Text} Random Text

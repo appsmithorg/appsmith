@@ -10,16 +10,15 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function() {
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
+  before(() => {
+    cy.addDsl(dsl);
+  });
 
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
   it("Create a PostgresDataSource", () => {
-    cy.addDsl(dsl);
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

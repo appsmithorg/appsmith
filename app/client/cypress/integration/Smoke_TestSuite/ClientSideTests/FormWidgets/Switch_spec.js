@@ -7,11 +7,10 @@ const formWidgetDsl = require("../../../../fixtures/formWidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Switch Widget Functionality", function() {
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
-  it("Switch Widget Functionality", function() {
+  before(() => {
     cy.addDsl(dsl);
+  });
+  it("Switch Widget Functionality", function() {
     cy.openPropertyPane("switchwidget");
     /**
      * @param{Text} Random Text

@@ -5,12 +5,11 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 
 describe("Table Widget Functionality", function() {
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
+  before(() => {
+    cy.addDsl(dsl);
+  });
 
   it("Table Widget Functionality", function() {
-    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidget");
 
     /**

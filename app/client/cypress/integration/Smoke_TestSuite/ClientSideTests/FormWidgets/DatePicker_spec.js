@@ -5,17 +5,15 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Functionality", function() {
-  // before(() => {
-  //   cy.addDsl(dsl);
-  // });
-  //
-  // beforeEach(() => {
-  //   cy.openPropertyPane("datepickerwidget");
-  // });
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  beforeEach(() => {
+    cy.openPropertyPane("datepickerwidget");
+  });
 
   it("DatePicker-Date Name validation", function() {
-    cy.addDsl(dsl);
-    cy.openPropertyPane("datepickerwidget");
     // changing the date to today
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();

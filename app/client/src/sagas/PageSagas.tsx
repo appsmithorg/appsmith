@@ -51,7 +51,7 @@ import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
 import {
-  checkIfMigrationIsNeeded,
+  // checkIfMigrationIsNeeded,
   extractCurrentDSL,
 } from "utils/WidgetPropsUtils";
 import {
@@ -186,7 +186,7 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
-    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+    // const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -207,9 +207,9 @@ export function* fetchPageSaga(
         payload: extractedDSL,
       });
 
-      if (willPageBeMigrated) {
-        yield put(saveLayout());
-      }
+      // if (willPageBeMigrated) {
+      //   yield put(saveLayout());
+      // }
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
