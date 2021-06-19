@@ -1,8 +1,13 @@
-name: Test_shraddhansu-2
+name: GitHub Actions Demo
 on:
   workflow_dispatch:
-  push:
-    branches: [release, master]
+      inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags' 
   
 jobs:
   Explore-GitHub-Actions:
@@ -12,4 +17,23 @@ jobs:
         run: echo ${{ github.run_id }}
       - name: Output Run Number
         run: echo ${{ github.run_number }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
+      - name: Download the file from s3 bucket.
+        run: |
+          aws s3 cp s3://taj2/build/build${{ github.event.inputs.tags }}.zip .
+          unzip build.zip
+        
+      - name: present working directory
+        run: pwd
+        
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/client/build/
