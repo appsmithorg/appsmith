@@ -47,6 +47,11 @@ import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
+
+// graphql stuff
+import GraphiQL from "graphiql";
+import "./graphiql.min.css";
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -430,6 +435,33 @@ function ImportedHeaders(props: { headers: any }) {
   );
 }
 
+const URL = "https://swapi-graphql.netlify.app/.netlify/functions/index";
+
+function graphQLFetcher(graphQLParams: any) {
+  return fetch(URL, {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(graphQLParams),
+    credentials: "omit",
+  }).then((response) => response.json());
+}
+
+const defaultQuery = `
+  query ExampleQuery {
+    data: allFilms {
+      edges {
+        node {
+          id
+          title
+          producers
+          episodeID
+          created
+        }
+      }
+    }
+  }
+`;
+
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showDatasources, toggleDatasources] = useState(
@@ -475,6 +507,15 @@ function ApiEditorForm(props: Props) {
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
+
+  // graphql stuff
+  const [graphqldisplay, setValue] = React.useState("");
+  React.useEffect(() => {
+    setTimeout(() => {
+      setValue("something");
+    }, 1000);
+  }, []);
+
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
@@ -631,7 +672,13 @@ function ApiEditorForm(props: Props) {
               </DatasourceListTrigger>
             )}
           </TabbedViewContainer>
-          <ApiResponseView apiName={actionName} theme={theme} />
+          {graphqldisplay !== "" ? (
+            <GraphiQL
+              defaultQuery={defaultQuery}
+              fetcher={graphQLFetcher}
+              variables={undefined}
+            />
+          ) : null}
         </SecondaryWrapper>
         {showDatasources && (
           <>
