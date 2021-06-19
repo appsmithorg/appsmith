@@ -21,8 +21,6 @@ jobs:
 
 
     steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
 
       # Uncomment this step to verify the use of 'deno fmt' on each commit.
       # - name: Verify formatting
