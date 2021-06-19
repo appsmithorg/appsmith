@@ -78,10 +78,15 @@ jobs:
            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
            aws-region: us-east-1
 
-      - name: Download the appsmith-server from s3 bucket.
-        run: aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }} appsmith-server/
+      - name: Download the appsmith-server from s3 bucket and upzip.
+        run: | 
+          aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }}.zip appsmith-server/
+          unzip appsmith-server${{ github.event.inputs.tags }}.zip
+          
       - name: Download the appsmith-plugin from s3 bucket
-        run: aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }} appsmith-plugins/
+        run: |
+          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip appsmith-plugins/
+          unzip appsmith-plugins${{ github.event.inputs.tags }}.zip
         
         
       # Build release Docker image and push to Docker Hub
