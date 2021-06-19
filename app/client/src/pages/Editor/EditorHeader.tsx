@@ -172,14 +172,20 @@ export function EditorHeader(props: EditorHeaderProps) {
     "",
   );
 
+  const findLastUpdatedTimeMessage = () => {
+    setLastUpdatedTimeMessage(
+      lastUpdatedTime
+        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
+        : "",
+    );
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdatedTimeMessage(
-        lastUpdatedTime
-          ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
-          : "",
-      );
-    }, 1000);
+    findLastUpdatedTimeMessage();
+    const interval = setInterval(
+      findLastUpdatedTimeMessage,
+      (moment.relativeTimeThreshold("ss") as number) * 1000,
+    );
     return () => {
       clearInterval(interval);
     };
