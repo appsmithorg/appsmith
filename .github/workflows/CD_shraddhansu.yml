@@ -7,19 +7,6 @@ on:
       tags:
         description: 'Please Enter the Build Number.' 
         required: true
-  pull_request_review:
-    types: [submitted]
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
-  # trigger for pushes to release and master
-  push:
-    branches: [release, release-frozen, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -28,15 +15,6 @@ defaults:
 
 jobs:
   build:
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
-    # Only PR approvals of internally created PRs should trigger this workflow
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
