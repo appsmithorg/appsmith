@@ -1,7 +1,7 @@
 name: GitHub Actions Demo
 on:
   workflow_dispatch:
-      inputs:
+    inputs:
       logLevel:
         description: 'Log level'     
         required: true
