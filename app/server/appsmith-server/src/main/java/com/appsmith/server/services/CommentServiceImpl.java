@@ -131,7 +131,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
 
                     // add them to current thread so that we don't need to query again
-                    thread.getSubscribers().addAll(subscribersFromThisComment);
+                    if(thread.getSubscribers() != null) {
+                        thread.getSubscribers().addAll(subscribersFromThisComment);
+                    } else {
+                        thread.setSubscribers(new HashSet<>(subscribersFromThisComment));
+                    }
 
                     return Mono.zip(
                             Mono.just(user),
