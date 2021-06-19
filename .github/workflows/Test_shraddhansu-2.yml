@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Test_shraddhansu-2
 on:
   workflow_dispatch:
   push:
