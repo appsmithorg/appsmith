@@ -3,17 +3,10 @@ name: CD-server-shraddhansu
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
-
-  push:
-    branches: [release, master]
-    # Only trigger if files have changed in this specific path
-    paths:
-      - "app/server/**"
-
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/server/**"
+    inputs:
+      tags:
+        description: 'Please Enter the build number'
+        required: true
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -76,28 +69,7 @@ jobs:
           echo "next_version = $next_version"
           echo ::set-output name=version::$next_version-SNAPSHOT
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
-      # Build and test the code
-#       - name: Build and test
-#         env:
-#           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-#           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-#           APPSMITH_ENCRYPTION_PASSWORD: "password"
-#           APPSMITH_ENCRYPTION_SALT: "salt"
-#           APPSMITH_IS_SELF_HOSTED: false
-#         run: |
-#           mvn --batch-mode versions:set \
-#             -DnewVersion=${{ steps.vars.outputs.version }} \
-#             -DgenerateBackupPoms=false \
-#             -DprocessAllModules=true
-#           mvn --batch-mode package
-#       - name: see where the directory is stored.
-#         run: |
-#           pwd
-#           ls -ltr
-#           cat Dockerfile
-#           cat pom.xml
-#           cd appsmith-server
-#           ls -ltr
+
   
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -105,14 +77,11 @@ jobs:
            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
            aws-region: us-east-1
-      - name: see the directory
-        run: pwd
-      - name: see how many file is there.
-        run: ls -ltr
-      - name: upload the appsmith-server to s3 bucket.
-        run: aws s3 cp --recursive s3://taj2/appsmith-server appsmith-server/
-      - name: upload the appsmith-plugin to s3 bucket
-        run: aws s3 cp --recursive s3://taj2/appsmith-plugins appsmith-plugins/
+
+      - name: Download the appsmith-server from s3 bucket.
+        run: aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }} appsmith-server/
+      - name: Download the appsmith-plugin from s3 bucket
+        run: aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }} appsmith-plugins/
         
         
       # Build release Docker image and push to Docker Hub
