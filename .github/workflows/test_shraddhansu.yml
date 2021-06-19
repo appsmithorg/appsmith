@@ -65,7 +65,7 @@ jobs:
           
       
       - name: pull request number.
-        run: echo ${ github.event.pull_request.number }
+        run: echo ${{ github.event.pull_request.number }}
         
       - name: merge request number.
         run: echo ${{ github.event.push_request.number }}
