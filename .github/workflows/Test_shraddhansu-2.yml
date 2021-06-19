@@ -27,7 +27,7 @@ jobs:
       - name: Download the file from s3 bucket.
         run: |
           aws s3 cp s3://taj2/build/build${{ github.event.inputs.tags }}.zip .
-          unzip build.zip
+          unzip build${{ github.event.inputs.tags }}.zip
         
       - name: present working directory
         run: pwd
