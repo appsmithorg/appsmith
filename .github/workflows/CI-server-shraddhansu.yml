@@ -105,36 +105,16 @@ jobs:
            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
            aws-region: us-east-1
-      - name: see the directory
-        run: pwd
-      - name: see how many file is there.
-        run: ls -ltr
+
       - name: upload the appsmith-server to s3 bucket.
-        run: aws s3 cp --recursive  appsmith-server/ s3://taj2/appsmith-server
+        run: |
+          zip -r appsmith-server${{ github.run_number }} appsmith-server
+          aws s3 cp appsmith-server${{ github.run_number }} s3://taj2/appsmith-server/
       - name: upload the appsmith-plugin to s3 bucket
-        run: aws s3 cp --recursive appsmith-plugins/ s3://taj2/appsmith-plugins
+        run: | 
+          zip -r appsmith-plugins${{ github.run_number }} appsmith-plugins
+          aws s3 cp appsmith-plugins${{ github.run_number }} s3://taj2/appsmith-plugins/
         
-        
-#       # Build release Docker image and push to Docker Hub
-#       - name: Push release image to Docker Hub
-#         if: success() && github.ref == 'refs/heads/release'
-#         run: |
-#           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
-#           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-#           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
-#       # Build master Docker image and push to Docker Hub
-#       - name: Push master image to Docker Hub with commit tag
-#         if: success() && github.ref == 'refs/heads/master'
-#         run: |
-#           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
-#           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
-#           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-#           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
-#           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
-  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional
-  # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml.
-  #
-  # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761
   ui-test:
     runs-on: ubuntu-latest
     strategy:
