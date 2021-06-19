@@ -9,7 +9,6 @@ let updatedName;
 let datasourceName;
 let newDsName;
 
-
 describe("Entity explorer tests related to copy query", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -92,7 +91,7 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${newDsName}`);
     cy.get(`.t--entity-name:contains(${newDsName})`)
@@ -122,6 +121,6 @@ describe("Entity explorer tests related to copy query", function() {
     cy.wait(500);
     cy.get(
       commonlocators.entitySearchResult.concat("Query1").concat("')"),
-    ).should("have.length",1);
+    ).should("have.length", 1);
   });
 });

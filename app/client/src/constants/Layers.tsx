@@ -22,6 +22,7 @@ export const Layers = {
   positionedWidget: Indices.Layer1,
   // Modal needs to higher than other widgets.
   modalWidget: Indices.Layer2,
+  selectedWidget: Indices.Layer2,
   // Layers when dragging
   animatedSnappingDropZone: Indices.Layer2,
 

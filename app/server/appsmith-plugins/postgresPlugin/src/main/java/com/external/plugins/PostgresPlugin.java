@@ -89,6 +89,8 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final String INTERVAL_TYPE_NAME = "interval";
 
+    private static final String JSON_TYPE_NAME = "json";
+
     private static final String JSONB_TYPE_NAME = "jsonb";
 
     private static final int MINIMUM_POOL_SIZE = 1;
@@ -181,12 +183,8 @@ public class PostgresPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                //In case the prepared statement configuration is missing, default to true.
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -194,10 +192,10 @@ public class PostgresPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -206,7 +204,8 @@ public class PostgresPlugin extends BasePlugin {
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             }
 
-            //Prepared Statement
+            // Prepared Statement
+
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
@@ -342,9 +341,9 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (typeName.startsWith("_")) {
                                     value = resultSet.getArray(i).getArray();
 
-                                } else if (JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getString(i);
-
+                                } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
+                                        || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                    value = objectMapper.readTree(resultSet.getString(i));
                                 } else {
                                     value = resultSet.getObject(i);
                                 }
@@ -359,6 +358,11 @@ public class PostgresPlugin extends BasePlugin {
                 } catch (SQLException e) {
                     System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                } catch (IOException e) {
+                    // Since postgres json type field can only hold valid json data, this exception is not expected
+                    // to occur.
+                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
                     idleConnections = poolProxy.getIdleConnections();
                     activeConnections = poolProxy.getActiveConnections();
@@ -592,6 +596,7 @@ public class PostgresPlugin extends BasePlugin {
                             if (!tablesByName.containsKey(fullTableName)) {
                                 tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                         kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                                        schemaName,
                                         fullTableName,
                                         new ArrayList<>(),
                                         new ArrayList<>(),

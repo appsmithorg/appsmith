@@ -9,7 +9,7 @@ import { Layers } from "constants/Layers";
 
 const PositionedWidget = styled.div`
   &:hover {
-    z-index: 1;
+    z-index: ${Layers.positionedWidget + 1} !important;
   }
 `;
 type PositionedContainerProps = {
@@ -17,6 +17,9 @@ type PositionedContainerProps = {
   children: ReactNode;
   widgetId: string;
   widgetType: string;
+  selected?: boolean;
+  focused?: boolean;
+  resizeDisabled?: boolean;
 };
 
 export function PositionedContainer(props: PositionedContainerProps) {
@@ -24,7 +27,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   const openPropertyPane = useClickOpenPropPane();
-
   // memoized classname
   const containerClassName = useMemo(() => {
     return (
@@ -44,7 +46,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: Layers.positionedWidget,
+      zIndex:
+        props.selected || props.focused
+          ? Layers.selectedWidget
+          : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);

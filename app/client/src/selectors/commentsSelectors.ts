@@ -2,7 +2,6 @@ import { AppState } from "reducers";
 import { get } from "lodash";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
-import moment from "moment";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -62,8 +61,11 @@ const getSortIndexTime = (
   a: string | number = new Date().toISOString(),
   b: string | number = new Date().toISOString(),
 ) => {
-  if (moment(a).isSame(moment(b))) return 0;
-  if (moment(a).isAfter(moment(b))) return -1;
+  const tsA = new Date(a).valueOf();
+  const tsB = new Date(b).valueOf();
+
+  if (tsA === tsB) return 0;
+  else if (tsA > tsB) return -1;
   else return 1;
 };
 
@@ -83,8 +85,11 @@ export const getSortedAndFilteredAppCommentThreadIds = (
   currentUserUsername?: string,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
-  return applicationThreadIds
+  const result = applicationThreadIds
     .sort((a, b) => {
+      // TODO verify cases where commentThread can be undefined
+      if (!commentThreadsMap[a] || !commentThreadsMap[b]) return -1;
+
       const {
         pinnedState: isAPinned,
         updationTime: updationTimeA,
@@ -94,17 +99,15 @@ export const getSortedAndFilteredAppCommentThreadIds = (
         updationTime: updationTimeB,
       } = commentThreadsMap[b];
 
-      let sortIdx = getSortIndexBool(!!isAPinned?.active, !!isBPinned?.active);
-      if (sortIdx !== 0) return sortIdx;
-
-      sortIdx = getSortIndexTime(
-        isAPinned?.updationTime?.epochSecond,
-        isBPinned?.updationTime?.epochSecond,
+      const sortIdx = getSortIndexBool(
+        !!isAPinned?.active,
+        !!isBPinned?.active,
       );
-
       if (sortIdx !== 0) return sortIdx;
 
-      return getSortIndexTime(updationTimeA, updationTimeB);
+      const result = getSortIndexTime(updationTimeA, updationTimeB);
+
+      return result;
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];
@@ -131,6 +134,8 @@ export const getSortedAndFilteredAppCommentThreadIds = (
         }
       }
     });
+
+  return result;
 };
 
 export const shouldShowResolved = (state: AppState) =>

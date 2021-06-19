@@ -188,6 +188,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         overflow: hidden;
         display: flex;
         height: ${(props) => props.height - WIDGET_PADDING * 2 - 2}px;
+        align-content: flex-start;
       }
 
       .${Classes.TAG} {
@@ -342,7 +343,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     this.props.onOptionSelected(item);
   };
 
-  onItemRemoved = (_tag: string, index: number) => {
+  onItemRemoved = (_tag: ReactNode, index: number) => {
     this.props.onOptionRemoved(this.props.selectedIndexArr[index]);
   };
 

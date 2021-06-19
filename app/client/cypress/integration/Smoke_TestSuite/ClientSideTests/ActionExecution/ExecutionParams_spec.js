@@ -31,8 +31,12 @@ describe("API Panel Test Functionality", function() {
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-
     cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.settings).click({ force: true });
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
+    cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -43,6 +47,7 @@ describe("API Panel Test Functionality", function() {
     cy.WaitAutoSave();
     cy.runQuery();
   });
+
   it("Will pass execution params", function() {
     // Bind the table
     cy.SearchEntityandOpen("Table1");
@@ -78,7 +83,6 @@ describe("API Panel Test Functionality", function() {
 
     // Publish the app
     cy.PublishtheApp();
-    cy.wait("@postExecute");
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {

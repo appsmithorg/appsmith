@@ -20,7 +20,7 @@ import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
@@ -46,6 +46,7 @@ import { keyBy, noop } from "lodash";
 import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
+import Footer from "./Footer";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -63,12 +64,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -166,13 +163,18 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(1);
+      if (!query)
+        recentEntities.length > 1
+          ? setActiveItemIndex(2)
+          : setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    setActiveItemIndex(1);
-  }, [query]);
+    !query && recentEntities.length > 1
+      ? setActiveItemIndex(2)
+      : setActiveItemIndex(1);
+  }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -208,7 +210,7 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
   const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
@@ -401,6 +403,7 @@ function GlobalSearch() {
                   <ResultsNotFound />
                 )}
               </div>
+              {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

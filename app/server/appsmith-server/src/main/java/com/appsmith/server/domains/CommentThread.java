@@ -2,12 +2,13 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,8 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
+    String pageId;
+
     CommentThreadState pinnedState;
 
     CommentThreadState resolvedState;
@@ -33,8 +36,21 @@ public class CommentThread extends BaseDomain {
 
     String applicationId;
 
+    String applicationName;
+
     @JsonIgnore
     Set<String> viewedByUsers;
+
+    String mode;
+
+    /**
+     * Display name of the user, who authored this comment thread.
+     */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorName;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorUsername;
 
     @Transient
     Boolean isViewed;
@@ -56,8 +72,7 @@ public class CommentThread extends BaseDomain {
     public static class CommentThreadState {
         String authorName;
         String authorUsername;
-        @LastModifiedDate
-        String updatedAt;
+        Instant updatedAt;
         Boolean active;
     }
 

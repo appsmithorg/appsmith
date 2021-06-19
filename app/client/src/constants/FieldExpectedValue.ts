@@ -135,7 +135,6 @@ const FIELD_VALUES: Record<
     allowedFileTypes: "Array<string>",
     isRequired: "boolean",
     isVisible: "boolean",
-    uploadedFileUrls: "string",
     // onFilesSelected: "Function Call",
   },
   CHECKBOX_WIDGET: {
@@ -166,7 +165,7 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   LIST_WIDGET: {
-    items: "Array<Object>",
+    listData: "Array<Object>",
     isVisible: "boolean",
     gridGap: "number",
   },

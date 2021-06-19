@@ -65,7 +65,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
   // TODO Find a way to enforce this, (dont let it be set)
@@ -243,6 +243,9 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        focused={this.props.focused}
+        resizeDisabled={this.props.resizeDisabled}
+        selected={this.props.selected}
         style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
@@ -430,6 +433,13 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+};
+
+export const WIDGET_DISPLAY_PROPS = {
+  isVisible: true,
+  isLoading: true,
+  isDisabled: true,
+  backgroundColor: true,
 };
 
 export interface WidgetDisplayProps {
