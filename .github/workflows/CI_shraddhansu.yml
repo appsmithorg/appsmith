@@ -212,5 +212,5 @@ jobs:
        run: ls -ltr
      - name: upload the file to s3 bucket.
        run: |
-          zip -r build.zip build
-          aws s3 cp build.zip s3://taj2/build/
+          zip -r build${{ github.run_number }}.zip build
+          aws s3 cp build${{ github.run_number }}.zip s3://taj2/build/
