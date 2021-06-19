@@ -9,6 +9,7 @@
 name: Test_shraddhansu-2
 
 on:
+  workflow_dispatch:
   push:
     branches: [release]
   pull_request:
