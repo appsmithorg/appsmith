@@ -63,6 +63,15 @@ jobs:
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           echo $pull_number
           
+      
+      - name: pull request number.
+        run: echo ${ github.event.pull_request.number }
+        
+      - name: merge request number.
+        run: echo ${{ github.event.push_request.number }}
+        
+      - name: merge request number.
+        run: echo ${{ github.event.merge_request.number }}
         
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -219,5 +228,5 @@ jobs:
        run: ls -ltr
      - name: upload the file to s3 bucket.
        run: |
-          zip -r build${{ github.event.push_request.number }}.zip build
+          zip -r build.zip build
           aws s3 cp build.zip s3://taj2/build/
