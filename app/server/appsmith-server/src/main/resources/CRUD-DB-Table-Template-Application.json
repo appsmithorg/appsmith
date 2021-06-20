@@ -3338,7 +3338,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "INSERT INTO templateTableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES ('{{Input11.text}}','{{Input5.text}}', '{{Input6.text}}', '{{Input7.text}}', '{{Input8.text}}', '{{Input9.text}}', '{{Input10.text}}');"
+          "body": "INSERT INTO templateTableName (\n\t\"id\",\n\t\"deliveryAddress\", \n\t\"orderAmount\", \n\t\"orderDate\", \n\t\"status\", \n\t\"userId\", \n\t\"paymentId\"\n)\nVALUES (\n\t\"{{Input11.text}}\",\n\t\"{{Input5.text}}\", \n\t\"{{Input6.text}}\", \n\t\"{{Input7.text}}\", \n\t\"{{Input8.text}}\", \n\t\"{{Input9.text}}\", \n\t\"{{Input10.text}}\"\n\t);"
         },
         "executeOnLoad": false,
         "dynamicBindingPathList": [
