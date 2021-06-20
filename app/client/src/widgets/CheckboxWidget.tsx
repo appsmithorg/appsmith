@@ -106,7 +106,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       isChecked: "defaultCheckedState",
-      alignWidget: "LEFT",
     };
   }
 

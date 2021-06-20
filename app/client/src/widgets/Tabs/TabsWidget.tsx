@@ -157,7 +157,7 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  static getMetaPropertiesMap() {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedTabWidgetId: undefined,
     };

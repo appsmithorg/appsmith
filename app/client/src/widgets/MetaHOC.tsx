@@ -124,6 +124,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     handleUpdateWidgetMetaProperty() {
       const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
+      const metaOptions = this.props.__metaOptions;
       /*
        We have kept a map of all updated properties. After debouncing we will
        go through these properties and update with the final value. This way
@@ -131,11 +132,24 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
        Then we will execute any action associated with the trigger of
        that value changing
       */
+
       [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
+
           clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+          // step 6 - look at this.props.options, check for metaPropPath value
+          // if they exist, then update the propertyName
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+
+          if (metaOptions) {
+            updateWidgetMetaProperty(
+              metaOptions.widgetId,
+              `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
+              propertyValue,
+            );
+          }
+
           this.updatedProperties.delete(propertyName);
         }
         const debouncedPayload = this.propertyTriggers.get(propertyName);

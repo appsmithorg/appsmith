@@ -9,19 +9,18 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
-  selectAllWidgetsInit,
-  selectAllWidgets,
 } from "actions/widgetActions";
+import {
+  selectAllWidgetsInitAction,
+  selectAllWidgetsAction,
+} from "actions/widgetSelectionActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  ENTITY_EXPLORER_SEARCH_ID,
-  WIDGETS_SEARCH_ID,
-} from "constants/Explorer";
+import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
 
@@ -85,16 +84,14 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Search entities"
           onKeyDown={(e: any) => {
-            const entitySearchInput = document.getElementById(
-              ENTITY_EXPLORER_SEARCH_ID,
-            );
             const widgetSearchInput = document.getElementById(
               WIDGETS_SEARCH_ID,
             );
-            if (entitySearchInput) entitySearchInput.focus();
-            if (widgetSearchInput) widgetSearchInput.focus();
-            e.preventDefault();
-            e.stopPropagation();
+            if (widgetSearchInput) {
+              widgetSearchInput.focus();
+              e.preventDefault();
+              e.stopPropagation();
+            }
           }}
         />
         <Hotkey
@@ -253,8 +250,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
-    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
-    deselectAllWidgets: () => dispatch(selectAllWidgets([])),
+    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInitAction()),
+    deselectAllWidgets: () => dispatch(selectAllWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
   };
 };
