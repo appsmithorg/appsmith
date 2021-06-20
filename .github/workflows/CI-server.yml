@@ -1,4 +1,4 @@
-name: Ci-server-shraddhansu
+name: Ci-server
 
 on:
   # This line enables manual triggering of this workflow.
