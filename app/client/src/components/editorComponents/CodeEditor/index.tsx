@@ -81,7 +81,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: { type: string; example: any };
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -302,7 +302,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    const expected = this.props.expected ? this.props.expected : "";
+    const expected = this.props.expected ? this.props.expected.type : "";
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
     );

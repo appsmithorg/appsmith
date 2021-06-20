@@ -35,7 +35,7 @@ export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
   propertyValue?: any;
   errorMessage?: string;
-  expected?: string;
+  expected?: { type: string; example: any };
   evaluatedValue: any;
   widgetProperties: any;
   useValidationMessage?: boolean;

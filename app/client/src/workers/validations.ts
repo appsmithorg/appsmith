@@ -9,7 +9,6 @@ import { isObject, isPlainObject, isString, rest, toString } from "lodash";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
-import unescapeJS from "unescape-js";
 import { getFnContents } from "./ast";
 
 function validatePlainObject(
@@ -163,7 +162,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       props,
     );
 
-    if (isValid) {
+    if (!isValid) {
       return {
         isValid: false,
         parsed: new RegExp(parsed),
@@ -446,11 +445,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message: "Failed to validate",
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
-      const fnContents = getFnContents(config.params.fnString);
       try {
+        const fnContents = getFnContents(config.params.fnString);
         const fn = Function("value", "props", fnContents);
         return fn(value, props);
       } catch (e) {
+        console.log({ config }, { value }, { props });
         console.log("Validation function error: --", { e });
       }
     }

@@ -12,10 +12,10 @@ import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
-export const selectedTabValidation = (
+export function selectedTabValidation(
   value: string,
   props: TabContainerWidgetProps,
-) => {
+) {
   const tabs: Array<{
     label: string;
     id: string;
@@ -26,7 +26,7 @@ export const selectedTabValidation = (
     parsed: value,
     message: `Tab name ${value} does not exist`,
   };
-};
+}
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState

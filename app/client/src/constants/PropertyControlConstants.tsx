@@ -50,14 +50,14 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  expected?: string;
+  expected?: { type: string; example: any };
 };
 
 type ValidationConfigParams = {
   min?: number;
   max?: number;
   default?: unknown;
-  isUnique?: boolean;
+  unique?: boolean;
   required?: boolean;
   regex?: RegExp;
   allowedKeys?: Array<{

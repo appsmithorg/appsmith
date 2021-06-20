@@ -9,11 +9,21 @@ export const required = (value: any) => {
   }
 };
 
-export function getExpectedValue(config?: ValidationConfig) {
+type ExpectedValue = {
+  type: string;
+  example: string | number | boolean | Record<string, unknown> | Array<unknown>;
+};
+
+export function getExpectedValue(
+  config?: ValidationConfig,
+): ExpectedValue | undefined {
   if (!config) return { type: "any", example: 123 }; // basic fallback
   switch (config.type) {
     case ValidationTypes.FUNCTION:
-      return { type: config.params?.expected };
+      return {
+        type: config.params?.expected || "unknown",
+        example: "No Example available",
+      };
     case ValidationTypes.TEXT:
       const result = { type: "String", example: "abc" };
       if (config.params?.allowedValues) {
@@ -26,33 +36,66 @@ export function getExpectedValue(config?: ValidationConfig) {
     case ValidationTypes.DATE_ISO_STRING:
       return { type: "ISO 8601 string", example: moment().toISOString(true) };
     case ValidationTypes.BOOLEAN:
-      return { type: "Boolean" };
+      return { type: "Boolean", example: false };
+    case ValidationTypes.NUMBER:
+      let type = "number";
+      let eg = 100;
+      if (config.params?.min) {
+        type = `${type} Min: ${config.params?.min}`;
+        eg = config.params?.min;
+      }
+      if (config.params?.max) {
+        type = `${type} Max: ${config.params?.max}`;
+        eg = config.params?.max;
+      }
+      if (config.params?.required) {
+        type = `${type} Required`;
+      }
+
+      return {
+        type,
+        example: eg,
+      };
     case ValidationTypes.OBJECT:
       const _exampleObj: Record<string, unknown> = {};
+      type = "Object";
       if (config.params?.allowedKeys) {
+        type = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedValue(allowedKeyConfig);
+          type = `${type}"${allowedKeyConfig.name}" : "${_expected?.type}",`;
           _exampleObj[allowedKeyConfig.name] = _expected?.example;
         });
+        type = `${type.substring(0, type.length - 1)} }`;
+        // console.log(unescape(type));
+        // console.log(JSON.parse(unescape(type)));
         return {
-          type: "Specific Object Structure",
-          example: JSON.stringify(_exampleObj),
+          type,
+          example: _exampleObj,
         };
       }
-      return { type: "Object", example: JSON.stringify({ key: "value" }) };
+      return { type, example: { key: "value" } };
     case ValidationTypes.ARRAY:
       if (config.params?.allowedValues) {
-        const allowed = config.params?.allowedValues.join(" | ");
+        const allowed = config.params?.allowedValues.join("' | '");
         return {
-          type: `Array<${allowed}>`,
-          example: JSON.stringify(config.params.allowedValues),
+          type: `Array<'${allowed}'>`,
+          example: config.params.allowedValues,
         };
       }
-      return { type: "Array", example: "[]" };
+      if (config.params?.children) {
+        return getExpectedValue(config.params.children);
+      }
+      return { type: "Array", example: [] };
     case ValidationTypes.OBJECT_ARRAY:
       return {
         type: `Array<Object>`,
-        example: JSON.stringify([{ id: 1 }]),
+        example: [{ id: 1 }],
+      };
+    case ValidationTypes.IMAGE_URL:
+      return {
+        type: `base64 encoded image | data uri | image url`,
+        example: `https://app.appsmith.com/static/media/appsmith_logo_square.3867b195.png`,
       };
   }
 }

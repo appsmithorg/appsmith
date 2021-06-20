@@ -72,7 +72,7 @@ export default [
         placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
-        controlType: "CUSTOM_FUSION_CHARTS_DATA",
+        controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

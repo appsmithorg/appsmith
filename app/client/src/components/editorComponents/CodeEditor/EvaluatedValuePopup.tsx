@@ -10,7 +10,15 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Collapse, Icon } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+
+const modifiers = {
+  offset: {
+    enabled: true,
+    offset: "0, 15",
+  },
+};
 
 const Wrapper = styled.div`
   position: relative;
@@ -82,6 +90,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   font-size: 12px;
   margin: 5px 0;
   -ms-overflow-style: none;
+  white-space: pre-wrap;
 `;
 
 const ErrorText = styled.p`
@@ -97,19 +106,40 @@ const ErrorText = styled.p`
   color: ${(props) => props.theme.colors.errorMessage};
 `;
 
+const StyledIcon = styled(Icon)`
+  &.open-collapse {
+    transform: rotate(90deg);
+  }
+  float: right;
+`;
+
 const StyledTitle = styled.p`
   margin: 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
 `;
 
 const StyledDebugButton = styled(DebugButton)`
   margin-left: auto;
 `;
 
+function CollapseToggle(props: { isOpen: boolean }) {
+  const { isOpen } = props;
+  return (
+    <StyledIcon
+      className={isOpen ? "open-collapse" : ""}
+      icon={IconNames.CHEVRON_RIGHT}
+    />
+  );
+}
+
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
   hasError: boolean;
-  expected?: string;
+  expected?: { type: string; example: any };
   evaluatedValue?: any;
   children: JSX.Element;
   error?: string;
@@ -121,7 +151,7 @@ interface Props {
 
 interface PopoverContentProps {
   hasError: boolean;
-  expected?: string;
+  expected?: { type: string; example: any };
   error?: string;
   useValidationMessage?: boolean;
   evaluatedValue: any;
@@ -184,7 +214,10 @@ export const CurrentValueViewer = memo(
   }) {
     const currentValueWrapperRef = React.createRef<HTMLDivElement>();
     const codeWrapperRef = React.createRef<HTMLPreElement>();
-
+    const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+    const toggleEvaluatedValue = () => {
+      setOpenEvaluatedValue(!openEvaluatedValue);
+    };
     let content = (
       <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
         {"undefined"}
@@ -241,16 +274,22 @@ export const CurrentValueViewer = memo(
     return (
       <>
         {!props.hideLabel && (
-          <StyledTitle data-testid="evaluated-value-popup-title">
+          <StyledTitle
+            data-testid="evaluated-value-popup-title"
+            onClick={toggleEvaluatedValue}
+          >
             Evaluated Value
+            <CollapseToggle isOpen={openEvaluatedValue} />
           </StyledTitle>
         )}
-        <CurrentValueWrapper colorTheme={props.theme}>
-          <>
-            {content}
-            <ScrollIndicator containerRef={currentValueWrapperRef} />
-          </>
-        </CurrentValueWrapper>
+        <Collapse isOpen={openEvaluatedValue}>
+          <CurrentValueWrapper colorTheme={props.theme}>
+            <>
+              {content}
+              <ScrollIndicator containerRef={currentValueWrapperRef} />
+            </>
+          </CurrentValueWrapper>
+        </Collapse>
       </>
     );
   },
@@ -267,6 +306,13 @@ export const CurrentValueViewer = memo(
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
+  const [openExpectedDataType, setOpenExpectedDataType] = useState(false);
+  const toggleExpectedDataType = () =>
+    setOpenExpectedDataType(!openExpectedDataType);
+
+  const [openExpectedExample, setOpenExpectedExample] = useState(false);
+  const toggleExpectedExample = () =>
+    setOpenExpectedExample(!openExpectedExample);
 
   return (
     <ContentWrapper
@@ -292,11 +338,32 @@ function PopoverContent(props: PopoverContentProps) {
       )}
       {!props.hasError && props.expected && (
         <>
-          <StyledTitle>Expected Data Type</StyledTitle>
-          <TypeText colorTheme={props.theme} ref={typeTextRef}>
-            {props.expected}
-            <ScrollIndicator containerRef={typeTextRef} />
-          </TypeText>
+          <StyledTitle onClick={toggleExpectedDataType}>
+            Expected Structure
+            <CollapseToggle isOpen={openExpectedDataType} />
+          </StyledTitle>
+          <Collapse isOpen={openExpectedDataType}>
+            <TypeText colorTheme={props.theme} ref={typeTextRef}>
+              {props.expected.type}
+            </TypeText>
+          </Collapse>
+        </>
+      )}
+      {!props.hasError && props.expected && (
+        <>
+          <StyledTitle onClick={toggleExpectedExample}>
+            Expected Structure - Example
+            <CollapseToggle isOpen={openExpectedExample} />
+          </StyledTitle>
+          <Collapse isOpen={openExpectedExample}>
+            <TypeText colorTheme={props.theme} ref={typeTextRef}>
+              <CurrentValueViewer
+                evaluatedValue={props.expected.example}
+                hideLabel
+                theme={props.theme}
+              />
+            </TypeText>
+          </Collapse>
         </>
       )}
       {!props.hideEvaluatedValue && (
@@ -329,12 +396,7 @@ function EvaluatedValuePopup(props: Props) {
       {(props.isOpen || contentHovered) && (
         <Popper
           isOpen
-          modifiers={{
-            offset: {
-              enabled: true,
-              offset: "0, 15",
-            },
-          }}
+          modifiers={modifiers}
           placement={placement}
           targetNode={wrapperRef.current || undefined}
           zIndex={5}

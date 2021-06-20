@@ -274,7 +274,7 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
     };
     const expectedValue = getExpectedValue(props.validation);
-    config.expected = `Type: ${expectedValue?.type} -- Eg: ${expectedValue?.example}`;
+    config.expected = expectedValue;
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       // config.isValid = true;
       config.validationMessage = "";
