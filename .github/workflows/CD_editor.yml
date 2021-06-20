@@ -1,4 +1,4 @@
-name: CD_shraddhansu
+name: CD_editor
 
 on:
   # This line enables manual triggering of this workflow.
