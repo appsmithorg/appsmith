@@ -9,7 +9,12 @@ import {
 import NotificationListItem from "./NotificationListItem";
 import { AppsmithNotification } from "entities/Notification";
 
-import { createMessage, COMMENTS, MARK_ALL_AS_READ } from "constants/messages";
+import {
+  createMessage,
+  COMMENTS,
+  MARK_ALL_AS_READ,
+  NO_NOTIFICATIONS_TO_SHOW,
+} from "constants/messages";
 
 import Button, { Category } from "components/ads/Button";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -20,6 +25,8 @@ import {
   fetchNotificationsRequest,
   markAllNotificationsAsReadRequest,
 } from "actions/notificationActions";
+
+import { ReactComponent as EmptyState } from "assets/icons/comments/notifications-empty-state.svg";
 
 const Container = styled.div`
   width: 326px;
@@ -45,6 +52,29 @@ const StyledHeader = styled.div`
       props.theme.colors.notifications.markAllAsReadButtonText};
   }
 `;
+
+const Label = styled.div`
+  color: ${(props) => props.theme.colors.notifications.label};
+  ${(props) => getTypographyByKey(props, "p1")}
+`;
+
+const EmptyNotificationsStateContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[9]}px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+function EmptyNotificationsState() {
+  return (
+    <EmptyNotificationsStateContainer>
+      <EmptyState />
+      <Label>{createMessage(NO_NOTIFICATIONS_TO_SHOW)}</Label>
+    </EmptyNotificationsStateContainer>
+  );
+}
 
 function NotificationsListHeader() {
   const dispatch = useDispatch();
@@ -76,40 +106,44 @@ function NotificationsList() {
   return (
     <Container>
       <NotificationsListHeader />
-      <Virtuoso
-        components={{
-          Footer() {
-            if (!fetchingNotifications) return null;
+      {notifications.length > 0 ? (
+        <Virtuoso
+          components={{
+            Footer() {
+              if (!fetchingNotifications) return null;
 
-            return (
-              <div
-                style={{
-                  padding: "2rem",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                Loading...
-              </div>
-            );
-          },
-        }}
-        data={notifications}
-        endReached={(index: number) => {
-          const last = notifications[index];
-          const { createdAt, creationTime } = last || {};
-          const _createdTime = createdAt || creationTime;
-          dispatch(fetchNotificationsRequest(_createdTime));
-        }}
-        itemContent={(index: number, notification: AppsmithNotification) => (
-          <NotificationListItem
-            key={notification.id}
-            notification={notification}
-          />
-        )}
-        overscan={1}
-        style={{ height }}
-      />
+              return (
+                <div
+                  style={{
+                    padding: "2rem",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  Loading...
+                </div>
+              );
+            },
+          }}
+          data={notifications}
+          endReached={(index: number) => {
+            const last = notifications[index];
+            const { createdAt, creationTime } = last || {};
+            const _createdTime = createdAt || creationTime;
+            dispatch(fetchNotificationsRequest(_createdTime));
+          }}
+          itemContent={(index: number, notification: AppsmithNotification) => (
+            <NotificationListItem
+              key={notification.id}
+              notification={notification}
+            />
+          )}
+          overscan={1}
+          style={{ height }}
+        />
+      ) : (
+        <EmptyNotificationsState />
+      )}
     </Container>
   );
 }

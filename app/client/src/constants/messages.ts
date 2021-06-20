@@ -320,6 +320,7 @@ export const FIRST_AND_LAST_NAME = () => "First and last name";
 export const MARK_ALL_AS_READ = () => "Mark all as read";
 export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
