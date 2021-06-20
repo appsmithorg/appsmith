@@ -85,7 +85,7 @@ jobs:
           
       - name: Download the appsmith-plugin from s3 bucket
         run: |
-          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip appsmith-plugins/
+          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip
           unzip appsmith-plugins${{ github.event.inputs.tags }}.zip
         
         
