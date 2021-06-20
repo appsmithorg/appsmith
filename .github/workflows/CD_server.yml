@@ -1,4 +1,4 @@
-name: CD-server-shraddhansu
+name: CD-server
 
 on:
   # This line enables manual triggering of this workflow.
