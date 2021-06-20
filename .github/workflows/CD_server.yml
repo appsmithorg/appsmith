@@ -80,12 +80,12 @@ jobs:
 
       - name: Download the appsmith-server from s3 bucket and upzip.
         run: | 
-          aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }}.zip appsmith-server/
+          aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }}.zip .
           unzip appsmith-server${{ github.event.inputs.tags }}.zip
           
       - name: Download the appsmith-plugin from s3 bucket
         run: |
-          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip
+          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip .
           unzip appsmith-plugins${{ github.event.inputs.tags }}.zip
         
         
