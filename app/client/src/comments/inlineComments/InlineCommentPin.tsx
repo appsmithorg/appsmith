@@ -203,7 +203,7 @@ function InlineCommentPin({
           commentThreadId={commentThreadId}
           onClick={handlePinClick}
           sequenceId={commentThread.sequenceId}
-          unread={!commentThread.isViewed}
+          unread={!commentThread.isViewed || isCommentThreadVisible}
         />
       </Popover2>
     </CommentTriggerContainer>
