@@ -781,7 +781,10 @@ function* executeCommand(
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
       break;
     case "NEW_INTEGRATION":
-      history.push(INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID());
+      const appId = yield select(getCurrentApplicationId);
+      history.push(
+        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(appId, pageId, pageId),
+      );
       break;
   }
 }
