@@ -23,6 +23,7 @@ describe("EntityDefinitions", () => {
         name: "Some random name",
       },
     };
+
     const listWidgetEntityDefinitions = entityDefinitions.LIST_WIDGET(
       listWidgetProps,
     );
@@ -41,6 +42,8 @@ describe("EntityDefinitions", () => {
       },
       selectedItem: { id: "number", name: "string" },
       gridGap: "number",
+      items: "?",
+      listData: "?",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);
