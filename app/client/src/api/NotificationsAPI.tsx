@@ -8,8 +8,8 @@ class NotificationsApi extends Api {
   static markAllAsReadURL = `${NotificationsApi.markAsReadURL}/all`;
   static fetchUnreadNotificationsCountURL = `${NotificationsApi.baseURL}/count/unread`;
 
-  static fetchNotifications(beforeTime?: string): AxiosPromise<ApiResponse> {
-    return Api.get(NotificationsApi.baseURL, { beforeTime });
+  static fetchNotifications(beforeDate?: string): AxiosPromise<ApiResponse> {
+    return Api.get(NotificationsApi.baseURL, beforeDate ? { beforeDate } : {});
   }
 
   static markAllNotificationsAsRead(): AxiosPromise<ApiResponse> {
