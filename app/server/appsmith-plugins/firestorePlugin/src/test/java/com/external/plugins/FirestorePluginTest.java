@@ -730,10 +730,23 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         List params = new ArrayList();
-        params.add(new Param("Input1.text", "category"));
-        params.add(new Param("Input2.text", "test"));
-        params.add(new Param("Input3.text", "name"));
-        params.add(new Param("Input4.text", "two"));
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("test");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("name");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input4.text");
+        param.setValue("two");
+        params.add(param);
+
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(params);
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -1045,9 +1058,18 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         List params = new ArrayList();
-        params.add(new Param("Input1.text", "initial"));
-        params.add(new Param("Input2.text", "category"));
-        params.add(new Param("Input3.text", "test"));
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("initial");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("test");
+        params.add(param);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(params);
 
