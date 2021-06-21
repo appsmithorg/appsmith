@@ -43,6 +43,7 @@ export type EditableTextProps = CommonComponentProps & {
   hideEditIcon?: boolean;
   fill?: boolean;
   underline?: boolean;
+  onValidationError?: () => void;
 };
 
 export const EditableTextWrapper = styled.div<{
@@ -159,11 +160,11 @@ export function EditableText(props: EditableTextProps) {
     isInvalid: inputValidation,
     onBlur,
     onTextChanged,
+    onValidationError,
     valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setValue] = useState(defaultValue);
-  const [lastValidValue, setLastValidValue] = useState(defaultValue);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [changeStarted, setChangeStarted] = useState<boolean>(false);
   const [savingState, setSavingState] = useState<SavingState>(
@@ -208,8 +209,10 @@ export function EditableText(props: EditableTextProps) {
     (_value: string) => {
       const finalVal: string = _value.trim();
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
-        setValue(lastValidValue);
-        onBlur && onBlur(lastValidValue);
+        // this is particularly added for Editable app name.
+        onValidationError && onValidationError();
+        setValue(defaultValue);
+        onBlur && onBlur(defaultValue);
         setSavingState(SavingState.NOT_STARTED);
       }
       if (changeStarted) {
@@ -225,9 +228,9 @@ export function EditableText(props: EditableTextProps) {
       changeStarted,
       savingState,
       isInvalid,
-      lastValidValue,
       onBlur,
       onTextChanged,
+      onValidationError,
     ],
   );
 
@@ -240,7 +243,6 @@ export function EditableText(props: EditableTextProps) {
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error && finalVal !== "") {
-        setLastValidValue(finalVal);
         onTextChanged && onTextChanged(finalVal);
       }
       setValue(finalVal);

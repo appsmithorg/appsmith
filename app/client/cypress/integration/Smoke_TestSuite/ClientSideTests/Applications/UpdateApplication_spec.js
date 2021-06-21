@@ -65,18 +65,14 @@ describe("Update Application", function() {
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationName).type("  ");
+    // If user tryies to save empty appname it'll show an error
+    // and revert the appname back to what it was earlier
+    cy.get(homePage.applicationName).type("  " + "{enter}");
+    cy.get(homePage.applicationName).should("contain", appname);
     cy.get(homePage.toastMessage).should(
       "contain",
       "Application name can't be empty",
     );
-    cy.get(homePage.applicationName).type("  " + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.data.name",
-      `${appname} updated`,
-    );
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
