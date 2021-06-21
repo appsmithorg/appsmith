@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -98,20 +99,27 @@ public class CreateDBTablePageSolution {
     public Mono<PageDTO> createPageFromDBTable(String pageId, Object requestBody) {
 
         final Map<String, Object> tableObject = (HashMap<String, Object>) requestBody;
+        AtomicReference<String> savedPageId = new AtomicReference<>(pageId);
         if (tableObject.get("tableName") == null || tableObject.get("datasourceName") == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ", tableName and datasourceName must be present"));
+        } else if (tableObject.get(FieldName.APPLICATION_ID) == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
+
         final String tableName =  tableObject.get("tableName").toString();
         final String datasourceName =  tableObject.get("datasourceName").toString();
+        final String applicationId = tableObject.get(FieldName.APPLICATION_ID).toString();
 
         //Mapped columns along with table name between template and concerned DB table
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
 
-        Mono<Datasource> datasourceMono = newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
-            )
-            .flatMap(newPage -> applicationService.findById(newPage.getApplicationId()))
+        Mono<NewPage> pageMono = getPage(applicationId, savedPageId.get(), tableName).cache();
+
+        Mono<Datasource> datasourceMono = pageMono
+            .flatMap(newPage -> {
+                savedPageId.set(newPage.getId());
+                return applicationService.findById(newPage.getApplicationId());
+            })
             .flatMap(application ->
                 datasourceService
                     .findAllByOrganizationId(application.getOrganizationId(), AclPermission.MANAGE_DATASOURCES)
@@ -124,10 +132,10 @@ public class CreateDBTablePageSolution {
                         .anyMatch(table -> StringUtils.equals(table.getName(), tableName)))
                     .next()
             )
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, "with name " + datasourceName)));
-        
-        Mono<NewPage> pageMono = newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, "with name " + datasourceName))
+            );
+
         
         return datasourceMono
             .zipWhen(datasource -> getTable(datasource, tableName))
@@ -137,8 +145,7 @@ public class CreateDBTablePageSolution {
                 Table table = tuple.getT1().getT2();
                 NewPage page = tuple.getT2();
                 String layoutId = page.getUnpublishedPage().getLayouts().get(0).getId();
-                String onLoadAction = "";
-            
+
                 ApplicationJson applicationJson = new ApplicationJson();
                 try {
                     BeanCopyUtils.copyNestedNonNullProperties(fetchTemplateApplication(FILE_PATH), applicationJson);
@@ -165,7 +172,7 @@ public class CreateDBTablePageSolution {
                 layout.setDsl(
                     extractAndUpdateAllWidgetFromDSL(layout.getDsl(), mappedColumnsAndTableName, deletedWidgets)
                 );
-                return layoutActionService.updateLayout(pageId, layoutId, layout)
+                return layoutActionService.updateLayout(savedPageId.get(), layoutId, layout)
                     .then(Mono.zip(
                         Mono.just(datasource),
                         Mono.just(applicationJson.getActionList()),
@@ -177,13 +184,47 @@ public class CreateDBTablePageSolution {
                 Datasource datasource = tuple.getT1();
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
-                return cloneActions(datasource, tableName, pageId, templateActionList, mappedColumnsAndTableName, deletedWidgets)
+                return cloneActions(datasource, tableName, savedPageId.get(), templateActionList, mappedColumnsAndTableName, deletedWidgets)
                     .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY) ?
                         layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
-                    .then(applicationPageService.getPage(pageId, false));
+                    .then(applicationPageService.getPage(savedPageId.get(), false));
             });
     }
-    
+
+    private Mono<NewPage> getPage(String applicationId, String pageId, String tableName) {
+
+        if(pageId != null) {
+            return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
+                );
+        }
+
+        return newPageService.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES, false)
+            .collectList()
+            .flatMap(pages -> {
+                String pageName = "Admin Page: " + tableName;
+                long maxCount = 0l;
+                for (PageDTO pageDTO : pages) {
+                    if (pageDTO.getName().matches("^" + pageName + ".*")) {
+                        long count = 1l;
+                        String pageCount = pageDTO.getName().substring(pageName.length());
+                        if (!pageCount.isEmpty()) {
+                            count = Long.parseLong(pageCount);
+                        }
+                        maxCount = maxCount <= count ? count + 1 : maxCount;
+                    }
+
+                }
+                pageName = maxCount != 0 ? pageName + maxCount : pageName;
+                PageDTO page = new PageDTO();
+                page.setApplicationId(applicationId);
+                page.setName(pageName);
+                return applicationPageService.createPage(page);
+            })
+            .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), AclPermission.MANAGE_PAGES));
+    }
+
     private Mono<Table> getTable(Datasource datasource, String tableName) {
         DatasourceStructure datasourceStructure = datasource.getStructure();
         if (datasourceStructure != null) {

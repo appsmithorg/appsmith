@@ -52,12 +52,20 @@ public class PageController {
         return applicationPageService.createPage(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
+
+    @PostMapping("/crud-page")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@RequestBody Object dbTable) {
+        log.debug("Going to create crud-page");
+        return createDBTablePageSolution.createPageFromDBTable(null, dbTable)
+            .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
     
     @PutMapping("/crud-page/{pageId}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@PathVariable String pageId, @RequestBody Object tableName) {
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@PathVariable String pageId, @RequestBody Object dbTable) {
         log.debug("Going to update resource {}", pageId);
-        return createDBTablePageSolution.createPageFromDBTable(pageId, tableName)
+        return createDBTablePageSolution.createPageFromDBTable(pageId, dbTable)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
