@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -710,9 +711,9 @@ public class FirestorePluginTest {
          * - this returns 2 documents.
          */
         ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "category");
+            put("path", "{{Input1.text}}");
             put("operator", "EQ");
-            put("value", "test");
+            put("value", "{{Input2.text}}");
         }});
 
         /*
@@ -720,16 +721,23 @@ public class FirestorePluginTest {
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
         ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "name");
+            put("path", "{{Input3.text}}");
             put("operator", "EQ");
-            put("value", "two");
+            put("value", "{{Input4.text}}");
         }});
 
         pluginSpecifiedTemplates.add(whereProperty);
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
+        List params = new ArrayList();
+        params.add(new Param("Input1.text", "category"));
+        params.add(new Param("Input2.text", "test"));
+        params.add(new Param("Input3.text", "name"));
+        params.add(new Param("Input4.text", "two"));
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -755,6 +763,7 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testUpdateDocumentWithFieldValueTimestamp() {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
