@@ -1,11 +1,12 @@
 import React, { ReactNode, memo, useCallback } from "react";
-import Entity from "../Entity";
+import Entity, { EntityClassNames } from "../Entity";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JS_FUNCTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
+import JSActionEntityContextMenu from "./JSActionContextMenu";
 
 type ExplorerJSActionEntityProps = {
   action: any;
@@ -33,11 +34,21 @@ export const ExplorerJSActionEntity = memo(
         ),
       );
     }, [props.pageId]);
+    const contextMenu = (
+      <JSActionEntityContextMenu
+        className={EntityClassNames.CONTEXT_MENU}
+        id={props.action.config.id}
+        name={props.action.config.name}
+        pageId={props.pageId}
+      />
+    );
+
     return (
       <Entity
         action={navigateToJSAction}
         active={props.active}
         className="jsaction"
+        contextMenu={contextMenu}
         entityId={props.action.config.id}
         icon={props.icon}
         key={props.action.config.id}

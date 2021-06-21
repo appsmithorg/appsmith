@@ -59,6 +59,83 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
+  [ReduxActionTypes.COPY_JS_ACTION_INIT]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ): JSActionDataState =>
+    state.concat(
+      state
+        .filter((a) => a.config.id === action.payload.id)
+        .map((a) => ({
+          ...a,
+          data: undefined,
+          config: {
+            ...a.config,
+            id: "TEMP_COPY_ID",
+            name: action.payload.name,
+            pageId: action.payload.destinationPageId,
+          },
+        })),
+    ),
+  [ReduxActionTypes.COPY_JS_ACTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (
+        a.config.pageId === action.payload.pageId &&
+        a.config.name === action.payload.name
+      ) {
+        return {
+          ...a,
+          config: action.payload,
+        };
+      }
+
+      return a;
+    }),
+  [ReduxActionTypes.MOVE_JS_ACTION_INIT]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            name: action.payload.name,
+            pageId: action.payload.destinationPageId,
+          },
+        };
+      }
+
+      return a;
+    }),
+  [ReduxActionTypes.MOVE_JS_ACTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return { ...a, config: action.payload };
+      }
+
+      return a;
+    }),
+  [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ): JSActionDataState =>
+    state.filter((a) => a.config.id !== action.payload.id),
 });
 
 export default jsActionsReducer;
