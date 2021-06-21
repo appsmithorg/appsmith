@@ -10,8 +10,6 @@ describe("Inspect Entity", function() {
 
     cy.get(".t--debugger").click();
     cy.contains(".react-tabs__tab", "Inspect Entity").click();
-
-    cy.openPropertyPane("inputwidget");
     cy.contains(".t--dependencies-item", "Button1").click();
     cy.contains(".t--references-item", "Input1");
   });
