@@ -2,6 +2,9 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
+import Spinner from "components/ads/Spinner";
+import { IconSize } from "components/ads/Icon";
+
 import {
   notificationsSelector,
   fetchingNotificationsSelector,
@@ -97,6 +100,13 @@ function NotificationsListHeader() {
 
 const NOTIFICATION_HEIGHT = 63;
 
+const Footer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: ${(props) => props.theme.spaces[4]}px;
+`;
+
 function NotificationsList() {
   const dispatch = useDispatch();
   const notifications = useSelector(notificationsSelector);
@@ -113,15 +123,9 @@ function NotificationsList() {
               if (!fetchingNotifications) return null;
 
               return (
-                <div
-                  style={{
-                    padding: "2rem",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  Loading...
-                </div>
+                <Footer>
+                  <Spinner size={IconSize.LARGE} />
+                </Footer>
               );
             },
           }}
