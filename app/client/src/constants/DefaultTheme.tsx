@@ -318,7 +318,7 @@ export type Theme = {
   smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -2334,7 +2334,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
     minWidth: 50,

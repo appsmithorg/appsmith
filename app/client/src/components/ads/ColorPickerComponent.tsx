@@ -71,6 +71,7 @@ const defaultColors: string[] = [
   "#3366FF",
   "#2E3D49",
   "#F6F7F8",
+  "#FFFFFF",
   "#231F20",
 ];
 
