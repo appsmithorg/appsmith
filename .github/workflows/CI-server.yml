@@ -109,11 +109,11 @@ jobs:
       - name: upload the appsmith-server to s3 bucket.
         run: |
           zip -r appsmith-server${{ github.run_number }}.zip appsmith-server
-          aws s3 cp appsmith-server${{ github.run_number }}.zip s3://taj2/appsmith-server/
+          aws s3 cp appsmith-server${{ github.run_number }}.zip s3://${{ secrets.bucket }}/appsmith-server/
       - name: upload the appsmith-plugin to s3 bucket
         run: | 
           zip -r appsmith-plugins${{ github.run_number }}.zip appsmith-plugins
-          aws s3 cp appsmith-plugins${{ github.run_number }}.zip s3://taj2/appsmith-plugins/
+          aws s3 cp appsmith-plugins${{ github.run_number }}.zip s3://${{ secrets.bucket }}/appsmith-plugins/
         
   ui-test:
     runs-on: ubuntu-latest
