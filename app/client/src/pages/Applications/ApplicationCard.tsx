@@ -41,6 +41,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
@@ -249,6 +250,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -450,6 +452,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             editInteractionKind={EditInteractionKind.SINGLE}
             fill
             hideEditIcon={false}
+            isError={isErroredSavingName}
             isInvalid={(value: string) => {
               if (!value) {
                 return "Name cannot be empty";

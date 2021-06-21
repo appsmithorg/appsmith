@@ -261,6 +261,7 @@ export function* updateApplicationSaga(
       });
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: action.payload,
       });
     }
     if (isValidResponse && request.currentApp) {
