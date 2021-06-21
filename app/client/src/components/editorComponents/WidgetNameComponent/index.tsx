@@ -4,15 +4,13 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
-import {
-  useShowPropertyPane,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const PositionStyle = styled.div<{ topRow: number }>`
   position: absolute;
@@ -78,6 +76,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     ) {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.OPEN_PROPERTY_PANE,
+        { widgetId: props.widgetId },
+        true,
+        [{ name: "widget_type", value: props.type }],
       );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
         widgetType: props.type,
