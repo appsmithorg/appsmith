@@ -20,7 +20,9 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
-    const selectedRowIndices = props.selectedRowIndices || [];
+    const selectedRowIndices = Array.isArray(props.selectedRowIndices)
+      ? props.selectedRowIndices
+      : [props.selectedRowIndices];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
