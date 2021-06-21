@@ -19,6 +19,5 @@ describe("Divider Widget Functionality", function() {
     cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Divider1)").click({
       multiple: true,
     });
-    cy.get(".t--divider-widget").should("exist");
   });
 });
