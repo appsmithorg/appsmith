@@ -338,4 +338,4 @@ jobs:
      - name: upload the file to s3 bucket.
        run: |
           zip -r build${{ github.run_number }}.zip build
-          aws s3 cp build${{ github.run_number }}.zip s3://taj2/build/
+          aws s3 cp build${{ github.run_number }}.zip s3://${{ secrets.bucket }}/build/
