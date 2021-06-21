@@ -173,10 +173,14 @@ const decorator = new CompositeDecorator(
 );
 
 function StopClickPropagation({ children }: { children: React.ReactNode }) {
+  function stopPropogationOnClick(e: React.MouseEvent) {
+    e.stopPropagation();
+  }
+
   return (
     <div
       // flex to unset height, so that align-items works as expected
-      onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      onClick={stopPropogationOnClick}
       style={{ display: "flex" }}
     >
       {children}
@@ -309,13 +313,22 @@ function CommentCard({
 
   const isCreatedByMe = currentUserUsername === comment.authorUsername;
 
-  const switchToEditCommentMode = () => setCardMode(CommentCardModes.EDIT);
-  const switchToViewCommentMode = () => setCardMode(CommentCardModes.VIEW);
+  const switchToEditCommentMode = useCallback(
+    () => setCardMode(CommentCardModes.EDIT),
+    [],
+  );
+  const switchToViewCommentMode = useCallback(
+    () => setCardMode(CommentCardModes.VIEW),
+    [],
+  );
 
-  const onSaveComment = (body: RawDraftContentState) => {
-    dispatch(editCommentRequest({ commentId, commentThreadId, body }));
-    setCardMode(CommentCardModes.VIEW);
-  };
+  const onSaveComment = useCallback(
+    (body: RawDraftContentState) => {
+      dispatch(editCommentRequest({ commentId, commentThreadId, body }));
+      setCardMode(CommentCardModes.VIEW);
+    },
+    [commentId, commentThreadId],
+  );
 
   const contextMenuProps = {
     switchToEditCommentMode,
@@ -332,7 +345,7 @@ function CommentCard({
   // useSelectCommentUsingQuery(comment.id);
 
   // Dont make inline cards clickable
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     if (inline) return;
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
@@ -340,25 +353,38 @@ function CommentCard({
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
-  };
+  }, [
+    inline,
+    commentThreadURL?.pathname,
+    commentThreadURL?.search,
+    commentThreadURL?.hash,
+    commentThread?.isViewed,
+    commentThreadId,
+  ]);
 
   useEffect(() => {
     setReactions(reduceReactions(comment.reactions, currentUserUsername));
   }, [comment.reactions]);
 
-  const handleReaction = (
-    _event: React.MouseEvent,
-    emojiData: string,
-    updatedReactions: Reactions,
-    addOrRemove: ReactionOperation,
-  ) => {
-    setReactions(updatedReactions);
-    if (addOrRemove == ReactionOperation.ADD) {
-      dispatch(addCommentReaction({ emoji: emojiData, commentId }));
-    } else {
-      dispatch(removeCommentReaction({ emoji: emojiData, commentId }));
-    }
-  };
+  const handleReaction = useCallback(
+    (
+      _event: React.MouseEvent,
+      emojiData: string,
+      updatedReactions: Reactions,
+      addOrRemove: ReactionOperation,
+    ) => {
+      setReactions(updatedReactions);
+      if (addOrRemove == ReactionOperation.ADD) {
+        dispatch(addCommentReaction({ emoji: emojiData, commentId }));
+      } else {
+        dispatch(removeCommentReaction({ emoji: emojiData, commentId }));
+      }
+    },
+    [commentId],
+  );
+
+  const onMouseLeaveHandler = useCallback(() => setIsHovered(false), []);
+  const onMouseHoverHandler = useCallback(() => setIsHovered(true), []);
 
   const showOptions = visible || isHovered;
 
@@ -371,8 +397,8 @@ function CommentCard({
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
       onClick={handleCardClick}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseOver={() => setIsHovered(true)}
+      onMouseLeave={onMouseLeaveHandler}
+      onMouseOver={onMouseHoverHandler}
     >
       {showSubheader && (
         <CommentSubheader>

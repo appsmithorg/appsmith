@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import Icon, { IconSize, IconName } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
 import {
   PIN_COMMENT,
@@ -11,6 +11,7 @@ import {
   EDIT_COMMENT,
 } from "constants/messages";
 import { noop } from "lodash";
+import CommentContextMenuOption from "./CommentContextMenuOption";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
@@ -19,31 +20,8 @@ import { Popover2 } from "@blueprintjs/popover2";
 // render over popover portals
 const Container = styled.div``;
 
-const MenuItem = styled.div`
-  display: flex;
-  width: 180px;
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.comments.contextMenuItemHover};
-  }
-`;
-
 const StyledIcon = styled(Icon)`
   margin-left: ${(props) => props.theme.spaces[2]}px;
-`;
-
-const MenuIcon = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
-`;
-
-const MenuTitle = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px 0px;
-  color: ${(props) => props.theme.colors.comments.contextMenuTitle};
-  ${MenuItem}:hover & {
-    color: ${(props) => props.theme.colors.comments.contextMenuTitleHover};
-  }
 `;
 
 type Props = {
@@ -129,16 +107,11 @@ function CommentContextMenu({
       content={
         <Container>
           {options.map((option) => (
-            <MenuItem key={option.icon} onClick={() => handleClick(option)}>
-              <MenuIcon>
-                <Icon
-                  keepColors
-                  name={option.icon as IconName}
-                  size={IconSize.XL}
-                />
-              </MenuIcon>
-              <MenuTitle>{option.display}</MenuTitle>
-            </MenuItem>
+            <CommentContextMenuOption
+              handleClick={handleClick}
+              key={option.icon}
+              option={option}
+            />
           ))}
         </Container>
       }

@@ -147,10 +147,10 @@ function AddCommentInput({
     setEditorState(resetEditorState(editorState));
   }, [editorState]);
 
-  const _onCancel = () => {
+  const _onCancel = useCallback(() => {
     clearEditor();
     if (onCancel) onCancel();
-  };
+  }, [clearEditor, onCancel]);
 
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
@@ -205,12 +205,12 @@ function AddCommentInput({
     return [];
   }, [suggestionsQuery, suggestions, trigger]);
 
-  const onAddMention = (mention: MentionData) => {
+  const onAddMention = useCallback((mention: MentionData) => {
     if (isEmail(mention.name) && mention.isInviteTrigger) {
       dispatch(setShowAppInviteUsersDialog(true));
       dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", mention.name));
     }
-  };
+  }, []);
 
   return (
     <PaddingContainer removePadding={removePadding}>

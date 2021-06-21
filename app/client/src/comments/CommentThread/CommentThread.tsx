@@ -21,6 +21,7 @@ import { RawDraftContentState } from "draft-js";
 import styled from "styled-components";
 import { animated } from "react-spring";
 import { AppState } from "reducers";
+import { useCallback } from "react";
 
 const ThreadContainer = styled(animated.div)<{
   visible?: boolean;
@@ -86,41 +87,47 @@ function CommentThreadContainer({
     comments,
   ]);
 
-  const addComment = (text: RawDraftContentState) => {
-    dispatch(
-      addCommentToThreadRequest({
-        commentThread,
-        commentBody: text,
-        // scroll to bottom when the user creates a new comment
-        // should be called once the comment is rendered on the dom
-        callback: scrollToBottom,
-      }),
-    );
-  };
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (
       typeof messagesBottomRef.current?.scrollIntoView === "function" &&
       inline
     )
       messagesBottomRef.current?.scrollIntoView();
-  };
+  }, []);
 
-  const resolveCommentThread = () => {
+  const addComment = useCallback(
+    (text: RawDraftContentState) => {
+      dispatch(
+        addCommentToThreadRequest({
+          commentThread,
+          commentBody: text,
+          // scroll to bottom when the user creates a new comment
+          // should be called once the comment is rendered on the dom
+          callback: scrollToBottom,
+        }),
+      );
+    },
+    [commentThread, scrollToBottom],
+  );
+
+  const resolveCommentThread = useCallback(() => {
     dispatch(
       setCommentResolutionRequest({
         threadId: commentThread?.id,
         resolved: !commentThread?.resolvedState?.active,
       }),
     );
-  };
+  }, [commentThread?.id, commentThread?.resolvedState?.active]);
 
   const parentComment = Array.isArray(comments) && comments[0];
   const childComments = Array.isArray(comments) && comments.slice(1);
   const numberOfReplies =
     (Array.isArray(childComments) && childComments.length) || 0;
 
-  const handleCancel = () => dispatch(resetVisibleThread(commentThreadId));
+  const handleCancel = useCallback(
+    () => dispatch(resetVisibleThread(commentThreadId)),
+    [commentThreadId],
+  );
 
   if (!commentThread) return null;
 

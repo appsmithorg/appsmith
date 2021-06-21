@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
@@ -141,11 +141,11 @@ function InlineCommentPin({
       state.ui.comments.visibleCommentThreadId === commentThreadId,
   );
 
-  const handlePinClick = () => {
+  const handlePinClick = useCallback(() => {
     if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
-  };
+  }, [commentThread?.isViewed, commentThreadId]);
 
   useEffect(() => {
     if (focused) {
@@ -157,6 +157,22 @@ function InlineCommentPin({
     }
   }, [focused]);
 
+  function stopEventDefaultAndPropagation(e: React.SyntheticEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  const onPopoverInteractionHandler = useCallback(
+    (nextOpenState: boolean) => {
+      if (nextOpenState) {
+        dispatch(setVisibleThread(commentThreadId));
+      } else {
+        dispatch(resetVisibleThread(commentThreadId));
+      }
+    },
+    [commentThreadId],
+  );
+
   if (!commentThread) return null;
 
   return isPinVisible ? (
@@ -164,11 +180,7 @@ function InlineCommentPin({
       data-cy="inline-comment-pin"
       draggable="true"
       left={left}
-      onClick={(e: any) => {
-        // capture clicks so that create new thread is not triggered
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      onClick={stopEventDefaultAndPropagation}
       top={top}
     >
       <Popover2
@@ -188,13 +200,7 @@ function InlineCommentPin({
         isOpen={!!isCommentThreadVisible}
         minimal
         modifiers={modifiers}
-        onInteraction={(nextOpenState: boolean) => {
-          if (nextOpenState) {
-            dispatch(setVisibleThread(commentThreadId));
-          } else {
-            dispatch(resetVisibleThread(commentThreadId));
-          }
-        }}
+        onInteraction={onPopoverInteractionHandler}
         placement={"right-start"}
         popoverClassName="comment-thread"
         portalClassName="inline-comment-thread"

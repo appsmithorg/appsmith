@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
@@ -36,20 +36,23 @@ function OverlayCommentsWrapper({ children, refId }: Props) {
   );
 
   // create new unpublished thread
-  const clickHandler = (e: any) => {
-    proceedToNextTourStep();
-    e.persist();
-    if (containerRef.current) {
-      const position = getOffsetPos(e, containerRef.current);
-      if (!isCommentMode) return;
-      dispatch(
-        createUnpublishedCommentThreadRequest({
-          refId,
-          position,
-        }),
-      );
-    }
-  };
+  const clickHandler = useCallback(
+    (e: any) => {
+      proceedToNextTourStep();
+      e.persist();
+      if (containerRef.current) {
+        const position = getOffsetPos(e, containerRef.current);
+        if (!isCommentMode) return;
+        dispatch(
+          createUnpublishedCommentThreadRequest({
+            refId,
+            position,
+          }),
+        );
+      }
+    },
+    [isCommentMode, refId],
+  );
 
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!isCommentMode) return <>{children}</>;

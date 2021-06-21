@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -61,12 +61,21 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
+  const radioGroupOnSelectHandler = useCallback(
+    (value: string) => dispatch(setAppCommentsFilter(value)),
+    [],
+  );
+  const checkBoxOnCheckChangeHandler = useCallback(
+    (isChecked: boolean) => dispatch(setShouldShowResolvedComments(isChecked)),
+    [],
+  );
+
   return (
     <Container>
       <RadioGroup
         backgroundColor={theme.colors.comments.commentsFilter}
         defaultValue={appCommentsFilter}
-        onSelect={(value) => dispatch(setAppCommentsFilter(value))}
+        onSelect={radioGroupOnSelectHandler}
         options={options}
         rows={3}
       />
@@ -76,9 +85,7 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
             backgroundColor={theme.colors.comments.commentsFilter}
             isDefaultChecked={shouldShowResolved}
             label={label}
-            onCheckChange={(isChecked) =>
-              dispatch(setShouldShowResolvedComments(isChecked))
-            }
+            onCheckChange={checkBoxOnCheckChangeHandler}
           />
         </Row>
       ))}

@@ -3,6 +3,10 @@ import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { Layers } from "constants/Layers";
 
 function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
+  function logClose() {
+    console.log("handle close");
+  }
+
   return (
     <ModalComponent
       bottom={25}
@@ -12,9 +16,7 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
       hasBackDrop={false}
       isOpen
       left={25}
-      onClose={() => {
-        console.log("handle close");
-      }}
+      onClose={logClose}
       overlayClassName="comments-onboarding-carousel"
       scrollContents
       width={325}

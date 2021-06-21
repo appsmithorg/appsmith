@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
@@ -45,10 +45,13 @@ const ResolveCommentButton = withTheme(
     const strokeColorPath = resolved ? resolvedPathColor : unresolvedColor;
     const fillColor = resolved ? resolvedFillColor : unresolvedFillColor;
 
-    const _handleClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      handleClick();
-    };
+    const _handleClick = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        handleClick();
+      },
+      [handleClick],
+    );
 
     return (
       <Container onClick={_handleClick}>

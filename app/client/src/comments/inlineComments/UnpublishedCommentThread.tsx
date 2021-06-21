@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Popover, Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
 import { ThreadContainer } from "./StyledComponents";
@@ -38,23 +38,33 @@ function UnpublishedCommentThread({
     left: 0,
   });
   const dispatch = useDispatch();
-  const onClosing = () => {
+  const onClosing = useCallback(() => {
     dispatch(removeUnpublishedCommentThreads());
-  };
+  }, []);
 
   const createCommentThread = (text: RawDraftContentState) => {
     dispatch(createCommentThreadAction({ commentBody: text, commentThread }));
   };
 
+  const onPopoverInteractionHandler = useCallback(
+    (nextOpenState: boolean) => {
+      if (!nextOpenState) {
+        onClosing();
+      }
+    },
+    [onClosing],
+  );
+
+  function stopEventDefaultAndPropagation(e: React.SyntheticEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
   return (
     <div
       data-cy="unpublished-comment-thread"
       key={`${top}-${left}`}
-      onClick={(e: any) => {
-        // capture clicks so that create new thread is not triggered
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      onClick={stopEventDefaultAndPropagation}
     >
       <CommentTriggerContainer left={left} top={top}>
         <Popover
@@ -70,11 +80,7 @@ function UnpublishedCommentThread({
               offset: "-8, 10",
             },
           }}
-          onInteraction={(nextOpenState) => {
-            if (!nextOpenState) {
-              onClosing();
-            }
-          }}
+          onInteraction={onPopoverInteractionHandler}
           popoverClassName="comment-thread"
           position={Position.RIGHT_TOP}
         >

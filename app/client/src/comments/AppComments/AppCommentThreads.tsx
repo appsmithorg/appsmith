@@ -59,26 +59,27 @@ function AppCommentThreads() {
   return (
     <Container>
       {commentThreadIds.length > 0 && (
-        <Virtuoso
-          data={commentThreadIds}
-          itemContent={(_index, commentThreadId) => (
-            /** Keeping this as a fail safe: since zero
-             * height elements throw an error
-             * */
-            <div style={{ minHeight: 1 }}>
-              <CommentThread
-                commentThreadId={commentThreadId}
-                hideChildren
-                hideInput
-                key={commentThreadId}
-                showSubheader
-              />
-            </div>
-          )}
-        />
+        <Virtuoso data={commentThreadIds} itemContent={virtuosoItemContent} />
       )}
       {commentThreadIds.length === 0 && <AppCommentsPlaceholder />}
     </Container>
+  );
+}
+
+function virtuosoItemContent(_index: number, commentThreadId: string) {
+  /** Keeping this as a fail safe: since zero
+   * height elements throw an error
+   * */
+  return (
+    <div style={{ minHeight: 1 }}>
+      <CommentThread
+        commentThreadId={commentThreadId}
+        hideChildren
+        hideInput
+        key={commentThreadId}
+        showSubheader
+      />
+    </div>
   );
 }
 
