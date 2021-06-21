@@ -11,6 +11,7 @@ interface IframeContainerProps {
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
+  height: 100%;
   iframe {
     width: 100%;
     height: 100%;

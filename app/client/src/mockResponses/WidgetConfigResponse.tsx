@@ -1088,6 +1088,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     [WidgetTypes.IFRAME_WIDGET]: {
+      source: "https://www.wikipedia.org/",
       borderOpacity: 100,
       borderWidth: 1,
       rows: 8 * GRID_DENSITY_MIGRATION_V1,

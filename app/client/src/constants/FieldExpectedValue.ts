@@ -172,6 +172,8 @@ const FIELD_VALUES: Record<
   IFRAME_WIDGET: {
     source: "string",
     title: "string",
+    borderOpacity: "number",
+    borderWidth: "number",
   },
 };
 

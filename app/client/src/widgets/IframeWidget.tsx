@@ -39,7 +39,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when the source url is changed",
+            helpText: "Triggers an action when the source URL is changed",
             propertyName: "onURLChanged",
             label: "onURLChanged",
             controlType: "ACTION_SELECTOR",
