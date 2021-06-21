@@ -32,6 +32,7 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
@@ -160,6 +161,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   const dispatch = useDispatch();
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
 
@@ -229,6 +231,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 defaultValue={currentApplication.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 fill
+                isError={isErroredSavingName}
                 isNewApp={
                   applicationList.filter((el) => el.id === applicationId)
                     .length > 0

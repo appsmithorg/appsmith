@@ -17,6 +17,7 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
   isSavingAppName: false,
+  isErrorSavingAppName: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -332,17 +333,18 @@ const applicationsReducer = createReducer(initialState, {
       ...state,
       userOrgs: _organizations,
       isSavingAppName: isSavingAppName,
+      isErrorSavingAppName: false,
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: false };
+    return { ...state, isSavingAppName: false, isErrorSavingAppName: false };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: false };
+    return { ...state, isSavingAppName: false, isErrorSavingAppName: true };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
@@ -363,6 +365,7 @@ export interface ApplicationsReduxState {
   searchKeyword?: string;
   isFetchingApplications: boolean;
   isSavingAppName: boolean;
+  isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
