@@ -97,7 +97,7 @@ function* logDependentEntityProperties(payload: Message) {
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   const dataTree: DataTree = yield select(getDataTree);
 
-  const propertyPath = `${source.name}.` + Object.keys(state)[0];
+  const propertyPath = `${source.name}.` + payload.source?.propertyPath;
   const inverseDependencyMap = yield select(getEvaluationInverseDependencyMap);
   const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
 

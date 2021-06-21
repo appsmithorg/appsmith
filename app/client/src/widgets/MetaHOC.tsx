@@ -93,6 +93,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           type: ENTITY_TYPE.WIDGET,
           id: this.props.widgetId,
           name: this.props.widgetName,
+          propertyPath: propertyName,
         },
         state: {
           [propertyName]: propertyValue,
