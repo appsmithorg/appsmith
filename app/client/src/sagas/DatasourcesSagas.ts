@@ -589,7 +589,6 @@ function* storeAsDatasourceSaga() {
     }),
   );
   _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
-  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(
