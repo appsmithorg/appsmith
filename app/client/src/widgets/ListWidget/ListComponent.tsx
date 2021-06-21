@@ -6,13 +6,12 @@ import { ListWidgetProps } from "./ListWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 interface GridComponentProps extends ComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   backgroundColor?: Color;
-  items: Array<Record<string, unknown>>;
+  listData: Array<Record<string, unknown>>;
   hasPagination?: boolean;
 }
 
@@ -73,7 +72,7 @@ export const ListComponentLoading = styled.div<{
   width: 100%;
   position: relative;
   overflow: hidden;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: 0px 0px 0px 1px #e7e7e7;
 
   & > div {
     background: ${(props) => props.backgroundColor ?? "white"};
