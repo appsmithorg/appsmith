@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -38,7 +39,7 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
      * @return updated result object
      */
     @Override
-    public Mono<UpdateResult> addToSubscribers(String threadId, List<String> usernames) {
+    public Mono<UpdateResult> addToSubscribers(String threadId, Set<String> usernames) {
         return mongoOperations.updateFirst(
                 Query.query(where("id").is(threadId)),
                 new Update().addToSet(fieldName(QCommentThread.commentThread.subscribers)).each(usernames),

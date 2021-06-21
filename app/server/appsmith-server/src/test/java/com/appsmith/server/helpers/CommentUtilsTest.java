@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,9 +31,9 @@ class CommentUtilsTest {
         Comment comment = new Comment();
         comment.setBody(commentBody);
 
-        Assert.assertEquals(2, CommentUtils.getCommentBody(comment).size());
-        Assert.assertEquals(commentBlock1.getText(), CommentUtils.getCommentBody(comment).get(0));
-        Assert.assertEquals(commentBlock2.getText(), CommentUtils.getCommentBody(comment).get(1));
+        assertThat(CommentUtils.getCommentBody(comment).size()).isEqualTo(2);
+        assertThat(CommentUtils.getCommentBody(comment).get(0)).isEqualTo(commentBlock1.getText());
+        assertThat(CommentUtils.getCommentBody(comment).get(1)).isEqualTo(commentBlock2.getText());
     }
 
     @Test
@@ -96,7 +97,7 @@ class CommentUtilsTest {
         Comment comment = new Comment();
         comment.setAuthorUsername("abc");
 
-        List<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
+        Set<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
         assertThat(subscriberUsernames.size()).isEqualTo(1);
         assertThat(subscriberUsernames).contains("abc");
     }
@@ -112,7 +113,7 @@ class CommentUtilsTest {
         comment.setBody(body);
         comment.setAuthorUsername("abc");
 
-        List<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
+        Set<String> subscriberUsernames = CommentUtils.getSubscriberUsernames(comment);
         assertThat(subscriberUsernames.size()).isEqualTo(4);
         assertThat(subscriberUsernames).contains("abc");
         assertThat(subscriberUsernames).contains("1");

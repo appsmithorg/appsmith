@@ -3,7 +3,9 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.domains.Comment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CommentUtils {
     /**
@@ -34,15 +36,15 @@ public class CommentUtils {
     /**
      * Returns the list of usernames who should subscribe to a thread
      * It'll include the author username. It'll also include anyone who is mentioned in this comment by the author.
-     * For example, if this comment is from user1 and user2 and user3 are mentioned in this comment,
+     * For example, if this comment is from user1 where user2 and user3 are mentioned in this comment,
      * it'll return a list of user1, user2, user3
      * @param comment The comment object
      * @return list of usernames. Size of the list will be at least 1
      */
-    public static List<String> getSubscriberUsernames(Comment comment) {
-        List<String> usernameList = new ArrayList<>();
+    public static Set<String> getSubscriberUsernames(Comment comment) {
+        Set<String> usernamesSet = new HashSet<>();
         // add the author itself
-        usernameList.add(comment.getAuthorUsername());
+        usernamesSet.add(comment.getAuthorUsername());
 
         if(comment.getBody() != null && comment.getBody().getEntityMap() != null) {
             for(String key : comment.getBody().getEntityMap().keySet()) {
@@ -52,12 +54,12 @@ public class CommentUtils {
                     // this comment has a mention, check the provided user is mentioned or not
                     if(commentEntity.getData() != null) {
                         Comment.EntityData.Mention mention = commentEntity.getData().getMention();
-                        usernameList.add(mention.getUser().getUsername());
+                        usernamesSet.add(mention.getUser().getUsername());
                     }
                 }
             }
         }
-        return usernameList;
+        return usernamesSet;
     }
 
     public static List<String> getCommentBody(Comment comment) {

@@ -128,13 +128,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
                     comment.setAuthorUsername(user.getUsername());
                     comment.setAuthorName(authorName);
-                    List<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
+                    Set<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
 
                     // add them to current thread so that we don't need to query again
                     if(thread.getSubscribers() != null) {
                         thread.getSubscribers().addAll(subscribersFromThisComment);
                     } else {
-                        thread.setSubscribers(new HashSet<>(subscribersFromThisComment));
+                        thread.setSubscribers(subscribersFromThisComment);
                     }
 
                     return Mono.zip(
@@ -149,7 +149,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     CommentThread commentThread = tuple.getT2();
                     final Comment savedComment = tuple.getT3();
                     Mono<Boolean> publishEmailMono = emailEventHandler.publish(
-                            comment.getAuthorUsername(), commentThread.getApplicationId(), comment, originHeader,
+                            comment.getAuthorUsername(),
+                            commentThread.getApplicationId(),
+                            comment,
+                            originHeader,
                             commentThread.getSubscribers()
                     );
 
@@ -245,12 +248,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 })
                 .collectList()
                 .zipWith(sessionUserService.getCurrentUser())
-                .flatMap(tuple -> {
+                .map(tuple -> {
                     final List<Comment> comments = tuple.getT1();
-                    final User user = tuple.getT2();
                     commentThread.setComments(comments);
                     commentThread.setIsViewed(true);
-                    return Mono.just(commentThread);
+                    return commentThread;
                 });
     }
 
@@ -312,8 +314,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                 // send email if comment thread is resolved
                                 CommentThread.CommentThreadState resolvedState = commentThread.getResolvedState();
                                 if(resolvedState != null && resolvedState.getActive()) {
-                                    return emailEventHandler.publish(user.getUsername(), updatedThread.getApplicationId(),
-                                            updatedThread, originHeader).thenReturn(updatedThread);
+                                    return emailEventHandler.publish(
+                                            user.getUsername(),
+                                            updatedThread.getApplicationId(),
+                                            updatedThread,
+                                            originHeader
+                                    ).thenReturn(updatedThread);
                                 } else {
                                     return Mono.just(updatedThread);
                                 }

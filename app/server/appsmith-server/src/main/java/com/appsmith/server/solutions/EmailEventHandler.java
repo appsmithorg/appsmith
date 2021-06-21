@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -40,9 +41,8 @@ public class EmailEventHandler {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
 
-    public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader,
-                                 Set<String> subscribers) {
-        if(subscribers == null || subscribers.size() == 0) {  // no subscriber found, return without doing anything
+    public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
+        if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
             return Mono.just(Boolean.FALSE);
         }
 
@@ -57,7 +57,7 @@ public class EmailEventHandler {
     }
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, CommentThread thread, String originHeader) {
-        if(thread.getSubscribers() == null || thread.getSubscribers().size() == 0) {
+        if(CollectionUtils.isEmpty(thread.getSubscribers())) {
             // no subscriber found, return without doing anything
             return Mono.just(Boolean.FALSE);
         }
@@ -76,8 +76,11 @@ public class EmailEventHandler {
     @EventListener
     public void handle(CommentAddedEvent event) {
         this.sendEmailForComment(
-                event.getAuthorUserName(), event.getOrganization(),
-                event.getComment(), event.getOriginHeader(), event.getSubscribers()
+                event.getAuthorUserName(),
+                event.getOrganization(),
+                event.getComment(),
+                event.getOriginHeader(),
+                event.getSubscribers()
         ).subscribeOn(Schedulers.elastic())
         .subscribe();
     }
@@ -86,8 +89,11 @@ public class EmailEventHandler {
     @EventListener
     public void handle(CommentThreadClosedEvent event) {
         this.sendEmailForComment(
-                event.getAuthorUserName(), event.getOrganization(),
-                event.getCommentThread(), event.getOriginHeader(), event.getCommentThread().getSubscribers()
+                event.getAuthorUserName(),
+                event.getOrganization(),
+                event.getCommentThread(),
+                event.getOriginHeader(),
+                event.getCommentThread().getSubscribers()
         )
         .subscribeOn(Schedulers.elastic())
         .subscribe();
@@ -137,8 +143,7 @@ public class EmailEventHandler {
         return emailSender.sendMail(receiverEmail, emailSubject, emailTemplate, templateParams);
     }
 
-    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Organization organization,
-                                                  E commentDomain, String originHeader, Set<String> subscribers) {
+    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Organization organization, E commentDomain, String originHeader, Set<String> subscribers) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
             if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {

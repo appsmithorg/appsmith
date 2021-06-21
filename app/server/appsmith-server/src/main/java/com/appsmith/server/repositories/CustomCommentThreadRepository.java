@@ -6,9 +6,9 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 public interface CustomCommentThreadRepository extends AppsmithRepository<CommentThread> {
     Flux<CommentThread> findByApplicationId(String applicationId, AclPermission permission);
-    Mono<UpdateResult> addToSubscribers(String threadId, List<String> usernames);
+    Mono<UpdateResult> addToSubscribers(String threadId, Set<String> usernames);
 }
