@@ -4,11 +4,12 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
+  Ref,
 } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
-import EntityName from "./Name";
+import EntityName, { EntityNameProps } from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
@@ -16,6 +17,8 @@ import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import useClick from "utils/hooks/useClick";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -181,8 +184,8 @@ export const Entity = forwardRef(
             onClick={toggleChildren}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
-          <EntityName
-            className={`${EntityClassNames.NAME}`}
+          <EntityNameWrapper
+            ellipsize={20}
             entityId={props.entityId}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
@@ -208,6 +211,20 @@ export const Entity = forwardRef(
     );
   },
 );
+
+const EntityNameWrapper = forwardRef(
+  (props: EntityNameProps, ref: Ref<HTMLDivElement>) => {
+    return props.ellipsize && props.name.length > props.ellipsize ? (
+      <TooltipComponent content={props.name} position={Position.BOTTOM}>
+        <EntityName ref={ref} {...props} />
+      </TooltipComponent>
+    ) : (
+      <EntityName ref={ref} {...props} />
+    );
+  },
+);
+
+EntityNameWrapper.displayName = "EntityNameWrapper";
 
 Entity.displayName = "Entity";
 

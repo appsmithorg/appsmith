@@ -67,6 +67,7 @@ export interface EntityNameProps {
   searchKeyword?: string;
   className?: string;
   nameTransformFn?: (input: string, limit?: number) => string;
+  ellipsize: number;
 }
 
 export const EntityName = forwardRef(
@@ -160,12 +161,12 @@ export const EntityName = forwardRef(
     const searchHighlightedName = useMemo(() => {
       if (searchKeyword) {
         const regex = new RegExp(searchKeyword, "gi");
-        const delimited = updatedName.replace(regex, function(str) {
+        let delimited = updatedName.replace(regex, function(str) {
           return (
             searchTokenizationDelimiter + str + searchTokenizationDelimiter
           );
         });
-
+        delimited = ellipsize(props.ellipsize, delimited);
         const final = replace(
           delimited,
           searchTokenizationDelimiter,
@@ -173,7 +174,7 @@ export const EntityName = forwardRef(
         );
         return final;
       }
-      return updatedName;
+      return ellipsize(props.ellipsize, updatedName);
     }, [searchKeyword, updatedName]);
 
     const exitEditMode = useCallback(() => {
@@ -205,25 +206,27 @@ export const EntityName = forwardRef(
         </Wrapper>
       );
     return (
-      <Wrapper>
-        <EditableText
-          className={`${props.className} editing`}
-          defaultValue={updatedName}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          isEditingDefault
-          isInvalid={isInvalidName}
-          minimal
-          onBlur={exitEditMode}
-          onTextChanged={handleAPINameChange}
-          placeholder="Name"
-          type="text"
-          valueTransform={props.nameTransformFn || removeSpecialChars}
-        />
-      </Wrapper>
+      <EditableText
+        className={`${props.className} editing`}
+        defaultValue={updatedName}
+        editInteractionKind={EditInteractionKind.SINGLE}
+        isEditingDefault
+        isInvalid={isInvalidName}
+        minimal
+        onBlur={exitEditMode}
+        onTextChanged={handleAPINameChange}
+        placeholder="Name"
+        type="text"
+        valueTransform={props.nameTransformFn || removeSpecialChars}
+      />
     );
   },
 );
 
 EntityName.displayName = "EntityName";
+
+function ellipsize(length: number, text: string) {
+  return text.length > length ? text.slice(0, length).concat(" ...") : text;
+}
 
 export default EntityName;
