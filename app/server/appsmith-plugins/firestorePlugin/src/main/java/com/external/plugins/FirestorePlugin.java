@@ -107,6 +107,10 @@ public class FirestorePlugin extends BasePlugin {
             // Do the template substitutions.
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
+            // TODO: remove it.
+            System.out.println("devtest: type: " + (actionConfiguration.getPluginSpecifiedTemplates().get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue() instanceof List));
+            System.out.println("devtest: actionConfig: " + actionConfiguration);
+
             final Map<String, Object> requestData = new HashMap<>();
 
             String query = actionConfiguration.getBody();
