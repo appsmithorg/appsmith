@@ -693,8 +693,8 @@ export function EditorJSONtoForm(props: Props) {
         <TabbedViewContainer ref={panelRef}>
           <Resizable
             panelRef={panelRef}
-            setContainerDimensions={
-              (height: number) => setTableBodyHeightHeight(height - 115) //accounts for the tab containers height and the table header.
+            setContainerDimensions={(height: number) =>
+              setTableBodyHeightHeight(height)
             }
           />
           {output && !!output.length && (
