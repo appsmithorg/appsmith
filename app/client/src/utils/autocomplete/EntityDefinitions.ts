@@ -243,6 +243,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
+    items: generateTypeDef(widget.items),
+    listData: generateTypeDef(widget.listData),
   }),
   IFRAME_WIDGET: {
     "!doc": "Iframe widget is used to display iframes in your app.",
