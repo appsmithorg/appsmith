@@ -142,7 +142,7 @@ class DatePickerComponent extends React.Component<
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
-              closeOnSelection
+              closeOnSelection={this.props.closeOnSelection}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
               maxDate={maxDate}
@@ -150,6 +150,7 @@ class DatePickerComponent extends React.Component<
               onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
+              shortcuts={this.props.shortcuts}
               showActionsBar
               timePrecision={TimePrecision.MINUTE}
               value={value}
@@ -232,6 +233,8 @@ interface DatePickerComponentProps extends ComponentProps {
   isDisabled: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+  closeOnSelection: boolean;
+  shortcuts: boolean;
 }
 
 interface DatePickerComponentState {
