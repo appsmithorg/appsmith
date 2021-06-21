@@ -2274,8 +2274,6 @@ Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
-    .should("contain.text", "Expected Data Type")
-    .should("contain.text", "Evaluated Value")
     .siblings("pre")
     .should("have.text", expectedType);
 });
