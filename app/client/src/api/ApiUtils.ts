@@ -14,6 +14,7 @@ import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
 import { logoutUser } from "actions/userActions";
+import { AUTH_LOGIN_URL } from "constants/routes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -101,7 +102,11 @@ export const apiFailureResponseInterceptor = (error: any) => {
       if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
         // Redirect to login and set a redirect url.
         store.dispatch(
-          logoutUser({ redirectURL: encodeURIComponent(currentUrl) }),
+          logoutUser({
+            redirectURL: `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+              currentUrl,
+            )}`,
+          }),
         );
         return Promise.reject({
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
