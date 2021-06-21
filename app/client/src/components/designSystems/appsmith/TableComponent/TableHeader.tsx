@@ -25,17 +25,20 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
+    border: 1px solid ${Colors.DANUBE};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border: 1px solid ${Colors.GREEN};
+    border-radius: none;
     box-sizing: border-box;
-    border-radius: 4px;
     width: 24px;
     height: 24px;
     line-height: 24px;
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
+  }
+  &&&.bp3-control-group > :only-child {
+    border-radius: 0;
   }
   margin: 0 8px;
 `;
@@ -107,34 +110,54 @@ interface TableHeaderProps {
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
+  isVisibleCompactMode?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
 }
 
 function TableHeader(props: TableHeaderProps) {
   return (
     <>
-      <SearchComponent
-        onSearch={props.searchTableData}
-        placeholder="Search..."
-        value={props.searchKey}
-      />
-      <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-        <TableFilters
-          applyFilter={props.applyFilter}
-          columns={props.columns}
-          editMode={props.editMode}
-          filters={props.filters}
+      {props.isVisibleSearch && (
+        <SearchComponent
+          onSearch={props.searchTableData}
+          placeholder="Search..."
+          value={props.searchKey}
         />
-        <TableDataDownload
-          columns={props.tableColumns}
-          data={props.tableData}
-          widgetName={props.widgetName}
-        />
-        <TableCompactMode
-          compactMode={props.compactMode}
-          updateCompactMode={props.updateCompactMode}
-        />
-      </CommonFunctionsMenuWrapper>
-      {props.serverSidePaginationEnabled && (
+      )}
+      {(props.isVisibleFilters ||
+        props.isVisibleDownload ||
+        props.isVisibleCompactMode) && (
+        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+          {props.isVisibleFilters && (
+            <TableFilters
+              applyFilter={props.applyFilter}
+              columns={props.columns}
+              editMode={props.editMode}
+              filters={props.filters}
+            />
+          )}
+
+          {props.isVisibleDownload && (
+            <TableDataDownload
+              columns={props.tableColumns}
+              data={props.tableData}
+              widgetName={props.widgetName}
+            />
+          )}
+
+          {props.isVisibleCompactMode && (
+            <TableCompactMode
+              compactMode={props.compactMode}
+              updateCompactMode={props.updateCompactMode}
+            />
+          )}
+        </CommonFunctionsMenuWrapper>
+      )}
+
+      {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
@@ -159,7 +182,7 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-      {!props.serverSidePaginationEnabled && (
+      {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
             {props.tableData?.length} Records
@@ -173,7 +196,7 @@ function TableHeader(props: TableHeaderProps) {
               props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
+            <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
             Page{" "}
@@ -196,7 +219,7 @@ function TableHeader(props: TableHeaderProps) {
               props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
+            <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}

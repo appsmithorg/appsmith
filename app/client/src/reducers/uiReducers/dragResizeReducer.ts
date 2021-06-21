@@ -1,11 +1,13 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   isResizing: false,
-  selectedWidget: undefined,
+  lastSelectedWidget: undefined,
+  selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
 };
@@ -31,9 +33,64 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SELECT_WIDGET]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetId?: string }>,
+    action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,
   ) => {
-    state.selectedWidget = action.payload.widgetId;
+    if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
+    if (action.payload.isMultiSelect) {
+      const widgetId = action.payload.widgetId || "";
+      const removeSelection = state.selectedWidgets.includes(widgetId);
+      if (removeSelection) {
+        state.selectedWidgets = state.selectedWidgets.filter(
+          (each) => each !== widgetId,
+        );
+      } else if (!!widgetId) {
+        state.selectedWidgets = [...state.selectedWidgets, widgetId];
+      }
+      if (state.selectedWidgets.length > 0) {
+        state.lastSelectedWidget = removeSelection ? "" : widgetId;
+      }
+    } else {
+      state.lastSelectedWidget = action.payload.widgetId;
+      if (action.payload.widgetId) {
+        state.selectedWidgets = [action.payload.widgetId];
+      } else {
+        state.selectedWidgets = [];
+      }
+    }
+  },
+  [ReduxActionTypes.DESELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = state.selectedWidgets.filter(
+        (each) => !widgetIds.includes(each),
+      );
+    }
+  },
+  [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = widgetIds || [];
+      if (widgetIds.length > 1) {
+        state.lastSelectedWidget = "";
+      } else {
+        state.lastSelectedWidget = widgetIds[0];
+      }
+    }
+  },
+  [ReduxActionTypes.SELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
+    }
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
@@ -53,9 +110,10 @@ export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   isResizing: boolean;
-  selectedWidget?: string;
+  lastSelectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestory: string[];
+  selectedWidgets: string[];
 };
 
 export default widgetDraggingReducer;

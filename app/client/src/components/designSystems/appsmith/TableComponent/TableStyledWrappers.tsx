@@ -14,6 +14,7 @@ export const TableWrapper = styled.div<{
   tableSizes: TableSizes;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
+  isHeaderVisible?: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -56,7 +57,8 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      height: ${(props) => props.height - 80}px;
+      height: ${(props) =>
+        props.isHeaderVisible ? props.height - 80 : props.height - 40}px;
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
@@ -111,8 +113,10 @@ export const TableWrapper = styled.div<{
     }
     .th {
       padding: 0 10px 0 0;
-      height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-      line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+      height: ${(props) =>
+        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
+      line-height: ${(props) =>
+        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
@@ -232,18 +236,16 @@ export const PaginationWrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   padding: 8px 20px;
+  color: ${Colors.GRAY};
 `;
 
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
 }>`
-  background: ${(props) =>
-    props.disabled ? Colors.ATHENS_GRAY : Colors.WHITE};
-  border: 1px solid
-    ${(props) => (props.selected ? Colors.GREEN : Colors.GEYSER_LIGHT)};
+  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
+  border: 1px solid ${Colors.ALTO2};
   box-sizing: border-box;
-  border-radius: 4px;
   width: 24px;
   height: 24px;
   display: flex;
@@ -413,6 +415,9 @@ export const CellWrapper = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: ${(props) =>
+      props?.cellProperties?.horizontalAlignment &&
+      TEXT_ALIGN[props?.cellProperties?.horizontalAlignment]};
   }
   .hidden-icon {
     display: none;
@@ -477,7 +482,7 @@ export const RowWrapper = styled.div`
   justify-content: center;
   font-size: 12px;
   line-height: 20px;
-  color: ${Colors.THUNDER};
+  color: ${Colors.GRAY};
   margin: 0 4px;
   white-space: nowrap;
 `;

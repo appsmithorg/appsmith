@@ -27,10 +27,7 @@ import {
   getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
-import {
-  useShowPropertyPane,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
 import PerformanceTracker, {
@@ -41,6 +38,7 @@ import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -58,8 +56,7 @@ const DrawerWrapper = styled.div<{
   isActionPath: any;
 }>`
   background-color: white;
-  width: ${(props) =>
-    !props.isVisible ? "0px" : props.isActionPath ? "100%" : "75%"};
+  width: ${(props) => (!props.isVisible ? "0" : "100%")};
   height: 100%;
 `;
 
@@ -194,7 +191,7 @@ type PaneDrawerProps = {
 };
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   useEffect(() => {
     // This pane drawer is only open when NOT on canvas.

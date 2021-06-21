@@ -10,10 +10,11 @@ import {
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "constants/ApiConstants";
-import history from "utils/history";
-import { AUTH_LOGIN_URL } from "constants/routes";
 import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
+import store from "store";
+import { logoutUser } from "actions/userActions";
+import { AUTH_LOGIN_URL } from "constants/routes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -100,10 +101,13 @@ export const apiFailureResponseInterceptor = (error: any) => {
       const currentUrl = `${window.location.href}`;
       if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
         // Redirect to login and set a redirect url.
-        history.replace({
-          pathname: AUTH_LOGIN_URL,
-          search: `redirectUrl=${currentUrl}`,
-        });
+        store.dispatch(
+          logoutUser({
+            redirectURL: `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+              currentUrl,
+            )}`,
+          }),
+        );
         return Promise.reject({
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
           message: "Unauthorized. Redirecting to login page...",

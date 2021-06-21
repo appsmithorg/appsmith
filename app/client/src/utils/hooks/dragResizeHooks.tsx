@@ -1,12 +1,17 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { focusWidget, selectWidget } from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
+
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
+      // Don't show property pane in comment mode
+      if (isCommentMode) return;
+
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
         // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -22,7 +27,7 @@ export const useShowPropertyPane = () => {
         },
       );
     },
-    [dispatch],
+    [dispatch, isCommentMode],
   );
 };
 
@@ -57,22 +62,6 @@ export const useCanvasSnapRowsUpdateHook = () => {
     [dispatch],
   );
   return updateCanvasSnapRows;
-};
-
-export const useWidgetSelection = () => {
-  const dispatch = useDispatch();
-  return {
-    selectWidget: useCallback(
-      (widgetId?: string) => {
-        dispatch(selectWidget(widgetId));
-      },
-      [dispatch],
-    ),
-    focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
-      [dispatch],
-    ),
-  };
 };
 
 export const useWidgetDragResize = () => {

@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -21,6 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,6 +32,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,7 +59,8 @@ public class MssqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static final MSSQLServerContainer container =
-            new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-latest")
+            new MSSQLServerContainer<>(
+                    DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.3").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
                     .acceptLicense()
                     .withExposedPorts(1433)
                     .withPassword("Mssql123");
@@ -228,7 +232,7 @@ public class MssqlPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null));
+                            actionConfiguration.getBody(), null, null, new HashMap<>()));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -311,7 +315,6 @@ public class MssqlPluginTest {
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
                     assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
-
                 })
                 .verifyComplete();
     }
@@ -369,6 +372,23 @@ public class MssqlPluginTest {
                                     .toArray()
                     );
 
+                    /*
+                     * - Check if request params are sent back properly.
+                     * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
+                     *  params.
+                     */
+
+                    // check if '?' is replaced by $i.
+                    assertEquals("SELECT * FROM users where id = $1;",
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+
+                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
+                    // check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
                 })
                 .verifyComplete();
     }

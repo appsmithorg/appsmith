@@ -31,6 +31,9 @@ import DynamicInputTextControl, {
   DynamicInputControlProps,
 } from "components/formControls/DynamicInputTextControl";
 import InputNumberControl from "components/formControls/InputNumberControl";
+import FieldArrayControl, {
+  FieldArrayControlProps,
+} from "components/formControls/FieldArrayControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -91,6 +94,11 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputNumberControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("ARRAY_FIELD", {
+      buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
+        return <FieldArrayControl {...controlProps} />;
       },
     });
   }

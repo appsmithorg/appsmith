@@ -11,7 +11,6 @@ import {
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
-import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
@@ -25,6 +24,8 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
+import { closePropertyPane } from "actions/widgetActions";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -41,6 +42,7 @@ const CanvasContainer = styled.section`
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  padding-top: 1px;
   &:before {
     position: absolute;
     top: 0;
@@ -53,7 +55,7 @@ const CanvasContainer = styled.section`
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
 
@@ -98,8 +100,9 @@ function WidgetsEditor() {
 
   const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
-    selectWidget && selectWidget();
-  }, [focusWidget, selectWidget]);
+    deselectAll && deselectAll();
+    dispatch(closePropertyPane());
+  }, [focusWidget, deselectAll]);
 
   const pageLoading = (
     <Centered>

@@ -266,10 +266,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
 
   render() {
     const {
-      providerTemplates,
       history,
       isFetchingProviderTemplates,
       providerDetails,
+      providerTemplates,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 

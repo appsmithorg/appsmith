@@ -6,7 +6,6 @@ import {
   TabContainerWidgetProps,
 } from "widgets/Tabs/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TabsComponentProps extends ComponentProps {
@@ -37,14 +36,13 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: 0px 0px 0px 1px #e7e7e7;
   border-radius: 0;
-  box-shadow: none;
   overflow: hidden;
 `;
 
 const ChildrenWrapper = styled.div`
-  height: 100%;
+  height: calc(100% - 40px);
   width: 100%;
   position: relative;
   background: ${(props) => props.theme.colors.builderBodyBG};

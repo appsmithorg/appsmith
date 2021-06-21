@@ -15,6 +15,7 @@ import {
   CSSUnit,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
+import { memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -35,6 +36,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { flattenObject } from "utils/helpers";
 
 /***
  * BaseWidget
@@ -63,7 +65,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
   // TODO Find a way to enforce this, (dont let it be set)
@@ -176,6 +178,10 @@ abstract class BaseWidget<
     };
   }
 
+  getErrorCount = memoize((invalidProps) => {
+    return Object.values(flattenObject(invalidProps)).filter((e) => !!e).length;
+  }, JSON.stringify);
+
   render() {
     return this.getWidgetView();
   }
@@ -209,8 +215,10 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
+            errorCount={this.getErrorCount(this.props.invalidProps)}
             parentId={this.props.parentId}
             showControls={showControls}
+            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
@@ -235,6 +243,9 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        focused={this.props.focused}
+        resizeDisabled={this.props.resizeDisabled}
+        selected={this.props.selected}
         style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
@@ -422,6 +433,13 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+};
+
+export const WIDGET_DISPLAY_PROPS = {
+  isVisible: true,
+  isLoading: true,
+  isDisabled: true,
+  backgroundColor: true,
 };
 
 export interface WidgetDisplayProps {

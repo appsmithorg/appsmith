@@ -4,11 +4,14 @@ import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
 import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
-import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-
+const GRID_POINT_SIZE = 1;
 const WrappedDragLayer = styled.div<{
   columnWidth: number;
   rowHeight: number;
@@ -17,22 +20,28 @@ const WrappedDragLayer = styled.div<{
 }>`
   position: absolute;
   pointer-events: none;
-  left: ${(props) => (props.noPad ? "0" : `${CONTAINER_GRID_PADDING}px;`)};
-  top: ${(props) => (props.noPad ? "0" : `${CONTAINER_GRID_PADDING}px;`)};
+  left: ${(props) =>
+    props.noPad ? "0" : `${CONTAINER_GRID_PADDING - GRID_POINT_SIZE}px;`};
+  top: ${(props) =>
+    props.noPad ? "0" : `${CONTAINER_GRID_PADDING - GRID_POINT_SIZE}px;`};
   height: ${(props) =>
-    props.noPad ? `100%` : `calc(100% - ${CONTAINER_GRID_PADDING}px)`};
+    props.noPad
+      ? `100%`
+      : `calc(100% - ${(CONTAINER_GRID_PADDING - GRID_POINT_SIZE) * 2}px)`};
   width: ${(props) =>
-    props.noPad ? `100%` : `calc(100% - ${CONTAINER_GRID_PADDING}px)`};
+    props.noPad
+      ? `100%`
+      : `calc(100% - ${(CONTAINER_GRID_PADDING - GRID_POINT_SIZE) * 2}px)`};
 
   background-image: radial-gradient(
-    circle,
-    ${(props) => props.theme.colors.grid} 1px,
+    circle at ${GRID_POINT_SIZE}px ${GRID_POINT_SIZE}px,
+    ${(props) => props.theme.colors.grid} ${GRID_POINT_SIZE}px,
     transparent 0
   );
-  background-size: ${(props) => props.columnWidth}px
-    ${(props) => props.rowHeight}px;
-  background-position: -${(props) => props.columnWidth / 2}px -${(props) =>
-      props.rowHeight / 2}px;
+  background-size: ${(props) =>
+      props.columnWidth - GRID_POINT_SIZE / GridDefaults.DEFAULT_GRID_COLUMNS}px
+    ${(props) =>
+      props.rowHeight - GRID_POINT_SIZE / GridDefaults.DEFAULT_GRID_COLUMNS}px;
 `;
 
 type DragLayerProps = {
@@ -71,7 +80,7 @@ function DragLayerComponent(props: DragLayerProps) {
     x: 0,
     y: 0,
   });
-  const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
+  const { canDrop, currentOffset, isDragging, widget } = useDragLayer(
     (monitor) => ({
       isDragging: monitor.isDragging(),
       currentOffset: monitor.getSourceClientOffset(),

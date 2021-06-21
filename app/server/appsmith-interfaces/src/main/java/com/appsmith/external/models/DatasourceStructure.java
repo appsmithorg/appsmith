@@ -30,6 +30,7 @@ public class DatasourceStructure {
     @AllArgsConstructor
     public static class Table {
         TableType type;
+        String schema;
         String name;
         List<Column> columns;
         List<Key> keys;
@@ -104,6 +105,7 @@ public class DatasourceStructure {
     public static class Template {
         String title;
         String body;
+        List<Property> pluginSpecifiedTemplates;
     }
 
     ErrorDTO error;

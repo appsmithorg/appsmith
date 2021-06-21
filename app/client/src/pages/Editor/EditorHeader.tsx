@@ -32,6 +32,7 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -50,7 +51,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -90,10 +91,11 @@ const HeaderSection = styled.div`
   top: -1px;
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
     justify-content: center;
@@ -146,14 +148,14 @@ type EditorHeaderProps = {
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
-    currentApplication,
-    isSaving,
-    pageSaveError,
-    pageId,
-    orgId,
     applicationId,
-    publishApplication,
+    currentApplication,
     isPublishing,
+    isSaving,
+    orgId,
+    pageId,
+    pageSaveError,
+    publishApplication,
   } = props;
 
   const dispatch = useDispatch();
@@ -205,6 +207,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     dispatch(updateApplication(id, data));
   };
 
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -238,6 +244,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 }
               />
             )}
+            <ToggleModeButton />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
@@ -246,7 +253,6 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <Boxed step={OnboardingStep.FINISH}>
-            <ToggleCommentModeButton />
             <SaveStatusContainer className={"t--save-status-container"}>
               {saveStatusIcon}
             </SaveStatusContainer>
@@ -254,6 +260,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
                 currentApplication

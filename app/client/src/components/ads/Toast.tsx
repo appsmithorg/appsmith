@@ -17,6 +17,7 @@ type ToastProps = ToastOptions &
     duration?: number;
     onUndo?: () => void;
     dispatchableAction?: { type: ReduxActionType; payload: any };
+    showDebugButton?: boolean;
     hideProgressBar?: boolean;
   };
 
@@ -96,6 +97,7 @@ const ToastBody = styled.div<{
       color: ${props.theme.colors.toast.undo};
       line-height: 18px;
       font-weight: 600;
+      white-space: nowrap
     }
     `
       : null}
@@ -131,7 +133,7 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
         ) : null}
         <div>
           <Text type={TextType.P1}>{props.text}</Text>
-          {props.variant === Variant.danger ? (
+          {props.variant === Variant.danger && props.showDebugButton ? (
             <StyledDebugButton source={"TOAST"} />
           ) : null}
         </div>

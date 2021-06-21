@@ -8,6 +8,14 @@ import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import EntityDeps from "./EntityDependecies";
+import {
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -41,13 +49,18 @@ type DebuggerTabsProps = {
 const DEBUGGER_TABS = [
   {
     key: "ERROR",
-    title: "Errors",
+    title: createMessage(DEBUGGER_ERRORS),
     panelComponent: <Errors hasShortCut />,
   },
   {
     key: "LOGS",
-    title: "Logs",
+    title: createMessage(DEBUGGER_LOGS),
     panelComponent: <DebuggerLogs hasShortCut />,
+  },
+  {
+    key: "INSPECT_ELEMENTS",
+    title: createMessage(INSPECT_ENTITY),
+    panelComponent: <EntityDeps />,
   },
 ];
 
@@ -65,7 +78,7 @@ function DebuggerTabs(props: DebuggerTabsProps) {
   const onClose = () => dispatch(showDebugger(false));
 
   return (
-    <Container ref={panelRef}>
+    <Container onClick={stopEventPropagation} ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabComponent
         onSelect={onTabSelect}
