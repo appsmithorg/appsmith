@@ -117,25 +117,6 @@ export interface QueryAction extends BaseAction {
   datasource: StoredDatasource;
 }
 
-export interface JSAction extends BaseAction {
-  pluginType: PluginType.JS;
-  variables: any;
-  actionConfiguration: any;
-  actions: Array<JSSubAction>;
-}
-export interface JSSubAction {
-  actionId: string;
-  name: string;
-  parentObjectId: string;
-  executeOnLoad: boolean;
-  actionConfiguration: {
-    body: string;
-    isAsync: boolean;
-    arguments: Array<string>;
-    timeoutInMilliseconds: number;
-  };
-}
-
 export type ActionViewMode = {
   id: string;
   name: string;
@@ -145,4 +126,4 @@ export type ActionViewMode = {
   timeoutInMillisecond?: number;
 };
 
-export type Action = ApiAction | QueryAction | SaaSAction | JSAction;
+export type Action = ApiAction | QueryAction | SaaSAction;

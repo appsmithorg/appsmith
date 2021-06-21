@@ -1,7 +1,7 @@
 import React, { useState, useRef, RefObject } from "react";
 import styled from "styled-components";
 import { JS_EDITOR_FORM } from "constants/forms";
-import { Action } from "entities/Action";
+import { JSAction } from "entities/JSAction";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
@@ -80,7 +80,7 @@ const SettingsWrapper = styled.div`
   }
 `;
 interface JSFormProps {
-  jsAction: Action | undefined;
+  jsAction: JSAction | undefined;
 }
 
 type Props = JSFormProps;
@@ -212,6 +212,6 @@ function JSEditorForm(props: Props) {
   );
 }
 
-export default reduxForm<Action, Props>({
+export default reduxForm<JSAction, Props>({
   form: JS_EDITOR_FORM,
 })(JSEditorForm);

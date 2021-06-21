@@ -13,6 +13,7 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSAction } from "entities/JSAction";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -254,6 +255,17 @@ export const getAction = (
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
   return action ? action.config : undefined;
+};
+
+export const getJSAction = (
+  state: AppState,
+  actionId: string,
+): JSAction | undefined => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction ? jsaction.config : undefined;
 };
 
 export function getCurrentPageNameByActionId(

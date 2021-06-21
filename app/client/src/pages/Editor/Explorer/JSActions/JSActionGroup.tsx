@@ -4,9 +4,10 @@ import Entity from "../Entity";
 import { jsIcon } from "../ExplorerIcons";
 import { ExplorerURLParams, getJSActionIdFromURL } from "../helpers";
 import { useParams } from "react-router";
-import { JS_FUNCTION_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import history from "utils/history";
 import ExplorerActionEntity from "./JSActionEntity";
+import { createNewJSAction } from "actions/jsPaneActions";
+import { useDispatch } from "react-redux";
 
 type ExplorerJSActionGroupProps = {
   pageId: string;
@@ -43,14 +44,7 @@ export const ExplorerJSActionGroup = memo(
         })}
       </>
     );
-    const addJSAction = () => {
-      history.push(
-        JS_FUNCTION_URL_WITH_SELECTED_PAGE_ID(
-          params.applicationId,
-          props.pageId,
-        ),
-      );
-    };
+    const dispatch = useDispatch();
     return (
       <Entity
         className={"js_actions"}
@@ -60,7 +54,7 @@ export const ExplorerJSActionGroup = memo(
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
         name="JS Functions"
-        onCreate={() => addJSAction()}
+        onCreate={() => dispatch(createNewJSAction(props.pageId))}
         searchKeyword={props.searchKeyword}
         step={props.step}
       >

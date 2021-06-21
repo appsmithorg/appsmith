@@ -10,6 +10,7 @@ import applicationSagas from "./ApplicationSagas";
 import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
 import apiPaneSagas from "./ApiPaneSagas";
+import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
 import orgSagas from "./OrgSagas";
@@ -46,6 +47,7 @@ const sagas = [
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,

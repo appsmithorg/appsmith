@@ -21,14 +21,12 @@ interface BaseAction {
   dynamicBindingPathList?: DynamicPath[];
   isValid?: boolean;
   invalids?: string[];
-  jsonPathKeys?: string[];
   cacheResponse?: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
 }
 
 export interface JSAction extends BaseAction {
-  pluginType: PluginType.JS;
   variables: any;
   actionConfiguration: any;
   actions: Array<JSSubAction>;

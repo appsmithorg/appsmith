@@ -1,5 +1,6 @@
 import initSagas from "../src/sagas/InitSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
+import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "../src/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
 import orgSagas from "../src/sagas/OrgSagas";
@@ -36,6 +37,7 @@ export const sagasToRunForTests = [
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,

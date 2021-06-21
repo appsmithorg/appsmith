@@ -36,6 +36,29 @@ const jsActionsReducer = createReducer(initialState, {
     });
   },
   [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR]: () => initialState,
+  [ReduxActionTypes.CREATE_JS_ACTION_INIT]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction>,
+  ): JSActionDataState =>
+    state.concat([
+      {
+        config: { ...action.payload, id: action.payload.name },
+        isLoading: false,
+      },
+    ]),
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (
+        a.config.pageId === action.payload.pageId &&
+        a.config.id === action.payload.name
+      ) {
+        return { ...a, config: action.payload };
+      }
+      return a;
+    }),
 });
 
 export default jsActionsReducer;

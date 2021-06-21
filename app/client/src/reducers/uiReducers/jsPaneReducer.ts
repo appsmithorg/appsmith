@@ -1,47 +1,38 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { PluginType, JSSubAction } from "entities/Action";
-
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 export interface JsPaneReduxState {
-  pluginType: PluginType.JS;
-  name: string;
-  variables: any;
-  body: string;
-  actions: Array<JSSubAction>;
-  pageId: string;
-  organizationId: string;
-  pluginId: string;
-  actionConfiguration: any;
-  id: string;
+  isCreating: boolean; // RR
+  isFetching: boolean; // RR
+  isRunning: Record<string, boolean>;
+  isSaving: Record<string, boolean>; // RN
+  isDeleting: Record<string, boolean>;
+  isDirty: Record<string, boolean>;
+  extraformData: Record<string, any>;
 }
 
 const initialState: JsPaneReduxState = {
-  id: "1234567890",
-  pluginType: PluginType.JS,
-  pageId: "60af589ae46b4f17edc130fe",
-  name: "getUserDetails",
-  organizationId: "606596fa6e42981cc3204bfe",
-  pluginId: "5678",
-  variables: [{ name: "getUserDetails.data", initialValue: "undefined" }],
-  body: "class getUserDetails {const data;}",
-  actionConfiguration: {
-    body: "class getUserDetails {const data;}",
-  },
-  actions: [
-    {
-      actionId: "function_action_id",
-      name: "getUserDetails.all",
-      parentObjectId: "unknown_collection_parent_id",
-      executeOnLoad: false,
-      actionConfiguration: {
-        body: "function all(){...}",
-        isAsync: true,
-        arguments: [],
-        timeoutInMilliseconds: 3000,
-      },
-    },
-  ],
+  isCreating: false,
+  isFetching: false,
+  isRunning: {},
+  isSaving: {},
+  isDeleting: {},
+  isDirty: {},
+  extraformData: {},
 };
 
-const jsPaneReducer = createReducer(initialState, {});
+const jsPaneReducer = createReducer(initialState, {
+  [ReduxActionTypes.CREATE_JS_ACTION_INIT]: (
+    state: JsPaneReduxState,
+  ): JsPaneReduxState => ({
+    ...state,
+    isCreating: true,
+  }),
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
+    state: JsPaneReduxState,
+  ): JsPaneReduxState => ({
+    ...state,
+    isCreating: false,
+  }),
+});
 
 export default jsPaneReducer;

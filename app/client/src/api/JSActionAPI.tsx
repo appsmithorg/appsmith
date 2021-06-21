@@ -1,7 +1,7 @@
 import API, { HttpMethod } from "api/Api";
-import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise, CancelTokenSource } from "axios";
-import { Action } from "entities/Action";
+import { JSAction } from "entities/JSAction";
+import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 
 export type PaginationField = "PREV" | "NEXT";
 
@@ -10,6 +10,9 @@ export interface ActionApiResponseReq {
   body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
+}
+export interface JSActionCreateUpdateResponse extends ApiResponse {
+  id: string;
 }
 
 export interface ActionResponse {
@@ -29,8 +32,14 @@ class JSActionAPI extends API {
 
   static fetchJSActions(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<Action[]>> {
+  ): AxiosPromise<GenericApiResponse<JSAction[]>> {
     return API.get(JSActionAPI.url, { applicationId });
+  }
+
+  static createJSAction(
+    apiConfig: Partial<JSAction>,
+  ): AxiosPromise<JSActionCreateUpdateResponse> {
+    return API.post(JSActionAPI.url, apiConfig);
   }
 }
 
