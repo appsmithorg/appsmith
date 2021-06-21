@@ -10,7 +10,7 @@ const PropertyPaneConfig = [
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
-        propertyName: "items",
+        propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
@@ -35,6 +35,7 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
       },
 
       {
@@ -71,7 +72,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, "evaluatedValues.items", []);
+          let items = get(props, "evaluatedValues.listData", []);
 
           if (Array.isArray(items)) {
             items = items.filter(Boolean);
