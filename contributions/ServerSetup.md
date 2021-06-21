@@ -127,6 +127,11 @@ Here is the configuration settings for new intellij versions. After configuring 
 2. Please enable the **Always update snapshots** checkbox so that the most recent build is picked up. 
 <img width="1070" alt="intellij config_2" src="./images/intellij_config_2.png"> 
 
-## Need Assistance?
+#### Note
+In case ther server doesn't work with the above config then one may try the following and thrn try running the server locally.
+* mvn -B clean compile
+* ./build.sh -DskipTests
+
+## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.
