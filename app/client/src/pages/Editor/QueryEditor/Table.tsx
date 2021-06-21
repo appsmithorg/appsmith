@@ -54,7 +54,7 @@ export const TableWrapper = styled.div`
       overflow: hidden;
     }
     .tbody {
-      height: calc(100% - ${(props) => props.theme.tableHeaderHeight});
+      height: calc(100% - ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px);
       .tr {
         width: 100%;
       }
