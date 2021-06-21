@@ -3,7 +3,12 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import styled from "styled-components";
 import { isUndefined } from "lodash";
 
-const DividerWrapper = styled.div`
+const DividerWrapper = styled.div<{
+  isHorizontal: boolean;
+  thickness: number;
+  showStartCap: boolean;
+  showEndCap: boolean;
+}>`
   height: 100%;
   width: 100%;
   position: relative;
@@ -11,6 +16,20 @@ const DividerWrapper = styled.div`
   overflow: hidden;
   justify-content: center;
   align-items: center;
+  ${(props) => {
+    const paddingVal = props.thickness / 2;
+    let padStyle: string;
+    if (props.isHorizontal) {
+      padStyle = `padding: 0px ${
+        props.showEndCap ? paddingVal + "px" : "0px"
+      } 0px ${props.showStartCap ? paddingVal + "px" : "0px"};`;
+    } else {
+      padStyle = `padding: ${
+        props.showStartCap ? paddingVal + "px" : "0px"
+      } 0px ${props.showEndCap ? paddingVal + "px" : "0px"} 0px;`;
+    }
+    return padStyle;
+  }}
 `;
 const HorizontalDivider = styled.div<DividerComponentProps>`
   height: 0px;
@@ -51,10 +70,10 @@ const CapWrapper = styled.div<{
 
   svg {
     display: block;
-    height: ${(props) => props.size}px;
-    width: ${(props) => props.size}px;
+    height: 100%;
+    width: 100%;
 
-    &.rotate-icon {
+    &.arrow {
       ${(
         props, // rotate icon according to its pos
       ) =>
@@ -65,20 +84,29 @@ const CapWrapper = styled.div<{
           : props.isHorizontal
           ? "transform: rotate(180deg);"
           : "transform: rotate(270deg);"}
+
+      path {
+        transform: translateX(-3px);
+      }
     }
   }
 `;
 
 class DividerComponent extends React.Component<DividerComponentProps> {
   render() {
-    const { capSide, capType, orientation } = this.props;
+    const { capSide, capType, orientation, thickness } = this.props;
     const showStartCap =
       capType !== "nc" && (isUndefined(capSide) ? false : capSide <= 0);
     const showEndCap =
       capType !== "nc" && (isUndefined(capSide) ? false : capSide >= 0);
 
     return (
-      <DividerWrapper>
+      <DividerWrapper
+        isHorizontal={orientation === "horizontal"}
+        showEndCap={showEndCap}
+        showStartCap={showStartCap}
+        thickness={thickness || 1}
+      >
         {orientation === "horizontal" ? (
           <HorizontalDivider data-testid="dividerHorizontal" {...this.props} />
         ) : (
@@ -116,14 +144,14 @@ class DividerComponent extends React.Component<DividerComponentProps> {
             />
           </svg>
         ) : (
-          <svg className="rotate-icon">
+          <svg className="arrow" height="14" viewBox="0 0 8 14" width="8">
             <path
-              d={`M ${halfCapSize} ${strokeSize / 2} L ${strokeSize /
-                sizeMultiplier} ${halfCapSize} 
-              L ${halfCapSize} ${capSize - strokeSize / 2}`}
-              fill="transparent"
+              d="M7 13L1 7L7 1"
+              fill="none"
               stroke={dividerColor}
-              strokeWidth={thickness}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
             />
           </svg>
         )}
