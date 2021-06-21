@@ -47,7 +47,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            helpText: "Controls divider stroke style",
+            helpText: "Controls the style of the divider",
             propertyName: "strokeStyle",
             label: "Dash Style",
             controlType: "DROP_DOWN",
@@ -76,7 +76,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
-            helpText: "Controls thickness of divider",
+            helpText: "Controls the thickness of divider",
             propertyName: "thickness",
             label: "Thickness (px)",
             controlType: "INPUT_TEXT",
@@ -86,7 +86,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.NUMBER,
           },
           {
-            helpText: "Controls stroke color of divider",
+            helpText: "Controls the stroke color of divider",
             propertyName: "dividerColor",
             label: "Divider Color",
             controlType: "COLOR_PICKER",
@@ -94,6 +94,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText: "Controls the type of divider cap",
             propertyName: "capType",
             label: "Cap",
             controlType: "DROP_DOWN",
@@ -121,8 +122,10 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText:
+              "Controls hide/show divider cap on start or end of divider",
             propertyName: "capSide",
-            label: "Cap Side",
+            label: "",
             controlType: "ICON_TABS",
             options: [
               {
@@ -139,7 +142,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: 1,
               },
             ],
-            defaultValue: "-1",
+            defaultValue: "0",
             isBindProperty: false,
             isTriggerProperty: false,
             hidden: (props: DividerWidgetProps) => props.capType === "nc",

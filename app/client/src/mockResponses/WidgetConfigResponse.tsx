@@ -1098,7 +1098,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Divider",
       orientation: "horizontal",
       capType: "nc",
-      capSide: -1,
+      capSide: 0,
       strokeStyle: "solid",
       dividerColor: "black",
       thickness: 2,
