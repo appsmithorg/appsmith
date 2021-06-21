@@ -35,12 +35,8 @@
               "value": "FIND"
             },
             {
-              "label": "Update one document",
-              "value": "UPDATE_ONE"
-            },
-            {
-              "label": "Update one or more documents",
-              "value": "UPDATE_MANY"
+              "label": "Update Document(s)",
+              "value": "UPDATE"
             },
             {
               "label": "Delete Document(s)",
@@ -191,7 +187,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
-                "value": "UPDATE_MANY"
+                "value": "UPDATE"
               }
             ]
           },
@@ -209,6 +205,22 @@
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "placeholderText" : "{ $inc: { score: 1 } }"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[21].value",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
             }
           ]
         },

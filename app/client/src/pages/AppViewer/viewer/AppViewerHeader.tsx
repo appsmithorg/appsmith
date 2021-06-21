@@ -171,9 +171,14 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
-            </PrimaryLogoLink>
+            <div style={{ flex: 1 }}>
+              <PrimaryLogoLink to={APPLICATIONS_URL}>
+                <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+              </PrimaryLogoLink>
+            </div>
+            <div style={{ flex: 1 }}>
+              <ToggleCommentModeButton />
+            </div>
           </HeaderSection>
           <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
@@ -181,7 +186,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             )}
           </HeaderSection>
           <HeaderSection justify={"flex-end"}>
-            <ToggleCommentModeButton />
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent

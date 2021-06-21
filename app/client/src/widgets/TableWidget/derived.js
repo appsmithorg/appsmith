@@ -287,7 +287,10 @@ export default {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
-      empty: _.isEmpty,
+      empty: (a) => {
+        if (a === null || a === undefined || a === "") return true;
+        return _.isEmpty(a.toString());
+      },
       notEmpty: (a) => {
         return a !== "" && a !== undefined && a !== null;
       },
