@@ -1,9 +1,10 @@
 import * as React from "react";
 
-import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
+import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
-import { ItemRenderer, Select } from "@blueprintjs/select";
+import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
+// import Icon, { IconCollection, IconName } from "components/ads/Icon";
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
@@ -15,6 +16,7 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.push(NONE);
+// const ICON_NAMES: IconType[] = [NONE, ...IconCollection];
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -27,6 +29,7 @@ export class IconSelectControl extends BaseControl<IconSelectControlProps> {
     const { propertyValue: iconName } = this.props;
     return (
       <TypedSelect
+        itemListRenderer={this.renderMenu}
         itemPredicate={this.filterIconName}
         itemRenderer={this.renderIconItem}
         items={ICON_NAMES}
@@ -39,12 +42,33 @@ export class IconSelectControl extends BaseControl<IconSelectControlProps> {
           className={Classes.TEXT_OVERFLOW_ELLIPSIS}
           fill
           icon={iconName}
+          // icon={<Icon name={iconName} />}
           rightIcon="caret-down"
           text={iconName || NONE}
         />
       </TypedSelect>
     );
   }
+
+  private renderMenu: ItemListRenderer<IconType> = ({
+    items,
+    itemsParentRef,
+    renderItem,
+  }) => {
+    const renderedItems = items.map(renderItem).filter((item) => item != null);
+
+    return (
+      <Menu
+        css={`
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        `}
+        ulRef={itemsParentRef}
+      >
+        {renderedItems}
+      </Menu>
+    );
+  };
 
   private renderIconItem: ItemRenderer<IconName | typeof NONE> = (
     icon,
@@ -56,11 +80,27 @@ export class IconSelectControl extends BaseControl<IconSelectControlProps> {
     return (
       <MenuItem
         active={modifiers.active}
+        css={`
+          flex-direction: column;
+          align-items: center;
+          > span.bp3-icon {
+            margin-right: 0;
+          }
+          > div {
+            width: 100%;
+            text-align: center;
+          }
+        `}
         icon={icon === NONE ? undefined : icon}
         key={icon}
         onClick={handleClick}
         text={icon}
       />
+      // <Icon
+      //   key={icon}
+      //   name={icon === NONE ? undefined : icon}
+      //   onClick={handleClick}
+      // />
     );
   };
 

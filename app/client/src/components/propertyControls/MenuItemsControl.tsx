@@ -18,7 +18,7 @@ import { Category, Size } from "components/ads/Button";
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
   width: 100%;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 10px;
 `;
 
@@ -51,6 +51,11 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
       }
     }
   }
+`;
+
+const AddMenuItemButton = styled(StyledPropertyPaneButton)`
+  justify-content: center;
+  flex-grow: 1;
 `;
 
 type RenderComponentProps = {
@@ -146,7 +151,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
           updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButton
+          <AddMenuItemButton
             category={Category.tertiary}
             icon="plus"
             onClick={this.addOption}
