@@ -190,6 +190,9 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            // TODO: Check whether these properties have
+            // dependent properties
+            propertyPath: propertiesToUpdate[0].propertyPath,
           },
           state: allUpdates,
         });
@@ -210,6 +213,7 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            propertyPath: propertyName,
           },
           state: {
             [propertyName]: propertyValue,
