@@ -83,7 +83,7 @@ jobs:
           ls -ltr
           pwd
           rm -rf appsmith-server
-          aws s3 cp s3://taj2/appsmith-server/appsmith-server${{ github.event.inputs.tags }}.zip . 
+          aws s3 cp s3://${{ secrets.bucket}}/appsmith-server/appsmith-server${{ github.event.inputs.tags }}.zip . 
           unzip appsmith-server${{ github.event.inputs.tags }}.zip
           
       - name: Download the appsmith-plugin from s3 bucket
@@ -91,7 +91,7 @@ jobs:
           ls -ltr
           pwd
           rm -rf appsmith-plugins
-          aws s3 cp s3://taj2/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip .
+          aws s3 cp s3://${{ secrets.bucket }}/appsmith-plugins/appsmith-plugins${{ github.event.inputs.tags }}.zip .
           unzip appsmith-plugins${{ github.event.inputs.tags }}.zip
         
         
