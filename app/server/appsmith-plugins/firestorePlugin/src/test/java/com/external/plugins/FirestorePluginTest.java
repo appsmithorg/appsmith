@@ -1020,4 +1020,48 @@ public class FirestorePluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testDynamicBindingSubstitutionInActionConfiguration() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("{{Input1.text}}");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
+        pluginSpecifiedTemplates.add(new Property("order", null));
+        pluginSpecifiedTemplates.add(new Property("limit", null));
+        Property whereProperty = new Property("where", null);
+        whereProperty.setValue(new ArrayList<>());
+        /*
+         * - get all documents where category == test.
+         * - this returns 2 documents.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "{{Input2.text}}");
+            put("operator", "EQ");
+            put("value", "{{Input3.text}}");
+        }});
+
+        pluginSpecifiedTemplates.add(whereProperty);
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        List params = new ArrayList();
+        params.add(new Param("Input1.text", "initial"));
+        params.add(new Param("Input2.text", "category"));
+        params.add(new Param("Input3.text", "test"));
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        // Substitute dynamic binding values
+        pluginExecutor
+                .prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, null);
+
+        // check if dynamic binding values have been substituted correctly
+        assertEquals("initial", actionConfiguration.getPath());
+        assertEquals("category",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "path"));
+        assertEquals("test",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "value"));
+    }
 }
