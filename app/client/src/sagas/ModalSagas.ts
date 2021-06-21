@@ -116,7 +116,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   yield put({
-    type: ReduxActionTypes.SELECT_WIDGET,
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
     payload: { widgetId: action.payload.modalId },
   });
   yield put(focusWidget(action.payload.modalId));
