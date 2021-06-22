@@ -88,6 +88,7 @@ export const INTEGRATION_TABS = {
 
 export const INTEGRATION_EDITOR_MODES = {
   AUTO: "auto",
+  MOCK: "mock",
 };
 export const INTEGRATION_EDITOR_URL = (
   applicationId = ":applicationId",

@@ -133,27 +133,31 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-];
-
-const SECONDARY_MENU_IDS = {
-  // MOST_USED: 0,
-  API: 0,
-  DATABASE: 1,
-  // SAAS: 3,
-};
-
-const TERTIARY_MENU: TabProp[] = [
-  {
-    key: "ACTIVE_CONNECTIONS",
-    title: "Active Connections",
-    panelComponent: <div />,
-  },
   {
     key: "MOCK_DATABASE",
     title: "Mock Databases",
     panelComponent: <div />,
   },
 ];
+
+const SECONDARY_MENU_IDS = {
+  API: 0,
+  DATABASE: 1,
+  MOCK_DATABASE: 2,
+};
+
+// const TERTIARY_MENU: TabProp[] = [
+//   {
+//     key: "ACTIVE_CONNECTIONS",
+//     title: "Active Connections",
+//     panelComponent: <div />,
+//   },
+//   {
+//     key: "MOCK_DATABASE",
+//     title: "Mock Databases",
+//     panelComponent: <div />,
+//   },
+// ];
 
 const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
@@ -272,6 +276,12 @@ class IntegrationsHomeScreen extends React.Component<
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
       );
+    } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
+      // If there are no datasources -> new user
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      this.onSelectSecondaryMenu(SECONDARY_MENU_IDS.MOCK_DATABASE);
     } else {
       this.syncActivePrimaryMenu();
     }
@@ -373,17 +383,16 @@ class IntegrationsHomeScreen extends React.Component<
           <div />
 
           {currentScreen}
-
-          <TabComponent
-            onSelect={this.onSelectSecondaryMenu}
-            selectedIndex={this.state.activeSecondaryMenuId}
-            tabs={
-              activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-                ? TERTIARY_MENU
-                : SECONDARY_MENU
-            }
-            vertical
-          />
+          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW ? (
+            <TabComponent
+              onSelect={this.onSelectSecondaryMenu}
+              selectedIndex={this.state.activeSecondaryMenuId}
+              tabs={SECONDARY_MENU}
+              vertical
+            />
+          ) : (
+            <div />
+          )}
         </SectionGrid>
       </ApiHomePage>
     );
