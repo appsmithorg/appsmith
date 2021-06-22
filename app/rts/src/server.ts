@@ -240,7 +240,6 @@ async function watchMongoDB(io) {
 				$unset: [
 					"deletedAt",
 					"deleted",
-					"_class",
 				].map(f => "fullDocument." + f)
 			},
 		],
@@ -257,6 +256,10 @@ async function watchMongoDB(io) {
 			return
 		}
 
+		// set the type from _class attribute
+		notification.type = notification._class.substr(notification._class.lastIndexOf(".") + 1)
+		delete notification._class
+		
 		const eventName = event.operationType + ":" + event.ns.coll
 		io.to("email:" + notification.forUsername).emit(eventName, { notification })
 	})
