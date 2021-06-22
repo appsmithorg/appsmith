@@ -4,8 +4,9 @@ import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import withMeta from "widgets/MetaHOC";
 import * as Sentry from "@sentry/react";
 import { migrateTabsData } from "utils/WidgetPropsUtils";
-import { cloneDeep } from "lodash";
+import { cloneDeep, get } from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -84,7 +85,7 @@ class TabsMigratorWidget extends BaseWidget<
     ];
   }
   componentDidMount() {
-    if (this.props.evaluatedValues) {
+    if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
       this.batchUpdateWidgetProperty({

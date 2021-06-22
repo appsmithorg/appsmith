@@ -74,14 +74,13 @@ const ApiCardsContainer = styled.div`
 `;
 
 const ApiCard = styled.div`
-  border: 1px solid transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 70px;
   padding-left: 8px;
   &:hover {
-    border: 1px solid #a9a7a7;
+    background: ${Colors.Gallery};
   }
 
   .content-icon-wrapper {
@@ -193,7 +192,7 @@ const newApiScreen = (props: Props) => {
             }}
             size={Size.medium}
             tag="button"
-            text="Create"
+            text="Add"
           />
         </ApiCard>
         {plugins
@@ -222,7 +221,7 @@ const newApiScreen = (props: Props) => {
                 }
                 size={Size.medium}
                 tag="button"
-                text="Connect"
+                text="Add"
               />
             </ApiCard>
           ))}

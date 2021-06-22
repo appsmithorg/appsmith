@@ -11,6 +11,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Layers } from "constants/Layers";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const Container = styled.div<{ errorCount: number }>`
   z-index: ${Layers.debugger};
@@ -61,11 +62,12 @@ function Debugger() {
     (state: AppState) => state.ui.debugger.isOpen,
   );
 
-  const onClick = () => {
+  const onClick = (e: any) => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "CANVAS",
     });
     dispatch(showDebuggerAction(true));
+    stopEventPropagation(e);
   };
 
   if (!showDebugger)

@@ -10,6 +10,8 @@ import { createActionRequest } from "actions/actionActions";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
+import Text, { TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
 
 const QueryHomePage = styled.div`
   padding: 5px;
@@ -25,11 +27,23 @@ const QueryHomePage = styled.div`
   }
 `;
 
+const CreateButton = styled(Button)`
+  display: inline;
+  padding: 4px 8px;
+`;
+
+const EmptyActiveDatasource = styled.div`
+  height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-type QueryHomeScreenProps = {
+type ActiveDataSourceProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
@@ -43,9 +57,10 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  onCreateNew: () => void;
 };
 
-class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
+class ActiveDataSource extends React.Component<ActiveDataSourceProps> {
   handleCreateNewQuery = (dataSource: Datasource) => {
     const { actions, pageId } = this.props;
     if (pageId) {
@@ -79,6 +94,23 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
+    if (dataSources.length === 0) {
+      return (
+        <EmptyActiveDatasource>
+          <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
+            No active integrations found.{" "}
+            <CreateButton
+              category={Category.primary}
+              onClick={this.props.onCreateNew}
+              size={Size.medium}
+              tag="button"
+              text="Create New"
+            />
+          </Text>
+        </EmptyActiveDatasource>
+      );
+    }
+
     return (
       <QueryHomePage>
         {dataSources.map((datasource) => {
@@ -105,4 +137,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(QueryHomeScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSource);

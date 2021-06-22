@@ -10,7 +10,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import ActiveQueryScreen from "./ActiveQuery";
+import ActiveDataSource from "./ActiveDataSource";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
@@ -360,12 +360,15 @@ class IntegrationsHomeScreen extends React.Component<
       );
     } else {
       currentScreen = (
-        <ActiveQueryScreen
+        <ActiveDataSource
           applicationId={applicationId}
           dataSources={dataSources}
           history={this.props.history}
           isCreating={isCreating}
           location={location}
+          onCreateNew={() =>
+            this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW)
+          }
           pageId={pageId}
         />
       );
