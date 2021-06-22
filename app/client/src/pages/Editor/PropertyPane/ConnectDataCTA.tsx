@@ -68,7 +68,7 @@ function ConnectDataCTA() {
               applicationId,
               pageId,
               INTEGRATION_TABS.NEW,
-              INTEGRATION_EDITOR_MODES.AUTO,
+              INTEGRATION_EDITOR_MODES.MOCK,
             ),
           )
         }

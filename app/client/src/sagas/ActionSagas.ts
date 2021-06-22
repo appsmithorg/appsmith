@@ -62,6 +62,7 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
@@ -788,7 +789,14 @@ function* executeCommand(
       break;
     case "NEW_INTEGRATION":
       const appId = yield select(getCurrentApplicationId);
-      history.push(INTEGRATION_EDITOR_URL(appId, pageId, INTEGRATION_TABS.NEW));
+      history.push(
+        INTEGRATION_EDITOR_URL(
+          appId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+          INTEGRATION_EDITOR_MODES.AUTO,
+        ),
+      );
       break;
   }
 }
