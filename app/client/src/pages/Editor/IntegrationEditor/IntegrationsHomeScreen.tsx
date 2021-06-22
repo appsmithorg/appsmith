@@ -397,23 +397,7 @@ class IntegrationsHomeScreen extends React.Component<
               tabs={PRIMARY_MENU}
             />
           </MainTabsContainer>
-          {/* TODO: make this search bar work */}
-          <SearchContainer>
-            <SearchBar
-              icon="search"
-              input={{
-                onChange: this.handleSearchChange,
-                onFocus: (e) => {
-                  if (e.target.value) {
-                    this.setState({ showSearchResults: true });
-                  } else {
-                    this.setState({ showSearchResults: false });
-                  }
-                },
-              }}
-              placeholder="Search"
-            />
-          </SearchContainer>
+          <div />
 
           {currentScreen}
 
