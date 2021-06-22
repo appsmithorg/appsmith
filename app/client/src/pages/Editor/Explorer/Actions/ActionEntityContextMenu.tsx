@@ -12,9 +12,12 @@ import {
 } from "actions/actionActions";
 
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { noop } from "lodash";
 import { useNewActionName } from "./helpers";
+import { useParams } from "react-router";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import history from "utils/history";
 
 type EntityContextMenuProps = {
   id: string;
@@ -24,7 +27,7 @@ type EntityContextMenuProps = {
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
-
+  const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
@@ -110,12 +113,14 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
         {
           value: "delete",
-          onSelect: () =>
-            deleteActionFromPage(props.id, props.name, () => {
-              console.log("Entity Removed");
-            }),
           label: "Delete",
           intent: "danger",
+          onSelect: () =>
+            deleteActionFromPage(props.id, props.name, () => {
+              history.push(
+                BUILDER_PAGE_URL(params.applicationId, params.pageId),
+              );
+            }),
         },
       ]}
       selectedValue=""
