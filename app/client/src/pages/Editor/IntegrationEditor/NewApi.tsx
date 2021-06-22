@@ -13,6 +13,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import Button, { Category, Size } from "components/ads/Button";
+import { Spinner } from "@blueprintjs/core";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -131,6 +132,7 @@ type ApiHomeScreenProps = {
   pageId: string;
   plugins: Plugin[];
   createDatasourceFromForm: (data: any) => void;
+  isCreating: boolean;
 };
 
 type Props = ApiHomeScreenProps;
@@ -140,6 +142,7 @@ const newApiScreen = (props: Props) => {
     applicationId,
     createNewApiAction,
     history,
+    isCreating,
     location,
     pageId,
     plugins,
@@ -166,6 +169,7 @@ const newApiScreen = (props: Props) => {
             </div>
             <p className="textBtn">Create new</p>
           </CardContentWrapper>
+          {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
         <ApiCard className="t--createBlankApiCard">
           <CardContentWrapper>

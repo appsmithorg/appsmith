@@ -164,7 +164,13 @@ const TERTIARY_MENU_IDS = {
   MOCK_DATABASE: 1,
 };
 
-function CreateNewAPI({ active, applicationId, history, pageId }: any) {
+function CreateNewAPI({
+  active,
+  applicationId,
+  history,
+  isCreating,
+  pageId,
+}: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
   useEffect(() => {
@@ -186,6 +192,7 @@ function CreateNewAPI({ active, applicationId, history, pageId }: any) {
       <NewApiScreen
         applicationId={applicationId}
         history={history}
+        isCreating={isCreating}
         location={location}
         pageId={pageId}
       />
