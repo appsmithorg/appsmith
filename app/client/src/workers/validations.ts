@@ -21,8 +21,14 @@ function validatePlainObject(
     const _messages: string[] = [];
     config.params.allowedKeys.forEach((entry) => {
       if (value.hasOwnProperty(entry.name)) {
-        const { isValid, message } = validate(entry, value[entry.name], props);
+        const { isValid, message, parsed } = validate(
+          entry,
+          value[entry.name],
+          props,
+        );
+
         if (!isValid) {
+          value[entry.name] = parsed;
           _valid = isValid;
           message &&
             _messages.push(
@@ -94,7 +100,13 @@ export const validate = (
   value: unknown,
   props: Record<string, unknown>,
 ) => {
-  return VALIDATORS[config.type as ValidationTypes](config, value, props);
+  const _result = VALIDATORS[config.type as ValidationTypes](
+    config,
+    value,
+    props,
+  );
+  console.log(_result);
+  return _result;
 };
 
 const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
@@ -127,6 +139,17 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
     }
     const isValid = isString(value);
+    if (isValid && config.params?.allowedValues) {
+      if (!config.params?.allowedValues.includes((value as string).trim())) {
+        console.log({ default: config.params?.default });
+        return {
+          parsed: config.params?.default || "",
+          message: "Value is not allowed",
+          isValid: false,
+        };
+      }
+    }
+
     if (!isValid) {
       try {
         const result = {

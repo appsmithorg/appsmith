@@ -1,6 +1,7 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CUSTOM_CHART_TYPES } from "constants/CustomChartConstants";
 
 export default [
   {
@@ -82,6 +83,11 @@ export default [
               {
                 type: ValidationTypes.TEXT,
                 name: "type",
+                params: {
+                  allowedValues: CUSTOM_CHART_TYPES,
+                  default: "",
+                  required: true,
+                },
               },
               {
                 type: ValidationTypes.OBJECT,
@@ -91,11 +97,15 @@ export default [
                     {
                       name: "chart",
                       type: ValidationTypes.OBJECT,
+                      params: {
+                        default: {},
+                      },
                     },
                     {
                       name: "data",
                       type: ValidationTypes.ARRAY,
                       params: {
+                        default: [],
                         children: {
                           type: ValidationTypes.OBJECT,
                           params: {
