@@ -12,7 +12,7 @@ import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveQueryScreen from "./ActiveQuery";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDBDatasources } from "selectors/entitiesSelector";
+import { getDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -401,7 +401,7 @@ class IntegrationsHomeScreen extends React.Component<
 
 const mapStateToProps = (state: AppState) => {
   return {
-    dataSources: getDBDatasources(state),
+    dataSources: getDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
   };
 };
