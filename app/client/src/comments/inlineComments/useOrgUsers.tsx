@@ -8,12 +8,14 @@ const useOrgUsers = () => {
   const orgId = useSelector(getCurrentOrgId);
   const orgUsers = useSelector(getAllUsers);
   useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-      payload: {
-        orgId,
-      },
-    });
+    if (!orgUsers || !orgUsers.length) {
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+        payload: {
+          orgId,
+        },
+      });
+    }
   }, [orgId]);
   return orgUsers;
 };

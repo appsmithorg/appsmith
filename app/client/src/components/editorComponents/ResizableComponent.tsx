@@ -1,4 +1,4 @@
-import React, { useContext, useRef, memo } from "react";
+import React, { useContext, useRef, memo, useMemo } from "react";
 import { XYCoord } from "react-dnd";
 
 import {
@@ -17,12 +17,12 @@ import {
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
-  useWidgetSelection,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
+import { omit, get } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -39,6 +39,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -55,6 +57,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
+
+  const isCommentMode = useSelector(commentModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -261,22 +265,30 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
+  const handles = useMemo(() => {
+    const allHandles = {
+      left: LeftHandleStyles,
+      top: TopHandleStyles,
+      bottom: BottomHandleStyles,
+      right: RightHandleStyles,
+      bottomRight: BottomRightHandleStyles,
+      topLeft: TopLeftHandleStyles,
+      topRight: TopRightHandleStyles,
+      bottomLeft: BottomLeftHandleStyles,
+    };
+
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
+
+  const isEnabled =
+    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
 
   return (
     <Resizable
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
-      handles={{
-        left: LeftHandleStyles,
-        top: TopHandleStyles,
-        bottom: BottomHandleStyles,
-        right: RightHandleStyles,
-        bottomRight: BottomRightHandleStyles,
-        topLeft: TopLeftHandleStyles,
-        topRight: TopRightHandleStyles,
-        bottomLeft: BottomLeftHandleStyles,
-      }}
+      enable={isEnabled}
+      handles={handles}
       isColliding={isColliding}
       onStart={handleResizeStart}
       onStop={updateSize}

@@ -48,7 +48,8 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
-public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String> implements OrganizationService {
+public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String>
+        implements OrganizationService {
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;

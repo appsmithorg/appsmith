@@ -31,6 +31,8 @@ import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
+import notificationsReducer from "./notificationsReducer";
+import canvasSelectionReducer from "./canvasSelectionReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -65,6 +67,8 @@ const uiReducer = combineReducers({
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
+  notifications: notificationsReducer,
+  canvasSelection: canvasSelectionReducer,
 });
 
 export default uiReducer;

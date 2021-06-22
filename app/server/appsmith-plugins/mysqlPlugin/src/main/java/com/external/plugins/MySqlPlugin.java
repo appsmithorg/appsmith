@@ -164,12 +164,8 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                 // In case the prepared statement configuration is missing, default to true
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -177,10 +173,10 @@ public class MySqlPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
@@ -646,6 +642,7 @@ public class MySqlPlugin extends BasePlugin {
             if (!tablesByName.containsKey(tableName)) {
                 tablesByName.put(tableName, new DatasourceStructure.Table(
                         DatasourceStructure.TableType.TABLE,
+                        null,
                         tableName,
                         new ArrayList<>(),
                         new ArrayList<>(),

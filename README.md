@@ -1,9 +1,7 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="https://user-images.githubusercontent.com/30255708/120593421-1b107c80-c45d-11eb-86c9-06bdd66a143a.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/images/git-banner.png" width="100%" alt="Appsmith - The Frontend Tool for Any Backend"></a>
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
-  •
-  <a href="https://www.appsmith.com/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Features</a>
   •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
   •
@@ -11,7 +9,7 @@
   •
   <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
   •
-  <a href="https://blog.appsmith.com/">Blog</a>
+  <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Events</a>
   •
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   •
@@ -38,24 +36,24 @@ The fastest way to start with Appsmith is the cloud-hosted version. When you're 
 ## Features
 
 <p>
-  <img src="static/images/animations/drag-drop.gif" width="32%">
-  <img src="static/images/animations/running-api.gif" width="32%">
-  <img src="static/images/animations/writing-js.gif" width="32%">
+  <img src="static/animations/widgets.gif" width="100%">
 </p>
-
-#### ↗️ Drag & Drop UI
 
 Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
 
 _Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
 
-#### ⏱ Quick Integrations
+<p>
+  <img src="static/animations/running-api.gif" width="100%">
+</p>
 
 Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, with support for OAuth 2.0 and CURL. Here's a list of all our [pre-built integrations](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases).
 
 _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server._ <br>
 
-#### 🤖 Code Logic with JavaScript
+<p>
+  <img src="static/animations/javascript.gif" width="100%">
+</p>
 
 We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
 
@@ -74,7 +72,8 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
-  <br><br>
+- 👾 Ask for help on our [Forum](https://community.appsmith.com)
+- Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
 
 ## Demos
 
@@ -114,7 +113,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 - 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
 - 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
-#### Currently Contributing (36)
+#### Top Contributors (36)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->

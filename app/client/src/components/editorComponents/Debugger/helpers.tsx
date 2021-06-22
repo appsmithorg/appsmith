@@ -1,7 +1,5 @@
-import { Message, Severity } from "entities/AppsmithConsole";
-import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { Severity } from "entities/AppsmithConsole";
+import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import {
@@ -10,6 +8,13 @@ import {
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "constants/messages";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
+  BUILDER_PAGE_URL,
+} from "constants/routes";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -54,46 +59,95 @@ export const SeverityIconColor: Record<Severity, string> = {
   [Severity.WARNING]: "rgb(224, 179, 14)",
 };
 
-export const useFilteredLogs = (query: string, filter?: any) => {
-  let logs = useSelector((state: AppState) => state.ui.debugger.logs);
+export function getDependenciesFromInverseDependencies(
+  deps: DependencyMap,
+  entityName: string | null,
+) {
+  if (!entityName) return null;
 
-  if (filter) {
-    logs = logs.filter((log: Message) => log.severity === filter);
-  }
+  const directDependencies = new Set<string>();
+  const inverseDependencies = new Set<string>();
 
-  if (query) {
-    logs = logs.filter((log: Message) => {
-      if (log.source?.name)
-        return (
-          log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
-        );
+  Object.entries(deps).forEach(([dependant, dependencies]) => {
+    (dependencies as any).map((dependency: any) => {
+      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
+        const entity = dependant
+          .split(".")
+          .slice(0, 1)
+          .join("");
+
+        directDependencies.add(entity);
+      } else if (
+        dependant.includes(entityName) &&
+        !dependency.includes(entityName)
+      ) {
+        const entity = dependency
+          .split(".")
+          .slice(0, 1)
+          .join("");
+
+        inverseDependencies.add(entity);
+      }
     });
-  }
+  });
 
-  return logs;
+  return {
+    inverseDependencies: Array.from(inverseDependencies),
+    directDependencies: Array.from(directDependencies),
+  };
+}
+
+// Recursively find out dependency chain from
+// the inverse dependency map
+export function getDependencyChain(
+  propertyPath: string,
+  inverseMap: DependencyMap,
+) {
+  let currentChain: string[] = [];
+  const dependents = inverseMap[propertyPath];
+
+  if (!dependents) return currentChain;
+
+  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+
+  dependents.map((e: any) => {
+    if (!e.includes(dependentInfo.entityName)) {
+      currentChain.push(e);
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
+  });
+  return currentChain;
+}
+
+export const onApiEditor = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      API_EDITOR_URL(applicationId, currentPageId),
+    ) > -1
+  );
 };
 
-export const usePagination = (data: Message[], itemsPerPage = 50) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState<Message[]>([]);
-  const maxPage = Math.ceil(data.length / itemsPerPage);
+export const onQueryEditor = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      QUERIES_EDITOR_URL(applicationId, currentPageId),
+    ) > -1
+  );
+};
 
-  useEffect(() => {
-    const data = currentData();
-    setPaginatedData(data);
-  }, [currentPage, data.length]);
-
-  const currentData = useCallback(() => {
-    const end = currentPage * itemsPerPage;
-    return data.slice(0, end);
-  }, [data]);
-
-  const next = useCallback(() => {
-    setCurrentPage((currentPage) => {
-      const newCurrentPage = Math.min(currentPage + 1, maxPage);
-      return newCurrentPage <= 0 ? 1 : newCurrentPage;
-    });
-  }, []);
-
-  return { next, paginatedData };
+export const onCanvas = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      BUILDER_PAGE_URL(applicationId, currentPageId),
+    ) > -1
+  );
 };

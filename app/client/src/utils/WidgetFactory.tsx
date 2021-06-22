@@ -136,7 +136,7 @@ class WidgetFactory {
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): Record<string, any> {
+  ): Record<string, string> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
@@ -172,9 +172,9 @@ class WidgetFactory {
 export type WidgetTypeConfigMap = Record<
   string,
   {
-    derivedProperties: WidgetDerivedPropertyType;
     defaultProperties: Record<string, string>;
     metaProperties: Record<string, any>;
+    derivedProperties: WidgetDerivedPropertyType;
   }
 >;
 

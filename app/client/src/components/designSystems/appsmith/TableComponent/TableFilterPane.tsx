@@ -18,7 +18,7 @@ import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { selectWidget } from "actions/widgetActions";
+import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 
 const DragBlock = styled.div`
@@ -123,14 +123,14 @@ const mapDispatchToProps = (dispatch: any) => {
           position,
         },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetAction(widgetId));
     },
     hideFilterPane: (widgetId: string) => {
       dispatch({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetAction(widgetId));
     },
   };
 };

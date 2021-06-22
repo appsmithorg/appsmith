@@ -318,7 +318,7 @@ export type Theme = {
   smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -361,6 +361,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -530,6 +531,7 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
   };
@@ -990,6 +992,9 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    inspectElement: {
+      color: string;
+    };
     floatingButton: {
       background: string;
       color: string;
@@ -1022,6 +1027,16 @@ type ColorType = {
   mentionsInput: Record<string, string>;
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
+  notifications: Record<string, string>;
+};
+
+const notifications = {
+  time: "#858282",
+  listHeaderTitle: "#090707",
+  markAllAsReadButtonBackground: "#f0f0f0",
+  markAllAsReadButtonText: "#716E6E",
+  unreadIndicator: "#F86A2B",
+  bellIndicator: "#E22C2C",
 };
 
 const displayImageUpload = {
@@ -1161,9 +1176,12 @@ const mentionsInput = {
   focusedItemBackground: "#cee4e5",
   itemBorderBottom: "#cee4e5",
   mentionBackground: "#cee4e5",
+  mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
@@ -1594,6 +1612,9 @@ export const dark: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#D4D4D4",
+    },
     blankState: {
       color: "#D4D4D4",
       shortcut: "#D4D4D4",
@@ -1613,6 +1634,8 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
@@ -2044,8 +2067,11 @@ export const light: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#090707",
+    },
     blankState: {
-      color: "#716e6e",
+      color: "#090707",
       shortcut: "black",
     },
     info: {
@@ -2309,7 +2335,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2363,6 +2389,7 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

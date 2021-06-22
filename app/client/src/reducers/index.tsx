@@ -46,6 +46,8 @@ import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
+import { NotificationReducerState } from "./uiReducers/notificationsReducer";
+import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -90,6 +92,8 @@ export interface AppState {
     websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
+    notifications: NotificationReducerState;
+    canvasSelection: CanvasSelectionState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
