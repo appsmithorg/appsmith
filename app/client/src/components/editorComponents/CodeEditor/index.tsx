@@ -382,8 +382,8 @@ class CodeEditor extends Component<Props, State> {
       }
     }
     this.editor.setCursor({
-      line: this.editor.lineCount(),
-      ch: cursor,
+      line: this.editor.lineCount() - 1,
+      ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
     });
     this.setState({ isFocused: true }, () => {
       if (preventAutoComplete) return;
