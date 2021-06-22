@@ -16,7 +16,11 @@ import { getDBDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { INTEGRATION_TABS, INTEGRATION_EDITOR_URL } from "constants/routes";
+import {
+  INTEGRATION_TABS,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_EDITOR_MODES,
+} from "constants/routes";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -251,7 +255,26 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    this.syncActivePrimaryMenu();
+    const {
+      applicationId,
+      dataSources,
+      history,
+      location,
+      pageId,
+    } = this.props;
+    const params: string = location.search;
+    const redirectMode = new URLSearchParams(params).get("mode");
+    if (
+      dataSources.length > 0 &&
+      redirectMode === INTEGRATION_EDITOR_MODES.AUTO
+    ) {
+      // User will be taken to active tab if there are datasources
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      );
+    } else {
+      this.syncActivePrimaryMenu();
+    }
   }
 
   componentDidUpdate() {

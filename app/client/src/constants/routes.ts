@@ -85,12 +85,19 @@ export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
   NEW: "NEW",
 };
+
+export const INTEGRATION_EDITOR_MODES = {
+  AUTO: "auto",
+};
 export const INTEGRATION_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   selectedTab = ":selectedTab",
+  mode = "",
 ): string =>
-  `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations/${selectedTab}`;
+  `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations/${selectedTab}${
+    mode ? "?mode=" + mode : ""
+  }`;
 
 export const INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
   applicationId = ":applicationId",

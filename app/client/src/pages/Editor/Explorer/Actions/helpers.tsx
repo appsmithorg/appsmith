@@ -8,6 +8,7 @@ import {
   INTEGRATION_EDITOR_URL,
   API_EDITOR_URL,
   QUERIES_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 
 import { Page } from "constants/ReduxActionConstants";
@@ -41,6 +42,7 @@ export type ActionGroupConfig = {
     applicationId: string,
     pageId: string,
     selectedTab: string,
+    mode?: string,
   ) => string;
   getIcon: (action: any, plugin: Plugin) => ReactNode;
   isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
@@ -88,14 +90,34 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
     isGroupActive: (params: ExplorerURLParams, pageId: string) =>
       [
-        INTEGRATION_EDITOR_URL(params.applicationId, pageId),
+        INTEGRATION_EDITOR_URL(
+          params.applicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
+        INTEGRATION_EDITOR_URL(
+          params.applicationId,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
         API_EDITOR_URL(params.applicationId, pageId),
         SAAS_BASE_URL(params.applicationId, pageId),
         QUERIES_EDITOR_URL(params.applicationId, pageId),
       ].includes(window.location.pathname),
     isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
       window.location.pathname.indexOf(
-        INTEGRATION_EDITOR_URL(params.applicationId, pageId),
+        INTEGRATION_EDITOR_URL(
+          params.applicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
+      ) > -1 ||
+      window.location.pathname.indexOf(
+        INTEGRATION_EDITOR_URL(
+          params.applicationId,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
       ) > -1 ||
       window.location.pathname.indexOf(
         API_EDITOR_URL(params.applicationId, pageId),
