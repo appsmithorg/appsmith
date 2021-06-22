@@ -90,7 +90,6 @@ const FIELD_VALUES: Record<
   },
   DROP_DOWN_WIDGET: {
     label: "string",
-    selectionType: "SINGLE_SELECT | MULTI_SELECT",
     options: "Array<{ label: string, value: string }>",
     defaultOptionValue: "string",
     isRequired: "boolean",

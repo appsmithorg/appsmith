@@ -489,14 +489,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       const validOptions = parsed.filter(isValidOption);
       const uniqValidOptions = _.uniqBy(validOptions, "value");
 
-      if (uniqValidOptions.length !== validOptions.length) {
-        return {
-          isValid: false,
-          parsed: uniqValidOptions,
-          message: `Duplicate values found`,
-        };
-      }
-
       if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
         return {
           isValid: false,
@@ -779,26 +771,26 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ) => {
+    const defaultValue = value && _.isString(value) ? value.trim() : value;
+    return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
+  },
+  [VALIDATION_TYPES.DEFAULT_OPTION_VALUES]: (
+    value: string | string[],
+    props: WidgetProps,
+  ) => {
     let values = value;
-    console.log("start in validations", props);
-
     if (props) {
-      if (props.selectionType === "SINGLE_SELECT") {
-        const defaultValue = value && _.isString(value) ? value.trim() : value;
-        return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
-      } else {
-        if (typeof value === "string") {
-          console.log("here in validation");
-          try {
-            values = JSON.parse(value);
-            if (!Array.isArray(values)) {
-              throw new Error();
-            }
-          } catch {
-            values = value.length ? value.split(",") : [];
-            if (values.length > 0) {
-              values = values.map((value) => value.trim());
-            }
+      if (typeof value === "string") {
+        console.log("here in validation");
+        try {
+          values = JSON.parse(value);
+          if (!Array.isArray(values)) {
+            throw new Error();
+          }
+        } catch {
+          values = value.length ? value.split(",") : [];
+          if (values.length > 0) {
+            values = values.map((value) => value.trim());
           }
         }
       }

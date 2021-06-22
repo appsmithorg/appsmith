@@ -2,13 +2,14 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import _ from "lodash";
+import { isArray } from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import MultiSelectComponent from "components/designSystems/appsmith/MultiSelectComponent.tsx";
+import MultiSelectComponent from "components/designSystems/appsmith/MultiSelectComponent";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { Layers } from "constants/Layers";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -41,7 +42,7 @@ class MultiSelectWidget extends BaseWidget<
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
+            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUES,
           },
           {
             helpText: "Input Place Holder",
@@ -124,14 +125,20 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getPageView() {
-    const options = _.isArray(this.props.options) ? this.props.options : [];
-    const values: string[] = _.isArray(this.props.selectedOptionValues)
+    const options = isArray(this.props.options) ? this.props.options : [];
+    const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
 
     return (
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}
+        dropdownStyle={{
+          zIndex: Layers.portals,
+        }}
+        getPopupContainer={() =>
+          document.getElementsByClassName("appsmith_widget_0")[0] as HTMLElement
+        }
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         options={options}

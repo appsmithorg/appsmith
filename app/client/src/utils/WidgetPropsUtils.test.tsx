@@ -260,7 +260,6 @@ describe("Initial value migration test", () => {
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: RenderModes.CANVAS,
           leftColumn: 1,
