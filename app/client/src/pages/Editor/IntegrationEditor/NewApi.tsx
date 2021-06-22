@@ -170,7 +170,7 @@ const newApiScreen = (props: Props) => {
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
-        <ApiCard className="t--createBlankApiCard">
+        <ApiCard className="t--createBlankCurlCard">
           <CardContentWrapper>
             <div className="content-icon-wrapper">
               <img
@@ -198,7 +198,10 @@ const newApiScreen = (props: Props) => {
         {plugins
           .filter((p) => p.type === PluginType.SAAS)
           .map((p) => (
-            <ApiCard className="t--createBlankApiCard" key={p.id}>
+            <ApiCard
+              className={`t--createBlankApi-${p.packageName}`}
+              key={p.id}
+            >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">
                   <img
