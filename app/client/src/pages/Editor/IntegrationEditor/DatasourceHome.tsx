@@ -10,7 +10,6 @@ import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import Button, { Size, Category } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 
 const DatasourceHomePage = styled.div`
@@ -50,6 +49,7 @@ const DatasourceCard = styled.div`
   height: 70px;
   &:hover {
     background: ${Colors.Gallery};
+    cursor: pointer;
   }
 
   .dataSourceImageWrapper {
@@ -128,14 +128,20 @@ class DatasourceHomeScreen extends React.Component<Props> {
   };
 
   render() {
-    const { isSaving, pluginImages, plugins } = this.props;
+    const { pluginImages, plugins } = this.props;
 
     return (
       <DatasourceHomePage>
         <DatasourceCardsContainer>
           {plugins.map((plugin) => {
             return (
-              <DatasourceCard className="eachDatasourceCard" key={plugin.id}>
+              <DatasourceCard
+                className="eachDatasourceCard"
+                key={plugin.id}
+                onClick={() =>
+                  this.goToCreateDatasource(plugin.id, plugin.name)
+                }
+              >
                 <DatasourceContentWrapper>
                   <div className="dataSourceImageWrapper">
                     <img
@@ -146,16 +152,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
                   </div>
                   <p className="t--plugin-name textBtn">{plugin.name}</p>
                 </DatasourceContentWrapper>
-                <Button
-                  category={Category.tertiary}
-                  className="t--connect-to-btn cta"
-                  isLoading={isSaving}
-                  onClick={() =>
-                    this.goToCreateDatasource(plugin.id, plugin.name)
-                  }
-                  size={Size.medium}
-                  text="Add"
-                />
               </DatasourceCard>
             );
           })}
