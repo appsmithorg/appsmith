@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
-import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -170,10 +170,10 @@ class ListView extends React.Component<Props> {
           buttonText="Go back to Integrations"
           onBackButton={() =>
             history.push(
-              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+              INTEGRATION_EDITOR_URL(
                 applicationId,
                 pageId,
-                pageId,
+                INTEGRATION_TABS.ACTIVE,
               ),
             )
           }

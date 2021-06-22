@@ -18,6 +18,7 @@ import { getDBDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { INTEGRATION_TABS, INTEGRATION_EDITOR_URL } from "constants/routes";
 
 const SearchContainer = styled.div`
   display: flex;
@@ -112,6 +113,7 @@ type IntegrationsHomeScreenProps = {
   searchApiOrProvider: (searchKey: string) => void;
   pageId: string;
   applicationId: string;
+  selectedTab: string;
   location: {
     search: string;
   };
@@ -268,20 +270,52 @@ class IntegrationsHomeScreen extends React.Component<
     };
   }
 
-  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
-      return;
-    } else if (activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE) {
+  syncActivePrimaryMenu = () => {
+    // on mount/update if syncing the primary active menu.
+    const { selectedTab } = this.props;
+    if (
+      (selectedTab === INTEGRATION_TABS.NEW &&
+        this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.CREATE_NEW) ||
+      (selectedTab === INTEGRATION_TABS.ACTIVE &&
+        this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE)
+    ) {
       this.setState({
-        activePrimaryMenuId,
-        activeSecondaryMenuId: TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS,
-      });
-    } else {
-      this.setState({
-        activePrimaryMenuId,
-        activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
+        activePrimaryMenuId:
+          selectedTab === INTEGRATION_TABS.NEW
+            ? PRIMARY_MENU_IDS.CREATE_NEW
+            : PRIMARY_MENU_IDS.ACTIVE,
       });
     }
+  };
+
+  componentDidMount() {
+    this.syncActivePrimaryMenu();
+  }
+
+  componentDidUpdate() {
+    this.syncActivePrimaryMenu();
+  }
+
+  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
+    const { applicationId, history, pageId } = this.props;
+    if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
+      return;
+    }
+    history.push(
+      INTEGRATION_EDITOR_URL(
+        applicationId,
+        pageId,
+        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+          ? INTEGRATION_TABS.ACTIVE
+          : INTEGRATION_TABS.NEW,
+      ),
+    );
+    this.setState({
+      activeSecondaryMenuId:
+        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
+          : SECONDARY_MENU_IDS.API,
+    });
   };
 
   onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
@@ -308,6 +342,7 @@ class IntegrationsHomeScreen extends React.Component<
       location,
       pageId,
     } = this.props;
+
     const { showSearchResults } = this.state;
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;

@@ -144,7 +144,6 @@ const newApiScreen = (props: Props) => {
   } = props;
 
   const handleCreateNew = () => {
-    const pageId = new URLSearchParams(location.search).get("importTo");
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }

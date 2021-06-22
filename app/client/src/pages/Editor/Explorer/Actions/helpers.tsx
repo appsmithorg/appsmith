@@ -5,7 +5,6 @@ import { generateReactKey } from "utils/generators";
 import {
   API_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   INTEGRATION_EDITOR_URL,
   API_EDITOR_URL,
   QUERIES_EDITOR_URL,
@@ -41,7 +40,7 @@ export type ActionGroupConfig = {
   generateCreatePageURL: (
     applicationId: string,
     pageId: string,
-    selectedPageId: string,
+    selectedTab: string,
   ) => string;
   getIcon: (action: any, plugin: Plugin) => ReactNode;
   isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
@@ -86,7 +85,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       if (!method) return apiIcon;
       return <MethodTag type={method} />;
     },
-    generateCreatePageURL: INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+    generateCreatePageURL: INTEGRATION_EDITOR_URL,
     isGroupActive: (params: ExplorerURLParams, pageId: string) =>
       [
         INTEGRATION_EDITOR_URL(params.applicationId, pageId),

@@ -59,7 +59,8 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
@@ -374,11 +375,7 @@ export function* deleteActionSaga(
       const pageId = yield select(getCurrentPageId);
 
       history.push(
-        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-          applicationId,
-          pageId,
-          pageId,
-        ),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
 
       AppsmithConsole.info({

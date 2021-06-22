@@ -81,10 +81,16 @@ export const QUERIES_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
 
+export const INTEGRATION_TABS = {
+  ACTIVE: "ACTIVE",
+  NEW: "NEW",
+};
 export const INTEGRATION_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations`;
+  selectedTab = ":selectedTab",
+): string =>
+  `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations/${selectedTab}`;
 
 export const INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
   applicationId = ":applicationId",

@@ -39,7 +39,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
-import { INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { keyBy } from "lodash";
 import {
@@ -1269,11 +1269,7 @@ function useIntegrationsOptionTree() {
       className: "t--create-integration-btn",
       onSelect: () => {
         history.push(
-          INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-            applicationId,
-            pageId,
-            pageId,
-          ),
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
         );
       },
     },
