@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
-import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
@@ -130,6 +130,7 @@ type ApiHomeScreenProps = {
   };
   pageId: string;
   plugins: Plugin[];
+  createDatasourceFromForm: (data: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
@@ -211,12 +212,11 @@ const newApiScreen = (props: Props) => {
               <Button
                 category={Category.tertiary}
                 className="t--connect-to-btn cta"
-                href={
-                  SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
-                  location.search
+                onClick={() =>
+                  props.createDatasourceFromForm({ pluginId: p.id })
                 }
                 size={Size.medium}
-                tag="a"
+                tag="button"
                 text="Connect"
               />
             </ApiCard>
@@ -232,6 +232,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = {
   createNewApiAction,
+  createDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(newApiScreen);
