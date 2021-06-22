@@ -43,6 +43,11 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -167,7 +172,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         <BackButton
           onClick={() =>
             history.push(
-              SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
+              INTEGRATION_EDITOR_URL(
+                applicationId,
+                pageId,
+                INTEGRATION_TABS.NEW,
+                INTEGRATION_EDITOR_MODES.AUTO,
+              ),
             )
           }
         />

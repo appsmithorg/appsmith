@@ -10,7 +10,8 @@ import {
 } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   BUILDER_PAGE_URL,
 } from "constants/routes";
 
@@ -101,10 +102,10 @@ export const onIntegrationsEditor = (
 ) => {
   return (
     window.location.pathname.indexOf(
-      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.NEW,
       ),
     ) > -1
   );

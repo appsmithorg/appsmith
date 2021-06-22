@@ -16,6 +16,7 @@ const CollapseWrapper = styled.div`
     line-height: 16px;
     display: flex;
     gap: 4px;
+    cursor: pointer;
     /* justify-content: space-between; */
     .icon {
       transition: transform 0.3s;
@@ -47,13 +48,12 @@ function CollapseComponent(props: {
   }
   return (
     <CollapseWrapper>
-      <div className="collapse-title">
+      <div className="collapse-title" onClick={handleIsOpen}>
         {props.title}
         <Icon
           className={`icon ${!open ? "collapse" : ""}`}
           icon="chevron-down"
           iconSize={16}
-          onClick={handleIsOpen}
         />
       </div>
       <Collapse isOpen={open} keepChildrenMounted>

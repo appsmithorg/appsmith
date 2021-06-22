@@ -62,7 +62,8 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
@@ -336,7 +337,11 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 export function* deleteActionSaga(
-  actionPayload: ReduxAction<{ id: string; name: string }>,
+  actionPayload: ReduxAction<{
+    id: string;
+    name: string;
+    onSuccess?: () => void;
+  }>,
 ) {
   try {
     const id = actionPayload.payload.id;
@@ -377,16 +382,17 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
 
-      history.push(
-        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-          applicationId,
-          pageId,
-          pageId,
-        ),
-      );
+      if (!!actionPayload.payload.onSuccess) {
+        actionPayload.payload.onSuccess();
+      } else {
+        const applicationId = yield select(getCurrentApplicationId);
+        const pageId = yield select(getCurrentPageId);
+
+        history.push(
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        );
+      }
 
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,

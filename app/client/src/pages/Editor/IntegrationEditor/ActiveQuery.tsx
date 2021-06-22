@@ -16,7 +16,7 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(100vh - 160px);
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -47,9 +47,7 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   handleCreateNewQuery = (dataSource: Datasource) => {
-    const { actions, location } = this.props;
-    const params: string = location.search;
-    const pageId = new URLSearchParams(params).get("importTo");
+    const { actions, pageId } = this.props;
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 

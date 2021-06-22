@@ -26,9 +26,9 @@ const Wrapper = styled.div`
 
   &:hover {
     border: 1px solid ${Colors.SILVER_CHALICE};
-    .action-wrapper {
+    /* .action-wrapper {
       display: flex;
-    }
+    } */
   }
 `;
 
@@ -85,7 +85,7 @@ const Queries = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
-  display: none;
+  display: flex;
   gap: 10px;
 `;
 

@@ -4,9 +4,7 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
-import { searchApiOrProvider } from "actions/providerActions";
 import { Colors } from "constants/Colors";
-import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
@@ -14,27 +12,15 @@ import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveQueryScreen from "./ActiveQuery";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDBDatasources } from "selectors/entitiesSelector";
+import { getDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
-
-const SearchContainer = styled.div`
-  display: flex;
-  width: 100%;
-  .closeBtn {
-    position: absolute;
-    left: 70%;
-  }
-`;
-
-const SearchBar = styled(BaseTextInput)`
-  margin-bottom: 10px;
-  input {
-    background-color: ${Colors.WHITE};
-    border: 1px solid ${Colors.GEYSER};
-  }
-`;
+import {
+  INTEGRATION_TABS,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_EDITOR_MODES,
+} from "constants/routes";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -48,28 +34,12 @@ const ApiHomePage = styled.div`
   font-size: 20px;
   padding: 20px;
   /* margin-left: 10px; */
-  min-height: 95vh;
-  max-height: 95vh;
+  min-height: 100%;
+  max-height: 100%;
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
     left: 70%;
-  }
-  .searchResultsContainer {
-    background-color: ${Colors.WHITE};
-    z-index: 9999;
-    width: 70%;
-    padding: 20px;
-    border: 1px solid ${Colors.ALTO};
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    border-radius: 4px;
-    max-height: 80vh;
-    overflow: auto;
-  }
-  .searchCloseBtn {
-    float: right;
-    cursor: pointer;
   }
   .bp3-collapse-body {
     position: absolute;
@@ -100,8 +70,8 @@ const SectionGrid = styled.div`
 const NewIntegrationsContainer = styled.div`
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 200px);
-  padding-bottom: 300px;
+  max-height: calc(100vh - 160px);
+  /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
     margin-bottom: 16px;
@@ -109,9 +79,9 @@ const NewIntegrationsContainer = styled.div`
 `;
 
 type IntegrationsHomeScreenProps = {
-  searchApiOrProvider: (searchKey: string) => void;
   pageId: string;
   applicationId: string;
+  selectedTab: string;
   location: {
     search: string;
   };
@@ -125,7 +95,6 @@ type IntegrationsHomeScreenProps = {
 
 type IntegrationsHomeScreenState = {
   page: number;
-  showSearchResults: boolean;
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
 };
@@ -164,21 +133,6 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-];
-
-const SECONDARY_MENU_IDS = {
-  // MOST_USED: 0,
-  API: 0,
-  DATABASE: 1,
-  // SAAS: 3,
-};
-
-const TERTIARY_MENU: TabProp[] = [
-  {
-    key: "ACTIVE_CONNECTIONS",
-    title: "Active Connections",
-    panelComponent: <div />,
-  },
   {
     key: "MOCK_DATABASE",
     title: "Mock Databases",
@@ -186,12 +140,37 @@ const TERTIARY_MENU: TabProp[] = [
   },
 ];
 
+const SECONDARY_MENU_IDS = {
+  API: 0,
+  DATABASE: 1,
+  MOCK_DATABASE: 2,
+};
+
+// const TERTIARY_MENU: TabProp[] = [
+//   {
+//     key: "ACTIVE_CONNECTIONS",
+//     title: "Active Connections",
+//     panelComponent: <div />,
+//   },
+//   {
+//     key: "MOCK_DATABASE",
+//     title: "Mock Databases",
+//     panelComponent: <div />,
+//   },
+// ];
+
 const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
   MOCK_DATABASE: 1,
 };
 
-function CreateNewAPI({ active, applicationId, history, pageId }: any) {
+function CreateNewAPI({
+  active,
+  applicationId,
+  history,
+  isCreating,
+  pageId,
+}: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
   useEffect(() => {
@@ -213,6 +192,7 @@ function CreateNewAPI({ active, applicationId, history, pageId }: any) {
       <NewApiScreen
         applicationId={applicationId}
         history={history}
+        isCreating={isCreating}
         location={location}
         pageId={pageId}
       />
@@ -262,41 +242,86 @@ class IntegrationsHomeScreen extends React.Component<
 
     this.state = {
       page: 1,
-      showSearchResults: false,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
     };
   }
 
-  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
-      return;
-    } else if (activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE) {
+  syncActivePrimaryMenu = () => {
+    // on mount/update if syncing the primary active menu.
+    const { selectedTab } = this.props;
+    if (
+      (selectedTab === INTEGRATION_TABS.NEW &&
+        this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.CREATE_NEW) ||
+      (selectedTab === INTEGRATION_TABS.ACTIVE &&
+        this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE)
+    ) {
       this.setState({
-        activePrimaryMenuId,
-        activeSecondaryMenuId: TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS,
-      });
-    } else {
-      this.setState({
-        activePrimaryMenuId,
-        activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
+        activePrimaryMenuId:
+          selectedTab === INTEGRATION_TABS.NEW
+            ? PRIMARY_MENU_IDS.CREATE_NEW
+            : PRIMARY_MENU_IDS.ACTIVE,
       });
     }
+  };
+
+  componentDidMount() {
+    const {
+      applicationId,
+      dataSources,
+      history,
+      location,
+      pageId,
+    } = this.props;
+    const params: string = location.search;
+    const redirectMode = new URLSearchParams(params).get("mode");
+    if (
+      dataSources.length > 0 &&
+      redirectMode === INTEGRATION_EDITOR_MODES.AUTO
+    ) {
+      // User will be taken to active tab if there are datasources
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      );
+    } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
+      // If there are no datasources -> new user
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      this.onSelectSecondaryMenu(SECONDARY_MENU_IDS.MOCK_DATABASE);
+    } else {
+      this.syncActivePrimaryMenu();
+    }
+  }
+
+  componentDidUpdate() {
+    this.syncActivePrimaryMenu();
+  }
+
+  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
+    const { applicationId, history, pageId } = this.props;
+    if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
+      return;
+    }
+    history.push(
+      INTEGRATION_EDITOR_URL(
+        applicationId,
+        pageId,
+        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+          ? INTEGRATION_TABS.ACTIVE
+          : INTEGRATION_TABS.NEW,
+      ),
+    );
+    this.setState({
+      activeSecondaryMenuId:
+        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
+          : SECONDARY_MENU_IDS.API,
+    });
   };
 
   onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
     this.setState({ activeSecondaryMenuId });
-  };
-
-  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-    const { searchApiOrProvider } = this.props;
-    const value = e.target.value;
-    if (value) {
-      searchApiOrProvider(value);
-      this.setState({ showSearchResults: true });
-    } else {
-      this.setState({ showSearchResults: false });
-    }
   };
 
   render() {
@@ -308,13 +333,13 @@ class IntegrationsHomeScreen extends React.Component<
       location,
       pageId,
     } = this.props;
-    const { showSearchResults } = this.state;
+
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
-          <AddDatasourceSecurely />
+          {dataSources.length === 0 && <AddDatasourceSecurely />}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -348,7 +373,7 @@ class IntegrationsHomeScreen extends React.Component<
     return (
       <ApiHomePage
         className="t--integrationsHomePage"
-        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+        style={{ overflow: "auto" }}
       >
         <HeaderFlex>
           <CloseEditor />
@@ -362,36 +387,19 @@ class IntegrationsHomeScreen extends React.Component<
               tabs={PRIMARY_MENU}
             />
           </MainTabsContainer>
-          {/* TODO: make this search bar work */}
-          <SearchContainer>
-            <SearchBar
-              icon="search"
-              input={{
-                onChange: this.handleSearchChange,
-                onFocus: (e) => {
-                  if (e.target.value) {
-                    this.setState({ showSearchResults: true });
-                  } else {
-                    this.setState({ showSearchResults: false });
-                  }
-                },
-              }}
-              placeholder="Search"
-            />
-          </SearchContainer>
+          <div />
 
           {currentScreen}
-
-          <TabComponent
-            onSelect={this.onSelectSecondaryMenu}
-            selectedIndex={this.state.activeSecondaryMenuId}
-            tabs={
-              activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-                ? TERTIARY_MENU
-                : SECONDARY_MENU
-            }
-            vertical
-          />
+          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW ? (
+            <TabComponent
+              onSelect={this.onSelectSecondaryMenu}
+              selectedIndex={this.state.activeSecondaryMenuId}
+              tabs={SECONDARY_MENU}
+              vertical
+            />
+          ) : (
+            <div />
+          )}
         </SectionGrid>
       </ApiHomePage>
     );
@@ -400,20 +408,12 @@ class IntegrationsHomeScreen extends React.Component<
 
 const mapStateToProps = (state: AppState) => {
   return {
-    dataSources: getDBDatasources(state),
+    dataSources: getDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  searchApiOrProvider: (searchKey: string) =>
-    dispatch(searchApiOrProvider({ searchKey })),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(
+export default connect(mapStateToProps)(
   reduxForm<{ category: string }, IntegrationsHomeScreenProps>({
     form: API_HOME_SCREEN_FORM,
   })(IntegrationsHomeScreen),

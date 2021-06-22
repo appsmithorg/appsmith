@@ -42,7 +42,9 @@ import { Datasource } from "entities/Datasource";
 import {
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
@@ -122,10 +124,11 @@ export function* deleteDatasourceSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
       ) {
         history.push(
-          INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+          INTEGRATION_EDITOR_URL(
             applicationId,
             pageId,
-            pageId,
+            INTEGRATION_TABS.NEW,
+            INTEGRATION_EDITOR_MODES.AUTO,
           ),
         );
       }
@@ -596,7 +599,7 @@ function* storeAsDatasourceSaga() {
   );
   _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
   history.push(
-    INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
+    INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
   );
 
   yield put(createDatasourceFromForm(datasource));

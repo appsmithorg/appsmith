@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
-import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
@@ -13,6 +13,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import Button, { Category, Size } from "components/ads/Button";
+import { Spinner } from "@blueprintjs/core";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -130,6 +131,8 @@ type ApiHomeScreenProps = {
   };
   pageId: string;
   plugins: Plugin[];
+  createDatasourceFromForm: (data: any) => void;
+  isCreating: boolean;
 };
 
 type Props = ApiHomeScreenProps;
@@ -138,13 +141,14 @@ const newApiScreen = (props: Props) => {
   const {
     applicationId,
     createNewApiAction,
+    history,
+    isCreating,
     location,
     pageId,
     plugins,
   } = props;
 
   const handleCreateNew = () => {
-    const pageId = new URLSearchParams(location.search).get("importTo");
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
@@ -165,6 +169,7 @@ const newApiScreen = (props: Props) => {
             </div>
             <p className="textBtn">Create new</p>
           </CardContentWrapper>
+          {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
         <ApiCard className="t--createBlankApiCard">
           <CardContentWrapper>
@@ -180,14 +185,14 @@ const newApiScreen = (props: Props) => {
           <Button
             category={Category.tertiary}
             className="t--connect-to-btn cta"
-            href={curlImportURL}
             onClick={() => {
               AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
                 importSource: CURL,
               });
+              history.push(curlImportURL);
             }}
             size={Size.medium}
-            tag="a"
+            tag="button"
             text="Create"
           />
         </ApiCard>
@@ -212,12 +217,11 @@ const newApiScreen = (props: Props) => {
               <Button
                 category={Category.tertiary}
                 className="t--connect-to-btn cta"
-                href={
-                  SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
-                  location.search
+                onClick={() =>
+                  props.createDatasourceFromForm({ pluginId: p.id })
                 }
                 size={Size.medium}
-                tag="a"
+                tag="button"
                 text="Connect"
               />
             </ApiCard>
@@ -233,6 +237,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = {
   createNewApiAction,
+  createDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(newApiScreen);
