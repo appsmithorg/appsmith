@@ -50,8 +50,8 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteAction({ id: actionId, name: actionName })),
+    (actionId: string, actionName: string, onSuccess?: () => void) =>
+      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess })),
     [dispatch],
   );
 
@@ -110,7 +110,10 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
         {
           value: "delete",
-          onSelect: () => deleteActionFromPage(props.id, props.name),
+          onSelect: () =>
+            deleteActionFromPage(props.id, props.name, () => {
+              console.log("Entity Removed");
+            }),
           label: "Delete",
           intent: "danger",
         },
