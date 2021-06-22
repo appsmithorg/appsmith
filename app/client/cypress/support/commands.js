@@ -508,6 +508,9 @@ Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
     .should("be.visible")
     .click({ force: true });
+  cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
   cy.get("#loading").should("not.exist");
 });
 
@@ -1772,7 +1775,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a DB Query")
+    .selectOnClickOption("Execute an Integration")
     .selectOnClickOption(QueryName);
 });
 
@@ -1780,7 +1783,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Call An API")
+    .selectOnClickOption("Execute an Integration")
     .selectOnClickOption(ApiName);
 });
 
@@ -1853,14 +1856,14 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  cy.get(datasourceEditor.editDatasource).click();
+  // cy.get(datasourceEditor.editDatasource).click();
 
-  cy.get(".t--delete-datasource").click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  // cy.get(".t--delete-datasource").click();
+  // cy.wait("@deleteDatasource").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -1876,7 +1879,9 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(explorer.addDBQueryEntity)
     .last()
     .click({ force: true });
-  cy.get(queryEditor.addDatasource).click();
+  cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {

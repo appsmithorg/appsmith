@@ -12,7 +12,6 @@ import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
-import Button, { Category, Size } from "components/ads/Button";
 import { Spinner } from "@blueprintjs/core";
 
 const StyledContainer = styled.div`
@@ -81,6 +80,7 @@ const ApiCard = styled.div`
   padding-left: 8px;
   &:hover {
     background: ${Colors.Gallery};
+    cursor: pointer;
   }
 
   .content-icon-wrapper {
@@ -170,7 +170,15 @@ const newApiScreen = (props: Props) => {
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
-        <ApiCard className="t--createBlankApiCard">
+        <ApiCard
+          className="t--createBlankCurlCard"
+          onClick={() => {
+            AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+              importSource: CURL,
+            });
+            history.push(curlImportURL);
+          }}
+        >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
               <img
@@ -181,24 +189,15 @@ const newApiScreen = (props: Props) => {
             </div>
             <p className="textBtn">CURL</p>
           </CardContentWrapper>
-          <Button
-            category={Category.tertiary}
-            className="t--connect-to-btn cta"
-            onClick={() => {
-              AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-                importSource: CURL,
-              });
-              history.push(curlImportURL);
-            }}
-            size={Size.medium}
-            tag="button"
-            text="Add"
-          />
         </ApiCard>
         {plugins
           .filter((p) => p.type === PluginType.SAAS)
           .map((p) => (
-            <ApiCard className="t--createBlankApiCard" key={p.id}>
+            <ApiCard
+              className={`t--createBlankApi-${p.packageName}`}
+              key={p.id}
+              onClick={() => props.createDatasourceFromForm({ pluginId: p.id })}
+            >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">
                   <img
@@ -213,16 +212,6 @@ const newApiScreen = (props: Props) => {
                 </div>
                 <p className="textBtn">{p.name}</p>
               </CardContentWrapper>
-              <Button
-                category={Category.tertiary}
-                className="t--connect-to-btn cta"
-                onClick={() =>
-                  props.createDatasourceFromForm({ pluginId: p.id })
-                }
-                size={Size.medium}
-                tag="button"
-                text="Add"
-              />
             </ApiCard>
           ))}
       </ApiCardsContainer>

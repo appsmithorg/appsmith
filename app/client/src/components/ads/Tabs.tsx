@@ -161,7 +161,7 @@ export function TabComponent(props: TabbedViewComponentType) {
       >
         <TabList>
           {props.tabs.map((tab) => (
-            <Tab key={tab.key}>
+            <Tab data-cy={`t--tab-${tab.key}`} key={tab.key}>
               <TabTitleWrapper>
                 {tab.icon ? (
                   <Icon
