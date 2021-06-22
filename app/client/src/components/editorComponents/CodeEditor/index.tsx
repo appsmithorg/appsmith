@@ -334,8 +334,9 @@ class CodeEditor extends Component<Props, State> {
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
     );
-    this.hinters.forEach((hinter) =>
-      hinter.showHint(cm, expected, entityName, {
+    let hinterOpen = false;
+    for (let i = 0; i < this.hinters.length; i++) {
+      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         updatePropertyValue: this.updatePropertyValue.bind(this),
@@ -344,13 +345,14 @@ class CodeEditor extends Component<Props, State> {
           this.props.executeCommand({
             ...payload,
             callback: (binding: string) => {
-              const value = this.editor.getValue();
-              this.updatePropertyValue(value + binding);
+              const value = this.editor.getValue() + binding;
+              this.updatePropertyValue(value, value.length);
             },
           });
         },
-      }),
-    );
+      });
+      if (hinterOpen) break;
+    }
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {

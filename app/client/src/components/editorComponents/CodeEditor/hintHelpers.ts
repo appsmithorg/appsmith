@@ -34,16 +34,17 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
       editor: CodeMirror.Editor,
       expected: string,
       entityName: string,
-    ) => {
+    ): boolean => {
       const shouldShow = checkIfCursorInsideBinding(editor);
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
         ternServer.complete(editor, expected, entityName);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
-        editor.closeHint();
+        return true;
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      editor.closeHint();
+      return false;
     },
   };
 };

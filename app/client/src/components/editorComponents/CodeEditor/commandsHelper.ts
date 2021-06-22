@@ -31,7 +31,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
           preventAutoComplete?: boolean,
         ) => void;
       },
-    ) => {
+    ): boolean => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
         return currentEntityType === "WIDGET"
@@ -41,7 +41,8 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      if (!cursorBetweenBinding && slashIndex > -1) {
+      const shouldShowBinding = !value || slashIndex > -1;
+      if (!cursorBetweenBinding && shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(
           entitiesForSuggestions,
@@ -76,18 +77,15 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+              const updatedValue = value.slice(
+                0,
+                value.length - searchText.length - 1,
+              );
               if (selected.action && typeof selected.action === "function") {
-                updatePropertyValue(
-                  value.slice(0, value.length - searchText.length - 1),
-                  undefined,
-                  true,
-                );
+                updatePropertyValue(updatedValue, updatedValue.length, true);
                 selected.action();
               } else {
-                updatePropertyValue(
-                  value.slice(0, value.length - searchText.length - 1) +
-                    selected.text,
-                );
+                updatePropertyValue(updatedValue + selected.text);
               }
             });
             CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
@@ -111,7 +109,12 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
           },
           completeSingle: false,
         });
+        return true;
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      editor.closeHint();
+      return false;
     },
   };
 };
