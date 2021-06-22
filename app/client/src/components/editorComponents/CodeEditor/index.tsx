@@ -363,7 +363,11 @@ class CodeEditor extends Component<Props, State> {
     this.props.marking.forEach((helper) => this.editor && helper(this.editor));
   };
 
-  updatePropertyValue(value: string, cursor?: number) {
+  updatePropertyValue(
+    value: string,
+    cursor?: number,
+    preventAutoComplete = false,
+  ) {
     if (value) {
       this.editor.setValue(value);
     }
@@ -380,6 +384,7 @@ class CodeEditor extends Component<Props, State> {
       ch: cursor,
     });
     this.setState({ isFocused: true }, () => {
+      if (preventAutoComplete) return;
       this.handleAutocompleteVisibility(this.editor);
     });
   }

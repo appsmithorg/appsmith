@@ -25,7 +25,11 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        updatePropertyValue: (value: string) => void;
+        updatePropertyValue: (
+          value: string,
+          cursor?: number,
+          preventAutoComplete?: boolean,
+        ) => void;
       },
     ) => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
@@ -75,6 +79,8 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               if (selected.action && typeof selected.action === "function") {
                 updatePropertyValue(
                   value.slice(0, value.length - searchText.length - 1),
+                  undefined,
+                  true,
                 );
                 selected.action();
               } else {
