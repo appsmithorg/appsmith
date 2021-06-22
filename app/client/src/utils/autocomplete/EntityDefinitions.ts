@@ -243,6 +243,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
+    items: generateTypeDef(widget.items),
+    listData: generateTypeDef(widget.listData),
   }),
   MENU_WIDGET: {
     "!doc": "Menus are used to represent a set of actions in a group.",

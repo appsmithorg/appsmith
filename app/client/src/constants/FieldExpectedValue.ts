@@ -165,7 +165,7 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   LIST_WIDGET: {
-    items: "Array<Object>",
+    listData: "Array<Object>",
     isVisible: "boolean",
     gridGap: "number",
   },
