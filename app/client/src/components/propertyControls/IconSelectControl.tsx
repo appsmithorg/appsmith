@@ -20,7 +20,7 @@ ICON_NAMES.push(NONE);
 
 const TypedSelect = Select.ofType<IconType>();
 
-export class IconSelectControl extends BaseControl<IconSelectControlProps> {
+class IconSelectControl extends BaseControl<IconSelectControlProps> {
   constructor(props: IconSelectControlProps) {
     super(props);
   }
@@ -127,3 +127,5 @@ export class IconSelectControl extends BaseControl<IconSelectControlProps> {
     return "ICON_SELECT";
   }
 }
+
+export default IconSelectControl;

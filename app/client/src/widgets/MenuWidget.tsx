@@ -165,6 +165,53 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
                     },
                   ],
                 },
+                {
+                  sectionName: "Icon Options",
+                  children: [
+                    {
+                      propertyName: "iconName",
+                      label: "Icon",
+                      helpText:
+                        "Name of a Blueprint UI icon (or an icon element) to render before or after the text",
+                      controlType: "ICON_SELECT",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: VALIDATION_TYPES.TEXT,
+                    },
+                    {
+                      propertyName: "iconColor",
+                      helpText: "Sets the icon color of a menu item",
+                      label: "Icon color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "iconAlign",
+                      label: "Icon alignment",
+                      helpText: "Sets the icon alignment of a menu item",
+                      controlType: "ICON_ALIGN",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: VALIDATION_TYPES.TEXT,
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Actions",
+                  children: [
+                    {
+                      helpText:
+                        "Triggers an action when the menu item is clicked",
+                      propertyName: "onClick",
+                      label: "onClick",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: true,
+                    },
+                  ],
+                },
               ],
             },
           },
@@ -174,11 +221,28 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
         sectionName: "Icon Options",
         children: [
           {
-            propertyName: "icon",
+            propertyName: "iconName",
             label: "Icon",
             helpText:
               "Name of a Blueprint UI icon (or an icon element) to render before or after the text",
             controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of a menu item",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Icon alignment",
+            helpText: "Sets the icon alignment of a menu item",
+            controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,

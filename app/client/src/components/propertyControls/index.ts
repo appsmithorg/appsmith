@@ -44,7 +44,8 @@ import MultiSwitchControl, {
 } from "components/propertyControls/MultiSwitchControl";
 import CustomFusionChartControl from "./CustomFusionChartControl";
 import MenuItemsControl from "./MenuItemsControl";
-import { IconSelectControl } from "./IconSelectControl";
+import IconSelectControl from "./IconSelectControl";
+import IconAlignControl from "./IconAlignControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -69,6 +70,7 @@ export const PropertyControls = {
   ComputeTablePropertyControl,
   MenuItemsControl,
   IconSelectControl,
+  IconAlignControl,
 };
 
 export type PropertyControlPropsType =
