@@ -56,14 +56,14 @@ function ResizableHandle(props: ResizableHandleProps) {
 
 type ResizableProps = {
   handles: {
-    left: StyledComponent<"div", Record<string, unknown>>;
-    top: StyledComponent<"div", Record<string, unknown>>;
-    bottom: StyledComponent<"div", Record<string, unknown>>;
-    right: StyledComponent<"div", Record<string, unknown>>;
-    bottomRight: StyledComponent<"div", Record<string, unknown>>;
-    topLeft: StyledComponent<"div", Record<string, unknown>>;
-    topRight: StyledComponent<"div", Record<string, unknown>>;
-    bottomLeft: StyledComponent<"div", Record<string, unknown>>;
+    left?: StyledComponent<"div", Record<string, unknown>>;
+    top?: StyledComponent<"div", Record<string, unknown>>;
+    bottom?: StyledComponent<"div", Record<string, unknown>>;
+    right?: StyledComponent<"div", Record<string, unknown>>;
+    bottomRight?: StyledComponent<"div", Record<string, unknown>>;
+    topLeft?: StyledComponent<"div", Record<string, unknown>>;
+    topRight?: StyledComponent<"div", Record<string, unknown>>;
+    bottomLeft?: StyledComponent<"div", Record<string, unknown>>;
   };
   componentWidth: number;
   componentHeight: number;
@@ -116,8 +116,10 @@ export const Resizable = forwardRef(
       });
     }, [props.componentHeight, props.componentWidth]);
 
-    const handles = [
-      {
+    const handles = [];
+
+    if (props.handles.left) {
+      handles.push({
         dragCallback: (x: number) => {
           setNewDimensions({
             width: props.componentWidth - x,
@@ -127,8 +129,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.left,
-      },
-      {
+      });
+    }
+
+    if (props.handles.right) {
+      handles.push({
         dragCallback: (x: number) => {
           setNewDimensions({
             width: props.componentWidth + x,
@@ -138,19 +143,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.right,
-      },
-      {
-        dragCallback: (x: number, y: number) => {
-          setNewDimensions({
-            width: newDimensions.width,
-            height: props.componentHeight - y,
-            y: y,
-            x: newDimensions.x,
-          });
-        },
-        component: props.handles.top,
-      },
-      {
+      });
+    }
+
+    if (props.handles.bottom) {
+      handles.push({
         dragCallback: (x: number, y: number) => {
           setNewDimensions({
             width: newDimensions.width,
@@ -160,8 +157,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.bottom,
-      },
-      {
+      });
+    }
+
+    if (props.handles.bottomRight) {
+      handles.push({
         dragCallback: (x: number, y: number) => {
           setNewDimensions({
             width: props.componentWidth + x,
@@ -171,8 +171,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.bottomRight,
-      },
-      {
+      });
+    }
+
+    if (props.handles.bottomLeft) {
+      handles.push({
         dragCallback: (x: number, y: number) => {
           setNewDimensions({
             width: props.componentWidth - x,
@@ -182,8 +185,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.bottomLeft,
-      },
-      {
+      });
+    }
+
+    if (props.handles.topRight) {
+      handles.push({
         dragCallback: (x: number, y: number) => {
           setNewDimensions({
             width: props.componentWidth + x,
@@ -193,8 +199,11 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.topRight,
-      },
-      {
+      });
+    }
+
+    if (props.handles.topLeft) {
+      handles.push({
         dragCallback: (x: number, y: number) => {
           setNewDimensions({
             width: props.componentWidth - x,
@@ -204,8 +213,22 @@ export const Resizable = forwardRef(
           });
         },
         component: props.handles.topLeft,
-      },
-    ];
+      });
+    }
+
+    if (props.handles.top) {
+      handles.push({
+        dragCallback: (x: number, y: number) => {
+          setNewDimensions({
+            width: newDimensions.width,
+            height: props.componentHeight - y,
+            y: y,
+            x: newDimensions.x,
+          });
+        },
+        component: props.handles.top,
+      });
+    }
 
     const onResizeStop = () => {
       togglePointerEvents(true);

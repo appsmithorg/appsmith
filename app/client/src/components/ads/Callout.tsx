@@ -73,7 +73,11 @@ Callout.defaultProps = {
 
 function Callout(props: CalloutProps) {
   return (
-    <CalloutContainer fill={props.fill} variant={props.variant || Variant.info}>
+    <CalloutContainer
+      className={props.className}
+      fill={props.fill}
+      variant={props.variant || Variant.info}
+    >
       {props.text && props.variant !== Variant.info ? (
         <Icon name={props.variant} size={IconSize.MEDIUM} />
       ) : null}
