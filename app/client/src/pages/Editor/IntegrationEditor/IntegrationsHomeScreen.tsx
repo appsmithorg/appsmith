@@ -34,8 +34,8 @@ const ApiHomePage = styled.div`
   font-size: 20px;
   padding: 20px;
   /* margin-left: 10px; */
-  min-height: 95vh;
-  max-height: 95vh;
+  min-height: 100%;
+  max-height: 100%;
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
@@ -70,7 +70,7 @@ const SectionGrid = styled.div`
 const NewIntegrationsContainer = styled.div`
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 160px);
   /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
