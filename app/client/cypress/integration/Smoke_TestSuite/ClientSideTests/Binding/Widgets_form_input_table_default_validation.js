@@ -22,18 +22,6 @@ describe("Binding the multiple input Widget", function() {
     );
   });
 
-  it("Binding second input widget with first input widget and validating", function() {
-    cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.reload();
-  });
-
   it("validation of data displayed in all widgets based on row selected", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
@@ -45,10 +33,10 @@ describe("Binding the multiple input Widget", function() {
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(publish.inputWidget + " " + "input")
-        .last()
-        .invoke("attr", "value")
-        .should("contain", tabValue);
+      //       cy.get(publish.inputWidget + " " + "input")
+      //         .last()
+      //         .invoke("attr", "value")
+      //         .should("contain", tabValue);
     });
   });
 });

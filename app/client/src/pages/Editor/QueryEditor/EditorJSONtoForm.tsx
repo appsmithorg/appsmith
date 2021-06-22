@@ -401,6 +401,9 @@ export function EditorJSONtoForm(props: Props) {
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -554,7 +557,7 @@ export function EditorJSONtoForm(props: Props) {
           )}
           {output &&
             (isTableResponse ? (
-              <Table data={output} />
+              <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
               <JSONViewer src={output} />
             ))}
@@ -722,7 +725,12 @@ export function EditorJSONtoForm(props: Props) {
         </TabContainerView>
 
         <TabbedViewContainer ref={panelRef}>
-          <Resizable panelRef={panelRef} />
+          <Resizable
+            panelRef={panelRef}
+            setContainerDimensions={(height: number) =>
+              setTableBodyHeightHeight(height)
+            }
+          />
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ResultsCount>

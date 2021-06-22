@@ -20,7 +20,7 @@ import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
@@ -163,13 +163,18 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(1);
+      if (!query)
+        recentEntities.length > 1
+          ? setActiveItemIndex(2)
+          : setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    setActiveItemIndex(1);
-  }, [query]);
+    !query && recentEntities.length > 1
+      ? setActiveItemIndex(2)
+      : setActiveItemIndex(1);
+  }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;

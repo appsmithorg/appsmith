@@ -4,7 +4,9 @@ import {
 } from "constants/WidgetConstants";
 import { cloneDeep, get, isString, filter, set } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { getWidget } from "./selectors";
 
 /**
  * checks if triggerpaths contains property path passed
@@ -79,7 +81,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
             "",
           );
 
-          value = `{{${listWidget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
 
           currentWidget[key] = value;
 
@@ -197,3 +199,28 @@ export const handleSpecificCasesWhilePasting = (
 
   return widgets;
 };
+
+export function* getWidgetChildren(widgetId: string): any {
+  const childrenIds: string[] = [];
+  const widget = yield select(getWidget, widgetId);
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+  const { children = [] } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      if (children.hasOwnProperty(childIndex)) {
+        const child = children[childIndex];
+        childrenIds.push(child);
+        const grandChildren = yield call(getWidgetChildren, child);
+        if (grandChildren.length) {
+          childrenIds.push(...grandChildren);
+        }
+      }
+    }
+  }
+  return childrenIds;
+}
