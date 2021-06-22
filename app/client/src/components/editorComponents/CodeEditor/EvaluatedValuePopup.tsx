@@ -14,13 +14,17 @@ import { Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 
+import {
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+
 const modifiers = {
   offset: {
     enabled: true,
     offset: "0, 15",
   },
 };
-
 const Wrapper = styled.div`
   position: relative;
   flex: 1;
@@ -143,17 +147,16 @@ interface Props {
   expected?: { type: string; example: any };
   evaluatedValue?: any;
   children: JSX.Element;
-  error?: string;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  jsError?: string;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
   expected?: { type: string; example: any };
-  error?: string;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
   evaluatedValue: any;
   theme: EditorTheme;
@@ -161,7 +164,6 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
-  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -254,7 +256,7 @@ export const CurrentValueViewer = memo(
             collapseStringsAfterLength: 20,
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
-              return index >= 2 ? true : false;
+              return index >= 2;
             },
           };
           content = (
@@ -314,20 +316,34 @@ function PopoverContent(props: PopoverContentProps) {
   const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
+  const {
+    errors,
+    expected,
+    hasError,
+    onMouseEnter,
+    onMouseLeave,
+    theme,
+  } = props;
+  let error;
+  if (hasError) {
+    error = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    )[0];
+  }
 
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue"
-      colorTheme={props.theme}
-      onMouseEnter={props.onMouseEnter}
-      onMouseLeave={props.onMouseLeave}
+      colorTheme={theme}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      {props.hasError && (
+      {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.jsError && props.jsError.length
-              ? props.jsError
-              : props.error || ""}
+            {error.errorType === PropertyEvaluationErrorType.VALIDATION
+              ? `This value does not evaluate to type "${expected?.type}".`
+              : error.errorMessage}
           </span>
           <StyledDebugButton
             className="evaluated-value"
@@ -401,12 +417,11 @@ function EvaluatedValuePopup(props: Props) {
           zIndex={5}
         >
           <PopoverContent
-            error={props.error}
+            errors={props.errors}
             evaluatedValue={props.evaluatedValue}
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
-            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}

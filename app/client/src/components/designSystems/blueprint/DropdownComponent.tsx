@@ -229,17 +229,35 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
     }
   }
 `;
+interface DropDownComponentState {
+  portalContainer: HTMLElement;
+}
 
-class DropDownComponent extends React.Component<DropDownComponentProps> {
+class DropDownComponent extends React.Component<
+  DropDownComponentProps,
+  DropDownComponentState
+> {
+  private _menu = React.createRef<HTMLDivElement>();
+  constructor(props: DropDownComponentProps) {
+    super(props);
+    this.state = { portalContainer: this._menu.current as HTMLElement };
+  }
+  componentDidMount() {
+    this.setState({
+      portalContainer: this.props.getDropdownPosition(this._menu.current),
+    });
+  }
+
   render() {
     const { options, selectedIndexArr } = this.props;
+    const { portalContainer } = this.state;
     const selectedItems = selectedIndexArr
       ? _.map(selectedIndexArr, (index) => options[index])
       : [];
     const hideCloseButtonIndex = -1;
 
     return (
-      <DropdownContainer>
+      <DropdownContainer ref={this._menu as React.RefObject<HTMLDivElement>}>
         <DropdownStyles />
         <StyledControlGroup
           fill
@@ -300,6 +318,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                portalContainer,
                 modifiers: {
                   preventOverflow: {
                     enabled: false,
@@ -426,6 +445,7 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   width: number;
   height: number;
+  getDropdownPosition: (node: HTMLDivElement | null) => HTMLElement;
 }
 
 export default DropDownComponent;

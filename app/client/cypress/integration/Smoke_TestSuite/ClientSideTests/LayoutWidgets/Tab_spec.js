@@ -60,9 +60,9 @@ describe("Tab widget test", function() {
       .contains(this.data.tabName)
       .click({ force: true })
       .should("be.selected");
+    cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -74,8 +74,71 @@ describe("Tab widget test", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("be.visible");
+    cy.get(publish.backToEditor).click();
   });
+
+  it("Tab Widget Functionality To Check tab invisiblity", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabEdit)
+      .eq(1)
+      .click({ force: true });
+    cy.get(Layoutpage.tabVisibility)
+      .first()
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Tab Widget Functionality To Check tab visibility", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabEdit)
+      .eq(1)
+      .click({ force: true });
+    cy.get(Layoutpage.tabVisibility)
+      .first()
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  /* Test to be revisted as the undo action is inconsistent in automation
+  it("Tab Widget Functionality To Check undo action after delete", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabDelete)
+      .eq(1)
+      .click({ force: true });
+    cy.wait(2000);
+    cy.wait("@updateLayout");
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("not.exist");
+    cy.get(".undo-section:contains('UNDO')")
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(2000);
+    cy.wait("@updateLayout");
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget)
+      .contains("Tab 1")
+      .should("be.visible");
+  });
+  */
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

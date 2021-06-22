@@ -4,6 +4,7 @@ import Select from "react-select";
 import { WrappedFieldInputProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
 import { SelectComponentsConfig } from "react-select/src/components";
+import { LayersContext } from "../../../constants/Layers";
 
 export type DropdownProps = {
   options: Array<{
@@ -55,11 +56,16 @@ const selectStyles = {
 };
 
 export function BaseDropdown(props: DropdownProps) {
+  const layer = React.useContext(LayersContext);
   const { customSelectStyles, input } = props;
+  const menuPortalStyle = {
+    menuPortal: (styles: any) => ({ ...styles, zIndex: layer.max }),
+  };
+
   return (
     <Select
       menuPortalTarget={document.body}
-      styles={{ ...selectStyles, ...customSelectStyles }}
+      styles={{ ...selectStyles, ...customSelectStyles, ...menuPortalStyle }}
       {...input}
       isDisabled={props.isDisabled}
       isSearchable={props.isSearchable}
