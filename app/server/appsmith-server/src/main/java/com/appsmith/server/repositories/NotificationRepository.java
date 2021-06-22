@@ -13,5 +13,5 @@ public interface NotificationRepository extends BaseRepository<Notification, Str
     Flux<Notification> findByForUsername(String userId, Pageable pageable);
     Flux<Notification> findByForUsernameAndCreatedAtBefore(String userId, Instant instant, Pageable pageable);
     Mono<Long> countByForUsername(String userId);
-    Mono<Long> countByForUsernameAndIsReadIsTrue(String userId);
+    Mono<Long> countByForUsernameAndIsReadIsFalse(String userId);
 }

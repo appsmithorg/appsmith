@@ -146,7 +146,7 @@ public class NotificationServiceImpl
     @Override
     public Mono<Long> getUnreadCount() {
         return sessionUserService.getCurrentUser().flatMap(user ->
-            repository.countByForUsernameAndIsReadIsTrue(user.getUsername())
+            repository.countByForUsernameAndIsReadIsFalse(user.getUsername())
         );
     }
 }
