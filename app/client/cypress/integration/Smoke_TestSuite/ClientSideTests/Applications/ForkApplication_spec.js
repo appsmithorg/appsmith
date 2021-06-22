@@ -9,8 +9,7 @@ let parentApplicationDsl;
 describe("Fork application across orgs", function() {
   before(() => {
     cy.addDsl(dsl);
-    cy.server();
-    cy.route("GET", "/api/v1/pages/*").as("getPage");
+    cy.intercept("GET", "/api/v1/pages/*").as("getPage");
   });
 
   it("Check if the forked application has the same dsl as the original", function() {
