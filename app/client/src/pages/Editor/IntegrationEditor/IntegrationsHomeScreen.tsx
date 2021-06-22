@@ -4,9 +4,7 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
-import { searchApiOrProvider } from "actions/providerActions";
 import { Colors } from "constants/Colors";
-import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
@@ -19,23 +17,6 @@ import { Datasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_URL } from "constants/routes";
-
-const SearchContainer = styled.div`
-  display: flex;
-  width: 100%;
-  .closeBtn {
-    position: absolute;
-    left: 70%;
-  }
-`;
-
-const SearchBar = styled(BaseTextInput)`
-  margin-bottom: 10px;
-  input {
-    background-color: ${Colors.WHITE};
-    border: 1px solid ${Colors.GEYSER};
-  }
-`;
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -55,22 +36,6 @@ const ApiHomePage = styled.div`
   .closeBtn {
     position: absolute;
     left: 70%;
-  }
-  .searchResultsContainer {
-    background-color: ${Colors.WHITE};
-    z-index: 9999;
-    width: 70%;
-    padding: 20px;
-    border: 1px solid ${Colors.ALTO};
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    border-radius: 4px;
-    max-height: 80vh;
-    overflow: auto;
-  }
-  .searchCloseBtn {
-    float: right;
-    cursor: pointer;
   }
   .bp3-collapse-body {
     position: absolute;
@@ -110,7 +75,6 @@ const NewIntegrationsContainer = styled.div`
 `;
 
 type IntegrationsHomeScreenProps = {
-  searchApiOrProvider: (searchKey: string) => void;
   pageId: string;
   applicationId: string;
   selectedTab: string;
@@ -127,7 +91,6 @@ type IntegrationsHomeScreenProps = {
 
 type IntegrationsHomeScreenState = {
   page: number;
-  showSearchResults: boolean;
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
 };
@@ -264,7 +227,6 @@ class IntegrationsHomeScreen extends React.Component<
 
     this.state = {
       page: 1,
-      showSearchResults: false,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
     };
@@ -322,17 +284,6 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({ activeSecondaryMenuId });
   };
 
-  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-    const { searchApiOrProvider } = this.props;
-    const value = e.target.value;
-    if (value) {
-      searchApiOrProvider(value);
-      this.setState({ showSearchResults: true });
-    } else {
-      this.setState({ showSearchResults: false });
-    }
-  };
-
   render() {
     const {
       applicationId,
@@ -343,7 +294,6 @@ class IntegrationsHomeScreen extends React.Component<
       pageId,
     } = this.props;
 
-    const { showSearchResults } = this.state;
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
@@ -383,7 +333,7 @@ class IntegrationsHomeScreen extends React.Component<
     return (
       <ApiHomePage
         className="t--integrationsHomePage"
-        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+        style={{ overflow: "auto" }}
       >
         <HeaderFlex>
           <CloseEditor />
@@ -424,15 +374,7 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  searchApiOrProvider: (searchKey: string) =>
-    dispatch(searchApiOrProvider({ searchKey })),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(
+export default connect(mapStateToProps)(
   reduxForm<{ category: string }, IntegrationsHomeScreenProps>({
     form: API_HOME_SCREEN_FORM,
   })(IntegrationsHomeScreen),
