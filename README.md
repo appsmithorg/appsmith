@@ -3,15 +3,13 @@
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
   •
-  <a href="https://www.appsmith.com/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Features</a>
-  •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
   •
   <a href="https://community.appsmith.com/">Community</a>
   •
   <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
   •
-  <a href="https://blog.appsmith.com/">Blog</a>
+  <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Events</a>
   •
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   •
@@ -75,7 +73,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
 - 👾 Ask for help on our [Forum](https://community.appsmith.com)
-  <br><br>
+- Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
 
 ## Demos
 

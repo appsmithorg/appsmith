@@ -14,7 +14,7 @@ export const ListFactory = Factory.Sync.makeFactory<WidgetProps>({
   topRow: 1,
   bottomRow: 3,
   isLoading: false,
-  items: [],
+  listData: [],
   disablePropertyPane: false,
   widgetName: Factory.each((i) => `List${i + 1}`),
   widgetId: generateReactKey(),

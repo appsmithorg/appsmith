@@ -318,7 +318,7 @@ export type Theme = {
   smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -530,6 +530,7 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
   };
@@ -1178,6 +1179,7 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
@@ -1631,6 +1633,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
   showcaseCarousel,
@@ -2331,7 +2334,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
     minWidth: 50,

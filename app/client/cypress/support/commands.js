@@ -1645,6 +1645,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
       });
     });
   });
+  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
@@ -2022,8 +2023,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
-    .click(x, y + 20)
-    .trigger("mouseup", x, y + 20, { force: true });
+    .trigger("mousemove", x, y)
+    .trigger("mouseup", x, y + 20);
 });
 
 Cypress.Commands.add("executeDbQuery", (queryName) => {
