@@ -1879,7 +1879,9 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(explorer.addDBQueryEntity)
     .last()
     .click({ force: true });
-  cy.get(queryEditor.addDatasource).click();
+  cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
