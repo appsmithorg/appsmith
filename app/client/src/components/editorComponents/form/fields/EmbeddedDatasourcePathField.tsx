@@ -158,7 +158,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = datasource.datasourceConfiguration.url;
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -204,7 +204,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url.length;
+        const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
