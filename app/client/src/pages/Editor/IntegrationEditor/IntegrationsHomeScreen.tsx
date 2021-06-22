@@ -339,7 +339,7 @@ class IntegrationsHomeScreen extends React.Component<
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
-          <AddDatasourceSecurely />
+          {dataSources.length === 0 && <AddDatasourceSecurely />}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
