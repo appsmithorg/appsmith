@@ -30,10 +30,10 @@ import CurrencyTypeDropdown, {
   getCurrencyOptions,
   getSelectedCurrency,
 } from "components/ads/CurrencyCodeDropdown";
-import PhoneNumberTypeDropdown, {
-  getPhoneNumberCodeOptions,
-  getSelectedCountryCode,
-} from "components/ads/PhoneNumberCodeDropdown";
+import ISDCodeDropdown, {
+  getISDCodeOptions,
+  getSelectedISDCode,
+} from "components/ads/ISDCodeDropdown";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -227,10 +227,10 @@ class InputComponent extends React.Component<
       intent={this.props.intent}
       leftIcon={
         this.props.inputType === "PHONE_NUMBER" ? (
-          <PhoneNumberTypeDropdown
-            onCountryCodeChange={this.props.onCountryCodeChange}
-            options={getPhoneNumberCodeOptions()}
-            selected={getSelectedCountryCode(this.props.countryCode)}
+          <ISDCodeDropdown
+            onISDCodeChange={this.props.onISDCodeChange}
+            options={getISDCodeOptions()}
+            selected={getSelectedISDCode(this.props.countryCode)}
           />
         ) : this.props.inputType !== InputTypes.CURRENCY ? (
           this.props.leftIcon
@@ -373,7 +373,7 @@ export interface InputComponentProps extends ComponentProps {
   minNum?: number;
   onValueChange: (valueAsString: string) => void;
   onCurrencyTypeChange: (code?: string) => void;
-  onCountryCodeChange: (code?: string) => void;
+  onISDCodeChange: (code?: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;

@@ -14,7 +14,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
-import { getPhoneNumberCodeOptions } from "components/ads/PhoneNumberCodeDropdown";
+import { getISDCodeOptions } from "components/ads/ISDCodeDropdown";
 import { getCurrencyOptions } from "components/ads/CurrencyCodeDropdown";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
@@ -84,7 +84,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or country name",
-            options: getPhoneNumberCodeOptions(),
+            options: getISDCodeOptions(),
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
             },
@@ -349,7 +349,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
-  onCountryCodeChange = (code?: string) => {
+  onISDCodeChange = (code?: string) => {
     const countryCode = code || "+91";
     if (this.props.renderMode === RenderModes.CANVAS) {
       this.props.updateWidgetMetaProperty("selectedCountryCode", countryCode);
@@ -426,9 +426,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             GRID_DENSITY_MIGRATION_V1 >
             1 && this.props.inputType === "TEXT"
         }
-        onCountryCodeChange={this.onCountryCodeChange}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
+        onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}

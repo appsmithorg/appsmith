@@ -1,10 +1,10 @@
-export interface DialingCodeOptionProps {
+export interface ISDCodeProps {
   code: string;
   name: string;
   dial_code: string;
 }
 
-export const DialingCodeOptions: Array<DialingCodeOptionProps> = [
+export const ISDCodeOptions: Array<ISDCodeProps> = [
   {
     name: "Afghanistan",
     dial_code: "+93",

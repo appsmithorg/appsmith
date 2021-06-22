@@ -3,10 +3,7 @@ import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "components/designSystems/blueprint/InputComponent/utilties";
-import {
-  DialingCodeOptions,
-  DialingCodeOptionProps,
-} from "constants/DialingCodes";
+import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 
 const DropdownTriggerIconWrapper = styled.div`
   height: 19px;
@@ -32,8 +29,8 @@ const DropdownTriggerIconWrapper = styled.div`
   }
 `;
 
-export const getPhoneNumberCodeOptions = (): Array<DropdownOption> => {
-  return DialingCodeOptions.map((item: DialingCodeOptionProps) => {
+export const getISDCodeOptions = (): Array<DropdownOption> => {
+  return ISDCodeOptions.map((item: ISDCodeProps) => {
     return {
       leftElement: countryToFlag(item.code),
       searchText: item.name,
@@ -43,15 +40,13 @@ export const getPhoneNumberCodeOptions = (): Array<DropdownOption> => {
   });
 };
 
-export const getSelectedCountryCode = (
-  countryCode?: string,
-): DropdownOption => {
-  const selectedCountry: DialingCodeOptionProps =
-    (countryCode
-      ? DialingCodeOptions.find((item: DialingCodeOptionProps) => {
-          return item.dial_code === countryCode;
+export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
+  const selectedCountry: ISDCodeProps =
+    (dialCode
+      ? ISDCodeOptions.find((item: ISDCodeProps) => {
+          return item.dial_code === dialCode;
         })
-      : undefined) || DialingCodeOptions[0];
+      : undefined) || ISDCodeOptions[0];
   return {
     label: `${selectedCountry.name} (${selectedCountry.dial_code})`,
     searchText: selectedCountry.name,
@@ -60,17 +55,15 @@ export const getSelectedCountryCode = (
   };
 };
 
-interface CountryCodeDropdownProps {
-  onCountryCodeChange: (code?: string) => void;
+interface ISDCodeDropdownProps {
+  onISDCodeChange: (code?: string) => void;
   options: Array<DropdownOption>;
   selected: DropdownOption;
   allowCountryCodeChange?: boolean;
 }
 
-export default function PhoneNumberTypeDropdown(
-  props: CountryCodeDropdownProps,
-) {
-  const selectedCountry = getSelectedCountryCode(props.selected.value);
+export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
+  const selectedCountry = getSelectedISDCode(props.selected.value);
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper className="t--input-country-code-change">
       <div className="icon-dropdown">
@@ -88,10 +81,10 @@ export default function PhoneNumberTypeDropdown(
       dropdownHeight="195px"
       dropdownTriggerIcon={dropdownTriggerIcon}
       enableSearch
-      onSelect={props.onCountryCodeChange}
+      onSelect={props.onISDCodeChange}
       optionWidth="260px"
       options={props.options}
-      searchPlaceholder="Search by code or country"
+      searchPlaceholder="Search by ISD code or country"
       selected={props.selected}
       showLabelOnly
     />
