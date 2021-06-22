@@ -139,6 +139,7 @@ const newApiScreen = (props: Props) => {
   const {
     applicationId,
     createNewApiAction,
+    history,
     location,
     pageId,
     plugins,
@@ -180,14 +181,14 @@ const newApiScreen = (props: Props) => {
           <Button
             category={Category.tertiary}
             className="t--connect-to-btn cta"
-            href={curlImportURL}
             onClick={() => {
               AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
                 importSource: CURL,
               });
+              history.push(curlImportURL);
             }}
             size={Size.medium}
-            tag="a"
+            tag="button"
             text="Create"
           />
         </ApiCard>
