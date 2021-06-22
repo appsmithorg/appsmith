@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Icon } from "@blueprintjs/core";
 import { ComponentProps } from "./BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -43,31 +42,43 @@ const Wrapper = styled.div`
   }
 `;
 
-const RotateBtnWrapper = styled.div`
+const ControlBtnWrapper = styled.div`
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0px;
-  right: 0px;
+  top: 2px;
+  right: 2px;
+  padding: 5px 0px;
   z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: white;
 `;
 
-const RotateBtn = styled.div`
-  cursor: pointer;
-  height: 30px;
-  width: 30px;
-  margin: 0px 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: scale(1);
+const ControlBtn = styled.div`
+  height: 25px;
+  width: 45px;
+  color: white;
+  padding: 0px 10px;
+  display: inline-block;
 
-  &: hover {
-    transform: scale(1.2);
+  &: first-child {
+    border-right: 1px solid #e0dede;
+  }
+
+  & > div {
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    padding: 4px;
+    transition: background 0.2s linear;
+
+    & > svg {
+      height: 16px;
+      width: 17px;
+    }
+    &: hover {
+      background: #ebebeb;
+    }
   }
 `;
 
@@ -79,7 +90,7 @@ class ImageComponent extends React.Component<
   ImageComponentProps,
   {
     imageError: boolean;
-    showRotateBtn: boolean;
+    showImageControl: boolean;
     imageRotation: number;
     zoomingState: ZoomingState;
   }
@@ -90,14 +101,14 @@ class ImageComponent extends React.Component<
     this.isPanning = false;
     this.state = {
       imageError: false,
-      showRotateBtn: false,
+      showImageControl: false,
       imageRotation: 0,
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
   render() {
-    const { enableRotation, maxZoomLevel } = this.props;
-    const { imageRotation, showRotateBtn } = this.state;
+    const { maxZoomLevel } = this.props;
+    const { imageRotation } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -160,24 +171,7 @@ class ImageComponent extends React.Component<
         >
           {({ zoomIn, zoomOut }: any) => (
             <>
-              {showRotateBtn && enableRotation && (
-                <RotateBtnWrapper>
-                  <RotateBtn onClick={this.handleImageRotate(false)}>
-                    <Icon
-                      color="whitesmoke"
-                      icon="image-rotate-left"
-                      iconSize={24}
-                    />
-                  </RotateBtn>
-                  <RotateBtn onClick={this.handleImageRotate(true)}>
-                    <Icon
-                      color="whitesmoke"
-                      icon="image-rotate-right"
-                      iconSize={24}
-                    />
-                  </RotateBtn>
-                </RotateBtnWrapper>
-              )}
+              {this.renderImageControl()}
               <TransformComponent>
                 <StyledImage
                   className={this.props.isLoading ? "bp3-skeleton" : ""}
@@ -218,6 +212,54 @@ class ImageComponent extends React.Component<
     );
   }
 
+  renderImageControl = () => {
+    const { enableRotation } = this.props;
+    const { showImageControl } = this.state;
+
+    if (showImageControl && enableRotation) {
+      return (
+        <ControlBtnWrapper>
+          <ControlBtn onClick={this.handleImageRotate(false)}>
+            <div>
+              <svg
+                fill="none"
+                height="12"
+                viewBox="0 0 12 12"
+                width="12"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.28492 1.81862C3.27446 0.939565 4.57489 0.400391 6.00002 0.400391C9.08724 0.400391 11.6 2.91317 11.6 6.00039C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039H1.33336C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039C10.6667 3.41761 8.58281 1.33372 6.00002 1.33372C4.82777 1.33372 3.76447 1.7682 2.94573 2.47943L4.13336 3.66706H1.33336V0.867057L2.28492 1.81862Z"
+                  fill="#858282"
+                  stroke="#858282"
+                  strokeWidth="0.5"
+                />
+              </svg>
+            </div>
+          </ControlBtn>
+          <ControlBtn onClick={this.handleImageRotate(true)}>
+            <div>
+              <svg
+                fill="none"
+                height="12"
+                viewBox="0 0 12 12"
+                width="12"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.400024 6.00039C0.400024 2.91317 2.91281 0.400391 6.00002 0.400391C7.42515 0.400391 8.72559 0.939565 9.71513 1.81862L10.6667 0.867057V3.66706H7.86669L9.05432 2.47943C8.23558 1.7682 7.17228 1.33372 6.00002 1.33372C3.41724 1.33372 1.33336 3.41761 1.33336 6.00039C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039H11.6C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039Z"
+                  fill="#858282"
+                  stroke="#858282"
+                  strokeWidth="0.5"
+                />
+              </svg>
+            </div>
+          </ControlBtn>
+        </ControlBtnWrapper>
+      );
+    }
+  };
+
   handleImageRotate = (rotateRight: boolean) => (e: any) => {
     const { imageRotation } = this.state;
 
@@ -232,9 +274,9 @@ class ImageComponent extends React.Component<
   };
 
   onMouseEnter = () =>
-    this.setState({ showRotateBtn: !!this.props.enableRotation && true });
+    this.setState({ showImageControl: !!this.props.enableRotation && true });
 
-  onMouseLeave = () => this.setState({ showRotateBtn: false });
+  onMouseLeave = () => this.setState({ showImageControl: false });
 
   onImageError = () => {
     this.setState({
