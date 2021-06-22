@@ -105,10 +105,6 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
           },
           completeSingle: false,
         });
-      } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
-        editor.closeHint();
       }
     },
   };

@@ -103,9 +103,11 @@ export const generateQuickCommands = (
     [],
     3,
   );
-  createNewCommandsMatchingSearchText.push(
-    ...matchingCommands([newIntegration], searchText, []),
-  );
+  if (currentEntityType === "WIDGET") {
+    createNewCommandsMatchingSearchText.push(
+      ...matchingCommands([newIntegration], searchText, []),
+    );
+  }
   let list: CommandsCompletion[] = [];
   if (suggestionsMatchingSearchText.length) {
     list = [suggestionsHeader, ...suggestionsMatchingSearchText];
