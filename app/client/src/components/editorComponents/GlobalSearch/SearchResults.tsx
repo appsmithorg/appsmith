@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
@@ -29,6 +29,12 @@ import { PluginType } from "entities/Action";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
+const overflowCSS = css`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 export const SearchItemContainer = styled.div<{
   isActiveItem: boolean;
   itemType: SEARCH_ITEM_TYPES;
@@ -51,9 +57,18 @@ export const SearchItemContainer = styled.div<{
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
 
+  .text {
+    max-width: 100px;
+    ${overflowCSS}
+  }
+
   .subtext {
     color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
     font-size: ${(props) => props.theme.fontSizes[1]}px;
+    margin-right: ${(props) => `${props.theme.spaces[2]}px`};
+    display: none;
+    max-width: 50px;
+    ${overflowCSS}
   }
 
   &:hover {
@@ -64,6 +79,10 @@ export const SearchItemContainer = styled.div<{
         : "unset"};
     ${StyledActionLink} {
       visibility: visible;
+    }
+
+    .subtext {
+      display: inline;
     }
   }
 
@@ -94,6 +113,12 @@ const StyledDocumentIcon = styled(DocumentIcon)`
     }
   }
   display: flex;
+`;
+
+const TextWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
 `;
 
 function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
@@ -132,16 +157,16 @@ function WidgetItem(props: {
   const { type } = item || {};
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  const subText = ` \u2014 ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
       <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
       <ItemTitle>
-        <div>
-          <Highlight match={query} text={title} />
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
           <Highlight className="subtext" match={query} text={subText} />
-        </div>
+        </TextWrapper>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
@@ -177,16 +202,16 @@ function ActionItem(props: {
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  const subText = ` \u2014 ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
       <ActionIconWrapper>{icon}</ActionIconWrapper>
       <ItemTitle>
-        <div>
-          <Highlight match={query} text={title} />
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
           <Highlight className="subtext" match={query} text={subText} />
-        </div>
+        </TextWrapper>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
