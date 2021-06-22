@@ -46,19 +46,18 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
     cy.PublishtheApp();
+    // Make sure onPageLoad action has run before validating the data
+    cy.wait("@postExecute");
     cy.ValidatePublishTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // Make sure net page action is run
+    cy.wait("@postExecute");
     cy.validateToastMessage("done");
     cy.ValidatePublishTableData("11");
-    cy.get(publishPage.backToEditor).click({ force: true });
   });
 
   it("Test_Add Paginate with Response URL and Execute the Api", function() {
+    cy.get(publishPage.backToEditor).click({ force: true });
     /** Create Api2 of Paginate with Response URL*/
     cy.createAndFillApi(this.data.paginationUrl, "users");
     cy.RunAPI();
