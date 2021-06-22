@@ -1856,14 +1856,14 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  cy.get(datasourceEditor.editDatasource).click();
+  // cy.get(datasourceEditor.editDatasource).click();
 
-  cy.get(".t--delete-datasource").click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  // cy.get(".t--delete-datasource").click();
+  // cy.wait("@deleteDatasource").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
 });
 
 Cypress.Commands.add("importCurl", () => {
