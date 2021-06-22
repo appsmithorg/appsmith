@@ -11,6 +11,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button, { Size, Category } from "components/ads/Button";
+import { Colors } from "constants/Colors";
 
 const DatasourceHomePage = styled.div`
   max-height: 95vh;
@@ -43,13 +44,12 @@ const DatasourceCardsContainer = styled.div`
 `;
 
 const DatasourceCard = styled.div`
-  border: 1px solid transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 70px;
   &:hover {
-    border: 1px solid #a9a7a7;
+    background: ${Colors.Gallery};
   }
 
   .dataSourceImageWrapper {
@@ -154,7 +154,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     this.goToCreateDatasource(plugin.id, plugin.name)
                   }
                   size={Size.medium}
-                  text="Connect To"
+                  text="Add"
                 />
               </DatasourceCard>
             );

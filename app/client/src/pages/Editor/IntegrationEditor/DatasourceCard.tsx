@@ -20,15 +20,14 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 const Wrapper = styled.div`
-  border: 1px solid transparent;
   padding: 18px;
   /* margin-top: 18px; */
 
   &:hover {
-    border: 1px solid ${Colors.SILVER_CHALICE};
-    /* .action-wrapper {
-      display: flex;
-    } */
+    background: ${Colors.Gallery};
+    .bp3-collapse-body {
+      background: ${Colors.Gallery};
+    }
   }
 `;
 
