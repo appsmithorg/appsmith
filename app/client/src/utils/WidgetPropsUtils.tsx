@@ -796,12 +796,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const migrateToNewMultiSelect = (
+export const migrateToNewMultiSelect = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === "DROP_DOWN_WIDGET") {
     if (currentDSL.selectionType === "MULTI_SELECT") {
       currentDSL.type = "MULTI_SELECT_WIDGET";
+      delete currentDSL.isFilterable;
     }
     delete currentDSL.selectionType;
   }
