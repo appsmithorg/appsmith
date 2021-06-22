@@ -66,7 +66,7 @@ export const SearchItemContainer = styled.div<{
     color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
     font-size: ${(props) => props.theme.fontSizes[1]}px;
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
-    display: none;
+    display: ${(props) => (props.isActiveItem ? "inline" : "none")};
     max-width: 50px;
     ${overflowCSS}
   }
