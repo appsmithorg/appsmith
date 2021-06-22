@@ -290,12 +290,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
-    if (this.state.isFocused) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      this.editor.closeHint();
-      return;
-    }
+    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
@@ -304,17 +299,10 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(inputValue);
       this.editor.setCursor(inputValue.length);
     }
-    if (this.editor.getValue().length === 0)
-      this.handleAutocompleteVisibility(this.editor);
   };
 
   handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    if (this.state.isFocused) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      this.editor.closeHint();
-    }
     if (!cm.state.completionActive) this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
@@ -394,7 +382,7 @@ class CodeEditor extends Component<Props, State> {
       }
     }
     this.editor.setCursor({
-      line: 0,
+      line: this.editor.lineCount(),
       ch: cursor,
     });
     this.setState({ isFocused: true }, () => {
