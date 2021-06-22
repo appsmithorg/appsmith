@@ -82,8 +82,8 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
                 value.length - searchText.length - 1,
               );
               if (selected.action && typeof selected.action === "function") {
-                updatePropertyValue(updatedValue, updatedValue.length, true);
-                selected.action();
+                updatePropertyValue(updatedValue, updatedValue.length);
+                setTimeout(selected.action);
               } else {
                 updatePropertyValue(updatedValue + selected.text);
               }

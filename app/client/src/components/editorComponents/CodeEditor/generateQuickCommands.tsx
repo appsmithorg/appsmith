@@ -25,10 +25,11 @@ export const generateQuickCommands = (
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+  recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "New Binding",
-    shortcut: "{{}}",
+    shortcut: "{{",
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
@@ -37,7 +38,7 @@ export const generateQuickCommands = (
       executeCommand({
         actionType: "NEW_INTEGRATION",
       }),
-    shortcut: "integration.new",
+    shortcut: "+",
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
     const name = suggestion.name || suggestion.widgetName;
@@ -45,7 +46,6 @@ export const generateQuickCommands = (
       text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
-      shortcut: "{{}}",
       data: suggestion,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
@@ -65,7 +65,6 @@ export const generateQuickCommands = (
       text: "",
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
-      shortcut: `${action.name}.new`,
       data: action,
       action: () =>
         executeCommand({
@@ -126,10 +125,9 @@ const matchingCommands = (
   limit = 2,
 ) => {
   list = list.filter((action: any) => {
-    return (
-      action.displayText.toLowerCase().startsWith(searchText.toLowerCase()) ||
-      action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
-    );
+    return action.displayText
+      .toLowerCase()
+      .startsWith(searchText.toLowerCase());
   });
   list = sortBy(list, (a: any) => {
     return (
@@ -171,7 +169,11 @@ const generateCreateNewCommand = ({
   action: action,
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
-      <Command name={data.displayText} shortcut={data.shortcut} />,
+      <Command
+        customText={data.customText}
+        name={data.displayText}
+        shortcut={data.shortcut}
+      />,
       element,
     );
   },
@@ -182,6 +184,7 @@ function Command(props: {
   imgSrc?: string;
   name: string;
   shortcut: string;
+  customText?: string;
 }) {
   return (
     <div className="command-container">
@@ -193,9 +196,9 @@ function Command(props: {
             SAAS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
+        {props.shortcut && <span className="shortcut">{props.shortcut}</span>}
         <span>{props.name}</span>
       </div>
-      <span className="shortcut">{props.shortcut}</span>
     </div>
   );
 }

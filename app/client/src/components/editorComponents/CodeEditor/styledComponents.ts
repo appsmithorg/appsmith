@@ -85,19 +85,21 @@ export const HintStyles = createGlobalStyle<{
       display: flex;
       align-items: center;
       img {
-        height: 12px;
-        width: 12px;
+        height: 13px;
+        width: 13px;
         margin-right: 7px;
       }
       svg {
         margin-right: 7px;
+        height: 13px;
+        width: 13px;
       }
+      font-size: 13px;
     }
     .shortcut {
-      font-style: italic;
-      font-size: 10px;
-      color: #a9a7a7;
-      margin-left: auto;
+      font-size: 13px;
+      font-weight: bold;
+      margin-right: 10px;
     }
   }
 
