@@ -71,7 +71,7 @@ const NewIntegrationsContainer = styled.div`
   scrollbar-width: thin;
   overflow: auto;
   max-height: calc(100vh - 200px);
-  padding-bottom: 300px;
+  /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
     margin-bottom: 16px;
