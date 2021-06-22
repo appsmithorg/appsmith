@@ -42,6 +42,7 @@ import { Datasource } from "entities/Datasource";
 import {
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
@@ -123,7 +124,12 @@ export function* deleteDatasourceSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
       ) {
         history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.NEW,
+            INTEGRATION_EDITOR_MODES.AUTO,
+          ),
         );
       }
 

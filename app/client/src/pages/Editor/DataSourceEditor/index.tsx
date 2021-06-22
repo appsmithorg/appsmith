@@ -25,6 +25,11 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -69,7 +74,19 @@ class DataSourceEditor extends React.Component<Props> {
   };
 
   handleSave = (formData: Datasource) => {
-    this.props.updateDatasource(formData);
+    const { applicationId, pageId } = this.props.match.params;
+    const { history } = this.props;
+    this.props.updateDatasource(
+      formData,
+      history.push(
+        INTEGRATION_EDITOR_URL(
+          applicationId,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+          INTEGRATION_EDITOR_MODES.AUTO,
+        ),
+      ),
+    );
   };
 
   render() {
@@ -161,7 +178,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
-  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
+  updateDatasource: (formData: any, onSuccess?: any) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
