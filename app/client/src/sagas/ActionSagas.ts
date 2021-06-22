@@ -788,9 +788,7 @@ function* executeCommand(
       break;
     case "NEW_INTEGRATION":
       const appId = yield select(getCurrentApplicationId);
-      history.push(
-        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(appId, pageId, pageId),
-      );
+      history.push(INTEGRATION_EDITOR_URL(appId, pageId, INTEGRATION_TABS.NEW));
       break;
   }
 }
