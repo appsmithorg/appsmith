@@ -12,6 +12,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
+import { UNDEFINED_VALIDATION } from "utils/validation/common";
 
 const modifiers = {
   offset: {
@@ -326,9 +327,7 @@ function PopoverContent(props: PopoverContentProps) {
           <span className="t--evaluatedPopup-error">
             {props.jsError && props.jsError.length
               ? props.jsError
-              : props.useValidationMessage && props.error
-              ? props.error
-              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+              : props.error || ""}
           </span>
           <StyledDebugButton
             className="evaluated-value"
@@ -336,7 +335,7 @@ function PopoverContent(props: PopoverContentProps) {
           />
         </ErrorText>
       )}
-      {!props.hasError && props.expected && (
+      {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
         <>
           <StyledTitle onClick={toggleExpectedDataType}>
             Expected Structure
@@ -349,7 +348,7 @@ function PopoverContent(props: PopoverContentProps) {
           </Collapse>
         </>
       )}
-      {!props.hasError && props.expected && (
+      {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
         <>
           <StyledTitle onClick={toggleExpectedExample}>
             Expected Structure - Example

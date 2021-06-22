@@ -3,7 +3,10 @@ import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
@@ -13,16 +16,16 @@ import withMeta, { WithMeta } from "../MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 export function selectedTabValidation(
-  value: string,
+  value: unknown,
   props: TabContainerWidgetProps,
-) {
+): ValidationResponse {
   const tabs: Array<{
     label: string;
     id: string;
   }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
   const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
   return {
-    isValid: tabNames.includes(value),
+    isValid: tabNames.includes(value as string),
     parsed: value,
     message: `Tab name ${value} does not exist`,
   };
@@ -90,7 +93,11 @@ class TabsWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: selectedTabValidation.toString(),
+                fn: selectedTabValidation,
+                expected: {
+                  type: "Tab Name (string)",
+                  example: "Tab 1",
+                },
               },
             },
           },

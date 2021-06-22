@@ -3,13 +3,20 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
-import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
+import {
+  ISO_DATE_FORMAT,
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
 
-function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
+function defaultDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === null) {
     return {
@@ -26,18 +33,22 @@ function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
     };
   }
 
-  const isValid = moment(value, dateFormat).isValid();
+  const isValid = moment(value as string, dateFormat).isValid();
 
-  if (!isValid) {
-    return {
-      isValid: isValid,
-      parsed: "",
-      message: `Value does not match ISO 8601 standard date string`,
-    };
-  }
+  return {
+    isValid,
+    parsed: isValid ? value : "",
+    message:
+      isValid === false
+        ? `Value does not match ISO 8601 standard date string`
+        : "",
+  };
 }
 
-function minDateValidation(value: string, props: DatePickerWidgetProps) {
+function minDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
     return {
@@ -47,7 +58,7 @@ function minDateValidation(value: string, props: DatePickerWidgetProps) {
         `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
     };
   }
-  const parsedMinDate = moment(value, dateFormat);
+  const parsedMinDate = moment(value as string, dateFormat);
   let isValid = parsedMinDate.isValid();
 
   if (!props.defaultDate) {
@@ -81,7 +92,10 @@ function minDateValidation(value: string, props: DatePickerWidgetProps) {
   };
 }
 
-function maxDateValidation(value: string, props: DatePickerWidgetProps) {
+function maxDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
     return {
@@ -92,7 +106,7 @@ function maxDateValidation(value: string, props: DatePickerWidgetProps) {
         (dateFormat ? dateFormat : ""),
     };
   }
-  const parsedMaxDate = moment(value, dateFormat);
+  const parsedMaxDate = moment(value as string, dateFormat);
   let isValid = parsedMaxDate.isValid();
   if (!props.defaultDate) {
     return {
@@ -144,7 +158,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: defaultDateValidation.toString(),
+                fn: defaultDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                },
               },
             },
           },
@@ -221,7 +239,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: minDateValidation.toString(),
+                fn: minDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                },
               },
             },
           },
@@ -236,7 +258,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: maxDateValidation.toString(),
+                fn: maxDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                },
               },
             },
           },

@@ -9,6 +9,8 @@ export const required = (value: any) => {
   }
 };
 
+export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
+
 type ExpectedValue = {
   type: string;
   example: string | number | boolean | Record<string, unknown> | Array<unknown>;
@@ -17,12 +19,13 @@ type ExpectedValue = {
 export function getExpectedValue(
   config?: ValidationConfig,
 ): ExpectedValue | undefined {
-  if (!config) return { type: "any", example: 123 }; // basic fallback
+  if (!config)
+    return { type: UNDEFINED_VALIDATION, example: UNDEFINED_VALIDATION }; // basic fallback
   switch (config.type) {
     case ValidationTypes.FUNCTION:
       return {
-        type: config.params?.expected || "unknown",
-        example: "No Example available",
+        type: config.params?.expected?.type || "unknown",
+        example: config.params?.expected?.example || "No Example available",
       };
     case ValidationTypes.TEXT:
       const result = { type: "String", example: "abc" };
@@ -84,7 +87,11 @@ export function getExpectedValue(
         };
       }
       if (config.params?.children) {
-        return getExpectedValue(config.params.children);
+        const children = getExpectedValue(config.params.children);
+        return {
+          type: `Array<${children?.type}>`,
+          example: [children?.example],
+        };
       }
       return { type: "Array", example: [] };
     case ValidationTypes.OBJECT_ARRAY:

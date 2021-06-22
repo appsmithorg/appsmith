@@ -4,48 +4,52 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-function defaultOptionValueValidation(value: any, props: DropdownWidgetProps) {
-  if (props) {
-    if (props.selectionType === "SINGLE_SELECT") {
-      if (_.isString(value)) return { isValid: true, parsed: value };
-      if (value === undefined || value === null)
-        return {
-          isValid: false,
-          parsed: "",
-          message: "This value does not evaluate to type: string",
-        };
-      return { isValid: true, parsed: value.toString() };
-    } else if (props.selectionType === "MULTI_SELECT") {
-      let values: string[] = [];
-      if (typeof value === "string") {
-        try {
-          values = JSON.parse(value);
-          if (!Array.isArray(values)) {
-            throw new Error();
-          }
-        } catch {
-          values = value.length ? value.split(",") : [];
-          if (values.length > 0) {
-            values = values.map((_v: string) => _v.trim());
-          }
+function defaultOptionValueValidation(
+  value: unknown,
+  props: DropdownWidgetProps,
+): ValidationResponse {
+  if (props.selectionType === "SINGLE_SELECT") {
+    if (typeof value === "string") return { isValid: true, parsed: value };
+    if (value === undefined || value === null)
+      return {
+        isValid: false,
+        parsed: "",
+        message: "This value does not evaluate to type: string",
+      };
+    return { isValid: true, parsed: value };
+  } else {
+    let values: string[] = [];
+    if (typeof value === "string") {
+      try {
+        values = JSON.parse(value);
+        if (!Array.isArray(values)) {
+          throw new Error();
+        }
+      } catch {
+        values = value.length ? value.split(",") : [];
+        if (values.length > 0) {
+          values = values.map((_v: string) => _v.trim());
         }
       }
-      if (Array.isArray(value)) {
-        values = Array.from(new Set(value));
-      }
-
-      return {
-        isValid: true,
-        parsed: values,
-      };
     }
+    if (Array.isArray(value)) {
+      values = Array.from(new Set(value));
+    }
+
+    return {
+      isValid: true,
+      parsed: values,
+    };
   }
 }
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
@@ -116,7 +120,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: defaultOptionValueValidation.toString(),
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                },
               },
             },
           },

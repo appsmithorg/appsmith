@@ -79,7 +79,11 @@ class TabsMigratorWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fnString: selectedTabValidation.toString(),
+                fn: selectedTabValidation,
+                expected: {
+                  type: "Tab Name (string)",
+                  example: "Tab 1",
+                },
               },
             },
           },

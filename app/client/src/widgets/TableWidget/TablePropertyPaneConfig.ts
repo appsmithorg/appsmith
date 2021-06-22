@@ -750,7 +750,11 @@ export default [
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
-            fnString: defaultSelectedRowValidation.toString(),
+            fn: defaultSelectedRowValidation,
+            expected: {
+              type: "Index of row(s)",
+              example: "0 | [0, 1]",
+            },
           },
         },
       },

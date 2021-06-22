@@ -9,7 +9,7 @@ import { isObject, isPlainObject, isString, rest, toString } from "lodash";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
-import { getFnContents } from "./ast";
+import evaluate from "./evaluate";
 
 function validatePlainObject(
   config: ValidationConfig,
@@ -446,9 +446,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const fnContents = getFnContents(config.params.fnString);
-        const fn = Function("value", "props", fnContents);
-        return fn(value, props);
+        const { result } = evaluate(config.params.fnString, {}, [value, props]);
+        return result;
       } catch (e) {
         console.log({ config }, { value }, { props });
         console.log("Validation function error: --", { e });

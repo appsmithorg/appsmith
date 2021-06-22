@@ -1,5 +1,8 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -67,8 +70,9 @@ type ValidationConfigParams = {
   }>;
   allowedValues?: unknown[];
   children?: ValidationConfig;
+  fn?: (value: unknown, props: any) => ValidationResponse;
   fnString?: string;
-  expected?: string;
+  expected?: { type: string; example: any };
 };
 
 export type ValidationConfig = {
