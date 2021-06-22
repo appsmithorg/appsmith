@@ -89,7 +89,6 @@ export function getEntityNameAndPropertyPath(
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
 ): DataTreeDiff | DataTreeDiff[] => {
-  debugger;
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
