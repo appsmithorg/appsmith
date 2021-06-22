@@ -88,8 +88,9 @@ export function getEntityNameAndPropertyPath(
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
-): DataTreeDiff => {
-  const result: DataTreeDiff = {
+): DataTreeDiff | DataTreeDiff[] => {
+  debugger;
+  let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
       value: "",
@@ -126,7 +127,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           propertyPath,
           value: difference.rhs,
         };
-      } else {
+      } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
         if (
@@ -143,8 +144,42 @@ export const translateDiffEventToDataTreeDiffEvent = (
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
-      }
+      } else if (
+        typeof difference.lhs === "object" &&
+        typeof difference.rhs !== "object"
+      ) {
+        // This will happen for static value changes where a property went
+        // from being an object to any other type like string or number
+        // in such a case we want to delete all nested paths of the
+        // original lhs object
 
+        result = Object.keys(difference.lhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      } else if (
+        typeof difference.lhs !== "object" &&
+        typeof difference.rhs === "object"
+      ) {
+        // This will happen for static value changes where a property went
+        // from being any other type like string or number to an object
+        // in such a case we want to add all nested paths of the
+        // new rhs object
+        result = Object.keys(difference.rhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.NEW,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      }
       break;
     }
     case "A": {
