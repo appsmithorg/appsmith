@@ -1,10 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { createActionRequest } from "actions/actionActions";
 import { QueryAction } from "entities/Action";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DataSourceHome from "./DatasourceHome";
 
 const QueryHomePage = styled.div`
@@ -16,10 +14,6 @@ const QueryHomePage = styled.div`
     font-size: ${(props) => props.theme.fontSizes[4]}px;
     margin-top: 10px;
   }
-`;
-
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
 `;
 
 type QueryHomeScreenProps = {
@@ -38,15 +32,7 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const { applicationId, history, isCreating, location, pageId } = this.props;
-
-    if (isCreating) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
+    const { applicationId, history, location, pageId } = this.props;
 
     return (
       <QueryHomePage>
