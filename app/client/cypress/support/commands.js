@@ -273,6 +273,11 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  /* The server created app always has an old dsl so the layout will migrate
+   * To avoid race conditions between that update layout and this one
+   * we wait for that to finish before updating layout here
+   */
+  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add(
@@ -1639,21 +1644,20 @@ Cypress.Commands.add("addDsl", (dsl) => {
     //Fetch the layout id
     cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
-      const len = JSON.stringify(response.body);
-      cy.log(len);
-      layoutId = JSON.parse(len).data.layouts[0].id;
-      // Dumpimg the DSL to the created page
+      const respBody = JSON.stringify(response.body);
+      layoutId = JSON.parse(respBody).data.layouts[0].id;
+      // Dumping the DSL to the created page
       cy.request(
         "PUT",
         "api/v1/layouts/" + layoutId + "/pages/" + pageid,
         dsl,
       ).then((response) => {
+        cy.log(response.body);
         expect(response.status).equal(200);
         cy.reload();
       });
     });
   });
-  cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
@@ -2404,8 +2408,6 @@ Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
-    .should("contain.text", "Expected Data Type")
-    .should("contain.text", "Evaluated Value")
     .siblings("pre")
     .should("have.text", expectedType);
 });

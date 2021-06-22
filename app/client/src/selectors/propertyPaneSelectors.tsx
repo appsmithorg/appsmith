@@ -9,6 +9,7 @@ import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -43,22 +44,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
     const widgetProperties = { ...widget };
 
     if (evaluatedWidget) {
-      if (evaluatedWidget.evaluatedValues) {
-        widgetProperties.evaluatedValues = {
-          ...evaluatedWidget.evaluatedValues,
-        };
-      }
-
-      if (evaluatedWidget.invalidProps) {
-        const {
-          invalidProps,
-          jsErrorMessages,
-          validationMessages,
-        } = evaluatedWidget;
-        widgetProperties.invalidProps = invalidProps;
-        widgetProperties.validationMessages = validationMessages;
-        widgetProperties.jsErrorMessages = jsErrorMessages;
-      }
+      widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
     }
     return widgetProperties;
   },
