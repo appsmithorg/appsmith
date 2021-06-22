@@ -1,10 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  focusWidget,
-  selectAllWidgets,
-  selectWidget,
-} from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
 
@@ -69,22 +64,6 @@ export const useCanvasSnapRowsUpdateHook = () => {
   return updateCanvasSnapRows;
 };
 
-export const useWidgetSelection = () => {
-  const dispatch = useDispatch();
-  return {
-    selectWidget: useCallback(
-      (widgetId?: string, isMultiSelect?: boolean) => {
-        dispatch(selectWidget(widgetId, isMultiSelect));
-      },
-      [dispatch],
-    ),
-    focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
-      [dispatch],
-    ),
-    deselectAll: useCallback(() => dispatch(selectAllWidgets([])), [dispatch]),
-  };
-};
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
