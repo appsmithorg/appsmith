@@ -3,7 +3,7 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent, findByText } from "test/testUtils";
+import { act, render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
