@@ -515,7 +515,7 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = _.find(this.oldUnEvalTree, { name: entityName });
+      const entity = _.get(this.oldUnEvalTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {
@@ -813,7 +813,6 @@ export default class DataTreeEvaluator {
             break;
           }
           case DataTreeDiffEvent.DELETE: {
-            debugger;
             // Add to removedPaths as they have been deleted from the evalTree
             removedPaths.push(dataTreeDiff.payload.propertyPath);
             // If an existing widget was deleted, remove all the bindings from the global dependency map

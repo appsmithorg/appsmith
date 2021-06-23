@@ -55,6 +55,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 
 const LightningMenu = lazy(() =>
@@ -366,11 +367,14 @@ class CodeEditor extends Component<Props, State> {
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
+    const filteredLintErrors = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
-      isInvalid: errors.length > 0,
-      errors,
+      isInvalid: filteredLintErrors.length > 0,
+      errors: filteredLintErrors,
       pathEvaluatedValue,
     };
   };
