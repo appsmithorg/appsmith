@@ -134,7 +134,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(", tableName and datasourceName must be present")))
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(", tableName and datasourceId must be present")))
             .verify();
     }
 
