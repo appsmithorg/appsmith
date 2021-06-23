@@ -13,6 +13,7 @@ import {
   getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
+  SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
@@ -47,7 +48,8 @@ function changeAppBackground(currentTheme: any) {
   if (
     trimTrailingSlash(window.location.pathname) === "/applications" ||
     window.location.pathname.indexOf("/settings/") !== -1 ||
-    trimTrailingSlash(window.location.pathname) === "/profile"
+    trimTrailingSlash(window.location.pathname) === "/profile" ||
+    trimTrailingSlash(window.location.pathname) === "/signup-success"
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
@@ -100,6 +102,11 @@ class AppRouter extends React.Component<any, any> {
                   component={ApplicationListLoader}
                   exact
                   path={APPLICATIONS_URL}
+                />
+                <SentryRoute
+                  component={ApplicationListLoader}
+                  exact
+                  path={SIGNUP_SUCCESS_URL}
                 />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
                 <SentryRoute

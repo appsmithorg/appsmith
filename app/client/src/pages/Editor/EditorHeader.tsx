@@ -95,6 +95,7 @@ const HeaderSection = styled.div`
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
     justify-content: center;

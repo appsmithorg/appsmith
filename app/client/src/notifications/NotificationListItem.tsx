@@ -86,6 +86,7 @@ function CommentThreadNotification(props: {
   const dispatch = useDispatch();
   const { commentThread } = props.notification;
   // TODO add isResolved, applicationId, pageId
+  // mode: commentThread?.mode
   const commentThreadUrl = getCommentThreadURL({
     commentThreadId: commentThread?.id,
   });

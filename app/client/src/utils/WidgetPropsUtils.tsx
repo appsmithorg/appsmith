@@ -16,7 +16,7 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
+import { renameKeyInObject, snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
@@ -28,6 +28,7 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
+  migrateTableWidgetHeaderVisibilityProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -39,6 +40,7 @@ import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { theme } from "../../src/constants/DefaultTheme";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -523,13 +525,20 @@ export function migrateChartDataFromArrayToObject(
   return currentDSL;
 }
 
+const pixelToNumber = (pixel: string) => {
+  if (pixel.includes("px")) {
+    return parseInt(pixel.split("px").join(""));
+  }
+  return 0;
+};
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = {},
   presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
 ) => {
-  let minmumHeight = presentMinimumHeight;
+  let minimumHeight = presentMinimumHeight;
   const nextAvailableRow = nextAvailableRowInContainer(
     MAIN_CONTAINER_WIDGET_ID,
     canvasWidgets,
@@ -538,19 +547,19 @@ export const calculateDynamicHeight = (
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 2 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 2 * DGRH (approx)
-  // buffer = DGRH, it's not 2 * DGRH coz we already add a buffer on the canvas which is also equal to DGRH.
-  const buffer = gridRowHeight;
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
   if (
     calculatedCanvasHeight < screenHeight &&
     calculatedMinHeight !== presentMinimumHeight
   ) {
-    minmumHeight = calculatedMinHeight;
+    minimumHeight = calculatedMinHeight;
   }
-  return minmumHeight;
+  return minimumHeight;
 };
 
 export const migrateInitialValues = (
@@ -764,16 +773,26 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
     currentDSL.version = 23;
   }
+
   if (currentDSL.version === 23) {
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
+  }
+
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = 25;
+  }
+
+  if (currentDSL.version === 25) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = 26;
+  }
+
+  if (currentDSL.version === 26) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
-
-  if (currentDSL.version === 22) {
-    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
-    currentDSL.version = 23;
-  }
-
   return currentDSL;
 };
 
@@ -970,7 +989,7 @@ export const getDropZoneOffsets = (
   );
 };
 
-const areIntersecting = (r1: Rect, r2: Rect) => {
+export const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(
     r2.left >= r1.right ||
     r2.right <= r1.left ||
@@ -1241,5 +1260,63 @@ const addLogBlackListToAllListWidgetChildren = (
     return children;
   });
 
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+      (path: { key: string }) => {
+        if (path.key === "items") {
+          return { key: "listData" };
+        }
+
+        return path;
+      },
+    );
+
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key, "").replace("items", "listData"),
+        );
+      }
+    });
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length > 0) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
   return currentDSL;
 };

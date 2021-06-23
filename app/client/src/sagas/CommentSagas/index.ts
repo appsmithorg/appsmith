@@ -40,6 +40,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { get } from "lodash";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { AppState } from "reducers";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -57,10 +58,12 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   );
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const mode = yield select((state: AppState) => state.entities.app.mode);
   const response = yield call(CommentsApi.createNewThread, {
     ...newCommentThreadPayload,
     applicationId,
     pageId,
+    mode,
   });
   const isValidResponse = yield validateResponse(response);
 

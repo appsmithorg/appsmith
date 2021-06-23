@@ -27,7 +27,7 @@
                 "gridType": "vertical",
                 "enhancements": true,
                 "gridGap": 0,
-                "items": "",
+                "listData": [],
                 "widgetName": "List1",
                 "children": [
                     {
@@ -196,7 +196,7 @@
                         "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                         "imageShape": "RECTANGLE",
                         "maxZoomLevel": 1,
-                        "image": "{{List1.items.map((currentItem) => currentItem.img)}}",
+                        "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",
                         "widgetName": "Image1",
                         "version": 1,
                         "dynamicBindingPathList": [
@@ -216,7 +216,7 @@
                     },
                     "Text1": {
                         "isVisible": true,
-                        "text": "{{List1.items.map((currentItem) => currentItem.name)}}",
+                        "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
                         "fontSize": "PARAGRAPH",
                         "fontStyle": "BOLD",
                         "textAlign": "LEFT",
@@ -241,7 +241,7 @@
                     },
                     "Text2": {
                         "isVisible": true,
-                        "text": "{{List1.items.map((currentItem) => currentItem.num)}}",
+                        "text": "{{List1.listData.map((currentItem) => currentItem.num)}}",
                         "fontSize": "PARAGRAPH",
                         "fontStyle": "BOLD",
                         "textAlign": "LEFT",

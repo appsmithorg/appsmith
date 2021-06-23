@@ -116,7 +116,9 @@ const useUserSuggestions = (
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
 ) => {
   useEffect(() => {
-    setSuggestions(users.map((user) => ({ name: user.username, user })));
+    setSuggestions(
+      users.map((user) => ({ name: user.name || user.username, user })),
+    );
   }, [users]);
 };
 
@@ -153,8 +155,9 @@ function AddCommentInput({
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
       const latestEditorState = editorStateArg || editorState;
+      const plainText = latestEditorState.getCurrentContent().getPlainText();
 
-      if (!latestEditorState.getCurrentContent().hasText()) return;
+      if (!plainText || plainText.trim().length === 0) return;
 
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);

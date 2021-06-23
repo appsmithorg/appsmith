@@ -30,6 +30,7 @@ public class DatasourceStructure {
     @AllArgsConstructor
     public static class Table {
         TableType type;
+        String schema;
         String name;
         List<Column> columns;
         List<Key> keys;

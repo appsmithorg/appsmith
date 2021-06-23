@@ -17,7 +17,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -67,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -139,9 +139,18 @@ public class ImportExportApplicationServiceTests {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
-        User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        
+
+        Organization organization = new Organization();
+        organization.setName("Import-Export-Test-Organization");
+        Organization savedOrganization = organizationService.create(organization).block();
+        orgId = savedOrganization.getId();
+
+        Application testApplication = new Application();
+        testApplication.setName("Export-Application-Test-Application");
+        testApplication.setOrganizationId(orgId);
+        Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        testAppId = savedApplication.getId();
+
         invalid_json_file = importExportApplicationService.INVALID_JSON_FILE;
 
         Datasource ds1 = new Datasource();
@@ -168,6 +177,7 @@ public class ImportExportApplicationServiceTests {
     }
     
     @Test
+    @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null);
         
@@ -182,11 +192,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithoutActionsAndDatasourceTest() {
 
-        Application testApplication = new Application();
-        testApplication.setName("Export Application TestApp");
-
-        final Mono<ApplicationJson> resultMono = applicationPageService.createApplication(testApplication, orgId)
-                .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId()));
+        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId);
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -197,10 +203,11 @@ public class ImportExportApplicationServiceTests {
 
                     NewPage defaultPage = pageList.get(0);
 
-                    assertThat(exportedApp.getName()).isEqualTo(testApplication.getName());
+                    assertThat(exportedApp.getId()).isNull();
                     assertThat(exportedApp.getOrganizationId()).isNull();
                     assertThat(exportedApp.getPages()).isNull();
                     assertThat(exportedApp.getPolicies().size()).isEqualTo(0);
+                    assertThat(exportedApp.getUserPermissions()).contains(EXPORT_APPLICATIONS.getValue());
 
                     assertThat(pageList.isEmpty()).isFalse();
                     assertThat(defaultPage.getApplicationId()).isNull();
@@ -378,6 +385,7 @@ public class ImportExportApplicationServiceTests {
     }
     
     @Test
+    @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -396,6 +404,7 @@ public class ImportExportApplicationServiceTests {
     }
     
     @Test
+    @WithUserDetails(value = "api_user")
     public void importApplicationWithNullOrganizationIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         

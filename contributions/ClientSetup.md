@@ -107,6 +107,28 @@ node versions to be used in different projects. Check below for installation and
     yarn start
     ```
 
+### Windows WSL2 Setup
+
+Before you follow the instructions above, make sure to check the following steps:
+
+1. You have **WSL2** setup in your machine. If not, please visit: [https://docs.microsoft.com/en-us/windows/wsl/install-win10](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+2. You have [Node.js](https://www.geeksforgeeks.org/installation-of-node-js-on-linux/) installed on the WSL Distro.
+3. You have **Docker Desktop** installed with WSL2 backend. If not, please visit: [https://docs.docker.com/docker-for-windows/wsl/](https://docs.docker.com/docker-for-windows/wsl/).
+
+In the above [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/) instructions, make sure to:
+1. Set WSL Distro to run in WSL2 mode.
+2. Enable integration with the WSL Distro in Docker Desktop.
+3. Install [Remote-WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension in VSCode.
+
+Make sure to Clone the Repo in the WSL file system instead of the Windows file System.
+
+And finally, you can open the folder in VSCode with WSL by following the instructions in [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/),
+or Alternatively by,
+1. Clicking on the Green button on the Bottom Left corner in VSCode.
+2. Selecting **Open Folder in WSL** and navigating to the folder in WSL.
+
+After this You can continue Setting up from [here](#pre-requisites).
+
 ### Troubleshooting
 
 #### I am on WSL and can't reach dev.appsmith.com
