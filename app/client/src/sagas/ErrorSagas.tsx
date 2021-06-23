@@ -24,6 +24,8 @@ import {
   createMessage,
 } from "constants/messages";
 
+import * as Sentry from "@sentry/react";
+
 /**
  * making with error message with action name
  *
@@ -141,12 +143,13 @@ export interface ErrorActionPayload {
   error: ErrorPayloadType;
   show?: boolean;
   crash?: boolean;
+  logToSentry?: boolean;
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { payload, type } = errorAction;
-  const { error, show = true } = payload || {};
+  const { error, logToSentry, show = true } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
   if (show) {
@@ -172,6 +175,10 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
     }
+  }
+
+  if (logToSentry) {
+    Sentry.captureException(error);
   }
 
   yield put({

@@ -29,7 +29,7 @@ export function* fetchNotifications(action: ReduxAction<string>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_NOTIFICATIONS_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -55,7 +55,7 @@ function* markAllNotificationsAsRead() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.MARK_ALL_NOTIFICAIONS_AS_READ_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -70,7 +70,7 @@ function* fetchUnreadNotificationsCount() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_UNREAD_NOTIFICATIONS_COUNT_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -88,7 +88,7 @@ function* markNotificationAsRead(action: ReduxAction<string>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.MARK_NOTIFICATION_AS_READ_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }

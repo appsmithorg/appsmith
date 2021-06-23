@@ -79,7 +79,7 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_COMMENT_THREAD_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -110,7 +110,7 @@ function* addCommentToThread(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.ADD_COMMENT_TO_THREAD_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -128,7 +128,7 @@ function* fetchApplicationComments() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_COMMENTS_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -149,7 +149,7 @@ function* setCommentResolution(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SET_COMMENT_RESOLUTION_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -170,7 +170,7 @@ function* pinCommentThread(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.PIN_COMMENT_THREAD_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -188,7 +188,7 @@ function* deleteComment(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_COMMENT_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -204,7 +204,7 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.MARK_THREAD_AS_READ_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -228,7 +228,7 @@ function* editComment(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.EDIT_COMMENT_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -249,7 +249,7 @@ function* deleteCommentThread(action: ReduxAction<string>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_COMMENT_THREAD_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -277,7 +277,7 @@ function* addCommentReaction(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.ADD_COMMENT_REACTION_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
@@ -293,7 +293,7 @@ function* deleteCommentReaction(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_COMMENT_REACTION_ERROR,
-      payload: { error },
+      payload: { error, logToSentry: true },
     });
   }
 }
