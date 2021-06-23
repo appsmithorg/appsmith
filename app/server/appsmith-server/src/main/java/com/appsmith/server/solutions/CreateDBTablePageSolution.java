@@ -14,6 +14,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -56,17 +57,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CreateDBTablePageSolution {
 
-    private DatasourceStructureSolution datasourceStructureSolution;
-    
-    private DatasourceService datasourceService;
-    
-    private NewPageService newPageService;
-    
-    private ApplicationService applicationService;
-    
-    private LayoutActionService layoutActionService;
-
-    private ApplicationPageService applicationPageService;
+    private final DatasourceStructureSolution datasourceStructureSolution;
+    private final DatasourceService datasourceService;
+    private final NewPageService newPageService;
+    private final ApplicationService applicationService;
+    private final LayoutActionService layoutActionService;
+    private final ApplicationPageService applicationPageService;
     
     private final String DATABASE_TABLE = "database table";
     
@@ -80,40 +76,32 @@ public class CreateDBTablePageSolution {
 
     private final String SELECT_QUERY = "selectQuery";
 
-    @Autowired
-    public CreateDBTablePageSolution(NewPageService newPageService,
-                                     DatasourceService datasourceService,
-                                     ApplicationService applicationService,
-                                     LayoutActionService layoutActionService,
-                                     ApplicationPageService applicationPageService) {
-        this.newPageService = newPageService;
-        this.datasourceService = datasourceService;
-        this.applicationService = applicationService;
-        this.layoutActionService = layoutActionService;
-        this.applicationPageService = applicationPageService;
-    }
-
-    // These fields contain the mapping fields between template DB table and DB table in current context
+    // These fields contain the fields those need to be mapped between template DB table and DB table in current context
     private final Set<String> WIDGET_FIELDS = Set.of("defaultText", "placeholderText", "text", "options", "defaultOptionValue");
 
-    public Mono<PageDTO> createPageFromDBTable(String pageId, Object requestBody) {
+    // Pattern to break string in separate words
+    final static Pattern wordPattern = Pattern.compile("[^\\W]+");
 
-        final Map<String, Object> tableObject = (HashMap<String, Object>) requestBody;
+    // Pattern to get string between "_" and ._} : "templateTableColumnName" => templateTableColumnName mapped to tableColumnName
+    final static Pattern fieldNamePattern = Pattern.compile("(?<=[\".])([^ ,.{}]*?)(?=[\"}])");
+
+    public Mono<PageDTO> createPageFromDBTable(String pageId, CRUDPageResourceDTO pageResourceDTO) {
+
         AtomicReference<String> savedPageId = new AtomicReference<>(pageId);
-        if (tableObject.get("tableName") == null || tableObject.get("datasourceName") == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ", tableName and datasourceName must be present"));
-        } else if (tableObject.get(FieldName.APPLICATION_ID) == null) {
+        if (pageResourceDTO.getTableName() == null || pageResourceDTO.getDatasourceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ", tableName and datasourceId must be present"));
+        } else if (pageResourceDTO.getApplicationId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        final String tableName =  tableObject.get("tableName").toString();
-        final String datasourceName =  tableObject.get("datasourceName").toString();
-        final String applicationId = tableObject.get(FieldName.APPLICATION_ID).toString();
+        final String tableName =  pageResourceDTO.getTableName();
+        final String datasourceId =  pageResourceDTO.getDatasourceId();
+        final String applicationId = pageResourceDTO.getApplicationId();
 
         //Mapped columns along with table name between template and concerned DB table
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
 
-        Mono<NewPage> pageMono = getPage(applicationId, savedPageId.get(), tableName).cache();
+        Mono<NewPage> pageMono = getOrCreatePage(applicationId, savedPageId.get(), tableName).cache();
 
         Mono<Datasource> datasourceMono = pageMono
             .flatMap(newPage -> {
@@ -122,18 +110,21 @@ public class CreateDBTablePageSolution {
             })
             .flatMap(application ->
                 datasourceService
-                    .findAllByOrganizationId(application.getOrganizationId(), AclPermission.MANAGE_DATASOURCES)
-                    .filter(datasource -> datasource.getStructure() != null && !datasource.getStructure().getTables().isEmpty())
-                    .filter(datasource -> StringUtils.equals(datasource.getName(), datasourceName))
+                    .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                     .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceName))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                     )
+                    .filter(datasource -> datasource.getStructure() != null
+                        && !CollectionUtils.isEmpty(datasource.getStructure().getTables()))
                     .filter(datasource -> datasource.getStructure().getTables().stream()
                         .anyMatch(table -> StringUtils.equals(table.getName(), tableName)))
-                    .next()
-            )
-            .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, "with name " + datasourceName))
+                    .switchIfEmpty(Mono.error(
+                        new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND,
+                            FieldName.DATASOURCE_STRUCTURE,
+                            "containing table with name " + tableName
+                        ))
+                    )
             );
 
         
@@ -158,7 +149,7 @@ public class CreateDBTablePageSolution {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, TEMPLATE_APPLICATION_FILE));
                 }
 
-                //TODO for MVP we are supporting single page with only one layout
+                //TODO for POC we are supporting single page with only one layout
                 Layout layout = pageList.get(0).getUnpublishedPage().getLayouts().get(0);
                 layout.setId(null);
 
@@ -184,14 +175,15 @@ public class CreateDBTablePageSolution {
                 Datasource datasource = tuple.getT1();
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
-                return cloneActions(datasource, tableName, savedPageId.get(), templateActionList, mappedColumnsAndTableName, deletedWidgets)
+                return cloneActionsFromTemplateApplication(
+                    datasource, tableName, savedPageId.get(), templateActionList, mappedColumnsAndTableName, deletedWidgets)
                     .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY) ?
                         layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
                     .then(applicationPageService.getPage(savedPageId.get(), false));
             });
     }
 
-    private Mono<NewPage> getPage(String applicationId, String pageId, String tableName) {
+    private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName) {
 
         if(pageId != null) {
             return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
@@ -203,11 +195,12 @@ public class CreateDBTablePageSolution {
         return newPageService.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES, false)
             .collectList()
             .flatMap(pages -> {
-                String pageName = "Admin Page: " + tableName;
-                long maxCount = 0l;
+                // Avoid duplicating page names
+                String pageName = "Admin Page:" + WordUtils.capitalize(tableName);
+                long maxCount = 0L;
                 for (PageDTO pageDTO : pages) {
-                    if (pageDTO.getName().matches("^" + pageName + ".*")) {
-                        long count = 1l;
+                    if (pageDTO.getName().matches("^" + Pattern.quote(pageName) + "\\d*$")) {
+                        long count = 1L;
                         String pageCount = pageDTO.getName().substring(pageName.length());
                         if (!pageCount.isEmpty()) {
                             count = Long.parseLong(pageCount);
@@ -257,11 +250,12 @@ public class CreateDBTablePageSolution {
     }
     
     
-    private Flux<ActionDTO> cloneActions(Datasource datasource,
-                                         String tableName,
-                                         String pageId,
-                                         List<NewAction> templateActionList, Map<String, String> mappedColumns,
-                                         Set<String> deletedWidgetNames
+    private Flux<ActionDTO> cloneActionsFromTemplateApplication(Datasource datasource,
+                                                                String tableName,
+                                                                String pageId,
+                                                                List<NewAction> templateActionList,
+                                                                Map<String, String> mappedColumns,
+                                                                Set<String> deletedWidgetNames
     ) {
         
         return Flux.fromIterable(templateActionList)
@@ -278,14 +272,8 @@ public class CreateDBTablePageSolution {
                 actionDTO.setActionConfiguration(templateActionConfiguration);
                 ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
 
-                /**
-                 * "templateTableColumnName" => templateTableColumnName mapped to tableColumnName
-                 */
-                String fieldRegex = "(?<=\")([^ \n,{}]*?)(?=\")";
-                
                 String body = actionBody.replaceFirst(TEMPLATE_TABLE_NAME, tableName);
-                final Pattern pattern = Pattern.compile(fieldRegex);
-                final Matcher matcher = pattern.matcher(body);
+                final Matcher matcher = fieldNamePattern.matcher(body);
                 
                 actionConfiguration.setBody(matcher.replaceAll(key ->
                     mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
@@ -385,13 +373,10 @@ public class CreateDBTablePageSolution {
 
     private JSONObject updateTemplateWidgets(JSONObject widgetDsl, Map<String, String> mappedColumnsAndTableNames) {
 
-        //Get separate words and map to tableColumns from widgetDsl
-        String fieldRegex = "[^\\W]+";
-        final Pattern pattern = Pattern.compile(fieldRegex);
         List<String> keys = widgetDsl.keySet().stream().filter(WIDGET_FIELDS::contains).collect(Collectors.toList());
-
         for (String key : keys) {
-            Matcher matcher = pattern.matcher(widgetDsl.getAsString(key));
+            //Get separate words and map to tableColumns from widgetDsl
+            Matcher matcher = wordPattern.matcher(widgetDsl.getAsString(key));
             widgetDsl.put(key, matcher.replaceAll(field ->
                 mappedColumnsAndTableNames.get(field.group()) == null ?
                     field.group() : mappedColumnsAndTableNames.get(field.group())
@@ -409,9 +394,8 @@ public class CreateDBTablePageSolution {
         if (StringUtils.containsIgnoreCase(actionConfiguration.getBody(), "VALUES")) {
 
             // Get separate words and map to tableColumns from widgetDsl
-            final Pattern pattern = Pattern.compile("[^\\W]+");
 
-            Matcher matcher = pattern.matcher(actionConfiguration.getBody());
+            Matcher matcher = wordPattern.matcher(actionConfiguration.getBody());
             actionConfiguration.setBody(matcher.replaceAll(field -> deletedWidgetNames.contains(field.group())
                 ? DELETE_FIELD : field.group()
             ));
@@ -427,7 +411,7 @@ public class CreateDBTablePageSolution {
         if (actionConfiguration.getBody().matches("(?s).*,[\\W]*?\\).*")) {
             actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(",[\\W]*?\\)", ")"));
         }
-        // "field1\","field2\",\n\t\"field3\" ,{non-word-characters} WHERE => WHERE condition
+        // "field1\","field2\",\n\t\"field3\" ,{non-word-characters => \n\t} WHERE => WHERE condition
         else if (actionConfiguration.getBody().matches("(?s).*,[\\W]*?(?i)WHERE.*")) {
             actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(",[\\W]*?WHERE", "\nWHERE"));
         }

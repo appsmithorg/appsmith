@@ -2,11 +2,13 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,7 +57,7 @@ public class PageController {
 
     @PostMapping("/crud-page")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@RequestBody Object resource) {
+    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@RequestBody @NonNull CRUDPageResourceDTO resource) {
         log.debug("Going to create crud-page");
         return createDBTablePageSolution.createPageFromDBTable(null, resource)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -63,7 +65,8 @@ public class PageController {
     
     @PutMapping("/crud-page/{pageId}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@PathVariable String pageId, @RequestBody Object resource) {
+    public Mono<ResponseDTO<PageDTO>> createCRUDPage(@PathVariable String pageId,
+                                                     @NonNull @RequestBody CRUDPageResourceDTO resource) {
         log.debug("Going to update resource {}", pageId);
         return createDBTablePageSolution.createPageFromDBTable(pageId, resource)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));

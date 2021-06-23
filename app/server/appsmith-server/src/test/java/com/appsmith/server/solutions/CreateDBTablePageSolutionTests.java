@@ -11,6 +11,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,9 +36,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,7 +65,7 @@ public class CreateDBTablePageSolutionTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
-    Map<String, Object> resource = new HashMap<>();
+    CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     Datasource testDatasource = new Datasource();
 
@@ -106,9 +106,9 @@ public class CreateDBTablePageSolutionTests {
         testDatasource.setStructure(structure);
         datasourceService.create(testDatasource).block();
 
-        resource.put("tableName", testDatasource.getStructure().getTables().get(0).getName());
-        resource.put("datasourceName", testDatasource.getName());
-        resource.put("columns", List.of("id", "field1", "field2", "field3"));
+        resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
+        resource.setDatasourceId(testDatasource.getId());
+        resource.setColumnNames(Set.of("id", "field1", "field2", "field3"));
 
     }
 
@@ -129,7 +129,7 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidRequestBodyTest() {
-        Mono<PageDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new HashMap<>());
+        Mono<PageDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
 
         StepVerifier
             .create(resultMono)
@@ -142,14 +142,14 @@ public class CreateDBTablePageSolutionTests {
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageId() {
 
-        resource.put(FieldName.APPLICATION_ID, testApp.getId());
+        resource.setApplicationId(testApp.getId());
         Mono<PageDTO> resultMono = solution.createPageFromDBTable(null, resource);
 
         StepVerifier
             .create(resultMono)
             .assertNext(page -> {
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page: ");
+                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -164,7 +164,7 @@ public class CreateDBTablePageSolutionTests {
     @WithUserDetails(value = "api_user")
     public void createPageWithValidPageId() {
 
-        resource.put(FieldName.APPLICATION_ID, testApp.getId());
+        resource.setApplicationId(testApp.getId());
         PageDTO newPage = new PageDTO();
         newPage.setApplicationId(testApp.getId());
         newPage.setName("crud-admin-page");
