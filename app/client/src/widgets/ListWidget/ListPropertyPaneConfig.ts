@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 
 const PropertyPaneConfig = [
   {
@@ -72,7 +73,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, "evaluatedValues.listData", []);
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
 
           if (Array.isArray(items)) {
             items = items.filter(Boolean);
