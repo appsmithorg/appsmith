@@ -2455,6 +2455,8 @@ public class DatabaseChangelog {
                             .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
+                
+                mongoTemplate.save(application);
             }
         }
     }
@@ -2492,75 +2494,6 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
 
     }
-
-
-//    @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
-//    public void migrateUpdateOneToUpdateManyMongoFormCommand(MongockTemplate mongockTemplate) {
-//
-//        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
-//
-//        // Fetch all the actions built on top of a mongo database with command type update_one or update_many
-//        assert mongoPlugin != null;
-//        List<NewAction> updateMongoActions = mongockTemplate.find(
-//                query(new Criteria().andOperator(
-//                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-//                NewAction.class
-//        )
-//                .stream()
-//                .filter(mongoAction -> {
-//                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
-//                        return false;
-//                    }
-//                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-//
-//                    // Filter out all the actions which are of either of the two update command type
-//                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 21) {
-//                        Property commandProperty = pluginSpecifiedTemplates.get(2);
-//                        if (commandProperty != null && commandProperty.getValue() != null) {
-//                            String command = (String) commandProperty.getValue();
-//                            if (command.equals("UPDATE_ONE") || command.equals("UPDATE_MANY")) {
-//                                return true;
-//                            }
-//                        }
-//                    }
-//                    // Not an action of interest for migration.
-//                    return false;
-//                })
-//                .collect(Collectors.toList());
-//
-//        for (NewAction action : updateMongoActions) {
-//            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-//            String command = (String) pluginSpecifiedTemplates.get(2).getValue();
-//
-//            // Set the command name to be UPDATE for both the update commands
-//            pluginSpecifiedTemplates.get(2).setValue("UPDATE");
-//
-//            // In case of update one, migrate the query and update configurations.
-//            if (command.equals("UPDATE_ONE")) {
-//                String query = (String) pluginSpecifiedTemplates.get(8).getValue();
-//                String update = (String) pluginSpecifiedTemplates.get(10).getValue();
-//
-//                Map<Integer, Object> configMap = new HashMap<>();
-//                configMap.put(0, pluginSpecifiedTemplates.get(0).getValue());
-//                configMap.put(1, "FORM");
-//                configMap.put(2, "UPDATE");
-//                configMap.put(19, pluginSpecifiedTemplates.get(19).getValue());
-//                // Query for all the documents in the collection
-//                configMap.put(11, query);
-//                configMap.put(12, update);
-//                configMap.put(21, "SINGLE");
-//
-//                List<Property> updatedTemplates = generateMongoFormConfigTemplates(configMap);
-//                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
-//
-//            }
-//        }
-//
-//        // Now that all the actions have been updated, save all the actions
-//        for (NewAction action : updateMongoActions) {
-//            mongockTemplate.save(action);
-//        }
-//    }
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
     public void migrateUpdateOneToUpdateManyMongoFormCommand(MongockTemplate mongockTemplate) {
