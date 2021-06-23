@@ -1400,33 +1400,6 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-export function calculateNewWidgetPositionForPasting(
-  widget: WidgetProps,
-  parentId: string,
-  canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
-  goToNextAvailableRow = true,
-  persistColumnPosition = false,
-) {
-  // Note: This is a very simple algorithm.
-  // We take the bottom most widget in the canvas, then calculate the top,left,right,bottom
-  // co-ordinates for the new widget, such that it can be placed at the bottom of the canvas.
-  const nextAvailableRow = goToNextAvailableRow
-    ? nextAvailableRowInContainer(parentId, canvasWidgets)
-    : canvasWidgets[parentId].bottomRow;
-  return {
-    leftColumn: persistColumnPosition ? widget.leftColumn : 0,
-    rightColumn: persistColumnPosition
-      ? widget.rightColumn
-      : widget.rightColumn - widget.leftColumn,
-    topRow: goToNextAvailableRow
-      ? nextAvailableRow
-      : nextAvailableRow + widget.topRow,
-    bottomRow: goToNextAvailableRow
-      ? nextAvailableRow + (widget.bottomRow - widget.topRow)
-      : nextAvailableRow + widget.bottomRow,
-  };
-}
-
 export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
