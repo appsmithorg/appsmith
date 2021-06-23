@@ -446,10 +446,8 @@ function MultiSelectComponent({
     if (!isSelectAll) {
       const allOption: string[] = options.map((option) => option.value);
       onChange(allOption);
-      setIsSelectAll(true);
       return;
     }
-    setIsSelectAll(false);
     return onChange([]);
   };
   useEffect(() => {
