@@ -30,6 +30,7 @@ import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
 import { DividerWidgetProps } from "../../widgets/DividerWidget";
+import { IframeWidgetProps } from "widgets/IframeWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -84,6 +85,7 @@ export interface WidgetConfigReducerState {
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
     LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
     DIVIDER_WIDGET: Partial<DividerWidgetProps> & WidgetConfigProps;
+    IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

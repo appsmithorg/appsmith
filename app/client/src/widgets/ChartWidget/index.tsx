@@ -18,7 +18,7 @@ const ChartComponent = lazy(() =>
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
-  static getMetaPropertiesMap(): Record<string, undefined> {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDataPoint: undefined,
     };

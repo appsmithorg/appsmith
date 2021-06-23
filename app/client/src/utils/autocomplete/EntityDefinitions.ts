@@ -76,6 +76,8 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    defaultPageSize: "number",
+    totalRecordsCount: "number",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -243,7 +245,16 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
+    items: generateTypeDef(widget.items),
+    listData: generateTypeDef(widget.listData),
   }),
+  IFRAME_WIDGET: {
+    "!doc": "Iframe widget is used to display iframes in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/iframe",
+    isVisible: isVisible,
+    source: "string",
+    title: "string",
+  },
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",

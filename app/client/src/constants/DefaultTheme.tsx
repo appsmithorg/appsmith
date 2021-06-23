@@ -318,7 +318,7 @@ export type Theme = {
   smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -361,6 +361,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -2334,7 +2335,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2388,6 +2389,7 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

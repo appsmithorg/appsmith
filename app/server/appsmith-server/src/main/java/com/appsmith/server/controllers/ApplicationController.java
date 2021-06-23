@@ -78,12 +78,28 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @PostMapping("/publish/{applicationId}")
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
         return applicationPageService.publish(applicationId)
-                .map(published -> new ResponseDTO<>(HttpStatus.OK.value(), published, null));
+                .flatMap(application ->
+                        // This event should parallel a similar event sent from the client, so we want it to be sent by the
+                        // controller and not the service method.
+                        applicationPageService.sendApplicationPublishedEvent(application)
+                                // This will only be called when the publishing was successful, so we can always return `true` here.
+                                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null))
+                );
     }
 
     @PutMapping("/{applicationId}/page/{pageId}/makeDefault")
     public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String applicationId, @PathVariable String pageId) {
         return applicationPageService.makePageDefault(applicationId, pageId)
+                .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
+    }
+
+    @PutMapping("/{applicationId}/page/{pageId}/reorder")
+    public Mono<ResponseDTO<Application>> reorderPage(
+            @PathVariable String applicationId,
+            @PathVariable String pageId,
+            @RequestParam Integer order
+    ) {
+        return applicationPageService.reorderPage(applicationId, pageId, order)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
@@ -132,7 +148,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
-        
+
         return importExportApplicationService.exportApplicationById(id)
                 .map(fetchedResource -> {
                     String applicationName = fetchedResource.getExportedApplication().getName();
@@ -143,7 +159,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                         .build();
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-                    
+
                     return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
                 });
     }

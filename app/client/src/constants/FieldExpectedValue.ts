@@ -165,9 +165,15 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   LIST_WIDGET: {
-    items: "Array<Object>",
+    listData: "Array<Object>",
     isVisible: "boolean",
     gridGap: "number",
+  },
+  IFRAME_WIDGET: {
+    source: "string",
+    title: "string",
+    borderOpacity: "number",
+    borderWidth: "number",
   },
   DIVIDER_WIDGET: {
     orientation: "string",
