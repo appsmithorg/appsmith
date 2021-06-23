@@ -1536,6 +1536,7 @@ function* pasteWidgetSaga() {
           const copiedWidget = {
             ...unUpdatedCopyOfWidget,
             topRow: unUpdatedCopyOfWidget.topRow - copiedGroupTopRow,
+            bottomRow: unUpdatedCopyOfWidget.bottomRow - copiedGroupTopRow,
           };
 
           // Log the paste event
