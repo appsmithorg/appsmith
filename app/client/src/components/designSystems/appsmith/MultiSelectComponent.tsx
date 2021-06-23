@@ -210,6 +210,7 @@ const MultiSelectContainer = styled.div`
     width: 100%;
     height: 100%;
     position: relative;
+    cursor: pointer;
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -483,6 +484,13 @@ function MultiSelectComponent({
     ),
     [isSelectAll],
   );
+
+  const filterOption = useCallback(
+    (input, option) =>
+      option?.props.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+      option?.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0,
+    [],
+  );
   return (
     <MultiSelectContainer>
       <DropdownStyles />
@@ -495,6 +503,7 @@ function MultiSelectComponent({
         dropdownClassName="multi-select-dropdown"
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
+        filterOption={filterOption}
         getPopupContainer={getPopupContainer}
         inputIcon={inputIcon}
         loading={loading}
