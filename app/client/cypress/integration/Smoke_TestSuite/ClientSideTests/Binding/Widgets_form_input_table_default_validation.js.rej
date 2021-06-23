@@ -1,0 +1,10 @@
+diff a/app/client/cypress/integration/Smoke_TestSuite/ClientSideTests/Binding/Widgets_form_input_table_default_validation.js b/app/client/cypress/integration/Smoke_TestSuite/ClientSideTests/Binding/Widgets_form_input_table_default_validation.js	(rejected hunks)
+@@ -36,4 +36,4 @@ describe("Binding the multiple input Widget", function() {
+-//       cy.get(publish.inputWidget + " " + "input")
+-//         .last()
+-//         .invoke("attr", "value")
+-//         .should("contain", tabValue);
++      //       cy.get(publish.inputWidget + " " + "input")
++      //         .last()
++      //         .invoke("attr", "value")
++      //         .should("contain", tabValue);

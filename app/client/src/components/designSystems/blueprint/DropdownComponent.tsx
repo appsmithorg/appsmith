@@ -146,7 +146,7 @@ const DropdownContainer = styled.div`
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
-      <DropdownContainer ref={this._menu as React.RefObject<HTMLDivElement>}>
+      <DropdownContainer>
         <DropdownStyles />
         <StyledControlGroup
           fill
