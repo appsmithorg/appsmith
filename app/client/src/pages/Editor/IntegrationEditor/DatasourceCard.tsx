@@ -123,7 +123,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   };
 
   return (
-    <Wrapper>
+    <Wrapper className="t--datasource">
       <DatasourceCardHeader className="t--datasource-name">
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>

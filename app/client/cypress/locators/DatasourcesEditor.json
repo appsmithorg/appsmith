@@ -13,6 +13,8 @@
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "createQuerty": ".t--create-query",
+  "activeDatasourceList": ".t--active-datasource-list",
+  "datasourceCard": ".t--datasource",
   "editDatasource": ".t--edit-datasource",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
   "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']",

@@ -1911,7 +1911,11 @@ Cypress.Commands.add("saveDatasource", () => {
 
 Cypress.Commands.add("testSaveDatasource", () => {
   cy.saveDatasource();
-  cy.get(datasourceEditor.editDatasource).click();
+  cy.get(
+    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
+  )
+    .last()
+    .click();
   cy.testDatasource();
 });
 
@@ -1969,7 +1973,9 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-
+  cy.get(pages.integrationActiveTab)
+    .should("be.visible")
+    .click({ force: true });
   cy.contains(".t--datasource-name", datasourceName)
     .find(".t--edit-datasource")
     .click();
@@ -2029,7 +2035,8 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
     200,
   );
 
-  cy.get(queryEditor.deleteQuery).click();
+  cy.get(queryEditor.queryMoreAction).click();
+  cy.get(queryEditor.deleteUsingContext).click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
