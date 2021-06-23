@@ -24,7 +24,9 @@ import reactor.test.StepVerifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -73,23 +75,61 @@ public class EmailEventHandlerTest {
     }
 
     @Test
-    public void publish_WhenValidCommentProvided_ReturnsTrue() {
+    public void publish_CommentProvidedWithSubscriber_ReturnsTrue() {
         Comment comment = new Comment();
+        Set<String> subscribers = Set.of("dummy-username1");
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, comment
+                authorUserName, organization, application, originHeader, comment, subscribers
         );
 
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentAddedEvent);
 
-        Mono<Boolean> booleanMono = emailEventHandler.publish(authorUserName, applicationId, comment, originHeader);
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, comment, originHeader, subscribers
+        );
         StepVerifier.create(booleanMono).assertNext(aBoolean -> {
             Assert.assertEquals(Boolean.TRUE, aBoolean);
         }).verifyComplete();
     }
 
     @Test
-    public void publish_WhenValidCommentThreadProvided_ReturnsTrue() {
+    public void publish_CommentProvidedSubscriberIsNull_ReturnsFalse() {
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, new Comment(), originHeader, null
+        );
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_CommentProvidedSubscriberIsEmpty_ReturnsFalse() {
+        Mono<Boolean> booleanMono = emailEventHandler.publish(
+                authorUserName, applicationId, new Comment(), originHeader, Set.of()
+        );
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_WhenCommentThreadHasNoPublishersProvided_ReturnsFalse() {
         CommentThread commentThread = new CommentThread();
+        CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
+                authorUserName, organization, application, originHeader, commentThread
+        );
+        Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
+
+        Mono<Boolean> booleanMono = emailEventHandler.publish(authorUserName, applicationId, commentThread, originHeader);
+        StepVerifier.create(booleanMono).assertNext(aBoolean -> {
+            Assert.assertEquals(Boolean.FALSE, aBoolean);
+        }).verifyComplete();
+    }
+
+    @Test
+    public void publish_WhenCommentThreadHasPublishersProvided_ReturnsTrue() {
+        CommentThread commentThread = new CommentThread();
+        commentThread.setSubscribers(Set.of("abc"));
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
                 authorUserName, organization, application, originHeader, commentThread
         );
@@ -102,14 +142,16 @@ public class EmailEventHandlerTest {
     }
 
     @Test
-    public void handle_WhenValidCommentAddedEvent_ReturnsTrue() {
+    public void handle_WhenValidCommentAddedEvent_SendEmailCalled() {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        sampleComment.setApplicationName(application.getName());
+        Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment
+                authorUserName, organization, application, originHeader, sampleComment, subscribers
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -119,6 +161,28 @@ public class EmailEventHandlerTest {
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
                 eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
+        );
+    }
+
+    @Test
+    public void handle_WhenSubscriberDoesNotMatch_SendEmailNotCalled() {
+        Comment sampleComment = new Comment();
+        sampleComment.setAuthorUsername(authorUserName);
+        sampleComment.setAuthorName("Test Author");
+        Set<String> subscribers = Set.of("test-subscriber-1");
+
+        // send the event
+        CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
+                authorUserName, organization, application, originHeader, sampleComment, subscribers
+        );
+        emailEventHandler.handle(commentAddedEvent);
+
+        String expectedEmailSubject = String.format(
+                "New comment from %s in %s", sampleComment.getAuthorName(), application.getName()
+        );
+        // check email sender was called with expected template and subject
+        Mockito.verify(emailSender, Mockito.times(0)).sendMail(
+                anyString(), anyString(), anyString(), Mockito.anyMap()
         );
     }
 
@@ -146,6 +210,7 @@ public class EmailEventHandlerTest {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // mention the emailReceiverUsername in the sample comment
         Map<String, Comment.Entity> entityMap = createEntityMapForUsers(List.of(emailReceiverUsername));
@@ -155,7 +220,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment
+                authorUserName, organization, application, originHeader, sampleComment, subscribers
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -179,6 +244,8 @@ public class EmailEventHandlerTest {
 
         CommentThread commentThread = new CommentThread();
         commentThread.setResolvedState(resolveState);
+        commentThread.setSubscribers(Set.of(emailReceiverUsername));
+        commentThread.setApplicationName(application.getName());
 
         // send the event
         CommentThreadClosedEvent commentAddedEvent = new CommentThreadClosedEvent(
