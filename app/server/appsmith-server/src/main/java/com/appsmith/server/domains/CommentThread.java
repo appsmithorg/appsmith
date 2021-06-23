@@ -41,6 +41,12 @@ public class CommentThread extends BaseDomain {
     @JsonIgnore
     Set<String> viewedByUsers;
 
+    /**
+     * username i.e. email of users who are subscribed for notifications in this thread
+     */
+    @JsonIgnore
+    Set<String> subscribers;
+
     String mode;
 
     /**
