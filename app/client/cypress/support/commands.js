@@ -2060,7 +2060,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute a DB Query")
+    .contains("Execute an Integration")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()

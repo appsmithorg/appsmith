@@ -1,6 +1,7 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const queryEditor = require("../../../../locators/QueryEditor.json");
 
 describe("Check datasource doc links", function() {
   let postgresDatasourceName;
@@ -44,7 +45,8 @@ describe("Check datasource doc links", function() {
   });
 
   it("Delete the query and datasources", function() {
-    cy.get(queryLocators.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
