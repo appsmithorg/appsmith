@@ -44,6 +44,9 @@ public class Comment extends BaseDomain {
 
     Body body;
 
+    /** Edit/Published Mode */
+    String mode;
+
     List<Reaction> reactions;
 
     /**

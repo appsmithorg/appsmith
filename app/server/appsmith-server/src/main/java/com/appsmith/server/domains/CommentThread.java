@@ -47,6 +47,7 @@ public class CommentThread extends BaseDomain {
     @JsonIgnore
     Set<String> subscribers;
 
+    /** Edit/Published Mode */
     String mode;
 
     /**
