@@ -107,6 +107,11 @@ import MultiSelectWidget, {
   MultiSelectWidgetProps,
   ProfiledMultiSelectWidget,
 } from "widgets/MultiSelectWidget";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -469,6 +474,18 @@ export default class WidgetBuilderRegistry {
       MultiSelectWidget.getDefaultPropertiesMap(),
       MultiSelectWidget.getMetaPropertiesMap(),
       MultiSelectWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
     );
   }
 }

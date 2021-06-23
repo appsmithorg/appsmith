@@ -1027,22 +1027,17 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
   );
 });
 
-// Cypress.Commands.add("CreateModal", () => {
-//   cy.get(modalWidgetPage.selectModal).click();
-//   cy.get(modalWidgetPage.createModalButton).click({ force: true });
-//   cy.get(modalWidgetPage.controlModalType)
-//     .find(".bp3-button")
-//     .click({ force: true })
-//     .get("ul.bp3-menu")
-//     .children()
-//     .contains("Alert Modal")
-//     .click();
-//   cy.get(modalWidgetPage.controlModalType)
-//     .find(".bp3-button > .bp3-button-text")
-//     .should("have.text", "Alert Modal");
-//   cy.get(commonlocators.editPropCrossButton).click({force: true});
-//   cy.reload();
-// });
+Cypress.Commands.add("AddActionWithModal", () => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(".single-select")
+    .contains("Open Modal")
+    .click({ force: true });
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
+});
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.actionSelect)
