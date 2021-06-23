@@ -31,7 +31,5 @@ describe("Test curl import flow", function() {
     cy.get("@deleteAction").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
     });
-    cy.get(ApiEditor.ApiHomePage).should("be.visible");
-    cy.get(ApiEditor.formActionButtons).should("not.exist");
   });
 });
