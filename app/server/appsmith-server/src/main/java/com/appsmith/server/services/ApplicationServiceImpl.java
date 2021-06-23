@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -126,16 +128,23 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
-        return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(analyticsService::sendUpdateEvent);
+        //Check here if we have application with same attributes like name to give more contextual duplicate key error
+        return isNameAllowed(id, application)
+            .flatMap(nameAllowed -> {
+                // If the name is allowed, return update resource for further processing
+                if (Boolean.TRUE.equals(nameAllowed)) {
+                    return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
+                        .flatMap(analyticsService::sendUpdateEvent);
+                }
+                // Throw an error since the new action's name matches an existing action or widget name.
+                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, application.getName(), FieldName.NAME));
+            });
     }
 
     @Override
     public Mono<Application> archive(Application application) {
         return repository.archive(application);
     }
-
-
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
@@ -251,4 +260,29 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     return application;
                 });
     }
+
+    private Mono<Boolean> isNameAllowed(String applicationId, Application applicationContext) {
+
+        Mono<Application> savedApplicationMono = repository.findById(applicationId, MANAGE_APPLICATIONS)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+            );
+
+        return savedApplicationMono
+            .flatMap(savedApplication -> {
+                String applicationName = applicationContext.getName() != null
+                    ? applicationContext.getName() : savedApplication.getName();
+                savedApplication.setName(applicationName);
+
+                return repository.findByOrganizationId(savedApplication.getOrganizationId())
+                    .filter(application -> StringUtils.equals(application.getName(), savedApplication.getName())
+                        && !StringUtils.equals(application.getId(), savedApplication.getId())
+                    )
+                    // Need single match here
+                    .next();
+            })
+            .map(application1 -> false)
+            .switchIfEmpty(Mono.just(true));
+    }
+
 }
