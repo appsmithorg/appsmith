@@ -2205,6 +2205,9 @@ Cypress.Commands.add("deleteWidget", (widget) => {
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
+  cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
@@ -2490,7 +2493,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click();
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Call An API")
+    .contains("Execute an Integration")
     .click();
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
