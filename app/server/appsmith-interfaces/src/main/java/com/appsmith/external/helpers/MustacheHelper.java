@@ -34,8 +34,7 @@ public class MustacheHelper {
      * {{JSON.stringify(jsObject.data.foo)}}: group1 = jsObject, group3 = foo
      * {{JSON.stringify(jsObject.data.)}}: this does not match the pattern.
      */
-    private final static Pattern pattern = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)[.]data([.]([a-zA-Z0-9._]+))?" +
-            "([^a-zA-Z0-9_.])");
+    private final static Pattern pattern = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)[.]data([.]([a-zA-Z0-9._]+))?($|[^a-zA-Z0-9_.])");
     /**
      * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
      * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
@@ -336,7 +335,7 @@ public class MustacheHelper {
 
         /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
-        if (matcher.find()) {
+        while (matcher.find()) {
 
             /**
              * - Extract non-JS action name e.g. api1 from api1.data
@@ -346,15 +345,21 @@ public class MustacheHelper {
             String topLevelActionOrJsObject = matcher.group(1);
             if (!StringUtils.isEmpty(topLevelActionOrJsObject)) {
                 bindingNames.add(topLevelActionOrJsObject);
-            }
 
-            /* Extract JS function names e.g. getTrimmedDate in transform.data.getTrimmedData */
-            String potentialJsActionString = matcher.group(3);
-            if (!StringUtils.isEmpty(potentialJsActionString)) {
-                String potentialJsAction = potentialJsActionString.split("\\.")[0];
-                bindingNames.add(potentialJsAction);
+                /* Extract JS function names e.g. getTrimmedDate in transform.data.getTrimmedData */
+                String potentialJsActionString = matcher.group(3);
+                if (!StringUtils.isEmpty(potentialJsActionString)) {
+                    String potentialJsAction = potentialJsActionString.split("\\.")[0];
+                    String fullyQualifiedActionName =
+                            getFullyQualifiedActionName(topLevelActionOrJsObject, potentialJsAction);
+                    bindingNames.add(fullyQualifiedActionName);
+                }
             }
         }
+    }
+
+    private static String getFullyQualifiedActionName(String jsObjectName, String jsFunctionName) {
+        return jsObjectName + "." + jsFunctionName;
     }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {

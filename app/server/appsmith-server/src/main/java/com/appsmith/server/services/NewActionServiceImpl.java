@@ -1095,7 +1095,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     for (ActionDTO action : pageActions) {
 
-                        String actionName = action.getName();
+                        String actionName = action.getFullyQualifiedName();
                         // If a user has ever set execute on load, this field can not be changed automatically. It has to be
                         // explicitly changed by the user again. Add the action to update only if this condition is false.
                         if (FALSE.equals(action.getUserSetOnLoad())) {
