@@ -137,6 +137,7 @@ enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
   LOG_ERROR = "LOG_ERROR",
+  LOG_TO_SENTRY = "LOG_TO_SENTRY",
 }
 
 export interface ErrorActionPayload {
@@ -160,6 +161,10 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
 
+  if (error && logToSentry) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
+  }
+
   for (const effect of effects) {
     switch (effect) {
       case ErrorEffectTypes.LOG_ERROR: {
@@ -174,11 +179,11 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         yield call(crashAppSaga, error);
         break;
       }
+      case ErrorEffectTypes.LOG_TO_SENTRY: {
+        yield call(Sentry.captureException, error);
+        break;
+      }
     }
-  }
-
-  if (logToSentry) {
-    Sentry.captureException(error);
   }
 
   yield put({
