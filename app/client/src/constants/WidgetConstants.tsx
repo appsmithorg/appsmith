@@ -27,6 +27,7 @@ export enum WidgetTypes {
   LIST_WIDGET = "LIST_WIDGET",
   SWITCH_WIDGET = "SWITCH_WIDGET",
   TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
+  IFRAME_WIDGET = "IFRAME_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;

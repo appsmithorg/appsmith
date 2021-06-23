@@ -105,6 +105,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Modal",
     key: generateReactKey(),
   },
+  {
+    type: "IFRAME_WIDGET",
+    widgetCardName: "Iframe",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
