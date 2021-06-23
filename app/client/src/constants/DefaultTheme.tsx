@@ -1037,6 +1037,7 @@ const notifications = {
   markAllAsReadButtonText: "#716E6E",
   unreadIndicator: "#F86A2B",
   bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
