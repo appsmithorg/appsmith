@@ -96,7 +96,6 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
         const { bindings, executionParams } = requestData;
-        debugger;
         if (!dataTreeEvaluator) {
           return { values: undefined, errors: [] };
         }

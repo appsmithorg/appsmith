@@ -141,7 +141,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
         isTrueObject(difference.lhs) &&
         !isTrueObject(difference.rhs)
       ) {
-        debugger;
         // This will happen for static value changes where a property went
         // from being an object to any other type like string or number
         // in such a case we want to delete all nested paths of the
@@ -160,7 +159,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
         !isTrueObject(difference.lhs) &&
         isTrueObject(difference.rhs)
       ) {
-        debugger;
         // This will happen for static value changes where a property went
         // from being any other type like string or number to an object
         // in such a case we want to add all nested paths of the
