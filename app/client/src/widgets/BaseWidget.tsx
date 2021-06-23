@@ -4,39 +4,39 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  WidgetType,
+  CONTAINER_GRID_PADDING,
+  CSSUnit,
+  CSSUnits,
+  PositionType,
+  PositionTypes,
   RenderMode,
   RenderModes,
-  CSSUnits,
+  WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import {
-  PositionType,
-  CSSUnit,
-  CONTAINER_GRID_PADDING,
-} from "constants/WidgetConstants";
-import { memoize } from "lodash";
+import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
+  DataTreeEvaluationProps,
+  EVAL_ERROR_PATH,
+  EvaluationError,
+  PropertyEvaluationErrorType,
   WidgetDynamicPathListProps,
-  WidgetEvaluatedProps,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { flattenObject } from "utils/helpers";
 
 /***
  * BaseWidget
@@ -178,8 +178,14 @@ abstract class BaseWidget<
     };
   }
 
-  getErrorCount = memoize((invalidProps) => {
-    return Object.values(flattenObject(invalidProps)).filter((e) => !!e).length;
+  getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
+    return Object.values(evalErrors).reduce(
+      (prev, curr) =>
+        curr.filter(
+          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+        ).length + prev,
+      0,
+    );
   }, JSON.stringify);
 
   render() {
@@ -215,7 +221,9 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
-            errorCount={this.getErrorCount(this.props.invalidProps)}
+            errorCount={this.getErrorCount(
+              get(this.props, EVAL_ERROR_PATH, {}),
+            )}
             parentId={this.props.parentId}
             showControls={showControls}
             topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
@@ -458,7 +466,7 @@ export interface WidgetDataProps
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
-    WidgetEvaluatedProps {
+    DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
