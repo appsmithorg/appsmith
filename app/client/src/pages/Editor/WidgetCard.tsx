@@ -41,9 +41,6 @@ export const Wrapper = styled.div`
       path {
         fill: ${Colors.WHITE};
       }
-      rect {
-        stroke: ${Colors.WHITE};
-      }
     }
   }
   & i {
