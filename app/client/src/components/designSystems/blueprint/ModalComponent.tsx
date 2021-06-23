@@ -92,39 +92,50 @@ export function ModalComponent(props: ModalComponentProps) {
     }
   }, [props.scrollContents]);
   return (
-    <Container
-      bottom={props.bottom}
-      height={props.height}
-      left={props.left}
-      right={props.bottom}
-      top={props.top}
-      width={props.width}
-      zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
+    <Overlay
+      canEscapeKeyClose={false}
+      canOutsideClickClose={false}
+      enforceFocus={false}
+      hasBackdrop={false}
+      isOpen={props.isOpen}
+      onClose={props.onClose}
+      portalClassName="bp3-modal-widget"
+      usePortal
     >
-      <Overlay
-        canEscapeKeyClose={props.canEscapeKeyClose}
-        canOutsideClickClose={props.canOutsideClickClose}
-        className={props.overlayClassName}
-        enforceFocus={false}
-        hasBackdrop={
-          props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
-        }
-        isOpen={props.isOpen}
-        onClose={props.onClose}
-        usePortal={false}
+      <Container
+        bottom={props.bottom}
+        height={props.height}
+        left={props.left}
+        right={props.bottom}
+        top={props.top}
+        width={props.width}
+        zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
       >
-        <div>
-          <Content
-            className={`${getCanvasClassName()} ${props.className}`}
-            height={props.height}
-            ref={modalContentRef}
-            scroll={props.scrollContents}
-          >
-            {props.children}
-          </Content>
-        </div>
-      </Overlay>
-    </Container>
+        <Overlay
+          canEscapeKeyClose={props.canEscapeKeyClose}
+          canOutsideClickClose={props.canOutsideClickClose}
+          className={props.overlayClassName}
+          enforceFocus={false}
+          hasBackdrop={
+            props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
+          }
+          isOpen={props.isOpen}
+          onClose={props.onClose}
+          usePortal={false}
+        >
+          <div>
+            <Content
+              className={`${getCanvasClassName()} ${props.className}`}
+              height={props.height}
+              ref={modalContentRef}
+              scroll={props.scrollContents}
+            >
+              {props.children}
+            </Content>
+          </div>
+        </Overlay>
+      </Container>
+    </Overlay>
   );
 }
 
