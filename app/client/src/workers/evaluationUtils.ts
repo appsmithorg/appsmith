@@ -129,24 +129,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          typeof difference.rhs === "object"
-        ) {
+        if (difference.lhs === undefined && isTrueObject(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          typeof difference.lhs === "object"
-        ) {
+        if (difference.rhs === undefined && isTrueObject(difference.lhs)) {
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
       } else if (
-        typeof difference.lhs === "object" &&
-        typeof difference.rhs !== "object"
+        isTrueObject(difference.lhs) &&
+        !isTrueObject(difference.rhs)
       ) {
+        debugger;
         // This will happen for static value changes where a property went
         // from being an object to any other type like string or number
         // in such a case we want to delete all nested paths of the
@@ -162,9 +157,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
           };
         });
       } else if (
-        typeof difference.lhs !== "object" &&
-        typeof difference.rhs === "object"
+        !isTrueObject(difference.lhs) &&
+        isTrueObject(difference.rhs)
       ) {
+        debugger;
         // This will happen for static value changes where a property went
         // from being any other type like string or number to an object
         // in such a case we want to add all nested paths of the
@@ -579,4 +575,10 @@ export const addErrorToEntityProperty = (
     );
   }
   return dataTree;
+};
+
+// For the times when you need to know if something truly an object like { a: 1, b: 2}
+// typeof, lodash.isObject and others will return false positives for things like array, null, etc
+export const isTrueObject = (item: unknown): boolean => {
+  return Object.prototype.toString.call(item) === "[object Object]";
 };
