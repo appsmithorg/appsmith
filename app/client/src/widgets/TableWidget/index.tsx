@@ -137,11 +137,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
-    for (const i in columnSizeMap) {
-      totalColumnSizes += columnSizeMap[i];
-    }
-
     const allColumnProperties = this.props.tableColumns || [];
+
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
@@ -218,6 +215,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {
+        totalColumnSizes += columnData.width;
         columns.push(columnData);
       }
     }
@@ -540,6 +538,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
+    //update pageNo when defaultPageSize or totalRecordsCount is changed
+    if (
+      this.props.defaultPageSize &&
+      this.props.totalRecordCount &&
+      this.props.pageNo
+    ) {
+      const maxAllowedPageNumber = Math.ceil(
+        this.props.totalRecordCount / this.props.defaultPageSize,
+      );
+      if (this.props.pageNo > maxAllowedPageNumber) {
+        this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
+      }
+    }
+
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       // It is switched ON:
@@ -564,7 +576,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateSelectedRowIndex();
     }
 
-    if (this.props.pageSize !== prevProps.pageSize) {
+    if (
+      this.props.pageSize !== prevProps.pageSize ||
+      this.props.defaultPageSize !== prevProps.defaultPageSize
+    ) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -619,7 +634,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
-      pageSize,
+      totalRecordsCount,
+      defaultPageSize,
       filteredTableData = [],
       isVisibleCompactMode,
       isVisibleDownload,
@@ -627,8 +643,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination,
       isVisibleSearch,
     } = this.props;
+    const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
     const tableColumns = this.getTableColumns() || [];
-    const transformedData = this.transformData(filteredTableData, tableColumns);
+    const paginatedFilteredData = [...filteredTableData];
+    if (defaultPageSize && totalRecordsCount) {
+      //if total records count configured is more than tableData
+      if (this.props.pageNo * defaultPageSize > totalRecordsCount) {
+        const count =
+          totalRecordsCount - (this.props.pageNo - 1) * defaultPageSize;
+        paginatedFilteredData.splice(count, paginatedFilteredData.length);
+      }
+      // Manage defaultPageSize data
+      if (paginatedFilteredData.length > defaultPageSize) {
+        paginatedFilteredData.splice(
+          defaultPageSize,
+          paginatedFilteredData.length,
+        );
+      }
+    }
+    const transformedData = this.transformData(
+      paginatedFilteredData,
+      tableColumns,
+    );
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isVisibleHeaderOptions =
       isVisibleCompactMode ||
@@ -644,6 +680,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          defaultPageSize={defaultPageSize}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
@@ -676,6 +713,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
+          tablePageSize={Math.max(1, this.props.pageSize)}
+          totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}

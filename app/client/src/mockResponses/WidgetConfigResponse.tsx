@@ -725,12 +725,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             return parentProps.childAutoComplete;
           },
           updateDataTreePath: (parentProps: any, dataTreePath: string) => {
-            return `${
-              parentProps.widgetName
-            }.evaluatedValues.template.${dataTreePath.replace(
-              "evaluatedValues.",
-              "",
-            )}`;
+            return `${parentProps.widgetName}.template.${dataTreePath}`;
           },
           propertyUpdateHook: (
             parentProps: any,
@@ -1094,6 +1089,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
+    },
+    [WidgetTypes.IFRAME_WIDGET]: {
+      source: "https://www.wikipedia.org/",
+      borderOpacity: 100,
+      borderWidth: 1,
+      rows: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Iframe",
+      version: 1,
     },
   },
   configVersion: 1,
