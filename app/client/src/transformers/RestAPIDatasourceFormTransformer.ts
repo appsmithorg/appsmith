@@ -11,7 +11,6 @@ import {
   Basic,
   ApiKey,
   BearerToken,
-  ApiKeyAuthType,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
