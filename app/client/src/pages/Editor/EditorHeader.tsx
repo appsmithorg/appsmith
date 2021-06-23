@@ -223,26 +223,27 @@ export function EditorHeader(props: EditorHeaderProps) {
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            <EditableAppName
-              className="t--application-name editable-application-name"
-              defaultValue={currentApplication?.name || ""}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
-              savingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-            />
-            )
+            {currentApplication && (
+              <EditableAppName
+                className="t--application-name editable-application-name"
+                defaultValue={currentApplication.name || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                isNewApp={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                savingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+              />
+            )}
             <ToggleModeButton />
           </Boxed>
         </HeaderSection>

@@ -32,11 +32,6 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
-import {
-  getShowCommentsButtonToolTip,
-  setShowCommentsButtonToolTip,
-} from "utils/storage";
-
 const ModeButton = styled.div<{ active: boolean }>`
   position: relative;
   display: flex;
@@ -161,51 +156,11 @@ function ViewModeReset() {
   );
 }
 
-const tourToolTipProps = {
-  hasOverlay: true,
-  modifiers: {
-    offset: { enabled: true, offset: "3, 20" },
-    arrow: {
-      enabled: true,
-      fn: (data: any) => ({
-        ...data,
-        offsets: {
-          ...data.offsets,
-          arrow: {
-            top: -8,
-            left: 80,
-          },
-        },
-      }),
-    },
-  },
-  pulseStyles: {
-    top: 20,
-    left: 28,
-    height: 30,
-    width: 30,
-  },
-  showPulse: true,
-  tourIndex: 0,
-  tourType: TourType.COMMENTS_TOUR,
-};
-
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
-  const [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const shouldShow = await getShowCommentsButtonToolTip();
-      setShowCommentButtonDiscoveryTooltipInState(!!shouldShow);
-    })();
-  }, []);
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
@@ -229,16 +184,36 @@ function ToggleCommentModeButton() {
 
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
 
-  const handleSetCommentModeButton = () => {
-    setCommentModeInUrl(true);
-    proceedToNextTourStep();
-    setShowCommentButtonDiscoveryTooltipInState(false);
-    setShowCommentsButtonToolTip(false);
-  };
-
   return (
     <Container>
-      <TourTooltipWrapper {...tourToolTipProps}>
+      <TourTooltipWrapper
+        hasOverlay
+        modifiers={{
+          offset: { enabled: true, offset: "3, 20" },
+          arrow: {
+            enabled: true,
+            fn: (data) => ({
+              ...data,
+              offsets: {
+                ...data.offsets,
+                arrow: {
+                  top: -8,
+                  left: 80,
+                },
+              },
+            }),
+          },
+        }}
+        pulseStyles={{
+          top: 20,
+          left: 28,
+          height: 30,
+          width: 30,
+        }}
+        showPulse
+        tourIndex={0}
+        tourType={TourType.COMMENTS_TOUR}
+      >
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
@@ -246,29 +221,26 @@ function ToggleCommentModeButton() {
           >
             {mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />}
           </ModeButton>
-          {/** TODO: move to messages */}
-          <TooltipComponent
-            content={<>You have 1 unread conversation</>}
-            isOpen={showCommentButtonDiscoveryTooltip}
+          <ModeButton
+            active={isCommentMode}
+            onClick={() => {
+              setCommentModeInUrl(true);
+              proceedToNextTourStep();
+            }}
           >
-            <ModeButton
-              active={isCommentMode}
-              onClick={handleSetCommentModeButton}
+            <TooltipComponent
+              content={
+                <>
+                  Comment Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
             >
-              <TooltipComponent
-                content={
-                  <>
-                    Comment Mode
-                    <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-                  </>
-                }
-                hoverOpenDelay={1000}
-                position={Position.BOTTOM}
-              >
-                <CommentModeIcon />
-              </TooltipComponent>
-            </ModeButton>
-          </TooltipComponent>
+              <CommentModeIcon />
+            </TooltipComponent>
+          </ModeButton>
         </div>
       </TourTooltipWrapper>
     </Container>

@@ -11,7 +11,6 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
-  SHOW_COMMENTS_BUTTON_TOOLTIP: "ShowCommentsButtonToolTip",
 };
 
 const store = localforage.createInstance({
@@ -203,32 +202,5 @@ export const getCommentsIntroSeen = async () => {
     return commentsIntroSeen;
   } catch (error) {
     console.log("An error occurred while fetching COMMENTS_INTRO_SEEN", error);
-  }
-};
-
-export const setShowCommentsButtonToolTip = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.SHOW_COMMENTS_BUTTON_TOOLTIP, flag);
-    return true;
-  } catch (error) {
-    console.log(
-      "An error occurred when setting SHOW_COMMENTS_BUTTON_TOOLTIP",
-      error,
-    );
-    return false;
-  }
-};
-
-export const getShowCommentsButtonToolTip = async () => {
-  try {
-    const shouldShow = (await store.getItem(
-      STORAGE_KEYS.SHOW_COMMENTS_BUTTON_TOOLTIP,
-    )) as boolean;
-    return shouldShow === false ? false : true;
-  } catch (error) {
-    console.log(
-      "An error occurred while fetching SHOW_COMMENTS_BUTTON_TOOLTIP",
-      error,
-    );
   }
 };
