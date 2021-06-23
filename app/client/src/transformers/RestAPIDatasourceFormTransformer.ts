@@ -23,11 +23,6 @@ export const datasourceToFormValues = (
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
   );
-  const apiKeyType = _.get(
-    datasource,
-    "datasourceConfiguration.authentication.addTo",
-    ApiKeyAuthType.Header,
-  );
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
@@ -45,7 +40,7 @@ export const datasourceToFormValues = (
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
-    authentication: { ...(authentication as ApiKey), addTo: apiKeyType },
+    authentication: authentication,
   };
 };
 
@@ -210,7 +205,7 @@ const datasourceToFormAuthentication = (
       authenticationType: AuthType.apiKey,
       label: authentication.label || "",
       value: authentication.value || "",
-      addTo: authentication.addTo || ApiKeyAuthType.Header,
+      addTo: authentication.addTo || "",
     };
     return apiKey;
   }
