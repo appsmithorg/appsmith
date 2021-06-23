@@ -361,6 +361,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -1036,6 +1037,7 @@ const notifications = {
   markAllAsReadButtonText: "#716E6E",
   unreadIndicator: "#F86A2B",
   bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
@@ -2388,6 +2390,7 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
