@@ -1,6 +1,10 @@
 import { call, takeLatest, put, all } from "redux-saga/effects";
 import NotificationApi from "api/NotificationsAPI";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { validateResponse } from "./ErrorSagas";
 
 import {
@@ -23,7 +27,10 @@ export function* fetchNotifications(action: ReduxAction<string>) {
       yield put(fetchNotificationsSuccess({ notifications: response.data }));
     }
   } catch (error) {
-    console.log(error, "error");
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_NOTIFICATIONS_ERROR,
+      payload: { error },
+    });
   }
 }
 
@@ -46,7 +53,10 @@ function* markAllNotificationsAsRead() {
       yield put(fetchUnreadNotificationsCountRequest());
     }
   } catch (error) {
-    console.log(error, "error");
+    yield put({
+      type: ReduxActionErrorTypes.MARK_ALL_NOTIFICAIONS_AS_READ_ERROR,
+      payload: { error },
+    });
   }
 }
 
@@ -58,7 +68,10 @@ function* fetchUnreadNotificationsCount() {
       yield put(fetchUnreadNotificationsCountSuccess(response.data));
     }
   } catch (error) {
-    console.log(error, "error");
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_UNREAD_NOTIFICATIONS_COUNT_ERROR,
+      payload: { error },
+    });
   }
 }
 
@@ -73,7 +86,10 @@ function* markNotificationAsRead(action: ReduxAction<string>) {
       yield put(markNotificationAsReadSuccess(action.payload));
     }
   } catch (error) {
-    console.log(error, "error");
+    yield put({
+      type: ReduxActionErrorTypes.MARK_NOTIFICATION_AS_READ_ERROR,
+      payload: { error },
+    });
   }
 }
 
