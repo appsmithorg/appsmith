@@ -14,6 +14,7 @@ import {
   QUERIES_EDITOR_URL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -94,6 +95,28 @@ export function getDependenciesFromInverseDependencies(
     inverseDependencies: Array.from(inverseDependencies),
     directDependencies: Array.from(directDependencies),
   };
+}
+
+// Recursively find out dependency chain from
+// the inverse dependency map
+export function getDependencyChain(
+  propertyPath: string,
+  inverseMap: DependencyMap,
+) {
+  let currentChain: string[] = [];
+  const dependents = inverseMap[propertyPath];
+
+  if (!dependents) return currentChain;
+
+  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+
+  dependents.map((e: any) => {
+    if (!e.includes(dependentInfo.entityName)) {
+      currentChain.push(e);
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
+  });
+  return currentChain;
 }
 
 export const onApiEditor = (
