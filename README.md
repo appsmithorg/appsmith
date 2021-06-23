@@ -20,12 +20,13 @@
   <a href="./appsmith_templates.md">Templates</a> 
   </h3>
 
-<p>
+<p align="center">
 Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
-</p>
-
-<br><img src="static/images/integrations.png" width="320px">
+<br />
 <br>
+<img src="static/images/integrations.png" width="320px">
+
+</p>
 <br>
 
 ## Quick Start
