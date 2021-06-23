@@ -2457,37 +2457,6 @@ public class DatabaseChangelog {
                 }
             }
         }
-    } 
-  
-      /**
-     * - Older order file where not present for the pages created within the application because page reordering with in
-     * the application was not supported.
-     * - New Form order field will be added to the Page object and is used to order the pages with in the application
-     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
-     * created pages of all the application present.
-     * - []
-     */
-    @ChangeSet(order = "072", id = "add-and-update-order-for-all-pages", author = "")
-    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
-        for (Application application : mongoTemplate.findAll(Application.class)) {
-            if(application.getPages() != null) {
-                int i = 0;
-                for (ApplicationPage page : application.getPages()) {
-                    page.setOrder(i);
-                    i++;
-                }
-                if(application.getPublishedPages() != null) {
-                    for (ApplicationPage page : application.getPublishedPages()) {
-                        for(ApplicationPage npage: application.getPages()) {
-                            if(npage.getId().equals(page.getId())) {
-                                page.setOrder(npage.getOrder());
-                            }
-                        }
-                    }
-                }
-              mongoTemplate.save(application);
-            }
-        }
     }
 
     private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
@@ -2522,6 +2491,35 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
 
+    }
+
+    /**
+     * - Older order file where not present for the pages created within the application because page reordering with in
+     * the application was not supported.
+     * - New Form order field will be added to the Page object and is used to order the pages with in the application
+     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
+     * created pages of all the application present.
+     * - []
+     */
+    @ChangeSet(order = "073", id = "add-and-update-order-for-all-pages", author = "")
+    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if(application.getPages() != null) {
+                int i = 0;
+                for (ApplicationPage page : application.getPages()) {
+                    page.setOrder(i);
+                    i++;
+                }
+                if(application.getPublishedPages() != null) {
+                    i = 0;
+                    for (ApplicationPage page : application.getPublishedPages()) {
+                        page.setOrder(i);
+                        i++;
+                    }
+                }
+                mongoTemplate.save(application);
+            }
+        }
     }
 
 //    @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
