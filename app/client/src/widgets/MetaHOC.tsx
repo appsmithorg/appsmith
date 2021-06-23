@@ -6,6 +6,7 @@ import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 type DebouncedExecuteActionPayload = Omit<
   WidgetExecuteActionPayload,
@@ -86,11 +87,13 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       }
 
       AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget property was updated",
         source: {
           type: ENTITY_TYPE.WIDGET,
           id: this.props.widgetId,
           name: this.props.widgetName,
+          propertyPath: propertyName,
         },
         state: {
           [propertyName]: propertyValue,

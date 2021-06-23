@@ -93,6 +93,16 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
+    @PutMapping("/{applicationId}/page/{pageId}/reorder")
+    public Mono<ResponseDTO<Application>> reorderPage(
+            @PathVariable String applicationId,
+            @PathVariable String pageId,
+            @RequestParam Integer order
+    ) {
+        return applicationPageService.reorderPage(applicationId, pageId, order)
+                .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
+    }
+
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
