@@ -38,4 +38,6 @@ public interface ApplicationPageService {
     void generateAndSetPagePolicies(Application application, PageDTO page);
 
     Mono<Void> sendApplicationPublishedEvent(Application application);
+
+    Mono<Application> reorderPage(String applicationId, String pageId, Integer order);
 }
