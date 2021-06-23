@@ -18,14 +18,14 @@ export const StyledImage = styled.div<
   }
 >`
   position: relative;
-  display: flex;                                                                                                                                                                                                                                                                                                                                                                          
+  display: flex;
   flex-direction: "row";
   background-size: ${(props) => props.objectFit ?? "cover"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
-  background-image: url("${(props) =>
-    props.imageError ? props.defaultImageUrl : props.imageUrl}");
+  background-image: ${(props) =>
+    `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
   background-position: center;
   background-repeat: no-repeat;
   height: 100%;
@@ -142,7 +142,18 @@ class ImageComponent extends React.Component<
                 style={{
                   cursor,
                 }}
-              />
+              >
+                {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
+                <img
+                  alt={this.props.widgetName}
+                  onError={this.onImageError}
+                  onLoad={this.onImageLoad}
+                  src={this.props.imageUrl}
+                  style={{
+                    display: "none",
+                  }}
+                />
+              </StyledImage>
             </TransformComponent>
           )}
         </TransformWrapper>
