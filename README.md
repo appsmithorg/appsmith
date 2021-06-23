@@ -14,6 +14,10 @@
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
+  •
+  <a href="./office_hours.md">Community Events</a>  
+  •
+  <a href="./appsmith_templates.md">Templates</a>  
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
   <br>
