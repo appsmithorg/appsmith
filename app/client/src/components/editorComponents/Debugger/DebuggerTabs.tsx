@@ -15,6 +15,7 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "constants/messages";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -77,7 +78,7 @@ function DebuggerTabs(props: DebuggerTabsProps) {
   const onClose = () => dispatch(showDebugger(false));
 
   return (
-    <Container ref={panelRef}>
+    <Container onClick={stopEventPropagation} ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabComponent
         onSelect={onTabSelect}
