@@ -56,6 +56,15 @@ const ButtonWrapper = styled.div`
     background: transparent;
   }
 `;
+
+const ButtonActionsWrapper = styled.div`
+  display: flex;
+  align-items; center;
+  &&& button {
+    margin-left: 14px;
+  }
+`;
+
 // margin-left is same as move block width in TableFilterPane.tsx
 const ColumnTypeBindingMessage = styled.div`
   height: 41px;
@@ -112,6 +121,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
 
   const applyFilter = () => {
     props.applyFilter(filters);
+  };
+
+  const hideFilter = () => {
     props.hideFilterPane(props.widgetId);
   };
 
@@ -189,13 +201,22 @@ function TableFilterPaneContent(props: TableFilterProps) {
               size="small"
               text="Add Filter"
             />
-            <Button
-              className="t--apply-filter-btn"
-              filled
-              intent="primary"
-              onClick={applyFilter}
-              text="APPLY"
-            />
+            <ButtonActionsWrapper>
+              <Button
+                className="t--close-filter-btn"
+                intent="primary"
+                onClick={hideFilter}
+                outline
+                text="CLOSE"
+              />
+              <Button
+                className="t--apply-filter-btn"
+                filled
+                intent="primary"
+                onClick={applyFilter}
+                text="APPLY"
+              />
+            </ButtonActionsWrapper>
           </ButtonWrapper>
         ) : null}
       </TableFilerWrapper>
