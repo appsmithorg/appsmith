@@ -199,6 +199,23 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
   )}/queries?importTo=${selectedPageId}`;
 };
 
+export const GEN_PAGE_URL = "/generate-page";
+export const GEN_PAGE_FORM_SUB_ROUTE = "/form";
+
+export const getGeneratePageURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}${GEN_PAGE_URL}`;
+
+export const getGeneratePageFormURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string =>
+  `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}${GEN_PAGE_URL}${GEN_PAGE_FORM_SUB_ROUTE}`;
+
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
 export const BASE_SIGNUP_URL = `/signup`;
