@@ -167,7 +167,7 @@ The `BasePlugin` & `PluginExecutor` classes define the basic operations of plugi
 
 9. Add the plugin to the DB so that the Appsmith platform understands that a new plugin has been created. This can be done via the `DatabaseChangelog.java` file. Eg:
 ```
-    @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
+    @ChangeSet(order = "076", id = "add-hello-world-plugin", author = "")
     public void addHelloWorldPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Hello World Plugin");
