@@ -443,9 +443,10 @@ const resizeCanvasToLowestWidget = (
     return;
   }
 
-  let lowestBottomRow =
+  let lowestBottomRow = Math.ceil(
     (finalWidgets[parentId].minHeight || 0) /
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
   const childIds = finalWidgets[parentId].children || [];
   // find lowest row
   childIds.forEach((cId) => {
