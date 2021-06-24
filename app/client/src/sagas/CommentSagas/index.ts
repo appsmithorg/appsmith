@@ -91,8 +91,9 @@ function* addCommentToThread(
     const { payload } = action;
     const { callback, commentBody, commentThread } = payload;
 
+    const mode = yield select((state: AppState) => state.entities.app.mode);
     const response = yield CommentsApi.createNewThreadComment(
-      { body: commentBody },
+      { body: commentBody, mode },
       commentThread.id,
     );
 
