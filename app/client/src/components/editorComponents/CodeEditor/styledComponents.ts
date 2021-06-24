@@ -416,6 +416,9 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+  .CodeEditorTarget {
+    width: 100%;
+  }
 `;
 
 export const IconContainer = styled.div`
