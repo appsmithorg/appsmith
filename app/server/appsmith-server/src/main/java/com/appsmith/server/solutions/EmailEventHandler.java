@@ -33,7 +33,7 @@ import java.util.Set;
 @Slf4j
 public class EmailEventHandler {
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
-    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
+//    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
     private static final String THREAD_RESOLVED_EMAIL_TEMPLATE = "email/commentResolvedTemplate.html";
 
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -121,6 +121,9 @@ public class EmailEventHandler {
                                              Organization organization) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
+        String threadLink = String.format("%s/applications/%s/pages/%s/edit?commentThreadId=%s&isCommentMode=true",
+                originHeader, comment.getApplicationId(), comment.getPageId(), comment.getThreadId()
+        );
 
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("App_User_Name", receiverName);
@@ -128,7 +131,7 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
-        templateParams.put("inviteUrl", originHeader);
+        templateParams.put("inviteUrl", threadLink);
 
         String emailTemplate = COMMENT_ADDED_EMAIL_TEMPLATE;
         String emailSubject = String.format(
@@ -137,8 +140,12 @@ public class EmailEventHandler {
 
         // check if user has been mentioned in the comment
         if(CommentUtils.isUserMentioned(comment, receiverEmail)) {
-            emailTemplate = USER_MENTIONED_EMAIL_TEMPLATE;
+            templateParams.put("Mentioned", true);
             emailSubject = String.format("New comment for you from %s", comment.getAuthorName());
+        } else if(Boolean.TRUE.equals(comment.getLeading())) {
+            templateParams.put("NewComment", true);
+        } else {
+            templateParams.put("Replied", true);
         }
         return emailSender.sendMail(receiverEmail, emailSubject, emailTemplate, templateParams);
     }

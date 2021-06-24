@@ -180,15 +180,11 @@
 															   style="table-layout: fixed;">
 															<tbody>
 															<tr>
-																<td style="font-size:6px; line-height:10px; padding:0px 0px 0px 0px;"
+																<td style="font-size:6px; line-height:10px; padding-top:36px;"
 																	valign="top" align="center">
-																	<a href="https://www.appsmith.com/"><img
-																			class="max-width" border="0"
-																			style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px; max-width:25% !important; width:25%; height:auto !important;"
-																			width="150" alt=""
-																			data-proportionally-constrained="true"
-																			data-responsive="true"
-																			src="http://cdn.mcauto-images-production.sendgrid.net/4bbae2fffe647858/b21738f2-3a49-4774-aae9-c8e80ad9c26e/924x284.png"></a>
+																	<a href="https://www.appsmith.com/">
+																		<img width="50px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
+																	</a>
 																</td>
 															</tr>
 															</tbody>
@@ -198,52 +194,43 @@
 															   style="table-layout: fixed;">
 															<tbody>
 															<tr>
-																<td style="padding:0px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#ffffff;"
+																<td style="padding:0px 0px 18px 0px; line-height:22px; text-align:center; background-color:#ffffff;"
 																	height="100%" valign="top" bgcolor="#ffffff"
 																	role="module-content">
-																	<div>
-																		<div style="font-family: inherit; text-align: center">
-																			<br></div>
-																		<div style="margin-left: 0px">
-																			<span style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font-variant-numeric: normal; font-variant-east-asian: normal; font-stretch: normal; line-height: normal; font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #5c5959">Hi {{App_User_Name}},</span>
-																		</div>
-																		<div style="margin-left: 0px; margin-top: 10px">
-																			<span style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font-variant-numeric: normal; font-variant-east-asian: normal; font-stretch: normal; line-height: normal; font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #5c5959">{{Commenter_Name}} tagged you in a comment in {{Application_Name}} in the {{Organization_Name}} organization.</span>
-																		</div>
-																		<div style="margin-left: 0px; margin-top: 10px;padding:10px;background-color:#EEE">
-																			{{#Comment_Body}}
-																			<div style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font-variant-numeric: normal; font-variant-east-asian: normal; font-stretch: normal; line-height: normal; font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #5c5959">{{ . }}</div>
-																			{{/Comment_Body}}
-																		</div>
-																		<div style="margin-left: 0px; margin-top: 20px;">
-																			<span style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font-variant-numeric: normal; font-variant-east-asian: normal; font-stretch: normal; line-height: normal; font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #5c5959">Please follow this link to view and respond to the comment. </span>
-																		</div>
-																		<div></div>
+																	<div style="margin-top:37px;font-size:25px;line-height: 35px;">
+																		<b>{{Commenter_Name}}</b>, mentioned you in a comment on <br />
+																		<b>{{Organization_Name}}, {{Application_Name}}</b>:
 																	</div>
-																</td>
-															</tr>
-															</tbody>
-														</table>
-														<table border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;" width="100%">
-															<tbody>
-															<tr>
-																<td align="center" bgcolor="" class="outer-td"
-																	style="padding:0px 0px 0px 0px;">
-																	<table border="0" cellpadding="0" cellspacing="0"
-																		   class="wrapper-mobile"
-																		   style="text-align:center;">
-																		<tbody>
-																		<tr>
-																			<td align="center" bgcolor="#ff6d2d"
-																				class="inner-td"
-																				style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-																				<a href="{{inviteUrl}}"
-																				   style="background-color:#ff6d2d; border:1px solid #ff6d2d; border-color:#ff6d2d; border-radius:6px; border-width:1px; color:#ffffff; display:inline-block; font-weight:400; letter-spacing:0px; line-height:6px; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid; font-family:tahoma,geneva,sans-serif; font-size:16px;"
-																				   target="_blank">Go to Comment</a>
-																			</td>
-																		</tr>
-																		</tbody>
-																	</table>
+																	{{#Comment_Body}}
+																	<div style="display:inline-block;padding:10px;margin-top: 40px; color: #5c5959;background-color:#F0F0F0">
+																		{{ . }}
+																	</div>
+																	{{/Comment_Body}}
+																	<div style="margin-top:40px">
+																		<a href="{{inviteUrl}}"
+																		   style="background-color:#ff6d2d; border:1px solid #ff6d2d; border-color:#ff6d2d; border-width:1px; color:#ffffff; display:inline-block; font-weight:400; letter-spacing:0px; line-height:6px; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid; font-family:tahoma,geneva,sans-serif; font-size:16px;"
+																		   target="_blank">VIEW THE COMMENT</a>
+																	</div>
+																	<!--																	<div style="margin-top:23px">You can answer by replying to this email.</div>-->
+																	<hr style="margin-top:40px;margin-bottom:40px;height:0px;border:0; border-top: 1px solid #E0DEDE;" />
+																	<!--																	<div><a href="unsubscribe_link_here" style="text-decoration:underline">Turn off comment notifications for this project</a></div>-->
+																	<div style="font-size:12px;line-height:19px;color:#A9A7A7;margin-top:17px">
+																		Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
+																	</div>
+																	<div style="margin-top:32px">
+																		<a href="https://www.youtube.com/appsmith">
+																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
+																		</a>
+																		<a href="https://twitter.com/theappsmith" style="margin-left:25px;margin-right:25px">
+																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
+																		</a>
+																		<a href="https://www.linkedin.com/company/appsmith">
+																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
+																		</a>
+																	</div>
+																	<div style="font-size:12px;line-height:19px;color:#A9A7A7;margin-top:42px">
+																		2261 Market Street #4147, United States, San Francisco, California, 94114, US
+																	</div>
 																</td>
 															</tr>
 															</tbody>
