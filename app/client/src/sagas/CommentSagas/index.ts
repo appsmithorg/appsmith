@@ -17,6 +17,8 @@ import {
   deleteCommentThreadSuccess,
   setAreCommentsEnabled,
   setCommentMode,
+  fetchUnreadCommentThreadsCountSuccess,
+  fetchUnreadCommentThreadsCountRequest,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -125,6 +127,7 @@ function* fetchApplicationComments() {
 
     if (isValidResponse) {
       yield put(fetchApplicationCommentsSuccess(response.data));
+      yield put(fetchUnreadCommentThreadsCountRequest());
     }
   } catch (error) {
     yield put({
@@ -201,6 +204,7 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
+      yield put(fetchUnreadCommentThreadsCountRequest());
     }
   } catch (error) {
     yield put({
@@ -299,6 +303,22 @@ function* deleteCommentReaction(
   }
 }
 
+function* fetchUnreadCommentsCount() {
+  try {
+    const applicationId = yield select(getCurrentApplicationId);
+    const response = yield call(
+      CommentsApi.fetchUnreadCommentThreads,
+      applicationId,
+    );
+    // const isValidResponse = yield validateResponse(response);
+    // if (isValidResponse) {
+    yield put(fetchUnreadCommentThreadsCountSuccess(response.data.count > 0));
+    // }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(
@@ -329,5 +349,9 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
     fork(setIfCommentsAreEnabled),
+    takeLatest(
+      ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_REQUEST,
+      fetchUnreadCommentsCount,
+    ),
   ]);
 }
