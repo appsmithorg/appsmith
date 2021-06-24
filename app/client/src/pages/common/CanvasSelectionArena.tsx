@@ -238,6 +238,7 @@ export const CanvasSelectionArena = memo(
       currentPageId,
       mainContainer.rightColumn,
       mainContainer.bottomRow,
+      mainContainer.minHeight,
     ]);
 
     return appMode === APP_MODE.EDIT ? (

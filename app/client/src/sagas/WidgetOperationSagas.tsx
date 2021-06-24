@@ -89,7 +89,7 @@ import {
   forceOpenPropertyPane,
 } from "actions/widgetActions";
 import {
-  selectMultipleWidgetsAction,
+  selectMultipleWidgetsInitAction,
   selectWidgetInitAction,
 } from "actions/widgetSelectionActions";
 
@@ -443,7 +443,9 @@ const resizeCanvasToLowestWidget = (
     return;
   }
 
-  let lowestBottomRow = 0;
+  let lowestBottomRow =
+    (finalWidgets[parentId].minHeight || 0) /
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const childIds = finalWidgets[parentId].children || [];
   // find lowest row
   childIds.forEach((cId) => {
@@ -492,6 +494,9 @@ export function* deleteAllSelectedWidgetsSaga(
       parentUpdatedWidgets,
       falttendedWidgets.map((widgets: any) => widgets.widgetId),
     );
+    // assuming only widgets with same parent can be selected
+    const parentId = widgets[selectedWidgets[0]].parentId;
+    resizeCanvasToLowestWidget(finalWidgets, parentId);
 
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
@@ -815,8 +820,15 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       },
       stateWidgets,
     );
-
+    const parentId = deletedWidgets[0].parentId;
+    if (parentId) {
+      resizeCanvasToLowestWidget(finalWidgets, parentId);
+    }
     yield put(updateAndSaveLayout(finalWidgets));
+    deletedWidgetIds.forEach((widgetId) => {
+      setTimeout(() => flashElementById(widgetId), 100);
+    });
+    yield put(selectMultipleWidgetsInitAction(deletedWidgetIds));
     if (deletedWidgetIds.length === 1) {
       yield put(forceOpenPropertyPane(action.payload.widgetId));
     }
@@ -1724,7 +1736,7 @@ function* pasteWidgetSaga() {
   });
   // hydrating enhancements map after save layout so that enhancement map
   // for newly copied widget is hydrated
-  yield put(selectMultipleWidgetsAction(newlyCreatedWidgetIds));
+  yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
 
 function* cutWidgetSaga() {
