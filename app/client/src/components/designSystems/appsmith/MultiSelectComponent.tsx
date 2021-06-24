@@ -480,7 +480,7 @@ function MultiSelectComponent({
         {menu}
       </>
     ),
-    [isSelectAll],
+    [isSelectAll, options],
   );
 
   const filterOption = useCallback(
