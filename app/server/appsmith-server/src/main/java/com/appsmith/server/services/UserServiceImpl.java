@@ -623,9 +623,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
-                    return userOrganizationService.bulkAddUsersToOrganization(
-                            organization, invitedUsers, inviteUsersDTO.getRoleName()
-                    );
+                    return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
         // Add organization id to each invited user

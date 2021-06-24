@@ -417,13 +417,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
-        Flux<UserRole> commentThreadPoliciesFlux = policyUtils.updateCommentThreadPoliciesByOrgId(organization.getId(), userRoles);
+
+        policyUtils.updateCommentThreadPoliciesByOrgId(organization.getId(), userRoles);
 
         return Mono.when(
                 updatedDatasourcesFlux.collectList(),
                 updatedPagesFlux.collectList(),
-                updatedActionsFlux.collectList(),
-                commentThreadPoliciesFlux)
+                updatedActionsFlux.collectList())
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
                 .then(organizationRepository.save(updatedOrganization));
     }

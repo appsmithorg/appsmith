@@ -195,11 +195,10 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Flux<UserRole> updateCommentThreadPoliciesByOrgId(String orgId, List<UserRole> userRoles) {
+    public void updateCommentThreadPoliciesByOrgId(String orgId, List<UserRole> userRoles) {
         for(UserRole userRole : userRoles) {
-            UserRole publish = userChangedHandler.publish(orgId, userRole);
+            userChangedHandler.publish(orgId, userRole);
         }
-        return Flux.fromIterable(userRoles);
     }
 
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
