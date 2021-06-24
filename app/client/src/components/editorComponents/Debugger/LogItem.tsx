@@ -101,7 +101,7 @@ const Log = styled.div<{ collapsed: boolean }>`
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: 8px;
+  padding-top: ${(props) => props.theme.spaces[1]}px;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -139,7 +139,7 @@ const StyledSearchIcon = styled(Icon)`
 `;
 
 const MessageWrapper = styled.div`
-  padding-top: 5px;
+  padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
 export const getLogItemProps = (e: Message) => {
