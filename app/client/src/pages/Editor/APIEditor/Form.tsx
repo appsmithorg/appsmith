@@ -32,7 +32,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
-import { TabComponent, TabTitle } from "components/ads/Tabs";
+import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
@@ -43,7 +43,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
-import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
@@ -310,24 +309,6 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
   );
 }
 
-const DatasourceListTrigger = styled.div`
-  position: absolute;
-  right: 10px;
-  top: 7px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  color: #939090;
-  &:hover {
-    span {
-      color: #090707;
-    }
-    svg path {
-      fill: #090707;
-    }
-  }
-`;
-
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
@@ -360,17 +341,6 @@ function renderImportedHeadersButton(
     </KeyValueStackContainer>
   );
 }
-
-const CloseIconContainer = styled.div`
-  position: absolute;
-  top: 12px;
-  right: 10px;
-  svg {
-    path {
-      fill: #a9a7a7;
-    }
-  }
-`;
 
 function renderHelpSection(
   handleClickLearnHow: any,
@@ -434,9 +404,6 @@ function ImportedHeaders(props: { headers: any }) {
 
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showDatasources, toggleDatasources] = useState(
-    !!props.datasources.length,
-  );
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -625,14 +592,6 @@ function ApiEditorForm(props: Props) {
                   },
                 ]}
               />
-              {!showDatasources && (
-                <DatasourceListTrigger
-                  onClick={() => toggleDatasources(!showDatasources)}
-                >
-                  <Icon name="datasource" size={IconSize.LARGE} />
-                  <TabTitle>Datasources</TabTitle>
-                </DatasourceListTrigger>
-              )}
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
@@ -640,24 +599,13 @@ function ApiEditorForm(props: Props) {
               theme={theme}
             />
           </SecondaryWrapper>
-          {showDatasources && (
-            <>
-              <DataSourceList
-                applicationId={props.applicationId}
-                currentPageId={props.currentPageId}
-                datasources={props.datasources}
-                onClick={updateDatasource}
-              />
-              <CloseIconContainer>
-                <Icon
-                  className="close-modal-icon"
-                  name="close-modal"
-                  onClick={() => toggleDatasources(!showDatasources)}
-                  size={IconSize.SMALL}
-                />
-              </CloseIconContainer>
-            </>
-          )}
+          <DataSourceList
+            actionName={actionName}
+            applicationId={props.applicationId}
+            currentPageId={props.currentPageId}
+            datasources={props.datasources}
+            onClick={updateDatasource}
+          />
         </Wrapper>
       </Form>
     </>
