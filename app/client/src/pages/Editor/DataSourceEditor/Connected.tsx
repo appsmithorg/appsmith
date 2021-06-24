@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button from "components/ads/Button";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
@@ -48,10 +48,12 @@ const Wrapper = styled.div`
   margin-top: 18px;
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
+    height: 36px;
+    max-width: 120px;
     width: auto;
-    align-self: center;
   }
 `;
 
@@ -170,10 +172,7 @@ function Connected() {
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
           <ActionButton
-            accent="primary"
             className="t--create-query"
-            filled
-            icon={"plus"}
             onClick={isDBDatasource ? createQueryAction : createApiAction}
             text={isDBDatasource ? "New Query" : "New API"}
           />
