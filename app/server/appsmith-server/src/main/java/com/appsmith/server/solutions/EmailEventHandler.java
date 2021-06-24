@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
@@ -26,7 +25,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,7 +119,7 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("inviteUrl", getCommentThreadLink(
-                application.getId(),
+                commentThread.getApplicationId(),
                 commentThread.getPageId(),
                 commentThread.getId(),
                 receiverUserRole,
@@ -147,7 +145,7 @@ public class EmailEventHandler {
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
         templateParams.put("inviteUrl", getCommentThreadLink(
-                application.getId(),
+                comment.getApplicationId(),
                 comment.getPageId(),
                 comment.getThreadId(),
                 receiverUserRole,

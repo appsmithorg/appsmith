@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -33,8 +34,6 @@ import static org.mockito.ArgumentMatchers.eq;
 public class EmailEventHandlerTest {
 
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
-    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
-    private static final String THREAD_RESOLVED_EMAIL_TEMPLATE = "email/commentResolvedTemplate.html";
 
     @MockBean
     private ApplicationEventPublisher applicationEventPublisher;
@@ -68,6 +67,7 @@ public class EmailEventHandlerTest {
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
+        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
         organization.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
@@ -210,6 +210,9 @@ public class EmailEventHandlerTest {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        sampleComment.setApplicationId("test-app-id");
+        sampleComment.setPageId("test-page-id");
+        sampleComment.setThreadId("test-thread-id");
         Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // mention the emailReceiverUsername in the sample comment
@@ -229,7 +232,7 @@ public class EmailEventHandlerTest {
 
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(USER_MENTIONED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 
@@ -259,7 +262,7 @@ public class EmailEventHandlerTest {
         );
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(THREAD_RESOLVED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 }
