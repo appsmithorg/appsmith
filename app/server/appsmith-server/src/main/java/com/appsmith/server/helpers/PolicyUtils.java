@@ -5,12 +5,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -44,6 +45,7 @@ public class PolicyUtils {
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
     private final UserChangedHandler userChangedHandler;
+    private final CommentThreadRepository commentThreadRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -195,12 +197,6 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public void updateCommentThreadPoliciesByOrgId(String orgId, List<UserRole> userRoles) {
-        for(UserRole userRole : userRoles) {
-            userChangedHandler.publish(orgId, userRole);
-        }
-    }
-
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures that all the published
@@ -221,6 +217,23 @@ public class PolicyUtils {
                 .collectList()
                 .flatMapMany(updatedPages -> newPageRepository
                         .saveAll(updatedPages));
+    }
+
+    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+
+        return
+                // fetch comment threads with read permissions
+                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+                .switchIfEmpty(Mono.empty())
+                .map(thread -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                    } else {
+                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                    }
+                })
+                .collectList()
+                .flatMapMany(commentThreads -> commentThreadRepository.saveAll(commentThreads));
     }
 
     /**

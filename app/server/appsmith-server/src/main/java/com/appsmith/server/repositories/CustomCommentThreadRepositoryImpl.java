@@ -46,14 +46,4 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
                 CommentThread.class
         );
     }
-
-    @Override
-    public Mono<UpdateResult> updatePolicyUsers(String applicationId, AclPermission permission,
-                                                String username) {
-        Criteria criteria = where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId);
-        Update update = new Update()
-                .addToSet("policies.$[element].users", username)
-                .filterArray(where("element.permission").is(permission.getValue()));
-        return this.mongoOperations.updateMulti(Query.query(criteria), update, CommentThread.class);
-    }
 }
