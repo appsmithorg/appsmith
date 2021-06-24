@@ -76,6 +76,8 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    defaultPageSize: "number",
+    totalRecordsCount: "number",
   }),
   VIDEO_WIDGET: {
     "!doc":
