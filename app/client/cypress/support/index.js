@@ -30,12 +30,16 @@ Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
 
-before(function() {
+(function() {
   cy.startServerAndRoutes();
   // Clear indexedDB
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
+
+  // don't show comments onboarding tooltip for tests
+  localStorage.setItem("ShowCommentsButtonToolTip", "");
+
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
