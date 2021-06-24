@@ -11,6 +11,7 @@
     "apiEditorIcon": ".t--nav-link-api-editor",
     "addEntityAPI": ".integrations .t--entity-add-btn",
     "integrationCreateNew": "[data-cy=t--tab-CREATE_NEW]",
+    "integrationActiveTab": "[data-cy=t--tab-ACTIVE]",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",

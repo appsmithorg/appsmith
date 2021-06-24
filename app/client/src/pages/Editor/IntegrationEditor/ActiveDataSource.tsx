@@ -112,7 +112,7 @@ class ActiveDataSource extends React.Component<ActiveDataSourceProps> {
     }
 
     return (
-      <QueryHomePage>
+      <QueryHomePage className="t--active-datasource-list">
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
