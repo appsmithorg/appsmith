@@ -3,15 +3,20 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-
+import Button, { Category } from "components/ads/Button";
+import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
-import Button from "components/editorComponents/Button";
+import EditButton from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
@@ -59,7 +64,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(EditButton)`
   &&&& {
     width: 87px;
     height: 32px;
@@ -75,6 +80,16 @@ const StyledOpenDocsIcon = styled(Icon)`
 
 const CollapsibleWrapper = styled.div`
   width: max-content;
+`;
+
+const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
+  &&&& {
+    height: 32px;
+    max-width: 160px;
+    border: 1.2px solid ${Colors.HIT_GRAY};
+    width: auto;
+  }
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -136,13 +151,15 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       >
         <BackButton
           onClick={() =>
-            history.push(
-              INTEGRATION_EDITOR_URL(
-                applicationId,
-                pageId,
-                INTEGRATION_TABS.ACTIVE,
-              ),
-            )
+            viewMode
+              ? history.push(BUILDER_PAGE_URL(applicationId, pageId))
+              : history.push(
+                  INTEGRATION_EDITOR_URL(
+                    applicationId,
+                    pageId,
+                    INTEGRATION_TABS.ACTIVE,
+                  ),
+                )
           }
         />
         <br />
@@ -153,8 +170,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </FormTitleContainer>
           {viewMode && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                accent="secondary"
+              <EditDatasourceButton
+                category={Category.tertiary}
                 className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
