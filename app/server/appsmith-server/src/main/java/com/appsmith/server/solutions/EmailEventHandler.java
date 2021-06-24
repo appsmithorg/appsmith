@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
@@ -24,6 +26,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +36,6 @@ import java.util.Set;
 @Slf4j
 public class EmailEventHandler {
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
-//    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
-    private static final String THREAD_RESOLVED_EMAIL_TEMPLATE = "email/commentResolvedTemplate.html";
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmailSender emailSender;
@@ -99,6 +100,16 @@ public class EmailEventHandler {
         .subscribe();
     }
 
+    private String getCommentThreadLink(String applicationId, String pageId, String threadId, UserRole userRole, String originHeader) {
+        String urlPostfix = "/edit";
+        if(userRole.getRole().equals(AppsmithRole.ORGANIZATION_VIEWER)) {
+            urlPostfix = "";
+        }
+        return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
+                originHeader, applicationId, pageId, urlPostfix, threadId
+        );
+    }
+
     private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
                                              String originHeader, Organization organization) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
@@ -109,21 +120,25 @@ public class EmailEventHandler {
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
-        templateParams.put("inviteUrl", originHeader);
+        templateParams.put("inviteUrl", getCommentThreadLink(
+                application.getId(),
+                commentThread.getPageId(),
+                commentThread.getId(),
+                receiverUserRole,
+                originHeader)
+        );
+        templateParams.put("Resolved", true);
 
         String emailSubject = String.format(
                 "%s has resolved comment in %s", resolvedState.getAuthorName(), commentThread.getApplicationName()
         );
-        return emailSender.sendMail(receiverEmail, emailSubject, THREAD_RESOLVED_EMAIL_TEMPLATE, templateParams);
+        return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
     private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, Comment comment, String originHeader,
                                              Organization organization) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
-        String threadLink = String.format("%s/applications/%s/pages/%s/edit?commentThreadId=%s&isCommentMode=true",
-                originHeader, comment.getApplicationId(), comment.getPageId(), comment.getThreadId()
-        );
 
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("App_User_Name", receiverName);
@@ -131,7 +146,13 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
-        templateParams.put("inviteUrl", threadLink);
+        templateParams.put("inviteUrl", getCommentThreadLink(
+                application.getId(),
+                comment.getPageId(),
+                comment.getThreadId(),
+                receiverUserRole,
+                originHeader)
+        );
 
         String emailTemplate = COMMENT_ADDED_EMAIL_TEMPLATE;
         String emailSubject = String.format(

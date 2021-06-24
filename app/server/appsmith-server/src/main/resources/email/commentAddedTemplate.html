@@ -183,7 +183,7 @@
 																<td style="font-size:6px; line-height:10px; padding-top:36px;"
 																	valign="top" align="center">
 																	<a href="https://www.appsmith.com/">
-																		<img width="50px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
+																		<img width="50px" src="https://s3.us-east-2.amazonaws.com/assets.appsmith.com/email/appsmith_logo_20x20.png" />
 																	</a>
 																</td>
 															</tr>
@@ -200,9 +200,11 @@
 																	<div style="margin-top:37px;font-size:25px;line-height: 35px;">
 																		<b>{{Commenter_Name}}</b>,
 																		{{#NewComment}}added {{/NewComment}}
+																		{{#Resolved}}resolved {{/Resolved}}
 																		{{#Replied}}replied to {{/Replied}}
 																		{{#Mentioned}}mentioned you in {{/Mentioned}}
-																		a comment on <br />
+																		{{#Resolved}}a comment thread {{/Resolved}}
+																		{{^Resolved}}a comment on <br />{{/Resolved}}
 																		<b>{{Organization_Name}}, {{Application_Name}}</b>:
 																	</div>
 																	{{#Comment_Body}}
@@ -222,15 +224,12 @@
 																		Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
 																	</div>
 																	<div style="margin-top:32px">
-																		<a href="https://www.youtube.com/appsmith">
-																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
-																		</a>
-																		<a href="https://twitter.com/theappsmith" style="margin-left:25px;margin-right:25px">
-																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
-																		</a>
-																		<a href="https://www.linkedin.com/company/appsmith">
-																			<img width="20px" src="https://uploads-ssl.webflow.com/5f3d61ffeb42162389fc57d1/602a2377f6cb88041dcfa3bd_appsmith_logo_square.61b032eb-p-500.png" />
-																		</a>
+																		<a href="https://www.youtube.com/appsmith" style="text-decoration:none">
+																			<img width="20px" src="https://s3.us-east-2.amazonaws.com/assets.appsmith.com/email/ic_youtube.png" /></a>
+																		<a href="https://twitter.com/theappsmith" style="margin-left:25px;margin-right:25px;text-decoration:none">
+																			<img width="20px" src="https://s3.us-east-2.amazonaws.com/assets.appsmith.com/email/ic_twitter.png" /></a>
+																		<a href="https://www.linkedin.com/company/appsmith" style="text-decoration:none">
+																			<img width="20px" src="https://s3.us-east-2.amazonaws.com/assets.appsmith.com/email/ic_linkedin.png" /></a>
 																	</div>
 																	<div style="font-size:12px;line-height:19px;color:#A9A7A7;margin-top:42px">
 																		2261 Market Street #4147, United States, San Francisco, California, 94114, US
