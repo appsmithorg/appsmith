@@ -351,6 +351,10 @@ public class CreateDBTablePageSolution {
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
             for (Object obj : children) {
+                if (!(obj instanceof Map)) {
+                    log.error("Child in DSL is not instanceof Map, {}", obj);
+                    continue;
+                }
                 Map data = (Map) obj;
                 JSONObject object = new JSONObject();
                 // If the children tag exists and there are entries within it
