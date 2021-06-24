@@ -790,7 +790,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 26) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 26;
   }
 
   return currentDSL;
