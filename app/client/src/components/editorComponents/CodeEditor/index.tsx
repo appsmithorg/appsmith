@@ -38,7 +38,6 @@ import {
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
-  HintStyles,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
@@ -512,7 +511,6 @@ class CodeEditor extends Component<Props, State> {
             ref={this.editorWrapperRef}
             size={size}
           >
-            <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
             )}
