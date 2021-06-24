@@ -1,7 +1,7 @@
 import API, { HttpMethod } from "api/Api";
 import { AxiosPromise, CancelTokenSource } from "axios";
 import { JSAction } from "entities/JSAction";
-import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
+import { ApiResponse, GenericApiResponse } from "./ApiResponses";
 
 export type PaginationField = "PREV" | "NEXT";
 

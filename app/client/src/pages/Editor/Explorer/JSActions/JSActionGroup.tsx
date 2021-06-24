@@ -2,9 +2,7 @@ import React, { memo, ReactElement } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { jsIcon } from "../ExplorerIcons";
-import { ExplorerURLParams, getJSActionIdFromURL } from "../helpers";
-import { useParams } from "react-router";
-import history from "utils/history";
+import { getJSActionIdFromURL } from "../helpers";
 import ExplorerActionEntity from "./JSActionEntity";
 import { createNewJSAction } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
@@ -18,7 +16,6 @@ type ExplorerJSActionGroupProps = {
 
 export const ExplorerJSActionGroup = memo(
   (props: ExplorerJSActionGroupProps) => {
-    const params = useParams<ExplorerURLParams>();
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
         No JS Functions yet. Please click the <strong>+</strong> icon on above,

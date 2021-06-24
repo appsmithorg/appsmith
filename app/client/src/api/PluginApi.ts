@@ -10,8 +10,12 @@ export interface Plugin {
   type: PluginType;
   packageName: string;
   iconLocation?: string;
-  uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
-  datasourceComponent: "RestAPIDatasourceForm" | "AutoForm";
+  uiComponent:
+    | "ApiEditorForm"
+    | "RapidApiEditorForm"
+    | "DbEditorForm"
+    | "JsEditorForm";
+  datasourceComponent?: "RestAPIDatasourceForm" | "AutoForm";
   allowUserDatasources?: boolean;
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";

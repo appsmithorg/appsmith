@@ -1,10 +1,11 @@
 export const jsData = [
   {
     id: "1",
-    pageId: "60af589ae46b4f17edc130fe",
+    pageId: "606ac1fd76cd1270c173f7d7",
     name: "function1",
-    organizationId: "606596fa6e42981cc3204bfe",
-    pluginId: "5678",
+    organizationId: "606ac1fd76cd1270c173f7d5",
+    pluginId: "60b8c29c59d0193c5bb96328",
+    pluginType: "JS",
     variables: [
       {
         name: "function1.data",
@@ -32,10 +33,11 @@ export const jsData = [
   },
   {
     id: "2",
-    pageId: "60af589ae46b4f17edc130fe",
+    pageId: "606ac1fd76cd1270c173f7d7",
     name: "function2",
-    organizationId: "606596fa6e42981cc3204bfe",
-    pluginId: "5678",
+    organizationId: "606ac1fd76cd1270c173f7d5",
+    pluginId: "60b8c29c59d0193c5bb96328",
+    pluginType: "JS",
     variables: [
       {
         name: "function2.data",
@@ -66,9 +68,10 @@ export const jsData = [
 export const newFunction = {
   id: "100",
   name: "Function1",
-  pageId: "60af589ae46b4f17edc130fe",
-  organizationId: "606596fa6e42981cc3204bfe",
-  pluginId: "5678",
+  pageId: "606ac1fd76cd1270c173f7d7",
+  organizationId: "606ac1fd76cd1270c173f7d5",
+  pluginId: "60b8c29c59d0193c5bb96328",
+  pluginType: "JS",
   variables: [
     {
       name: "function2.data",

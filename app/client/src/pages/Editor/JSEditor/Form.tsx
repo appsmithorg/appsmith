@@ -81,6 +81,7 @@ const SettingsWrapper = styled.div`
 `;
 interface JSFormProps {
   jsAction: JSAction | undefined;
+  settingsConfig: any;
 }
 
 type Props = JSFormProps;
@@ -189,7 +190,7 @@ function JSEditorForm(props: Props) {
                 panelComponent: (
                   <SettingsWrapper>
                     <ActionSettings
-                      actionSettingsConfig={[]}
+                      actionSettingsConfig={props.settingsConfig}
                       formName={JS_EDITOR_FORM}
                       theme={theme}
                     />

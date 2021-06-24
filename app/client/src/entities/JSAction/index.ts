@@ -17,6 +17,7 @@ interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
+  pluginType: string;
   executeOnLoad?: boolean;
   dynamicBindingPathList?: DynamicPath[];
   isValid?: boolean;

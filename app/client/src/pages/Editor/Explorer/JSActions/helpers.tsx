@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
