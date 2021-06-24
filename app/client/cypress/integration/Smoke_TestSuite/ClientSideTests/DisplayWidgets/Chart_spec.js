@@ -347,13 +347,9 @@ describe("Chart Widget Functionality", function() {
 
   it("Toggle JS - Custom Chart Widget Functionality", function() {
     //changing the Chart type
+    cy.UpdateChartType("Pie Chart");
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
-
-    cy.testJsontext(
-      "customfusionchartconfiguration",
-      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
-    );
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
