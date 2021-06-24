@@ -19,6 +19,7 @@ import {
   useMockDsl,
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 describe("Select all hotkey", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
@@ -244,6 +245,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 30,
         leftColumn: 5,
         rightColumn: 30,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -251,6 +253,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 10,
         leftColumn: 40,
         rightColumn: 48,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
