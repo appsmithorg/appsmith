@@ -869,6 +869,7 @@ type ColorType = {
     separator: string;
     searchItemHighlight: string;
     searchItemText: string;
+    searchItemSubText: string;
     highlightedTextUnderline: string;
     documentationCtaBackground: string;
     documentationCtaText: string;
@@ -1037,6 +1038,7 @@ const notifications = {
   markAllAsReadButtonText: "#716E6E",
   unreadIndicator: "#F86A2B",
   bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
@@ -1153,6 +1155,7 @@ const globalSearch = {
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemSubText: "rgba(255, 255, 255, 0.4)",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
