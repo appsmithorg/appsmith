@@ -8,15 +8,16 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
+import ActionSidebar from "components/editorComponents/ActionSidebar";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 280px;
   padding: 50px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
+  max-width: 265px;
 `;
 
 const DatasourceContainer = styled.div`
@@ -31,17 +32,12 @@ const DatasourceContainer = styled.div`
 `;
 
 const DataSourceListWrapper = styled.div`
-  width: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 10px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
-  transition: width 2s;
-  &.show {
-    width: 280px;
-  }
 `;
 
 const DatasourceCard = styled.div`
@@ -105,6 +101,11 @@ const DataSourceNameContainer = styled.div`
   }
 `;
 
+const SomeWrapper = styled.div`
+  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  height: 100%;
+`;
+
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
@@ -131,8 +132,6 @@ export default function DataSourceList(props: any) {
             {
               key: "datasources",
               title: "Datasources",
-              icon: "datasource",
-              iconSize: IconSize.LARGE,
               panelComponent:
                 props.datasources && props.datasources.length > 0 ? (
                   <DataSourceListWrapper
@@ -195,6 +194,15 @@ export default function DataSourceList(props: any) {
                     </Text>
                   </EmptyDatasourceContainer>
                 ),
+            },
+            {
+              key: "Connections",
+              title: "Connections",
+              panelComponent: (
+                <SomeWrapper>
+                  <ActionSidebar actionName={props.actionName} />
+                </SomeWrapper>
+              ),
             },
           ]}
         />
