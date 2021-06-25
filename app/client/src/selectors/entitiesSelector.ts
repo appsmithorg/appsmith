@@ -227,6 +227,15 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getJSActionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getJSActions,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter((a) => a.config.pageId === pageId);
+  },
+);
+
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {

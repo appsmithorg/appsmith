@@ -1,3 +1,5 @@
+import { PluginType } from "../../../entities/JSAction";
+
 export const jsData = [
   {
     id: "1",
@@ -5,7 +7,7 @@ export const jsData = [
     name: "function1",
     organizationId: "606ac1fd76cd1270c173f7d5",
     pluginId: "60b8c29c59d0193c5bb96328",
-    pluginType: "JS",
+    pluginType: PluginType.JS,
     variables: [
       {
         name: "function1.data",
@@ -37,7 +39,7 @@ export const jsData = [
     name: "function2",
     organizationId: "606ac1fd76cd1270c173f7d5",
     pluginId: "60b8c29c59d0193c5bb96328",
-    pluginType: "JS",
+    pluginType: PluginType.JS,
     variables: [
       {
         name: "function2.data",
@@ -71,7 +73,7 @@ export const newFunction = {
   pageId: "606ac1fd76cd1270c173f7d7",
   organizationId: "606ac1fd76cd1270c173f7d5",
   pluginId: "60b8c29c59d0193c5bb96328",
-  pluginType: "JS",
+  pluginType: PluginType.JS,
   variables: [
     {
       name: "function2.data",

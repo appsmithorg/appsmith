@@ -4,6 +4,7 @@ import {
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
+  getJSActionsForCurrentPage,
 } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -11,9 +12,11 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
+import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
+  getJSActionsForCurrentPage,
   getWidgets,
   getWidgetsMeta,
   getPageList,
@@ -22,6 +25,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   (
     actions,
+    jsActions,
     widgets,
     widgetsMeta,
     pageListPayload,
@@ -32,6 +36,7 @@ export const getUnevaluatedDataTree = createSelector(
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
       actions,
+      jsActions,
       widgets,
       widgetsMeta,
       pageList,
@@ -60,7 +65,8 @@ export const getDataTree = (state: AppState) => state.evaluations.tree;
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   getActionsForCurrentPage,
-  (tree: DataTree, actions: ActionDataState) => {
+  getJSActionsForCurrentPage,
+  (tree: DataTree, actions: ActionDataState, jsActions: JSActionDataState) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach((action) => {

@@ -15,7 +15,7 @@ export interface JSActionCreateUpdateResponse extends ApiResponse {
   id: string;
 }
 
-export interface ActionResponse {
+export interface JSActionResponse {
   body: unknown;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;

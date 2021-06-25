@@ -17,7 +17,7 @@ interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
-  pluginType: string;
+  pluginType: PluginType.JS;
   executeOnLoad?: boolean;
   dynamicBindingPathList?: DynamicPath[];
   isValid?: boolean;
@@ -25,6 +25,7 @@ interface BaseAction {
   cacheResponse?: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
+  body: string;
 }
 
 export interface JSAction extends BaseAction {
