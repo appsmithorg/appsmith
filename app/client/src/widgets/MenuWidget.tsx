@@ -1,26 +1,41 @@
-import React from "react";
+import * as React from "react";
 import * as Sentry from "@sentry/react";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import MenuComponent from "components/designSystems/appsmith/MenuComponent";
 
 export interface MenuWidgetProps extends WidgetProps {
-  label: string;
+  label?: string;
+  textColor?: string;
+  isDisabled?: boolean;
+  isVisible?: boolean;
+  isCompact?: boolean;
   menuItems: Record<
     string,
     {
-      id: string;
-      label: string;
       widgetId: string;
+      id: string;
       index: number;
-      isVisible: boolean;
-      isDisabled: boolean;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onClick?: string;
     }
   >;
-  icon?: string;
+  iconName?: IconName;
+  iconColor?: string;
+  iconAlign?: Alignment;
 }
 
 class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
@@ -252,9 +267,25 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
     ];
   }
 
+  menuItemClickHandler = (onClick: string | undefined) => {
+    if (onClick) {
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      });
+    }
+  };
+
   getPageView() {
-    const { label, widgetId } = this.props;
-    return <MenuComponent label={label} widgetId={widgetId} />;
+    return (
+      <MenuComponent
+        {...this.props}
+        onItemClicked={this.menuItemClickHandler}
+      />
+    );
   }
 
   getWidgetType(): WidgetType {

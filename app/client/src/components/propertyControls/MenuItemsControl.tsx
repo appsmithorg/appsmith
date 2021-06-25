@@ -12,7 +12,6 @@ import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
-import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
@@ -169,6 +168,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     const menuItems: Array<{
       id: string;
       label: string;
+      isDisabled: boolean;
       isVisible: boolean;
       widgetId: string;
     }> = this.props.propertyValue.slice();
@@ -229,6 +229,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
         id: newMenuItemId,
         label: newMenuItemLabel,
         widgetId: generateReactKey(),
+        isDisabled: false,
         isVisible: true,
       },
     };
