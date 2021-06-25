@@ -14,9 +14,10 @@ import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
-import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -149,6 +150,7 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
   const selectedWidgets = selectedWidgetIDs.map(
     (widgetID) => canvasWidgets[widgetID],
   );
+  const { focusWidget } = useWidgetSelection();
 
   /**
    * the multi-selection bounding box should only render when:
@@ -250,6 +252,8 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
 
   return (
     <StyledSelectionBox
+      onMouseMove={() => focusWidget()}
+      onMouseOver={() => focusWidget()}
       style={{
         left: left?.left,
         top: top?.top,
