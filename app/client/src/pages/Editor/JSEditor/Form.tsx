@@ -91,7 +91,7 @@ function JSEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainTabIndex, setMainTabIndex] = useState(0);
   const { jsAction } = props;
-  const body = jsAction?.actionConfiguration?.body;
+  const body = jsAction?.body;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const responseTabs = [
     {

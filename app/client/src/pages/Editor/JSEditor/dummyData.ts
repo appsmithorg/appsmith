@@ -15,9 +15,6 @@ export const jsData = [
       },
     ],
     body: `{ data: [], run1: function() { console.log(\"this is function 1 body\")}}`,
-    actionConfiguration: {
-      body: `{ data: [], run1: function() { console.log(\"this is function 1 body\") }}`,
-    },
     actions: [
       {
         actionId: "11",
@@ -47,9 +44,6 @@ export const jsData = [
       },
     ],
     body: `{data: [], run2: function() { console.log(\"this is function 2 body\")}}`,
-    actionConfiguration: {
-      body: `{data: [], run2: function() { console.log(\"this is function 2 body\")}}`,
-    },
     actions: [
       {
         actionId: "21",
@@ -81,9 +75,6 @@ export const newFunction = {
     },
   ],
   body: `{data: [], run100: function() { console.log(\"this is function 100 body\")}}`,
-  actionConfiguration: {
-    body: `{data: [], run100: function() { console.log(\"this is function 100 body\")}}`,
-  },
   actions: [
     {
       actionId: "21",

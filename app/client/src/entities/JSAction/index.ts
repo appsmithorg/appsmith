@@ -30,7 +30,6 @@ interface BaseAction {
 
 export interface JSAction extends BaseAction {
   variables: any;
-  actionConfiguration: any;
   actions: Array<JSSubAction>;
 }
 export interface JSSubAction {
