@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -44,6 +45,9 @@ public class EmailEventHandlerTest {
     @MockBean
     private ApplicationRepository applicationRepository;
 
+    @MockBean
+    private PolicyUtils policyUtils;
+
     EmailEventHandler emailEventHandler;
     private Application application;
     private Organization organization;
@@ -57,7 +61,7 @@ public class EmailEventHandlerTest {
     @Before
     public void setUp() {
         emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher, emailSender, organizationRepository, applicationRepository
+                applicationEventPublisher, emailSender, organizationRepository, applicationRepository, policyUtils
         );
         application = new Application();
         application.setName("Test application for comment");
