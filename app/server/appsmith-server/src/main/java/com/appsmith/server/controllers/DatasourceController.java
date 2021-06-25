@@ -86,7 +86,7 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     }
 
     @GetMapping("/mocks")
-    public Mono<ResponseDTO<Config>> getMockDataSets(){
+    public Mono<ResponseDTO<Config>> getMockDataSets() {
         return configService.getByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
                 .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config, null));
     }
