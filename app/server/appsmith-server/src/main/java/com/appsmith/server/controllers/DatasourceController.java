@@ -3,7 +3,6 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -24,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import net.minidev.json.JSONObject;
 
 import java.net.URI;
 
@@ -86,9 +87,9 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     }
 
     @GetMapping("/mocks")
-    public Mono<ResponseDTO<Config>> getMockDataSets() {
+    public Mono<ResponseDTO<JSONObject>> getMockDataSets() {
         return configService.getByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config, null));
+                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getConfig(), null));
     }
 
 
