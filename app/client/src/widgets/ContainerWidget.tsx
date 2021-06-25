@@ -15,6 +15,7 @@ import ContainerComponent, {
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -125,6 +126,7 @@ class ContainerWidget extends BaseWidget<
         {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
           <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
         )}
+        <WidgetsMultiSelectBox widgetId={this.props.widgetId} />
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

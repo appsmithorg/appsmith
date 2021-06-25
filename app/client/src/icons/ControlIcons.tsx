@@ -33,6 +33,9 @@ import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vert
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
+import { ReactComponent as Copy2Icon } from "assets/icons/control/copy2.svg";
+import { ReactComponent as CutIcon } from "assets/icons/control/cut.svg";
+import { ReactComponent as GroupIcon } from "assets/icons/control/group.svg";
 import { ReactComponent as HeadingOneIcon } from "assets/icons/control/heading_1.svg";
 import { ReactComponent as HeadingTwoIcon } from "assets/icons/control/heading_2.svg";
 import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading_3.svg";
@@ -218,6 +221,21 @@ export const ControlIcons: {
   COPY_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CopyIcon />
+    </IconWrapper>
+  ),
+  COPY2_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Copy2Icon />
+    </IconWrapper>
+  ),
+  CUT_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CutIcon />
+    </IconWrapper>
+  ),
+  GROUP_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <GroupIcon />
     </IconWrapper>
   ),
   HEADING_ONE: (props: IconProps) => (
