@@ -15,8 +15,8 @@ apt-get update -y
 # Installing `gettext-base` just for `envsubst` command.
 apt-get install -y maven gettext-base wget curl mongodb-org-{server,shell} redis
 
-service status mongodb
-service status redis
+service status mongodb || true
+service status redis || true
 
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 export APPSMITH_REDIS_URL="redis://localhost:6379"

@@ -12,6 +12,12 @@ yarn install --frozen-lockfile
 # TODO: See if `--ci` is useful when running jest. <https://archive.jestjs.io/docs/en/24.x/cli>.
 REACT_APP_ENVIRONMENT=PRODUCTION npx jest -b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'
 
+wget -O mongod.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
+tar -xaf mongodb.tgz
+mkdir -p /data/db
+mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod &
+export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
+
 if [[ -z $APPSMITH_MONGODB_URI ]]; then
 	docker run -d --name mongo -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=root mongo
 	export APPSMITH_MONGODB_URI="mongodb://root:root@localhost:27017/appsmith?authSource=admin"
