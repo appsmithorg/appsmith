@@ -1,0 +1,31 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+      nodejs: 14
+
+batch:
+  fail-fast: false
+
+  build-graph:
+
+    # Run unit tests on client and server.
+    - identifier: units
+      buildspec: ci/1-units.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+        privileged-mode: true  # May not be needed here.
+      debug-session: true
+
+cache:
+  paths:
+    - '/root/.m2/**/*'  # Server dependencies.
+    # - 'app/client/node_modules/**/*'  # Client dependencies.
+    # - '/root/.cache/Cypress/**/*'  # Cypress binary.
+    # - '/var/cache/apt/**/*'  # Apt listing and package cache.
+    # - '/var/lib/docker/overlay2/**/*'  # Docker images.
