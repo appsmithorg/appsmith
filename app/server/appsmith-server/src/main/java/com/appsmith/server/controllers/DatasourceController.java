@@ -3,12 +3,14 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
+import com.appsmith.server.services.ConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +34,18 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
+    private final ConfigService configService;
+
+    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-mockdb";
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService) {
+                                AuthenticationService authenticationService, ConfigService configService) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
+        this.configService = configService;
     }
 
     @PostMapping("/test")
@@ -77,6 +83,12 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
                     return serverWebExchange.getResponse().setComplete();
                 });
+    }
+
+    @GetMapping("/mocks")
+    public Mono<ResponseDTO<Config>> getMockDataSets(){
+        return configService.getByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config, null));
     }
 
 
