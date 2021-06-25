@@ -64,7 +64,7 @@ const StyledSelectBoxHandleTop = styled.div`
   z-index: 5;
   border-top: 1.5px dashed #69b5ff;
   top: 0px;
-  left: 0px;
+  left: -1px;
 `;
 
 const StyledSelectBoxHandleLeft = styled.div`
@@ -74,7 +74,7 @@ const StyledSelectBoxHandleLeft = styled.div`
   z-index: 5;
   border-left: 1.5px dashed #69b5ff;
   top: 0px;
-  left: 0px;
+  left: -1px;
 `;
 
 const StyledSelectBoxHandleRight = styled.div`
@@ -84,7 +84,7 @@ const StyledSelectBoxHandleRight = styled.div`
   z-index: 5;
   border-left: 1.5px dashed #69b5ff;
   top: 0px;
-  left: calc(100% - 1px);
+  left: calc(100% - 2px);
 `;
 
 const StyledSelectBoxHandleBottom = styled.div`
@@ -94,7 +94,7 @@ const StyledSelectBoxHandleBottom = styled.div`
   z-index: 5;
   border-bottom: 1.5px dashed #69b5ff;
   top: calc(100% - 1px);
-  left: 0px;
+  left: -1px;
 `;
 
 export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
@@ -180,16 +180,6 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
       const rects: OffsetBox[] = [];
 
       elements.forEach((el) => {
-        console.log({
-          element: el,
-          offset: {
-            top: el.offsetTop,
-            left: el.offsetLeft,
-            width: el.offsetWidth,
-            height: el.offsetHeight,
-          },
-        });
-
         rects.push({
           top: el.offsetTop,
           left: el.offsetLeft,
