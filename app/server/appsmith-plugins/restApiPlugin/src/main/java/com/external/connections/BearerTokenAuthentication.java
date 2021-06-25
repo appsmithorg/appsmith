@@ -1,7 +1,9 @@
 package com.external.connections;
 
-import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,35 +12,29 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
-import static com.appsmith.external.constants.Authentication.BASIC_HEADER_PREFIX;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BasicAuthentication extends APIConnection {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class BearerTokenAuthentication extends APIConnection {
+    private String bearerToken;
 
-    private String encodedAuthorizationHeader;
-    final private static String HEADER_PREFIX = "Basic ";
-
-    public static Mono<BasicAuthentication> create(BasicAuth basicAuth) {
-        final BasicAuthentication basicAuthentication = new BasicAuthentication();
-        final String decodedAuthorizationHeader = basicAuth.getUsername() + ":" + basicAuth.getPassword();
-
-        basicAuthentication.setEncodedAuthorizationHeader(
-                Base64.getEncoder().encodeToString(decodedAuthorizationHeader.getBytes(StandardCharsets.UTF_8)));
-
-        return Mono.just(basicAuthentication);
+    public static Mono<BearerTokenAuthentication> create(BearerTokenAuth bearerTokenAuth) {
+        return Mono.just(
+                BearerTokenAuthentication.builder()
+                        .bearerToken(bearerTokenAuth.getBearerToken())
+                        .build()
+        );
     }
-
 
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
         return Mono.justOrEmpty(ClientRequest.from(request)
-                .headers(headers -> headers.set(AUTHORIZATION_HEADER, getHeaderValue()))
+                .headers(header -> header.set(AUTHORIZATION_HEADER, getHeaderValue()))
                 .build())
                 // Carry on to next exchange function
                 .flatMap(next::exchange)
@@ -47,6 +43,6 @@ public class BasicAuthentication extends APIConnection {
     }
 
     private String getHeaderValue() {
-        return BASIC_HEADER_PREFIX + this.encodedAuthorizationHeader;
+        return BEARER_HEADER_PREFIX + " " + this.bearerToken;
     }
 }
