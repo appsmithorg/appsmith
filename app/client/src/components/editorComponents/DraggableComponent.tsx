@@ -131,7 +131,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
       if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
+        showPropertyPane && showPropertyPane();
       }
       // Take this to the bottom of the stack. So that it runs last.
       // We do this because, we don't want erroraneous mouse clicks to propagate.

@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+// import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
@@ -50,7 +50,7 @@ export function getParentToOpenIfAny(
 }
 
 export const useClickOpenPropPane = () => {
-  const showPropertyPane = useShowPropertyPane();
+  // const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
@@ -88,11 +88,11 @@ export const useClickOpenPropPane = () => {
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
         focusWidget(parentWidgetToOpen.widgetId);
-        showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
+        // showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
-        showPropertyPane(focusedWidgetId, undefined, true);
+        // showPropertyPane(focusedWidgetId, undefined, true);
       }
 
       if (isMultiSelect) {
