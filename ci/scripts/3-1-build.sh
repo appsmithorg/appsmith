@@ -12,7 +12,7 @@ yarn install --frozen-lockfile
 # TODO: See if `--ci` is useful when running jest. <https://archive.jestjs.io/docs/en/24.x/cli>.
 REACT_APP_ENVIRONMENT=PRODUCTION npx jest -b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'
 
-wget -O mongod.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
+wget --quiet -O mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
 tar -xaf mongodb.tgz
 mkdir -p /data/db
 mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod &
