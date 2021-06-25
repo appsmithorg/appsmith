@@ -57,6 +57,8 @@ import {
 } from "constants/messages";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import TernServer from "utils/autocomplete/TernServer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -266,6 +268,19 @@ function* logSuccessfulBindings(
   });
 }
 
+function* updateTernDefinitions(dataTree: DataTree, evaluationOrder: string[]) {
+  const updatedEntities: Set<string> = new Set();
+  evaluationOrder.forEach((path) => {
+    const { entityName } = getEntityNameAndPropertyPath(path);
+    updatedEntities.add(entityName);
+  });
+  updatedEntities.forEach((entityName) => {
+    const entity = dataTree[entityName];
+    const entityDef = dataTreeTypeDefCreator(entity, entityName);
+    TernServer.updateDef(entityName, entityDef);
+  });
+}
+
 function* postEvalActionDispatcher(
   actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
@@ -304,6 +319,7 @@ function* evaluateTreeSaga(
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
+  yield fork(updateTernDefinitions, dataTree, evaluationOrder);
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
