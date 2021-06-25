@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
@@ -13,19 +13,23 @@ export type DropdownOption = {
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
-  onSelect?: (value?: string) => void;
+  onSelect?: (value?: string, dropdownOption?: DropdownOption) => void;
 };
 
 export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
-  onSelect?: (value?: string) => void;
+  onSelect?: (value?: string, dropdownOption?: DropdownOption) => void;
   width?: string;
   height?: string;
   showLabelOnly?: boolean;
   optionWidth?: string;
   showDropIcon?: boolean;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
+  renderOption?: (
+    dropdownOption: DropdownOption,
+    index: number,
+  ) => ReactElement<any, any>;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -209,6 +213,7 @@ export default function Dropdown(props: DropdownProps) {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
+    renderOption = null,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -256,6 +261,9 @@ export default function Dropdown(props: DropdownProps) {
         </Selected>
         <DropdownWrapper width={props.optionWidth || "260px"}>
           {props.options.map((option: DropdownOption, index: number) => {
+            if (renderOption) {
+              return renderOption(option, index);
+            }
             return (
               <OptionWrapper
                 className="t--dropdown-option"

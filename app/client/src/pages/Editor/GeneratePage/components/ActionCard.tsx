@@ -1,8 +1,14 @@
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import React, { JSXElementConstructor } from "react";
 import styled from "styled-components";
 import { IconProps } from "constants/IconConstants";
+import {
+  IconWrapper,
+  RoundBg,
+  DescWrapper,
+  Title,
+  SubTitle,
+} from "./commonStyle";
 
 const CardWrapper = styled.button`
   display: flex;
@@ -19,38 +25,6 @@ const CardWrapper = styled.button`
   &:hover {
     background-color: ${Colors.Gallery};
   }
-`;
-
-const IconWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const RoundBg = styled.div`
-  height: 32px;
-  width: 32px;
-  border-radius: 50%;
-  background-color: ${Colors.Gallery};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const DescWrapper = styled.div`
-  flex: 1;
-`;
-
-const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
-  font-weight: 500;
-  color: ${Colors.OXFORD_BLUE};
-`;
-
-const SubTitle = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
-  color: ${Colors.DARK_GRAY};
 `;
 
 type actionCardProps = {
