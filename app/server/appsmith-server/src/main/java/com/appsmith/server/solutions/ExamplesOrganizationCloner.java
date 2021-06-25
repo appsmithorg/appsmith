@@ -78,7 +78,7 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     private Mono<Organization> cloneExamplesOrganization(User user) {
-        if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
+        if (CollectionUtils.isEmpty(user.getOrganizationIds())) {
             // Don't create an examples organization if the user already has some organizations, perhaps because they
             // were invited to some.
             return Mono.empty();
@@ -90,7 +90,7 @@ public class ExamplesOrganizationCloner {
                         templateOrganizationId,
                         user,
                         configService.getTemplateApplications(),
-                        configService.getTemplateDatasources()
+                        Flux.empty()
                 ));
     }
 
