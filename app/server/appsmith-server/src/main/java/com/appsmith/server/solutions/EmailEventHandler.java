@@ -100,7 +100,7 @@ public class EmailEventHandler {
 
     private String getCommentThreadLink(String applicationId, String pageId, String threadId, UserRole userRole, String originHeader) {
         String urlPostfix = "/edit";
-        if (AppsmithRole.ORGANIZATION_VIEWER.equals(userRole.getRole()) {
+        if (AppsmithRole.ORGANIZATION_VIEWER.equals(userRole.getRole())) {
             urlPostfix = "";
         }
         return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
