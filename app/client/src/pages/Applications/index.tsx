@@ -934,14 +934,18 @@ class Applications extends Component<
 
     // Redirect directly in case we're not showing the onboarding form
     if (isFromSignUp && !onboardingFormEnabled) {
-      const urlObject = new URL(window.location.href);
-      const redirectUrl = urlObject?.searchParams.get("redirectUrl");
-      if (redirectUrl) {
-        try {
-          window.location.replace(redirectUrl);
-        } catch (e) {
-          console.error("Error handling the redirect url");
-        }
+      this.redirectUsingQueryParam();
+    }
+  };
+
+  redirectUsingQueryParam = () => {
+    const urlObject = new URL(window.location.href);
+    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    if (redirectUrl) {
+      try {
+        window.location.replace(redirectUrl);
+      } catch (e) {
+        console.error("Error handling the redirect url");
       }
     }
   };
@@ -949,6 +953,7 @@ class Applications extends Component<
   handleTypeFormMessage = (event: any) => {
     if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
       setOnboardingFormInProgress();
+      this.redirectUsingQueryParam();
     }
   };
 
