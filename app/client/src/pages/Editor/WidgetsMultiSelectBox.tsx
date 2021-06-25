@@ -252,6 +252,7 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
 
   return (
     <StyledSelectionBox
+      className="t--multi-selection-box"
       onMouseMove={() => focusWidget()}
       onMouseOver={() => focusWidget()}
       style={{
