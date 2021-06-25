@@ -173,12 +173,23 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
   const { height, left, top, width } = useMemo(() => {
     if (shouldRender) {
       const widgetClasses = selectedWidgetIDs
-        .map((id) => `.${generateClassName(id)}`)
+        .map((id) => `.${generateClassName(id)}.positioned-widget`)
         .join(",");
       const elements = document.querySelectorAll<HTMLElement>(widgetClasses);
+
       const rects: OffsetBox[] = [];
 
       elements.forEach((el) => {
+        console.log({
+          element: el,
+          offset: {
+            top: el.offsetTop,
+            left: el.offsetLeft,
+            width: el.offsetWidth,
+            height: el.offsetHeight,
+          },
+        });
+
         rects.push({
           top: el.offsetTop,
           left: el.offsetLeft,
