@@ -165,7 +165,7 @@ const DocumentationLink = styled.a`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
+  width: calc(100% - 265px);
 `;
 
 const HelpSection = styled.div``;
@@ -203,7 +203,9 @@ const ErrorContainer = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
+  flex: 1;
   align-items: center;
+  justify-content: center;
   padding-top: 10px;
   flex-direction: column;
   & > .${Classes.ICON} {
