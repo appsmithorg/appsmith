@@ -103,6 +103,10 @@ import SwitchWidget, {
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
 import MenuWidget, {
   MenuWidgetProps,
   ProfiledMenuWidget,
@@ -461,7 +465,20 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
-      "MENU_WIDGET",
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MENU_WIDGET,
       {
         buildWidget(widgetData: MenuWidgetProps): JSX.Element {
           return <ProfiledMenuWidget {...widgetData} />;

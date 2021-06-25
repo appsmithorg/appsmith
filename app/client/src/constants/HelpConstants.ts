@@ -115,6 +115,10 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
   MENU_WIDGET: {
     path: "/widget-reference/menu",
     searchKey: "Menu",
