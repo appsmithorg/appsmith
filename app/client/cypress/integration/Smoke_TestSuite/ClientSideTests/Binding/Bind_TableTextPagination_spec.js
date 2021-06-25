@@ -106,7 +106,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.wait(300);
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Call An API")
+      .contains("Execute an Integration")
       .click();
     cy.wait(300);
     cy.get(commonlocators.chooseAction)
