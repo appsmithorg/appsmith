@@ -83,6 +83,10 @@ import ImportApplicationModal from "./ImportApplicationModal";
 import OnboardingForm from "./OnboardingForm";
 import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  setOnboardingFormInProgress,
+  getOnboardingFormInProgress,
+} from "utils/storage";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -911,9 +915,21 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    window.addEventListener("message", this.handleTypeFormMessage, false);
+    this.showOnboardingForm();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("message", this.handleTypeFormMessage);
+  }
+
+  showOnboardingForm = async () => {
     const isFromSignUp = getIsFromSignup();
+    const isOnboardingFormInProgress = await getOnboardingFormInProgress();
+    const showOnboardingForm =
+      onboardingFormEnabled && (isFromSignUp || isOnboardingFormInProgress);
     this.setState({
-      showOnboardingForm: isFromSignUp && onboardingFormEnabled,
+      showOnboardingForm: !!showOnboardingForm,
     });
 
     // Redirect directly in case we're not showing the onboarding form
@@ -928,7 +944,13 @@ class Applications extends Component<
         }
       }
     }
-  }
+  };
+
+  handleTypeFormMessage = (event: any) => {
+    if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
+      setOnboardingFormInProgress();
+    }
+  };
 
   public render() {
     return (
