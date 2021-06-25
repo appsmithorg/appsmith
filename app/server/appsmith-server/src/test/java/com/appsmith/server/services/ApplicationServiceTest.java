@@ -307,6 +307,34 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void invalidUpdateApplication() {
+        Application testApp1 = new Application();
+        testApp1.setName("validApplication1");
+        Application testApp2 = new Application();
+        testApp2.setName("validApplication2");
+
+        Mono<List<Application>> createMultipleApplications = Mono.zip(
+            applicationPageService.createApplication(testApp1, orgId),
+            applicationPageService.createApplication(testApp2, orgId))
+            .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
+
+            Mono<Application> updateInvalidApplication = createMultipleApplications
+            .map(applicationList -> {
+                Application savedTestApp1 = applicationList.get(0);
+                Application savedTestApp2 = applicationList.get(1);
+                savedTestApp2.setName(savedTestApp1.getName());
+                return savedTestApp2;
+            })
+            .flatMap(t -> applicationService.update(t.getId(), t));
+
+        StepVerifier.create(updateInvalidApplication)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(testApp1.getName(), FieldName.NAME)))
+            .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void reuseDeletedAppName() {
         Application firstApp = new Application();
         firstApp.setName("Ghost app");
