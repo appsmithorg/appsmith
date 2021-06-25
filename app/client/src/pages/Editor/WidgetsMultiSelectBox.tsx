@@ -16,6 +16,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -47,6 +48,9 @@ const StyledAction = styled.button`
   outline: none;
   border: none;
   background: transparent;
+  z-index: 30;
+  position: relative;
+
   &:hover,
   &:active,
   &.active {
@@ -62,29 +66,29 @@ const StyledSelectBoxHandleTop = styled.div`
   height: 1px;
   position: absolute;
   z-index: 5;
-  border-top: 1.5px dashed #69b5ff;
+  border-top: 1px dashed #69b5ff;
   top: 0px;
-  left: 0px;
+  left: -1px;
 `;
 
 const StyledSelectBoxHandleLeft = styled.div`
-  width: 1px;
+  width: 0px;
   height: 100%;
   position: absolute;
   z-index: 5;
-  border-left: 1.5px dashed #69b5ff;
+  border-left: 1px dashed #69b5ff;
   top: 0px;
-  left: 0px;
+  left: -1px;
 `;
 
 const StyledSelectBoxHandleRight = styled.div`
-  width: 1px;
+  width: 0px;
   height: 100%;
   position: absolute;
   z-index: 5;
-  border-left: 1.5px dashed #69b5ff;
+  border-left: 1px dashed #69b5ff;
   top: 0px;
-  left: 100%;
+  left: calc(100% - 1px);
 `;
 
 const StyledSelectBoxHandleBottom = styled.div`
@@ -92,9 +96,9 @@ const StyledSelectBoxHandleBottom = styled.div`
   height: 1px;
   position: absolute;
   z-index: 5;
-  border-bottom: 1.5px dashed #69b5ff;
+  border-bottom: 1px dashed #69b5ff;
   top: 100%;
-  left: 0px;
+  left: -1px;
 `;
 
 export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
@@ -209,8 +213,9 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
   ) => {
     e.preventDefault();
     e.stopPropagation();
-
     dispatch(copyWidget(true));
+
+    return false;
   };
 
   /**
@@ -268,7 +273,10 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
             modifiers={PopoverModifiers}
             position={Position.RIGHT}
           >
-            <StyledAction onClick={onCopySelectedWidgets}>
+            <StyledAction
+              onClick={stopEventPropagation}
+              onClickCapture={onCopySelectedWidgets}
+            >
               <CopyIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
