@@ -1,21 +1,31 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
 import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
+import {
+  GLOBAL_DEFS,
+  GLOBAL_FUNCTIONS,
+} from "utils/autocomplete/EntityDefinitions";
 
-const DEFS = [ecma, lodash, base64, moment, xmlJs];
+const DEFS: Def[] = [
+  GLOBAL_FUNCTIONS,
+  GLOBAL_DEFS,
+  // @ts-ignore
+  ecma,
+  lodash,
+  base64,
+  moment,
+  xmlJs,
+];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -63,20 +73,10 @@ class TernServer {
   expected?: string;
   entityName?: string;
 
-  constructor(
-    dataTree: DataTree,
-    additionalDataTree?: Record<string, Record<string, unknown>>,
-  ) {
-    const dataTreeDef = dataTreeTypeDefCreator(dataTree);
-    let customDataTreeDef = undefined;
-    if (additionalDataTree) {
-      customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
-    }
+  constructor() {
     this.server = new tern.Server({
       async: true,
-      defs: customDataTreeDef
-        ? [...DEFS, dataTreeDef, customDataTreeDef]
-        : [...DEFS, dataTreeDef],
+      defs: DEFS,
     });
   }
 
@@ -703,4 +703,4 @@ class TernServer {
   }
 }
 
-export default TernServer;
+export default new TernServer();
