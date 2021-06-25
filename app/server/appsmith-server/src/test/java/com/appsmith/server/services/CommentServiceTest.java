@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.CommentRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,9 @@ public class CommentServiceTest {
 
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    CommentThreadRepository commentThreadRepository;
 
     @Autowired
     ApplicationService applicationService;
@@ -225,6 +229,34 @@ public class CommentServiceTest {
                     assertThat(r1.getByName()).isEqualTo("api_user");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUnreadCount() {
+        // first thread which is read by api_user
+        CommentThread c1 = new CommentThread();
+        c1.setApplicationId("test-application-1");
+        c1.setViewedByUsers(Set.of("api_user", "user2"));
+
+        // second thread which is not read by api_user
+        CommentThread c2 = new CommentThread();
+        c2.setApplicationId("test-application-1");
+        c2.setViewedByUsers(Set.of("user2"));
+
+        // third thread which is read by api_user but in another application
+        CommentThread c3 = new CommentThread();
+        c3.setApplicationId("test-application-2");
+        c3.setViewedByUsers(Set.of("user2", "api_user"));
+
+        Mono<Long> unreadCountMono = commentThreadRepository
+                .saveAll(List.of(c1, c2, c3)) // save all the threads
+                .collectList()
+                .then(commentService.getUnreadCount("test-application-1")); // count unread in first app
+
+        StepVerifier.create(unreadCountMono).assertNext(aLong -> {
+            assertThat(aLong).isEqualTo(1);
+        }).verifyComplete();
     }
 
 }

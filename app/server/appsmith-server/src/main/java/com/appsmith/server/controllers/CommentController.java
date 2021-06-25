@@ -106,4 +106,10 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
 
+    @GetMapping("count/unread/{applicationId}")
+    public Mono<ResponseDTO<Long>> getUnreadThreadCount(@PathVariable String applicationId) {
+        return service.getUnreadCount(applicationId)
+                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+    }
+
 }
