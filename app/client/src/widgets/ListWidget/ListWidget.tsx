@@ -304,8 +304,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            validationPath.type === ValidationTypes.BOOLEAN &&
-            isBoolean(evaluatedValue)
+            (validationPath.type === ValidationTypes.BOOLEAN &&
+              isBoolean(evaluatedValue)) ||
+            validationPath.type === ValidationTypes.OBJECT
           ) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");

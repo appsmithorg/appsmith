@@ -35,7 +35,7 @@ export function getExpectedValue(
       }
       return result;
     case ValidationTypes.REGEX:
-      return { type: "RegExp", example: "/^d+$/" };
+      return { type: "RegExp", example: "^d+$" };
     case ValidationTypes.DATE_ISO_STRING:
       return { type: "ISO 8601 string", example: moment().toISOString(true) };
     case ValidationTypes.BOOLEAN:
