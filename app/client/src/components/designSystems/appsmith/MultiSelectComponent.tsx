@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { useRef } from "react";
 
 const inputIcon = (): JSX.Element => (
   <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
@@ -15,6 +16,7 @@ const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
+
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
 		opacity: 0;
@@ -162,10 +164,10 @@ const DropdownStyles = createGlobalStyle`
 	padding: 8px;
 	background: white;
 	box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
-    &&& .${Classes.ALIGN_LEFT} {
+    &&&& .${Classes.ALIGN_LEFT} {
         font-size: 16px;
         padding-bottom: 10px;
-    margin-left: 16px;
+        margin-left: 16px ;
       .${Classes.CONTROL_INDICATOR} {
         margin-right: 20px;
       }
@@ -427,13 +429,11 @@ export interface MultiSelectProps
   mode?: "multiple" | "tags";
   value: string[];
   onChange: (value: DefaultValueType) => void;
-  getPopupContainer: () => HTMLElement;
 }
 
 function MultiSelectComponent({
   disabled,
   dropdownStyle,
-  getPopupContainer,
   loading,
   onChange,
   options,
@@ -441,6 +441,14 @@ function MultiSelectComponent({
   value,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const _menu = useRef<HTMLElement | null>(null);
+
+  const getDropdownPosition = useCallback((node: HTMLElement | null) => {
+    if (Boolean(node?.closest(".bp3-modal-widget"))) {
+      return document.querySelector(".bp3-modal-widget") as HTMLElement;
+    }
+    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+  }, []);
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
@@ -490,7 +498,7 @@ function MultiSelectComponent({
     [],
   );
   return (
-    <MultiSelectContainer>
+    <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
       <DropdownStyles />
       <Select
         animation="slide-up"
@@ -502,7 +510,7 @@ function MultiSelectComponent({
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={filterOption}
-        getPopupContainer={getPopupContainer}
+        getPopupContainer={() => getDropdownPosition(_menu.current)}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}
@@ -512,7 +520,7 @@ function MultiSelectComponent({
         notFoundContent="No item Found"
         onChange={onChange}
         options={options}
-        placeholder={placeholder}
+        placeholder={placeholder || "Select a value"}
         showArrow
         value={value}
       />

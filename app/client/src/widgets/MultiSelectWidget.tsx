@@ -26,7 +26,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "options",
             label: "Options",
             controlType: "OPTION_INPUT",
-            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
+            placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
@@ -134,15 +134,12 @@ class MultiSelectWidget extends BaseWidget<
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}
         dropdownStyle={{
-          zIndex: Layers.portals,
+          zIndex: Layers.dropdownModalWidget,
         }}
-        getPopupContainer={() =>
-          document.getElementsByClassName("appsmith_widget_0")[0] as HTMLElement
-        }
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         options={options}
-        placeholder={this.props.placeholderText ?? "Select a value"}
+        placeholder={this.props.placeholderText as string}
         value={values}
       />
     );
