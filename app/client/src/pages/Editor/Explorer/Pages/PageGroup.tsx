@@ -32,6 +32,7 @@ const pageGroupEqualityCheck = (
   return (
     prev.widgets === next.widgets &&
     prev.actions === next.actions &&
+    prev.jsActions === next.jsActions &&
     prev.datasources === next.datasources &&
     prev.searchKeyword === next.searchKeyword
   );
