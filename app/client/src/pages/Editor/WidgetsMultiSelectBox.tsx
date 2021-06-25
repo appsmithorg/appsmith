@@ -63,8 +63,8 @@ const StyledSelectBoxHandleTop = styled.div`
   position: absolute;
   z-index: 5;
   border-top: 1.5px dashed #69b5ff;
-  top: -1px;
-  left: -1px;
+  top: 0px;
+  left: 0px;
 `;
 
 const StyledSelectBoxHandleLeft = styled.div`
@@ -73,8 +73,8 @@ const StyledSelectBoxHandleLeft = styled.div`
   position: absolute;
   z-index: 5;
   border-left: 1.5px dashed #69b5ff;
-  top: -1px;
-  left: -1px;
+  top: 0px;
+  left: 0px;
 `;
 
 const StyledSelectBoxHandleRight = styled.div`
@@ -83,8 +83,8 @@ const StyledSelectBoxHandleRight = styled.div`
   position: absolute;
   z-index: 5;
   border-left: 1.5px dashed #69b5ff;
-  top: -1px;
-  left: 100%;
+  top: 0px;
+  left: calc(100% - 1px);
 `;
 
 const StyledSelectBoxHandleBottom = styled.div`
@@ -93,8 +93,8 @@ const StyledSelectBoxHandleBottom = styled.div`
   position: absolute;
   z-index: 5;
   border-bottom: 1.5px dashed #69b5ff;
-  top: 100%;
-  left: -1px;
+  top: calc(100% - 1px);
+  left: 0px;
 `;
 
 export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
