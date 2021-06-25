@@ -19,6 +19,7 @@ import { noop } from "lodash";
 import useClick from "utils/hooks/useClick";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { isEllipsisActive } from "utils/helpers";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -91,6 +92,12 @@ export const EntityItem = styled.div<{
 
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
+`;
+
+const NameWrapper = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
 `;
 
 export type EntityProps = {
@@ -185,7 +192,6 @@ export const Entity = forwardRef(
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityNameWrapper
-            ellipsize={20}
             entityId={props.entityId}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
@@ -214,12 +220,17 @@ export const Entity = forwardRef(
 
 const EntityNameWrapper = forwardRef(
   (props: EntityNameProps, ref: Ref<HTMLDivElement>) => {
-    return props.ellipsize && props.name.length > props.ellipsize ? (
-      <TooltipComponent content={props.name} position={Position.BOTTOM}>
-        <EntityName ref={ref} {...props} />
-      </TooltipComponent>
-    ) : (
-      <EntityName ref={ref} {...props} />
+    const entityNameWrapperRef = useRef<HTMLDivElement>(null);
+    return (
+      <NameWrapper ref={entityNameWrapperRef}>
+        {isEllipsisActive(entityNameWrapperRef?.current) ? (
+          <TooltipComponent content={props.name} position={Position.LEFT}>
+            <EntityName ref={ref} {...props} />
+          </TooltipComponent>
+        ) : (
+          <EntityName ref={ref} {...props} />
+        )}
+      </NameWrapper>
     );
   },
 );
