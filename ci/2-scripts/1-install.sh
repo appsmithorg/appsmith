@@ -32,12 +32,13 @@ if [[ ! -f $pg_hba_file ]]; then
 	pg_lsclusters --no-header | cat
 	ls "$(pg_lsclusters --no-header | cut -d' ' -f6)"
 	# exit 3
+else
+	cat "$pg_hba_file"
+	content="$(sed 's/peer$/md5/' "$pg_hba_file")"
+	echo "$content" > "$pg_hba_file"
+	cat "$pg_hba_file"
+	pg_ctlcluster 12 main restart
 fi
-cat "$pg_hba_file"
-content="$(sed 's/peer$/md5/' "$pg_hba_file")"
-echo "$content" > "$pg_hba_file"
-cat "$pg_hba_file"
-pg_ctlcluster 12 main restart
 PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --command="select * from public.configs"
 PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --command="select * from public.configs"
