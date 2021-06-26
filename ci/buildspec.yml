@@ -29,21 +29,21 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress1
+    - identifier: cypress2
       buildspec: ci/2-cypress.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress1
+    - identifier: cypress3
       buildspec: ci/2-cypress.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress1
+    - identifier: cypress4
       buildspec: ci/2-cypress.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
