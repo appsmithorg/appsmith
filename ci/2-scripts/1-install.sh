@@ -16,14 +16,17 @@ apt-get install --yes maven gettext-base wget curl mongodb-org-{server,shell} re
 
 service --status-all || true
 
+# Start a MongoDB server.
 mkdir -p /data/db  # TODO: Not sure if this is needed.
 mkdir -p "$CODEBUILD_SRC_DIR/logs"
 nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
+# Start a Redis server.
 nohup redis-server > "$CODEBUILD_SRC_DIR/logs/redis.log" & disown $!
 export APPSMITH_REDIS_URL="redis://localhost:6379"
 
+# Start a PostgreSQL server.
 pg_ctlcluster 12 main start
 su -c "psql --username=postgres --command=\"alter user postgres with password 'postgres'\"" postgres
 PGPASSWORD=postgres psql \
@@ -32,3 +35,6 @@ PGPASSWORD=postgres psql \
 	--single-transaction \
 	--variable=ON_ERROR_STOP=ON \
 	--file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
+
+# Start an nginx server.
+nginx

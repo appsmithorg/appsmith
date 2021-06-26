@@ -9,7 +9,7 @@ curl-fail() {
 	local code
 	code="$(curl --insecure --silent --show-error --output "$outfile" --write-out "%{http_code}" "$@")"
 	if [[ $code -lt 200 || $code -gt 302 ]] ; then
-		>&2 cat "$outfile"
+		cat "$outfile" >&2
 		return 22
 	fi
 	cat "$outfile"
@@ -31,12 +31,6 @@ REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 &
-
-# wget -O mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
-# tar -xaf mongodb.tgz
-# mkdir -p /data/db
-# nohup mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod & disown $!
-# export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
@@ -76,17 +70,6 @@ export CYPRESS_TESTUSERNAME2=cy2@example.com
 export CYPRESS_TESTPASSWORD2=cypas2
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
-
-sleep 5s
-if ! curl-fail dev.appsmith.com; then
-	cat /var/log/nginx/access.log
-	cat /var/log/nginx/error.log
-fi
-if ! curl-fail https://dev.appsmith.com; then
-	cat /var/log/nginx/access.log
-	cat /var/log/nginx/error.log
-	exit 5
-fi
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
