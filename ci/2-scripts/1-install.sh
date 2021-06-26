@@ -29,6 +29,8 @@ su -c "psql --username=postgres --command=\"alter user postgres with password 'p
 pg_hba_file="$(pg_lsclusters --no-header | cut -d' ' -f6)"/pg_hba.conf
 if [[ ! -f $pg_hba_file ]]; then
 	echo "Missing pg_hba conf file at $pg_hba_file"
+	pg_lsclusters --no-header | cat
+	ls "$(pg_lsclusters --no-header | cut -d' ' -f6)"
 	exit 3
 fi
 cat "$pg_hba_file"
