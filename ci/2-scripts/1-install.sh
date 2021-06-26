@@ -26,8 +26,8 @@ which nginx
 /etc/init.d/nginx reload
 
 pg_ctlcluster 12 main start
-psql --username=postgres --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
-psql --username=postgres --command="alter user postgres with password 'postgres'"
+su -c "psql --username=postgres --command=\"alter user postgres with password 'postgres'\"" postgres
+PGPASSWORD=postgres psql --username=postgres --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 PGPASSWORD=postgres psql --username=postgres --command="select * from public.configs"
 PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --command="select * from public.configs"
 
