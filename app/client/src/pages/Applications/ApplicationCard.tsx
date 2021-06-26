@@ -41,6 +41,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
@@ -249,6 +250,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -300,7 +302,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--fork-app",
       });
     }
-    if (!!props.enableImportExport && hasEditPermission) {
+    if (!!props.enableImportExport && hasExportPermission) {
       moreActionItems.push({
         onSelect: exportApplicationAsJSONFile,
         text: "Export",
@@ -322,6 +324,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const hasReadPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
+  );
+  const hasExportPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
   );
   const updateColor = (color: string) => {
     setSelectedColor(color);
@@ -446,6 +452,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             editInteractionKind={EditInteractionKind.SINGLE}
             fill
             hideEditIcon={false}
+            isError={isErroredSavingName}
             isInvalid={(value: string) => {
               if (!value) {
                 return "Name cannot be empty";

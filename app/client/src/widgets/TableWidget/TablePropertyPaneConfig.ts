@@ -204,6 +204,24 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "displayText",
+                  label: "Display Text",
+                  controlType: "COMPUTE_VALUE",
+                  customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "url";
+                  },
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                },
+                {
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
@@ -646,6 +664,24 @@ export default [
         validation: VALIDATION_TYPES.TEXT,
       },
       {
+        propertyName: "totalRecordsCount",
+        label: "Total Record Count",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter total record count",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.NUMBER,
+      },
+      {
+        propertyName: "defaultPageSize",
+        label: "Default Page Size",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter default page size",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.NUMBER,
+      },
+      {
         helpText: "Selects the default selected row",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
@@ -677,6 +713,51 @@ export default [
       {
         propertyName: "multiRowSelection",
         label: "Enable multi row selection",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+    ],
+  },
+  {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the compact mode",
+        propertyName: "isVisibleCompactMode",
+        label: "Compact Mode",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

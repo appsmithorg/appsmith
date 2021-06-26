@@ -31,6 +31,7 @@ interface TableProps {
   width: number;
   height: number;
   pageSize: number;
+  tablePageSize: number;
   widgetId: string;
   widgetName: string;
   searchKey: string;
@@ -38,6 +39,8 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -60,6 +63,11 @@ interface TableProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleCompactMode?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
 }
 
 const defaultColumn = {
@@ -108,7 +116,10 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount = Math.ceil(props.data.length / props.pageSize);
+  const pageCount =
+    props.defaultPageSize && props.totalRecordsCount
+      ? Math.ceil(props.totalRecordsCount / props.defaultPageSize)
+      : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -150,7 +161,10 @@ export function Table(props: TableProps) {
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
-  if (props.serverSidePaginationEnabled) {
+  if (
+    props.serverSidePaginationEnabled ||
+    (props.defaultPageSize && props.totalRecordsCount)
+  ) {
     startIndex = 0;
     endIndex = props.data.length;
   }
@@ -161,65 +175,85 @@ export function Table(props: TableProps) {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const isHeaderVisible =
+    props.isVisibleSearch ||
+    props.isVisibleFilters ||
+    props.isVisibleDownload ||
+    props.isVisibleCompactMode ||
+    props.isVisiblePagination;
+
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       height={props.height}
       id={`table${props.widgetId}`}
+      isHeaderVisible={isHeaderVisible}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
     >
-      <TableHeaderWrapper
-        backgroundColor={Colors.WHITE}
-        ref={tableHeaderWrapperRef}
-        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-        tableSizes={tableSizes}
-        width={props.width}
-      >
-        <Scrollbars
-          renderThumbHorizontal={ScrollbarHorizontalThumb}
-          renderThumbVertical={ScrollbarVerticalThumb}
-          style={{ width: props.width, height: 38 }}
+      {isHeaderVisible && (
+        <TableHeaderWrapper
+          backgroundColor={Colors.WHITE}
+          ref={tableHeaderWrapperRef}
+          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+          tableSizes={tableSizes}
+          width={props.width}
         >
-          <TableHeaderInnerWrapper
-            backgroundColor={Colors.WHITE}
-            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-            tableSizes={tableSizes}
-            width={props.width}
+          <Scrollbars
+            renderThumbHorizontal={ScrollbarHorizontalThumb}
+            renderThumbVertical={ScrollbarVerticalThumb}
+            style={{ width: props.width, height: 38 }}
           >
-            <TableHeader
-              applyFilter={props.applyFilter}
-              columns={tableHeadercolumns}
-              compactMode={props.compactMode}
-              currentPageIndex={currentPageIndex}
-              editMode={props.editMode}
-              filters={props.filters}
-              nextPageClick={props.nextPageClick}
-              pageCount={pageCount}
-              pageNo={props.pageNo}
-              pageOptions={pageOptions}
-              prevPageClick={props.prevPageClick}
-              searchKey={props.searchKey}
-              searchTableData={props.searchTableData}
+            <TableHeaderInnerWrapper
+              backgroundColor={Colors.WHITE}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableColumns={columns}
-              tableData={props.data}
               tableSizes={tableSizes}
-              updateCompactMode={props.updateCompactMode}
-              updatePageNo={props.updatePageNo}
-              widgetName={props.widgetName}
-            />
-          </TableHeaderInnerWrapper>
-        </Scrollbars>
-      </TableHeaderWrapper>
+              width={props.width}
+            >
+              <TableHeader
+                applyFilter={props.applyFilter}
+                columns={tableHeadercolumns}
+                compactMode={props.compactMode}
+                currentPageIndex={currentPageIndex}
+                defaultPageSize={props.defaultPageSize}
+                editMode={props.editMode}
+                filters={props.filters}
+                isVisibleCompactMode={props.isVisibleCompactMode}
+                isVisibleDownload={props.isVisibleDownload}
+                isVisibleFilters={props.isVisibleFilters}
+                isVisiblePagination={props.isVisiblePagination}
+                isVisibleSearch={props.isVisibleSearch}
+                nextPageClick={props.nextPageClick}
+                pageCount={pageCount}
+                pageNo={props.pageNo}
+                pageOptions={pageOptions}
+                prevPageClick={props.prevPageClick}
+                searchKey={props.searchKey}
+                searchTableData={props.searchTableData}
+                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+                tableColumns={columns}
+                tableData={props.data}
+                tableSizes={tableSizes}
+                totalRecordsCount={props.totalRecordsCount}
+                updateCompactMode={props.updateCompactMode}
+                updatePageNo={props.updatePageNo}
+                widgetName={props.widgetName}
+              />
+            </TableHeaderInnerWrapper>
+          </Scrollbars>
+        </TableHeaderWrapper>
+      )}
       <div
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
       >
         <Scrollbars
           renderThumbHorizontal={ScrollbarHorizontalThumb}
-          style={{ width: props.width, height: props.height - 48 }}
+          style={{
+            width: props.width,
+            height: isHeaderVisible ? props.height - 48 : props.height,
+          }}
         >
           <div {...getTableProps()} className="table">
             <div
@@ -263,7 +297,7 @@ export function Table(props: TableProps) {
             <div
               {...getTableBodyProps()}
               className={`tbody ${
-                props.pageSize > subPage.length ? "no-scroll" : ""
+                props.tablePageSize > subPage.length ? "no-scroll" : ""
               }`}
               ref={tableBodyRef}
             >
@@ -304,9 +338,9 @@ export function Table(props: TableProps) {
                   </div>
                 );
               })}
-              {props.pageSize > subPage.length &&
+              {props.tablePageSize > subPage.length &&
                 renderEmptyRows(
-                  props.pageSize - subPage.length,
+                  props.tablePageSize - subPage.length,
                   props.columns,
                   props.width,
                   subPage,

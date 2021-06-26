@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { updatePhoto } from "actions/userActions";
+import { updatePhoto, removePhoto } from "actions/userActions";
 import { useDispatch } from "react-redux";
 
 import DisplayImageUpload from "components/ads/DisplayImageUpload";
@@ -33,14 +33,18 @@ function FormDisplayImage() {
       dispatchActionRef.current(uppy);
   };
 
-  // TODO implement remove
-  // const removeProfileImage = () => {
-  //   dispatch(removePhoto(() => {}));
-  // };
+  const removeProfileImage = () => {
+    dispatch(
+      removePhoto(() => {
+        setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
+      }),
+    );
+  };
 
   return (
     <DisplayImageUpload
       onChange={onSelectFile}
+      onRemove={removeProfileImage}
       submit={upload}
       value={imageURL}
     />

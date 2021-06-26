@@ -78,6 +78,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import OnboardingForm from "./OnboardingForm";
 import { getAppsmithConfigs } from "configs";
@@ -770,6 +771,7 @@ function ApplicationsSection(props: any) {
                         <ProfileImage
                           className="org-share-user-icons"
                           key={el.username}
+                          source={`/api/${UserApi.photoURL}/${el.username}`}
                           userName={el.name ? el.name : el.username}
                         />
                       ))}
