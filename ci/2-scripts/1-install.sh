@@ -1,5 +1,3 @@
-#!/bin/bash
-
 set -o errexit
 set -o xtrace
 
@@ -19,6 +17,7 @@ apt-get install -y maven gettext-base wget curl mongodb-org-{server,shell} redis
 service --status-all || true
 
 mkdir -p /data/db  # TODO: Not sure if this is needed.
+mkdir -p "$CODEBUILD_SRC_DIR/logs"
 nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
@@ -27,6 +26,16 @@ which nginx
 
 pg_ctlcluster 12 main start
 su -c "psql --username=postgres --command=\"alter user postgres with password 'postgres'\"" postgres
+pg_hba_file="$(pg_lsclusters --no-header | cut -d' ' -f6)"/pg_hba.conf
+if [[ ! -f $pg_hba_file ]]; then
+	echo "Missing pg_hba conf file at $pg_hba_file"
+	exit 3
+fi
+cat "$pg_hba_file"
+content="$(sed 's/peer$/md5/' "$pg_hba_file")"
+echo "$content" > "$pg_hba_file"
+cat "$pg_hba_file"
+pg_ctlcluster 12 main restart
 PGPASSWORD=postgres psql --username=postgres --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 PGPASSWORD=postgres psql --username=postgres --command="select * from public.configs"
 PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --command="select * from public.configs"
