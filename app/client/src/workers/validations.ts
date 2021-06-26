@@ -105,11 +105,12 @@ export const validate = (
     value,
     props,
   );
-  console.log(_result);
+  // console.log(_res/ult);
   return _result;
 };
 
-const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
+export const WIDGET_TYPE_VALIDATION_ERROR =
+  "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
   // TODO(abhinav): write rigorous tests for these
@@ -131,17 +132,22 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         parsed: config.params?.default || "",
       };
     }
-    if (isObject(value)) {
-      return {
-        isValid: false,
-        parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
-      };
+    let parsed = value;
+
+    const isValid = isString(parsed);
+    if (!isValid) {
+      try {
+        parsed = toString(parsed);
+      } catch (e) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        };
+      }
     }
-    const isValid = isString(value);
-    if (isValid && config.params?.allowedValues) {
-      if (!config.params?.allowedValues.includes((value as string).trim())) {
-        console.log({ default: config.params?.default });
+    if (config.params?.allowedValues) {
+      if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
           message: "Value is not allowed",
@@ -150,28 +156,33 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (!isValid) {
-      try {
-        const result = {
-          parsed: toString(value),
-          isValid: true,
-        };
-        return result;
-      } catch (e) {
-        console.error(`Error when parsing ${value} to string`);
-        console.error(e);
-        return {
-          isValid: false,
-          parsed: config.params?.default || "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
-        };
-      }
-    } else {
-      return {
-        isValid,
-        parsed: value,
-      };
-    }
+    return {
+      isValid: true,
+      parsed,
+    };
+
+    // if (!isValid) {
+    //   try {
+    //     const result = {
+    //       parsed: toString(value) === ,
+    //       isValid: true,
+    //     };
+    //     return result;
+    //   } catch (e) {
+    //     console.error(`Error when parsing ${value} to string`);
+    //     console.error(e);
+    //     return {
+    //       isValid: false,
+    //       parsed: config.params?.default || "",
+    //       message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+    //     };
+    //   }
+    // } else {
+    //   return {
+    //     isValid,
+    //     parsed: value,
+    //   };
+    // }
   },
   // TODO(abhinav): The original validation does not make sense fix this.
   [ValidationTypes.REGEX]: (
@@ -201,6 +212,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
+    if (value === undefined || value === null) {
+      if (config.params?.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || 0,
+          message: "This value is required",
+        };
+      }
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    }
     if (!Number.isFinite(value) && !isString(value)) {
       return {
         isValid: false,
@@ -231,7 +255,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed,
-          message: `Minimum allowed value: ${config.params.min} `,
+          message: `Minimum allowed value: ${config.params.min}`,
         };
       }
     }
@@ -244,7 +268,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed,
-          message: `Maximum allowed value: ${config.params.max} `,
+          message: `Maximum allowed value: ${config.params.max}`,
         };
       }
     }
@@ -280,7 +304,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (!isValid) {
       return {
         isValid: false,
-        parsed: config.params?.default || parsed,
+        parsed: config.params?.default || false,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
@@ -330,8 +354,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
       };
     } catch (e) {
-      console.error(`Error when parsing ${value} to object`);
-      console.error(e);
       return {
         isValid: false,
         parsed: config.params?.default || {},
@@ -503,18 +525,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return { isValid: true, parsed: value.trim() };
       }
       if (base64ImageRegex.test(value)) {
-        let parsed: string = value;
-        try {
-          if (btoa(atob(value)) === value) {
-            parsed = "data:image/png;base64," + value;
-          }
-          return {
-            isValid: true,
-            parsed,
-          };
-        } catch (e) {
-          return invalidResponse;
-        }
+        return {
+          isValid: true,
+          parsed: value,
+        };
+      }
+      if (btoa(atob(value)) === value) {
+        return { isValid: true, parsed: `data:image/png;base64,${value}` };
       }
     }
     return invalidResponse;
