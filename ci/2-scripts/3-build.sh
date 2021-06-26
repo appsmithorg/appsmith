@@ -105,7 +105,12 @@ if ! /etc/init.d/nginx reload; then
 fi
 
 sleep 5s
+if ! curl-fail dev.appsmith.com; then
+	cat /var/log/nginx/access.log
+	cat /var/log/nginx/error.log
+fi
 if ! curl-fail https://dev.appsmith.com; then
+	cat /var/log/nginx/access.log
 	cat /var/log/nginx/error.log
 	exit 5
 fi
