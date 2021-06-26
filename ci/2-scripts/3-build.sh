@@ -85,24 +85,20 @@ cat ./docker/templates/nginx-app.conf.template \
 	| sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" \
 	| envsubst $vars_to_substitute \
 	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
-	> ./docker/nginx.conf
+	| tee /etc/nginx/conf.d/app.conf
 cat ./docker/templates/nginx-root.conf.template \
 	| envsubst ${vars_to_substitute} \
 	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
-	> ./docker/nginx-root.conf
-
-cat ./docker/nginx.conf
-cat ./docker/nginx-root.conf
+	| tee /etc/nginx/nginx.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
-openssl req -x509 -newkey rsa:4096 -nodes -out docker/dev.appsmith.com.pem -keyout docker/dev.appsmith.com-key.pem -days 365 -subj "/O=appsmith/CN=dev.appsmith.com"
-ls docker/
+mkdir -p /etc/certificate
+openssl req -x509 -newkey rsa:4096 -nodes \
+	-out /etc/certificate/dev.appsmith.com.pem \
+	-keyout /etc/certificate/dev.appsmith.com-key.pem \
+	-days 365 \
+	-subj "/O=appsmith/CN=dev.appsmith.com"
 
-echo "Going to run the nginx server"
-mv -v docker/nginx.conf /etc/nginx/conf.d/app.conf
-mv -v docker/nginx-root.conf /etc/nginx/nginx.conf
-mv -v docker/dev.apsmith.com.pem /etc/certificate/dev.appsmith.com.pem
-mv -v docker/dev.appsmith.com-key.pem /etc/certificate/dev.appsmith.com-key.pem
 /etc/init.d/nginx reload
 
 sleep 5s
