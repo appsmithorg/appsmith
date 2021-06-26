@@ -19,15 +19,16 @@ apt-get install -y maven gettext-base wget curl mongodb-org-{server,shell} redis
 service --status-all || true
 
 mkdir -p /data/db  # TODO: Not sure if this is needed.
-nohup mongod & disown $!
+nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
 which nginx
 /etc/init.d/nginx reload
 
-which postgres || true
-which postgresql || true
+pg_ctlcluster 12 main start
 psql --username=postgres --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 psql --username=postgres --command="alter user postgres with password 'postgres'"
+PGPASSWORD=postgres psql --username=postgres --command="select * from public.configs"
+PGPASSWORD=postgres psql --username=postgres --host=localhost --port=5432 --command="select * from public.configs"
 
 export APPSMITH_REDIS_URL="redis://localhost:6379"
