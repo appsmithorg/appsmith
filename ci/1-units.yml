@@ -23,7 +23,7 @@ phases:
   build:
     on-failure: ABORT
     commands:
-      - source ci/1-scripts/3-1-build.sh
+      - source ci/1-scripts/3-build.sh
 
 cache:
   paths:
