@@ -105,7 +105,10 @@ if ! /etc/init.d/nginx reload; then
 fi
 
 sleep 5s
-curl-fail https://dev.appsmith.com
+if ! curl-fail https://dev.appsmith.com; then
+	cat /var/log/nginx/error.log
+	exit 5
+fi
 
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
