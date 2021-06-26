@@ -15,8 +15,9 @@ apt-get update --yes
 # Installing `gettext-base` just for `envsubst` command.
 apt-get install --yes maven gettext-base curl mongodb-org-{server,shell} redis
 
-# Start a MongoDB server.
 mkdir -p "$CODEBUILD_SRC_DIR/logs"
+
+# Start a MongoDB server.
 nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 

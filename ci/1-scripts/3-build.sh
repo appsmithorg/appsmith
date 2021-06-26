@@ -16,5 +16,9 @@ export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
 export APPSMITH_CLOUD_SERVICES_BASE_URL=
 export APPSMITH_IS_SELF_HOSTED=false
 
+if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
+	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
+fi
+
 cd "$CODEBUILD_SRC_DIR/app/server"
 ./build.sh --batch-mode  # TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.

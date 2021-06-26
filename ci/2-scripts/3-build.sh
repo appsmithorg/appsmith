@@ -54,10 +54,11 @@ docker run -d --network=host \
 cd "$CODEBUILD_SRC_DIR/app/client"
 
 sleep 10s
-docker ps
-mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"
-ls /var/logs/mongo || true
+if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
+	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
+fi
 docker logs appsmith-server
+
 curl-fail --verbose localhost:3000
 curl --insecure --verbose localhost:8080
 
