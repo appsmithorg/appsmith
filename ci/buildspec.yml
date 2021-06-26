@@ -14,57 +14,15 @@ batch:
 
   build-graph:
 
-    # Run unit tests on client and server.
-    - identifier: units
-      buildspec: ci/1-units.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
+    # # Run unit tests on client and server.
+    # - identifier: units
+    #   buildspec: ci/1-units.yml
+    #   env:
+    #     compute-type: BUILD_GENERAL1_MEDIUM
+    #   debug-session: true
 
     # Run all Cypress tests.
     - identifier: cypress1
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress2
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress3
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress4
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress5
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress6
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress7
-      buildspec: ci/2-cypress.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-
-    - identifier: cypress8
       buildspec: ci/2-cypress.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM

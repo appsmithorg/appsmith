@@ -17,11 +17,17 @@ apt-get update -y
 apt-get install -y maven gettext-base wget curl mongodb-org-{server,shell} redis nginx postgresql
 
 service --status-all || true
-which mongod || true
-service reload nginx || true
-systemctl restart nginx
+
+mkdir -p /data/db  # TODO: Not sure if this is needed.
+nohup mongod & disown $!
+export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
+
+which nginx
+/etc/init.d/nginx reload
+
+which postgres || true
+which postgresql || true
 psql --username=postgres --single-transaction --variable=ON_ERROR_STOP=ON --file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 psql --username=postgres --command="alter user postgres with password 'postgres'"
 
-export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 export APPSMITH_REDIS_URL="redis://localhost:6379"
