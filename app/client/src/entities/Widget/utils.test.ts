@@ -165,12 +165,38 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
-        defaultPageSize: "NUMBER",
-        defaultSearchText: "TEXT",
-        defaultSelectedRow: "DEFAULT_SELECTED_ROW",
-        isVisible: "BOOLEAN",
-        tableData: "TABLE_DATA",
-        totalRecordsCount: "NUMBER",
+        defaultPageSize: {
+          params: {
+            default: 0,
+            min: 0,
+          },
+          type: "NUMBER",
+        },
+        defaultSearchText: {
+          type: "TEXT",
+        },
+        defaultSelectedRow: {
+          params: {
+            expected: {
+              example: "0 | [0, 1]",
+              type: "Index of row(s)",
+            },
+          },
+          type: "FUNCTION",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        tableData: {
+          type: "OBJECT_ARRAY",
+        },
+        totalRecordsCount: {
+          params: {
+            default: 0,
+            min: 0,
+          },
+          type: "NUMBER",
+        },
       },
     };
 
@@ -178,6 +204,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       selectedRow: true,
       selectedRows: true,
     });
+
+    // Note: Removing until we figure out how functions are represented here.
+    delete result.validationPaths.defaultSelectedRow.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
@@ -230,12 +259,39 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData.random-id.data": "CHART_SERIES_DATA",
-        "chartData.random-id.seriesName": "TEXT",
-        chartName: "TEXT",
-        isVisible: "BOOLEAN",
-        xAxisName: "TEXT",
-        yAxisName: "TEXT",
+        "chartData.random-id.data": {
+          children: {
+            params: {
+              allowedKeys: [
+                {
+                  name: "x",
+                  type: "TEXT",
+                },
+                {
+                  name: "y",
+                  type: "NUMBER",
+                },
+              ],
+            },
+            type: "OBJECT",
+          },
+          type: "ARRAY",
+        },
+        "chartData.random-id.seriesName": {
+          type: "TEXT",
+        },
+        chartName: {
+          type: "TEXT",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        xAxisName: {
+          type: "TEXT",
+        },
+        yAxisName: {
+          type: "TEXT",
+        },
       },
     };
 
