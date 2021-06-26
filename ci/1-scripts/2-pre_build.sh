@@ -1,6 +1,5 @@
-#!/bin/bash
-
 set -o errexit
+set -o xtrace
 
 ACCOUNT_ID="$(echo "$CODEBUILD_BUILD_ARN" | cut -d: -f5)"
 TAG_NAME=${CODEBUILD_SOURCE_VERSION:-release}
