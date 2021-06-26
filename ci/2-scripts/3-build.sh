@@ -77,6 +77,17 @@ export CYPRESS_TESTPASSWORD2=cypas2
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
 
+sleep 5s
+if ! curl-fail dev.appsmith.com; then
+	cat /var/log/nginx/access.log
+	cat /var/log/nginx/error.log
+fi
+if ! curl-fail https://dev.appsmith.com; then
+	cat /var/log/nginx/access.log
+	cat /var/log/nginx/error.log
+	exit 5
+fi
+
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
 echo "vars_to_substitute: $vars_to_substitute"
