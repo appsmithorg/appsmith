@@ -326,9 +326,7 @@ function PopoverContent(props: PopoverContentProps) {
   } = props;
   let error;
   if (hasError) {
-    error = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    )[0];
+    error = errors[0];
   }
 
   return (

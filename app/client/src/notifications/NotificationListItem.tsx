@@ -1,20 +1,18 @@
 import React from "react";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 
-import styled from "styled-components";
-
 import UserApi from "api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
-
 import { getTypographyByKey } from "constants/DefaultTheme";
-// import moment from "moment";
-
 import { getCommentThreadURL } from "comments/utils";
+import { markNotificationAsReadRequest } from "actions/notificationActions";
 
 import history from "utils/history";
 import { useDispatch } from "react-redux";
-import { markThreadAsReadRequest } from "actions/commentActions";
+
+import moment from "moment";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
@@ -59,22 +57,61 @@ const UnreadIndicator = styled.div`
     props.theme.colors.notifications.unreadIndicator};
 `;
 
-// eslint-disable-next-line
-function CommentNotification(props: { notification?: AppsmithNotification }) {
-  // TODO handle click
+function CommentNotification(props: { notification: AppsmithNotification }) {
+  const dispatch = useDispatch();
+  const {
+    _id,
+    comment,
+    createdAt,
+    creationTime,
+    id,
+    isRead,
+  } = props.notification;
+  const {
+    applicationId,
+    applicationName,
+    authorName,
+    authorUsername,
+    mode,
+    pageId,
+    // resolvedState, TODO get from comment thread
+    threadId,
+  } = comment;
+
+  const commentThreadUrl = getCommentThreadURL({
+    applicationId,
+    commentThreadId: threadId,
+    // isResolved: resolvedState?.active,
+    mode,
+    pageId,
+  });
+
+  const _createdAt = createdAt || creationTime;
+  const displayName = authorName || authorUsername;
+
+  const handleClick = () => {
+    history.push(
+      `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
+    );
+
+    dispatch(markNotificationAsReadRequest(id || (_id as string)));
+  };
+
   return (
-    <FlexContainer>
-      <ProfileImage
-        side={25}
-        source={`/api/${UserApi.photoURL}`}
-        userName={""}
-      />
+    <FlexContainer onClick={handleClick}>
+      <ProfileImageContainer>
+        <ProfileImage
+          side={25}
+          source={`/api/${UserApi.photoURL}/${authorUsername}`}
+          userName={displayName}
+        />
+        {!isRead && <UnreadIndicator />}
+      </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>Comment</b> notification body
+          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
         </div>
-        {/* <Time>{moment().fromNow()}</Time> */}
-        <Time>An hour ago</Time>
+        <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
     </FlexContainer>
   );
@@ -84,11 +121,35 @@ function CommentThreadNotification(props: {
   notification: AppsmithNotification;
 }) {
   const dispatch = useDispatch();
-  const { commentThread } = props.notification;
-  // TODO add isResolved, applicationId, pageId
-  // mode: commentThread?.mode
+  const {
+    _id: _notificationId,
+    commentThread,
+    createdAt,
+    creationTime,
+    id: notificationId,
+    isRead,
+  } = props.notification;
+
+  const {
+    _id,
+    applicationId,
+    applicationName,
+    authorName,
+    authorUsername,
+    id,
+    mode,
+    pageId,
+    resolvedState,
+  } = commentThread;
+
+  const commentThreadId = _id || id;
+
   const commentThreadUrl = getCommentThreadURL({
-    commentThreadId: commentThread?.id,
+    applicationId,
+    commentThreadId,
+    isResolved: resolvedState?.active,
+    mode,
+    pageId,
   });
 
   const handleClick = () => {
@@ -96,28 +157,31 @@ function CommentThreadNotification(props: {
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
     );
 
-    dispatch(markThreadAsReadRequest(commentThread?.id));
+    dispatch(
+      markNotificationAsReadRequest(
+        notificationId || (_notificationId as string),
+      ),
+    );
   };
 
-  // TODO use notification isRead state
-  const isRead = true;
+  const _createdAt = createdAt || creationTime;
+  const displayName = authorName || authorUsername;
 
   return (
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
           side={25}
-          source={`/api/${UserApi.photoURL}`}
-          userName={""}
+          source={`/api/${UserApi.photoURL}/${authorUsername}`}
+          userName={displayName}
         />
         {!isRead && <UnreadIndicator />}
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>Comment Thread</b> notification body
+          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
         </div>
-        {/* <Time>{moment().fromNow()}</Time> */}
-        <Time>An hour ago</Time>
+        <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
     </FlexContainer>
   );
@@ -129,8 +193,12 @@ const notificationByType = {
 };
 
 function NotificationListItem(props: { notification: AppsmithNotification }) {
-  const Component =
-    notificationByType[NotificationTypes.CommentThreadNotification];
+  // TODO fix this, use type from api response
+  const type = props.notification.comment
+    ? NotificationTypes.CommentNotification
+    : NotificationTypes.CommentThreadNotification;
+
+  const Component = notificationByType[type];
 
   return (
     <Container>
