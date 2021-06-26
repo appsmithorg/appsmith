@@ -99,7 +99,10 @@ openssl req -x509 -newkey rsa:4096 -nodes \
 	-days 365 \
 	-subj "/O=appsmith/CN=dev.appsmith.com"
 
-/etc/init.d/nginx reload
+if ! /etc/init.d/nginx reload; then
+	cat /var/log/nginx/error.log
+	exit 4
+fi
 
 sleep 5s
 curl-fail https://dev.appsmith.com
