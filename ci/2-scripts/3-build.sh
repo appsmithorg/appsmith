@@ -32,11 +32,11 @@ REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 &
 
-wget -O mongod.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
-tar -xaf mongodb.tgz
-mkdir -p /data/db
-nohup mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod & disown $!
-export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
+# wget -O mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
+# tar -xaf mongodb.tgz
+# mkdir -p /data/db
+# nohup mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod & disown $!
+# export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
@@ -76,7 +76,6 @@ export CYPRESS_TESTUSERNAME2=cy2@example.com
 export CYPRESS_TESTPASSWORD2=cypas2
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
-export POSTGRES_PASSWORD=postgres
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
@@ -104,8 +103,7 @@ mv -v docker/nginx.conf /etc/nginx/conf.d/app.conf
 mv -v docker/nginx-root.conf /etc/nginx/nginx.conf
 mv -v docker/dev.apsmith.com.pem /etc/certificate/dev.appsmith.com.pem
 mv -v docker/dev.appsmith.com-key.pem /etc/certificate/dev.appsmith.com-key.pem
-service reload nginx || true
-systemctl restart nginx
+/etc/init.d/nginx reload
 
 sleep 5s
 curl-fail https://dev.appsmith.com
