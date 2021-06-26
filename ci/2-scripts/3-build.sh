@@ -88,7 +88,7 @@ cat ./docker/templates/nginx-app.conf.template \
 	| tee /etc/nginx/conf.d/app.conf
 cat ./docker/templates/nginx-root.conf.template \
 	| envsubst ${vars_to_substitute} \
-	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
+	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' -e 's/user  *nginx;/user root;/' \
 	| tee /etc/nginx/nginx.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
