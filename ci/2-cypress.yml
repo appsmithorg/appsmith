@@ -1,0 +1,34 @@
+# This buildspec will run Cypress tests.
+# It does NOT build Docker images and it does NOT run unit tests.
+
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      java: corretto11
+      nodejs: 14
+    commands:
+      - source ci/scripts/1-install.sh
+
+  pre_build:
+    commands:
+      - source ci/scripts/2-pre_build.sh
+
+  build:
+    on-failure: ABORT
+    commands:
+      - source ci/scripts/3-2-build.sh
+
+cache:
+  paths:
+    - '/root/.m2/**/*'  # Server dependencies.
+    # - 'app/client/node_modules/**/*'  # Client dependencies.
+    # - '/root/.cache/Cypress/**/*'  # Cypress binary.
+    # - '/var/cache/apt/**/*'  # Apt listing and package cache.
+    # - '/var/lib/docker/overlay2/**/*'  # Docker images.

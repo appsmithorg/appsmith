@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -o errexit
+set -o xtrace
 
 UBUNTU_RELEASE="$(lsb_release -dc | awk '$1 == "Codename:" { print $2 }')"
 echo "UBUNTU_RELEASE: $UBUNTU_RELEASE"
@@ -15,8 +16,8 @@ apt-get update -y
 # Installing `gettext-base` just for `envsubst` command.
 apt-get install -y maven gettext-base wget curl mongodb-org-{server,shell} redis
 
-service status mongodb || true
-service status redis || true
+service --status-all || true
+which mongod || true
 
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 export APPSMITH_REDIS_URL="redis://localhost:6379"

@@ -14,3 +14,6 @@ docker info
 
 aws ecr get-login-password --region "$AWS_REGION" \
 	| docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+
+# Check the cache status.
+du -sh ~/.m2 || true

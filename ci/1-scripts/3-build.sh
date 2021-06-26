@@ -15,18 +15,9 @@ REACT_APP_ENVIRONMENT=PRODUCTION npx jest -b --no-cache --coverage --collectCove
 wget --quiet -O mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2004-4.4.6.tgz
 tar -xaf mongodb.tgz
 mkdir -p /data/db
-mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod &
+# Starting background processes: <https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-background-tasks.html>.
+nohup mongodb-linux-x86_64-ubuntu2004-4.4.6/bin/mongod & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
-
-if [[ -z $APPSMITH_MONGODB_URI ]]; then
-	docker run -d --name mongo -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=root mongo
-	export APPSMITH_MONGODB_URI="mongodb://root:root@localhost:27017/appsmith?authSource=admin"
-fi
-
-if [[ -z $APPSMITH_REDIS_URL ]]; then
-	docker run -d --name redis -p 6379:6379 redis:6
-	export APPSMITH_REDIS_URL="redis://localhost:6379"
-fi
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
