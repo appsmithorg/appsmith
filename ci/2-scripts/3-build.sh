@@ -41,11 +41,11 @@ APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_IS_SELF_HOSTED=false \
 	java -jar server-*.jar > "$CODEBUILD_SRC_DIR/logs/server.log" &
 
+cd "$CODEBUILD_SRC_DIR/app/client"
+
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 &
-
-cd "$CODEBUILD_SRC_DIR/app/client"
 
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
