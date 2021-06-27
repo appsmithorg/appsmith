@@ -32,24 +32,25 @@ REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 &
 
-export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
-export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
-
-export APPSMITH_CLOUD_SERVICES_BASE_URL=
-export APPSMITH_IS_SELF_HOSTED=false
-
 echo Building server code
 cd "$CODEBUILD_SRC_DIR/app/server"
 ./build.sh --batch-mode -DskipTests
-docker build --tag 'appsmith-server:ci-local' .
-docker run -d --network=host \
-	--name appsmith-server \
-	--env "APPSMITH_MONGODB_URI=$APPSMITH_MONGODB_URI" \
-	--env "APPSMITH_REDIS_URL=$APPSMITH_REDIS_URL" \
-	--env "APPSMITH_ENCRYPTION_SALT=$APPSMITH_ENCRYPTION_SALT" \
-	--env "APPSMITH_ENCRYPTION_PASSWORD=$APPSMITH_ENCRYPTION_PASSWORD" \
-	--env "APPSMITH_IS_SELF_HOSTED=false" \
-	'appsmith-server:ci-local'
+cd dist
+APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
+	APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot \
+	APPSMITH_CLOUD_SERVICES_BASE_URL='' \
+	APPSMITH_IS_SELF_HOSTED=false \
+	java -jar server-*.jar
+
+# docker build --tag 'appsmith-server:ci-local' .
+# docker run -d --network=host \
+# 	--name appsmith-server \
+# 	--env "APPSMITH_MONGODB_URI=$APPSMITH_MONGODB_URI" \
+# 	--env "APPSMITH_REDIS_URL=$APPSMITH_REDIS_URL" \
+# 	--env "APPSMITH_ENCRYPTION_SALT=$APPSMITH_ENCRYPTION_SALT" \
+# 	--env "APPSMITH_ENCRYPTION_PASSWORD=$APPSMITH_ENCRYPTION_PASSWORD" \
+# 	--env "APPSMITH_IS_SELF_HOSTED=false" \
+# 	'appsmith-server:ci-local'
 
 cd "$CODEBUILD_SRC_DIR/app/client"
 
@@ -133,10 +134,7 @@ fi
 
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
 npx cypress version
-cat ~/.cache/Cypress/*/Cypress/resources/app/packages/server/config/app.yml
-# CYPRESS_BASE_URL=https://dev.appsmith.com \
-# 	NO_COLOR=1 \
-	npx cypress run --headless --browser chrome \
+npx cypress run --headless --browser chrome \
 	--record \
 	--ci-build-id "$CODEBUILD_SOURCE_VERSION" \
 	--parallel \
