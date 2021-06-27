@@ -143,6 +143,7 @@ CYPRESS_BASE_URL=https://dev.appsmith.com \
 	--group 'Electrons on CodeBuild CI' \
 	--env 'NODE_ENV=development' \
 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
-	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+	--spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
+	# --spec 'cypress/integration/Smoke_TestSuite/**/*.js'
 
 unset -f curl-fail
