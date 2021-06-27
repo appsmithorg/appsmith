@@ -47,7 +47,7 @@ cd "$CODEBUILD_SRC_DIR/app/client"
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
-sleep 10s
+sleep 10s  # TODO: Wait more intelligently, by looking at the log files for a specific line.
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
 	exit 6

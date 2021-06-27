@@ -12,8 +12,7 @@ add-apt-repository --yes ppa:redislabs/redis
 
 apt-get update --yes
 
-# Installing `gettext-base` just for `envsubst` command.
-apt-get install --yes maven gettext-base curl mongodb-org-{server,shell} redis
+time apt-get install --yes maven mongodb-org-{server,shell} redis
 
 mkdir -p "$CODEBUILD_SRC_DIR/logs"
 

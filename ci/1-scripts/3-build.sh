@@ -3,6 +3,9 @@
 set -o errexit
 set -o xtrace
 
+java -version
+node --version
+
 cd "$CODEBUILD_SRC_DIR/app/client"
 npm install -g yarn
 yarn install --frozen-lockfile
