@@ -28,12 +28,12 @@ batch:
     #     compute-type: BUILD_GENERAL1_MEDIUM
     #   debug-session: true
 
-    # Publish
-    - identifier: publish
-      buildspec: ci/3-publish.yml
-      env:
-        compute-type: BUILD_GENERAL1_MEDIUM
-      debug-session: true
-      depend-on:
-        - units
-        # - cypress1
+    # # Publish
+    # - identifier: publish
+    #   buildspec: ci/3-publish.yml
+    #   env:
+    #     compute-type: BUILD_GENERAL1_MEDIUM
+    #   debug-session: true
+    #   depend-on:
+    #     - units
+    #     # - cypress1

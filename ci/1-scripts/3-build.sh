@@ -33,7 +33,17 @@ cd "$CODEBUILD_SRC_DIR/app/server"
 mvn --batch-mode --errors --threads 1.0C --log-file "$CODEBUILD_SRC_DIR/logs/server-tests.log" clean test &
 server_pid=$!
 
-if ! wait "$client_pid" "$server_pid"; then
+code=0
+if ! wait "$client_pid"; then
+	echo "Client tests failed."
 	cat "$CODEBUILD_SRC_DIR/logs/client-tests.log"
-	cat "$CODEBUILD_SRC_DIR/logs/server-tests.log"
+	code=10
 fi
+
+if ! wait "$server_pid"; then
+	echo "Server tests failed."
+	cat "$CODEBUILD_SRC_DIR/logs/server-tests.log"
+	code=11
+fi
+
+exit "$code"
