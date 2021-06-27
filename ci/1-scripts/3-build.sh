@@ -31,6 +31,7 @@ cd "$CODEBUILD_SRC_DIR/app/server"
 ./build.sh --batch-mode > "$CODEBUILD_SRC_DIR/logs/server-tests.log" \
 	& echo $! > server_pid
 
+sleep 2m
 wait "$(cat client_pid)"
 wait "$(cat server_pid)"
 
