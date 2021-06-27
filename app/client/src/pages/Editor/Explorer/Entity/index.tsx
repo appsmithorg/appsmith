@@ -96,12 +96,6 @@ const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
 `;
 
-const NameWrapper = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-`;
-
 export type EntityProps = {
   entityId: string;
   className?: string;
