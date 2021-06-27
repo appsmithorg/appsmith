@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import Dropdown from "components/ads/Dropdown";
+import Dropdown, {
+  RenderDropdownOptionType,
+  DropdownOption,
+} from "components/ads/Dropdown";
 import { getTypographyByKey } from "../../../../constants/DefaultTheme";
 import {
   IconWrapper,
@@ -12,10 +15,26 @@ import {
   SubTitle,
 } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSelector } from "react-redux";
-import { getDatasources } from "../../../../selectors/entitiesSelector";
-import { Datasource } from "../../../../entities/Datasource/index";
-import { DropdownOption } from "../../../../components/ads/Dropdown";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getDatasources,
+  getPluginImages,
+} from "../../../../selectors/entitiesSelector";
+import { Classes } from "../../../../components/ads/common";
+import Text, { TextType } from "components/ads/Text";
+import {
+  Datasource,
+  DatasourceStructure,
+  DatasourceTable,
+} from "entities/Datasource";
+import { FormIcons } from "icons/FormIcons";
+import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
+import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 // ---------- Helpers and constants ----------
 
@@ -26,7 +45,7 @@ const getUniqueId = () => {
 };
 
 const CONNECT_NEW_DATASOURCE_OPTION_ID = getUniqueId();
-
+const MOCK_DATABASES_OPTION_ID = getUniqueId();
 const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
   WIDTH: "404px",
@@ -71,70 +90,286 @@ const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
   }
 `;
 
-// ---------- Types ----------
+const OptionWrapper = styled.div<{ clickable?: boolean; selected?: boolean }>`
+  padding: ${(props) =>
+    props.selected
+      ? `${props.theme.spaces[1]}px ${props.theme.spaces[5]}px`
+      : `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+  ${(props) => (props.clickable ? "cursor: pointer" : "")};
+  display: flex;
+  align-items: center;
+  user-select: none;
 
-type dropdownOptions = Array<DropdownOption>;
+  &&& svg {
+    rect {
+      fill: ${(props) => props.theme.colors.dropdownIconBg};
+    }
+  }
+
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.propertyPane.label};
+  }
+
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+    svg {
+      path {
+        ${(props) => `fill: ${props.theme.colors.dropdown.icon}`};
+      }
+    }
+  }
+
+  &:hover {
+    background-color: ${(props) => (props.clickable ? Colors.Gallery : "")};
+
+    &&& svg {
+      rect {
+        fill: ${(props) => props.theme.colors.textOnDarkBG};
+      }
+    }
+
+    .${Classes.ICON} {
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.dropdown.hovered.icon};
+        }
+      }
+    }
+  }
+`;
+
+const CreateIconWrapper = styled.div`
+  margin: 0px 8px;
+`;
+
+const DatasourceImage = styled.img`
+  height: 24px;
+  width: auto;
+  margin: 0px 8px;
+`;
+
+// ---------- Types ----------
+interface DatasourceTableDropdownOption extends DropdownOption {
+  data: DatasourceTable;
+}
+type DropdownOptions = Array<DropdownOption>;
 
 // ---------- Child Components ----------
 
-const renderDataSourceOption = (dropdownOption: DropdownOption) => {
-  if (CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id) {
-    return <div key={dropdownOption.id}> + {dropdownOption.label}</div>;
-  }
-  return <div key={dropdownOption.id}>{dropdownOption.label}</div>;
-};
+function DataSourceOption({
+  index,
+  isSelected,
+  option: dropdownOption,
+  optionClickHandler,
+}: RenderDropdownOptionType) {
+  const { label } = dropdownOption;
+  // const pluginImages = useSelector(getPluginImages); // ISSUE
+
+  const isConnectNewDataSourceBtn =
+    CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
+  const notClickable = MOCK_DATABASES_OPTION_ID === dropdownOption.id;
+  const isNotDatasourceOption = isConnectNewDataSourceBtn || notClickable;
+  return (
+    <OptionWrapper
+      className="t--dropdown-option"
+      clickable={!notClickable}
+      key={
+        dropdownOption.id && index
+          ? `${dropdownOption.id}${index}`
+          : dropdownOption.id
+      }
+      onClick={() => {
+        if (!isConnectNewDataSourceBtn && !notClickable && optionClickHandler) {
+          optionClickHandler(dropdownOption);
+        }
+      }}
+      selected={isSelected}
+    >
+      {isNotDatasourceOption ? (
+        isConnectNewDataSourceBtn ? (
+          <CreateIconWrapper>
+            <FormIcons.CREATE_NEW_ICON
+              color={Colors.GRAY2}
+              height={20}
+              width={20}
+            />
+          </CreateIconWrapper>
+        ) : null
+      ) : (
+        <DatasourceImage
+          alt=""
+          className="dataSourceImage"
+          // src={pluginImages[dropdownOption.data.pluginId]}
+        />
+      )}
+      <Text type={TextType.P1}>{label}</Text>
+    </OptionWrapper>
+  );
+}
 
 // ---------- GeneratePageForm Component ----------
 
 function GeneratePageForm() {
-  const datasources: Datasource[] = useSelector(getDatasources);
+  const dispatch = useDispatch();
+  const currentApplicationId = useSelector(getCurrentApplicationId);
+  const currentPageId = useSelector(getCurrentPageId);
 
-  const [dataSourceOptions, setDataSourceOptions] = useState<dropdownOptions>(
+  const datasources: Datasource[] = useSelector(getDatasources);
+  const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
+    getDatasourcesStructure,
+  );
+
+  const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
+  const [datasourceTableOptions, setDatasourceTableOptions] = useState<
+    DropdownOptions
+  >([]);
+
+  const [selectedTableColumnOptions, setSelectedTableColumnOptions] = useState<
+    DropdownOptions
+  >([]);
+
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>({
     id: "- Select -",
     label: "- Select -",
     value: "",
+    data: {},
   });
 
   const [selectedTable, selectTable] = useState<DropdownOption>({
     id: "- Select -",
     label: "- Select -",
     value: "",
+    data: {},
   });
 
-  const onSelectDataSource = (datasource: string | undefined) => {
-    console.log("Selected ", datasource);
-    if (datasource) {
-      // selectDataSource(datsource);
+  const [selectedColumn, selectColumn] = useState<DropdownOption>({
+    id: "- Select -",
+    label: "- Select -",
+    value: "",
+    data: {},
+  });
+
+  const onSelectDataSource = (
+    datasource: string | undefined,
+    dataSourceObj: DropdownOption | undefined,
+  ) => {
+    if (datasource && dataSourceObj) {
+      selectDataSource(dataSourceObj);
+      if (dataSourceObj.id) {
+        dispatch(fetchDatasourceStructure(dataSourceObj.id));
+      }
     }
   };
 
-  const onSelectTable = (table: string | undefined) => {
-    console.log("Selected ", table);
-    if (table) {
-      // selectDataSource(datsource);
+  const onSelectTable = (
+    table: string | undefined,
+    TableObj: DatasourceTableDropdownOption,
+  ) => {
+    if (table && TableObj) {
+      selectTable(TableObj);
+      const { data } = TableObj;
+      if (data.columns) {
+        const newSelectedTableColumnOptions: DropdownOption[] = [];
+        data.columns.map((column) => {
+          if (column.type === "text") {
+            newSelectedTableColumnOptions.push({
+              id: column.name,
+              label: column.name,
+              value: column.name,
+              subText: column.type,
+            });
+          }
+        });
+        if (newSelectedTableColumnOptions.length) {
+          setSelectedTableColumnOptions(newSelectedTableColumnOptions);
+        }
+      }
+    }
+  };
+
+  const onSelectColumn = (
+    table: string | undefined,
+    ColumnObj: DropdownOption | undefined,
+  ) => {
+    if (table && ColumnObj) {
+      selectColumn(ColumnObj);
     }
   };
 
   const handleFormSubmit = () => {
-    console.log("FOrm sibmit");
+    //  TODO :- find solution to avoid empty string
+    dispatch(
+      generateTemplateToUpdatePage({
+        applicationId: currentApplicationId || "",
+        pageId: currentPageId || "",
+        columns: [],
+        columnName: selectedColumn.value,
+        tableName: selectedTable.value || "",
+        datasourceId: selectedDatasource.id || "",
+      }),
+    );
   };
 
   useEffect(() => {
-    const newDataSourceOptions = datasources.map(({ id, name }) => ({
-      id,
-      label: name,
-      value: name,
-    }));
-    newDataSourceOptions.unshift({
-      id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-      label: "Connect New Datasource",
-      value: "Connect New Datasource",
-    });
+    const newDataSourceOptions = datasources.map(
+      ({ id, isValid, name, organizationId, pluginId }) => ({
+        id,
+        label: name,
+        value: name,
+        data: {
+          isValid,
+          organizationId,
+          pluginId,
+        },
+      }),
+    );
+    newDataSourceOptions.unshift(
+      {
+        id: CONNECT_NEW_DATASOURCE_OPTION_ID,
+        label: "Connect New Datasource",
+        value: "Connect New Datasource",
+        data: {
+          isValid: false,
+          organizationId: "",
+          pluginId: "",
+        },
+      },
+      {
+        id: MOCK_DATABASES_OPTION_ID,
+        label: "Mock Databases ------------",
+        value: "Mock Databases ------------",
+        data: {
+          isValid: false,
+          organizationId: "",
+          pluginId: "",
+        },
+      },
+    );
     setDataSourceOptions(newDataSourceOptions);
-  }, [datasources]);
+  }, [datasources, setDataSourceOptions]);
+
+  useEffect(() => {
+    if (selectedDatasource.id) {
+      const selectedDatasourceStructure =
+        datasourcesStructure[selectedDatasource.id];
+
+      const tables = selectedDatasourceStructure?.tables;
+      if (tables?.length) {
+        const newTables = tables.map(({ columns, name }) => ({
+          id: name,
+          label: name,
+          value: name,
+          data: {
+            columns,
+          },
+        }));
+        setDatasourceTableOptions(newTables);
+      }
+      console.log({ selectedDatasourceStructure, datasourcesStructure });
+    }
+  }, [datasourcesStructure, selectedDatasource, setDatasourceTableOptions]);
 
   return (
     <div>
@@ -164,7 +399,7 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={renderDataSourceOption}
+            renderOption={DataSourceOption}
             selected={selectedDatasource}
             showLabelOnly
             width={DROPDOWN_DIMENSION.WIDTH}
@@ -179,7 +414,7 @@ function GeneratePageForm() {
               height={DROPDOWN_DIMENSION.HEIGHT}
               onSelect={onSelectTable}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              options={dataSourceOptions}
+              options={datasourceTableOptions}
               selected={selectedTable}
               showLabelOnly
               width={DROPDOWN_DIMENSION.WIDTH}
@@ -188,13 +423,13 @@ function GeneratePageForm() {
         ) : null}
         {selectedTable.value ? (
           <SelectWrapper>
-            <Label>Select Columns from {selectedTable.label}</Label>
+            <Label>Select Column from {selectedTable.label}</Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
-              onSelect={onSelectDataSource}
+              onSelect={onSelectColumn}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              options={dataSourceOptions}
-              selected={selectedDatasource}
+              options={selectedTableColumnOptions}
+              selected={selectedColumn}
               showLabelOnly
               width={DROPDOWN_DIMENSION.WIDTH}
             />

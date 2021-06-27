@@ -12,7 +12,7 @@ const Separator = styled.div`
   background-color: ${Colors.MERCURY};
 `;
 
-const routeToEmptyEditor = (): void => {
+export const routeToEmptyEditorFromGenPage = (): void => {
   const currentPath = window.location.pathname;
   const routes = currentPath.split(GEN_PAGE_URL);
   const removedGenPageRoute = routes[0];
@@ -37,7 +37,7 @@ function ActionCards() {
     <>
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
-        onClick={routeToEmptyEditor}
+        onClick={routeToEmptyEditorFromGenPage}
         subTitle="Add datasources and then connect to widgets manually"
         title="Build it From Scratch"
       />

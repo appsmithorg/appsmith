@@ -89,6 +89,8 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { UpdatePageWithTemplateRequest } from "../api/PageApi";
+import { routeToEmptyEditorFromGenPage } from "../pages/Editor/GeneratePage/components/ActionCards";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -812,6 +814,41 @@ export function* populatePageDSLsSaga() {
   }
 }
 
+export function* updatePageWithTemplateSaga(
+  action: ReduxAction<UpdatePageWithTemplateRequest>,
+) {
+  try {
+    const request: UpdatePageWithTemplateRequest = action.payload;
+    const updatePageWithTemplateResponse: ApiResponse = yield call(
+      PageApi.updatePageWithTemplate,
+      request,
+    );
+    console.log({ updatePageWithTemplateResponse });
+    const isValidResponse = yield validateResponse(
+      updatePageWithTemplateResponse,
+    );
+    if (isValidResponse) {
+      const extractedDSL = extractCurrentDSL(updatePageWithTemplateResponse);
+      yield put({
+        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+        payload: extractedDSL,
+      });
+      // yield put({
+      //   type: ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_SUCCESS,
+      //   payload: action.payload,
+      // });
+      yield routeToEmptyEditorFromGenPage();
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_PAGE_WITH_TEMPLATE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -830,6 +867,10 @@ export default function* pageSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
       fetchAllPublishedPagesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_INIT,
+      updatePageWithTemplateSaga,
     ),
   ]);
 }

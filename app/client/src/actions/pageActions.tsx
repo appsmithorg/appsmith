@@ -11,6 +11,7 @@ import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { UpdatePageWithTemplateRequest } from "../api/PageApi";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -287,5 +288,24 @@ export const updateAppPersistentStore = (
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+  };
+};
+
+export const generateTemplateToUpdatePage = ({
+  applicationId,
+  columns,
+  datasourceId,
+  pageId,
+  tableName,
+}: UpdatePageWithTemplateRequest): ReduxAction<UpdatePageWithTemplateRequest> => {
+  return {
+    type: ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_INIT,
+    payload: {
+      pageId,
+      tableName,
+      datasourceId,
+      applicationId,
+      columns,
+    },
   };
 };
