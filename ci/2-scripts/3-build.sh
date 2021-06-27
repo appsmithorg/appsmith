@@ -56,6 +56,7 @@ cd "$CODEBUILD_SRC_DIR/app/client"
 sleep 10s
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
+	exit 6
 fi
 docker logs appsmith-server
 
