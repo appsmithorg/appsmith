@@ -45,19 +45,22 @@ cd "$CODEBUILD_SRC_DIR/app/client"
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
-npx serve -s build -p 3000 &
+npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
+sleep 10s
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
 	exit 6
 fi
 
-curl-fail --verbose localhost:3000
-
-sleep 10s
-if ! curl --insecure --verbose localhost:8080; then
-	docker logs appsmith-server
+if ! curl-fail --verbose localhost:3000; then
+	cat "$CODEBUILD_SRC_DIR/logs/client.log"
 	exit 7
+fi
+
+if ! curl --insecure --verbose localhost:8080; then
+	cat "$CODEBUILD_SRC_DIR/logs/server.log"
+	exit 8
 fi
 
 # Random user names go here
@@ -124,7 +127,7 @@ touch ../../.env  # Doing this to silence a misleading error message from `cypre
 npx cypress version
 npx cypress run --headless --browser chrome \
 	--record \
-	--ci-build-id "$CODEBUILD_SOURCE_VERSION" \
+	--ci-build-id "$CODEBUILD_INITIATOR:$CODEBUILD_SOURCE_VERSION" \
 	--parallel \
 	--group 'Electrons on CodeBuild CI' \
 	--env 'NODE_ENV=development' \
