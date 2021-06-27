@@ -14,7 +14,8 @@ yarn install --frozen-lockfile
 REACT_APP_ENVIRONMENT=PRODUCTION npx jest \
 	-b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary' \
 	> "$CODEBUILD_SRC_DIR/logs/client-tests.log" \
-	& echo $! > client_pid
+	&
+client_pid=$!
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
@@ -28,12 +29,12 @@ fi
 
 cd "$CODEBUILD_SRC_DIR/app/server"
 # TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.
-./build.sh --batch-mode > "$CODEBUILD_SRC_DIR/logs/server-tests.log" \
-	& echo $! > server_pid
+./build.sh --batch-mode \
+	> "$CODEBUILD_SRC_DIR/logs/server-tests.log" \
+	&
+server_pid=$!
 
-sleep 2m
-wait "$(cat client_pid)"
-wait "$(cat server_pid)"
-
-cat "$CODEBUILD_SRC_DIR/logs/client-tests.log"
-cat "$CODEBUILD_SRC_DIR/logs/server-tests.log"
+if ! wait "$client_pid" "$server_pid"; then
+	cat "$CODEBUILD_SRC_DIR/logs/client-tests.log"
+	cat "$CODEBUILD_SRC_DIR/logs/server-tests.log"
+fi
