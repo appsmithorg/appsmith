@@ -13,23 +13,34 @@ export type DropdownOption = {
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
-  onSelect?: (value?: string, dropdownOption?: DropdownOption) => void;
+  onSelect?: (value?: string, dropdownOption?: any) => void;
+  data?: any;
 };
+
+export interface RenderDropdownOptionType {
+  index?: number;
+  option: DropdownOption;
+  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+  isSelected?: boolean;
+}
+
+type RenderOption = ({
+  index,
+  option,
+  optionClickHandler,
+}: RenderDropdownOptionType) => ReactElement<any, any>;
 
 export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
-  onSelect?: (value?: string, dropdownOption?: DropdownOption) => void;
+  onSelect?: (value?: string, dropdownOption?: any) => void;
   width?: string;
   height?: string;
   showLabelOnly?: boolean;
   optionWidth?: string;
   showDropIcon?: boolean;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
-  renderOption?: (
-    dropdownOption: DropdownOption,
-    index: number,
-  ) => ReactElement<any, any>;
+  renderOption?: RenderOption;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -190,20 +201,28 @@ const SelectedIcon = styled(Icon)`
 `;
 
 function DefaultDropDownValueNode({
+  renderNode,
   selected,
   showLabelOnly,
 }: {
   selected: DropdownOption;
   showLabelOnly?: boolean;
+  renderNode?: RenderOption;
 }) {
   return (
     <SelectedDropDownHolder>
-      {selected.icon ? (
-        <SelectedIcon name={selected.icon} size={IconSize.XXS} />
-      ) : null}
-      <Text type={TextType.P1}>
-        {showLabelOnly ? selected.label : selected.value}
-      </Text>
+      {renderNode ? (
+        renderNode({ isSelected: true, option: selected })
+      ) : (
+        <>
+          {selected.icon ? (
+            <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+          ) : null}
+          <Text type={TextType.P1}>
+            {showLabelOnly ? selected.label : selected.value}
+          </Text>
+        </>
+      )}
     </SelectedDropDownHolder>
   );
 }
@@ -213,7 +232,7 @@ export default function Dropdown(props: DropdownProps) {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
-    renderOption = null,
+    renderOption,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -226,8 +245,8 @@ export default function Dropdown(props: DropdownProps) {
     (option: DropdownOption) => {
       setSelected(option);
       setIsOpen(false);
-      onSelect && onSelect(option.value);
-      option.onSelect && option.onSelect(option.value);
+      onSelect && onSelect(option.value, option);
+      option.onSelect && option.onSelect(option.value, option);
     },
     [onSelect],
   );
@@ -254,6 +273,7 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           <SelectedValueNode
+            renderNode={renderOption}
             selected={selected}
             showLabelOnly={props.showLabelOnly}
           />
@@ -262,7 +282,11 @@ export default function Dropdown(props: DropdownProps) {
         <DropdownWrapper width={props.optionWidth || "260px"}>
           {props.options.map((option: DropdownOption, index: number) => {
             if (renderOption) {
-              return renderOption(option, index);
+              return renderOption({
+                option,
+                index,
+                optionClickHandler,
+              });
             }
             return (
               <OptionWrapper
