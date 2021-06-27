@@ -137,7 +137,7 @@ CYPRESS_BASE_URL=https://dev.appsmith.com \
 	NO_COLOR=1 \
 	npx cypress run --headless --browser chrome \
 	--record \
-	--ci-build-id "${CODEBUILD_BATCH_BUILD_IDENTIFIER:-$CODEBUILD_BUILD_ID}" \
+	--ci-build-id "$CODEBUILD_SOURCE_VERSION" \
 	--parallel \
 	--group 'Electrons on CodeBuild CI' \
 	--env 'NODE_ENV=development' \
