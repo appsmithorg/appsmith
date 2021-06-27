@@ -28,8 +28,8 @@ describe("Leave organization test spec", function() {
       cy.openOrgOptionsPopup(newOrganizationName);
       cy.contains("Leave Organization").click();
       cy.contains("Are you sure").click();
-      cy.wait("@leaveOrgApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(400);
+      cy.wait("@leaveOrgApiCall").then((interception) => {
+        expect(interception.response.body.responseMeta.status).to.deep.eq(400);
       });
       cy.contains(newOrganizationName);
     });

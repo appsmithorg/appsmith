@@ -2319,6 +2319,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   //cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.intercept("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.intercept("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
+  cy.intercept("POST", "/api/v1/applications/import/*").as(
+    "importNewApplication",
+  );
   cy.intercept("PUT", "/api/v1/users/leaveOrganization/*").as(
     "leaveOrgApiCall",
   );

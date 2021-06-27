@@ -14,10 +14,9 @@ describe("Duplicate application", function() {
   it("Check whether the duplicate application has the same dsl as the original", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
-    cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.get(widgetsPage.defaultInput).type("A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@inputUpdate").then((response) => {
+    cy.wait("@updateLayout").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
