@@ -53,15 +53,18 @@ docker run -d --network=host \
 
 cd "$CODEBUILD_SRC_DIR/app/client"
 
-sleep 10s
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
 	exit 6
 fi
-docker logs appsmith-server
 
 curl-fail --verbose localhost:3000
-curl --insecure --verbose localhost:8080
+
+sleep 10s
+if ! curl --insecure --verbose localhost:8080; then
+	docker logs appsmith-server
+	exit 7
+fi
 
 # Random user names go here
 export CYPRESS_USERNAME=cy@example.com
@@ -134,7 +137,7 @@ CYPRESS_BASE_URL=https://dev.appsmith.com \
 	NO_COLOR=1 \
 	npx cypress run --headless --browser chrome \
 	--record \
-	--ci-build-id "$CODEBUILD_BUILD_ID" \
+	--ci-build-id "${CODEBUILD_BATCH_BUILD_IDENTIFIER:-$CODEBUILD_BUILD_ID}" \
 	--parallel \
 	--group 'Electrons on CodeBuild CI' \
 	--env 'NODE_ENV=development' \
