@@ -134,8 +134,8 @@ fi
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
 npx cypress version
 cat ~/.cache/Cypress/*/Cypress/resources/app/packages/server/config/app.yml
-CYPRESS_BASE_URL=https://dev.appsmith.com \
-	NO_COLOR=1 \
+# CYPRESS_BASE_URL=https://dev.appsmith.com \
+# 	NO_COLOR=1 \
 	npx cypress run --headless --browser chrome \
 	--record \
 	--ci-build-id "$CODEBUILD_SOURCE_VERSION" \
