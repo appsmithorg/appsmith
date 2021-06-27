@@ -11,7 +11,10 @@ npm install -g yarn
 yarn install --frozen-lockfile
 
 # TODO: See if `--ci` is useful when running jest. <https://archive.jestjs.io/docs/en/24.x/cli>.
-REACT_APP_ENVIRONMENT=PRODUCTION npx jest -b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'
+REACT_APP_ENVIRONMENT=PRODUCTION npx jest \
+	-b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary' \
+	> "$CODEBUILD_SRC_DIR/logs/client-tests.log" \
+	& echo $! > client_pid
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
@@ -24,4 +27,12 @@ if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_UR
 fi
 
 cd "$CODEBUILD_SRC_DIR/app/server"
-./build.sh --batch-mode  # TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.
+# TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.
+./build.sh --batch-mode > "$CODEBUILD_SRC_DIR/logs/server-tests.log" \
+	& echo $! > server_pid
+
+wait "$(cat client_pid)"
+wait "$(cat server_pid)"
+
+cat "$CODEBUILD_SRC_DIR/logs/client-tests.log"
+cat "$CODEBUILD_SRC_DIR/logs/server-tests.log"
