@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
-  Ref,
+  useCallback,
 } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -67,6 +67,8 @@ export const EntityItem = styled.div<{
     display: flex;
     justify-content: center;
     align-items: center;
+
+    overflow: hidden;
   }
   &&&& .${EntityClassNames.CONTEXT_MENU} {
     display: block;
@@ -154,19 +156,10 @@ export const Entity = forwardRef(
       }
     };
 
-    const updateNameCallback = (name: string) => {
-      return (
-        props.updateEntityName && props.updateEntityName(props.entityId, name)
-      );
-    };
-
     const handleClick = (e: any) => {
       if (props.action) props.action(e);
       else toggleChildren(e);
     };
-
-    const itemRef = useRef<HTMLDivElement | null>(null);
-    useClick(itemRef, handleClick, noop);
 
     return (
       <Wrapper
@@ -191,14 +184,12 @@ export const Entity = forwardRef(
             onClick={toggleChildren}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
-          <EntityNameWrapper
-            entityId={props.entityId}
-            isEditing={!!props.updateEntityName && isEditing}
-            name={props.name}
-            nameTransformFn={props.onNameEdit}
-            ref={itemRef}
-            searchKeyword={props.searchKeyword}
-            updateEntityName={updateNameCallback}
+          <EntityNameWithTooltip
+            {...props}
+            isEditing={isEditing}
+            onClick={handleClick}
+            onNameEdit={props.onNameEdit}
+            updateEntityName={props.updateEntityName}
           />
           <IconWrapper className={EntityClassNames.RIGHT_ICON}>
             {props.rightIcon}
@@ -218,24 +209,45 @@ export const Entity = forwardRef(
   },
 );
 
-const EntityNameWrapper = forwardRef(
-  (props: EntityNameProps, ref: Ref<HTMLDivElement>) => {
-    const entityNameWrapperRef = useRef<HTMLDivElement>(null);
-    return (
-      <NameWrapper ref={entityNameWrapperRef}>
-        {isEllipsisActive(entityNameWrapperRef?.current) ? (
-          <TooltipComponent content={props.name} position={Position.LEFT}>
-            <EntityName ref={ref} {...props} />
-          </TooltipComponent>
-        ) : (
-          <EntityName ref={ref} {...props} />
-        )}
-      </NameWrapper>
-    );
-  },
-);
+interface HoverableEntityNameProps {
+  isEditing: boolean;
+  onNameEdit?: (input: string, limit?: number) => string;
+  updateEntityName?: (id: string, name: string) => any;
+  onClick: (e: any) => void;
+}
 
-EntityNameWrapper.displayName = "EntityNameWrapper";
+const EntityNameWithTooltip = React.memo(function(
+  props: Omit<EntityNameProps, "updateEntityName"> & HoverableEntityNameProps,
+): JSX.Element {
+  const updateNameCallback = useCallback(
+    (name: string) =>
+      props.updateEntityName && props.updateEntityName(props.entityId, name),
+    [],
+  );
+  const entityRef = useRef<HTMLDivElement>(null);
+  useClick(entityRef, props.onClick, noop);
+  const entityName = (
+    <EntityName
+      entityId={props.entityId}
+      isEditing={!!props.updateEntityName && props.isEditing}
+      name={props.name}
+      nameTransformFn={props.onNameEdit}
+      ref={entityRef}
+      searchKeyword={props.searchKeyword}
+      updateEntityName={updateNameCallback}
+    />
+  );
+
+  return isEllipsisActive(entityRef?.current) ? (
+    <TooltipComponent content={props.name} position={Position.LEFT}>
+      {entityName}
+    </TooltipComponent>
+  ) : (
+    entityName
+  );
+});
+
+EntityNameWithTooltip.displayName = "EntityNameWithTooltip";
 
 Entity.displayName = "Entity";
 
