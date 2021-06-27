@@ -18,6 +18,7 @@ curl-fail() {
 	echo
 }
 
+echo "$BASH_VERSION"
 java -version
 node --version
 
@@ -33,7 +34,7 @@ REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
 
 echo Building server code
 cd "$CODEBUILD_SRC_DIR/app/server"
-./build.sh --batch-mode -DskipTests
+./build.sh --batch-mode --threads 1.0C -Dmaven.test.skip=true
 cd dist
 APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot \

@@ -1,5 +1,5 @@
-# This buildspec will run Cypress tests.
-# It does NOT build Docker images and it does NOT run unit tests.
+# This buildspec will build and publish Docker images.
+# It does NOT run any tests.
 
 version: 0.2
 
@@ -14,12 +14,16 @@ phases:
       java: corretto11
       nodejs: 14
     commands:
-      - source ci/2-scripts/1-install.sh
+      - source ci/3-scripts/1-install.sh
+
+  pre_build:
+    commands:
+      - source ci/3-scripts/2-pre_build.sh
 
   build:
     on-failure: ABORT
     commands:
-      - source ci/2-scripts/3-build.sh
+      - source ci/3-scripts/3-build.sh
 
 cache:
   paths:

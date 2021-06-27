@@ -3,6 +3,7 @@
 set -o errexit
 set -o xtrace
 
+echo "$BASH_VERSION"
 java -version
 node --version
 
@@ -13,7 +14,7 @@ yarn install --frozen-lockfile
 # TODO: See if `--ci` is useful when running jest. <https://archive.jestjs.io/docs/en/24.x/cli>.
 REACT_APP_ENVIRONMENT=PRODUCTION npx jest \
 	-b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary' \
-	> "$CODEBUILD_SRC_DIR/logs/client-tests.log" \
+	&> "$CODEBUILD_SRC_DIR/logs/client-tests.log" \
 	&
 client_pid=$!
 
@@ -29,9 +30,7 @@ fi
 
 cd "$CODEBUILD_SRC_DIR/app/server"
 # TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.
-./build.sh --batch-mode \
-	> "$CODEBUILD_SRC_DIR/logs/server-tests.log" \
-	&
+mvn --batch-mode --errors --threads 1.0C --log-file "$CODEBUILD_SRC_DIR/logs/server-tests.log" clean test &
 server_pid=$!
 
 if ! wait "$client_pid" "$server_pid"; then
