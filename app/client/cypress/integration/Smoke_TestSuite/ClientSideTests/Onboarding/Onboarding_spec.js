@@ -38,6 +38,9 @@ describe("Onboarding", function() {
           .should("be.visible")
           .click({ force: true });
 
+        cy.get(".t--create-query").click();
+        cy.wait("@createNewApi");
+
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout
         cy.get(".t--onboarding-cheat-action")

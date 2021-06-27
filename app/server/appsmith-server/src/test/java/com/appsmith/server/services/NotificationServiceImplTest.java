@@ -64,7 +64,7 @@ public class NotificationServiceImplTest {
         // mock the repository to return count as 100
         Mockito.when(repository.countByForUsername(currentUser.getUsername())).thenReturn(Mono.just(100L));
         // mock the repository to return unread count as 5
-        Mockito.when(repository.countByForUsernameAndIsReadIsTrue(currentUser.getUsername())).thenReturn(Mono.just(5L));
+        Mockito.when(repository.countByForUsernameAndIsReadIsFalse(currentUser.getUsername())).thenReturn(Mono.just(5L));
     }
 
     private List<Notification> createSampleNotificationList() {
