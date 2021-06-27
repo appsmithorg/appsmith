@@ -21,12 +21,12 @@ batch:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
-    # # Run all Cypress tests.
-    # - identifier: cypress1
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
+    # Run all Cypress tests.
+    - identifier: cypress1
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
 
     # # Publish
     # - identifier: publish

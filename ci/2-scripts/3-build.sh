@@ -44,7 +44,7 @@ APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 
 cd "$CODEBUILD_SRC_DIR/app/client"
 
-# Serve the react bundle on a specific port. Nginx will proxy to this port
+# Serve the react bundle on a specific port. Nginx will proxy to this port.
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
@@ -88,6 +88,24 @@ cat docker/templates/nginx-root.conf.template \
 	| envsubst ${vars_to_substitute} \
 	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' -e 's/user  *nginx;/user root;/' \
 	| tee /etc/nginx/nginx.conf
+
+# Substitute all the env variables in nginx
+vars_to_substitute='\$'"$(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | paste -s -d, - | sed 's/,/,\\$/g')"
+echo "vars_to_substitute: $vars_to_substitute"
+envsubst "$vars_to_substitute" < docker/templates/nginx-app.conf.template \
+	| sed \
+		-e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
+		-e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" \
+		-e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" \
+	> nginx-app.conf
+envsubst "$vars_to_substitute" < docker/templates/nginx-root.conf.template \
+	| sed \
+		-e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
+		-e 's/user  *nginx;/user root;/' \
+	> nginx.conf
+
+diff /etc/nginx/conf.d/app.conf nginx-app.conf
+diff /etc/nginx/nginx.conf nginx.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
 # This is a self-signed certificate, and so when using cURL, we need to add the `-k` or `--insecure` argument.
