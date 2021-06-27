@@ -10,6 +10,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +37,19 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
     private final ConfigService configService;
+    private final ExamplesOrganizationCloner examplesOrganizationCloner;
 
     private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-mockdb";
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService, ConfigService configService) {
+                                AuthenticationService authenticationService, ConfigService configService, ExamplesOrganizationCloner examplesOrganizationCloner) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.configService = configService;
+        this.examplesOrganizationCloner = examplesOrganizationCloner;
     }
 
     @PostMapping("/test")
@@ -92,5 +95,10 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                 .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getConfig(), null));
     }
 
+    @PostMapping("/mocks")
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestParam String datasourceId, @RequestParam String organizationId) {
+        return examplesOrganizationCloner.cloneDatasource(datasourceId, organizationId)
+                .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+    }
 
 }
