@@ -43,6 +43,8 @@ public class ActionDTO {
 
     String name;
 
+    String fullyQualifiedName;
+
     Datasource datasource;
 
     String pageId;

@@ -28,12 +28,13 @@ import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
 public class MustacheHelper {
 
     /*
-     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
-     * e.g. for the given JS function using action with name "fetchUsers"
-     * {{JSON.stringify(fetchUsers)}}
-     * This pattern should return ["JSON.stringify", "fetchUsers"]
+     * - This pattern will match all the Strings which indicate an action's data being used inside a mustache binding.
+     * - Examples:
+     * {{JSON.stringify(fetchUsers.data)}}: group1 = fetchUsers
+     * {{JSON.stringify(jsObject.data.foo)}}: group1 = jsObject, group3 = foo
+     * {{JSON.stringify(jsObject.data.)}}: this does not match the pattern.
      */
-    private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
+    private final static Pattern pattern = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)[.]data([.]([a-zA-Z0-9._]+))?($|[^a-zA-Z0-9_.])");
     /**
      * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
      * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
@@ -332,18 +333,33 @@ public class MustacheHelper {
     public static void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
         String key = mustacheKey.trim();
 
-        // Extract all the words in the dynamic bindings
+        /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
-
         while (matcher.find()) {
-            String word = matcher.group();
 
-            String[] subStrings = word.split(Pattern.quote("."));
-            if (subStrings.length > 0) {
-                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                bindingNames.add(subStrings[0]);
+            /**
+             * - Extract non-JS action name e.g. api1 from api1.data
+             * - It could also be a JS object e.g transform in transform.data.getTrimmedData. Here transform is the
+             * name of the JS object that contains the JS function getTrimmedData()
+             */
+            String topLevelActionOrJsObject = matcher.group(1);
+            if (!StringUtils.isEmpty(topLevelActionOrJsObject)) {
+                bindingNames.add(topLevelActionOrJsObject);
+
+                /* Extract JS function names e.g. getTrimmedDate in transform.data.getTrimmedData */
+                String potentialJsActionString = matcher.group(3);
+                if (!StringUtils.isEmpty(potentialJsActionString)) {
+                    String potentialJsAction = potentialJsActionString.split("\\.")[0];
+                    String fullyQualifiedActionName =
+                            getFullyQualifiedActionName(topLevelActionOrJsObject, potentialJsAction);
+                    bindingNames.add(fullyQualifiedActionName);
+                }
             }
         }
+    }
+
+    private static String getFullyQualifiedActionName(String jsObjectName, String jsFunctionName) {
+        return jsObjectName + "." + jsFunctionName;
     }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {

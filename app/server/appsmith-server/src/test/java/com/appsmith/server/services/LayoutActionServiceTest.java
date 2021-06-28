@@ -122,9 +122,11 @@ public class LayoutActionServiceTest {
             JSONObject dsl = new JSONObject();
             dsl.put("widgetName", "firstWidget");
             JSONArray temp = new JSONArray();
-            temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+            temp.addAll(List.of(new JSONObject(Map.of("key", "testField")),
+                    new JSONObject(Map.of("key", "testField2"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
+            dsl.put("testField2", "{{jsObject.data.jsFunction}}");
 
             JSONObject dsl2 = new JSONObject();
             dsl2.put("widgetName", "Table1");
@@ -172,6 +174,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO action = new ActionDTO();
         action.setName("query1");
+        action.setFullyQualifiedName(action.getName());
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -180,12 +183,22 @@ public class LayoutActionServiceTest {
 
         ActionDTO unreferencedAction = new ActionDTO();
         unreferencedAction.setName("query2");
+        unreferencedAction.setFullyQualifiedName(unreferencedAction.getName());
         unreferencedAction.setPageId(testPage.getId());
         unreferencedAction.setUserSetOnLoad(true);
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("jsAction");
+        action3.setFullyQualifiedName("jsObject.jsFunction");
+        action3.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration3 = new ActionConfiguration();
+        actionConfiguration3.setHttpMethod(HttpMethod.GET);
+        action3.setActionConfiguration(actionConfiguration);
+        action3.setDatasource(datasource);
 
         Mono<PageDTO> resultMono = layoutActionService
                 .createAction(action)
@@ -205,6 +218,14 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
+                .flatMap(savedAction -> layoutActionService.createAction(action3))
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                })
                 // fetch the unpublished page
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
 
@@ -214,7 +235,7 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts()).hasSize(1);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
                     Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS).hasSize(2);
+                    assertThat(dslActionDTOS).hasSize(3);
                     assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "query2"));
                 })
                 .verifyComplete();

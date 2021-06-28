@@ -310,15 +310,27 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * This set of keys is stored separately in the field `jsonPathKeys` in the action object. The client
      * uses the set `jsonPathKeys` to simplify it's value substitution.
      *
-     * @param actionConfiguration
+     * @param actionDTO
      * @return
      */
-    private Set<String> extractKeysFromAction(ActionConfiguration actionConfiguration) {
+    private Set<String> extractKeysFromAction(ActionDTO actionDTO) {
+        if (actionDTO == null) {
+            return new HashSet<>();
+        }
+
+        ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
         if (actionConfiguration == null) {
             return new HashSet<>();
         }
 
-        return MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+        Set<String> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+
+        // Add JS function body to jsonPathKeys field.
+        if (PluginType.JS.equals(actionDTO.getPluginType())) {
+            keys.add(actionConfiguration.getBody());
+        }
+
+        return keys;
     }
 
     /**
@@ -330,7 +342,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        Set<String> actionKeys = extractKeysFromAction(action.getActionConfiguration());
+        Set<String> actionKeys = extractKeysFromAction(action);
         Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource());
         Set<String> keys = new HashSet<>() {{
             addAll(actionKeys);
@@ -1083,7 +1095,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     for (ActionDTO action : pageActions) {
 
-                        String actionName = action.getName();
+                        String actionName = action.getFullyQualifiedName();
                         // If a user has ever set execute on load, this field can not be changed automatically. It has to be
                         // explicitly changed by the user again. Add the action to update only if this condition is false.
                         if (FALSE.equals(action.getUserSetOnLoad())) {
