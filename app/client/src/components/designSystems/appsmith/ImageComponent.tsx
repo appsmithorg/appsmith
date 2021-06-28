@@ -2,6 +2,7 @@ import * as React from "react";
 import { ComponentProps } from "./BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { Colors } from "constants/Colors";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -62,7 +63,7 @@ const ControlBtn = styled.div`
   display: inline-block;
 
   &: first-child {
-    border-right: 1px solid #e0dede;
+    border-right: 1px solid ${Colors.ALTO2};
   }
 
   & > div {

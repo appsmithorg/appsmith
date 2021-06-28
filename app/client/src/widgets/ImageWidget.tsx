@@ -79,7 +79,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.NUMBER,
           },
           {
-            helpText: "controls if the image is allowed to rotate",
+            helpText: "Controls if the image is allowed to rotate",
             propertyName: "enableRotation",
             label: "Enable Rotation",
             controlType: "SWITCH",
