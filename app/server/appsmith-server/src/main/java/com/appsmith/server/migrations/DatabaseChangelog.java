@@ -2636,7 +2636,7 @@ public class DatabaseChangelog {
 
         Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        // Fetch all the actions built on top of a mongo database with input type set to raw command
+        // Fetch all the actions built on top of a mongo database with input type set to raw.
         assert mongoPlugin != null;
         List<NewAction> rawMongoQueryActions = mongockTemplate.find(
                 query(new Criteria().andOperator(
@@ -2652,7 +2652,7 @@ public class DatabaseChangelog {
 
                     List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
 
-                    // Filter out all the actions which have the input type configuration
+                    // Filter out all the unpublished actions which have the input type raw configured.
                     if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
                         Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
                         if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
@@ -2667,7 +2667,7 @@ public class DatabaseChangelog {
                     if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
                         pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
-                        // Filter out all the published actions which have the input type configuration
+                        // Filter out all the published actions which have the input type raw configured.
                         if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
                             Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
                             if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
@@ -2678,19 +2678,19 @@ public class DatabaseChangelog {
                             }
                         }
                     }
-                    // Not an action of interest for migration.
                     return result;
                 })
                 .collect(Collectors.toList());
 
         for (NewAction action : rawMongoQueryActions) {
-            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
 
             Boolean smartSub = true;
             Property smartSubProperty;
             Map<Integer, Object> configMap;
             List<Property> updatedTemplates;
 
+            // Migrate the unpublished actions
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
             if (pluginSpecifiedTemplates != null) {
                 smartSubProperty = pluginSpecifiedTemplates.get(0);
                 if (smartSubProperty != null) {
@@ -2711,7 +2711,7 @@ public class DatabaseChangelog {
             }
 
 
-            // Now migrate published actions
+            // Now migrate the published actions
             ActionDTO publishedAction = action.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
@@ -2740,10 +2740,6 @@ public class DatabaseChangelog {
 
         // Now that all the actions have been updated, save all the actions
         for (NewAction action : rawMongoQueryActions) {
-            log.debug("Unpublished Action to be saved is : {}", action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates());
-            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
-                log.debug("Published action : {}", action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates());
-            }
             mongockTemplate.save(action);
         }
     }
