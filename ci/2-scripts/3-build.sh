@@ -145,23 +145,33 @@ fi
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
 npx cypress info
 
-# Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
-COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)" \
-	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
-	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
-	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
-	COMMIT_INFO_SHA="$(git log -1 --pretty=%H)" \
-	COMMIT_INFO_REMOTE="$(git remote get-url origin)" \
-	NO_COLOR=1 \
-	npx cypress run --headless --browser chrome \
-	--record \
-	--ci-build-id "$CODEBUILD_INITIATOR:$CODEBUILD_SOURCE_VERSION" \
-	--parallel \
-	--group 'Electrons on CodeBuild CI' \
-	--env 'NODE_ENV=development' \
-	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
-	--spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
-	# --spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+file "$CODEBUILD_SRC_DIR/.git"
+git rev-parse HEAD
+git log
+COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)"
+COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)"
+COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)"
+COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)"
+COMMIT_INFO_SHA="$(git log -1 --pretty=%H)"
+COMMIT_INFO_REMOTE="$(git remote get-url origin)"
+
+# # Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
+# COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)" \
+# 	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
+# 	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
+# 	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
+# 	COMMIT_INFO_SHA="$(git log -1 --pretty=%H)" \
+# 	COMMIT_INFO_REMOTE="$(git remote get-url origin)" \
+# 	NO_COLOR=1 \
+# 	npx cypress run --headless --browser chrome \
+# 	--record \
+# 	--ci-build-id "$CODEBUILD_INITIATOR:$CODEBUILD_SOURCE_VERSION" \
+# 	--parallel \
+# 	--group 'Electrons on CodeBuild CI' \
+# 	--env 'NODE_ENV=development' \
+# 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
+# 	--spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
+# 	# --spec 'cypress/integration/Smoke_TestSuite/**/*.js'
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail
