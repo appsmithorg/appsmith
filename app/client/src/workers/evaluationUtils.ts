@@ -1,9 +1,12 @@
 import {
   DependencyMap,
-  EvalError,
-  EvalErrorTypes,
+  EVAL_ERROR_PATH,
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
@@ -18,6 +21,7 @@ import {
 import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { Severity } from "entities/AppsmithConsole";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -65,17 +69,27 @@ function isInt(val: string | number): boolean {
 // Removes the entity name from the property path
 export function getEntityNameAndPropertyPath(
   fullPath: string,
-): { entityName: string; propertyPath: string } {
+): {
+  entityName: string;
+  propertyPath: string;
+} {
   const indexOfFirstDot = fullPath.indexOf(".");
+  if (indexOfFirstDot === -1) {
+    // No dot was found so path is the entity name itself
+    return {
+      entityName: fullPath,
+      propertyPath: "",
+    };
+  }
   const entityName = fullPath.substring(0, indexOfFirstDot);
-  const propertyPath = fullPath.substring(fullPath.indexOf(".") + 1);
+  const propertyPath = fullPath.substring(indexOfFirstDot + 1);
   return { entityName, propertyPath };
 }
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
-): DataTreeDiff => {
-  const result: DataTreeDiff = {
+): DataTreeDiff | DataTreeDiff[] => {
+  let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
       value: "",
@@ -112,25 +126,53 @@ export const translateDiffEventToDataTreeDiffEvent = (
           propertyPath,
           value: difference.rhs,
         };
-      } else {
+      } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          typeof difference.rhs === "object"
-        ) {
+        if (difference.lhs === undefined && isTrueObject(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          typeof difference.lhs === "object"
-        ) {
+        if (difference.rhs === undefined && isTrueObject(difference.lhs)) {
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
-      }
+      } else if (
+        isTrueObject(difference.lhs) &&
+        !isTrueObject(difference.rhs)
+      ) {
+        // This will happen for static value changes where a property went
+        // from being an object to any other type like string or number
+        // in such a case we want to delete all nested paths of the
+        // original lhs object
 
+        result = Object.keys(difference.lhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      } else if (
+        !isTrueObject(difference.lhs) &&
+        isTrueObject(difference.rhs)
+      ) {
+        // This will happen for static value changes where a property went
+        // from being any other type like string or number to an object
+        // in such a case we want to add all nested paths of the
+        // new rhs object
+        result = Object.keys(difference.rhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.NEW,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      }
       break;
     }
     case "A": {
@@ -276,8 +318,7 @@ export function validateWidgetProperty(
 }
 
 export function getValidatedTree(tree: DataTree) {
-  const errors: EvalError[] = [];
-  const validatedTree = Object.keys(tree).reduce((tree, entityKey: string) => {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
@@ -300,37 +341,28 @@ export function getValidatedTree(tree: DataTree) {
         ? value
         : transformed;
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
+      _.set(
+        parsedEntity,
+        getEvalValuePath(`${entityKey}.${property}`, false),
+        safeEvaluatedValue,
+      );
       if (!isValid) {
-        errors.push({
-          type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-          message: message || "",
-          context: {
-            source: {
-              id: parsedEntity.widgetId,
-              name: parsedEntity.widgetName,
-              type: ENTITY_TYPE.WIDGET,
-              propertyPath: property,
+        addErrorToEntityProperty(
+          [
+            {
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message || "",
+              severity: Severity.ERROR,
+              raw: value,
             },
-            state: {
-              value: safeEvaluatedValue,
-            },
-          },
-        });
-        _.set(parsedEntity, `invalidProps.${property}`, true);
-        _.set(parsedEntity, `validationMessages.${property}`, message);
-      } else {
-        _.set(parsedEntity, `invalidProps.${property}`, false);
-        _.set(parsedEntity, `validationMessages.${property}`, "");
+          ],
+          tree,
+          getEvalErrorPath(`${entityKey}.${property}`, false),
+        );
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
-
-  return {
-    validatedTree,
-    errors,
-  };
 }
 
 export const getAllPaths = (
@@ -520,3 +552,31 @@ export function getSafeToRenderDataTree(
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
+
+export const addErrorToEntityProperty = (
+  errors: EvaluationError[],
+  dataTree: DataTree,
+  path: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
+  if (propertyPath && !(propertyPath in logBlackList)) {
+    const existingErrors = _.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[];
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingErrors.concat(errors),
+    );
+  }
+  return dataTree;
+};
+
+// For the times when you need to know if something truly an object like { a: 1, b: 2}
+// typeof, lodash.isObject and others will return false positives for things like array, null, etc
+export const isTrueObject = (item: unknown): boolean => {
+  return Object.prototype.toString.call(item) === "[object Object]";
+};

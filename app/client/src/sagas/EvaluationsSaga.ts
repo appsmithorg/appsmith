@@ -22,6 +22,11 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
+  PropertyEvalErrorTypeDebugMessage,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -31,7 +36,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
-import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { AppState } from "reducers";
@@ -50,6 +55,8 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -75,18 +82,18 @@ function getLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const jsError = _.get(entity, `jsErrorMessages.${propertyPath}`, "");
-      const validationError = _.get(
+      const allEvalErrors: EvaluationError[] = _.get(
         entity,
-        `validationMessages.${propertyPath}`,
-        "",
+        getEvalErrorPath(evaluatedPath, false),
+        [],
       );
       const evaluatedValue = _.get(
         entity,
-        `evaluatedValues.${propertyPath}`,
-        "",
+        getEvalValuePath(evaluatedPath, false),
       );
-      const error = jsError || validationError;
+      const evalErrors = allEvalErrors.filter(
+        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+      );
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
@@ -98,13 +105,21 @@ function getLatestEvalPropertyErrors(
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      if (_.isString(error) && error !== "") {
+      if (evalErrors.length) {
+        // TODO Rank and set the most critical error
+        const error = evalErrors[0];
+        const errorMessages = evalErrors.map((e) => ({
+          message: e.errorMessage,
+        }));
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
-          text: `The value at ${propertyPath} is invalid`,
-          message: error,
-          severity: Severity.ERROR,
+          text: PropertyEvalErrorTypeDebugMessage[error.errorType](
+            propertyPath,
+          ),
+          messages: errorMessages,
+          severity: error.severity,
           timestamp: moment().format("hh:mm:ss"),
           source: {
             id: idField,
@@ -113,7 +128,7 @@ function getLatestEvalPropertyErrors(
             propertyPath: propertyPath,
           },
           state: {
-            value: evaluatedValue,
+            [propertyPath]: evaluatedValue,
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
@@ -202,9 +217,54 @@ function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
+        log.debug(error);
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
+      }
+    }
+  });
+}
+
+function* logSuccessfulBindings(
+  unEvalTree: DataTree,
+  dataTree: DataTree,
+  evaluationOrder: string[],
+) {
+  const appMode = yield select(getAppMode);
+  if (appMode === APP_MODE.PUBLISHED) return;
+  if (!evaluationOrder) return;
+  evaluationOrder.forEach((evaluatedPath) => {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      evaluatedPath,
+    );
+    const entity = dataTree[entityName];
+    if (isAction(entity) || isWidget(entity)) {
+      const unevalValue = _.get(unEvalTree, evaluatedPath);
+      const entityType = isAction(entity) ? entity.pluginType : entity.type;
+      const isABinding = _.find(entity.dynamicBindingPathList, {
+        key: propertyPath,
+      });
+      const logBlackList = entity.logBlackList;
+      const errors: EvaluationError[] = _.get(
+        dataTree,
+        getEvalErrorPath(evaluatedPath),
+        [],
+      ) as EvaluationError[];
+      const criticalErrors = errors.filter(
+        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+      );
+      const hasErrors = criticalErrors.length > 0;
+
+      if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
+        AnalyticsUtil.logEvent("BINDING_SUCCESS", {
+          unevalValue,
+          entityType,
+          propertyPath,
+        });
       }
     }
   });
@@ -241,12 +301,14 @@ function* evaluateTreeSaga(
     evaluationOrder,
     logs,
   } = workerResponse;
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  log.debug({ dataTree: dataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
+  yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
+
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );

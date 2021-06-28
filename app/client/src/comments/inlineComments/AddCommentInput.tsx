@@ -111,14 +111,17 @@ const resetEditorState = (editorState: EditorState) => {
   return editorState;
 };
 
+const otherSuggestions = [{ name: "appsmith" }];
+
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
 ) => {
   useEffect(() => {
-    setSuggestions(
-      users.map((user) => ({ name: user.name || user.username, user })),
-    );
+    setSuggestions([
+      ...otherSuggestions,
+      ...users.map((user) => ({ name: user.name || user.username, user })),
+    ]);
   }, [users]);
 };
 
