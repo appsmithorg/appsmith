@@ -17,6 +17,8 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
@@ -230,7 +232,7 @@ function ApiResponseView(props: Props) {
             <NoResponseContainer>
               <Icon name="no-response" />
               <Text type={TextType.P1}>
-                🙌 Click on
+                {EMPTY_RESPONSE_FIRST_HALF()}
                 <InlineButton
                   isLoading={isRunning}
                   onClick={props.onRunClick}
@@ -239,7 +241,7 @@ function ApiResponseView(props: Props) {
                   text="Run"
                   type="button"
                 />
-                to get a response
+                {EMPTY_RESPONSE_LAST_HALF()}
               </Text>
             </NoResponseContainer>
           ) : (
