@@ -55,7 +55,10 @@ const StyledAction = styled.button`
   &:hover,
   &:active,
   &.active {
-    background: ${(props) => (props.disabled ? "initial" : "#e1e1e1")};
+    background: ${(props) =>
+      props.disabled
+        ? "initial"
+        : props.theme.colors.widgetGroupingContextMenu.actionActiveBg};
   }
   &:focus {
     outline: none;
@@ -67,7 +70,8 @@ const StyledSelectBoxHandleTop = styled.div`
   height: 1px;
   position: absolute;
   z-index: 5;
-  border-top: 1px dashed #69b5ff;
+  border-top: 1px dashed
+    ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
   left: -1px;
 `;
@@ -77,7 +81,8 @@ const StyledSelectBoxHandleLeft = styled.div`
   height: 100%;
   position: absolute;
   z-index: 5;
-  border-left: 1px dashed #69b5ff;
+  border-left: 1px dashed
+    ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
   left: -1px;
 `;
@@ -87,7 +92,8 @@ const StyledSelectBoxHandleRight = styled.div`
   height: 100%;
   position: absolute;
   z-index: 5;
-  border-left: 1px dashed #69b5ff;
+  border-left: 1px dashed
+    ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
   left: calc(100% - 1px);
 `;
@@ -97,7 +103,8 @@ const StyledSelectBoxHandleBottom = styled.div`
   height: 1px;
   position: absolute;
   z-index: 5;
-  border-bottom: 1px dashed #69b5ff;
+  border-bottom: 1px dashed
+    ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 100%;
   left: -1px;
 `;
