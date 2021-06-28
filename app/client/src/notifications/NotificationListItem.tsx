@@ -22,10 +22,13 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 
+export const NOTIFICATION_HEIGHT = 82;
+
 const Container = styled.div`
   display: flex;
   width: 100%;
   padding: ${(props) => props.theme.spaces[6]}px;
+  height: ${NOTIFICATION_HEIGHT}px;
 
   ${Profile} {
     margin-right: ${(props) => props.theme.spaces[4]}px;
@@ -38,6 +41,14 @@ const NotificationBodyContainer = styled.div`
   ${(props) => getTypographyByKey(props, "p1")};
   & b {
     font-weight: 500;
+  }
+
+  & div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    -webkit-box-orient: vertical;
   }
 `;
 
@@ -104,7 +115,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     authorName,
     authorUsername,
     mode: modeFromComment,
-    // orgId, TODO get from comment
+    orgId,
     pageId,
     // resolvedState, TODO get from comment thread
     threadId,
@@ -114,7 +125,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
   const displayName = authorName || authorUsername;
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole("");
+    const modeFromRole = await getModeFromUserRole(orgId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
@@ -172,7 +183,7 @@ function CommentThreadNotification(props: {
     authorUsername,
     id,
     mode: modeFromThread,
-    // orgId,  TODO get from comment thread
+    orgId,
     pageId,
     resolvedState,
   } = commentThread;
@@ -180,7 +191,7 @@ function CommentThreadNotification(props: {
   const commentThreadId = _id || id;
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole("");
+    const modeFromRole = await getModeFromUserRole(orgId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({
