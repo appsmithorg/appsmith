@@ -624,6 +624,16 @@
                 "value": true
               },
               {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Widgets",
                 "type": "hasLabel",
                 "value": true
