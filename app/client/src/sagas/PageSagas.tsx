@@ -201,11 +201,6 @@ export function* fetchPageSaga(
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
-      const extractedDSL = extractCurrentDSL(fetchPageResponse);
-      yield put({
-        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractedDSL,
-      });
 
       if (willPageBeMigrated) {
         yield put(saveLayout());
@@ -322,11 +317,6 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         pageId: savePageRequest.pageId,
         dsl: savePageRequest.dsl,
       },
-    });
-
-    yield put({
-      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-      payload: savePageRequest.dsl,
     });
 
     const savePageResponse: SavePageResponse = yield call(
