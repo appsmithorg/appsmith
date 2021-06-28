@@ -314,6 +314,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
+      selectedFiles: [],
+      defaultSelectedFiles: [],
       allowedFileTypes: [],
       label: "Select Files",
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -712,22 +714,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
-      itemBackgroundColor: "white",
+      itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       gridType: "vertical",
+      template: {},
       enhancements: {
         child: {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
           updateDataTreePath: (parentProps: any, dataTreePath: string) => {
-            return `${
-              parentProps.widgetName
-            }.evaluatedValues.template.${dataTreePath.replace(
-              "evaluatedValues.",
-              "",
-            )}`;
+            return `${parentProps.widgetName}.template.${dataTreePath}`;
           },
           propertyUpdateHook: (
             parentProps: any,
@@ -749,7 +747,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               "",
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => {
+            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
                 return  ${modifiedAction};
               })();
@@ -773,7 +771,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
       },
       gridGap: 0,
-      items: [
+      listData: [
         {
           id: 1,
           num: "001",
@@ -976,7 +974,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                         "",
                       );
 
-                      value = `{{${widget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
 
                       childWidget[key] = value;
 
@@ -1031,21 +1029,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
               widgetId: string,
               parentId: string,
-              widgetPropertyMaps: {
-                defaultPropertyMap: Record<string, string>;
-              },
             ) => {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
               const logBlackList: { [key: string]: boolean } = {};
 
-              const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
+              const disallowedWidgets = [
+                WidgetTypes.TABLE_WIDGET,
+                WidgetTypes.LIST_WIDGET,
+                WidgetTypes.TABS_WIDGET,
+                WidgetTypes.FORM_WIDGET,
+                WidgetTypes.CONTAINER_WIDGET,
+              ];
 
-              if (
-                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
-                indexOf(disallowedWidgets, widget.type) > -1
-              ) {
+              if (indexOf(disallowedWidgets, widget.type) > -1) {
                 const widget = widgets[widgetId];
                 if (widget.children && widget.children.length > 0) {
                   widget.children.forEach((childId: string) => {
@@ -1065,7 +1063,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   widgets,
                   message: `${
                     WidgetConfigResponse.config[widget.type].widgetName
-                  } widgets cannot be used inside the list widget right now.`,
+                  } widgets cannot be used inside the list widget.`,
                 };
               }
 
@@ -1091,6 +1089,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
+    },
+    [WidgetTypes.IFRAME_WIDGET]: {
+      source: "https://www.wikipedia.org/",
+      borderOpacity: 100,
+      borderWidth: 1,
+      rows: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Iframe",
+      version: 1,
     },
   },
   configVersion: 1,

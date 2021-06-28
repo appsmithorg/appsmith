@@ -254,13 +254,19 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
+    console.log({ request, isValidResponse });
+    // as the redux store updates the app only on success.
+    // we have to run this
+    if (isValidResponse && request) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: action.payload,
+      });
+    }
     if (isValidResponse && request && request.name) {
       Toaster.show({
         text: createMessage(APPLICATION_NAME_UPDATE),
         variant: Variant.success,
-      });
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       });
     }
     if (isValidResponse && request.currentApp) {
