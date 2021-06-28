@@ -2,14 +2,21 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
 
-const Container = styled.div`
+const Container = styled.div<{ isInline?: boolean }>`
   background: ${Colors.WHITE};
   width: 250px;
-  position: fixed;
-  left: 0;
-  top: ${(props) => props.theme.smallHeaderHeight};
+  ${(props) =>
+    !props.isInline
+      ? `
+    position: fixed;
+    left: 0;
+    top: ${props.theme.smallHeaderHeight};
+    height: calc(100% - ${props.theme.smallHeaderHeight});
+  `
+      : `
+    position: relative;
+  `}
   z-index: ${Layers.appComments};
-  height: calc(100% - ${(props) => props.theme.smallHeaderHeight});
   display: flex;
   flex-direction: column;
 `;

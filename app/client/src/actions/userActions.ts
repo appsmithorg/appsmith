@@ -78,3 +78,12 @@ export const removePhoto = (callback: () => void) => ({
   type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
   payload: { callback },
 });
+
+export const leaveOrganization = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    payload: {
+      orgId,
+    },
+  };
+};

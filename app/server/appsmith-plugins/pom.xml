@@ -27,6 +27,7 @@
         <module>redshiftPlugin</module>
         <module>amazons3Plugin</module>
         <module>googleSheetsPlugin</module>
+        <module>snowflakePlugin</module>
         <module>jsPlugin</module>
     </modules>
 </project>

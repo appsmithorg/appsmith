@@ -264,6 +264,7 @@ const createLoadingWidget = (
     bindingPaths: {},
     triggerPaths: {},
     validationPaths: {},
+    logBlackList: {},
     isLoading: true,
   };
 };

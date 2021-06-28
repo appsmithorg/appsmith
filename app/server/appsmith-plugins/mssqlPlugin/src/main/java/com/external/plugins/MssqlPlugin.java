@@ -122,12 +122,8 @@ public class MssqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                // In case the prepared statement configuration is missing, default to true
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -135,10 +131,10 @@ public class MssqlPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute

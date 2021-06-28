@@ -9,6 +9,9 @@ const handleUpdateCommentThreadEvent = (
   const { _id, threadId } = action.payload;
 
   const threadInState = state.commentThreadsMap[threadId as string];
+
+  if (!threadInState) return state;
+
   const commentIdx = threadInState.comments.findIndex(
     (comment) => comment.id === _id,
   );

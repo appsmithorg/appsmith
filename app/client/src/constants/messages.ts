@@ -202,7 +202,7 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
 export const DEFAULT_ERROR_MESSAGE = () => `There was an unexpected error`;
-
+export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>
   `File size should be less than ${fileSize}!`;
 export const ERROR_DATEPICKER_MIN_DATE = () =>
@@ -317,6 +317,10 @@ export const FULL_NAME = () => "Full Name";
 export const DISPLAY_NAME = () => "Display Name";
 export const EMAIL_ADDRESS = () => "Email Address";
 export const FIRST_AND_LAST_NAME = () => "First and last name";
+export const MARK_ALL_AS_READ = () => "Mark all as read";
+export const INVITE_A_NEW_USER = () => "Invite a new user";
+export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -327,5 +331,18 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_LOGS = () => "Logs";
+export const INSPECT_ENTITY = () => "Inspect Entity";
+export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
+export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+
+// Import/Export Application features
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+
+export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
+  `You want to remove ${name} from this organization`;

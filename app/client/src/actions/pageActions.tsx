@@ -104,9 +104,10 @@ export const updateAndSaveLayout = (
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 

@@ -93,6 +93,8 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
@@ -110,38 +112,58 @@ interface TableHeaderProps {
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
+  isVisibleCompactMode?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
 }
 
 function TableHeader(props: TableHeaderProps) {
   return (
     <>
-      <SearchComponent
-        onSearch={props.searchTableData}
-        placeholder="Search..."
-        value={props.searchKey}
-      />
-      <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-        <TableFilters
-          applyFilter={props.applyFilter}
-          columns={props.columns}
-          editMode={props.editMode}
-          filters={props.filters}
+      {props.isVisibleSearch && (
+        <SearchComponent
+          onSearch={props.searchTableData}
+          placeholder="Search..."
+          value={props.searchKey}
         />
-        <TableDataDownload
-          columns={props.tableColumns}
-          data={props.tableData}
-          widgetName={props.widgetName}
-        />
-        <TableCompactMode
-          compactMode={props.compactMode}
-          updateCompactMode={props.updateCompactMode}
-        />
-      </CommonFunctionsMenuWrapper>
-      {props.serverSidePaginationEnabled && (
+      )}
+      {(props.isVisibleFilters ||
+        props.isVisibleDownload ||
+        props.isVisibleCompactMode) && (
+        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+          {props.isVisibleFilters && (
+            <TableFilters
+              applyFilter={props.applyFilter}
+              columns={props.columns}
+              editMode={props.editMode}
+              filters={props.filters}
+            />
+          )}
+
+          {props.isVisibleDownload && (
+            <TableDataDownload
+              columns={props.tableColumns}
+              data={props.tableData}
+              widgetName={props.widgetName}
+            />
+          )}
+
+          {props.isVisibleCompactMode && (
+            <TableCompactMode
+              compactMode={props.compactMode}
+              updateCompactMode={props.updateCompactMode}
+            />
+          )}
+        </CommonFunctionsMenuWrapper>
+      )}
+
+      {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
-            disabled={false}
+            disabled={props.pageNo === 0}
             onClick={() => {
               props.prevPageClick();
             }}
@@ -153,7 +175,7 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={false}
+            disabled={props.pageNo === props.pageCount - 1}
             onClick={() => {
               props.nextPageClick();
             }}
@@ -162,10 +184,13 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-      {!props.serverSidePaginationEnabled && (
+      {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
-            {props.tableData?.length} Records
+            {props.totalRecordsCount
+              ? props.totalRecordsCount
+              : props.tableData?.length}{" "}
+            Records
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"

@@ -46,10 +46,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       } else if (!!widgetId) {
         state.selectedWidgets = [...state.selectedWidgets, widgetId];
       }
-      if (state.selectedWidgets.length === 1) {
-        state.lastSelectedWidget = state.selectedWidgets[0];
-      } else {
-        state.lastSelectedWidget = "";
+      if (state.selectedWidgets.length > 0) {
+        state.lastSelectedWidget = removeSelection ? "" : widgetId;
       }
     } else {
       state.lastSelectedWidget = action.payload.widgetId;
@@ -60,19 +58,38 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       }
     }
   },
+  [ReduxActionTypes.DESELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = state.selectedWidgets.filter(
+        (each) => !widgetIds.includes(each),
+      );
+    }
+  },
   [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
     const { widgetIds } = action.payload;
     if (widgetIds) {
+      state.selectedWidgets = widgetIds || [];
       if (widgetIds.length > 1) {
-        state.selectedWidgets = widgetIds || [];
         state.lastSelectedWidget = "";
       } else {
-        state.selectedWidgets = [];
         state.lastSelectedWidget = widgetIds[0];
       }
+    }
+  },
+  [ReduxActionTypes.SELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
     }
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (

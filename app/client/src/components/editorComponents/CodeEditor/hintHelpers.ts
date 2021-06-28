@@ -16,7 +16,8 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
       cm: CodeMirror.Editor,
       expected: string,
-    ) => ternServer.complete(cm, expected),
+      entity: string,
+    ) => ternServer.complete(cm, expected, entity),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       ternServer.showType(cm);
     },
@@ -29,7 +30,11 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
       const dataTreeDef = dataTreeTypeDefCreator(data);
       ternServer.updateDef("dataTree", dataTreeDef);
     },
-    showHint: (editor: CodeMirror.Editor, expected: string) => {
+    showHint: (
+      editor: CodeMirror.Editor,
+      expected: string,
+      entityName: string,
+    ) => {
       let cursorBetweenBinding = false;
       const cursor = editor.getCursor();
       const value = editor.getValue();
@@ -66,7 +71,7 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
       const shouldShow = cursorBetweenBinding;
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
-        ternServer.complete(editor, expected);
+        ternServer.complete(editor, expected, entityName);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available

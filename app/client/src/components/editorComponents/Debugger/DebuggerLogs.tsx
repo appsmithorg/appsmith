@@ -3,8 +3,9 @@ import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
-import { BlankState, useFilteredLogs, usePagination } from "./helpers";
+import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
+import { usePagination, useFilteredLogs } from "./hooks";
 
 const LIST_HEADER_HEIGHT = "38px";
 

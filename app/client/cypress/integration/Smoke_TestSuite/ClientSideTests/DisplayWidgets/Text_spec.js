@@ -36,7 +36,19 @@ describe("Text Widget Functionality", function() {
       .should("have.css", "font-size", "24px");
   });
 
+  it("Text Email Parsing Validation", function() {
+    cy.testCodeMirror("ab.end@domain.com");
+    cy.wait("@updateLayout");
+    cy.PublishtheApp();
+    cy.get(commonlocators.headingTextStyle + " a").should(
+      "have.attr",
+      "href",
+      "mailto:ab.end@domain.com",
+    );
+  });
+
   it("Text-TextStyle Label Validation", function() {
+    cy.testCodeMirror(this.data.TextLabelValue);
     //Changing the Text Style's and validating
     cy.ChangeTextStyle(
       this.data.TextLabel,

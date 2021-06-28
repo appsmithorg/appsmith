@@ -49,13 +49,26 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import {
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = [
+  "Enter",
+  "Tab",
+  "Escape",
+  "Comma",
+  "Backspace",
+];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -255,6 +268,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
+    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
@@ -265,9 +279,9 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    this.setState({ isFocused: false });
+    if (!cm.state.completionActive) this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -295,7 +309,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
+    const { entityName } = getEntityNameAndPropertyPath(
+      this.props.dataTreePath || "",
+    );
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -333,32 +350,33 @@ class CodeEditor extends Component<Props, State> {
     dataTree: DataTree,
     dataTreePath?: string,
   ): {
-    isValid: boolean;
-    validationMessage?: string;
-    jsErrorMessage?: string;
+    isInvalid: boolean;
+    errors: EvaluationError[];
+    pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
-      return { isValid: true, validationMessage: "", jsErrorMessage: "" };
+      return {
+        isInvalid: false,
+        errors: [],
+        pathEvaluatedValue: undefined,
+      };
     }
-    const isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
-    const validationMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "validationMessages",
-    );
-    const jsErrorMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "jsErrorMessages",
-    );
 
-    const isValid = !_.get(dataTree, isValidPath, false);
-    const validationMessage = _.get(
+    const errors = _.get(
       dataTree,
-      validationMessagePath,
-      "",
-    ) as string;
-    const jsErrorMessage = _.get(dataTree, jsErrorMessagePath, "") as string;
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+    const filteredLintErrors = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
-    return { isValid, validationMessage, jsErrorMessage };
+    return {
+      isInvalid: filteredLintErrors.length > 0,
+      errors: filteredLintErrors,
+      pathEvaluatedValue,
+    };
   };
 
   render() {
@@ -384,14 +402,13 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
     const {
-      isValid,
-      jsErrorMessage,
-      validationMessage,
+      errors,
+      isInvalid,
+      pathEvaluatedValue,
     } = this.getPropertyValidation(dynamicData, dataTreePath);
-    const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
-      evaluated = _.get(dynamicData, dataTreePath);
+      evaluated = pathEvaluatedValue;
     }
 
     const showEvaluatedValue =
@@ -401,8 +418,8 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
-        isError={hasError}
+        isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
+        isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         theme={this.props.theme}
@@ -426,14 +443,13 @@ class CodeEditor extends Component<Props, State> {
           </Suspense>
         )}
         <EvaluatedValuePopup
-          error={validationMessage}
+          errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
-          hasError={hasError}
+          hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
-          jsError={jsErrorMessage}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
@@ -444,7 +460,7 @@ class CodeEditor extends Component<Props, State> {
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
-            hasError={hasError}
+            hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}

@@ -12,6 +12,7 @@ import { Variant } from "components/ads/common";
 import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
+import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
 
 const Wrapper = styled.div`
   & > div {
@@ -21,12 +22,6 @@ const Wrapper = styled.div`
 const FieldWrapper = styled.div`
   width: 520px;
   display: flex;
-`;
-
-const InputWrapper = styled.div`
-  width: 520px;
-  display: flex;
-  align-items: center;
 `;
 
 const LabelWrapper = styled.div`
@@ -90,21 +85,30 @@ function General() {
 
   return (
     <Wrapper>
-      <InputWrapper>
+      <FieldWrapper>
+        <LabelWrapper>
+          <Text type={TextType.H4}>Display Picture</Text>
+        </LabelWrapper>
+        <UserProfileImagePicker />
+      </FieldWrapper>
+      <FieldWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
         {isFetchingUser && <Loader className={Classes.SKELETON} />}
         {!isFetchingUser && (
-          <TextInput
-            cypressSelector="t--display-name"
-            defaultValue={user?.name}
-            onChange={onNameChange}
-            placeholder="Display name"
-            validator={notEmptyValidator}
-          />
+          <div style={{ flex: 1 }}>
+            <TextInput
+              cypressSelector="t--display-name"
+              defaultValue={user?.name}
+              fill={false}
+              onChange={onNameChange}
+              placeholder="Display name"
+              validator={notEmptyValidator}
+            />
+          </div>
         )}
-      </InputWrapper>
+      </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Email</Text>
@@ -118,18 +122,7 @@ function General() {
           </ForgotPassword>
         </div>
       </FieldWrapper>
-      {/* Commenting for now until the image related apis are ready */}
-      {/* <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Display Picture</Text>
-        </LabelWrapper>
-        <FilePicker
-          url={""}
-          onFileRemoved={DeleteLogo}
-          logoUploadError={logoUploadError.message}
-        />
-      </FieldWrapper>
-      <InputWrapper>
+      {/* <InputWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </LabelWrapper>

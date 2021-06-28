@@ -47,7 +47,14 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
+import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { isHidden } from "components/formControls/utils";
+import {
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -379,6 +386,9 @@ export function EditorJSONtoForm(props: Props) {
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -461,7 +471,7 @@ export function EditorJSONtoForm(props: Props) {
   const renderEachConfig = (formName: string) => (section: any): any => {
     return section.children.map((formControlOrSection: ControlProps) => {
       if (isHidden(props.formData, section.hidden)) return null;
-      if ("children" in formControlOrSection) {
+      if (formControlOrSection.hasOwnProperty("children")) {
         return renderEachConfig(formName)(formControlOrSection);
       } else {
         try {
@@ -522,7 +532,7 @@ export function EditorJSONtoForm(props: Props) {
           )}
           {output &&
             (isTableResponse ? (
-              <Table data={output} />
+              <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
               <JSONViewer src={output} />
             ))}
@@ -537,13 +547,18 @@ export function EditorJSONtoForm(props: Props) {
     },
     {
       key: "ERROR",
-      title: "Errors",
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
       key: "LOGS",
-      title: "Logs",
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
+    },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
     },
   ];
 
@@ -676,7 +691,12 @@ export function EditorJSONtoForm(props: Props) {
         </TabContainerView>
 
         <TabbedViewContainer ref={panelRef}>
-          <Resizable panelRef={panelRef} />
+          <Resizable
+            panelRef={panelRef}
+            setContainerDimensions={(height: number) =>
+              setTableBodyHeightHeight(height)
+            }
+          />
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ResultsCount>

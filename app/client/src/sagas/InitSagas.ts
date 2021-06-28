@@ -41,7 +41,6 @@ import {
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { initCommentThreads } from "actions/commentActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -154,9 +153,6 @@ function* initializeEditorSaga(
       appName: appName,
     });
 
-    // todo remove (for dev)
-    yield put(initCommentThreads());
-
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
@@ -248,9 +244,6 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
-
-    // todo remove (for dev)
-    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

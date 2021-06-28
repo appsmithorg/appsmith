@@ -1,6 +1,5 @@
 import React, {
   Component,
-  Fragment,
   useContext,
   useEffect,
   useRef,
@@ -67,6 +66,7 @@ import EditableText, {
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
 import { saveOrg } from "actions/orgActions";
+import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
@@ -78,6 +78,15 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import UserApi from "api/UserApi";
+import ImportApplicationModal from "./ImportApplicationModal";
+import OnboardingForm from "./OnboardingForm";
+import { getAppsmithConfigs } from "configs";
+import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  setOnboardingFormInProgress,
+  getOnboardingFormInProgress,
+} from "utils/storage";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -378,6 +387,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   const result = await createOrganizationSubmitHandler(data, dispatch);
   return result;
 };
+
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
@@ -504,6 +514,7 @@ const NoSearchResultImg = styled.img`
 `;
 
 function ApplicationsSection(props: any) {
+  const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -521,6 +532,8 @@ function ApplicationsSection(props: any) {
       });
     }
   };
+  const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -533,7 +546,17 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
+
+  const leaveOrg = (orgId: string) => {
+    setWarnLeavingOrganization(false);
+    setOrgToOpenMenu(null);
+    dispatch(leaveOrganization(orgId));
+  };
 
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
@@ -552,7 +575,11 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name" disabled={disabled}>
+      <OrgNameWrapper
+        className="t--org-name"
+        disabled={disabled}
+        onClick={() => setOrgToOpenMenu(orgSlug)}
+      >
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -623,62 +650,106 @@ function ApplicationsSection(props: any) {
                 <Menu
                   className="t--org-name"
                   cypressSelector="t--org-name"
-                  disabled={!hasManageOrgPermissions || isFetchingApplications}
+                  disabled={isFetchingApplications}
+                  isOpen={organization.slug === orgToOpenMenu}
+                  onClose={() => {
+                    setOrgToOpenMenu(null);
+                  }}
+                  onClosing={() => {
+                    setWarnLeavingOrganization(false);
+                  }}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
                     orgName: organization.name,
-                    disabled: !hasManageOrgPermissions,
                     orgSlug: organization.slug,
                   })}
                 >
-                  <OrgRename
-                    cypressSelector="t--org-rename-input"
-                    defaultValue={organization.name}
-                    editInteractionKind={EditInteractionKind.SINGLE}
-                    fill
-                    hideEditIcon={false}
-                    isEditingDefault={false}
-                    isInvalid={(value: string) => {
-                      return notEmptyValidator(value).message;
-                    }}
-                    onBlur={(value: string) => {
-                      OrgNameChange(value, organization.id);
-                    }}
-                    placeholder="Workspace name"
-                    savingState={
-                      isSavingOrgInfo
-                        ? SavingState.STARTED
-                        : SavingState.NOT_STARTED
-                    }
-                    underline
-                  />
+                  {hasManageOrgPermissions && (
+                    <>
+                      <OrgRename
+                        cypressSelector="t--org-rename-input"
+                        defaultValue={organization.name}
+                        editInteractionKind={EditInteractionKind.SINGLE}
+                        fill
+                        hideEditIcon={false}
+                        isEditingDefault={false}
+                        isInvalid={(value: string) => {
+                          return notEmptyValidator(value).message;
+                        }}
+                        onBlur={(value: string) => {
+                          OrgNameChange(value, organization.id);
+                        }}
+                        placeholder="Workspace name"
+                        savingState={
+                          isSavingOrgInfo
+                            ? SavingState.STARTED
+                            : SavingState.NOT_STARTED
+                        }
+                        underline
+                      />
+                      <MenuItem
+                        cypressSelector="t--org-setting"
+                        icon="general"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/general`,
+                          })
+                        }
+                        text="Organization Settings"
+                      />
+                      {enableImportExport && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app"
+                          icon="upload"
+                          onSelect={() =>
+                            setSelectedOrgIdForImportApplication(
+                              organization.id,
+                            )
+                          }
+                          text="Import Application"
+                        />
+                      )}
+                      <MenuItem
+                        icon="share"
+                        onSelect={() => setSelectedOrgId(organization.id)}
+                        text="Share"
+                      />
+                      <MenuItem
+                        icon="user"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/members`,
+                          })
+                        }
+                        text="Members"
+                      />
+                    </>
+                  )}
                   <MenuItem
-                    cypressSelector="t--org-setting"
-                    icon="general"
+                    icon="logout"
                     onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/general`,
-                      })
+                      !warnLeavingOrganization
+                        ? setWarnLeavingOrganization(true)
+                        : leaveOrg(organization.id)
                     }
-                    text="Organization Settings"
-                  />
-                  <MenuItem
-                    icon="share"
-                    onSelect={() => setSelectedOrgId(organization.id)}
-                    text="Share"
-                  />
-                  <MenuItem
-                    icon="user"
-                    onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/members`,
-                      })
+                    text={
+                      !warnLeavingOrganization
+                        ? "Leave Organization"
+                        : "Are you sure?"
                     }
-                    text="Members"
+                    type={!warnLeavingOrganization ? undefined : "warning"}
                   />
                 </Menu>
               )}
-
+              {selectedOrgIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
+              )}
               {hasManageOrgPermissions && (
                 <StyledDialog
                   canEscapeKeyClose={false}
@@ -704,6 +775,7 @@ function ApplicationsSection(props: any) {
                         <ProfileImage
                           className="org-share-user-icons"
                           key={el.username}
+                          source={`/api/${UserApi.photoURL}/${el.username}`}
                           userName={el.name ? el.name : el.username}
                         />
                       ))}
@@ -782,6 +854,7 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
+                      enableImportExport={enableImportExport}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
@@ -819,15 +892,22 @@ type ApplicationProps = {
   currentUser?: User;
   searchKeyword: string | undefined;
 };
+
+const getIsFromSignup = () => {
+  return window.location?.pathname === SIGNUP_SUCCESS_URL;
+};
+
+const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string }
+  { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
+      showOnboardingForm: false,
     };
   }
 
@@ -835,20 +915,66 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    window.addEventListener("message", this.handleTypeFormMessage, false);
+    this.showOnboardingForm();
   }
+
+  componentWillUnmount() {
+    window.removeEventListener("message", this.handleTypeFormMessage);
+  }
+
+  showOnboardingForm = async () => {
+    const isFromSignUp = getIsFromSignup();
+    const isOnboardingFormInProgress = await getOnboardingFormInProgress();
+    const showOnboardingForm =
+      onboardingFormEnabled && (isFromSignUp || isOnboardingFormInProgress);
+    this.setState({
+      showOnboardingForm: !!showOnboardingForm,
+    });
+
+    // Redirect directly in case we're not showing the onboarding form
+    if (isFromSignUp && !onboardingFormEnabled) {
+      this.redirectUsingQueryParam();
+    }
+  };
+
+  redirectUsingQueryParam = () => {
+    const urlObject = new URL(window.location.href);
+    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    if (redirectUrl) {
+      try {
+        window.location.replace(redirectUrl);
+      } catch (e) {
+        console.error("Error handling the redirect url");
+      }
+    }
+  };
+
+  handleTypeFormMessage = (event: any) => {
+    if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
+      setOnboardingFormInProgress();
+      this.redirectUsingQueryParam();
+    }
+  };
 
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        <ProductUpdatesModal />
-        <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: "Search for apps...",
-            queryFn: this.props.searchApplications,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        {this.state.showOnboardingForm ? (
+          <OnboardingForm />
+        ) : (
+          <>
+            <ProductUpdatesModal />
+            <LeftPane />
+            <SubHeader
+              search={{
+                placeholder: "Search for apps...",
+                queryFn: this.props.searchApplications,
+              }}
+            />
+            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+          </>
+        )}
       </PageWrapper>
     );
   }

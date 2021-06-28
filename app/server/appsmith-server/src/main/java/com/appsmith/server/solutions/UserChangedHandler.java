@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
 import com.appsmith.server.repositories.CommentRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,8 +19,8 @@ import reactor.core.scheduler.Schedulers;
 public class UserChangedHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-
     private final CommentRepository commentRepository;
+    private final OrganizationRepository organizationRepository;
 
     public User publish(User user) {
         applicationEventPublisher.publishEvent(new UserChangedEvent(user));
@@ -35,6 +36,10 @@ public class UserChangedHandler {
         updateNameInComments(user)
                 .subscribeOn(Schedulers.elastic())
                 .subscribe();
+
+        updateNameInUserRoles(user)
+                .subscribeOn(Schedulers.elastic())
+                .subscribe();
     }
 
     private Mono<Void> updateNameInComments(User user) {
@@ -47,4 +52,13 @@ public class UserChangedHandler {
         return commentRepository.updateAuthorNames(user.getId(), user.getName());
     }
 
+    private Mono<Void> updateNameInUserRoles(User user) {
+        if (user.getId() == null) {
+            log.warn("Attempt to update name in userRoles of organization for user with null ID.");
+            return Mono.empty();
+        }
+
+        log.debug("Updating name in userRoles of organization for user {}", user.getId());
+        return organizationRepository.updateUserRoleNames(user.getId(), user.getName());
+    }
 }

@@ -7,6 +7,7 @@ import {
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
+  indexOf,
   isBoolean,
   isNil,
   isNumber,
@@ -18,6 +19,10 @@ import _, {
   toString,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
+import {
+  CUSTOM_CHART_TYPES,
+  CUSTOM_CHART_DEFAULT_PARSED,
+} from "../constants/CustomChartConstants";
 import moment from "moment";
 
 export function validateDateString(
@@ -155,7 +160,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (!isValid) {
       return {
         isValid: isValid,
-        parsed: parsed,
+        parsed: !!parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
@@ -413,6 +418,15 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
+      };
+    }
+    // check custom chart exist or not
+    const typeExist = indexOf(CUSTOM_CHART_TYPES, parsed.type) !== -1;
+    if (!typeExist) {
+      return {
+        isValid: false,
+        parsed: { ...CUSTOM_CHART_DEFAULT_PARSED },
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }

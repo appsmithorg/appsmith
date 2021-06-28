@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
@@ -74,27 +74,57 @@ const Container = styled.div`
   }
 `;
 
-const DocumentationDescription = ({ item }: { item: SearchItem }) => {
-  try {
-    const {
-      _highlightResult: {
-        document: { value: rawDocument },
-        title: { value: rawTitle },
-      },
-    } = item;
-    const content = parseDocumentationContent({
-      rawDocument: rawDocument,
-      rawTitle: rawTitle,
-      path: item.path,
-    });
+function DocumentationDescription({
+  item,
+  query,
+}: {
+  item: SearchItem;
+  query: string;
+}) {
+  const {
+    _highlightResult: {
+      document: { value: rawDocument },
+      title: { value: rawTitle },
+    },
+  } = item;
+  const content = parseDocumentationContent({
+    rawDocument: rawDocument,
+    rawTitle: rawTitle,
+    path: item.path,
+    query,
+  });
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollToMatchedValue();
+  }, [content]);
 
-    return content ? (
-      <div dangerouslySetInnerHTML={{ __html: content }} />
-    ) : null;
-  } catch (e) {
-    return null;
-  }
-};
+  const scrollToMatchedValue = () => {
+    const root = containerRef.current;
+    if (!root) return;
+    const list = root.getElementsByTagName(algoliaHighlightTag);
+    if (list.length) {
+      const bestMatch = Array.from(list).reduce((accumulator, currentValue) => {
+        if (
+          currentValue.textContent &&
+          accumulator.textContent &&
+          currentValue.textContent.length > accumulator.textContent.length
+        )
+          return currentValue;
+        return accumulator;
+      }, list[0]);
+
+      bestMatch.scrollIntoView();
+    } else {
+      setTimeout(() => {
+        root.firstElementChild?.scrollIntoView();
+      }, 0);
+    }
+  };
+
+  return content ? (
+    <div dangerouslySetInnerHTML={{ __html: content }} ref={containerRef} />
+  ) : null;
+}
 
 const StyledHitEnterMessageContainer = styled.div`
   background: ${(props) =>
@@ -142,28 +172,12 @@ const descriptionByType = {
 
 function Description(props: Props) {
   const { activeItem, activeItemType } = props;
-  const containerRef = React.useRef<HTMLDivElement>(null);
-
-  const onScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (
-      props.scrollPositionRef?.current ||
-      props.scrollPositionRef?.current === 0
-    ) {
-      props.scrollPositionRef.current = (e.target as HTMLDivElement).scrollTop;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = props.scrollPositionRef?.current;
-    }
-  }, [containerRef.current, activeItem]);
 
   if (!activeItemType || !activeItem) return null;
   const Component = descriptionByType[activeItemType];
 
   return (
-    <Container onScroll={onScroll} ref={containerRef}>
+    <Container>
       <Component item={activeItem} query={props.query} />
     </Container>
   );

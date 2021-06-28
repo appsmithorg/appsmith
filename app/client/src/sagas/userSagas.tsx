@@ -13,6 +13,7 @@ import UserApi, {
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
+  LeaveOrgRequest,
 } from "api/UserApi";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
@@ -39,6 +40,8 @@ import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -401,5 +404,25 @@ export default function* userSagas() {
     ),
     takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
+    takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
   ]);
+}
+
+export function* leaveOrgSaga(action: ReduxAction<LeaveOrgRequest>) {
+  try {
+    const request: LeaveOrgRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.leaveOrg, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
+      Toaster.show({
+        text: `You have successfully left the organization`,
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    // do nothing as it's already handled globally
+  }
 }

@@ -42,6 +42,9 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
+  tablePageSize: number;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
@@ -66,6 +69,11 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleSearch?: boolean;
+  isVisibleFilters?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleCompactMode?: boolean;
+  isVisiblePagination?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -74,6 +82,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
+    defaultPageSize,
     disableDrag,
     editMode,
     filters,
@@ -81,6 +90,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    isVisibleCompactMode,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -93,6 +107,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
+    tablePageSize,
+    totalRecordsCount,
     triggerRowSelection,
     updateCompactMode,
     updatePageNo,
@@ -219,6 +235,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
+      defaultPageSize={defaultPageSize}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -230,6 +247,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
+      isVisibleCompactMode={isVisibleCompactMode}
+      isVisibleDownload={isVisibleDownload}
+      isVisibleFilters={isVisibleFilters}
+      isVisiblePagination={isVisiblePagination}
+      isVisibleSearch={isVisibleSearch}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
@@ -241,6 +263,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
+      tablePageSize={tablePageSize}
+      totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
@@ -255,6 +279,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
+    prev.defaultPageSize === next.defaultPageSize &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&
@@ -262,10 +287,16 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.handleResizeColumn === next.handleResizeColumn &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
+    prev.isVisibleCompactMode === next.isVisibleCompactMode &&
+    prev.isVisibleDownload === next.isVisibleDownload &&
+    prev.isVisibleFilters === next.isVisibleFilters &&
+    prev.isVisiblePagination === next.isVisiblePagination &&
+    prev.isVisibleSearch === next.isVisibleSearch &&
     prev.nextPageClick === next.nextPageClick &&
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&
     prev.pageSize === next.pageSize &&
+    prev.tablePageSize === next.tablePageSize &&
     prev.prevPageClick === next.prevPageClick &&
     prev.searchKey === next.searchKey &&
     prev.searchTableData === next.searchTableData &&
@@ -273,6 +304,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.selectedRowIndices === next.selectedRowIndices &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
+    prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
     prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&

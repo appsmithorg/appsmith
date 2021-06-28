@@ -64,6 +64,8 @@ import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
+import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -117,6 +119,8 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "upload",
+  "download",
   "book",
   "bug",
   "cancel",
@@ -475,6 +479,14 @@ const Icon = forwardRef(
 
       case "reaction-2":
         returnIcon = <Reaction2 />;
+        break;
+
+      case "upload":
+        returnIcon = <Upload />;
+        break;
+
+      case "download":
+        returnIcon = <Download />;
         break;
 
       default:

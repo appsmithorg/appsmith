@@ -1,4 +1,9 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import {
+  BUILDER_PAGE_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -77,4 +82,42 @@ export const getOffsetPos = (
     left: offsetLeftPercent,
     top: offsetTopPercent,
   };
+};
+
+export const getCommentThreadURL = ({
+  applicationId,
+  commentThreadId,
+  isResolved,
+  pageId,
+  mode = APP_MODE.PUBLISHED,
+}: {
+  applicationId?: string;
+  commentThreadId: string;
+  isResolved?: boolean;
+  pageId?: string;
+  mode?: APP_MODE;
+}) => {
+  const queryParams: Record<string, any> = {
+    commentThreadId,
+    isCommentMode: true,
+  };
+
+  if (isResolved) {
+    queryParams.isResolved = true;
+  }
+
+  const urlBuilder =
+    mode === APP_MODE.PUBLISHED
+      ? getApplicationViewerPageURL
+      : BUILDER_PAGE_URL;
+
+  const url = new URL(
+    `${window.location.origin}${urlBuilder(
+      applicationId,
+      pageId,
+      queryParams,
+    )}`,
+  );
+
+  return url;
 };

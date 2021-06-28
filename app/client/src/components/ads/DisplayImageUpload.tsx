@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as ProfileImagePlaceholder } from "assets/images/profile-placeholder.svg";
 import Uppy from "@uppy/core";
 import Dialog from "components/ads/DialogComponent";
@@ -8,6 +8,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 import styled from "styled-components";
 import ImageEditor from "@uppy/image-editor";
+import { REMOVE, createMessage } from "constants/messages";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
@@ -16,6 +17,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 type Props = {
   onChange: (file: File) => void;
+  onRemove?: () => void;
   submit: (uppy: Uppy.Uppy) => void;
   value: string;
   label?: string;
@@ -65,7 +67,12 @@ const Container = styled.div`
 
 const defaultLabel = "Upload Display Picture";
 
-export default function DisplayImageUpload({ onChange, submit, value }: Props) {
+export default function DisplayImageUpload({
+  onChange,
+  onRemove,
+  submit,
+  value,
+}: Props) {
   const [loadError, setLoadError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const uppy = useUppy(() => {
@@ -135,11 +142,16 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
     return uppy;
   });
 
+  useEffect(() => {
+    if (value) setLoadError(false);
+  }, [value]);
+
   return (
     <Container onClick={() => setIsModalOpen(true)}>
       <Dialog
         canEscapeKeyClose
         canOutsideClickClose
+        className="file-picker-dialog"
         isOpen={isModalOpen}
         maxHeight={"80vh"}
         trigger={
@@ -149,8 +161,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
                 <ProfileImagePlaceholder />
               ) : (
                 <img
-                  onError={(e) => {
-                    console.log(e, "error");
+                  onError={() => {
                     setLoadError(true);
                   }}
                   onLoad={() => setLoadError(false)}
@@ -160,6 +171,18 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
             </div>
             {(!value || loadError) && (
               <span className="label">{defaultLabel}</span>
+            )}
+            {value && !loadError && (
+              <span
+                className="label"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onRemove) onRemove();
+                }}
+              >
+                {createMessage(REMOVE)}
+              </span>
             )}
           </div>
         }
