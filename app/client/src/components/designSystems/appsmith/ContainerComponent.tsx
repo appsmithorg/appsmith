@@ -5,6 +5,7 @@ import { ComponentProps } from "./BaseComponent";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
+import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -48,7 +49,7 @@ const StyledContainerComponent = styled.div<
 function ContainerComponent(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-
+  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -89,6 +90,7 @@ export interface ContainerComponentProps extends ComponentProps {
   resizeDisabled?: boolean;
   selected?: boolean;
   focused?: boolean;
+  minHeight?: number;
 }
 
 export default ContainerComponent;

@@ -76,6 +76,8 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    defaultPageSize: "number",
+    totalRecordsCount: "number",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -246,6 +248,13 @@ export const entityDefinitions = {
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
   }),
+  IFRAME_WIDGET: {
+    "!doc": "Iframe widget is used to display iframes in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/iframe",
+    isVisible: isVisible,
+    source: "string",
+    title: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

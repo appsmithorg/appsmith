@@ -10,6 +10,12 @@ import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { setAppMode } from "actions/pageActions";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { createSelector } from "reselect";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { WidgetProps } from "widgets/BaseWidget";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -68,6 +74,17 @@ export function MockPageDSL({ dsl, children }: any) {
   useMockDsl(dsl);
   return children;
 }
+
+export const mockGetCanvasWidgetDsl = createSelector(
+  getCanvasWidgets,
+  (
+    canvasWidgets: CanvasWidgetsReduxState,
+  ): ContainerWidgetProps<WidgetProps> => {
+    return CanvasWidgetsNormalizer.denormalize("0", {
+      canvasWidgets,
+    });
+  },
+);
 
 export const syntheticTestMouseEvent = (
   event: MouseEvent,
