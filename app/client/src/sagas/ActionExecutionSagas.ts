@@ -534,7 +534,7 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        message: payload.body as string,
+        messages: [{ message: payload.body as string }],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -872,9 +872,13 @@ function* runActionSaga(
             name: actionObject.name,
             id: actionId,
           },
-          message: !isString(payload.body)
-            ? JSON.stringify(payload.body)
-            : payload.body,
+          messages: [
+            {
+              message: !isString(payload.body)
+                ? JSON.stringify(payload.body)
+                : payload.body,
+            },
+          ],
           state: response.data?.request ?? null,
         });
 
@@ -983,7 +987,7 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
         },
         state: response.data?.request ?? null,
-        message: JSON.stringify(body),
+        messages: [{ message: JSON.stringify(body) }],
       });
 
       yield put(
