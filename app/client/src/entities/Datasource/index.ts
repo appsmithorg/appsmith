@@ -83,6 +83,8 @@ export interface MockDatasource {
 export interface FormatedMockDatasource {
   id: string;
   name: string;
+  description: string;
+  pluginId: string;
 }
 
 export const DEFAULT_DATASOURCE = (

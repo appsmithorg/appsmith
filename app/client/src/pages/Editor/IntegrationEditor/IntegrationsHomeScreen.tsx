@@ -11,6 +11,7 @@ import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSource from "./ActiveDataSources";
+import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import { Datasource, FormatedMockDatasource } from "entities/Datasource";
@@ -136,12 +137,18 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-  {
+];
+
+const getSecondaryMenu = (hasActiveSources: boolean) => {
+  const mockDbMenu = {
     key: "MOCK_DATABASE",
     title: "Mock Databases",
     panelComponent: <div />,
-  },
-];
+  };
+  return hasActiveSources
+    ? [...SECONDARY_MENU, mockDbMenu]
+    : [mockDbMenu, ...SECONDARY_MENU];
+};
 
 const SECONDARY_MENU_IDS = {
   API: 0,
@@ -166,6 +173,35 @@ const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
   MOCK_DATABASE: 1,
 };
+
+interface MockDataSourcesProps {
+  mockDatasources: FormatedMockDatasource[];
+  active: boolean;
+}
+
+function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
+  const useMockRef = useRef<HTMLDivElement>(null);
+  const isMounted = useRef(false);
+  useEffect(() => {
+    if (active && useMockRef.current) {
+      isMounted.current &&
+        scrollIntoView(useMockRef.current, {
+          behavior: "smooth",
+          scrollMode: "always",
+          block: "start",
+          boundary: document.getElementById("new-integrations-wrapper"),
+        });
+    } else {
+      isMounted.current = true;
+    }
+  }, [active]);
+  return (
+    <div id="mock-database" ref={useMockRef}>
+      <Text type={TextType.H2}>Mock Database</Text>
+      <MockDataSources mockDatasources={mockDatasources} />
+    </div>
+  );
+}
 
 function CreateNewAPI({
   active,
@@ -345,6 +381,14 @@ class IntegrationsHomeScreen extends React.Component<
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
           {dataSources.length === 0 && <AddDatasourceSecurely />}
+          {dataSources.length === 0 && (
+            <UseMockDatasources
+              active={
+                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
+              }
+              mockDatasources={this.props.mockDatasources}
+            />
+          )}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -361,6 +405,14 @@ class IntegrationsHomeScreen extends React.Component<
             location={location}
             pageId={pageId}
           />
+          {dataSources.length > 0 && (
+            <UseMockDatasources
+              active={
+                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
+              }
+              mockDatasources={this.props.mockDatasources}
+            />
+          )}
         </NewIntegrationsContainer>
       );
     } else {
@@ -402,7 +454,7 @@ class IntegrationsHomeScreen extends React.Component<
             <TabComponent
               onSelect={this.onSelectSecondaryMenu}
               selectedIndex={this.state.activeSecondaryMenuId}
-              tabs={SECONDARY_MENU}
+              tabs={getSecondaryMenu(dataSources.length > 0)}
               vertical
             />
           )}

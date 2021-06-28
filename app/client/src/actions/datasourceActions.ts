@@ -143,6 +143,16 @@ export const fetchMockDatasources = () => {
   };
 };
 
+export const addMockDatasourceToOrg = (
+  datasourceId: string,
+  orgId: string,
+): ReduxAction<{ orgId: string; id: string }> => {
+  return {
+    type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
+    payload: { id: datasourceId, orgId },
+  };
+};
+
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,
