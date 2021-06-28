@@ -6,7 +6,7 @@ import { Collapse, Icon } from "@blueprintjs/core";
 const CollapseWrapper = styled.div`
   position: relative;
   border-top: 1px solid #ffffff2e;
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
   .collapse-title {
     color: ${Colors.CADET_BLUE};
     letter-spacing: 0.04em;
@@ -26,11 +26,11 @@ const CollapseWrapper = styled.div`
       }
     }
   }
-  .bp3-collapse-body {
-    position: relative !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+  && .bp3-collapse-body {
+    position: relative;
+    border: none;
+    box-shadow: none;
+    padding: 0;
   }
 `;
 
