@@ -395,15 +395,13 @@ class IntegrationsHomeScreen extends React.Component<
           <div />
 
           {currentScreen}
-          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW ? (
+          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
             <TabComponent
               onSelect={this.onSelectSecondaryMenu}
               selectedIndex={this.state.activeSecondaryMenuId}
               tabs={SECONDARY_MENU}
               vertical
             />
-          ) : (
-            <div />
           )}
         </SectionGrid>
       </ApiHomePage>
