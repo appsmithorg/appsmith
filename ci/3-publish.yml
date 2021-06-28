@@ -16,10 +16,6 @@ phases:
     commands:
       - source ci/3-scripts/1-install.sh
 
-  pre_build:
-    commands:
-      - source ci/3-scripts/2-pre_build.sh
-
   build:
     on-failure: ABORT
     commands:
