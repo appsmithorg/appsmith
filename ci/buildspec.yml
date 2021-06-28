@@ -28,6 +28,111 @@ batch:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
+    # Run all Cypress tests.
+    - identifier: cypress2
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress3
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress4
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress5
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress6
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress7
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress8
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress9
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress10
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress11
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress12
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress13
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress14
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress15
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress16
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
     # Publish
     - identifier: publish
       buildspec: ci/3-publish.yml
@@ -37,3 +142,18 @@ batch:
       depend-on:
         - units
         - cypress1
+        - cypress2
+        - cypress3
+        - cypress4
+        - cypress5
+        - cypress6
+        - cypress7
+        - cypress8
+        - cypress9
+        - cypress10
+        - cypress11
+        - cypress12
+        - cypress13
+        - cypress14
+        - cypress15
+        - cypress16

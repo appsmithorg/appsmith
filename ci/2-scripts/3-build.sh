@@ -145,32 +145,23 @@ fi
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
 npx cypress info
 
-git rev-parse HEAD || true
-git log -1 || true
-COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)"
-COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)"
-COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)"
-COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)"
-COMMIT_INFO_SHA="$(git log -1 --pretty=%H)"
-COMMIT_INFO_REMOTE="$(git remote get-url origin)"
-
-# # Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
+# Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
 # COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)" \
 # 	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
 # 	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
 # 	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
-# 	COMMIT_INFO_SHA="$(git log -1 --pretty=%H)" \
-# 	COMMIT_INFO_REMOTE="$(git remote get-url origin)" \
-# 	NO_COLOR=1 \
-# 	npx cypress run --headless --browser chrome \
-# 	--record \
-# 	--ci-build-id "$CODEBUILD_INITIATOR:$CODEBUILD_SOURCE_VERSION" \
-# 	--parallel \
-# 	--group 'Electrons on CodeBuild CI' \
-# 	--env 'NODE_ENV=development' \
-# 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
-# 	--spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
-# 	# --spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
+	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
+	NO_COLOR=1 \
+	npx cypress run --headless --browser chrome \
+	--record \
+	--ci-build-id "$CODEBUILD_INITIATOR" \
+	--parallel \
+	--group 'Electrons on CodeBuild CI' \
+	--env 'NODE_ENV=development' \
+	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
+	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+	# --spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail
