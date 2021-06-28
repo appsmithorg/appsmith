@@ -69,6 +69,12 @@ class DatasourcesApi extends API {
   > {
     return API.get(DatasourcesApi.url + "/mocks");
   }
+
+  static addMockDbToDatasources(id: string, orgId: string): Promise<any> {
+    return API.post(
+      DatasourcesApi.url + `/mocks?datasourceId=${id}&organizationId=${orgId}`,
+    );
+  }
 }
 
 export default DatasourcesApi;

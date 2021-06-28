@@ -57,6 +57,26 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return { ...state, isFetchingMockDataSource: false };
   },
+  [ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: true };
+  },
+  [ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.concat(action.payload),
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: false };
+  },
   [ReduxActionTypes.FETCH_DATASOURCES_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
