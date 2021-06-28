@@ -1,4 +1,4 @@
-import { selectAllWidgetsAction } from "actions/widgetSelectionActions";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/editorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
@@ -99,7 +99,7 @@ function* selectAllWidgetsInAreaSaga(
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
     if (!isEqual(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      yield put(selectAllWidgetsAction(filteredWidgetsToSelect));
+      yield put(selectMultipleWidgetsAction(filteredWidgetsToSelect));
     }
   }
 }
