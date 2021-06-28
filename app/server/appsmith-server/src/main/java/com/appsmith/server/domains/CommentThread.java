@@ -19,6 +19,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Document
 public class CommentThread extends BaseDomain {
 
+    Boolean isPrivate;
+
     String tabId;
 
     Position position;

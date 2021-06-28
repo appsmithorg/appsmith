@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -15,6 +16,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -43,6 +45,9 @@ public class EmailEventHandler {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
+
+    @Value("${mail.support}")
+    private String supportEmailAddress;
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
@@ -78,7 +83,7 @@ public class EmailEventHandler {
     @Async
     @EventListener
     public void handle(CommentAddedEvent event) {
-        this.sendEmailForComment(
+        this.sendEmailForCommentAdded(
                 event.getAuthorUserName(),
                 event.getOrganization(),
                 event.getApplication(),
@@ -92,7 +97,7 @@ public class EmailEventHandler {
     @Async
     @EventListener
     public void handle(CommentThreadClosedEvent event) {
-        this.sendEmailForComment(
+        this.sendEmailForCommentThreadResolved(
                 event.getAuthorUserName(),
                 event.getOrganization(),
                 event.getApplication(),
@@ -104,9 +109,9 @@ public class EmailEventHandler {
         .subscribe();
     }
 
-    private String getCommentThreadLink(Application application, String pageId, String threadId, UserRole userRole, String originHeader) {
+    private String getCommentThreadLink(Application application, String pageId, String threadId, String username, String originHeader) {
         Boolean canManageApplication = policyUtils.isPermissionPresentForUser(
-                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), userRole.getUsername()
+                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
         );
         String urlPostfix = "/edit";
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application
@@ -131,7 +136,7 @@ public class EmailEventHandler {
                 application,
                 commentThread.getPageId(),
                 commentThread.getId(),
-                receiverUserRole,
+                receiverUserRole.getUsername(),
                 originHeader)
         );
         templateParams.put("Resolved", true);
@@ -157,7 +162,7 @@ public class EmailEventHandler {
                 application,
                 comment.getPageId(),
                 comment.getThreadId(),
-                receiverUserRole,
+                receiverUserRole.getUsername(),
                 originHeader)
         );
 
@@ -177,17 +182,46 @@ public class EmailEventHandler {
         return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
-    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Organization organization, Application application, E commentDomain, String originHeader, Set<String> subscribers) {
+    private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("App_User_Name", Appsmith.APPSMITH_BOT_NAME);
+        templateParams.put("Commenter_Name", comment.getAuthorName());
+        templateParams.put("Application_Name", comment.getApplicationName());
+        templateParams.put("Organization_Name", organization.getName());
+        templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
+        templateParams.put("commentUrl", getCommentThreadLink(
+                application,
+                comment.getPageId(),
+                comment.getThreadId(),
+                Appsmith.APPSMITH_BOT_USERNAME,
+                originHeader)
+        );
+
+        templateParams.put("Mentioned", true);
+        String emailSubject = String.format("New comment for you from %s", comment.getAuthorName());
+
+        return emailSender.sendMail(supportEmailAddress, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
+    }
+
+    private Mono<Boolean> sendEmailForCommentAdded(String authorUserName, Organization organization, Application application, Comment comment, String originHeader, Set<String> subscribers) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
             if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
-                if(commentDomain instanceof Comment) {
-                    Comment comment = (Comment)commentDomain;
-                    emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, organization, application));
-                } else if(commentDomain instanceof CommentThread) {
-                    CommentThread commentThread = (CommentThread) commentDomain;
-                    emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, organization, application));
-                }
+                emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, organization, application));
+            }
+        }
+
+        if(CommentUtils.isUserMentioned(comment, Appsmith.APPSMITH_BOT_USERNAME)) {
+            emailMonos.add(geBotEmailSenderMono(comment, originHeader, organization, application));
+        }
+        return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
+    }
+
+    private Mono<Boolean> sendEmailForCommentThreadResolved(String authorUserName, Organization organization, Application application, CommentThread commentThread, String originHeader, Set<String> subscribers) {
+        List<Mono<Boolean>> emailMonos = new ArrayList<>();
+        for (UserRole userRole : organization.getUserRoles()) {
+            if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
+                emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, organization, application));
             }
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
