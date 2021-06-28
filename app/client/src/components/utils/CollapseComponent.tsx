@@ -5,7 +5,6 @@ import { Collapse, Icon } from "@blueprintjs/core";
 
 const CollapseWrapper = styled.div`
   position: relative;
-  border-top: 1px solid #ffffff2e;
   margin-top: ${(props) => props.theme.spaces[3]}px;
   .collapse-title {
     color: ${Colors.CADET_BLUE};
