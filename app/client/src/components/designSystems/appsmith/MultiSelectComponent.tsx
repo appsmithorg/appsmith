@@ -520,7 +520,7 @@ function MultiSelectComponent({
         notFoundContent="No item Found"
         onChange={onChange}
         options={options}
-        placeholder={placeholder || "Select a value"}
+        placeholder={placeholder || "select option(s)"}
         showArrow
         value={value}
       />

@@ -47,7 +47,7 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText: "Input Place Holder",
             propertyName: "placeholderText",
-            label: "Input Placeholder",
+            label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
