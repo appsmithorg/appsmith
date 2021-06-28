@@ -227,7 +227,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <Boxed step={OnboardingStep.FINISH}>
             <EditableAppName
               className="t--application-name editable-application-name"
-              defaultValue={currentApplication.name || ""}
+              defaultValue={currentApplication?.name || ""}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}

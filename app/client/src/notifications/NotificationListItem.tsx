@@ -14,6 +14,14 @@ import { useDispatch } from "react-redux";
 import moment from "moment";
 import styled from "styled-components";
 
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import OrgApi from "api/OrgApi";
+
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+
 const Container = styled.div`
   display: flex;
   width: 100%;
@@ -57,6 +65,29 @@ const UnreadIndicator = styled.div`
     props.theme.colors.notifications.unreadIndicator};
 `;
 
+const getModeFromUserRole = async (orgId: string) => {
+  try {
+    const response = await OrgApi.fetchOrg({ orgId });
+    const userOrgPermissions = response?.data?.data?.userPermissions || [];
+    const canPublish = isPermitted(
+      userOrgPermissions,
+      PERMISSION_TYPE.PUBLISH_APPLICATION,
+    );
+
+    return canPublish ? APP_MODE.EDIT : APP_MODE.PUBLISHED;
+  } catch (e) {
+    return APP_MODE.PUBLISHED;
+  }
+};
+
+const getModeFromRoleAndDomain = (
+  modeFromRole: APP_MODE,
+  modeFromDomain: APP_MODE,
+) => {
+  if (modeFromRole === APP_MODE.PUBLISHED) return APP_MODE.PUBLISHED;
+  return modeFromDomain;
+};
+
 function CommentNotification(props: { notification: AppsmithNotification }) {
   const dispatch = useDispatch();
   const {
@@ -72,24 +103,27 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     applicationName,
     authorName,
     authorUsername,
-    mode,
+    mode: modeFromComment,
+    // orgId, TODO get from comment
     pageId,
     // resolvedState, TODO get from comment thread
     threadId,
   } = comment;
 
-  const commentThreadUrl = getCommentThreadURL({
-    applicationId,
-    commentThreadId: threadId,
-    // isResolved: resolvedState?.active,
-    mode,
-    pageId,
-  });
-
   const _createdAt = createdAt || creationTime;
   const displayName = authorName || authorUsername;
 
-  const handleClick = () => {
+  const handleClick = async () => {
+    const modeFromRole = await getModeFromUserRole("");
+    const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
+
+    const commentThreadUrl = getCommentThreadURL({
+      applicationId,
+      commentThreadId: threadId,
+      // isResolved: resolvedState?.active,
+      mode,
+      pageId,
+    });
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
     );
@@ -137,22 +171,26 @@ function CommentThreadNotification(props: {
     authorName,
     authorUsername,
     id,
-    mode,
+    mode: modeFromThread,
+    // orgId,  TODO get from comment thread
     pageId,
     resolvedState,
   } = commentThread;
 
   const commentThreadId = _id || id;
 
-  const commentThreadUrl = getCommentThreadURL({
-    applicationId,
-    commentThreadId,
-    isResolved: resolvedState?.active,
-    mode,
-    pageId,
-  });
+  const handleClick = async () => {
+    const modeFromRole = await getModeFromUserRole("");
+    const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
-  const handleClick = () => {
+    const commentThreadUrl = getCommentThreadURL({
+      applicationId,
+      commentThreadId,
+      isResolved: resolvedState?.active,
+      mode,
+      pageId,
+    });
+
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
     );
