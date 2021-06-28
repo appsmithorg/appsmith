@@ -70,7 +70,9 @@ const SectionGrid = styled.div`
 const NewIntegrationsContainer = styled.div`
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 160px);
+  max-height: calc(
+    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
+  );
   /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
