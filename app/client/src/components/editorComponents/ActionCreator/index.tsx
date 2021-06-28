@@ -30,13 +30,8 @@ import { PluginType } from "entities/Action";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { keyBy } from "lodash";
-import {
-  QueryIcon,
-  dbQueryIcon,
-  apiIcon,
-  MethodTag,
-  getPluginIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -279,16 +274,6 @@ function useWidgetOptionTree() {
     });
 }
 
-function getIcon(action: any, plugin: any) {
-  if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-    return <QueryIcon plugin={plugin} />;
-  else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
-
-  const method = action.actionConfiguration.httpMethod;
-  if (!method) return apiIcon;
-  return <MethodTag type={method} />;
-}
-
 function getIntegrationOptionsWithChildren(
   pageId: string,
   plugins: any,
@@ -317,7 +302,7 @@ function getIntegrationOptionsWithChildren(
         id: api.config.id,
         value: api.config.name,
         type: option.value,
-        icon: getIcon(
+        icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
         ),
@@ -329,7 +314,7 @@ function getIntegrationOptionsWithChildren(
         id: query.config.id,
         value: query.config.name,
         type: option.value,
-        icon: getIcon(
+        icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
         ),
