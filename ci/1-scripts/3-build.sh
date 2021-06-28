@@ -32,7 +32,7 @@ fi
 cd "$CODEBUILD_SRC_DIR/app/server"
 # TODO: This runs `mvn package`, instead, run a command that's focused on tests instead.
 timeout --kill-after=15s 30m \
-	mvn --batch-mode --errors --threads 1.0C --log-file "$CODEBUILD_SRC_DIR/logs/server-tests.log" test \
+	mvn --batch-mode --errors --log-file "$CODEBUILD_SRC_DIR/logs/server-tests.log" test \
 	&
 server_pid=$!
 

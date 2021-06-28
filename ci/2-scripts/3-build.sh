@@ -145,9 +145,8 @@ fi
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
 npx cypress info
 
-file "$CODEBUILD_SRC_DIR/.git"
-git rev-parse HEAD
-git log
+git rev-parse HEAD || true
+git log -1 || true
 COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)"
 COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)"
 COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)"
