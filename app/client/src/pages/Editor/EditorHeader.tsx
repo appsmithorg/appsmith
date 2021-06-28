@@ -32,6 +32,7 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
@@ -160,6 +161,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   const dispatch = useDispatch();
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
 
@@ -225,9 +227,10 @@ export function EditorHeader(props: EditorHeaderProps) {
           <Boxed step={OnboardingStep.FINISH}>
             <EditableAppName
               className="t--application-name editable-application-name"
-              defaultValue={currentApplication?.name || ""}
+              defaultValue={currentApplication.name || ""}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
+              isError={isErroredSavingName}
               isNewApp={
                 applicationList.filter((el) => el.id === applicationId).length >
                 0
@@ -242,7 +245,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
             />
-            )
             <ToggleModeButton />
           </Boxed>
         </HeaderSection>

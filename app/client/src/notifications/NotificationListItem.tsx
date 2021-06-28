@@ -72,7 +72,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     applicationName,
     authorName,
     authorUsername,
-    // mode, TODO get from comment thread
+    mode,
     pageId,
     // resolvedState, TODO get from comment thread
     threadId,
@@ -82,7 +82,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     applicationId,
     commentThreadId: threadId,
     // isResolved: resolvedState?.active,
-    // mode,
+    mode,
     pageId,
   });
 
