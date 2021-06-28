@@ -87,7 +87,7 @@ const EditDatasourceButton = styled(Button)`
   &&&& {
     height: 32px;
     max-width: 160px;
-    border: 1.2px solid ${Colors.HIT_GRAY};
+    border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
