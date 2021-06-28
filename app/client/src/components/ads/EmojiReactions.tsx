@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
 import { IconSize } from "./Icon";
+import TooltipComponent from "./Tooltip";
 
 const Container = styled.div`
   display: flex;
@@ -46,10 +47,28 @@ const Count = styled.div<{ active?: boolean }>`
   white-space: nowrap;
 `;
 
+const ReactionsByContainer = styled.span`
+  max-width: 200px;
+  display: inline-block;
+`;
+
+function ReactionsBy(props: { reaction: Reaction }) {
+  const { reaction } = props;
+
+  if (!reaction?.users) return null;
+  const isSliced = reaction?.users.length > 5;
+  const users = reaction?.users.slice(0, 5);
+
+  if (isSliced) users.push("...");
+
+  return <ReactionsByContainer>{users.join(", ")}</ReactionsByContainer>;
+}
+
 export type Reaction = {
   count: number;
   reactionEmoji: string;
   active?: boolean;
+  users?: Array<string>;
 };
 
 export type Reactions = Record<string, Reaction>;
@@ -119,21 +138,26 @@ function EmojiReactions({
       addOrRemove as ReactionOperation,
     );
   };
-
   return (
     <Container>
       {!hideReactions &&
         transformReactions(reactions).map((reaction: Reaction) => (
-          <Bubble
-            active={reaction.active}
+          <TooltipComponent
+            boundary={"viewport"}
+            content={<ReactionsBy reaction={reaction} />}
             key={reaction.reactionEmoji}
-            onClick={(e) => handleSelectReaction(e, reaction.reactionEmoji)}
+            modifiers={{ preventOverflow: { enabled: true } }}
           >
-            <span>{reaction.reactionEmoji}</span>
-            {reaction.count > 1 && (
-              <Count active={reaction.active}>{reaction.count}</Count>
-            )}
-          </Bubble>
+            <Bubble
+              active={reaction.active}
+              onClick={(e) => handleSelectReaction(e, reaction.reactionEmoji)}
+            >
+              <span>{reaction.reactionEmoji}</span>
+              {reaction.count > 1 && (
+                <Count active={reaction.active}>{reaction.count}</Count>
+              )}
+            </Bubble>
+          </TooltipComponent>
         ))}
       {!hideReactions ? (
         <Bubble>
