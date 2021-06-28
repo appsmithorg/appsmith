@@ -30,7 +30,7 @@ Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
 
-(function() {
+before(function() {
   cy.startServerAndRoutes();
   // Clear indexedDB
   cy.window().then((window) => {
