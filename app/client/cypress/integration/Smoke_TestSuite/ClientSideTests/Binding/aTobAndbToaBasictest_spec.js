@@ -6,12 +6,12 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("aTob and bToa library tests ", function () {
+describe("aTob and bToa library tests ", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value for atob method", function () {
+  it("Input widget test with default value for atob method", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.atobInput);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -22,7 +22,7 @@ describe("aTob and bToa library tests ", function () {
     );
   });
 
-  it("Input widget test with default value for btoa method", function () {
+  it("Input widget test with default value for btoa method", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.btoaInput);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -33,7 +33,7 @@ describe("aTob and bToa library tests ", function () {
     );
   });
 
-  it("publish widget and validate the data displayed in input widgets value for aToB and bToa", function () {
+  it("publish widget and validate the data displayed in input widgets value for aToB and bToa", function() {
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
