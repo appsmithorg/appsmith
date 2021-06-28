@@ -136,7 +136,7 @@ type ApiHomeScreenProps = {
 
 type Props = ApiHomeScreenProps;
 
-const newApiScreen = (props: Props) => {
+function NewApiScreen(props: Props) {
   const {
     applicationId,
     createNewApiAction,
@@ -217,7 +217,7 @@ const newApiScreen = (props: Props) => {
       </ApiCardsContainer>
     </StyledContainer>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   plugins: state.entities.plugins.list,
@@ -228,4 +228,4 @@ const mapDispatchToProps = {
   createDatasourceFromForm,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(newApiScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);
