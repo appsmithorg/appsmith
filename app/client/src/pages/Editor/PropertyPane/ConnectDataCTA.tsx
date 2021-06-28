@@ -50,7 +50,7 @@ function ConnectDataCTA() {
   const dispatch = useDispatch();
 
   const openHelpModal = useCallback(() => {
-    dispatch(setGlobalSearchQuery("Displaying Data in a widget"));
+    dispatch(setGlobalSearchQuery("Connecting to Data Sources"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "PROPERTY_PANE_CONNECT_DATA",

@@ -77,6 +77,11 @@ class CommentsApi extends Api {
       data: request,
     });
   }
+
+  // eslint-disable-next-line
+  static fetchUnreadCommentThreads(applicationId: string) {
+    return Promise.resolve({ data: { count: 10 } });
+  }
 }
 
 export default CommentsApi;
