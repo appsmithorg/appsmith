@@ -10,7 +10,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import ActiveDataSource from "./ActiveDataSource";
+import ActiveDataSource from "./ActiveDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";

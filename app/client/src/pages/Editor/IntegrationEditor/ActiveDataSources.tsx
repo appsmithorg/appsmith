@@ -60,7 +60,7 @@ type ActiveDataSourceProps = {
   onCreateNew: () => void;
 };
 
-class ActiveDataSource extends React.Component<ActiveDataSourceProps> {
+class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
   handleCreateNewQuery = (dataSource: Datasource) => {
     const { actions, pageId } = this.props;
     if (pageId) {
@@ -137,4 +137,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSource);
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSources);
