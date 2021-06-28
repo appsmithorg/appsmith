@@ -1,0 +1,8 @@
+INSERT {
+    name: "{{ nameInput.text }}",
+    gender: "{{ genderDropdown.selectedOptionValue }}",
+    email: "{{ nameInput.text }}"
+} INTO users
+
+//nameInput and genderDropdown are example widgets, replace them with your widget names.
+//Read more at https://www.arangodb.com/docs/stable/aql/
