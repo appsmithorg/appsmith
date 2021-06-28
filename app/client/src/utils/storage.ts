@@ -11,6 +11,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
+  ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
 };
 
 const store = localforage.createInstance({
@@ -202,5 +203,32 @@ export const getCommentsIntroSeen = async () => {
     return commentsIntroSeen;
   } catch (error) {
     console.log("An error occurred while fetching COMMENTS_INTRO_SEEN", error);
+  }
+};
+
+export const setOnboardingFormInProgress = async (flag?: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
+    return true;
+  } catch (error) {
+    console.log(
+      "An error occurred when setting ONBOARDING_FORM_IN_PROGRESS",
+      error,
+    );
+    return false;
+  }
+};
+
+export const getOnboardingFormInProgress = async () => {
+  try {
+    const onboardingFormInProgress = await store.getItem(
+      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
+    );
+    return onboardingFormInProgress;
+  } catch (error) {
+    console.log(
+      "An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS",
+      error,
+    );
   }
 };
