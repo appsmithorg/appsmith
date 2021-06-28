@@ -37,7 +37,7 @@ import {
 } from "actions/datasourceActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 
 import {
   API_EDITOR_ID_URL,
@@ -99,6 +99,24 @@ function* fetchDatasourcesSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+function* fetchMockDatasourcesSaga() {
+  try {
+    const response: GenericApiResponse<MockDatasource[]> = yield DatasourcesApi.fetchMockDatasources();
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       payload: { error },
     });
   }
@@ -773,6 +791,10 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+      fetchMockDatasourcesSaga,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
       createDatasourceFromFormSaga,

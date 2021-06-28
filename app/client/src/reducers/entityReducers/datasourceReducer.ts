@@ -4,7 +4,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Datasource, DatasourceStructure } from "entities/Datasource";
+import {
+  Datasource,
+  DatasourceStructure,
+  MockDatasource,
+  FormatedMockDatasource,
+} from "entities/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -14,6 +19,8 @@ export interface DatasourceDataState {
   fetchingDatasourceStructure: boolean;
   isRefreshingStructure: boolean;
   structure: Record<string, DatasourceStructure>;
+  isFetchingMockDataSource: false;
+  mockDatasourceList: any[];
 }
 
 const initialState: DatasourceDataState = {
@@ -24,9 +31,32 @@ const initialState: DatasourceDataState = {
   fetchingDatasourceStructure: false,
   isRefreshingStructure: false,
   structure: {},
+  isFetchingMockDataSource: false,
+  mockDatasourceList: [],
 };
 
 const datasourceReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, isFetchingMockDataSource: true };
+  },
+  [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<MockDatasource>,
+  ) => {
+    const { dataSourceIds, mockDataSets } = action.payload;
+    const mockDatasourceList = dataSourceIds.map((id, idx) => ({
+      id,
+      name: mockDataSets[idx],
+    })) as FormatedMockDatasource[];
+    return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
+  },
+  [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, isFetchingMockDataSource: false };
+  },
   [ReduxActionTypes.FETCH_DATASOURCES_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },

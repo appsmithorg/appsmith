@@ -137,6 +137,12 @@ export const fetchDatasources = () => {
   };
 };
 
+export const fetchMockDatasources = () => {
+  return {
+    type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+  };
+};
+
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,

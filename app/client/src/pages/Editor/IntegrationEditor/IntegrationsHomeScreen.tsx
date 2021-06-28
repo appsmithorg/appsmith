@@ -12,8 +12,8 @@ import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSource from "./ActiveDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDatasources } from "selectors/entitiesSelector";
-import { Datasource } from "entities/Datasource";
+import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
+import { Datasource, FormatedMockDatasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
 import {
@@ -93,6 +93,7 @@ type IntegrationsHomeScreenProps = {
   };
   isCreating: boolean;
   dataSources: Datasource[];
+  mockDatasources: FormatedMockDatasource[];
 };
 
 type IntegrationsHomeScreenState = {
@@ -333,9 +334,11 @@ class IntegrationsHomeScreen extends React.Component<
       history,
       isCreating,
       location,
+      mockDatasources,
       pageId,
     } = this.props;
 
+    console.log({ mockDatasources });
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
@@ -412,6 +415,7 @@ class IntegrationsHomeScreen extends React.Component<
 const mapStateToProps = (state: AppState) => {
   return {
     dataSources: getDatasources(state),
+    mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
   };
 };

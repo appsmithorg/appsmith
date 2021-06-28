@@ -63,6 +63,12 @@ class DatasourcesApi extends API {
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
     );
   }
+
+  static fetchMockDatasources(): AxiosPromise<
+    GenericApiResponse<Datasource[]>
+  > {
+    return API.get(DatasourcesApi.url + "/mocks");
+  }
 }
 
 export default DatasourcesApi;
