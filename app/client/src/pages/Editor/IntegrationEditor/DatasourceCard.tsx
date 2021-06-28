@@ -154,14 +154,12 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig) ? (
+      {!isNil(currentFormConfig) && (
         <CollapseComponent title="Show More">
           <DatasourceInfo>
             {renderDatasourceSection(currentFormConfig[0], datasource)}
           </DatasourceInfo>
         </CollapseComponent>
-      ) : (
-        undefined
       )}
     </Wrapper>
   );
