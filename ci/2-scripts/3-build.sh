@@ -143,8 +143,17 @@ if [[ -z $CYPRESS_RECORD_KEY || -z $CYPRESS_PROJECT_ID ]]; then
 fi
 
 touch ../../.env  # Doing this to silence a misleading error message from `cypress/plugins/index.js`.
-npx cypress version
-npx cypress run --headless --browser chrome \
+npx cypress info
+
+# Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
+COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)" \
+	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
+	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
+	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
+	COMMIT_INFO_SHA="$(git log -1 --pretty=%H)" \
+	COMMIT_INFO_REMOTE="$(git remote get-url origin)" \
+	NO_COLOR=1 \
+	npx cypress run --headless --browser chrome \
 	--record \
 	--ci-build-id "$CODEBUILD_INITIATOR:$CODEBUILD_SOURCE_VERSION" \
 	--parallel \
