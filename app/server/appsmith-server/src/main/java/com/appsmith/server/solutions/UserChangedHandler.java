@@ -19,7 +19,6 @@ import reactor.core.scheduler.Schedulers;
 public class UserChangedHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-
     private final CommentRepository commentRepository;
     private final OrganizationRepository organizationRepository;
 
