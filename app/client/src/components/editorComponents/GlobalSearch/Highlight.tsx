@@ -1,15 +1,23 @@
 import React from "react";
 
-function Highlight({ match, text }: { match: string; text: string }) {
-  if (!match) return <span>{text}</span>;
+function Highlight({
+  className,
+  match,
+  text,
+}: {
+  className?: string;
+  match: string;
+  text: string;
+}) {
+  if (!match) return <span className={className}>{text}</span>;
 
   const regEx = new RegExp(match, "ig");
   const parts = text?.split(regEx);
-  if (parts?.length === 1) return <span>{text}</span>;
+  if (parts?.length === 1) return <span className={className}>{text}</span>;
   let lastIndex = 0;
 
   return (
-    <span>
+    <span className={className}>
       {parts?.map((part, index) => {
         lastIndex += Math.max(part.length, 0);
         const result = (
