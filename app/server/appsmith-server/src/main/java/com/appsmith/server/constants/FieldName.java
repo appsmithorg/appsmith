@@ -14,6 +14,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
     public static String PLUGIN = "plugin";
@@ -58,6 +59,7 @@ public class FieldName {
     public static String ANONYMOUS_USER = "anonymousUser";
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
+    public static String ACTION_COLLECTION = "actionCollection";
     public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";

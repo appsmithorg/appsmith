@@ -21,6 +21,8 @@ public enum AppsmithError {
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}",
             AppsmithErrorAction.LOG_EXTERNALLY, null),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.", AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid"),
+    INVALID_ACTION_COLLECTION(400, 4038, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
+            AppsmithErrorAction.DEFAULT, "Collection configuration is invalid"),
     INVALID_ACTION(400, 4012, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Action configuration is invalid"),
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",

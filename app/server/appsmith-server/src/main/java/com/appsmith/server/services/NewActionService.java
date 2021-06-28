@@ -67,6 +67,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId);
 
+    Mono<NewAction> archive(String id);
+
     List<String> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);

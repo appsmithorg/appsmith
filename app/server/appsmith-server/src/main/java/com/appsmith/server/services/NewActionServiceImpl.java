@@ -1171,6 +1171,18 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 
+    @Override
+    public Mono<NewAction> archive(String id) {
+        Mono<NewAction> actionMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
+        return actionMono
+                .flatMap(toArchive -> {
+                    toArchive.getUnpublishedAction().setArchivedAt(Instant.now());
+                    return repository.save(toArchive);
+                })
+                .flatMap(analyticsService::sendArchiveEvent);
+    }
+
     public List<String> extractMustacheKeysInOrder(String query) {
         return MustacheHelper.extractMustacheKeysInOrder(query);
     }

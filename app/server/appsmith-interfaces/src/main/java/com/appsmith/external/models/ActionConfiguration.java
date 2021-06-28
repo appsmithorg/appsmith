@@ -57,8 +57,8 @@ public class ActionConfiguration implements AppsmithDomain {
     // JS action fields
     // Body, the raw class data, is shared with API type actions
     // Represents the values that need to be
-    List<JSValue> jsConstants;
-    List<JSFunction> jsFunctions;
+    List<JSValue> jsArguments;
+    Boolean isAsync;
 
     // Is the JS function sync or async.
     boolean isSyncJsFunction = true;

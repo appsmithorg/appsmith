@@ -1,0 +1,145 @@
+{
+  "newPage": {
+    "id": "testPageId",
+    "applicationId": "testApplicationId",
+    "unpublishedPage": {
+      "name": "TestPage",
+      "layouts": [
+        {
+          "id": "testLayoutId",
+          "viewMode": false,
+          "dsl": {
+            "widgetName": "MainContainer",
+            "children": []
+          },
+          "layoutOnLoadActions": [],
+          "widgetNames": [
+            "MainContainer"
+          ],
+          "allOnPageLoadActionNames": [],
+          "allOnPageLoadActionEdges": [],
+          "actionsUsedInDynamicBindings": [],
+          "deleted": false,
+          "policies": []
+        }
+      ]
+    },
+    "publishedPage": {
+      "name": "TestPage",
+      "layouts": [
+        {
+          "id": "testLayoutId",
+          "viewMode": false,
+          "dsl": {
+            "widgetName": "MainContainer",
+            "children": []
+          },
+          "widgetNames": [
+            "MainContainer"
+          ],
+          "deleted": false,
+          "policies": []
+        }
+      ]
+    }
+  },
+  "actionCollectionWithAction": {
+    "id": "testCollectionId",
+    "applicationId": "testApplicationId",
+    "organizationId": "testOrganizationId",
+    "unpublishedCollection": {
+      "name": "testCollection",
+      "pageId": "testPageId",
+      "pluginId": "testPluginId",
+      "actionIds": [
+        "testActionId1",
+        "testActionId2"
+      ],
+      "actions": [
+        {
+          "id": "testActionId1"
+        },
+        {
+          "id": "testActionId2"
+        }
+      ]
+    },
+    "publishedCollection": {
+      "name": "testCollection",
+      "pageId": "testPageId",
+      "pluginId": "testPluginId",
+      "actionIds": [
+        "testActionId1"
+      ]
+    }
+  },
+  "actionCollectionDTOWithModifiedActions": {
+    "id": "testCollectionId",
+    "applicationId": "testApplicationId",
+    "organizationId": "testOrganizationId",
+    "name": "testCollection",
+    "pageId": "testPageId",
+    "pluginId": "testPluginId",
+    "actionIds": [
+      "testActionId1",
+      "testActionId3"
+    ],
+    "archivedActionIds": [
+      "testActionId2"
+    ],
+    "actions": [
+      {
+        "id": "testActionId1"
+      },
+      {
+        "id": "testActionId3"
+      }
+    ],
+    "archivedActions": [
+      {
+        "id": "testActionId2"
+      }
+    ]
+  },
+  "actionCollectionAfterModifiedActions": {
+    "id": "testCollectionId",
+    "applicationId": "testApplicationId",
+    "organizationId": "testOrganizationId",
+    "unpublishedCollection": {
+      "id": "testCollectionId",
+      "applicationId": "testApplicationId",
+      "organizationId": "testOrganizationId",
+      "name": "testCollection",
+      "pageId": "testPageId",
+      "pluginId": "testPluginId",
+      "actionIds": [
+        "testActionId1",
+        "testActionId3"
+      ],
+      "archivedActionIds": [
+        "testActionId2"
+      ],
+      "actions": [
+        {
+          "id": "testActionId1"
+        },
+        {
+          "id": "testActionId3"
+        }
+      ],
+      "archivedActions": [
+        {
+          "id": "testActionId2"
+        }
+      ]
+    },
+    "publishedCollection": {
+      "name": "testCollection",
+      "pageId": "testPageId",
+      "pluginId": "testPluginId",
+      "actionIds": [
+        "testActionId1"
+      ]
+    }
+  }
+}

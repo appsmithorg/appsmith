@@ -95,6 +95,8 @@ public class ActionDTO {
 
     Instant deletedAt = null;
 
+    Instant archivedAt = null;
+
     @Transient
     @JsonIgnore
     protected Set<Policy> policies = new HashSet<>();
