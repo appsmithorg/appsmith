@@ -294,14 +294,16 @@ class CodeEditor extends Component<Props, State> {
     cm: CodeMirror.Editor,
     change: CodeMirror.EditorChangeCancellable,
   ) {
-    // Remove all non ASCII quotes since they are invalid in Javascript
-    const formattedText = change.text.map((line) => {
-      let formattedLine = line.replace(/[‘’]/g, "'");
-      formattedLine = formattedLine.replace(/[“”]/g, '"');
-      return formattedLine;
-    });
-    if (change.update) {
-      change.update(undefined, undefined, formattedText);
+    if (change.origin === "paste") {
+      // Remove all non ASCII quotes since they are invalid in Javascript
+      const formattedText = change.text.map((line) => {
+        let formattedLine = line.replace(/[‘’]/g, "'");
+        formattedLine = formattedLine.replace(/[“”]/g, '"');
+        return formattedLine;
+      });
+      if (change.update) {
+        change.update(undefined, undefined, formattedText);
+      }
     }
   }
 
