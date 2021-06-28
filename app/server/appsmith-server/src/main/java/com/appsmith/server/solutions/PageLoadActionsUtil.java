@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.ActionDependencyEdge;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.services.NewActionService;
@@ -59,19 +60,19 @@ public class PageLoadActionsUtil {
                 // First find all the actions directly used in the DSL and get the graph started
                 .flatMap(unpublishedAction -> {
 
-                    // If the user has explicity set an action to not run on page load, this action should be ignored
-                    if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad()) && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
+                    // If the user has explicitly set an action to not run on page load, this action should be ignored
+                    if (isUserSetNonPageLoad(unpublishedAction) || isAsyncJSFunction(unpublishedAction)) {
                         return Mono.empty();
                     }
 
-                    String name = unpublishedAction.getName();
+                    String name = unpublishedAction.getFullyQualifiedName();
                     actionsUsedInDSL.add(name);
                     extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, unpublishedAction);
                     return Mono.just(unpublishedAction);
                 })
                 .collectMap(
                         action -> {
-                            return action.getName();
+                            return action.getFullyQualifiedName();
                         },
                         action -> {
                             return action;
@@ -110,7 +111,25 @@ public class PageLoadActionsUtil {
                 });
     }
 
-        private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
+    private boolean isAsyncJSFunction(ActionDTO unpublishedAction) {
+        if (PluginType.JS.equals(unpublishedAction.getPluginType())
+                && !unpublishedAction.getActionConfiguration().isSyncJsFunction()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isUserSetNonPageLoad(ActionDTO unpublishedAction) {
+        if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad())
+                && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
                                                                                             Set<String> actionNames,
                                                                                             Set<ActionDependencyEdge> edges,
                                                                                             Set<String> dynamicBindingNames,
@@ -126,7 +145,7 @@ public class PageLoadActionsUtil {
                 })
                 .collectMap(
                         action -> {
-                            return action.getName();
+                            return action.getFullyQualifiedName();
                         },
                         action -> {
                             return action;
@@ -175,7 +194,7 @@ public class PageLoadActionsUtil {
                 })
                 .collectMap(
                         action -> {
-                            return action.getName();
+                            return action.getFullyQualifiedName();
                         },
                         action -> {
                             return action;
@@ -201,7 +220,7 @@ public class PageLoadActionsUtil {
         dslActionDTO.setId(actionDTO.getId());
         dslActionDTO.setPluginType(actionDTO.getPluginType());
         dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
-        dslActionDTO.setName(actionDTO.getName());
+        dslActionDTO.setName(actionDTO.getFullyQualifiedName());
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
         }
@@ -218,7 +237,7 @@ public class PageLoadActionsUtil {
             return;
         }
 
-        String name = action.getName();
+        String name = action.getFullyQualifiedName();
 
         // Check if the action has already been found (and exists in the global action names set of actionNames
         // If yes, then we might have circular dependency scenario. Don't add the actions' bindings in the edges
@@ -238,7 +257,7 @@ public class PageLoadActionsUtil {
             // If the action refers to itself in the json path keys, remove the same to circumvent
             // supposed circular dependency. This is possible in case of pagination with response url
             // where the action refers to its own data to find the next and previous URLs.
-            dynamicBindingNamesInAction.remove(action.getName());
+            dynamicBindingNamesInAction.remove(action.getFullyQualifiedName());
 
             // The relationship is represented as follows :
             // If A depends on B aka B exists in the dynamic bindings of A,

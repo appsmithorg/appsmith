@@ -16,6 +16,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
@@ -42,7 +43,6 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -2455,7 +2455,7 @@ public class DatabaseChangelog {
                             .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
-                
+
                 mongoTemplate.save(application);
             }
         }
@@ -2484,6 +2484,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2578,12 +2579,12 @@ public class DatabaseChangelog {
         }
     }
 
-    
+
     @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
     public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
         final List<User> missingCreatedAt = mongoTemplate.find(
-            query(where("createdAt").exists(false)),
-            User.class
+                query(where("createdAt").exists(false)),
+                User.class
         );
 
         for (User user : missingCreatedAt) {
@@ -2592,8 +2593,8 @@ public class DatabaseChangelog {
         }
 
         final List<User> missingUpdatedAt = mongoTemplate.find(
-            query(where("updatedAt").exists(false)),
-            User.class
+                query(where("updatedAt").exists(false)),
+                User.class
         );
 
         for (User user : missingUpdatedAt) {
@@ -2601,7 +2602,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(user);
         }
     }
-  
+
     /**
      * - Older order file where not present for the pages created within the application because page reordering with in
      * the application was not supported.
@@ -2613,13 +2614,13 @@ public class DatabaseChangelog {
     @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
     public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
-            if(application.getPages() != null) {
+            if (application.getPages() != null) {
                 int i = 0;
                 for (ApplicationPage page : application.getPages()) {
                     page.setOrder(i);
                     i++;
                 }
-                if(application.getPublishedPages() != null) {
+                if (application.getPublishedPages() != null) {
                     i = 0;
                     for (ApplicationPage page : application.getPublishedPages()) {
                         page.setOrder(i);
@@ -2629,5 +2630,25 @@ public class DatabaseChangelog {
                 mongoTemplate.save(application);
             }
         }
+    }
+
+    @ChangeSet(order = "076", id = "add-js-plugin", author = "")
+    public void addJSPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("JS Functions");
+        plugin.setType(PluginType.JS);
+        plugin.setPackageName("js-plugin");
+        plugin.setUiComponent("JsEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/JSFile.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/js-reference/using-js");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }
