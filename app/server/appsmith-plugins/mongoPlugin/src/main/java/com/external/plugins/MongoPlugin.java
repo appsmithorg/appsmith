@@ -34,6 +34,7 @@ import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
 import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -305,6 +306,10 @@ public class MongoPlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
+                    )
+                    .onErrorMap(
+                            MongoSocketWriteException.class,
+                            error -> new StaleConnectionException()
                     )
                     .flatMap(mongoOutput -> {
                         try {
