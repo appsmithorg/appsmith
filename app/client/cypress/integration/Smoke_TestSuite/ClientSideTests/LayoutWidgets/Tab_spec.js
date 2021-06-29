@@ -112,7 +112,7 @@ describe("Tab widget test", function() {
       .should("be.visible");
     cy.get(publish.backToEditor).click();
   });
-/* Test to be revisted as the undo action is inconsistent in automation
+  /* Test to be revisted as the undo action is inconsistent in automation
   it("Tab Widget Functionality To Check undo action after delete", function() {
     cy.openPropertyPane("tabswidget");
     cy.get(Layoutpage.tabDelete)

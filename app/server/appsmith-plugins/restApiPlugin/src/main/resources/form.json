@@ -72,6 +72,14 @@
             {
               "label": "OAuth2 (Client credentials)",
               "value": "oAuth2"
+            },
+            {
+              "label": "API Key",
+              "value": "apiKey"
+            },
+            {
+              "label": "Bearer Token",
+              "value": "bearerToken"
             }
           ]
         },
