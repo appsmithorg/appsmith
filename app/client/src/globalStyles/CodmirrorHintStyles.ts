@@ -154,8 +154,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     z-index: 20 !important;
   }
   li.CodeMirror-hint-active {
-    background: ${(props) =>
-      props.theme.colors.codeMirror.background.hoverState};
+    background: #6A86CE;
     border-radius: 0px;
     color: #fff;
     &:after {
