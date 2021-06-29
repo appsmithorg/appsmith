@@ -24,6 +24,8 @@ import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector"
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
+import { DATA_SOURCES_EDITOR_URL } from "../../../../constants/routes";
+import history from "utils/history";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   MOCK_DATABASES_OPTION_ID,
@@ -38,6 +40,7 @@ const DEFAULT_DROPDOWN_OPTION = {
   id: "- Select -",
   label: "- Select -",
   value: "",
+  onSelect: () => null,
   data: {},
 };
 
@@ -187,6 +190,10 @@ function GeneratePageForm() {
     );
   };
 
+  const routeToCreateNewDatasource = () => {
+    history.push(DATA_SOURCES_EDITOR_URL(currentApplicationId, currentPageId));
+  };
+
   useEffect(() => {
     const newDataSourceOptions = datasources.map(
       ({ id, isValid, name, organizationId, pluginId }) => ({
@@ -276,6 +283,7 @@ function GeneratePageForm() {
             options={dataSourceOptions}
             renderOption={({ isSelected, option, optionClickHandler }) => (
               <DataSourceOption
+                extraProps={{ routeToCreateNewDatasource }}
                 isSelected={isSelected}
                 option={option}
                 optionClickHandler={optionClickHandler}

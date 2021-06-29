@@ -22,6 +22,7 @@ export interface RenderDropdownOptionType {
   option: DropdownOption;
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
   isSelected?: boolean;
+  extraProps?: any;
 }
 
 type RenderOption = ({

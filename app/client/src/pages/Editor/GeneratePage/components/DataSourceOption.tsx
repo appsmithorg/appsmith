@@ -80,11 +80,13 @@ const DatasourceImage = styled.img`
 `;
 
 function DataSourceOption({
+  extraProps,
   isSelected,
   option: dropdownOption,
   optionClickHandler,
 }: RenderDropdownOptionType) {
   const { label } = dropdownOption;
+  const { routeToCreateNewDatasource = () => null } = extraProps;
   const pluginImages = useSelector(getPluginImages); // ISSUE
 
   const isConnectNewDataSourceBtn =
@@ -97,7 +99,9 @@ function DataSourceOption({
       clickable={!notClickable}
       key={dropdownOption.id}
       onClick={() => {
-        if (!isConnectNewDataSourceBtn && !notClickable && optionClickHandler) {
+        if (isConnectNewDataSourceBtn) {
+          routeToCreateNewDatasource(dropdownOption);
+        } else if (!notClickable && optionClickHandler) {
           optionClickHandler(dropdownOption);
         }
       }}
