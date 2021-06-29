@@ -14,19 +14,18 @@ batch:
 
   build-graph:
 
+    # Note: Do NOT use `-` in identifier values. There's pain on the other side of doing that.
+
     # Run unit tests on client and server.
     - identifier: client_units
-      buildspec: ci/1-client-units.yml
+      buildspec: ci/1-client_units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
-        # This job doesn't build any Docker images, but the backend tests use Docker to bring up database containers, so
-        # we need the privileged mode for that.
-        privileged-mode: true
       debug-session: true
 
     # Run unit tests on client and server.
     - identifier: server_units
-      buildspec: ci/1-server-units.yml
+      buildspec: ci/1-server_units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
         # This job doesn't build any Docker images, but the backend tests use Docker to bring up database containers, so
@@ -36,7 +35,7 @@ batch:
 
     # # Run all Cypress tests.
     # - identifier: cypress1
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -44,7 +43,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress2
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -52,7 +51,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress3
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -60,7 +59,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress4
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -68,7 +67,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress5
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -76,7 +75,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress6
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -84,7 +83,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress7
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -92,7 +91,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress8
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -100,7 +99,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress9
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -108,7 +107,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress10
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -116,7 +115,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress11
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -124,7 +123,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress12
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -132,7 +131,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress13
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -140,7 +139,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress14
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -148,7 +147,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress15
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
@@ -156,7 +155,7 @@ batch:
     #
     # # Run all Cypress tests.
     # - identifier: cypress16
-    #   depend-on: [client-units, server-units]
+    #   depend-on: [client_units, server_units]
     #   buildspec: ci/2-cypress.yml
     #   env:
     #     compute-type: BUILD_GENERAL1_MEDIUM
