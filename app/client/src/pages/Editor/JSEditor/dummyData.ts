@@ -10,7 +10,7 @@ export const jsData = [
     pluginType: PluginType.JS,
     variables: [
       {
-        name: "function1.data",
+        name: "result",
         initialValue: "undefined",
       },
     ],
@@ -18,9 +18,15 @@ export const jsData = [
     actions: [
       {
         actionId: "11",
-        name: "function1.all",
+        name: "all",
         parentObjectId: "unknown_collection_parent_id",
         executeOnLoad: false,
+        jsArguments: [
+          {
+            name: "arg1",
+            initialValue: "undefined",
+          },
+        ],
         actionConfiguration: {
           body: "function all(){...}",
           isAsync: true,
@@ -39,7 +45,7 @@ export const jsData = [
     pluginType: PluginType.JS,
     variables: [
       {
-        name: "function2.data",
+        name: "result",
         initialValue: "undefined",
       },
     ],
@@ -47,9 +53,15 @@ export const jsData = [
     actions: [
       {
         actionId: "21",
-        name: "function2.all",
+        name: "all",
         parentObjectId: "unknown_collection_parent_id",
         executeOnLoad: false,
+        jsArguments: [
+          {
+            name: "arg1",
+            initialValue: "undefined",
+          },
+        ],
         actionConfiguration: {
           body: "function all(){...}",
           isAsync: true,
@@ -81,6 +93,12 @@ export const newFunction = {
       name: "function2.all",
       parentObjectId: "unknown_collection_parent_id",
       executeOnLoad: false,
+      jsArguments: [
+        {
+          name: "arg1",
+          initialValue: "undefined",
+        },
+      ],
       actionConfiguration: {
         body: "function all(){...}",
         isAsync: true,

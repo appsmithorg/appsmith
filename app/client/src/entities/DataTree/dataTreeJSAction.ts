@@ -1,3 +1,4 @@
+import ActionLink from "components/editorComponents/GlobalSearch/ActionLink";
 import {
   DataTreeJSAction,
   ENTITY_TYPE,
@@ -7,14 +8,36 @@ import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 export const generateDataTreeJSAction = (
   js: JSActionData,
 ): DataTreeJSAction => {
-  return {
+  const data: any = {};
+  const meta: any = {};
+  const variables = js?.config?.variables;
+  if (variables) {
+    for (let i = 0; i < variables.length; i++) {
+      const variable = variables[i];
+      data[variable.name] = variable.initialValue;
+    }
+  }
+  const actions = js?.config?.actions;
+  const subActionsObject: any = {};
+  if (actions) {
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      data[action.name] = null;
+      subActionsObject[action.name] = action.actionConfiguration.body;
+      meta[action.name] = {
+        arguements: action.jsArguments,
+      };
+    }
+  }
+  const result = {
     actionId: js.config.id,
     name: js.config.name,
     pluginType: js.config.pluginType,
-    data: js.data ? js.data.body : {},
+    data: data ? data : {},
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    actions: js.config.actions,
-    variables: js.config.variables,
     body: js.config.body,
+    meta: meta,
   };
+
+  return Object.assign(result, subActionsObject);
 };

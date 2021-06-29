@@ -64,14 +64,14 @@ export interface DataTreeAction
 }
 
 export interface DataTreeJSAction {
-  data: JSActionResponse["body"];
+  data: Record<string, any>;
   actionId: string;
   pluginType: PluginType;
   name: string;
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
-  variables: any;
-  actions: Array<JSSubAction>;
   body: string;
+  [propName: string]: any;
+  meta: Record<string, any>;
 }
 
 export interface DataTreeWidget extends WidgetProps {

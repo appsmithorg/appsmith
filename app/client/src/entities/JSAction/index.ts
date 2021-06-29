@@ -28,8 +28,12 @@ interface BaseAction {
   body: string;
 }
 
+export type variable = {
+  name: string;
+  initialValue: any;
+};
 export interface JSAction extends BaseAction {
-  variables: any;
+  variables: Array<variable>;
   actions: Array<JSSubAction>;
 }
 export interface JSSubAction {
@@ -43,4 +47,5 @@ export interface JSSubAction {
     arguments: Array<string>;
     timeoutInMilliseconds: number;
   };
+  jsArguments?: Array<variable>;
 }
