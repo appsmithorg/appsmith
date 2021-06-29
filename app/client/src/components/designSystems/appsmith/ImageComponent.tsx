@@ -63,7 +63,7 @@ const ControlBtn = styled.div`
   padding: 0px 10px;
   display: inline-block;
 
-  &: first-child {
+  &.separator {
     border-right: 1px solid ${Colors.ALTO2};
   }
 
@@ -219,41 +219,60 @@ class ImageComponent extends React.Component<
     const { enableRotation } = this.props;
     const { showImageControl } = this.state;
 
-    if (showImageControl && enableRotation) {
+    if (showImageControl) {
       return (
         <ControlBtnWrapper>
-          <ControlBtn onClick={this.handleImageRotate(false)}>
-            <div>
-              <svg
-                fill="none"
-                height="12"
-                viewBox="0 0 12 12"
-                width="12"
-                xmlns="http://www.w3.org/2000/svg"
+          {enableRotation && (
+            <>
+              <ControlBtn onClick={this.handleImageRotate(false)}>
+                <div>
+                  <svg
+                    fill="none"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    width="12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2.28492 1.81862C3.27446 0.939565 4.57489 0.400391 6.00002 0.400391C9.08724 0.400391 11.6 2.91317 11.6 6.00039C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039H1.33336C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039C10.6667 3.41761 8.58281 1.33372 6.00002 1.33372C4.82777 1.33372 3.76447 1.7682 2.94573 2.47943L4.13336 3.66706H1.33336V0.867057L2.28492 1.81862Z"
+                      fill="#858282"
+                      stroke="#858282"
+                      strokeWidth="0.5"
+                    />
+                  </svg>
+                </div>
+              </ControlBtn>
+              <ControlBtn
+                className="separator"
+                onClick={this.handleImageRotate(true)}
               >
-                <path
-                  d="M2.28492 1.81862C3.27446 0.939565 4.57489 0.400391 6.00002 0.400391C9.08724 0.400391 11.6 2.91317 11.6 6.00039C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039H1.33336C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039C10.6667 3.41761 8.58281 1.33372 6.00002 1.33372C4.82777 1.33372 3.76447 1.7682 2.94573 2.47943L4.13336 3.66706H1.33336V0.867057L2.28492 1.81862Z"
-                  fill="#858282"
-                  stroke="#858282"
-                  strokeWidth="0.5"
-                />
-              </svg>
-            </div>
-          </ControlBtn>
-          <ControlBtn onClick={this.handleImageRotate(true)}>
+                <div>
+                  <svg
+                    fill="none"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    width="12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0.400024 6.00039C0.400024 2.91317 2.91281 0.400391 6.00002 0.400391C7.42515 0.400391 8.72559 0.939565 9.71513 1.81862L10.6667 0.867057V3.66706H7.86669L9.05432 2.47943C8.23558 1.7682 7.17228 1.33372 6.00002 1.33372C3.41724 1.33372 1.33336 3.41761 1.33336 6.00039C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039H11.6C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039Z"
+                      fill="#858282"
+                      stroke="#858282"
+                      strokeWidth="0.5"
+                    />
+                  </svg>
+                </div>
+              </ControlBtn>
+            </>
+          )}
+          <ControlBtn onClick={this.handleImageDownload}>
             <div>
-              <svg
-                fill="none"
-                height="12"
-                viewBox="0 0 12 12"
-                width="12"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
                 <path
-                  d="M0.400024 6.00039C0.400024 2.91317 2.91281 0.400391 6.00002 0.400391C7.42515 0.400391 8.72559 0.939565 9.71513 1.81862L10.6667 0.867057V3.66706H7.86669L9.05432 2.47943C8.23558 1.7682 7.17228 1.33372 6.00002 1.33372C3.41724 1.33372 1.33336 3.41761 1.33336 6.00039C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039H11.6C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039Z"
-                  fill="#858282"
-                  stroke="#858282"
-                  strokeWidth="0.5"
+                  clipRule="evenodd"
+                  d="M15.4547 16.4284H13.117H6.88326H4.54559C2.8243 16.4284 1.42871 14.8933 1.42871 12.9999C1.42871 11.3987 2.43157 10.0641 3.7804 9.68786C3.93001 6.28329 6.47884 3.57129 9.61053 3.57129C12.7072 3.57129 15.2349 6.22243 15.4352 9.57386C17.183 9.56015 18.5716 11.1167 18.5716 12.9999C18.5716 14.8933 17.176 16.4284 15.4547 16.4284ZM12.7266 11.4286L9.99929 14.8572L7.27202 11.4286L8.83045 11.4286L8.83045 8.00004L11.1681 8.00003V11.4286L12.7266 11.4286Z"
+                  fill="#939090"
+                  fillRule="evenodd"
                 />
               </svg>
             </div>
@@ -276,8 +295,34 @@ class ImageComponent extends React.Component<
     }
   };
 
-  onMouseEnter = () =>
-    this.setState({ showImageControl: !!this.props.enableRotation && true });
+  handleImageDownload = (e: any) => {
+    const { imageUrl, widgetId } = this.props;
+    const fileName = `${widgetId}-download`;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", imageUrl, true);
+    xhr.responseType = "blob";
+
+    xhr.onload = function() {
+      const urlCreator = window.URL || window.webkitURL;
+      const imageUrl = urlCreator.createObjectURL(this.response);
+      const tag = document.createElement("a");
+      tag.href = imageUrl;
+      tag.download = fileName;
+      document.body.appendChild(tag);
+      tag.click();
+      document.body.removeChild(tag);
+      window.URL.revokeObjectURL(imageUrl);
+    };
+    xhr.send();
+
+    if (!!e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  onMouseEnter = () => this.setState({ showImageControl: true });
 
   onMouseLeave = () => this.setState({ showImageControl: false });
 
