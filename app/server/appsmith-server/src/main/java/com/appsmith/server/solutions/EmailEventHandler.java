@@ -117,7 +117,7 @@ public class EmailEventHandler {
         );
     }
 
-    private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
+    private Mono<Boolean> getResolveThreadEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
                                              String originHeader, Organization organization,  Application application) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
@@ -127,7 +127,7 @@ public class EmailEventHandler {
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
-        templateParams.put("inviteUrl", getCommentThreadLink(
+        templateParams.put("commentUrl", getCommentThreadLink(
                 application,
                 commentThread.getPageId(),
                 commentThread.getId(),
@@ -142,7 +142,7 @@ public class EmailEventHandler {
         return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
-    private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, Comment comment, String originHeader,
+    private Mono<Boolean> getAddCommentEmailSenderMono(UserRole receiverUserRole, Comment comment, String originHeader,
                                              Organization organization, Application application) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
@@ -153,7 +153,7 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
-        templateParams.put("inviteUrl", getCommentThreadLink(
+        templateParams.put("commentUrl", getCommentThreadLink(
                 application,
                 comment.getPageId(),
                 comment.getThreadId(),
@@ -183,10 +183,10 @@ public class EmailEventHandler {
             if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
                 if(commentDomain instanceof Comment) {
                     Comment comment = (Comment)commentDomain;
-                    emailMonos.add(getEmailSenderMono(userRole, comment, originHeader, organization, application));
+                    emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, organization, application));
                 } else if(commentDomain instanceof CommentThread) {
                     CommentThread commentThread = (CommentThread) commentDomain;
-                    emailMonos.add(getEmailSenderMono(userRole, commentThread, originHeader, organization, application));
+                    emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, organization, application));
                 }
             }
         }
