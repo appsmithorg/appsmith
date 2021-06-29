@@ -14,7 +14,7 @@ import ActiveDataSource from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
-import { Datasource, FormatedMockDatasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
 import {
@@ -111,7 +111,7 @@ type IntegrationsHomeScreenProps = {
   };
   isCreating: boolean;
   dataSources: Datasource[];
-  mockDatasources: FormatedMockDatasource[];
+  mockDatasources: MockDatasource[];
 };
 
 type IntegrationsHomeScreenState = {
@@ -192,7 +192,7 @@ const TERTIARY_MENU_IDS = {
 };
 
 interface MockDataSourcesProps {
-  mockDatasources: FormatedMockDatasource[];
+  mockDatasources: MockDatasource[];
   active: boolean;
 }
 

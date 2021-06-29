@@ -37,7 +37,7 @@ import {
 } from "actions/datasourceActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource, MockDatasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 
 import {
   API_EDITOR_ID_URL,
@@ -106,7 +106,7 @@ function* fetchDatasourcesSaga() {
 
 function* fetchMockDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<MockDatasource[]> = yield DatasourcesApi.fetchMockDatasources();
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -131,7 +131,7 @@ export function* addMockDbToDatasources(
 ) {
   try {
     const { id, orgId } = actionPayload.payload;
-    const response: GenericApiResponse<MockDatasource[]> = yield DatasourcesApi.addMockDbToDatasources(
+    const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
       id,
       orgId,
     );

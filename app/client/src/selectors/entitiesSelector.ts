@@ -5,7 +5,7 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource, FormatedMockDatasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -20,9 +20,7 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
-export const getMockDatasources = (
-  state: AppState,
-): FormatedMockDatasource[] => {
+export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
 };
 

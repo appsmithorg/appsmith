@@ -76,11 +76,6 @@ export interface Datasource extends BaseDatasource {
 }
 
 export interface MockDatasource {
-  dataSourceIds: string[];
-  mockDataSets: string[];
-}
-
-export interface FormatedMockDatasource {
   id: string;
   name: string;
   description: string;

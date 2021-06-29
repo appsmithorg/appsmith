@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { FormatedMockDatasource } from "entities/Datasource";
+import { MockDatasource } from "entities/Datasource";
 import Button from "components/ads/Button";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -30,11 +30,11 @@ const Description = styled.div`
   display: inline-block;
   margin-top: 11px;
 `;
-function MockDataSources(props: { mockDatasources: FormatedMockDatasource[] }) {
+function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
   const orgId = useSelector(getCurrentOrgId);
   return (
     <MockDataSourceWrapper className="t--mock-datasource-list">
-      {props.mockDatasources.map((datasource: FormatedMockDatasource) => {
+      {props.mockDatasources.map((datasource: MockDatasource) => {
         return (
           <MockDatasourceCard
             datasource={datasource}
@@ -98,7 +98,7 @@ const ButtonsWrapper = styled.div`
 `;
 
 type MockDatasourceCardProps = {
-  datasource: FormatedMockDatasource;
+  datasource: MockDatasource;
   orgId: string;
 };
 

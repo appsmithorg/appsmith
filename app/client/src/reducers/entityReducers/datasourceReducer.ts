@@ -8,7 +8,6 @@ import {
   Datasource,
   DatasourceStructure,
   MockDatasource,
-  FormatedMockDatasource,
 } from "entities/Datasource";
 
 export interface DatasourceDataState {
@@ -48,7 +47,7 @@ const datasourceReducer = createReducer(initialState, {
     const mockDatasourceList = Object.keys(action.payload).map((dbKey) => ({
       ...action.payload[dbKey],
       name: dbKey,
-    })) as FormatedMockDatasource[];
+    })) as MockDatasource[];
     return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
   },
   [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
