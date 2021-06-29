@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -1095,6 +1096,11 @@ public class ApplicationServiceTest {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
+                    Integer order = 0;
+                    for(PageNameIdDTO page : applicationPagesDTO.getPages()){
+                        assertThat(page.getOrder()).isEqualTo(order);
+                        order++;
+                    }
                 })
                 .verifyComplete();
     }

@@ -209,10 +209,15 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 })
                 .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
                 .collectList()
-                .zipWith(defaultPageIdMono)
+                .flatMap( pagesFromDb -> Mono.zip(
+                        Mono.just(pagesFromDb),
+                        defaultPageIdMono,
+                        applicationMono
+                ))
                 .flatMap(tuple -> {
                     List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
+                    List<ApplicationPage> pages = tuple.getT3().getPages();
 
                     List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
 
@@ -230,9 +235,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
+                            List<ApplicationPage> currentPage = pages.stream().filter(page -> page.getId().equals(pageNameIdDTO.getId())).collect(Collectors.toList());
+                            pageNameIdDTO.setOrder(currentPage.get(currentPage.size()-1).getOrder());
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
+                            List<ApplicationPage> currentPage = pages.stream().filter(page -> page.getId().equals(pageNameIdDTO.getId())).collect(Collectors.toList());
+                            pageNameIdDTO.setOrder(currentPage.get(currentPage.size()-1).getOrder());
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
