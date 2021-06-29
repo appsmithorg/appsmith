@@ -65,7 +65,7 @@ We'll run JS anywhere! Code interactions between elements, update datasources or
 
 #### ☝️ One-click Deploy & Access Control
 
-[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy & share apps with your team, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br><br>
+[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy to a public URL or share apps with your team. Enable your team to sign in using their Google account or a form login. Each member can be assigned with roles.<br><br>
 
 #### 🔑 Solid 256-bit Encryption
 
