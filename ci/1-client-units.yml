@@ -1,0 +1,24 @@
+# This buildspec will run unit tests on the client code.
+
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 14
+
+  build:
+    on-failure: ABORT
+    commands:
+      - source ci/1-client-scripts/3-build.sh
+
+cache:
+  paths:
+    - '/root/.m2/**/*'  # Server dependencies.
+    # - 'app/client/node_modules/**/*'  # Client dependencies.
+    - '/root/.cache/Cypress/**/*'  # Cypress binary.

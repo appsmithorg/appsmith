@@ -1,5 +1,4 @@
-# This buildspec will run unit tests on both client and server code.
-# It does NOT build Docker images and it does NOT run Cypress tests.
+# This buildspec will run unit tests on the server code.
 
 version: 0.2
 
@@ -12,14 +11,13 @@ phases:
     on-failure: ABORT
     runtime-versions:
       java: corretto11
-      nodejs: 14
     commands:
-      - source ci/1-scripts/1-install.sh
+      - source ci/1-server-scripts/1-install.sh
 
   build:
     on-failure: ABORT
     commands:
-      - source ci/1-scripts/3-build.sh
+      - source ci/1-server-scripts/3-build.sh
 
 cache:
   paths:

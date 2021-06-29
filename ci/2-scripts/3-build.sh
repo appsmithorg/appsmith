@@ -48,23 +48,6 @@ cd "$CODEBUILD_SRC_DIR/app/client"
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
-# timeout 20s tail -500 -f "$CODEBUILD_SRC_DIR/logs/server.log" | grep -q 'Mongock has finished'
-sleep 20s  # TODO: Wait more intelligently, by looking at the log files for a specific line.
-if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
-	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
-	exit 6
-fi
-
-if ! curl-fail --verbose localhost:3000; then
-	cat "$CODEBUILD_SRC_DIR/logs/client.log"
-	exit 7
-fi
-
-if ! curl --insecure --verbose localhost:8080; then
-	cat "$CODEBUILD_SRC_DIR/logs/server.log"
-	exit 8
-fi
-
 # Random user names go here
 # Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export APPSMITH_DISABLE_TELEMETRY=true
@@ -85,9 +68,6 @@ envsubst "$vars_to_substitute" < docker/templates/nginx-root.conf.template \
 		-e 's/user  *nginx;/user root;/' \
 	| tee /etc/nginx/nginx.conf
 
-diff /etc/nginx/conf.d/app.conf nginx-app.conf
-diff /etc/nginx/nginx.conf nginx.conf
-
 # Create the SSL files for Nginx. Required for service workers to work properly.
 # This is a self-signed certificate, and so when using cURL, we need to add the `-k` or `--insecure` argument.
 mkdir -p /etc/certificate
@@ -102,15 +82,30 @@ if ! /etc/init.d/nginx reload; then
 	exit 4
 fi
 
-sleep 5s
+echo "Sleeping to let the servers start"
+# timeout 20s tail -500 -f "$CODEBUILD_SRC_DIR/logs/server.log" | grep -q 'Mongock has finished'
+sleep 30s  # TODO: Wait more intelligently, by looking at the log files for a specific line.
+
 if ! curl-fail https://dev.appsmith.com; then
 	cat /var/log/nginx/access.log
 	cat /var/log/nginx/error.log
 	exit 5
 fi
 
-echo "Sleeping for 30 seconds to let the servers start"
-sleep 30
+if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
+	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
+	exit 6
+fi
+
+if ! curl-fail --verbose localhost:3000; then
+	cat "$CODEBUILD_SRC_DIR/logs/client.log"
+	exit 7
+fi
+
+if ! curl --insecure --verbose localhost:8080; then
+	cat "$CODEBUILD_SRC_DIR/logs/server.log"
+	exit 8
+fi
 
 # Create test users.
 export CYPRESS_USERNAME=cy@example.com
@@ -133,7 +128,16 @@ touch ../../.env  # Doing this to silence a misleading error message from `cypre
 npx cypress info
 
 # Git information for Cypress: <https://docs.cypress.io/guides/continuous-integration/introduction#Git-information>.
-# COMMIT_INFO_BRANCH="$(git name-rev --name-only HEAD)" \
+branch="$(git name-rev --name-only HEAD 2>/dev/null)"
+if [[ -z $branch ]]; then
+	echo "Unable to get branch" >&2
+	git name-rev --name-only HEAD
+else
+	# When this variable is not set, Cypress will try to detect it itself, but it's not very reliable so we try our hand
+	# at it first.
+	export COMMIT_INFO_BRANCH="$branch"
+fi
+
 # 	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
 # 	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
 # 	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
@@ -148,7 +152,6 @@ npx cypress info
 	--env 'NODE_ENV=development' \
 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
 	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
-	# --spec 'cypress/integration/Smoke_TestSuite/ClientSideTests/FormWidgets/Input_spec.js'
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail
