@@ -93,3 +93,12 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
+/* making both the Modal layer and the Dropdown layer */
+.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+  z-index: 2 !important;
+}
+
+/* Portals on the Modal widget */
+.bp3-modal-widget .bp3-portal {
+  z-index: 21 !important;
+}

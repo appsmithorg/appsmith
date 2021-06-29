@@ -5,7 +5,6 @@ import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useCallback, useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import { isString } from "lodash";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon, SeverityIconColor } from "./helpers";
 import { useDispatch } from "react-redux";
@@ -102,7 +101,7 @@ const Log = styled.div<{ collapsed: boolean }>`
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: 4px;
+  padding-top: ${(props) => props.theme.spaces[1]}px;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -139,6 +138,10 @@ const StyledSearchIcon = styled(Icon)`
   }
 `;
 
+const MessageWrapper = styled.div`
+  padding-top: ${(props) => props.theme.spaces[1]}px;
+`;
+
 export const getLogItemProps = (e: Message) => {
   return {
     icon: SeverityIcon[e.severity] as IconName,
@@ -149,9 +152,9 @@ export const getLogItemProps = (e: Message) => {
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
-    message: e.message && isString(e.message) ? e.message : "",
     state: e.state,
     id: e.source ? e.source.id : undefined,
+    messages: e.messages,
   };
 };
 
@@ -163,11 +166,11 @@ type LogItemProps = {
   timeTaken: string;
   severity: Severity;
   text: string;
-  message: string;
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
   expand?: boolean;
+  messages: Message["messages"];
 };
 
 function LogItem(props: LogItemProps) {
@@ -182,12 +185,12 @@ function LogItem(props: LogItemProps) {
     },
     collapsed: 1,
   };
-  const showToggleIcon = props.state || props.message;
+  const showToggleIcon = props.state || props.messages;
   const dispatch = useDispatch();
 
-  const openHelpModal = useCallback((e) => {
+  const openHelpModal = useCallback((e, message?: string) => {
     e.stopPropagation();
-    const text = props.message || props.text;
+    const text = message || props.text;
 
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "DEBUGGER",
@@ -196,6 +199,7 @@ function LogItem(props: LogItemProps) {
     dispatch(setGlobalSearchQuery(text || ""));
     dispatch(toggleShowGlobalSearchModal());
   }, []);
+  const messages = props.messages || [];
 
   return (
     <Log
@@ -248,13 +252,18 @@ function LogItem(props: LogItemProps) {
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
-            {props.message && (
-              <div>
-                <span className="debugger-message" onClick={openHelpModal}>
-                  {props.message}
-                </span>
-              </div>
-            )}
+            {messages.map((e) => {
+              return (
+                <MessageWrapper key={e.message}>
+                  <span
+                    className="debugger-message"
+                    onClick={(event) => openHelpModal(event, e.message)}
+                  >
+                    {e.message}
+                  </span>
+                </MessageWrapper>
+              );
+            })}
             {props.state && (
               <JsonWrapper
                 className="t--debugger-log-state"
