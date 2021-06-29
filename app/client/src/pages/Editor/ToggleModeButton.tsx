@@ -196,6 +196,39 @@ const tourToolTipProps = {
   tourType: TourType.COMMENTS_TOUR,
 };
 
+function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
+  return mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />;
+}
+
+function CommentModeBtn({
+  handleSetCommentModeButton,
+  isCommentMode,
+  showUnreadIndicator,
+}: {
+  handleSetCommentModeButton: () => void;
+  isCommentMode: boolean;
+  showUnreadIndicator: boolean;
+}) {
+  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+
+  return (
+    <ModeButton active={isCommentMode} onClick={handleSetCommentModeButton}>
+      <TooltipComponent
+        content={
+          <>
+            Comment Mode
+            <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+          </>
+        }
+        hoverOpenDelay={1000}
+        position={Position.BOTTOM}
+      >
+        <CommentModeIcon />
+      </TooltipComponent>
+    </ModeButton>
+  );
+}
+
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
@@ -214,6 +247,13 @@ function ToggleCommentModeButton() {
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
 
+  const handleSetCommentModeButton = useCallback(() => {
+    setCommentModeInUrl(true);
+    proceedToNextTourStep();
+    setShowCommentButtonDiscoveryTooltipInState(false);
+    setShowCommentsButtonToolTip();
+  }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
+
   // Show comment mode button only on the canvas editor and viewer
   const [shouldHide, setShouldHide] = useState(false);
   const location = useLocation();
@@ -226,15 +266,6 @@ function ToggleCommentModeButton() {
 
   if (!commentsEnabled) return null;
 
-  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
-
-  const handleSetCommentModeButton = () => {
-    setCommentModeInUrl(true);
-    proceedToNextTourStep();
-    setShowCommentButtonDiscoveryTooltipInState(false);
-    setShowCommentsButtonToolTip();
-  };
-
   return (
     <Container>
       <TourTooltipWrapper {...tourToolTipProps}>
@@ -243,30 +274,19 @@ function ToggleCommentModeButton() {
             active={!isCommentMode}
             onClick={() => setCommentModeInUrl(false)}
           >
-            {mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />}
+            <ViewOrEditMode mode={mode} />
           </ModeButton>
-          {/** TODO: move to messages */}
           <TooltipComponent
-            content={<>{createMessage(ONE_UNREAD_MESSAGE)}</>}
+            content={createMessage(ONE_UNREAD_MESSAGE)}
             isOpen={showCommentButtonDiscoveryTooltip}
           >
-            <ModeButton
-              active={isCommentMode}
-              onClick={handleSetCommentModeButton}
-            >
-              <TooltipComponent
-                content={
-                  <>
-                    Comment Mode
-                    <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-                  </>
-                }
-                hoverOpenDelay={1000}
-                position={Position.BOTTOM}
-              >
-                <CommentModeIcon />
-              </TooltipComponent>
-            </ModeButton>
+            <CommentModeBtn
+              {...{
+                handleSetCommentModeButton,
+                isCommentMode,
+                showUnreadIndicator,
+              }}
+            />
           </TooltipComponent>
         </div>
       </TourTooltipWrapper>
