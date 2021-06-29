@@ -12,7 +12,6 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
-import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -66,7 +65,8 @@ export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   getActionsForCurrentPage,
   getJSActionsForCurrentPage,
-  (tree: DataTree, actions: ActionDataState, jsActions: JSActionDataState) => {
+  (tree: DataTree, actions: ActionDataState) => {
+    //js actions needs to be added
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach((action) => {

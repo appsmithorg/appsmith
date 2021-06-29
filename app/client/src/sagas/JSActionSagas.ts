@@ -4,11 +4,8 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { all, put, takeEvery, takeLatest, select } from "redux-saga/effects";
-import JSActionAPI, { JSActionCreateUpdateResponse } from "api/JSActionAPI";
-import { GenericApiResponse } from "api/ApiResponses";
 import { FetchActionsPayload } from "actions/actionActions";
 import { JSAction } from "entities/JSAction";
-import _ from "lodash";
 import { jsData, newFunction } from "../pages/Editor/JSEditor/dummyData";
 import { createJSActionSuccess } from "actions/jsActionActions";
 import { getJSAction } from "selectors/entitiesSelector";
@@ -19,7 +16,7 @@ import { JS_FUNCTION_ID_URL } from "constants/routes";
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  // const { applicationId } = action.payload;
   const resultData = jsData;
   try {
     // const response: GenericApiResponse<JSAction[]> = yield JSActionAPI.fetchJSActions(
@@ -40,7 +37,7 @@ export function* createJSActionSaga(
   >,
 ) {
   try {
-    const payload = actionPayload.payload;
+    // const payload = actionPayload.payload;
     let count = 100;
     const id = count++;
     yield put(createJSActionSuccess(newFunction));

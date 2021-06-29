@@ -7,10 +7,10 @@ import history from "utils/history";
 import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
 import JSActionEntityContextMenu from "./JSActionContextMenu";
+import { getJSActionIdFromURL } from "../helpers";
 
 type ExplorerJSActionEntityProps = {
   action: any;
-  active: boolean;
   icon: ReactNode;
   step: number;
   searchKeyword?: string;
@@ -42,11 +42,12 @@ export const ExplorerJSActionEntity = memo(
         pageId={props.pageId}
       />
     );
-
+    const jsactionId = getJSActionIdFromURL();
+    const active = jsactionId === props.action.config.id;
     return (
       <Entity
         action={navigateToJSAction}
-        active={props.active}
+        active={active}
         className="jsaction"
         contextMenu={contextMenu}
         entityId={props.action.config.id}

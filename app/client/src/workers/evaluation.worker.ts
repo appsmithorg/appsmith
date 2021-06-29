@@ -157,6 +157,11 @@ ctx.addEventListener(
           validateWidgetProperty(property, value, props, validation),
         );
       }
+      case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
+        const { body } = requestData;
+        //parsing needs to be done
+        return true;
+      }
       default: {
         console.error("Action not registered on worker", method);
       }

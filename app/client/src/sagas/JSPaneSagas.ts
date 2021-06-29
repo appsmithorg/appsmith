@@ -1,6 +1,12 @@
-import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
+import {
+  all,
+  select,
+  put,
+  takeEvery,
+  takeLatest,
+  call,
+} from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -10,9 +16,9 @@ import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { JSAction } from "entities/JSAction";
 import { createJSActionRequest } from "actions/jsActionActions";
-import { getJSAction } from "selectors/entitiesSelector";
 import { JS_FUNCTION_ID_URL } from "constants/routes";
 import history from "utils/history";
+import { parseUpdateJSAction } from "./EvaluationsSaga";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   // const organizationId = yield select(getCurrentOrgId);
@@ -42,6 +48,16 @@ function* handleJSActionCreatedSaga(actionPayload: ReduxAction<JSAction>) {
   history.push(JS_FUNCTION_ID_URL(applicationId, pageId, id, {}));
 }
 
+function* handleParseUpdateJSAction(actionPayload: { body: string }) {
+  const body = actionPayload.body;
+  yield call(parseUpdateJSAction, body);
+}
+
+function* handleSaveJSAction(actionPayload: ReduxAction<{ body: string }>) {
+  const { body } = actionPayload.payload;
+  yield call(handleParseUpdateJSAction, { body: body });
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -52,5 +68,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSActionCreatedSaga,
     ),
+    takeLatest(ReduxActionTypes.SAVE_JS_ACTION, handleSaveJSAction),
   ]);
 }

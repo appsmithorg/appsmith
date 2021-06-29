@@ -2,7 +2,6 @@ import React, { memo, ReactElement } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { jsIcon } from "../ExplorerIcons";
-import { getJSActionIdFromURL } from "../helpers";
 import ExplorerActionEntity from "./JSActionEntity";
 import { createNewJSAction } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
@@ -25,12 +24,9 @@ export const ExplorerJSActionGroup = memo(
     const childNode: ReactElement<ExplorerJSActionGroupProps> = (
       <>
         {props.jsActions.map((js: any) => {
-          const jsactionId = getJSActionIdFromURL();
-          const active = jsactionId === js.config.id;
           return (
             <ExplorerActionEntity
               action={js}
-              active={active}
               icon={jsIcon}
               key={js.config.id}
               pageId={props.pageId}

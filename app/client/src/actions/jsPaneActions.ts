@@ -6,3 +6,8 @@ export const createNewJSAction = (
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION,
   payload: { pageId },
 });
+
+export const saveJSAction = (body: string): ReduxAction<{ body: string }> => ({
+  type: ReduxActionTypes.SAVE_JS_ACTION,
+  payload: { body },
+});

@@ -230,6 +230,12 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   });
 }
 
+export function* parseUpdateJSAction(body: string) {
+  yield call(worker.request, EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY, {
+    body,
+  });
+}
+
 /**
  * clears all cache keys of a widget
  *

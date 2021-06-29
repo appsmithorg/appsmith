@@ -27,6 +27,8 @@ import {
   StyledFormRow,
 } from "../QueryEditor/EditorJSONtoForm";
 import JSActionNameEditor from "./JSActionNameEditor";
+import { saveJSAction } from "actions/jsPaneActions";
+import { useDispatch } from "react-redux";
 
 const Form = styled.form`
   display: flex;
@@ -93,6 +95,7 @@ function JSEditorForm(props: Props) {
   const { jsAction } = props;
   const body = jsAction?.body;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const dispatch = useDispatch();
   const responseTabs = [
     {
       key: "Response",
@@ -124,14 +127,8 @@ function JSEditorForm(props: Props) {
     setSelectedIndex(index);
   };
 
-  const handleOnChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement> | string,
-  ) => {
-    try {
-      const jsObject = event && eval("(" + event + ")");
-    } catch (e) {
-      console.log("error", e);
-    }
+  const handleOnChange = (event: string) => {
+    dispatch(saveJSAction(event));
   };
 
   return (
@@ -172,7 +169,7 @@ function JSEditorForm(props: Props) {
                     className={"js-editor"}
                     input={{
                       value: body,
-                      onChange: handleOnChange,
+                      onChange: (event: any) => handleOnChange(event),
                     }}
                     mode={EditorModes.JAVASCRIPT}
                     placeholder="code goes here"
