@@ -177,7 +177,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -203,7 +203,7 @@ export function* fetchPageSaga(
       yield put(
         fetchPageSuccess(
           // Execute page load actions post page load
-          [executePageLoadActions()],
+          isFirstLoad ? [] : [executePageLoadActions()],
         ),
       );
       const extractedDSL = extractCurrentDSL(fetchPageResponse);
