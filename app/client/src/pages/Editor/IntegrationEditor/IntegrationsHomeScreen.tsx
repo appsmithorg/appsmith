@@ -26,17 +26,14 @@ import {
 const HeaderFlex = styled.div`
   display: flex;
   align-items: center;
-  & > p {
-    margin: 0 0 0 8px;
-  }
 `;
 
 const ApiHomePage = styled.div`
   font-size: 20px;
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   /* margin-left: 10px; */
-  min-height: 100%;
-  max-height: 100%;
+  min-height: calc(100vh - 66px);
+  max-height: calc(100vh - 66px);
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
@@ -63,7 +60,7 @@ const MainTabsContainer = styled.div`
 `;
 
 const SectionGrid = styled.div`
-  margin-top: 36px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 180px;
   gap: 10px;
@@ -451,35 +448,37 @@ class IntegrationsHomeScreen extends React.Component<
       );
     }
     return (
-      <ApiHomePage
-        className="t--integrationsHomePage"
-        style={{ overflow: "auto" }}
-      >
-        <HeaderFlex>
-          <CloseEditor />
-          <p className="sectionHeadings">Integrations</p>
-        </HeaderFlex>
-        <SectionGrid>
-          <MainTabsContainer>
-            <TabComponent
-              onSelect={this.onSelectPrimaryMenu}
-              selectedIndex={this.state.activePrimaryMenuId}
-              tabs={PRIMARY_MENU}
-            />
-          </MainTabsContainer>
-          <div />
+      <>
+        <CloseEditor />
+        <ApiHomePage
+          className="t--integrationsHomePage"
+          style={{ overflow: "auto" }}
+        >
+          <HeaderFlex>
+            <p className="sectionHeadings">Datasources</p>
+          </HeaderFlex>
+          <SectionGrid>
+            <MainTabsContainer>
+              <TabComponent
+                onSelect={this.onSelectPrimaryMenu}
+                selectedIndex={this.state.activePrimaryMenuId}
+                tabs={PRIMARY_MENU}
+              />
+            </MainTabsContainer>
+            <div />
 
-          {currentScreen}
-          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-            <TabComponent
-              onSelect={this.onSelectSecondaryMenu}
-              selectedIndex={this.state.activeSecondaryMenuId}
-              tabs={getSecondaryMenu(dataSources.length > 0)}
-              vertical
-            />
-          )}
-        </SectionGrid>
-      </ApiHomePage>
+            {currentScreen}
+            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+              <TabComponent
+                onSelect={this.onSelectSecondaryMenu}
+                selectedIndex={this.state.activeSecondaryMenuId}
+                tabs={getSecondaryMenu(dataSources.length > 0)}
+                vertical
+              />
+            )}
+          </SectionGrid>
+        </ApiHomePage>
+      </>
     );
   }
 }

@@ -2339,7 +2339,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  integrationsPageUnusableHeight: "160px",
+  integrationsPageUnusableHeight: "182px",
   canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
