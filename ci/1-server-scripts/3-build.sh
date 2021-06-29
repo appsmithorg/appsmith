@@ -17,7 +17,14 @@ if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_UR
 fi
 
 cd "$CODEBUILD_SRC_DIR/app/server"
-./build.sh --batch-mode
+
+# Not using `build.sh` here since it doesn't exit with a non-zero status when the build fails.
+mvn package --batch-mode
+
+mkdir -p dist/plugins
+
+mv -v appsmith-server/target/server-1.0-SNAPSHOT.jar dist/
+rsync -av --exclude "original-*.jar" appsmith-plugins/*/target/*.jar dist/plugins/
 
 # Replace `/` characters to `--` in the initiator.
 # Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
