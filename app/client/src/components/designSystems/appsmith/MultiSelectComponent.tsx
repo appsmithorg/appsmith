@@ -502,7 +502,8 @@ function MultiSelectComponent({
       <DropdownStyles />
       <Select
         animation="slide-up"
-        autoFocus
+        // TODO: Make Autofocus a variable in the property pane
+        // autoFocus
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
