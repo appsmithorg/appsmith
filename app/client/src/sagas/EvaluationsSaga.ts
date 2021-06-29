@@ -272,21 +272,31 @@ function* logSuccessfulBindings(
   });
 }
 
-function* updateTernDefinitions(dataTree: DataTree, evaluationOrder: string[]) {
-  console.log("TERN", evaluationOrder);
+// Update only the changed entities on tern. We will pick up the updated
+// entities from the evaluation order and create a new def from them.
+// When there is a top level entity removed in removedPaths,
+// we will remove it's def
+function* updateTernDefinitions(
+  dataTree: DataTree,
+  evaluationOrder: string[],
+  removedPaths: string[],
+) {
   const updatedEntities: Set<string> = new Set();
   evaluationOrder.forEach((path) => {
     const { entityName } = getEntityNameAndPropertyPath(path);
     updatedEntities.add(entityName);
   });
-  console.log("TERN", updatedEntities);
   updatedEntities.forEach((entityName) => {
     const entity = dataTree[entityName];
     if (entity) {
       const entityDef = dataTreeTypeDefCreator(entity, entityName);
       TernServer.updateDef(entityName, entityDef);
-    } else {
-      TernServer.removeDef(entityName);
+    }
+  });
+  removedPaths.forEach((path) => {
+    // No '.' means that the path is an entity name
+    if (path.split(".").length === 1) {
+      TernServer.removeDef(path);
     }
   });
 }
@@ -321,6 +331,7 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
+    removedPaths,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -329,7 +340,7 @@ function* evaluateTreeSaga(
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
-  yield fork(updateTernDefinitions, dataTree, evaluationOrder);
+  yield fork(updateTernDefinitions, dataTree, evaluationOrder, removedPaths);
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,

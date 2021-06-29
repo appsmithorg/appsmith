@@ -48,18 +48,20 @@ ctx.addEventListener(
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
         let dataTreeObject: any = {};
-        let evaluationOrder: Array<string> = [];
+        let evaluationOrder: string[] = [];
+        let removedPaths: string[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTreeObject = dataTreeEvaluator.createFirstTree(unevalTree);
             dataTree = dataTreeObject.dataTree;
             evaluationOrder = dataTreeObject.evaluationOrder;
-            // dataTreeEvaluator.sortedDepedencies
+            removedPaths = dataTreeObject.removedPaths;
           } else {
             dataTreeObject = dataTreeEvaluator.updateDataTree(unevalTree);
             dataTree = dataTreeObject.dataTree;
             evaluationOrder = dataTreeObject.evaluationOrder;
+            removedPaths = dataTreeObject.removedPaths;
           }
 
           // We need to clean it to remove any possible functions inside the tree.
@@ -92,6 +94,7 @@ ctx.addEventListener(
           errors,
           evaluationOrder,
           logs,
+          removedPaths,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
