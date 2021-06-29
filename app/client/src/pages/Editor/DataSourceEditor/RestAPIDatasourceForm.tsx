@@ -195,13 +195,35 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   componentDidUpdate() {
-    this.ensureOAuthDefaultsAreCorrect();
+    if (!this.props.formData) return;
+
+    const { authType } = this.props.formData;
+
+    if (authType === AuthType.OAuth2) {
+      this.ensureOAuthDefaultsAreCorrect();
+    } else if (authType === AuthType.apiKey) {
+      this.ensureAPIKeyDefaultsAreCorrect();
+    } else {
+      return true;
+    }
   }
 
   isDirty(prop: any) {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
+
+  ensureAPIKeyDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
+    const { authentication } = this.props.formData;
+    console.log("Ayush", authentication);
+    if (!authentication || !_.get(authentication, "addTo")) {
+      this.props.change("authentication.addTo", "header");
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
