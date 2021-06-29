@@ -158,10 +158,12 @@ export const CanvasSelectionArena = memo(
 
         const onMouseLeave = () => {
           document.body.addEventListener("mouseup", onMouseUp, false);
+          document.body.addEventListener("click", onClick, false);
         };
 
         const onMouseEnter = () => {
           document.body.removeEventListener("mouseup", onMouseUp);
+          document.body.removeEventListener("click", onClick);
         };
 
         const onClick = (e: any) => {
@@ -236,6 +238,7 @@ export const CanvasSelectionArena = memo(
       currentPageId,
       mainContainer.rightColumn,
       mainContainer.bottomRow,
+      mainContainer.minHeight,
     ]);
 
     return appMode === APP_MODE.EDIT ? (

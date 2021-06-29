@@ -27,7 +27,7 @@ This command will generate a folder called `helloWorldPlugin` with default sourc
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <plugin.id>hello-world-name</plugin.id>
+        <plugin.id>hello-world-plugin</plugin.id>
         <plugin.class>com.external.plugins.HelloWorldPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
         <plugin.provider>tech@appsmith.com</plugin.provider>
