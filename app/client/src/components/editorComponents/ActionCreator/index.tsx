@@ -30,7 +30,7 @@ import { PluginType } from "entities/Action";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { keyBy } from "lodash";
-import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { getPluginIcon, apiIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -302,10 +302,13 @@ function getIntegrationOptionsWithChildren(
         id: api.config.id,
         value: api.config.name,
         type: option.value,
-        icon: getActionConfig(api.config.pluginType)?.getIcon(
-          api.config,
-          plugins[(api as any).config.datasource.pluginId],
-        ),
+        icon:
+          api.config.pluginType === PluginType.API
+            ? apiIcon
+            : getActionConfig(api.config.pluginType)?.getIcon(
+                api.config,
+                plugins[(api as any).config.datasource.pluginId],
+              ),
       } as TreeDropdownOption);
     });
     queries.forEach((query) => {

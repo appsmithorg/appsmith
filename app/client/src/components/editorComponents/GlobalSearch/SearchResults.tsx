@@ -19,12 +19,14 @@ import {
   getPluginIcon,
   homePageIcon,
   pageIcon,
+  apiIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
+import { PluginType } from "entities/Action";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -191,10 +193,13 @@ function ActionItem(props: {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = getActionConfig(pluginType)?.getIcon(
-    item.config,
-    pluginGroups[item.config.datasource.pluginId],
-  );
+  const icon =
+    pluginType === PluginType.API
+      ? apiIcon
+      : getActionConfig(pluginType)?.getIcon(
+          item.config,
+          pluginGroups[item.config.datasource.pluginId],
+        );
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
