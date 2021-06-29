@@ -38,6 +38,4 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     column: string;
     asc: boolean;
   };
-  totalRecordCount?: number;
-  defaultPageSize?: number;
 }
