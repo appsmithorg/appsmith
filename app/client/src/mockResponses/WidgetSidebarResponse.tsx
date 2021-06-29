@@ -112,7 +112,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   },
   {
     type: "MENU_WIDGET",
-    widgetCardName: "Menu",
+    widgetCardName: "Menu Button",
     key: generateReactKey(),
   },
 ];

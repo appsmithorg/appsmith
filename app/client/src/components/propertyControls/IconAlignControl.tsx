@@ -1,4 +1,5 @@
 import * as React from "react";
+import styled from "styled-components";
 import {
   Alignment,
   Button,
@@ -9,6 +10,21 @@ import {
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
+
+const StyledButtonGroup = styled(ButtonGroup)`
+  height: 33px;
+`;
+
+const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
+  border: ${(props) => (props.active ? `1px solid #6A86CE` : `none`)};
+  background-color: #ffffff !important;
+  &.bp3-active {
+    background-color: #ffffff !important;
+  }
+  &:hover {
+    background-color: #ffffff !important;
+  }
+`;
 
 export interface IconAlignControlProps extends ControlProps {
   propertyValue: Alignment | undefined;
@@ -28,32 +44,18 @@ class IconAlignControl extends BaseControl<IconAlignControlProps> {
     const { propertyValue } = this.props;
 
     return (
-      <ButtonGroup fill>
-        <Button
+      <StyledButtonGroup fill>
+        <StyledButton
           active={propertyValue === Alignment.LEFT || undefined}
-          css={`
-            border: ${(props: ThemeProp & IButtonProps) =>
-              props.active ? `1px solid #6A86CE` : `none`};
-            &.bp3-active {
-              background-color: transparent !important;
-            }
-          `}
           icon={<ControlIcons.ICON_ALIGN_LEFT color="#979797" />}
           onClick={() => this.handleAlign(Alignment.LEFT)}
         />
-        <Button
+        <StyledButton
           active={propertyValue === Alignment.RIGHT}
-          css={`
-            border: ${(props: ThemeProp & IButtonProps) =>
-              props.active ? `1px solid #6A86CE` : `none`};
-            &.bp3-active {
-              background-color: transparent !important;
-            }
-          `}
           icon={<ControlIcons.ICON_ALIGN_RIGHT color="#979797" />}
           onClick={() => this.handleAlign(Alignment.RIGHT)}
         />
-      </ButtonGroup>
+      </StyledButtonGroup>
     );
   }
 

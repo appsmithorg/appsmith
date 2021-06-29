@@ -7,22 +7,18 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 
-export interface MenuContainerProps {
-  isCompact?: boolean;
-}
-
-export const MenuContainer = styled.div<MenuContainerProps>`
+export const MenuContainer = styled.div`
   width: 100%;
   height: 100%;
   text-align: center;
 
   & > .bp3-popover2-target {
     height: 100%;
-    display: ${({ isCompact }) => (isCompact ? "inline-block" : "block")};
   }
 `;
 
 export interface BaseStyleProps {
+  isCompact?: boolean;
   backgroundColor?: string;
   textColor?: string;
 }
@@ -30,6 +26,9 @@ export interface BaseStyleProps {
 const BaseButton = styled(Button)<BaseStyleProps>`
   height: 100%;
   overflow: hidden;
+  border: 1.2px solid #ebebeb;
+  border-radius: 0;
+  box-shadow: none !important;
   ${({ backgroundColor }) =>
     backgroundColor &&
     `
@@ -66,6 +65,17 @@ const BaseMenuItem = styled(MenuItem)<BaseStyleProps>`
     `
       color: ${textColor} !important;
   `}
+  ${({ isCompact }) =>
+    isCompact &&
+    `
+      padding-top: 3px;
+      padding-bottom: 3px;
+      font-size: 12px;
+  `}
+`;
+
+const StyledMenu = styled(Menu)`
+  padding: 0;
 `;
 
 export interface PopoverContentProps {
@@ -87,10 +97,11 @@ export interface PopoverContentProps {
     }
   >;
   onItemClicked: (onClick: string | undefined) => void;
+  isCompact?: boolean;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { menuItems: itemsObj, onItemClicked } = props;
+  const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   const items = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
@@ -113,6 +124,7 @@ function PopoverContent(props: PopoverContentProps) {
         <BaseMenuItem
           backgroundColor={backgroundColor}
           disabled={isDisabled}
+          isCompact={isCompact}
           key={id}
           labelElement={<Icon color={iconColor} icon={iconName} />}
           onClick={() => onItemClicked(onClick)}
@@ -126,6 +138,7 @@ function PopoverContent(props: PopoverContentProps) {
         backgroundColor={backgroundColor}
         disabled={isDisabled}
         icon={<Icon color={iconColor} icon={iconName} />}
+        isCompact={isCompact}
         key={id}
         onClick={() => onItemClicked(onClick)}
         text={label}
@@ -134,7 +147,7 @@ function PopoverContent(props: PopoverContentProps) {
     );
   });
 
-  return <Menu>{listItems}</Menu>;
+  return <StyledMenu>{listItems}</StyledMenu>;
 }
 
 function ButtonNormal(props: PopoverTargetButtonProps) {
@@ -172,19 +185,7 @@ function ButtonNormal(props: PopoverTargetButtonProps) {
   );
 }
 
-function ButtonMinimal(props: PopoverTargetButtonProps) {
-  const { backgroundColor, iconColor, iconName } = props;
-
-  return (
-    <BaseButton
-      backgroundColor={backgroundColor}
-      icon={<Icon color={iconColor} icon={iconName} />}
-    />
-  );
-}
-
 export interface PopoverTargetButtonProps {
-  isCompact?: boolean;
   label?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -199,21 +200,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     iconAlign,
     iconColor,
     iconName,
-    isCompact,
     label,
     textColor,
   } = props;
-
-  if (isCompact) {
-    return (
-      <ButtonMinimal
-        backgroundColor={backgroundColor}
-        iconColor={iconColor}
-        iconName={iconName}
-        textColor={textColor}
-      />
-    );
-  }
 
   return (
     <ButtonNormal
@@ -260,10 +249,14 @@ function MenuComponent(props: MenuComponentProps) {
   const { isCompact, isDisabled, menuItems, onItemClicked } = props;
 
   return (
-    <MenuContainer isCompact={isCompact}>
+    <MenuContainer>
       <Popover2
         content={
-          <PopoverContent menuItems={menuItems} onItemClicked={onItemClicked} />
+          <PopoverContent
+            isCompact={isCompact}
+            menuItems={menuItems}
+            onItemClicked={onItemClicked}
+          />
         }
         disabled={isDisabled}
         fill

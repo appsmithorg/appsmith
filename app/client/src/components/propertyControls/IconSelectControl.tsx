@@ -1,10 +1,31 @@
 import * as React from "react";
+import styled from "styled-components";
 
 import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
-// import Icon, { IconCollection, IconName } from "components/ads/Icon";
+
+const StyledButton = styled(Button)`
+  background-color: #ffffff !important;
+`;
+
+const StyledMenu = styled(Menu)`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  flex-direction: column;
+  align-items: center;
+  > span.bp3-icon {
+    margin-right: 0;
+  }
+  > div {
+    width: 100%;
+    text-align: center;
+  }
+`;
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
@@ -16,7 +37,6 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.push(NONE);
-// const ICON_NAMES: IconType[] = [NONE, ...IconCollection];
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -37,12 +57,11 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
         onItemSelect={this.handleIconChange}
         popoverProps={{ minimal: true }}
       >
-        <Button
+        <StyledButton
           alignText={Alignment.LEFT}
           className={Classes.TEXT_OVERFLOW_ELLIPSIS}
           fill
           icon={iconName}
-          // icon={<Icon name={iconName} />}
           rightIcon="caret-down"
           text={iconName || NONE}
         />
@@ -57,17 +76,7 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
   }) => {
     const renderedItems = items.map(renderItem).filter((item) => item != null);
 
-    return (
-      <Menu
-        css={`
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        `}
-        ulRef={itemsParentRef}
-      >
-        {renderedItems}
-      </Menu>
-    );
+    return <StyledMenu ulRef={itemsParentRef}>{renderedItems}</StyledMenu>;
   };
 
   private renderIconItem: ItemRenderer<IconName | typeof NONE> = (
@@ -78,29 +87,13 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
       return null;
     }
     return (
-      <MenuItem
+      <StyledMenuItem
         active={modifiers.active}
-        css={`
-          flex-direction: column;
-          align-items: center;
-          > span.bp3-icon {
-            margin-right: 0;
-          }
-          > div {
-            width: 100%;
-            text-align: center;
-          }
-        `}
         icon={icon === NONE ? undefined : icon}
         key={icon}
         onClick={handleClick}
         text={icon}
       />
-      // <Icon
-      //   key={icon}
-      //   name={icon === NONE ? undefined : icon}
-      //   onClick={handleClick}
-      // />
     );
   };
 
@@ -111,9 +104,6 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
     if (iconName === NONE || query === "") {
       return true;
     }
-    // if (query === "") {
-    //   return iconName === this.props.propertyValue;
-    // }
     return iconName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
