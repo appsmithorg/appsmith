@@ -48,7 +48,7 @@ cd "$CODEBUILD_SRC_DIR/app/client"
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
-# timeout 20s tail -f "$CODEBUILD_SRC_DIR/logs/server.log" | grep -q 'Mongock has finished'
+# timeout 20s tail -500 -f "$CODEBUILD_SRC_DIR/logs/server.log" | grep -q 'Mongock has finished'
 sleep 20s  # TODO: Wait more intelligently, by looking at the log files for a specific line.
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
 	cat "$CODEBUILD_SRC_DIR/logs/mongod.log"
@@ -67,28 +67,8 @@ fi
 
 # Random user names go here
 # Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
-export CYPRESS_USERNAME=cy@example.com
-export CYPRESS_PASSWORD=cypas
-export CYPRESS_TESTUSERNAME1=cy1@example.com
-export CYPRESS_TESTPASSWORD1=cypas1
-export CYPRESS_TESTUSERNAME2=cy2@example.com
-export CYPRESS_TESTPASSWORD2=cypas2
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
-
-# Substitute all the env variables in nginx
-vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
-echo "vars_to_substitute: $vars_to_substitute"
-cat docker/templates/nginx-app.conf.template \
-	| sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" \
-	| sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" \
-	| envsubst $vars_to_substitute \
-	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
-	| tee /etc/nginx/conf.d/app.conf
-cat docker/templates/nginx-root.conf.template \
-	| envsubst ${vars_to_substitute} \
-	| sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' -e 's/user  *nginx;/user root;/' \
-	| tee /etc/nginx/nginx.conf
 
 # Substitute all the env variables in nginx
 vars_to_substitute='\$'"$(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | paste -s -d, - | sed 's/,/,\\$/g')"
@@ -98,12 +78,12 @@ envsubst "$vars_to_substitute" < docker/templates/nginx-app.conf.template \
 		-e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
 		-e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" \
 		-e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" \
-	> nginx-app.conf
+	| tee /etc/nginx/conf.d/app.conf
 envsubst "$vars_to_substitute" < docker/templates/nginx-root.conf.template \
 	| sed \
 		-e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
 		-e 's/user  *nginx;/user root;/' \
-	> nginx.conf
+	| tee /etc/nginx/nginx.conf
 
 diff /etc/nginx/conf.d/app.conf nginx-app.conf
 diff /etc/nginx/nginx.conf nginx.conf
@@ -133,6 +113,12 @@ echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
 # Create test users.
+export CYPRESS_USERNAME=cy@example.com
+export CYPRESS_PASSWORD=cypas
+export CYPRESS_TESTUSERNAME1=cy1@example.com
+export CYPRESS_TESTPASSWORD1=cypas1
+export CYPRESS_TESTUSERNAME2=cy2@example.com
+export CYPRESS_TESTPASSWORD2=cypas2
 curl-fail -v -d "email=$CYPRESS_USERNAME" -d "password=$CYPRESS_PASSWORD" 'https://dev.appsmith.com/api/v1/users'
 curl-fail -v -d "email=$CYPRESS_TESTUSERNAME1" -d "password=$CYPRESS_TESTPASSWORD1" 'https://dev.appsmith.com/api/v1/users'
 curl-fail -v -d "email=$CYPRESS_TESTUSERNAME2" -d "password=$CYPRESS_TESTPASSWORD2" 'https://dev.appsmith.com/api/v1/users'
@@ -151,8 +137,8 @@ npx cypress info
 # 	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
 # 	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
 # 	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
-	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
-	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
+#	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
+#	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
 	NO_COLOR=1 \
 	npx cypress run --headless --browser chrome \
 	--record \
