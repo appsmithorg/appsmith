@@ -121,6 +121,10 @@ class TernServer {
     this.server.addDefs(def, true);
   }
 
+  removeDef(name: string) {
+    this.server.deleteDefs(name);
+  }
+
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {

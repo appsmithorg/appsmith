@@ -218,7 +218,7 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForSubTreeEval });
     return {
       dataTree: this.evalTree,
-      evaluationOrder: evaluationOrder,
+      evaluationOrder: [...evaluationOrder, ...removedPaths],
     };
   }
 
