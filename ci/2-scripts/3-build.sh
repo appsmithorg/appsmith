@@ -22,38 +22,44 @@ echo "$BASH_VERSION"
 java -version
 node --version
 
+# Replace `/` characters to `--` in the initiator.
+# Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
+batch_id="${CODEBUILD_INITIATOR//\//--}"
+aws s3 cp --no-progress "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/client-dist.tgz" .
+aws s3 cp --no-progress "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/server-dist.tgz" .
+
+tar -xaf client-dist.tgz
+tar -xaf server-dist.tgz
+
+ls
+du -sh client-dist server-dist
+
 echo Building client code
 cd "$CODEBUILD_SRC_DIR/app/client"
-npm install -g yarn
-yarn install --frozen-lockfile
 if [[ ! -d ~/.cache/Cypress ]]; then
 	npx cypress install
 fi
 
-REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
-
 echo Building server code
-cd "$CODEBUILD_SRC_DIR/app/server"
-./build.sh --batch-mode --threads 1.0C -Dmaven.test.skip=true
-cd dist
+cd "$CODEBUILD_SRC_DIR/server-dist"
 APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot \
 	APPSMITH_CLOUD_SERVICES_BASE_URL='' \
 	APPSMITH_IS_SELF_HOSTED=false \
 	java -jar server-*.jar > "$CODEBUILD_SRC_DIR/logs/server.log" &
 
-cd "$CODEBUILD_SRC_DIR/app/client"
+cd "$CODEBUILD_SRC_DIR/client-dist"
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port.
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
-# Random user names go here
 # Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
 
 # Substitute all the env variables in nginx
+cd "$CODEBUILD_SRC_DIR/app/client"
 vars_to_substitute='\$'"$(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | paste -s -d, - | sed 's/,/,\\$/g')"
 echo "vars_to_substitute: $vars_to_substitute"
 envsubst "$vars_to_substitute" < docker/templates/nginx-app.conf.template \
@@ -138,20 +144,20 @@ else
 	export COMMIT_INFO_BRANCH="$branch"
 fi
 
-# 	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
-# 	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
-# 	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
-#	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
-#	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
-	NO_COLOR=1 \
-	npx cypress run --headless --browser chrome \
-	--record \
-	--ci-build-id "$CODEBUILD_INITIATOR" \
-	--parallel \
-	--group 'Electrons on CodeBuild CI' \
-	--env 'NODE_ENV=development' \
-	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
-	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+# #	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
+# #	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
+# #	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
+# #	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
+# #	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
+# 	NO_COLOR=1 \
+# 	npx cypress run --headless --browser chrome \
+# 	--record \
+# 	--ci-build-id "$CODEBUILD_INITIATOR" \
+# 	--parallel \
+# 	--group 'Electrons on CodeBuild CI' \
+# 	--env 'NODE_ENV=development' \
+# 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
+# 	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail

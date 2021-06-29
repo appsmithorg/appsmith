@@ -23,5 +23,5 @@ cd "$CODEBUILD_SRC_DIR/app/server"
 # Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
 batch_id="${CODEBUILD_INITIATOR//\//--}"
 mv -v dist server-dist
-tar -caf server.tgz server-dist
-aws s3 cp server-dist.tgz "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/server-dist.tgz"
+tar -caf server-dist.tgz server-dist
+aws s3 cp --no-progress server-dist.tgz "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/server-dist.tgz"

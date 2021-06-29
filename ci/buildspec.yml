@@ -33,14 +33,14 @@ batch:
         privileged-mode: true
       debug-session: true
 
-    # # Run all Cypress tests.
-    # - identifier: cypress1
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
+    # Run all Cypress tests.
+    - identifier: cypress1
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
     # # Run all Cypress tests.
     # - identifier: cypress2
     #   depend-on: [client_units, server_units]
