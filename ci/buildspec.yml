@@ -15,7 +15,7 @@ batch:
   build-graph:
 
     # Run unit tests on client and server.
-    - identifier: client-units
+    - identifier: client_units
       buildspec: ci/1-client-units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
@@ -25,7 +25,7 @@ batch:
       debug-session: true
 
     # Run unit tests on client and server.
-    - identifier: server-units
+    - identifier: server_units
       buildspec: ci/1-server-units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM

@@ -12,3 +12,5 @@ yarn install --frozen-lockfile
 
 REACT_APP_ENVIRONMENT=PRODUCTION \
 	npx jest -b --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'
+
+
