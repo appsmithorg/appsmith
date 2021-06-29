@@ -59,7 +59,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionSidebar from "components/editorComponents/ActionSidebar";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -781,7 +781,7 @@ export function EditorJSONtoForm(props: Props) {
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper>
-            <ActionSidebar actionName={actionName} />
+            <ActionRightPane actionName={actionName} />
           </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>

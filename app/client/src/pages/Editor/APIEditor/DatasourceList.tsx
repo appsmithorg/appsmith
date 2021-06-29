@@ -8,7 +8,7 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
-import ActionSidebar from "components/editorComponents/ActionSidebar";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -201,7 +201,7 @@ export default function DataSourceList(props: any) {
               title: "Connections",
               panelComponent: (
                 <SomeWrapper>
-                  <ActionSidebar actionName={props.actionName} />
+                  <ActionRightPane actionName={props.actionName} />
                 </SomeWrapper>
               ),
             },
