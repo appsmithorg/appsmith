@@ -110,11 +110,14 @@ export function getDependencyChain(
 
   const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
 
-  dependents.map((e: any) => {
+  dependents.map((e) => {
     if (!e.includes(dependentInfo.entityName)) {
       currentChain.push(e);
     }
-    currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+
+    if (e !== dependentInfo.entityName) {
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
   });
   return currentChain;
 }
