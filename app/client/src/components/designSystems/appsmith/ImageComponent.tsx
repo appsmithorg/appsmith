@@ -10,6 +10,7 @@ export interface StyledImageProps {
   imageUrl?: string;
   backgroundColor?: string;
   showHoverPointer?: boolean;
+  objectFit: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
@@ -21,14 +22,14 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;
   flex-direction: "row";
+  background-size: ${(props) => props.objectFit ?? "cover"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
-  background-image: url("${(props) =>
-    props.imageError ? props.defaultImageUrl : props.imageUrl}");
+  background-image: ${(props) =>
+    `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
   height: 100%;
   width: 100%;
 `;
@@ -195,6 +196,7 @@ class ImageComponent extends React.Component<
                     transform: `rotate(${imageRotation}deg)`,
                   }}
                 >
+                  {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
                   <img
                     alt={this.props.widgetName}
                     onError={this.onImageError}
@@ -299,6 +301,7 @@ export interface ImageComponentProps extends ComponentProps {
   showHoverPointer?: boolean;
   maxZoomLevel: number;
   enableRotation?: boolean;
+  objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
