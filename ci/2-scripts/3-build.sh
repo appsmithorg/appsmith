@@ -48,11 +48,9 @@ APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_IS_SELF_HOSTED=false \
 	java -jar server-*.jar > "$CODEBUILD_SRC_DIR/logs/server.log" &
 
-cd "$CODEBUILD_SRC_DIR/client-dist"
-
 # Serve the react bundle on a specific port. Nginx will proxy to this port.
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
-npx serve -s build -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
+npx serve -s "$CODEBUILD_SRC_DIR/client-dist" -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
 # Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export APPSMITH_DISABLE_TELEMETRY=true
