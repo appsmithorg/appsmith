@@ -269,15 +269,21 @@ function* logSuccessfulBindings(
 }
 
 function* updateTernDefinitions(dataTree: DataTree, evaluationOrder: string[]) {
+  console.log("TERN", evaluationOrder);
   const updatedEntities: Set<string> = new Set();
   evaluationOrder.forEach((path) => {
     const { entityName } = getEntityNameAndPropertyPath(path);
     updatedEntities.add(entityName);
   });
+  console.log("TERN", updatedEntities);
   updatedEntities.forEach((entityName) => {
     const entity = dataTree[entityName];
-    const entityDef = dataTreeTypeDefCreator(entity, entityName);
-    TernServer.updateDef(entityName, entityDef);
+    if (entity) {
+      const entityDef = dataTreeTypeDefCreator(entity, entityName);
+      TernServer.updateDef(entityName, entityDef);
+    } else {
+      TernServer.removeDef(entityName);
+    }
   });
 }
 
