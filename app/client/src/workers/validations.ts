@@ -105,7 +105,6 @@ export const validate = (
     value,
     props,
   );
-  // console.log(_res/ult);
   return _result;
 };
 
@@ -113,7 +112,6 @@ export const WIDGET_TYPE_VALIDATION_ERROR =
   "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
-  // TODO(abhinav): write rigorous tests for these
   [ValidationTypes.TEXT]: (
     config: ValidationConfig,
     value: unknown,
@@ -160,29 +158,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       isValid: true,
       parsed,
     };
-
-    // if (!isValid) {
-    //   try {
-    //     const result = {
-    //       parsed: toString(value) === ,
-    //       isValid: true,
-    //     };
-    //     return result;
-    //   } catch (e) {
-    //     console.error(`Error when parsing ${value} to string`);
-    //     console.error(e);
-    //     return {
-    //       isValid: false,
-    //       parsed: config.params?.default || "",
-    //       message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
-    //     };
-    //   }
-    // } else {
-    //   return {
-    //     isValid,
-    //     parsed: value,
-    //   };
-    // }
   },
   // TODO(abhinav): The original validation does not make sense fix this.
   [ValidationTypes.REGEX]: (
@@ -206,7 +181,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return { isValid, parsed, message };
   },
-  // TODO(ABHINAV): WRITE RIGOROUS TESTS FOR THIS
   [ValidationTypes.NUMBER]: (
     config: ValidationConfig,
     value: unknown,
@@ -278,7 +252,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed,
     };
   },
-  // TODO(abhinav): Add rigorous tests for the following
   [ValidationTypes.BOOLEAN]: (
     config: ValidationConfig,
     value: unknown,
@@ -311,7 +284,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return { isValid, parsed };
   },
-  // TODO(abhinav): Add rigorous tests for the following
   [ValidationTypes.OBJECT]: (
     config: ValidationConfig,
     value: unknown,

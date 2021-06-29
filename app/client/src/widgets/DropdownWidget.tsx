@@ -91,18 +91,20 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
               params: {
                 children: {
                   type: ValidationTypes.OBJECT,
-                  allowedKeys: [
-                    {
-                      name: "label",
-                      type: ValidationTypes.TEXT,
-                      default: "",
-                    },
-                    {
-                      name: "value",
-                      type: ValidationTypes.TEXT,
-                      default: "",
-                    },
-                  ],
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                    ],
+                  },
                 },
               },
             },

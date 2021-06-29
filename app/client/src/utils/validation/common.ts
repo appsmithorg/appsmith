@@ -28,18 +28,18 @@ export function getExpectedValue(
         example: config.params?.expected?.example || "No Example available",
       };
     case ValidationTypes.TEXT:
-      const result = { type: "String", example: "abc" };
+      const result = { type: "string", example: "abc" };
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result.type = result.type + ` ( ${allowed} )`;
       }
       return result;
     case ValidationTypes.REGEX:
-      return { type: "RegExp", example: "^d+$" };
+      return { type: "regExp", example: "^d+$" };
     case ValidationTypes.DATE_ISO_STRING:
       return { type: "ISO 8601 string", example: moment().toISOString(true) };
     case ValidationTypes.BOOLEAN:
-      return { type: "Boolean", example: false };
+      return { type: "boolean", example: false };
     case ValidationTypes.NUMBER:
       let type = "number";
       let eg = 100;
