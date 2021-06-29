@@ -2630,4 +2630,26 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    @ChangeSet(order = "076", id = "add-arangodb-plugin", author = "")
+    public void addArangoDBPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("ArangoDB");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("arangodb-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://img.favpng.com/24/1/23/arangodb-database-nosql-node-js-javascript-png-favpng-dtrzKHitb2M3LbsUJD5nBLy87.jpg");
+        plugin.setDocumentationLink("TBD");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+
+    }
 }

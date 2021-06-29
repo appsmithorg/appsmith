@@ -30,7 +30,14 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -93,7 +100,7 @@ public class ArangoDBPlugin extends BasePlugin {
                 }
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), 8529);
+                int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), 8529L);
                 String host = endpoint.getHost();
 
                 String username = null;
@@ -106,11 +113,38 @@ public class ArangoDBPlugin extends BasePlugin {
                     dbName = auth.getDatabaseName();
                 }
 
+                // Base64 encoded CA certificate
+                String encodedCA = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURHVENDQWdHZ0F3SUJBZ0lSQVBMOUF0WjlWRVlxR0NKWTVabm41YlF3RFFZSktvWklodmNOQVFFTEJRQXcKSmpFUk1BOEdBMVVFQ2hNSVFYSmhibWR2UkVJeEVUQVBCZ05WQkFNVENFRnlZVzVuYjBSQ01CNFhEVEl4TURZeQpPREE0TXpVME5Wb1hEVEkyTURZeU56QTRNelUwTlZvd0pqRVJNQThHQTFVRUNoTUlRWEpoYm1kdlJFSXhFVEFQCkJnTlZCQU1UQ0VGeVlXNW5iMFJDTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEKdTNaK0FaeEFCcVE4emd5NTFFTzlKdGExV3pIcDhMZEsvWDZtamNuRHN4Y1pCTDZUNlNFVlQycHVqK1VMZ1JHSgp1WDN3KzBJalVSSzNsL0pkWDJDNFlPc0JJSkJyMXNpT21wQVVPb2J3YTU4VWN5WXp1bi9SMVhzQmNPeGdJUHY1CkJtcnV5aWM2ckJRMlNocFVVcmN4NXd4ekhpc1NxUjZBbmpvdEJFUFZXdkdvWGhLc1VQVVU4WTZ6cDVxck9NNFUKeERTTlpCWi9XMXY2bThxMVg3Mzd1TDBDcjkwK2lqbUlJL3FvNVhXQ2t1QVFxTllGNjlMZTd4MVBTazFleUtQbQpGbG9kWjd2alZPcVBLdXFHTjlSUENEZUxVUFBQOHdOSTBIS1VLaVZJaTQ0SGIvTzkyeXRXekNlU3FBUXYzWnE0CnN5UzdmRGRLOFU4TGFxdkJRVHhqL3dJREFRQUJvMEl3UURBT0JnTlZIUThCQWY4RUJBTUNBcVF3RHdZRFZSMFQKQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVW5LVUsxVUJUL09SMHBRd0d1UXdrZHBjVnpVUXdEUVlKS29aSQpodmNOQVFFTEJRQURnZ0VCQURRZmVMRDBmRDlMM0pXRkkwbVJpNXpuMlNkUHZicmh1bWZZNVBoUERUVnAyb0hhCkVQZUNjdXNDY2JZdWVBNXQrNzJyOVhvaVdLMzNMcVYzaXpkaGpiZFUyK012cmNUbUxlTGtFNjZqa1VBRTNYS00KNFptZGI3bHpjdmt1eUwxTW9iQ3hQb1ZFL0h2RWo2eDE4cFhRR3ZmSm13SzduVWJwRGxac2E2SS9IWTFOaFA4bQpscTQ1RlZQZ1l4SW5HdWxIcGJodDRxcE9CRmVJV1Y5TVFDZ1B2cDlPS0pYSVhKRDJlWjMvUGM1cnVDeWhZbVdECi91L29GNWRzYms4TENWSzNtMCtONjczZ3plM1Rtdk5BdTlpWGVzMnV4T0syRzFMMzJzY2xlSy96M2pnTmpnMGkKemFmYytEaHk1OEFYYytuT1Zhclo1dFN1UzErWHZpM3B1bmNVZFRBPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==";
+                InputStream is = new java.io.ByteArrayInputStream(Base64.getDecoder().decode(encodedCA));
+
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate caCert = (X509Certificate) cf.generateCertificate(is);
+
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(null);
+                ks.setCertificateEntry("caCert", caCert);
+
+                tmf.init(ks);
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, tmf.getTrustManagers(), null);
+
+
+                //TODO: remove it.
+                System.out.println("devtest: " + username);
+                System.out.println("devtest: " + password);
+                System.out.println("devtest: " + dbName);
+                System.out.println("devtest: " + host);
+                System.out.println("devtest: " + port);
+
                 ArangoDB arangoDB = new ArangoDB.Builder()
-                        .host(host, port)
-                        .user(username)
+                        .useSsl(true)
+                        .host("7fcd137d4e83.arangodb.cloud", 18529)
+                        .user("root")
+                        .sslContext(sslContext)
                         .password(password)
-                        .useSsl(false)
+                        //.useSsl(false)
                         .useProtocol(Protocol.HTTP_VPACK)
                         .build();
 
@@ -145,18 +179,20 @@ public class ArangoDBPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
-                    .flatMap(arangoDB -> Mono.zip(
+                    /*.flatMap(arangoDB -> Mono.zip(
                             Mono.just(arangoDB),
                             Mono.from(Mono.just(arangoDB.getVersion()))
                     ))
-                    .doOnSuccess(tuple -> {
-                        ArangoDatabase db = tuple.getT1();
+                    */
+                    .map(db -> {
+                        db.getVersion();
 
                         if (db != null) {
                             db.arango().shutdown();
                         }
+
+                        return new DatasourceTestResult();
                     })
-                    .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
                         log.error("Error when testing ArangoDB datasource.", error);
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
@@ -182,6 +218,7 @@ public class ArangoDBPlugin extends BasePlugin {
                         final String name = collectionEntity.getName();
                         tables.add(new DatasourceStructure.Table(
                                 DatasourceStructure.TableType.COLLECTION,
+                                "schema", // TODO: fix it.
                                 name,
                                 columns,
                                 new ArrayList<>(),
