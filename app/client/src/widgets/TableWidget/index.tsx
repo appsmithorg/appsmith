@@ -152,11 +152,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
-    for (const i in columnSizeMap) {
-      totalColumnSizes += columnSizeMap[i];
-    }
-
     const allColumnProperties = this.props.tableColumns || [];
+
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
@@ -234,6 +231,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {
+        totalColumnSizes += columnData.width;
         columns.push(columnData);
       }
     }

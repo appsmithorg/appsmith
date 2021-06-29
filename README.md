@@ -1,9 +1,9 @@
 <a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/images/git-banner.png" width="100%" alt="Appsmith - The Frontend Tool for Any Backend"></a>
 
-<p>
-  <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
+<h3 align="center">
+  <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Get Started</a></b>
   •
-  <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
+  <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Docs</a>
   •
   <a href="https://community.appsmith.com/">Community</a>
   •
@@ -14,12 +14,18 @@
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
-  <br>
-  Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
-  <br>
-  <br><p><img src="static/images/integrations.png" width="320px"></p>
-  <br>
+  •
+  <a href="./appsmith_templates.md">Templates</a> 
+  </h3>
+
+<p align="center">
+Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+<br />
+<br>
+<img src="static/images/integrations.png" width="320px">
+
 </p>
+<br>
 
 ## Quick Start
 
@@ -55,11 +61,13 @@ _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elast
   <img src="static/animations/javascript.gif" width="100%">
 </p>
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
+We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
-#### ☝️ One-click Deploy & Access Control
+<p>
+  <img src="static/animations/invite.gif" width="100%">
+</p>
 
-[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy & share apps with your team, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br><br>
+[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy & share apps with your team, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br>
 
 #### 🔑 Solid 256-bit Encryption
 
