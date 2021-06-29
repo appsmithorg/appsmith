@@ -5,9 +5,13 @@ describe("Name uniqueness test", function() {
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("Uni");
     cy.log("Creation of UniqueName Action successful");
+  });
+
+  it("Validate Unique Name", () => {
     cy.CreationOfUniqueAPIcheck("Uni");
-    //Download text when entered proper error message is not shown/ Also we will enable this test
-    //once we have better way to handle entering longer names.
-    //cy.CreationOfUniqueAPIcheck("download");
+  });
+
+  it("Validate download apiname check", () => {
+    cy.CreationOfUniqueAPIcheck("download");
   });
 });
