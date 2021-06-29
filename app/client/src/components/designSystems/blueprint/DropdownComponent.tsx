@@ -172,6 +172,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             items={this.props.options}
             onItemSelect={this.onItemSelect}
             popoverProps={{
+              boundary: "window",
               minimal: true,
               usePortal: true,
               modifiers: {
