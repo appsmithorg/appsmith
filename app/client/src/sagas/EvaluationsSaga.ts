@@ -271,7 +271,7 @@ function* logSuccessfulBindings(
 // Update only the changed entities on tern. We will pick up the updated
 // entities from the evaluation order and create a new def from them.
 // When there is a top level entity removed in removedPaths,
-// we will remove it's def
+// we will remove its def
 function* updateTernDefinitions(
   dataTree: DataTree,
   evaluationOrder: string[],
