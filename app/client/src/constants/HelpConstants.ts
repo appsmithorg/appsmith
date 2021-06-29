@@ -116,8 +116,12 @@ export const HelpMap = {
     searchKey: "Switch",
   },
   RATE_WIDGET: {
-    path: "/widget-reference/text",
-    searchKey: "Text",
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
   },
 };
 

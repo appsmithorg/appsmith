@@ -165,7 +165,7 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   LIST_WIDGET: {
-    items: "Array<Object>",
+    listData: "Array<Object>",
     isVisible: "boolean",
     gridGap: "number",
   },
@@ -178,6 +178,12 @@ const FIELD_VALUES: Record<
     tooltips: "Array<string>",
     isVisible: "boolean",
     isDisabled: "boolean",
+  },
+  IFRAME_WIDGET: {
+    source: "string",
+    title: "string",
+    borderOpacity: "number",
+    borderWidth: "number",
   },
 };
 

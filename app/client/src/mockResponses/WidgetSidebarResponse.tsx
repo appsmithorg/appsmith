@@ -110,6 +110,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Rating",
     key: generateReactKey(),
   },
+  {
+    type: "IFRAME_WIDGET",
+    widgetCardName: "Iframe",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

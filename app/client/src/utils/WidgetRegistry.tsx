@@ -107,6 +107,11 @@ import RateWidget, {
   RateWidgetProps,
   ProfiledRateWidget,
 } from "widgets/RateWidget";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -470,6 +475,19 @@ export default class WidgetBuilderRegistry {
       RateWidget.getDefaultPropertiesMap(),
       RateWidget.getMetaPropertiesMap(),
       RateWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
     );
   }
 }

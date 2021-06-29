@@ -37,5 +37,7 @@
   "visibilityOpt": ".option-title",
   "containerWidget": ".t--widget-containerwidget",
   "pageInfo": ".bp3-heading",
-  "inputGrp": ".bp3-input-group input"
+  "inputGrp": ".bp3-input-group input",
+  "datePickerNew": ".t--widget-datepickerwidget2",
+  "tab": ".t--tab-Tab"
 }

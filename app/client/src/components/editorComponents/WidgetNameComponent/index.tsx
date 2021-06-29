@@ -76,6 +76,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     ) {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.OPEN_PROPERTY_PANE,
+        { widgetId: props.widgetId },
+        true,
+        [{ name: "widget_type", value: props.type }],
       );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
         widgetType: props.type,
