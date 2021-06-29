@@ -823,20 +823,20 @@ export function* updatePageWithTemplateSaga(
       PageApi.updatePageWithTemplate,
       request,
     );
-    console.log({ updatePageWithTemplateResponse });
+
     const isValidResponse = yield validateResponse(
       updatePageWithTemplateResponse,
     );
     if (isValidResponse) {
-      const extractedDSL = extractCurrentDSL(updatePageWithTemplateResponse);
-      yield put({
-        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractedDSL,
-      });
-      // yield put({
-      //   type: ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_SUCCESS,
-      //   payload: action.payload,
-      // });
+      yield call(clearEvalCache);
+
+      // Get Canvas payload
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(
+        updatePageWithTemplateResponse,
+      );
+      // Update the canvas
+      yield put(initCanvasLayout(canvasWidgetsPayload));
+
       yield routeToEmptyEditorFromGenPage();
     }
   } catch (error) {

@@ -209,11 +209,17 @@ function DataSourceOption({
 
 // ---------- GeneratePageForm Component ----------
 
+const DEFAULT_DROPDOWN_OPTION = {
+  id: "- Select -",
+  label: "- Select -",
+  value: "",
+  data: {},
+};
+
 function GeneratePageForm() {
   const dispatch = useDispatch();
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const currentPageId = useSelector(getCurrentPageId);
-
   const datasources: Datasource[] = useSelector(getDatasources);
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
@@ -230,26 +236,17 @@ function GeneratePageForm() {
     DropdownOptions
   >([]);
 
-  const [selectedDatasource, selectDataSource] = useState<DropdownOption>({
-    id: "- Select -",
-    label: "- Select -",
-    value: "",
-    data: {},
-  });
+  const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
+    DEFAULT_DROPDOWN_OPTION,
+  );
 
-  const [selectedTable, selectTable] = useState<DropdownOption>({
-    id: "- Select -",
-    label: "- Select -",
-    value: "",
-    data: {},
-  });
+  const [selectedTable, selectTable] = useState<DropdownOption>(
+    DEFAULT_DROPDOWN_OPTION,
+  );
 
-  const [selectedColumn, selectColumn] = useState<DropdownOption>({
-    id: "- Select -",
-    label: "- Select -",
-    value: "",
-    data: {},
-  });
+  const [selectedColumn, selectColumn] = useState<DropdownOption>(
+    DEFAULT_DROPDOWN_OPTION,
+  );
 
   const onSelectDataSource = (
     datasource: string | undefined,
@@ -257,6 +254,8 @@ function GeneratePageForm() {
   ) => {
     if (datasource && dataSourceObj) {
       selectDataSource(dataSourceObj);
+      selectTable(DEFAULT_DROPDOWN_OPTION);
+      selectColumn(DEFAULT_DROPDOWN_OPTION);
       if (dataSourceObj.id) {
         dispatch(fetchDatasourceStructure(dataSourceObj.id));
       }
@@ -269,6 +268,7 @@ function GeneratePageForm() {
   ) => {
     if (table && TableObj) {
       selectTable(TableObj);
+      selectColumn(DEFAULT_DROPDOWN_OPTION);
       const { data } = TableObj;
       if (data.columns) {
         const newSelectedTableColumnOptions: DropdownOption[] = [];

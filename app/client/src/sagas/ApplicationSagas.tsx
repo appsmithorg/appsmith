@@ -31,7 +31,7 @@ import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
-  getGeneratePageURL,
+  getGenerateTemplateURL,
 } from "constants/routes";
 import { AppState } from "reducers";
 import {
@@ -445,7 +445,7 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const pageURL = getGeneratePageURL(
+        const pageURL = getGenerateTemplateURL(
           application.id,
           application.defaultPageId,
         );

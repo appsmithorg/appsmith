@@ -26,8 +26,8 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
-  getGeneratePageURL,
-  getGeneratePageFormURL,
+  getGenerateTemplateURL,
+  getGenerateTemplateFormURL,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -183,12 +183,12 @@ class EditorsRouter extends React.Component<
             <SentryRoute
               component={GeneratePage}
               exact
-              path={getGeneratePageURL()}
+              path={getGenerateTemplateURL()}
             />
             <SentryRoute
               component={GeneratePage}
               exact
-              path={getGeneratePageFormURL()}
+              path={getGenerateTemplateFormURL()}
             />
           </Switch>
         </PaneDrawer>
