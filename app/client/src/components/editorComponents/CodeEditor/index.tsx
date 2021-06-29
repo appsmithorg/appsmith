@@ -172,6 +172,7 @@ class CodeEditor extends Component<Props, State> {
         };
       }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
+      this.editor.on("beforeChange", this.handleBeforeChange);
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
       this.editor.on("change", this.onChangeTrigger);
@@ -288,6 +289,23 @@ class CodeEditor extends Component<Props, State> {
 
     this.editor.setOption("matchBrackets", false);
   };
+
+  handleBeforeChange(
+    cm: CodeMirror.Editor,
+    change: CodeMirror.EditorChangeCancellable,
+  ) {
+    if (change.origin === "paste") {
+      // Remove all non ASCII quotes since they are invalid in Javascript
+      const formattedText = change.text.map((line) => {
+        let formattedLine = line.replace(/[‘’]/g, "'");
+        formattedLine = formattedLine.replace(/[“”]/g, '"');
+        return formattedLine;
+      });
+      if (change.update) {
+        change.update(undefined, undefined, formattedText);
+      }
+    }
+  }
 
   handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue();

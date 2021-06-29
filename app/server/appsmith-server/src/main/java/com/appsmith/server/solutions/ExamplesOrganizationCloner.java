@@ -370,7 +370,7 @@ public class ExamplesOrganizationCloner {
                 );
     }
 
-    private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
         final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toOrganizationId)
                 .collectList();
 

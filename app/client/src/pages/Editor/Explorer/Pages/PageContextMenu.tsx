@@ -103,8 +103,6 @@ export function PageContextMenu(props: {
     });
   }
 
-  console.log({ props });
-
   if (!props.isDefaultPage) {
     optionTree.push({
       value: "delete",

@@ -740,30 +740,6 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        propertyName: "totalRecordsCount",
-        label: "Total Record Count",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Enter total record count",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.NUMBER,
-          params: { min: 0, default: 0 },
-        },
-      },
-      {
-        propertyName: "defaultPageSize",
-        label: "Default Page Size",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Enter default page size",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.NUMBER,
-          params: { min: 0, default: 0 },
-        },
-      },
-      {
         helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",

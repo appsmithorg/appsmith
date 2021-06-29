@@ -116,7 +116,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        defaultPageSize: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -155,7 +154,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        totalRecordsCount: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onRowSelected: true,
@@ -165,13 +163,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
-        defaultPageSize: {
-          params: {
-            default: 0,
-            min: 0,
-          },
-          type: "NUMBER",
-        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -189,13 +180,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
-        },
-        totalRecordsCount: {
-          params: {
-            default: 0,
-            min: 0,
-          },
-          type: "NUMBER",
         },
       },
     };
