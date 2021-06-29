@@ -243,7 +243,7 @@ class TernServer {
     // Add data tree completions before others
     const expectedDataType = this.getExpectedDataType();
     const dataTreeCompletions = completions
-      .filter((c) => c.origin.startsWith("DATA_TREE_"))
+      .filter((c) => c.origin && c.origin.startsWith("DATA_TREE_"))
       .sort((a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
