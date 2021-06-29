@@ -18,8 +18,6 @@ phases:
     on-failure: ABORT
     commands:
       - source ci/1-server-scripts/3-build.sh
-    finally:
-      - if [ "$CODEBUILD_BUILD_SUCCEEDING" == 0 ]; then source ci/cleanup.sh; fi
 
 cache:
   paths:
