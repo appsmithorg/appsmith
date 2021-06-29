@@ -167,7 +167,7 @@ class ListView extends React.Component<Props> {
     return (
       <IntegrationHomePage>
         <NotFound
-          buttonText="Go back to Integrations"
+          buttonText="Go back to Datasources"
           onBackButton={() =>
             history.push(
               INTEGRATION_EDITOR_URL(
@@ -177,7 +177,7 @@ class ListView extends React.Component<Props> {
               ),
             )
           }
-          title="Integration Not found"
+          title="Datasources/Queries Not found"
         />
       </IntegrationHomePage>
     );
