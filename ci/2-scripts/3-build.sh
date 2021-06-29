@@ -53,7 +53,7 @@ export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
 echo Building client code
 cd "$CODEBUILD_SRC_DIR/app/client"
 npm install -g yarn
-yarn install --frozen-lockfile
+time yarn install --frozen-lockfile
 if [[ ! -d ~/.cache/Cypress ]]; then
 	npx cypress install
 fi
@@ -143,20 +143,21 @@ else
 	export COMMIT_INFO_BRANCH="$branch"
 fi
 
-# #	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
-# #	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
-# #	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
-# #	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
-# #	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
-# 	NO_COLOR=1 \
-# 	npx cypress run --headless --browser chrome \
-# 	--record \
-# 	--ci-build-id "$CODEBUILD_INITIATOR" \
-# 	--parallel \
-# 	--group 'Electrons on CodeBuild CI' \
-# 	--env 'NODE_ENV=development' \
-# 	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
-# 	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
+#	COMMIT_INFO_MESSAGE="$(git log -1 --pretty=%s)" \
+#	COMMIT_INFO_EMAIL="$(git log -1 --pretty=%ae)" \
+#	COMMIT_INFO_AUTHOR="$(git log -1 --pretty=%an)" \
+#	COMMIT_INFO_SHA="$CODEBUILD_RESOLVED_SOURCE_VERSION" \
+#	COMMIT_INFO_REMOTE="$CODEBUILD_SOURCE_REPO_URL" \
+
+NO_COLOR=1 \
+	npx cypress run --headless --browser chrome \
+	--record \
+	--ci-build-id "$CODEBUILD_INITIATOR" \
+	--parallel \
+	--group 'Electrons on CodeBuild CI' \
+	--env 'NODE_ENV=development' \
+	--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
+	--spec 'cypress/integration/Smoke_TestSuite/**/*.js'
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail

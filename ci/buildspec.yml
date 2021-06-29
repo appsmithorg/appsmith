@@ -41,147 +41,148 @@ batch:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
-    # # Run all Cypress tests.
-    # - identifier: cypress2
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress3
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress4
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress5
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress6
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress7
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress8
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress9
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress10
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress11
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress12
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress13
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress14
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress15
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Run all Cypress tests.
-    # - identifier: cypress16
-    #   depend-on: [client_units, server_units]
-    #   buildspec: ci/2-cypress.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #   debug-session: true
-    #
-    # # Publish
-    # - identifier: publish
-    #   buildspec: ci/3-publish.yml
-    #   env:
-    #     compute-type: BUILD_GENERAL1_MEDIUM
-    #     privileged-mode: true
-    #   debug-session: true
-    #   depend-on:
-    #     - cypress1
-    #     - cypress2
-    #     - cypress3
-    #     - cypress4
-    #     - cypress5
-    #     - cypress6
-    #     - cypress7
-    #     - cypress8
-    #     - cypress9
-    #     - cypress10
-    #     - cypress11
-    #     - cypress12
-    #     - cypress13
-    #     - cypress14
-    #     - cypress15
-    #     - cypress16
+    # Run all Cypress tests.
+    - identifier: cypress2
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress3
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress4
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress5
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress6
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress7
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress8
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress9
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress10
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress11
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress12
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress13
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress14
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress15
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress16
+      depend-on: [client_units, server_units]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Publish
+    - identifier: publish
+      depend-on: [client_units, server_units]
+      buildspec: ci/3-publish.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+        privileged-mode: true
+      debug-session: true
+      depend-on:
+        - cypress1
+        - cypress2
+        - cypress3
+        - cypress4
+        - cypress5
+        - cypress6
+        - cypress7
+        - cypress8
+        - cypress9
+        - cypress10
+        - cypress11
+        - cypress12
+        - cypress13
+        - cypress14
+        - cypress15
+        - cypress16
