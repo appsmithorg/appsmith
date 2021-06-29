@@ -91,6 +91,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { UpdatePageWithTemplateRequest } from "../api/PageApi";
 import { routeToEmptyEditorFromGenPage } from "../pages/Editor/GeneratePage/components/ActionCards";
+import { getGenerateTemplateURL } from "../constants/routes";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -175,6 +176,47 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
+function* handleFetchedPage({
+  fetchPageResponse,
+  pageId,
+  stopPerfTracker = false,
+}: {
+  fetchPageResponse: FetchPageResponse;
+  pageId: string;
+  stopPerfTracker?: boolean;
+}) {
+  const isValidResponse = yield validateResponse(fetchPageResponse);
+  const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+  if (isValidResponse) {
+    // Clear any existing caches
+    yield call(clearEvalCache);
+    // Set url params
+    yield call(setDataUrl);
+    // Get Canvas payload
+    const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+    // Update the canvas
+    yield put(initCanvasLayout(canvasWidgetsPayload));
+    // set current page
+    yield put(updateCurrentPage(pageId));
+    // dispatch fetch page success
+    yield put(fetchPageSuccess());
+    const extractedDSL = extractCurrentDSL(fetchPageResponse);
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: extractedDSL,
+    });
+
+    if (willPageBeMigrated) {
+      yield put(saveLayout());
+    }
+    if (stopPerfTracker) {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_API,
+      );
+    }
+  }
+}
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
@@ -187,36 +229,11 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
-    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
-
-    if (isValidResponse) {
-      // Clear any existing caches
-      yield call(clearEvalCache);
-      // Set url params
-      yield call(setDataUrl);
-      // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      // Update the canvas
-      yield put(initCanvasLayout(canvasWidgetsPayload));
-      // set current page
-      yield put(updateCurrentPage(id));
-      // dispatch fetch page success
-      yield put(fetchPageSuccess());
-      const extractedDSL = extractCurrentDSL(fetchPageResponse);
-      yield put({
-        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractedDSL,
-      });
-
-      if (willPageBeMigrated) {
-        yield put(saveLayout());
-      }
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
-    }
+    yield handleFetchedPage({
+      fetchPageResponse,
+      pageId: id,
+      stopPerfTracker: true,
+    });
   } catch (error) {
     log.error(error);
     PerformanceTracker.stopAsyncTracking(
@@ -465,8 +482,9 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
+      // route to generate template for new page created
       history.push(
-        BUILDER_PAGE_URL(
+        getGenerateTemplateURL(
           createPageAction.payload.applicationId,
           response.data.id,
         ),
@@ -828,15 +846,13 @@ export function* updatePageWithTemplateSaga(
       updatePageWithTemplateResponse,
     );
     if (isValidResponse) {
-      yield call(clearEvalCache);
+      const pageId = updatePageWithTemplateResponse.data.id;
 
-      // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(
-        updatePageWithTemplateResponse,
-      );
-      // Update the canvas
-      yield put(initCanvasLayout(canvasWidgetsPayload));
-
+      yield handleFetchedPage({
+        fetchPageResponse: updatePageWithTemplateResponse,
+        pageId,
+      });
+      yield put(fetchActionsForPage(pageId));
       yield routeToEmptyEditorFromGenPage();
     }
   } catch (error) {

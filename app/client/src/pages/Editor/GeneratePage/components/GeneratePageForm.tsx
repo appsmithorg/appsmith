@@ -31,10 +31,8 @@ import { FormIcons } from "icons/FormIcons";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../../Explorer/helpers";
 
 // ---------- Helpers and constants ----------
 
@@ -218,8 +216,11 @@ const DEFAULT_DROPDOWN_OPTION = {
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
-  const currentApplicationId = useSelector(getCurrentApplicationId);
-  const currentPageId = useSelector(getCurrentPageId);
+  const {
+    applicationId: currentApplicationId,
+    pageId: currentPageId,
+  } = useParams<ExplorerURLParams>();
+
   const datasources: Datasource[] = useSelector(getDatasources);
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
