@@ -18,14 +18,14 @@ batch:
 
     # Run unit tests on client and server.
     - identifier: client_units
-      buildspec: ci/1-client_units.yml
+      buildspec: ci/1-client-units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
     # Run unit tests on client and server.
     - identifier: server_units
-      buildspec: ci/1-server_units.yml
+      buildspec: ci/1-server-units.yml
       env:
         compute-type: BUILD_GENERAL1_MEDIUM
         # This job doesn't build any Docker images, but the backend tests use Docker to bring up database containers, so
