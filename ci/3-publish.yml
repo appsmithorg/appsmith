@@ -20,6 +20,8 @@ phases:
     on-failure: ABORT
     commands:
       - source ci/3-scripts/3-build.sh
+    finally:
+      - source ci/cleanup.sh
 
 cache:
   paths:

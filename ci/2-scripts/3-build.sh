@@ -25,8 +25,8 @@ node --version
 # Replace `/` characters to `--` in the initiator.
 # Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
 batch_id="${CODEBUILD_INITIATOR//\//--}"
-aws s3 cp --no-progress "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/client-dist.tgz" .
-aws s3 cp --no-progress "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/server-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PATH/$batch_id/client-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PATH/$batch_id/server-dist.tgz" .
 
 tar -xaf client-dist.tgz
 tar -xaf server-dist.tgz

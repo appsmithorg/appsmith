@@ -21,4 +21,4 @@ REACT_APP_SHOW_ONBOARDING_FORM=true \
 batch_id="${CODEBUILD_INITIATOR//\//--}"
 mv -v build client-dist
 tar -caf client-dist.tgz client-dist
-aws s3 cp --no-progress client-dist.tgz "s3://codebuild-cache-appsmith/appsmith-ce-dist/$batch_id/client-dist.tgz"
+aws s3 cp --no-progress client-dist.tgz "$S3_BUILDS_PATH/$batch_id/client-dist.tgz"

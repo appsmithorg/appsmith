@@ -20,19 +20,27 @@ if [[ -z $DOCKER_TAG_NAME ]]; then
 	DOCKER_TAG_NAME="${CODEBUILD_SOURCE_VERSION:-release}"
 fi
 
-echo Building client code
+# Replace `/` characters to `--` in the initiator.
+# Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
+batch_id="${CODEBUILD_INITIATOR//\//--}"
+aws s3 cp --no-progress "$S3_BUILDS_PATH/$batch_id/client-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PATH/$batch_id/server-dist.tgz" .
+
+tar -xaf client-dist.tgz
+mv -v client-dist "$CODEBUILD_SRC_DIR/app/client/build"
 cd "$CODEBUILD_SRC_DIR/app/client"
-npm install -g yarn
-yarn install --frozen-lockfile
-
-REACT_APP_SHOW_ONBOARDING_FORM=true yarn run build
-
 docker build --tag "${image_prefix}appsmith-editor:$DOCKER_TAG_NAME" .
 
 echo Building server code
-cd "$CODEBUILD_SRC_DIR/app/server"
-./build.sh --batch-mode --threads 1.0C -Dmaven.test.skip=true
-
+tar -xaf server-dist.tgz
+# The following is a horrible attempt at moving the jar files to their original locations, before `build.sh` moving
+# them. The Dockerfile expects them to be _kind of_ in these places.
+mkdir -p "$CODEBUILD_SRC_DIR/app/server/appsmith-server/target"
+mv -v server-dist/server-1.0-SNAPSHOT.jar "$CODEBUILD_SRC_DIR/app/server/appsmith-server/target/"
+mkdir -p "$CODEBUILD_SRC_DIR/app/server/appsmith-plugins/dummy"
+mv -v server-dist/plugins "$CODEBUILD_SRC_DIR/app/server/appsmith-plugins/dummy/target"
+ls "$CODEBUILD_SRC_DIR/app/server/appsmith-server/target"  # Should list `server-1.0-SNAPSHOT.jar` only.
+ls"$CODEBUILD_SRC_DIR/app/server/appsmith-plugins/dummy/target"  # Should list all plugin jar files.
 docker build --tag "${image_prefix}appsmith-server:$DOCKER_TAG_NAME" .
 
 docker push "${image_prefix}appsmith-editor:$DOCKER_TAG_NAME"
