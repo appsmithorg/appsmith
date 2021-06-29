@@ -54,7 +54,7 @@ export type ActionGroupConfig = {
 /*eslint-disable react/display-name */
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
-    groupName: "Integrations",
+    groupName: "Datasources",
     types: [PluginType.API, PluginType.SAAS, PluginType.DB],
     icon: dbQueryIcon,
     key: generateReactKey(),
