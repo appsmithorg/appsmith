@@ -16,75 +16,75 @@ describe("Entity explorer datasource structure", function() {
     });
   });
 
-  // it("Entity explorer datasource structure", function() {
-  //   cy.NavigateToQueryEditor();
-  //   cy.contains(".t--datasource-name", datasourceName)
-  //     .find(queryLocators.createQuery)
-  //     .click();
-  //   cy.wait("@createNewApi").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     201,
-  //   );
+  it("Entity explorer datasource structure", function() {
+    cy.NavigateToQueryEditor();
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
+      .click();
+    cy.wait("@createNewApi").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
 
-  //   cy.get(apiwidget.apiTxt)
-  //     .clear()
-  //     .type("MyQuery", { force: true })
-  //     .should("have.value", "MyQuery")
-  //     .blur();
-  //   cy.WaitAutoSave();
+    cy.get(apiwidget.apiTxt)
+      .clear()
+      .type("MyQuery", { force: true })
+      .should("have.value", "MyQuery")
+      .blur();
+    cy.WaitAutoSave();
 
-  //   cy.GlobalSearchEntity(datasourceName);
-  //   cy.wait("@getDatasourceStructure").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
+    cy.GlobalSearchEntity(datasourceName);
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  //   cy.get(explorer.datasourceStructure)
-  //     .first()
-  //     .find(explorer.collapse)
-  //     .click();
-  //   cy.get(explorer.datasourceColumn)
-  //     .first()
-  //     .click();
-  //   cy.get(".bp3-popover-content").should("be.visible");
+    cy.get(explorer.datasourceStructure)
+      .first()
+      .find(explorer.collapse)
+      .click();
+    cy.get(explorer.datasourceColumn)
+      .first()
+      .click();
+    cy.get(".bp3-popover-content").should("be.visible");
 
-  //   cy.get(explorer.templateMenuIcon)
-  //     .first()
-  //     .click({ force: true });
-  //   cy.get(".bp3-popover-content")
-  //     .last()
-  //     .contains("SELECT")
-  //     .click({ force: true });
-  //   cy.wait("@createNewApi").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     201,
-  //   );
+    cy.get(explorer.templateMenuIcon)
+      .first()
+      .click({ force: true });
+    cy.get(".bp3-popover-content")
+      .last()
+      .contains("SELECT")
+      .click({ force: true });
+    cy.wait("@createNewApi").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
 
-  //   cy.get(queryEditor.queryMoreAction).click();
-  //   cy.get(queryEditor.deleteUsingContext).click();
-  //   cy.wait("@deleteAction").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
+    cy.wait("@deleteAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  //   cy.GlobalSearchEntity("MyQuery");
-  //   cy.get(`.t--entity-name:contains(MyQuery)`).click();
-  //   cy.get(queryEditor.queryMoreAction).click();
-  //   cy.get(queryEditor.deleteUsingContext).click();
-  //   cy.wait("@deleteAction").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
+    cy.GlobalSearchEntity("MyQuery");
+    cy.get(`.t--entity-name:contains(MyQuery)`).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
+    cy.wait("@deleteAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  //   cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
-  //   cy.deleteDatasource(datasourceName);
-  // });
+    cy.deleteDatasource(datasourceName);
+  });
 
   it("Refresh datasource structure", function() {
     cy.NavigateToQueryEditor();
