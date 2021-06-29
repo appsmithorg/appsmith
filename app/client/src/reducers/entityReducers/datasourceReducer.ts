@@ -43,12 +43,11 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
     state: DatasourceDataState,
-    action: ReduxAction<MockDatasource>,
+    action: ReduxAction<any>,
   ) => {
-    const { dataSourceIds, mockDataSets } = action.payload;
-    const mockDatasourceList = dataSourceIds.map((id, idx) => ({
-      id,
-      name: mockDataSets[idx],
+    const mockDatasourceList = Object.keys(action.payload).map((dbKey) => ({
+      ...action.payload[dbKey],
+      name: dbKey,
     })) as FormatedMockDatasource[];
     return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
   },

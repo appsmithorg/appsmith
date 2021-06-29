@@ -23,6 +23,13 @@ const MockDataSourceWrapper = styled.div`
     margin-top: 10px;
   }
 `;
+
+const Description = styled.div`
+  color: ${Colors.DOVE_GRAY};
+  font-size: 14px;
+  display: inline-block;
+  margin-top: 11px;
+`;
 function MockDataSources(props: { mockDatasources: FormatedMockDatasource[] }) {
   const orgId = useSelector(getCurrentOrgId);
   return (
@@ -117,6 +124,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
             )}
             <DatasourceName>{datasource.name}</DatasourceName>
           </DatasourceNameWrapper>
+          <Description>{datasource.description}</Description>
         </div>
         <ButtonsWrapper className="action-wrapper">
           <ActionButton
