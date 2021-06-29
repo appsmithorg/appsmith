@@ -387,11 +387,9 @@ class IntegrationsHomeScreen extends React.Component<
       history,
       isCreating,
       location,
-      mockDatasources,
       pageId,
     } = this.props;
 
-    console.log({ mockDatasources });
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
