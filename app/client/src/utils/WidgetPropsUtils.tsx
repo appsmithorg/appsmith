@@ -791,6 +791,23 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
+export const migrateObjectFitToImageWidget = (
+  dsl: ContainerWidgetProps<WidgetProps>,
+) => {
+  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+    widgetProps.objectFit = "cover";
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        if (widgetProps.type === "IMAGE_WIDGET") {
+          addObjectFitProperty(eachWidgetProp);
+        }
+      });
+    }
+  };
+  addObjectFitProperty(dsl);
+  return dsl;
+};
+
 const migrateOverFlowingTabsWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   canvasWidgets: any,

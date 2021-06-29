@@ -321,9 +321,11 @@ class CodeEditor extends Component<Props, State> {
   ) {
     if (change.origin === "paste") {
       // Remove all non ASCII quotes since they are invalid in Javascript
-      const formattedText = change.text.map((line) =>
-        line.replace(/[“‘’”]/g, "'"),
-      );
+      const formattedText = change.text.map((line) => {
+        let formattedLine = line.replace(/[‘’]/g, "'");
+        formattedLine = formattedLine.replace(/[“”]/g, '"');
+        return formattedLine;
+      });
       if (change.update) {
         change.update(undefined, undefined, formattedText);
       }

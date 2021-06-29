@@ -33,10 +33,10 @@ describe("Binding the multiple input Widget", function() {
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-//       cy.get(publish.inputWidget + " " + "input")
-//         .last()
-//         .invoke("attr", "value")
-//         .should("contain", tabValue);
+      //       cy.get(publish.inputWidget + " " + "input")
+      //         .last()
+      //         .invoke("attr", "value")
+      //         .should("contain", tabValue);
     });
   });
 });
