@@ -24,5 +24,3 @@ phases:
 cache:
   paths:
     - '/root/.m2/**/*'  # Server dependencies.
-    # - 'app/client/node_modules/**/*'  # Client dependencies.
-    - '/root/.cache/Cypress/**/*'  # Cypress binary.
