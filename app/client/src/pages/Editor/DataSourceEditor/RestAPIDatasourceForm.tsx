@@ -292,44 +292,43 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   render = () => {
     return (
-      <RestApiForm>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {this.renderHeader()}
-          {this.renderEditor()}
-          {this.renderSave()}
-        </form>
-      </RestApiForm>
+      <>
+        <BackButton onClick={history.goBack} />
+        <RestApiForm>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {this.renderHeader()}
+            {this.renderEditor()}
+            {this.renderSave()}
+          </form>
+        </RestApiForm>
+      </>
     );
   };
 
   renderHeader = () => {
     const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
-      <>
-        <BackButton onClick={history.goBack} />
-        <br />
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={pluginImage} />
-            <FormTitle focusOnMount={isNewDatasource} />
-          </FormTitleContainer>
+      <Header>
+        <FormTitleContainer>
+          <PluginImage alt="Datasource" src={pluginImage} />
+          <FormTitle focusOnMount={isNewDatasource} />
+        </FormTitleContainer>
 
-          <CreateApiButton
-            accent="primary"
-            className="t--create-query"
-            disabled={this.disableSave()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-            text="New API"
-          />
-        </Header>
-      </>
+        <CreateApiButton
+          accent="primary"
+          className="t--create-query"
+          disabled={this.disableSave()}
+          filled
+          icon={"plus"}
+          loading={isSaving}
+          onClick={() => this.createApiAction()}
+          text="New API"
+        />
+      </Header>
     );
   };
 
