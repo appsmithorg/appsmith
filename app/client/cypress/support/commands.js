@@ -1774,7 +1774,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute an Integration")
+    .selectOnClickOption("Execute a Query")
     .selectOnClickOption(QueryName);
 });
 
@@ -1782,7 +1782,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute an Integration")
+    .selectOnClickOption("Execute a Query")
     .selectOnClickOption(ApiName);
 });
 
@@ -2059,7 +2059,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute an Integration")
+    .contains("Execute a Query")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2515,7 +2515,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click();
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute an Integration")
+    .contains("Execute a Query")
     .click();
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)

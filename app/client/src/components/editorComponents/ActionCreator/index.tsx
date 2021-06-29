@@ -42,7 +42,7 @@ const baseOptions: any = [
     value: ActionType.none,
   },
   {
-    label: "Execute an Integration",
+    label: "Execute a Query",
     value: ActionType.integration,
   },
 
@@ -373,11 +373,11 @@ function useIntegrationsOptionTree() {
     actions,
     datasources,
     {
-      label: "Create New Integration",
-      value: "integration",
+      label: "Create New Query",
+      value: "datasources",
       id: "create",
       icon: "plus",
-      className: "t--create-integration-btn",
+      className: "t--create-datasources-query-btn",
       onSelect: () => {
         history.push(
           INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
