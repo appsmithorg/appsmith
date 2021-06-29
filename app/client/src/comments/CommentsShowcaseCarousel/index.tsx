@@ -64,6 +64,11 @@ const IntroContentContainer = styled.div`
   padding: ${(props) => props.theme.spaces[5]}px;
 `;
 
+const StyledImg = styled.img`
+  width: 100%;
+  object-fit: contain;
+`;
+
 function IntroStep(props: {
   title: string;
   content: string;
@@ -72,7 +77,7 @@ function IntroStep(props: {
 }) {
   return (
     <>
-      <img alt="" src={props.banner} />
+      <StyledImg alt="" src={props.banner} />
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text

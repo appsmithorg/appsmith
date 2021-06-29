@@ -83,7 +83,6 @@ export const getSortedAndFilteredAppCommentThreadIds = (
   shouldShowResolved: boolean,
   appCommentsFilter: typeof filterOptions[number]["value"],
   currentUserUsername?: string,
-  currentPageId?: string,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
   const result = applicationThreadIds
@@ -115,7 +114,6 @@ export const getSortedAndFilteredAppCommentThreadIds = (
 
       // Happens during delete thread
       if (!thread) return false;
-      if (thread?.pageId !== currentPageId) return false;
 
       const isResolved = thread.resolvedState?.active;
       const isPinned = thread.pinnedState?.active;

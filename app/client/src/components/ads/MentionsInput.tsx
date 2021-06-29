@@ -10,11 +10,11 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import "draft-js/dist/Draft.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSuggestions/Entry/Entry";
-import UserApi from "api/UserApi";
 
 import Icon from "components/ads/Icon";
 
 import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
+import { USER_PHOTO_URL } from "constants/userConstants";
 
 const StyledMention = styled.span`
   color: ${(props) => props.theme.colors.comments.mention};
@@ -103,11 +103,11 @@ function SuggestionComponent(props: EntryComponentProps) {
     <StyledSuggestionsComponent {...parentProps}>
       <ProfileImage
         side={25}
-        source={`/api/${UserApi.photoURL}/${user?.username}`}
+        source={`/api/${USER_PHOTO_URL}/${user?.username}`}
         userName={user?.username || ""}
       />
       <div>
-        <Name>{user?.username}</Name>
+        <Name>{props.mention.name}</Name>
         <Username>{user?.username}</Username>
       </div>
     </StyledSuggestionsComponent>
