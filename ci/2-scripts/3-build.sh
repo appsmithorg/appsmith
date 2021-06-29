@@ -34,12 +34,6 @@ tar -xaf server-dist.tgz
 ls
 du -sh client-dist server-dist
 
-echo Building client code
-cd "$CODEBUILD_SRC_DIR/app/client"
-if [[ ! -d ~/.cache/Cypress ]]; then
-	npx cypress install
-fi
-
 echo Building server code
 cd "$CODEBUILD_SRC_DIR/server-dist"
 APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
@@ -56,8 +50,15 @@ npx serve -s "$CODEBUILD_SRC_DIR/client-dist" -p 3000 > "$CODEBUILD_SRC_DIR/logs
 export APPSMITH_DISABLE_TELEMETRY=true
 export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
 
-# Substitute all the env variables in nginx
+echo Building client code
 cd "$CODEBUILD_SRC_DIR/app/client"
+npm install -g yarn
+yarn install --frozen-lockfile
+if [[ ! -d ~/.cache/Cypress ]]; then
+	npx cypress install
+fi
+
+# Substitute all the env variables in nginx
 vars_to_substitute='\$'"$(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | paste -s -d, - | sed 's/,/,\\$/g')"
 echo "vars_to_substitute: $vars_to_substitute"
 envsubst "$vars_to_substitute" < docker/templates/nginx-app.conf.template \
