@@ -65,7 +65,7 @@ describe("Dynamic input autocomplete", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });
     cy.wait("@createNewApi");
-    cy.xpath(apiwidget.headerValue)
+    cy.get(apiwidget.headerValue)
       .first()
       .focus();
     cy.assertEvaluatedValuePopup("string");
