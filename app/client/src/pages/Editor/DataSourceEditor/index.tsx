@@ -153,7 +153,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource:
       datasourcePane.newDatasource === props.match.params.datasourceId,
-    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
+    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? false,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
     pluginPackageName: plugin?.packageName ?? "",
