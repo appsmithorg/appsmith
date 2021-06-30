@@ -792,6 +792,7 @@ public class ActionServiceTest {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
                     assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
+                    assertThat(result.getSuggestedWidget()).isEqualTo(mockResult.getSuggestedWidget());
                 })
                 .verifyComplete();
     }

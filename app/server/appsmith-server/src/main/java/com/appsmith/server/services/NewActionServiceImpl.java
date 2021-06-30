@@ -39,7 +39,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
@@ -696,20 +699,29 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     private String getSuggestedWidget(Object data) {
-        if (data instanceof ArrayList) {
-            Long length = ((List)data).stream().count();
-            Long fieldsLength = ((List)data).stream().findFirst().stream().count();
-            if(length <= 10 && fieldsLength == 1) {
-                return "DROP_DOWN_WODGET";
+        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
+
+            ArrayNode array = (ArrayNode) data;
+            Integer length = array.size();
+            ObjectNode objectNode = (ObjectNode)array.get(0);
+            Integer fieldsCount = array.get(0).size();
+            if( objectNode.has("X") && objectNode.has("Y") && objectNode.has("value")) {
+                return "CHART_WIDGET";
             }
-            if(length <= 100 && fieldsLength <= 5) {
+
+            if(length <= 10 && fieldsCount == 1) {
+                return "DROP_DOWN_WIDGET";
+            }
+            if(length <= 20 && fieldsCount <= 5) {
                 return "LIST_WIDGET";
             }
             return "TABLE_WIDGET";
         }
-
-        if(data instanceof JsonNode) {
-            return "TABLE_WIDGET";
+        if(data instanceof JSONObject) {
+            return "CHART_WIDGET";
+        }
+        if( data == null) {
+            return "";
         }
         return "TABLE_WIDGET";
     }
