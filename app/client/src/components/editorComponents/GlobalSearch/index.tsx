@@ -48,6 +48,8 @@ import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 
+import { getCurrentPageId } from "selectors/editorSelectors";
+
 const StyledContainer = styled.div`
   width: 750px;
   height: 60vh;
@@ -89,7 +91,35 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
+const getIsInCurrentPage = (
+  isWidget: boolean,
+  entity: any,
+  currentPageId?: string,
+) =>
+  isWidget
+    ? entity.pageId === currentPageId
+    : entity?.config?.pageId === currentPageId;
+
+const sortActionsAndWidgets = (a: any, b: any, currentPageId?: string) => {
+  const isAWidget = !!a.widgetId;
+  const isBWidget = !!b.widgetId;
+
+  const aInCurrentPage = getIsInCurrentPage(isAWidget, a, currentPageId);
+  const bInCurrentPage = getIsInCurrentPage(isBWidget, b, currentPageId);
+
+  // page entites on top
+  if (aInCurrentPage && !bInCurrentPage) return -1;
+  if (!aInCurrentPage && bInCurrentPage) return 1;
+
+  // actions before widgets
+  if (isAWidget && !isBWidget) return 1;
+  if (!isAWidget && isBWidget) return -1;
+
+  return 0;
+};
+
 function GlobalSearch() {
+  const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
@@ -233,11 +263,15 @@ function GlobalSearch() {
 
     const results = [];
 
+    const actionsAndWidgetsSorted = [
+      ...filteredActions,
+      ...filteredWidgets,
+    ].sort((a, b) => sortActionsAndWidgets(a, b, currentPageId));
+
     const entities = [
       entitiesSectionTitle,
+      ...actionsAndWidgetsSorted,
       ...filteredPages,
-      ...filteredWidgets,
-      ...filteredActions,
       ...filteredDatasources,
     ];
 
