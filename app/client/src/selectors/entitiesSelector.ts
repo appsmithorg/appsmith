@@ -5,7 +5,11 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource, DatasourceStructure } from "entities/Datasource";
+import {
+  Datasource,
+  MockDatasource,
+  DatasourceStructure,
+} from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -24,6 +28,10 @@ export const getDatasourcesStructure = (
   state: AppState,
 ): Record<string, DatasourceStructure> => {
   return state.entities.datasources.structure;
+};
+
+export const getMockDatasources = (state: AppState): MockDatasource[] => {
+  return state.entities.datasources.mockDatasourceList;
 };
 
 export const getPluginIdsOfNames = (

@@ -131,7 +131,11 @@ export const updateActionSuccess = (payload: { data: Action }) => {
   };
 };
 
-export const deleteAction = (payload: { id: string; name: string }) => {
+export const deleteAction = (payload: {
+  id: string;
+  name: string;
+  onSuccess?: () => void;
+}) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_INIT,
     payload,

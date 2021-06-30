@@ -4,6 +4,7 @@ import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export type DropdownOption = {
   label?: string;
@@ -42,6 +43,7 @@ export type DropdownProps = CommonComponentProps & {
   showDropIcon?: boolean;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
   renderOption?: RenderOption;
+  bgColor?: string;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -54,12 +56,15 @@ const Selected = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
   height: string;
+  bgColor?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
   background: ${(props) =>
     props.disabled
       ? props.theme.colors.dropdown.header.disabledBg
+      : !!props.bgColor
+      ? props.bgColor
       : props.theme.colors.dropdown.header.bg};
   display: flex;
   align-items: center;
@@ -69,21 +74,31 @@ const Selected = styled.div<{
   cursor: pointer;
   ${(props) =>
     props.isOpen
-      ? `border: 1px solid ${props.theme.colors.info.main}`
+      ? `border: 1px solid ${
+          !!props.bgColor ? props.bgColor : props.theme.colors.info.main
+        }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
+      : `border: 1px solid ${
+          !!props.bgColor
+            ? props.bgColor
+            : props.theme.colors.dropdown.header.bg
+        }`};
   ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
   ${(props) =>
-    props.isOpen && !props.disabled
+    props.isOpen && !props.disabled && !props.bgColor
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
-        : `color: ${props.theme.colors.dropdown.header.text}`};
+        : `color: ${
+            !!props.bgColor
+              ? Colors.WHITE
+              : props.theme.colors.dropdown.header.text
+          }`};
   }
 `;
 
@@ -267,6 +282,7 @@ export default function Dropdown(props: DropdownProps) {
         position={Position.BOTTOM_LEFT}
       >
         <Selected
+          bgColor={props.bgColor}
           className={props.className}
           disabled={props.disabled}
           height={props.height || "38px"}

@@ -5,6 +5,10 @@ export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
   password?: string;
+  label?: string;
+  value?: string;
+  addTo?: string;
+  bearerToken?: string;
 }
 
 export interface DatasourceColumns {
@@ -73,6 +77,13 @@ export interface Datasource extends BaseDatasource {
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
+}
+
+export interface MockDatasource {
+  id: string;
+  name: string;
+  description: string;
+  pluginId: string;
 }
 
 export const DEFAULT_DATASOURCE = (

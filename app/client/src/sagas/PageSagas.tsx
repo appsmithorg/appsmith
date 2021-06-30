@@ -185,7 +185,7 @@ function* handleFetchedPage({
   pageId: string;
   stopPerfTracker?: boolean;
 }) {
-  const isValidResponse = yield validateResponse(fetchPageResponse);
+  const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   if (isValidResponse) {
     // Clear any existing caches
@@ -221,7 +221,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -271,7 +271,7 @@ export function* fetchPublishedPageSaga(
       PageApi.fetchPublishedPage,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -352,7 +352,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       PageApi.savePage,
       savePageRequest,
     );
-    const isValidResponse = yield validateResponse(savePageResponse);
+    const isValidResponse: boolean = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       const { actionUpdates, messages } = savePageResponse.data;
       // Show toast messages from the server
@@ -464,7 +464,7 @@ export function* createPageSaga(
   try {
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
@@ -504,7 +504,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
     const response: ApiResponse = yield call(PageApi.updatePage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
@@ -534,7 +534,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       throw Error("Cannot delete the home page.");
     } else {
       const response: ApiResponse = yield call(PageApi.deletePage, request);
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
@@ -570,7 +570,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
     const applicationId = yield select(
       (state: AppState) => state.entities.pageList.applicationId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
         clonePageSuccess(
@@ -707,7 +707,7 @@ export function* updateWidgetNameSaga(
           PageApi.updateWidgetName,
           request,
         );
-        const isValidResponse = yield validateResponse(response);
+        const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
 
@@ -782,7 +782,7 @@ function* fetchPageDSLSaga(pageId: string) {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
+    const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       return {
         pageId: pageId,
@@ -842,7 +842,7 @@ export function* updatePageWithTemplateSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(
+    const isValidResponse: boolean = yield validateResponse(
       updatePageWithTemplateResponse,
     );
     if (isValidResponse) {
