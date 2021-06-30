@@ -6,12 +6,12 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Loadash basic test with input Widget", function() {
+describe("Loadash basic test with input Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from another Input widget", function() {
+  it("Input widget test with default value from another Input widget", function () {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputBinding);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -22,7 +22,7 @@ describe("Loadash basic test with input Widget", function() {
     );
   });
 
-  it("Input widget test with default value for loadash function", function() {
+  it("Input widget test with default value for loadash function", function () {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.loadashInput);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -33,7 +33,7 @@ describe("Loadash basic test with input Widget", function() {
     );
   });
 
-  it("publish widget and validate the data displayed in input widgets from loadash function", function() {
+  it("publish widget and validate the data displayed in input widgets from loadash function", function () {
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()

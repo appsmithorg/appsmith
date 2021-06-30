@@ -1,4 +1,4 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="https://user-images.githubusercontent.com/30255708/120593421-1b107c80-c45d-11eb-86c9-06bdd66a143a.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/images/git-banner.png" width="100%" alt="Appsmith - The Frontend Tool for Any Backend"></a>
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
@@ -14,6 +14,10 @@
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
+  •
+  <a href="./office_hours.md">Community Events</a>  
+  •
+  <a href="./appsmith_templates.md">Templates</a>  
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
   <br>
@@ -36,24 +40,24 @@ The fastest way to start with Appsmith is the cloud-hosted version. When you're 
 ## Features
 
 <p>
-  <img src="static/images/animations/drag-drop.gif" width="32%">
-  <img src="static/images/animations/running-api.gif" width="32%">
-  <img src="static/images/animations/writing-js.gif" width="32%">
+  <img src="static/animations/widgets.gif" width="100%">
 </p>
-
-#### ↗️ Drag & Drop UI
 
 Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
 
 _Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
 
-#### ⏱ Quick Integrations
+<p>
+  <img src="static/animations/running-api.gif" width="100%">
+</p>
 
 Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, with support for OAuth 2.0 and CURL. Here's a list of all our [pre-built integrations](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases).
 
 _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server._ <br>
 
-#### 🤖 Code Logic with JavaScript
+<p>
+  <img src="static/animations/javascript.gif" width="100%">
+</p>
 
 We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
 
