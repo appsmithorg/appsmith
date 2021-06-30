@@ -285,7 +285,7 @@ describe("Table Widget Functionality", function() {
 
   /*
   To enabled later
-  
+
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
     cy.get(publish.backToEditor)
       .first()

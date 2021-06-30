@@ -42,6 +42,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -2454,7 +2455,7 @@ public class DatabaseChangelog {
                             .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
-
+                
                 mongoTemplate.save(application);
             }
         }
@@ -2532,19 +2533,34 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
             String command = (String) pluginSpecifiedTemplates.get(2).getValue();
 
-            // Set the command name to be UPDATE for both the update commands
-            pluginSpecifiedTemplates.get(2).setValue("UPDATE");
-
             // In case of update one, migrate the query and update configurations.
             if (command.equals("UPDATE_ONE")) {
-                String query = (String) pluginSpecifiedTemplates.get(8).getValue();
-                String update = (String) pluginSpecifiedTemplates.get(10).getValue();
+
+                String query = "";
+                String update = "";
+                String collection = "";
+
+                Property queryProperty = pluginSpecifiedTemplates.get(8);
+                if (queryProperty != null) {
+                    query = (String) queryProperty.getValue();
+                }
+
+                Property updateProperty = pluginSpecifiedTemplates.get(10);
+                if (updateProperty != null) {
+                    update = (String) updateProperty.getValue();
+                }
+
+                Property collectionProperty = pluginSpecifiedTemplates.get(19);
+                if (collectionProperty != null) {
+                    collection = (String) collectionProperty.getValue();
+                }
 
                 Map<Integer, Object> configMap = new HashMap<>();
                 configMap.put(0, pluginSpecifiedTemplates.get(0).getValue());
                 configMap.put(1, "FORM");
+                // All update commands have to be migrated to the new update name
                 configMap.put(2, "UPDATE");
-                configMap.put(19, pluginSpecifiedTemplates.get(19).getValue());
+                configMap.put(19, collection);
                 // Query for all the documents in the collection
                 configMap.put(11, query);
                 configMap.put(12, update);
@@ -2562,5 +2578,169 @@ public class DatabaseChangelog {
         }
     }
 
+    
+    @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
+    public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+        final List<User> missingCreatedAt = mongoTemplate.find(
+            query(where("createdAt").exists(false)),
+            User.class
+        );
 
+        for (User user : missingCreatedAt) {
+            user.setCreatedAt(Instant.parse("2019-01-07T00:00:00.00Z"));
+            mongoTemplate.save(user);
+        }
+
+        final List<User> missingUpdatedAt = mongoTemplate.find(
+            query(where("updatedAt").exists(false)),
+            User.class
+        );
+
+        for (User user : missingUpdatedAt) {
+            user.setUpdatedAt(Instant.now());
+            mongoTemplate.save(user);
+        }
+    }
+  
+    /**
+     * - Older order file where not present for the pages created within the application because page reordering with in
+     * the application was not supported.
+     * - New Form order field will be added to the Page object and is used to order the pages with in the application
+     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
+     * created pages of all the application present.
+     * - []
+     */
+    @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
+    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if(application.getPages() != null) {
+                int i = 0;
+                for (ApplicationPage page : application.getPages()) {
+                    page.setOrder(i);
+                    i++;
+                }
+                if(application.getPublishedPages() != null) {
+                    i = 0;
+                    for (ApplicationPage page : application.getPublishedPages()) {
+                        page.setOrder(i);
+                        i++;
+                    }
+                }
+                mongoTemplate.save(application);
+            }
+        }
+    }
+
+    @ChangeSet(order = "076", id = "mongo-form-migrate-raw", author = "")
+    public void migrateRawInputTypeToRawCommand(MongockTemplate mongockTemplate) {
+
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database with input type set to raw.
+        assert mongoPlugin != null;
+        List<NewAction> rawMongoQueryActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    boolean result = false;
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+
+                    List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+
+                    // Filter out all the unpublished actions which have the input type raw configured.
+                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
+                        Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
+                        if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
+                            String inputType = (String) inputTypeProperty.getValue();
+                            if (inputType.equals("RAW")) {
+                                result = true;
+                            }
+                        }
+                    }
+
+                    ActionDTO publishedAction = mongoAction.getPublishedAction();
+                    if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                        pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+                        // Filter out all the published actions which have the input type raw configured.
+                        if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
+                            Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
+                            if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
+                                String inputType = (String) inputTypeProperty.getValue();
+                                if (inputType.equals("RAW")) {
+                                    result = true;
+                                }
+                            }
+                        }
+                    }
+                    return result;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : rawMongoQueryActions) {
+
+            Boolean smartSub = true;
+            Property smartSubProperty;
+            Map<Integer, Object> configMap;
+            List<Property> updatedTemplates;
+
+            // Migrate the unpublished actions
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            if (pluginSpecifiedTemplates != null) {
+                smartSubProperty = pluginSpecifiedTemplates.get(0);
+                if (smartSubProperty != null) {
+                    Object value = smartSubProperty.getValue();
+                    if (value instanceof Boolean) {
+                        smartSub = (Boolean) value;
+                    } else if (value instanceof String) {
+                        smartSub = Boolean.parseBoolean((String) value);
+                    }
+                }
+
+                configMap = new HashMap<>();
+                configMap.put(0, smartSub);
+                configMap.put(2, "RAW");
+
+                updatedTemplates = generateMongoFormConfigTemplates(configMap);
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+            }
+
+
+            // Now migrate the published actions
+            ActionDTO publishedAction = action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+                if (pluginSpecifiedTemplates != null) {
+                    smartSub = true;
+                    smartSubProperty = pluginSpecifiedTemplates.get(0);
+                    if (smartSubProperty != null) {
+                        Object value = smartSubProperty.getValue();
+                        if (value instanceof Boolean) {
+                            smartSub = (Boolean) value;
+                        } else if (value instanceof String) {
+                            smartSub = Boolean.parseBoolean((String) value);
+                        }
+                    }
+
+                    configMap = new HashMap<>();
+                    configMap.put(0, smartSub);
+                    configMap.put(2, "RAW");
+
+                    updatedTemplates = generateMongoFormConfigTemplates(configMap);
+                    action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+                }
+            }
+        }
+
+        // Now that all the actions have been updated, save all the actions
+        for (NewAction action : rawMongoQueryActions) {
+            mongockTemplate.save(action);
+        }
+    }
 }

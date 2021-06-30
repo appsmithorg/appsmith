@@ -320,6 +320,7 @@ export const FIRST_AND_LAST_NAME = () => "First and last name";
 export const MARK_ALL_AS_READ = () => "Mark all as read";
 export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -334,6 +335,8 @@ export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
+export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
