@@ -6,10 +6,16 @@ import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { getSelectedWidgets } from "selectors/ui";
 
-const PositionedWidget = styled.div`
+const PositionedWidget = styled.div<{ isDragging: boolean }>`
   &:hover {
-    z-index: ${Layers.positionedWidget + 1} !important;
+    z-index: ${(props) =>
+      props.isDragging
+        ? Layers.positionedWidget
+        : Layers.positionedWidget + 1} !important;
   }
 `;
 type PositionedContainerProps = {
@@ -38,6 +44,12 @@ export function PositionedContainer(props: PositionedContainerProps) {
         .toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const isThisWidgetDragging =
+    isDragging && selectedWidgets.includes(props.widgetId);
   const containerStyle: CSSProperties = useMemo(() => {
     return {
       position: "absolute",
@@ -47,12 +59,21 @@ export function PositionedContainer(props: PositionedContainerProps) {
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
       zIndex:
-        props.selected || props.focused
+        isDragging &&
+        !isThisWidgetDragging &&
+        [
+          "CONTAINER_WIDGET",
+          "FORM_WIDGET",
+          "LIST_WIDGET",
+          "TABS_WIDGET",
+        ].includes(props.widgetType)
+          ? 3
+          : props.selected || props.focused
           ? Layers.selectedWidget
           : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
-  }, [props.style]);
+  }, [props.style, isDragging]);
 
   const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
     props.widgetId,
@@ -65,6 +86,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       data-testid="test-widget"
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
+      isDragging
       onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
       onClickCapture={openPropPane}

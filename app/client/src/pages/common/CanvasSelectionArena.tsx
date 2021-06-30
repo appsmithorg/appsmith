@@ -21,7 +21,11 @@ const StyledSelectionCanvas = styled.canvas`
   position: absolute;
   top: 0px;
   left: 0px;
-  height: calc(100% + ${(props) => props.theme.canvasBottomPadding}px);
+  height: calc(
+    100% +
+      ${(props) =>
+        props.id === "canvas-0" ? props.theme.canvasBottomPadding : 0}px
+  );
   width: 100%;
   overflow-y: auto;
 `;
@@ -37,7 +41,9 @@ export const CanvasSelectionArena = memo(
   ({ widgetId }: { widgetId: string }) => {
     const dispatch = useDispatch();
     const appMode = useSelector(getAppMode);
-
+    const isDragging = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.isDragging,
+    );
     const mainContainer = useSelector((state: AppState) =>
       getWidget(state, MAIN_CONTAINER_WIDGET_ID),
     );
@@ -69,10 +75,12 @@ export const CanvasSelectionArena = memo(
       [widgetId],
     );
     useEffect(() => {
-      if (appMode === APP_MODE.EDIT) {
+      if (appMode === APP_MODE.EDIT && !isDragging) {
         const selectionCanvas: any = document.getElementById(
           `canvas-${widgetId}`,
         );
+        const scale = window.devicePixelRatio;
+
         const canvasCtx = selectionCanvas.getContext("2d");
         const initRectangle = (): SelectedArenaDimensions => ({
           top: 0,
@@ -87,10 +95,11 @@ export const CanvasSelectionArena = memo(
         const init = () => {
           const { height, width } = selectionCanvas.getBoundingClientRect();
           if (height && width) {
-            selectionCanvas.width = mainContainer.rightColumn;
+            selectionCanvas.width = mainContainer.rightColumn * scale;
             selectionCanvas.height =
-              mainContainer.bottomRow + theme.canvasBottomPadding;
+              (mainContainer.bottomRow + theme.canvasBottomPadding) * scale;
           }
+          canvasCtx.scale(scale, scale);
           selectionCanvas.addEventListener("click", onClick, false);
           selectionCanvas.addEventListener("mousedown", onMouseDown, false);
           selectionCanvas.addEventListener("mouseup", onMouseUp, false);
@@ -239,9 +248,10 @@ export const CanvasSelectionArena = memo(
       mainContainer.rightColumn,
       mainContainer.bottomRow,
       mainContainer.minHeight,
+      isDragging,
     ]);
 
-    return appMode === APP_MODE.EDIT ? (
+    return appMode === APP_MODE.EDIT && !isDragging ? (
       <StyledSelectionCanvas
         data-testid={`canvas-${widgetId}`}
         id={`canvas-${widgetId}`}
