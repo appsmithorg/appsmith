@@ -89,6 +89,9 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { UpdatePageWithTemplateRequest } from "../api/PageApi";
+import { routeToEmptyEditorFromGenPage } from "../pages/Editor/GeneratePage/components/ActionCards";
+import { getGenerateTemplateURL } from "../constants/routes";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -173,6 +176,47 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
+function* handleFetchedPage({
+  fetchPageResponse,
+  pageId,
+  stopPerfTracker = false,
+}: {
+  fetchPageResponse: FetchPageResponse;
+  pageId: string;
+  stopPerfTracker?: boolean;
+}) {
+  const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
+  const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+  if (isValidResponse) {
+    // Clear any existing caches
+    yield call(clearEvalCache);
+    // Set url params
+    yield call(setDataUrl);
+    // Get Canvas payload
+    const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+    // Update the canvas
+    yield put(initCanvasLayout(canvasWidgetsPayload));
+    // set current page
+    yield put(updateCurrentPage(pageId));
+    // dispatch fetch page success
+    yield put(fetchPageSuccess());
+    const extractedDSL = extractCurrentDSL(fetchPageResponse);
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: extractedDSL,
+    });
+
+    if (willPageBeMigrated) {
+      yield put(saveLayout());
+    }
+    if (stopPerfTracker) {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_API,
+      );
+    }
+  }
+}
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
@@ -185,41 +229,11 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
-    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
-
-    if (isValidResponse) {
-      // Clear any existing caches
-      yield call(clearEvalCache);
-      // Set url params
-      yield call(setDataUrl);
-      // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      // Update the canvas
-      yield put(initCanvasLayout(canvasWidgetsPayload));
-      // set current page
-      yield put(updateCurrentPage(id));
-      // dispatch fetch page success
-      yield put(
-        fetchPageSuccess(
-          // Execute page load actions post page load
-          isFirstLoad ? [] : [executePageLoadActions()],
-        ),
-      );
-      const extractedDSL = extractCurrentDSL(fetchPageResponse);
-      yield put({
-        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractedDSL,
-      });
-
-      if (willPageBeMigrated) {
-        yield put(saveLayout());
-      }
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
-    }
+    yield handleFetchedPage({
+      fetchPageResponse,
+      pageId: id,
+      stopPerfTracker: true,
+    });
   } catch (error) {
     log.error(error);
     PerformanceTracker.stopAsyncTracking(
@@ -257,7 +271,7 @@ export function* fetchPublishedPageSaga(
       PageApi.fetchPublishedPage,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -338,7 +352,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       PageApi.savePage,
       savePageRequest,
     );
-    const isValidResponse = yield validateResponse(savePageResponse);
+    const isValidResponse: boolean = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       const { actionUpdates, messages } = savePageResponse.data;
       // Show toast messages from the server
@@ -450,7 +464,7 @@ export function* createPageSaga(
   try {
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
@@ -468,8 +482,9 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
+      // route to generate template for new page created
       history.push(
-        BUILDER_PAGE_URL(
+        getGenerateTemplateURL(
           createPageAction.payload.applicationId,
           response.data.id,
         ),
@@ -489,7 +504,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
     const response: ApiResponse = yield call(PageApi.updatePage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
@@ -519,7 +534,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       throw Error("Cannot delete the home page.");
     } else {
       const response: ApiResponse = yield call(PageApi.deletePage, request);
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
@@ -555,7 +570,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
     const applicationId = yield select(
       (state: AppState) => state.entities.pageList.applicationId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
         clonePageSuccess(
@@ -573,7 +588,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
         },
       });
 
-      yield put(fetchActionsForPage(response.data.id));
+      yield put(fetchActionsForPage(response.data.id, []));
 
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
@@ -692,7 +707,7 @@ export function* updateWidgetNameSaga(
           PageApi.updateWidgetName,
           request,
         );
-        const isValidResponse = yield validateResponse(response);
+        const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
 
@@ -745,7 +760,7 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
-  yield put(fetchActionsForPage(pageId));
+  yield put(fetchActionsForPage(pageId, []));
 }
 
 export function* setDataUrl() {
@@ -767,7 +782,7 @@ function* fetchPageDSLSaga(pageId: string) {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
+    const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       return {
         pageId: pageId,
@@ -817,6 +832,39 @@ export function* populatePageDSLsSaga() {
   }
 }
 
+export function* updatePageWithTemplateSaga(
+  action: ReduxAction<UpdatePageWithTemplateRequest>,
+) {
+  try {
+    const request: UpdatePageWithTemplateRequest = action.payload;
+    const updatePageWithTemplateResponse: ApiResponse = yield call(
+      PageApi.updatePageWithTemplate,
+      request,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(
+      updatePageWithTemplateResponse,
+    );
+    if (isValidResponse) {
+      const pageId = updatePageWithTemplateResponse.data.id;
+
+      yield handleFetchedPage({
+        fetchPageResponse: updatePageWithTemplateResponse,
+        pageId,
+      });
+      yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
+      yield routeToEmptyEditorFromGenPage();
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_PAGE_WITH_TEMPLATE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -835,6 +883,10 @@ export default function* pageSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
       fetchAllPublishedPagesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_INIT,
+      updatePageWithTemplateSaga,
     ),
   ]);
 }

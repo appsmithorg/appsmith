@@ -63,6 +63,8 @@ export const Colors: Record<string, string> = {
   ALABASTER: "#F9F8F8",
   WATUSI: "#FFE0D2",
   GRAY: "#858282",
+  GRAY2: "#939090",
+  DOVE_GRAY2: "#716E6E",
   ATHENS_GRAY_DARKER: "#F8F9FA",
   POMEGRANATE: "#F44336",
   RIVER_BED: "#4A545B",
