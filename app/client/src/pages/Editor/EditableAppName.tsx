@@ -8,6 +8,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 type EditableTextWrapperProps = EditableTextProps & {
   isNewApp: boolean;
+  isError: boolean;
 };
 
 const Container = styled.div`
@@ -51,6 +52,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         fill={props.fill}
         hideEditIcon
         isEditingDefault={isEditingDefault}
+        isError={props.isError}
         isInvalid={(value: string) => {
           if (value.trim() === "") {
             Toaster.show({
