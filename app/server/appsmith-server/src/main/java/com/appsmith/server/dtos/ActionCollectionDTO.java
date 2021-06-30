@@ -49,12 +49,11 @@ public class ActionCollectionDTO {
     // This property is not shared with the client since the reference is only useful to server
     @JsonIgnore
     Set<String> actionIds = Set.of();
-    ;
 
     // This property is not shared with the client since the reference is only useful to server
+    // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
     @JsonIgnore
     Set<String> archivedActionIds = Set.of();
-    ;
 
     // Instead of storing the entire action object, we only populate this field while interacting with the client side
     @Transient

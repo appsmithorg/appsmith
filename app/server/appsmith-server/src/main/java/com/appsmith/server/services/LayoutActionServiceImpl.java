@@ -452,6 +452,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
                 .map(action -> {
+                    // For actions that do not belong to a collection, fully qualified name will not exist
                     if (action.getFullyQualifiedName() != null) {
                         return action.getFullyQualifiedName();
                     } else {

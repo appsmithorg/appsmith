@@ -111,17 +111,23 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 // Check against collection names
                 .zipWith(isDuplicateActionCollection(collection.getName(), params))
                 .flatMap(tuple -> {
-                    // If the name is allowed, return pageMono for further processing
-                    if (Boolean.TRUE.equals(tuple.getT1()) && Boolean.FALSE.equals(tuple.getT2())) {
+                    // If the name is allowed, return list of actionDTOs for further processing
+                    final Boolean isNameAllowed = tuple.getT1();
+                    final Boolean isDuplicateActionCollection = tuple.getT2();
+                    if (Boolean.TRUE.equals(isNameAllowed) && Boolean.FALSE.equals(isDuplicateActionCollection)) {
                         return Mono.justOrEmpty(collection.getActions()).defaultIfEmpty(List.of());
                     }
                     // Throw an error since the new action collection's name matches an existing action, widget or collection name.
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, collection.getName(), FieldName.NAME));
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                            collection.getName(),
+                            FieldName.NAME));
                 })
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(action -> {
                     if (action.getId() == null) {
                         // Make sure that the proper values are used for the new action
+                        // Scope the actions' fully qualified names by collection name
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setOrganizationId(collection.getOrganizationId());
                         action.setPageId(collection.getPageId());
@@ -138,6 +144,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                 .retry(2);
                     }
                     // This would occur when the new collection is created by grouping existing actions
+                    // This could be a future enhancement for js editor templates,
+                    // but is also useful for generic collections
                     // We do not expect to have to update the action at this point
                     return Mono.just(action);
                 })
@@ -162,12 +170,14 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                             .collect(toSet());
                     collection.setActionIds(actionIds);
 
+                    // Create collection and return with actions
                     final Mono<ActionCollection> actionCollectionMono = this
                             .create(actionCollection)
                             .cache();
                     return actionCollectionMono
                             .map(actionCollection1 -> {
                                 actions.forEach(actionDTO -> {
+                                    // Update all the actions in the list to belong to this collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
                                 });
                                 return actions;
@@ -177,23 +187,15 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                             .collectList()
                             .zipWith(actionCollectionMono)
                             .flatMap(tuple1 -> {
-                                tuple1.getT2().getUnpublishedCollection().setId(tuple1.getT2().getId());
+                                final List<ActionDTO> actionDTOList = tuple1.getT1();
+                                final ActionCollection actionCollection1 = tuple1.getT2();
+                                actionCollection1.getUnpublishedCollection().setId(actionCollection1.getId());
                                 return splitValidActionsByViewMode(
-                                        tuple1.getT2().getUnpublishedCollection(),
-                                        tuple1.getT1(),
+                                        actionCollection1.getUnpublishedCollection(),
+                                        actionDTOList,
                                         false);
                             });
                 });
-
-
-        // if it is, then scope the actions' fully qualified names by collection name
-
-        // create or update all the actions in the list to belong to this collection
-        // we will not expect failures in action updates because client side should handle name duplication for actions
-        // after action updates, populate collection object with common fields
-        // create collection and return with actions
-
-
     }
 
     @Override
@@ -232,6 +234,14 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                         .flatMap(actionsList -> splitValidActionsByViewMode(actionCollectionDTO, actionsList, viewMode)));
     }
 
+    /**
+     * This method splits the actions associated to an action collection into valid and archived actions
+     *
+     * @param actionCollectionDTO
+     * @param actionsList
+     * @param viewMode
+     * @return
+     */
     private Mono<ActionCollectionDTO> splitValidActionsByViewMode(ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode) {
         return Mono.just(actionCollectionDTO)
                 .map(actionCollectionDTO1 -> {
@@ -360,6 +370,10 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     @Override
     public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO) {
+        // new actions without ids are to be created
+        // new actions with ids are to be updated and added to collection
+        // old actions that are now missing are to be archived
+        // rest are to be updated
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -414,7 +428,6 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 })
                 .map(ActionDTO::getId)
                 .collect(Collectors.toSet());
-
         // First collect all valid action ids from before, and diff against incoming action ids
         return actionCollectionMono
                 .map(actionCollection -> {
@@ -454,10 +467,6 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMap(actionCollection -> this.update(id, actionCollection))
                 .flatMap(analyticsService::sendUpdateEvent)
                 .flatMap(actionCollection -> this.populateActionCollectionByViewMode(actionCollection.getUnpublishedCollection(), false));
-        // new actions without ids are to be created
-        // new actions with ids are to be updated and added to collection
-        // old actions that are now missing are to be archived
-        // rest are to be updated
     }
 
     @Override
@@ -521,21 +530,16 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .map(actionCollection -> {
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                     final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                    final Set<String> actionIds = new HashSet<>();
                     if (unpublishedCollection != null) {
-                        final Set<String> actionIds = new HashSet<>(unpublishedCollection.getActionIds());
+                        actionIds.addAll(unpublishedCollection.getActionIds());
                         actionIds.addAll(unpublishedCollection.getArchivedActionIds());
-                        if (publishedCollection != null && publishedCollection.getActionIds() != null) {
-                            actionIds.addAll(publishedCollection.getActionIds());
-                            actionIds.addAll(publishedCollection.getArchivedActionIds());
-                        }
-                        return actionIds;
-                    } else if (publishedCollection != null && publishedCollection.getActionIds() != null) {
-                        final Set<String> actionIds = new HashSet<>(publishedCollection.getActionIds());
-                        actionIds.addAll(publishedCollection.getArchivedActionIds());
-                        return actionIds;
-                    } else {
-                        return Set.<String>of();
                     }
+                    if (publishedCollection != null && publishedCollection.getActionIds() != null) {
+                        actionIds.addAll(publishedCollection.getActionIds());
+                        actionIds.addAll(publishedCollection.getArchivedActionIds());
+                    }
+                    return actionIds;
                 })
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(newActionService::delete)
