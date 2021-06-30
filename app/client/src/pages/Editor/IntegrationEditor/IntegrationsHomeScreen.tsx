@@ -22,6 +22,7 @@ import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_MODES,
 } from "constants/routes";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -66,26 +67,7 @@ const SectionGrid = styled.div`
   gap: 10px;
 `;
 const NewIntegrationsContainer = styled.div`
-  ::-webkit-scrollbar {
-    width: 3px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px ${Colors.MYSTIC};
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${Colors.SLATE_GRAY};
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.OUTER_SPACE};
-  }
+  ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
   max-height: calc(
@@ -392,18 +374,20 @@ class IntegrationsHomeScreen extends React.Component<
 
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
+
+    const mockDataSection =
+      this.props.mockDatasources.length > 0 ? (
+        <UseMockDatasources
+          active={activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE}
+          mockDatasources={this.props.mockDatasources}
+        />
+      ) : null;
+
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
           {dataSources.length === 0 && <AddDatasourceSecurely />}
-          {dataSources.length === 0 && (
-            <UseMockDatasources
-              active={
-                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
-              }
-              mockDatasources={this.props.mockDatasources}
-            />
-          )}
+          {dataSources.length === 0 && mockDataSection}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -420,14 +404,7 @@ class IntegrationsHomeScreen extends React.Component<
             location={location}
             pageId={pageId}
           />
-          {dataSources.length > 0 && (
-            <UseMockDatasources
-              active={
-                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
-              }
-              mockDatasources={this.props.mockDatasources}
-            />
-          )}
+          {dataSources.length === 0 && mockDataSection}
         </NewIntegrationsContainer>
       );
     } else {
@@ -470,7 +447,11 @@ class IntegrationsHomeScreen extends React.Component<
               <TabComponent
                 onSelect={this.onSelectSecondaryMenu}
                 selectedIndex={this.state.activeSecondaryMenuId}
-                tabs={getSecondaryMenu(dataSources.length > 0)}
+                tabs={
+                  this.props.mockDatasources.length > 0
+                    ? getSecondaryMenu(dataSources.length > 0)
+                    : SECONDARY_MENU
+                }
                 vertical
               />
             )}

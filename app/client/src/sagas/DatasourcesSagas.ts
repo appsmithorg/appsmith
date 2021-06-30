@@ -107,13 +107,11 @@ function* fetchDatasourcesSaga() {
 function* fetchMockDatasourcesSaga() {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
-        payload: response.data,
-      });
-    }
+    // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
+    yield put({
+      type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+      payload: !!response && !!response.data ? response.data : [],
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,

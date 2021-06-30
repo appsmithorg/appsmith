@@ -59,6 +59,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -124,6 +125,7 @@ const SettingsWrapper = styled.div`
   padding: 16px 30px;
   overflow-y: auto;
   height: 100%;
+  ${thinScrollbar};
 `;
 
 const GenerateWidgetButton = styled.a`
@@ -326,6 +328,7 @@ const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${thinScrollbar}
   a {
     font-size: 14px;
     line-height: 20px;
