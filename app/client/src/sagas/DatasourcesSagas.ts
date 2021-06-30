@@ -141,10 +141,13 @@ export function* addMockDbToDatasources(
         type: ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
         payload: response.data,
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+      });
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
     }
   } catch (error) {
