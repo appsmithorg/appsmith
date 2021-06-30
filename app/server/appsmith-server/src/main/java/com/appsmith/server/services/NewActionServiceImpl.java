@@ -698,9 +698,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return result;
     }
 
+    /**
+     * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
+     */
     private String getSuggestedWidget(Object data) {
-        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
 
+        if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
             ArrayNode array = (ArrayNode) data;
             Integer length = array.size();
             ObjectNode objectNode = (ObjectNode)array.get(0);
@@ -708,7 +711,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             if( objectNode.has("X") && objectNode.has("Y") && objectNode.has("value")) {
                 return "CHART_WIDGET";
             }
-
             if(length <= 10 && fieldsCount == 1) {
                 return "DROP_DOWN_WIDGET";
             }
@@ -716,14 +718,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 return "LIST_WIDGET";
             }
             return "TABLE_WIDGET";
-        }
-        if(data instanceof JSONObject) {
-            return "CHART_WIDGET";
-        }
-        if( data == null) {
+        } else {
             return "";
         }
-        return "TABLE_WIDGET";
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
