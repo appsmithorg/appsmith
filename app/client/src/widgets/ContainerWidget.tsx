@@ -17,6 +17,8 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -122,15 +124,26 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    // const childWidgets = (props.children || []).map((each) => {
+    //   return each.widgetId;
+    // });
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
-        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
-          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        {props.type === "CANVAS_WIDGET" && (
+          <CanvasDraggingArena
+            {...this.getSnapSpaces()}
+            // childWidgets={childWidgets}
+            noPad={this.props.noPad}
+            snapRows={snapRows}
+            widgetId={props.widgetId}
+          />
         )}
         <WidgetsMultiSelectBox
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
+        <CanvasSelectionArena widgetId={props.widgetId} />
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

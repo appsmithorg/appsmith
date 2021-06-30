@@ -6,6 +6,7 @@ import React, {
   createContext,
   useEffect,
   memo,
+  useRef,
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
@@ -62,8 +63,13 @@ function Onboarding() {
   an update of the main container's rows
 */
 export const DropTargetContext: Context<{
-  updateDropTargetRows?: (widgetId: string, row: number) => boolean;
+  updateDropTargetRows?: (
+    widgetId: string,
+    widgetBottomRow: number,
+  ) => number | false;
   persistDropTargetRows?: (widgetId: string, row: number) => void;
+  handleBoundsUpdate?: (rect: DOMRect) => void;
+  dropRef?: React.RefObject<HTMLDivElement>;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
@@ -135,7 +141,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       );
       if (rows < newRows) {
         setRows(newRows);
-        return true;
+        return newRows;
       }
       return false;
     }
@@ -150,7 +156,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const isChildResizing = !!isResizing && isChildFocused;
   // Make this component a drop target
-  const [{ isExactlyOver, isOver }, drop] = useDrop({
+  const [{ isExactlyOver }] = useDrop({
     accept: Object.values(WidgetTypes),
     options: {
       arePropsEqual: () => {
@@ -256,11 +262,16 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
-  const dropRef = !props.dropDisabled ? drop : undefined;
+  const dropRef = useRef<HTMLDivElement>(null);
 
   return (
     <DropTargetContext.Provider
-      value={{ updateDropTargetRows, persistDropTargetRows }}
+      value={{
+        updateDropTargetRows,
+        persistDropTargetRows,
+        handleBoundsUpdate,
+        dropRef: !props.dropDisabled ? dropRef : undefined,
+      }}
     >
       <StyledDropTarget
         className={"t--drop-target"}
@@ -277,7 +288,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
           !props.parentId && <Onboarding />}
         <DragLayerComponent
           canDropTargetExtend={canDropTargetExtend}
-          force={isDragging && !isOver && !props.parentId}
+          force={isDragging}
           isOver={isExactlyOver}
           isResizing={isChildResizing}
           noPad={props.noPad || false}

@@ -72,6 +72,43 @@ export const getScrollByPixels = function(
   return 0;
 };
 
+export const getScrollByPixels2 = function(
+  elem: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    columnWidth: number;
+    rowHeight: number;
+    widgetId: string;
+  },
+  scrollParent: Element,
+  child: Element,
+): number {
+  // const bounding = elem.getBoundingClientRect();
+  const scrollParentBounds = scrollParent.getBoundingClientRect();
+  const scrollChildBounds = child.getBoundingClientRect();
+  const scrollAmount =
+    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+  if (
+    elem.top + scrollChildBounds.top > 0 &&
+    elem.top +
+      scrollChildBounds.top -
+      SCROLL_THESHOLD -
+      scrollParentBounds.top <
+      SCROLL_THESHOLD
+  )
+    return -scrollAmount;
+  if (
+    scrollParentBounds.bottom -
+      (elem.top + elem.height + scrollChildBounds.top + SCROLL_THESHOLD) <
+    SCROLL_THESHOLD
+  )
+    return scrollAmount;
+  return 0;
+};
+
 export const scrollElementIntoParentCanvasView = (
   el: Element | null,
   parent: Element | null,
@@ -80,6 +117,33 @@ export const scrollElementIntoParentCanvasView = (
     const scrollParent = parent;
     if (scrollParent) {
       const scrollBy: number = getScrollByPixels(el, scrollParent);
+      if (scrollBy < 0 && scrollParent.scrollTop > 0) {
+        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
+      }
+      if (scrollBy > 0) {
+        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
+      }
+    }
+  }
+};
+
+export const scrollElementIntoParentCanvasView2 = (
+  el: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    columnWidth: number;
+    rowHeight: number;
+    widgetId: string;
+  } | null,
+  parent: Element | null,
+  child: Element | null,
+) => {
+  if (el) {
+    const scrollParent = parent;
+    if (scrollParent && child) {
+      const scrollBy: number = getScrollByPixels2(el, scrollParent, child);
       if (scrollBy < 0 && scrollParent.scrollTop > 0) {
         scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
       }

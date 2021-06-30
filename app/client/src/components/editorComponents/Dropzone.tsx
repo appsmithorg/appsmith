@@ -54,7 +54,7 @@ type DropZoneProps = {
   canDrop: boolean;
 };
 
-const getSnappedXY = (
+export const getSnappedXY = (
   parentColumnWidth: number,
   parentRowHeight: number,
   currentOffset: XYCoord,

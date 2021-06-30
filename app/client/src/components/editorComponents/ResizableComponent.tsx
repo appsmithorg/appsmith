@@ -135,7 +135,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Make sure to calculate collision IF we don't update the main container's rows
     let updated = false;
     if (updateDropTargetRows) {
-      updated = updateDropTargetRows(props.widgetId, bottom);
+      updated = !!updateDropTargetRows(props.widgetId, bottom);
       const el = resizableRef.current;
       const scrollParent = getNearestParentCanvas(resizableRef.current);
       scrollElementIntoParentCanvasView(el, scrollParent);

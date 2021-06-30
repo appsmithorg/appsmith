@@ -1,9 +1,9 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useState } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { useDrag, DragSourceMonitor } from "react-dnd";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
@@ -14,6 +14,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -71,7 +72,7 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
-  const { setIsDragging } = useWidgetDragResize();
+  const { setDragItemsInitialParent, setIsDragging } = useWidgetDragResize();
 
   // This state tells us which widget is selected
   // The value is the widgetId of the selected widget
@@ -105,7 +106,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
-  const [{ isCurrentWidgetDragging }, drag] = useDrag({
+  const [{ isCurrentWidgetDragging }] = useDrag({
     item: props as WidgetProps,
     collect: (monitor: DragSourceMonitor) => ({
       isCurrentWidgetDragging: monitor.isDragging(),
@@ -121,7 +122,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       showTableFilterPane && showTableFilterPane();
       // Tell the rest of the application that a widget has started dragging
       setIsDragging && setIsDragging(true);
-
       AnalyticsUtil.logEvent("WIDGET_DRAG", {
         widgetName: props.widgetName,
         widgetType: props.type,
@@ -175,7 +175,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     <WidgetBoundaries
       style={{
         opacity:
-          isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+          isResizingOrDragging && !selectedWidgets.includes(props.widgetId)
+            ? 1
+            : 0,
         position: "absolute",
         transform: `translate(-50%, -50%)`,
         top: "50%",
@@ -188,14 +190,35 @@ function DraggableComponent(props: DraggableComponentProps) {
     .split("_")
     .join("")
     .toLowerCase()}`;
+  // const { setIsDragging } = useWidgetDragResize();
 
   const className = `${classNameForTesting}`;
-
+  const dispatch = useDispatch();
+  const [mightBeDragging, setMightBeDragging] = useState(false);
+  const mouseMove = (e: any) => {
+    if (mightBeDragging) {
+      e.preventDefault();
+      setDragItemsInitialParent(true, props.parentId || "", props.widgetId);
+      if (!selectedWidgets.includes(props.widgetId)) {
+        dispatch(selectWidgetInitAction(props.widgetId));
+      }
+      setMightBeDragging(false);
+      e.stopPropagation();
+    }
+  };
   return (
     <DraggableWrapper
       className={className}
+      onMouseDown={(e) => {
+        setMightBeDragging(true);
+        e.stopPropagation();
+      }}
+      onMouseMove={mouseMove}
       onMouseOver={handleMouseOver}
-      ref={drag}
+      onMouseUp={(e) => {
+        setMightBeDragging(false);
+        e.stopPropagation();
+      }}
       style={style}
     >
       {shouldRenderComponent && props.children}
