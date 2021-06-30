@@ -9,7 +9,6 @@ import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import BackButton from "pages/Editor/DataSourceEditor/BackButton";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -43,6 +42,11 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -143,9 +147,23 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const { formConfig } = this.props;
+    const {
+      formConfig,
+      match: {
+        params: { applicationId, pageId },
+      },
+    } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content);
+    return this.renderForm(content, () => {
+      history.push(
+        INTEGRATION_EDITOR_URL(
+          applicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+          INTEGRATION_EDITOR_MODES.AUTO,
+        ),
+      );
+    });
   }
 
   renderDataSourceConfigForm = (sections: any) => {
@@ -164,13 +182,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <BackButton
-          onClick={() =>
-            history.push(
-              SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
-            )
-          }
-        />
         <br />
         <Header>
           <FormTitleContainer>
