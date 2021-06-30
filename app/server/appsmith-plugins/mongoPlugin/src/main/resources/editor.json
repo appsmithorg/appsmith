@@ -5,22 +5,6 @@
       "id": 1,
       "children": [
         {
-          "label": "",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "DROP_DOWN",
-          "initialValue": "FORM",
-          "options": [
-            {
-              "label": "Form Input",
-              "value": "FORM"
-            },
-            {
-              "label": "Raw Input",
-              "value": "RAW"
-            }
-          ]
-        },
-        {
           "label": "Command",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "DROP_DOWN",
@@ -53,6 +37,10 @@
             {
               "label": "Aggregate",
               "value": "AGGREGATE"
+            },
+            {
+              "label": "Raw",
+              "value": "RAW"
             }
           ],
           "hidden": {
@@ -67,7 +55,7 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
             "comparison": "EQUALS",
             "value": "RAW"
           }
@@ -79,11 +67,6 @@
           "hidden" : {
             "conditionType": "OR",
             "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
@@ -137,11 +120,6 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
-              {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
                 "value": "UPDATE_ONE"
@@ -179,11 +157,6 @@
           "hidden" : {
             "conditionType": "OR",
             "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
@@ -232,11 +205,6 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
-              {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
                 "value": "DELETE"
@@ -277,11 +245,6 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
-              {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
                 "value": "COUNT"
@@ -306,11 +269,6 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
-              {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
                 "value": "DISTINCT"
@@ -326,7 +284,7 @@
               "placeholderText" : "{rating : {$gte : 9}}"
             },
             {
-              "label": "Key/Field",
+              "label": "Key",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[16].value",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
@@ -341,11 +299,6 @@
           "hidden" : {
             "conditionType": "OR",
             "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
@@ -370,11 +323,6 @@
           "hidden" : {
             "conditionType": "OR",
             "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "FORM"
-              },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "comparison": "NOT_EQUALS",
@@ -402,9 +350,9 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "EQUALS",
-                "value": "FORM"
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "RAW"
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -424,9 +372,9 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "EQUALS",
-                "value": "FORM"
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "RAW"
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
