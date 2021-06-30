@@ -126,7 +126,7 @@ class RichTextEditorWidget extends BaseWidget<
     return {
       value: `{{this.text}}`,
       isValid: `{{
-        function(){
+        (()=>{
           if (this.isRequired) {
             if(this.text && this.text.length) {
               return true;              
@@ -134,7 +134,8 @@ class RichTextEditorWidget extends BaseWidget<
               return false;
             }
           } 
-        }()
+          return true;
+        })()
       }}`,
     };
   }
