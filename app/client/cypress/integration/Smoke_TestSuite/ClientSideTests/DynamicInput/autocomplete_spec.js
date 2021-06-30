@@ -14,7 +14,7 @@ describe("Dynamic input autocomplete", () => {
     cy.get(dynamicInputLocators.input)
       .first()
       .focus()
-      .type("{ctrl}{shift}{downarrow}")
+      .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
       .then(($cm) => {
         if ($cm.val() !== "") {
           cy.get(dynamicInputLocators.input)
@@ -60,14 +60,14 @@ describe("Dynamic input autocomplete", () => {
     cy.get(dynamicInputLocators.input)
       .first()
       .focus();
-    cy.assertEvaluatedValuePopup("string");
+    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
     // Test on api pane
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });
     cy.wait("@createNewApi");
-    cy.get(apiwidget.headerValue)
-      .first()
-      .focus();
+    cy.get(apiwidget.headerValue).within(() => {
+      cy.get("textarea").click({ force: true });
+    });
     cy.assertEvaluatedValuePopup("string");
   });
 });

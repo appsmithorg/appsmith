@@ -280,12 +280,19 @@ function* updateTernDefinitions(
   dataTree: DataTree,
   evaluationOrder: string[],
   removedPaths: string[],
+  isFirstEvaluation: boolean,
 ) {
   const updatedEntities: Set<string> = new Set();
-  evaluationOrder.forEach((path) => {
-    const { entityName } = getEntityNameAndPropertyPath(path);
-    updatedEntities.add(entityName);
-  });
+  // If it is the first evaluation, we want to add everything in the data tree
+  if (isFirstEvaluation) {
+    Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
+  } else {
+    evaluationOrder.forEach((path) => {
+      const { entityName } = getEntityNameAndPropertyPath(path);
+      updatedEntities.add(entityName);
+    });
+  }
+
   updatedEntities.forEach((entityName) => {
     const entity = dataTree[entityName];
     if (entity) {
@@ -311,6 +318,7 @@ function* postEvalActionDispatcher(
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  isFirstEvaluation = false,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
@@ -340,7 +348,13 @@ function* evaluateTreeSaga(
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
-  yield fork(updateTernDefinitions, dataTree, evaluationOrder, removedPaths);
+  yield fork(
+    updateTernDefinitions,
+    dataTree,
+    evaluationOrder,
+    removedPaths,
+    isFirstEvaluation,
+  );
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
@@ -542,7 +556,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, true);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),

@@ -2508,10 +2508,16 @@ Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
     .should("be.visible")
     .click({ force: true });
-  cy.xpath(apiwidget.paramKey)
-    .first()
-    .contains(param.key);
-  cy.xpath(apiwidget.paramValue)
-    .first()
-    .contains(param.value);
+
+  cy.validateCodeEditorContent(apiwidget.paramKey, param.key);
+  cy.validateCodeEditorContent(apiwidget.paramValue, param.value);
 });
+
+Cypress.Commands.add(
+  "validateCodeEditorContent",
+  (selector, contentToValidate) => {
+    cy.get(selector).within(() => {
+      cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+    });
+  },
+);
