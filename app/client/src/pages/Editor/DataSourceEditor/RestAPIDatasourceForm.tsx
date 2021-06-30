@@ -203,8 +203,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       this.ensureOAuthDefaultsAreCorrect();
     } else if (authType === AuthType.apiKey) {
       this.ensureAPIKeyDefaultsAreCorrect();
-    } else {
-      return true;
     }
   }
 
@@ -218,9 +216,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { authentication } = this.props.formData;
     if (!authentication || !_.get(authentication, "addTo")) {
       this.props.change("authentication.addTo", ApiKeyAuthType.Header);
-      return false;
-    } else {
-      return true;
     }
   };
 
@@ -233,27 +228,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return false;
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
-      return false;
     }
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
       this.props.change("authentication.headerPrefix", "Bearer");
-      return false;
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
       }
     }
-    return true;
   };
 
   disableSave = (): boolean => {
