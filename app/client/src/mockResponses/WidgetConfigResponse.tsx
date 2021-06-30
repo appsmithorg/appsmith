@@ -305,7 +305,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
       isRequired: false,
       isDisabled: false,
-      placeholderText: "Favorite Hokage",
+      placeholderText: "select option(s)",
     },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
