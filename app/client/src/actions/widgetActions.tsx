@@ -141,3 +141,15 @@ export const addTableWidgetFromQuery = (queryName: string) => {
     payload: queryName,
   };
 };
+
+/**
+ * action to group selected widgets into container
+ *
+ * @param queryName
+ * @returns
+ */
+export const groupWidgets = () => {
+  return {
+    type: ReduxActionTypes.GROUP_WIDGETS_INIT,
+  };
+};

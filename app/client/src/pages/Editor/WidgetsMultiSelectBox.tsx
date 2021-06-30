@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   copyWidget,
   cutWidget,
+  groupWidgets,
   deleteSelectedWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
@@ -18,7 +19,6 @@ import { generateClassName } from "utils/generators";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
-
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const StyledSelectionBox = styled.div`
@@ -123,6 +123,7 @@ export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
 const CopyIcon = ControlIcons.COPY2_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
+const GroupIcon = ControlIcons.GROUP_CONTROL;
 
 /**
  * helper text that comes in popover on hover of actions in context menu
@@ -257,6 +258,20 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
     dispatch(deleteSelectedWidget(true));
   };
 
+  /**
+   * group widgets into container
+   *
+   * @param e
+   */
+  const onGroupWidgets = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dispatch(groupWidgets());
+  };
+
   if (!shouldRender) return false;
 
   return (
@@ -322,6 +337,21 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
               onClickCapture={onDeleteSelectedWidgets}
             >
               <DeleteIcon color="black" height={16} width={16} />
+            </StyledAction>
+          </Tooltip>
+          {/* group widgets */}
+          <Tooltip
+            boundary="viewport"
+            content={deleteHelpText}
+            maxWidth="400px"
+            modifiers={PopoverModifiers}
+            position={Position.RIGHT}
+          >
+            <StyledAction
+              onClick={stopEventPropagation}
+              onClickCapture={onGroupWidgets}
+            >
+              <GroupIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
         </StyledActions>

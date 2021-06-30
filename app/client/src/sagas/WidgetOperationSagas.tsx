@@ -1351,6 +1351,7 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
     parentId: string;
     list: FlattenedWidgetProps[];
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
+
   return yield saveCopiedWidgets(JSON.stringify(widgetListsToStore));
 }
 
@@ -1483,6 +1484,7 @@ function* pasteWidgetSaga() {
     parentId: string;
     list: WidgetProps[];
   }[] = yield getCopiedWidgets();
+
   if (!Array.isArray(copiedWidgetGroups)) {
     return;
     // to avoid invoking old copied widgets
@@ -1508,6 +1510,51 @@ function* pasteWidgetSaga() {
     pastingIntoWidgetId,
     widgets,
   );
+  const evalTree = yield select(getDataTree);
+
+  console.log({ copiedWidgetGroups });
+  // const containerWidgetId = generateReactKey();
+  // const columns = 8 * GRID_DENSITY_MIGRATION_V1;
+  // const rows = 7 * GRID_DENSITY_MIGRATION_V1;
+  // const widgetName = getNextWidgetName(
+  //   widgets,
+  //   WidgetTypes.CONTAINER_WIDGET,
+  //   evalTree,
+  // );
+  // const newContainerWidget: FlattenedWidgetProps = {
+  //   parentId: MAIN_CONTAINER_WIDGET_ID,
+  //   widgetName: widgetName,
+  //   type: WidgetTypes.CONTAINER_WIDGET,
+  //   widgetId: containerWidgetId,
+  //   leftColumn: 0,
+  //   topRow: 0,
+  //   bottomRow: 50,
+  //   rightColumn: 10,
+  //   columns,
+  //   rows,
+  //   tabId: "",
+  //   children: [
+  //     {
+  //       type: "CANVAS_WIDGET",
+  //       containerStyle: "none",
+  //       canExtend: false,
+  //       detachFromLayout: true,
+  //       children: [],
+  //     },
+  //   ],
+  //   renderMode: RenderModes.CANVAS,
+  //   version: 1,
+  //   isLoading: false,
+  //   parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  //   parentColumnSpace: 1,
+  // };
+
+  // copiedWidgetGroups.push({
+  //   list: [newContainerWidget],
+  //   widgetId: newContainerWidget.widgetId,
+  //   parentId: "0",
+  // });
+
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
       call(function*() {
@@ -1556,6 +1603,7 @@ function* pasteWidgetSaga() {
           const newWidgetList: FlattenedWidgetProps[] = [];
           let newWidgetId: string = copiedWidget.widgetId;
           // Generate new widgetIds for the flat list of all the widgets to be updated
+
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
             const newWidget = cloneDeep(widget);
@@ -1866,6 +1914,25 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   }
 }
 
+/**
+ * saga to group selected widgets into a new container
+ *
+ * @param action
+ */
+export function* groupWidgetsSaga(action: ReduxAction<{ modalName: string }>) {
+  try {
+    // 1. copy widgets
+    yield put({
+      type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+      payload: {
+        isShortcut: false,
+      },
+    });
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetSelectionSagas);
   yield all([
@@ -1912,5 +1979,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
+    takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
   ]);
 }
