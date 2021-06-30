@@ -36,6 +36,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -594,26 +595,26 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                Long timeElapsed = tuple1.getT1();
-                                ActionExecutionResult result = tuple1.getT2();
+                                        Long timeElapsed = tuple1.getT1();
+                                        ActionExecutionResult result = tuple1.getT2();
 
-                                log.debug("{}: Action {} with id {} execution time : {} ms",
-                                        Thread.currentThread().getName(),
-                                        actionName.get(),
-                                        actionId,
-                                        timeElapsed
-                                );
+                                        log.debug("{}: Action {} with id {} execution time : {} ms",
+                                                Thread.currentThread().getName(),
+                                                actionName.get(),
+                                                actionId,
+                                                timeElapsed
+                                        );
 
-                                return Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                        .flatMap(tuple2 -> {
-                                            ActionExecutionResult actionExecutionResult = result;
-                                            NewAction actionFromDb = tuple2.getT1();
-                                            ActionDTO actionDTO = tuple2.getT2();
-                                            Datasource datasourceFromDb = tuple2.getT3();
+                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                                .flatMap(tuple2 -> {
+                                                    ActionExecutionResult actionExecutionResult = result;
+                                                    NewAction actionFromDb = tuple2.getT1();
+                                                    ActionDTO actionDTO = tuple2.getT2();
+                                                    Datasource datasourceFromDb = tuple2.getT3();
 
-                                            return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
-                                                    .thenReturn(result);
-                                        });
+                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
+                                                            .thenReturn(result);
+                                                });
                                     }
                             );
                 })
@@ -685,12 +686,32 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
+        result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
         return result;
+    }
+
+    private String getSuggestedWidget(Object data) {
+        if (data instanceof ArrayList) {
+            Long length = ((List)data).stream().count();
+            Long fieldsLength = ((List)data).stream().findFirst().stream().count();
+            if(length <= 10 && fieldsLength == 1) {
+                return "DROP_DOWN_WODGET";
+            }
+            if(length <= 100 && fieldsLength <= 5) {
+                return "LIST_WIDGET";
+            }
+            return "TABLE_WIDGET";
+        }
+
+        if(data instanceof JsonNode) {
+            return "TABLE_WIDGET";
+        }
+        return "TABLE_WIDGET";
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
