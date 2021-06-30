@@ -21,8 +21,10 @@ import { setCommentsIntroSeen } from "utils/storage";
 
 import { updateUserDetails } from "actions/userActions";
 
+import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
+
 const getBanner = (step: number) =>
-  `https://s3.us-east-2.amazonaws.com/assets.appsmith.com/comments/step-${step}.png`;
+  `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
 const introSteps = [
   {
