@@ -27,13 +27,11 @@ jobs:
   build:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
-    # Only PR approvals of internally created PRs should trigger this workflow
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
       (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)
+      github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:

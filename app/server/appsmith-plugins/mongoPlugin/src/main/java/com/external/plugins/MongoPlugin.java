@@ -87,14 +87,13 @@ import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -164,8 +163,8 @@ public class MongoPlugin extends BasePlugin {
             FIND_SORT,
             FIND_PROJECTION,
             INSERT_DOCUMENT,
-            UPDATE_MANY_QUERY,
-            UPDATE_MANY_UPDATE,
+            UPDATE_QUERY,
+            UPDATE_UPDATE,
             UPDATE_ONE_QUERY,
             UPDATE_ONE_SORT,
             UPDATE_ONE_UPDATE
@@ -228,7 +227,8 @@ public class MongoPlugin extends BasePlugin {
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
-                if (isFormInput(actionConfiguration.getPluginSpecifiedTemplates())) {
+                // If not raw, then it must be form input.
+                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
                     List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
                             executeActionDTO.getParams(), parameters);
                     actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
@@ -412,13 +412,10 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private Boolean isFormInput(List<Property> templates) {
-            if ((templates.size() >= (1 + INPUT_TYPE)) &&
-                    (templates.get(INPUT_TYPE) != null) &&
-                    ("FORM".equals(templates.get(INPUT_TYPE).getValue())) &&
-                    (templates.size() >= (1 + COMMAND)) &&
+        private Boolean isRawCommand(List<Property> templates) {
+            if ((templates.size() >= (1 + COMMAND)) &&
                     (templates.get(COMMAND) != null) &&
-                    (templates.get(COMMAND).getValue() != null)) {
+                    ("RAW".equals(templates.get(COMMAND).getValue()))) {
                 return TRUE;
             }
             return FALSE;
@@ -427,9 +424,10 @@ public class MongoPlugin extends BasePlugin {
         private String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
             List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
             if (templates != null) {
-                if (isFormInput(templates)) {
-                    // The user has configured FORM for command input. Parse the commands appropriately
+                // If its not raw command, then it must be one of the mongo form commands
+                if (!isRawCommand(templates)) {
 
+                    // Parse the commands into raw appropriately
                     MongoCommand command = null;
                     switch ((String) templates.get(COMMAND).getValue()) {
                         case "INSERT":
@@ -438,11 +436,11 @@ public class MongoPlugin extends BasePlugin {
                         case "FIND":
                             command = new Find(actionConfiguration);
                             break;
+                        case "UPDATE":
+                            command = new UpdateMany(actionConfiguration);
+                            break;
                         case "UPDATE_ONE":
                             command = new UpdateOne(actionConfiguration);
-                            break;
-                        case "UPDATE_MANY":
-                            command = new UpdateMany(actionConfiguration);
                             break;
                         case "DELETE":
                             command = new Delete(actionConfiguration);
@@ -899,6 +897,7 @@ public class MongoPlugin extends BasePlugin {
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                         tables.add(new DatasourceStructure.Table(
                                 DatasourceStructure.TableType.COLLECTION,
+                                null,
                                 collectionName,
                                 columns,
                                 new ArrayList<>(),

@@ -10,7 +10,6 @@ import queryPaneSagas from "../src/sagas/QueryPaneSagas";
 import modalSagas from "../src/sagas/ModalSagas";
 import batchSagas from "../src/sagas/BatchSagas";
 import themeSagas from "../src/sagas/ThemeSaga";
-import onboardingSaga from "../src/sagas/OnboardingSagas";
 import utilSagas from "../src/sagas/UtilSagas";
 import saaSPaneSagas from "../src/sagas/SaaSPaneSagas";
 import actionExecutionChangeListeners from "../src/sagas/WidgetLoadingSaga";
@@ -25,6 +24,9 @@ import { watchActionExecutionSagas } from "../src/sagas/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
+import tourSagas from "../src/sagas/TourSagas";
+import notificationsSagas from "../src/sagas/NotificationsSagas";
+import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -45,7 +47,6 @@ export const sagasToRunForTests = [
   modalSagas,
   batchSagas,
   themeSagas,
-  onboardingSaga,
   actionExecutionChangeListeners,
   utilSagas,
   saaSPaneSagas,
@@ -54,6 +55,7 @@ export const sagasToRunForTests = [
   commentSagas,
   websocketSagas,
   debuggerSagas,
-  utilSagas,
-  saaSPaneSagas,
+  tourSagas,
+  notificationsSagas,
+  selectionCanvasSagas,
 ];

@@ -89,6 +89,8 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final String INTERVAL_TYPE_NAME = "interval";
 
+    private static final String JSON_TYPE_NAME = "json";
+
     private static final String JSONB_TYPE_NAME = "jsonb";
 
     private static final int MINIMUM_POOL_SIZE = 1;
@@ -339,9 +341,9 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (typeName.startsWith("_")) {
                                     value = resultSet.getArray(i).getArray();
 
-                                } else if (JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getString(i);
-
+                                } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
+                                        || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                    value = objectMapper.readTree(resultSet.getString(i));
                                 } else {
                                     value = resultSet.getObject(i);
                                 }
@@ -356,6 +358,11 @@ public class PostgresPlugin extends BasePlugin {
                 } catch (SQLException e) {
                     System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                } catch (IOException e) {
+                    // Since postgres json type field can only hold valid json data, this exception is not expected
+                    // to occur.
+                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
                     idleConnections = poolProxy.getIdleConnections();
                     activeConnections = poolProxy.getActiveConnections();
@@ -589,6 +596,7 @@ public class PostgresPlugin extends BasePlugin {
                             if (!tablesByName.containsKey(fullTableName)) {
                                 tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                         kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                                        schemaName,
                                         fullTableName,
                                         new ArrayList<>(),
                                         new ArrayList<>(),
