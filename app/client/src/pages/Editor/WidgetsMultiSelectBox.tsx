@@ -15,14 +15,14 @@ import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
+import { WidgetTypes } from "constants/WidgetConstants";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
-
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const StyledSelectionBox = styled.div`
-  position: fixed;
+  position: absolute;
   z-index: ${Layers.contextMenu};
 `;
 
@@ -154,7 +154,10 @@ interface OffsetBox {
   height: number;
 }
 
-function WidgetsMultiSelectBox(props: { widgetId: string }): any {
+function WidgetsMultiSelectBox(props: {
+  widgetId: string;
+  widgetType: string;
+}): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
   const selectedWidgetIDs = useSelector(getSelectedWidgets);
@@ -176,11 +179,16 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
       .map((widget) => widget.parentId);
     const hasCommonParent = parentIDs.every((v) => v === parentIDs[0]);
     const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
+    const directParentId = get(selectedWidgets, "0.parentId");
+    const parentId =
+      props.widgetType === WidgetTypes.CONTAINER_WIDGET
+        ? get(canvasWidgets, `${directParentId}.parentId`)
+        : directParentId;
 
     return (
       isMultipleWidgetsSelected &&
       hasCommonParent &&
-      props.widgetId === get(selectedWidgets, "0.parentId")
+      parentId === props.widgetId
     );
   }, [selectedWidgets]);
 
