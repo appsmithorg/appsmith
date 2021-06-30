@@ -7,19 +7,38 @@ import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
 
 const StyledButton = styled(Button)`
+  box-shadow: none !important;
+  border: none !important;
   background-color: #ffffff !important;
+
+  > span.bp3-icon-caret-down {
+    color: rgb(169, 167, 167);
+  }
 `;
 
 const StyledMenu = styled(Menu)`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(50px, auto);
+  gap: 15px;
+  max-height: 200px;
 `;
 
 const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
+  padding-top: 13px;
+  padding-bottom: 13px;
+
+  &:active,
+  &:hover,
+  &.bp3-active {
+    background-color: #eeeeee !important;
+  }
+
   > span.bp3-icon {
     margin-right: 0;
+    color: #939090 !important;
   }
   > div {
     width: 100%;
@@ -92,7 +111,6 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
         icon={icon === NONE ? undefined : icon}
         key={icon}
         onClick={handleClick}
-        text={icon}
       />
     );
   };

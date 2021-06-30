@@ -29,18 +29,17 @@ const BaseButton = styled(Button)<BaseStyleProps>`
   border: 1.2px solid #ebebeb;
   border-radius: 0;
   box-shadow: none !important;
-  ${({ backgroundColor }) =>
-    backgroundColor &&
-    `
-      background-image: none !important;
-      background-color: ${backgroundColor} !important;
-      &:hover {
-        background-color: ${darkenHover(backgroundColor)} !important;
-      }
-      &:active {
-        background-color: ${darkenActive(backgroundColor)} !important;
-      }
-  `}
+  background-image: none !important;
+  background-color: ${({ backgroundColor }) =>
+    backgroundColor ? backgroundColor : "#ffffff"} !important;
+  &:hover {
+    background-color: ${({ backgroundColor }) =>
+      backgroundColor ? backgroundColor : "#ffffff"} !important;
+  }
+  &:active {
+    background-color: ${({ backgroundColor }) =>
+      backgroundColor ? backgroundColor : "#ffffff"} !important;
+  }
   ${({ textColor }) =>
     textColor &&
     `

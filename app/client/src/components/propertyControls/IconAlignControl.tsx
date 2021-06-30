@@ -18,7 +18,9 @@ const StyledButtonGroup = styled(ButtonGroup)`
 const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
   border: ${(props) => (props.active ? `1px solid #6A86CE` : `none`)};
   background-color: #ffffff !important;
+
   &.bp3-active {
+    box-shadow: none !important;
     background-color: #ffffff !important;
   }
   &:hover {
