@@ -588,7 +588,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
         },
       });
 
-      yield put(fetchActionsForPage(response.data.id));
+      yield put(fetchActionsForPage(response.data.id, []));
 
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
@@ -760,7 +760,7 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
-  yield put(fetchActionsForPage(pageId));
+  yield put(fetchActionsForPage(pageId, []));
 }
 
 export function* setDataUrl() {
@@ -852,7 +852,7 @@ export function* updatePageWithTemplateSaga(
         fetchPageResponse: updatePageWithTemplateResponse,
         pageId,
       });
-      yield put(fetchActionsForPage(pageId));
+      yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       yield routeToEmptyEditorFromGenPage();
     }
   } catch (error) {
