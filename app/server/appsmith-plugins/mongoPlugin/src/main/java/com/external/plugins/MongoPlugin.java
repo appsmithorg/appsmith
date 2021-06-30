@@ -294,6 +294,8 @@ public class MongoPlugin extends BasePlugin {
                                     error.getErrorMessage()
                             )
                     )
+                    // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
+                    // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
                             MongoSocketWriteException.class,
                             error -> new StaleConnectionException()
@@ -381,6 +383,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
+                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
