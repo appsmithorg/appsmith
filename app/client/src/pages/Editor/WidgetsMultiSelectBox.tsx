@@ -9,6 +9,7 @@ import {
   deleteSelectedWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
+import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
 import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
@@ -17,6 +18,7 @@ import { generateClassName } from "utils/generators";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
+
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const StyledSelectionBox = styled.div`
@@ -33,7 +35,7 @@ const StyledActions = styled.div`
   margin-left: calc(100% + 4px);
   padding: 5px 0;
   width: max-content;
-  z-index: 4;
+  z-index: ${Layers.contextMenu};
   position: relative;
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
@@ -49,7 +51,7 @@ const StyledAction = styled.button`
   outline: none;
   border: none;
   background: transparent;
-  z-index: 30;
+  z-index: ${Layers.contextMenu};
   position: relative;
 
   &:hover,
@@ -69,7 +71,7 @@ const StyledSelectBoxHandleTop = styled.div`
   width: 100%;
   height: 1px;
   position: absolute;
-  z-index: 5;
+  z-index: ${Layers.contextMenu};
   border-top: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
@@ -80,7 +82,7 @@ const StyledSelectBoxHandleLeft = styled.div`
   width: 0px;
   height: 100%;
   position: absolute;
-  z-index: 5;
+  z-index: ${Layers.contextMenu};
   border-left: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
@@ -91,7 +93,7 @@ const StyledSelectBoxHandleRight = styled.div`
   width: 0px;
   height: 100%;
   position: absolute;
-  z-index: 5;
+  z-index: ${Layers.contextMenu};
   border-left: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
@@ -102,7 +104,7 @@ const StyledSelectBoxHandleBottom = styled.div`
   width: 100%;
   height: 1px;
   position: absolute;
-  z-index: 5;
+  z-index: ${Layers.contextMenu};
   border-bottom: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 100%;
@@ -300,7 +302,10 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
             modifiers={PopoverModifiers}
             position={Position.RIGHT}
           >
-            <StyledAction onClick={onCutSelectedWidgets}>
+            <StyledAction
+              onClick={stopEventPropagation}
+              onClickCapture={onCutSelectedWidgets}
+            >
               <CutIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
@@ -312,7 +317,10 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
             modifiers={PopoverModifiers}
             position={Position.RIGHT}
           >
-            <StyledAction onClick={onDeleteSelectedWidgets}>
+            <StyledAction
+              onClick={stopEventPropagation}
+              onClickCapture={onDeleteSelectedWidgets}
+            >
               <DeleteIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
