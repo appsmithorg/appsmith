@@ -598,10 +598,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                 Long timeElapsed = tuple1.getT1();
-                                 ActionExecutionResult result = tuple1.getT2();
+                                Long timeElapsed = tuple1.getT1();
+                                ActionExecutionResult result = tuple1.getT2();
 
-                                 log.debug("{}: Action {} with id {} execution time : {} ms",
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
                                         Thread.currentThread().getName(),
                                         actionName.get(),
                                         actionId,
