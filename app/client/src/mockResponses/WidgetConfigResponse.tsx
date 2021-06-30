@@ -57,6 +57,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
+      enableDownload: false,
       objectFit: "cover",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,

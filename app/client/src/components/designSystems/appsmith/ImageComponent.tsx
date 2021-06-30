@@ -216,10 +216,10 @@ class ImageComponent extends React.Component<
   }
 
   renderImageControl = () => {
-    const { enableRotation } = this.props;
+    const { enableDownload, enableRotation } = this.props;
     const { showImageControl } = this.state;
 
-    if (showImageControl) {
+    if (showImageControl && (enableRotation || enableDownload)) {
       return (
         <ControlBtnWrapper>
           {enableRotation && (
@@ -265,18 +265,20 @@ class ImageComponent extends React.Component<
               </ControlBtn>
             </>
           )}
-          <ControlBtn onClick={this.handleImageDownload}>
-            <div>
-              <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
-                <path
-                  clipRule="evenodd"
-                  d="M15.4547 16.4284H13.117H6.88326H4.54559C2.8243 16.4284 1.42871 14.8933 1.42871 12.9999C1.42871 11.3987 2.43157 10.0641 3.7804 9.68786C3.93001 6.28329 6.47884 3.57129 9.61053 3.57129C12.7072 3.57129 15.2349 6.22243 15.4352 9.57386C17.183 9.56015 18.5716 11.1167 18.5716 12.9999C18.5716 14.8933 17.176 16.4284 15.4547 16.4284ZM12.7266 11.4286L9.99929 14.8572L7.27202 11.4286L8.83045 11.4286L8.83045 8.00004L11.1681 8.00003V11.4286L12.7266 11.4286Z"
-                  fill="#939090"
-                  fillRule="evenodd"
-                />
-              </svg>
-            </div>
-          </ControlBtn>
+          {enableDownload && (
+            <ControlBtn onClick={this.handleImageDownload}>
+              <div>
+                <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
+                  <path
+                    clipRule="evenodd"
+                    d="M15.4547 16.4284H13.117H6.88326H4.54559C2.8243 16.4284 1.42871 14.8933 1.42871 12.9999C1.42871 11.3987 2.43157 10.0641 3.7804 9.68786C3.93001 6.28329 6.47884 3.57129 9.61053 3.57129C12.7072 3.57129 15.2349 6.22243 15.4352 9.57386C17.183 9.56015 18.5716 11.1167 18.5716 12.9999C18.5716 14.8933 17.176 16.4284 15.4547 16.4284ZM12.7266 11.4286L9.99929 14.8572L7.27202 11.4286L8.83045 11.4286L8.83045 8.00004L11.1681 8.00003V11.4286L12.7266 11.4286Z"
+                    fill="#939090"
+                    fillRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </ControlBtn>
+          )}
         </ControlBtnWrapper>
       );
     }
@@ -346,6 +348,7 @@ export interface ImageComponentProps extends ComponentProps {
   showHoverPointer?: boolean;
   maxZoomLevel: number;
   enableRotation?: boolean;
+  enableDownload?: boolean;
   objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
