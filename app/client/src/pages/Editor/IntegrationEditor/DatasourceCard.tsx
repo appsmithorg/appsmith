@@ -1,12 +1,12 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button, { Category } from "components/ads/Button";
 import React from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
-
+import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
   getQueryActionsForCurrentPage,
@@ -20,12 +20,19 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 const Wrapper = styled.div`
-  border: 2px solid #d6d6d6;
   padding: 18px;
-  margin-top: 18px;
+  /* margin-top: 18px; */
+
+  &:hover {
+    background: ${Colors.Gallery};
+    .bp3-collapse-body {
+      background: ${Colors.Gallery};
+    }
+  }
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
     max-width: 120px;
@@ -38,11 +45,12 @@ const DatasourceImage = styled.img`
   width: auto;
 `;
 
-const EditDatasourceButton = styled(BaseButton)`
+const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
     max-width: 160px;
-    border: 1px solid ${Colors.GEYSER_LIGHT};
+    border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
@@ -62,6 +70,10 @@ const DatasourceNameWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   display: flex;
+`;
+
+const DatasourceInfo = styled.div`
+  padding: 0 10px;
 `;
 
 const Queries = styled.div`
@@ -99,7 +111,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-
   const editDatasource = () => {
     dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
     history.push(
@@ -112,7 +123,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   };
 
   return (
-    <Wrapper>
+    <Wrapper className="t--datasource">
       <DatasourceCardHeader className="t--datasource-name">
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
@@ -129,26 +140,27 @@ function DatasourceCard(props: DatasourceCardProps) {
               : "No query is using this datasource"}
           </Queries>
         </div>
-        <ButtonsWrapper>
+        <ButtonsWrapper className="action-wrapper">
           <EditDatasourceButton
+            category={Category.tertiary}
             className="t--edit-datasource"
-            icon={"edit"}
             onClick={editDatasource}
-            text="Edit Datasource"
+            text="Edit"
           />
           <ActionButton
-            accent="primary"
             className="t--create-query"
-            filled
-            icon={"plus"}
             onClick={() => props.onCreateQuery(datasource)}
             text="New Query"
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig)
-        ? renderDatasourceSection(currentFormConfig[0], datasource)
-        : undefined}
+      {!isNil(currentFormConfig) && (
+        <CollapseComponent title="Show More">
+          <DatasourceInfo>
+            {renderDatasourceSection(currentFormConfig[0], datasource)}
+          </DatasourceInfo>
+        </CollapseComponent>
+      )}
     </Wrapper>
   );
 }

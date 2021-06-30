@@ -27,10 +27,9 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -396,7 +395,6 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -421,9 +419,6 @@ function* handleCreateNewApiActionSaga(
         },
         pageId,
       } as ApiAction), // We don't have recursive partial in typescript for now.
-    );
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
   }
 }
@@ -481,11 +476,10 @@ function* handleCreateNewQueryActionSaga(
     }
 
     yield put(createActionRequest(createActionPayload));
-    history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
   } else {
-    history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
   }
 }
 
