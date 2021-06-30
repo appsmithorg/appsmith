@@ -216,9 +216,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   ensureAPIKeyDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
     const { authentication } = this.props.formData;
-    console.log("Ayush", authentication);
     if (!authentication || !_.get(authentication, "addTo")) {
-      this.props.change("authentication.addTo", "header");
+      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
       return false;
     } else {
       return true;
