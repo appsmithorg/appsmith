@@ -22,7 +22,7 @@ const IconContainer = styled.div`
   align-items: center;
   cursor: pointer;
   padding-left: 16px;
-  background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+  /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
 
 function CloseEditor() {
