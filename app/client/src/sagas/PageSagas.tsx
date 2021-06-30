@@ -178,12 +178,14 @@ export const getCanvasWidgetsPayload = (
 
 function* handleFetchedPage({
   fetchPageResponse,
+  isFirstLoad = false,
   pageId,
   stopPerfTracker = false,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
   stopPerfTracker?: boolean;
+  isFirstLoad?: boolean;
 }) {
   const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
@@ -199,7 +201,12 @@ function* handleFetchedPage({
     // set current page
     yield put(updateCurrentPage(pageId));
     // dispatch fetch page success
-    yield put(fetchPageSuccess());
+    yield put(
+      fetchPageSuccess(
+        // Execute page load actions post page load
+        isFirstLoad ? [] : [executePageLoadActions()],
+      ),
+    );
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
     yield put({
       type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -233,6 +240,7 @@ export function* fetchPageSaga(
       fetchPageResponse,
       pageId: id,
       stopPerfTracker: true,
+      isFirstLoad,
     });
   } catch (error) {
     log.error(error);
