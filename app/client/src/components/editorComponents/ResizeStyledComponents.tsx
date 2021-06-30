@@ -16,7 +16,6 @@ export const VisibilityContainer = styled.div<{
 
 export const EdgeHandleStyles = css`
   position: absolute;
-  z-index: 3;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {

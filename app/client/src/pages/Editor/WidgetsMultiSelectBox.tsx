@@ -1,5 +1,5 @@
-import styled from "styled-components";
 import React, { useMemo } from "react";
+import styled from "styled-components";
 import { get, minBy, maxBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -22,21 +22,23 @@ import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const StyledSelectionBox = styled.div`
-  position: absolute;
+  position: fixed;
+  z-index: ${Layers.contextMenu};
 `;
 
 const StyledActionsContainer = styled.div`
   position: relative;
   height: 100%;
   width: 100%;
+  z-index: ${Layers.contextMenu};
 `;
 
 const StyledActions = styled.div`
-  margin-left: calc(100% + 4px);
+  left: calc(100% + 4px);
   padding: 5px 0;
   width: max-content;
   z-index: ${Layers.contextMenu};
-  position: relative;
+  position: absolute;
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
 
@@ -257,6 +259,7 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
     dispatch(deleteSelectedWidget(true));
   };
 
+  console.log({ shouldRender });
   if (!shouldRender) return false;
 
   return (
