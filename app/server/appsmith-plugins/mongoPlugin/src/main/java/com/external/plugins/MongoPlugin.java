@@ -452,7 +452,6 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                     })
-                    .map(this::addDefaultConnectionOptions)
                     .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
@@ -646,19 +645,6 @@ public class MongoPlugin extends BasePlugin {
                 // Delete the trailing ampersand.
                 builder.deleteCharAt(builder.length() - 1);
             }
-
-            return builder.toString();
-        }
-
-        private String addDefaultConnectionOptions(String uri) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(uri);
-            if (!uri.contains("?")) {
-                builder.append("?");
-            }
-            // Set a maximum idle time to 2 mins so that connections are closed when left inactive and the driver
-            // takes care of re-initiating the connection when query is executed again.
-            builder.append("maxIdleTimeMS=120000");
 
             return builder.toString();
         }
