@@ -39,6 +39,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import UserApi from "api/UserApi";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -343,7 +344,10 @@ function OrgInviteUsersForm(props: any) {
                     <Fragment key={user.username}>
                       <User>
                         <UserInfo>
-                          <ProfileImage userName={user.initials} />
+                          <ProfileImage
+                            source={`/api/${UserApi.photoURL}/${user.username}`}
+                            userName={user.name || user.username}
+                          />
                           <UserName>
                             <Text type={TextType.H5}>{user.name}</Text>
                             <Text type={TextType.P2}>{user.username}</Text>
