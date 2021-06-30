@@ -212,7 +212,11 @@ function CommentModeBtn({
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
 
   return (
-    <ModeButton active={isCommentMode} onClick={handleSetCommentModeButton}>
+    <ModeButton
+      active={isCommentMode}
+      className="t--switch-comment-mode-on"
+      onClick={handleSetCommentModeButton}
+    >
       <TooltipComponent
         content={
           <>
@@ -272,6 +276,7 @@ function ToggleCommentModeButton() {
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
+            className="t--switch-comment-mode-off"
             onClick={() => setCommentModeInUrl(false)}
           >
             <ViewOrEditMode mode={mode} />

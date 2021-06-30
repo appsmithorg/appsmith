@@ -2378,6 +2378,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
   cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
+
+  cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
+  cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
