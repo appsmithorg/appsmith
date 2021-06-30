@@ -177,7 +177,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -200,7 +200,12 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
+      yield put(
+        fetchPageSuccess(
+          // Execute page load actions post page load
+          isFirstLoad ? [] : [executePageLoadActions()],
+        ),
+      );
       const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -371,7 +376,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     });
 
     if (error instanceof IncorrectBindingError) {
-      const { isRetry } = action.payload;
+      const { isRetry } = action?.payload;
       const incorrectBindingError = JSON.parse(error.message);
       const { message } = incorrectBindingError;
       if (isRetry) {
@@ -428,10 +433,7 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVE_PAGE_INIT,
-      payload: action.payload,
-    });
+    yield put(saveLayout(action.payload.isRetry));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

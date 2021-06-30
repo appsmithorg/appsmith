@@ -20,6 +20,7 @@ import ApplicationApi, {
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
+  ImportApplicationRequest,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -55,8 +56,11 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+
 import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -250,13 +254,19 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
+    console.log({ request, isValidResponse });
+    // as the redux store updates the app only on success.
+    // we have to run this
+    if (isValidResponse && request) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: action.payload,
+      });
+    }
     if (isValidResponse && request && request.name) {
       Toaster.show({
         text: createMessage(APPLICATION_NAME_UPDATE),
         variant: Variant.success,
-      });
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -502,6 +512,53 @@ export function* forkApplicationSaga(
   }
 }
 
+export function* importApplicationSaga(
+  action: ReduxAction<ImportApplicationRequest>,
+) {
+  try {
+    const response: ApiResponse = yield call(
+      ApplicationApi.importApplicationToOrg,
+      action.payload,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === action.payload.orgId,
+      );
+      if (currentOrg.length > 0) {
+        const {
+          id: appId,
+          pages,
+        }: {
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+        } = response.data;
+        yield put({
+          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+          payload: {
+            importedApplication: appId,
+          },
+        });
+        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        history.push(pageURL);
+        Toaster.show({
+          text: "Application imported successfully",
+          variant: Variant.success,
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -530,5 +587,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
       duplicateApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
   ]);
 }

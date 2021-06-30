@@ -12,6 +12,8 @@ type MenuProps = CommonComponentProps & {
   onOpening?: (node: HTMLElement) => void;
   onClosing?: (node: HTMLElement) => void;
   modifiers?: PopperModifiers;
+  isOpen?: boolean;
+  onClose?: () => void;
 };
 
 const MenuWrapper = styled.div`
@@ -30,8 +32,10 @@ function Menu(props: MenuProps) {
       className={props.className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
+      isOpen={props.isOpen}
       minimal
       modifiers={props.modifiers}
+      onClose={props.onClose}
       onClosing={props.onClosing}
       onOpening={props.onOpening}
       portalClassName={props.className}

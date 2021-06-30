@@ -52,7 +52,6 @@ class ColumnActionSelectorControl extends BaseControl<
                 <InputTextWrapper>
                   <InputText
                     evaluatedValue={columnAction.label}
-                    isValid
                     label={columnAction.label}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
@@ -64,12 +63,10 @@ class ColumnActionSelectorControl extends BaseControl<
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
-                    isValid={(columnAction as any).isValid}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
                     )}
-                    validationMessage={(columnAction as any).message}
                     value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>

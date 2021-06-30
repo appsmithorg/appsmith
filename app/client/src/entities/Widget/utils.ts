@@ -36,6 +36,7 @@ export const getAllPathsFromPropertyConfig = (
             !controlConfig.isTriggerProperty
           ) {
             bindingPaths[controlConfig.propertyName] =
+              controlConfig.evaluationSubstitutionType ||
               EvaluationSubstitutionType.TEMPLATE;
             if (controlConfig.validation) {
               validationPaths[controlConfig.propertyName] =
@@ -80,6 +81,7 @@ export const getAllPathsFromPropertyConfig = (
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
                               bindingPaths[panelPropertyPath] =
+                                controlConfig.evaluationSubstitutionType ||
                                 EvaluationSubstitutionType.TEMPLATE;
                               if (panelColumnControlConfig.validation) {
                                 validationPaths[panelPropertyPath] =
@@ -119,6 +121,7 @@ export const getAllPathsFromPropertyConfig = (
                   !childPropertyConfig.isTriggerProperty
                 ) {
                   bindingPaths[childArrayPropertyPath] =
+                    childPropertyConfig.evaluationSubstitutionType ||
                     EvaluationSubstitutionType.TEMPLATE;
                   if (childPropertyConfig.validation) {
                     validationPaths[childArrayPropertyPath] =

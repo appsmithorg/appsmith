@@ -26,9 +26,10 @@ const StyledRadioComponent = styled(RadioComponent)`
   }
 `;
 
-const ForkButton = styled(Button)`
+const ForkButton = styled(Button)<{ disabled?: boolean }>`
   height: 38px;
   width: 203px;
+  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
 `;
 
 const OrganizationList = styled.div`

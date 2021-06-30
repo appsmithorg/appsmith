@@ -61,6 +61,12 @@ export const fetchActionsForPageSuccess = (actions: Action[]) => {
   };
 };
 
+export const runActionViaShortcut = () => {
+  return {
+    type: ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
+  };
+};
+
 export const runAction = (id: string, paginationField?: PaginationField) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,

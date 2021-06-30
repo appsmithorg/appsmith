@@ -1,0 +1,16 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "",
+          "internalLabel": "Query",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT"
+        }
+      ]
+    }
+  ]
+}

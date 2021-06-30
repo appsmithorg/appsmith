@@ -1,5 +1,5 @@
 import React from "react";
-import { get, has, isString } from "lodash";
+import { get, isString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -81,10 +81,7 @@ type RenderComponentProps = {
   index: string;
   item: ChartData;
   length: number;
-  validationMessage: {
-    data: string;
-    seriesName: string;
-  };
+  dataTreePath: string;
   deleteOption: (index: string) => void;
   updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
@@ -96,13 +93,13 @@ type RenderComponentProps = {
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
+    dataTreePath,
     deleteOption,
     evaluated,
     index,
     item,
     length,
     updateOption,
-    validationMessage,
   } = props;
 
   return (
@@ -121,6 +118,7 @@ function DataControlComponent(props: RenderComponentProps) {
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
+          dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={"string"}
           input={{
@@ -147,6 +145,7 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
+          dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={`Array<x:string, y:number>`}
           input={{
@@ -160,12 +159,6 @@ function DataControlComponent(props: RenderComponentProps) {
               }
               updateOption(index, "data", value);
             },
-          }}
-          meta={{
-            error: has(validationMessage, "data")
-              ? get(validationMessage, "data")
-              : "",
-            touched: true,
           }}
           mode={EditorModes.JSON_WITH_BINDING}
           placeholder=""
@@ -186,7 +179,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
       : this.props.propertyValue;
 
     const dataLength = Object.keys(chartData).length;
-    const { validationMessage } = this.props;
 
     const evaluatedValue = this.props.evaluatedValue;
     const firstKey = Object.keys(chartData)[0] as string;
@@ -201,6 +193,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
       return (
         <DataControlComponent
+          dataTreePath={`${this.props.dataTreePath}.${firstKey}`}
           deleteOption={this.deleteOption}
           evaluated={get(evaluatedValue, `${firstKey}`)}
           index={firstKey}
@@ -208,7 +201,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
           length={1}
           theme={this.props.theme}
           updateOption={this.updateOption}
-          validationMessage={get(validationMessage, `${firstKey}`)}
         />
       );
     }
@@ -221,6 +213,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
             return (
               <DataControlComponent
+                dataTreePath={`${this.props.dataTreePath}.${key}`}
                 deleteOption={this.deleteOption}
                 evaluated={get(evaluatedValue, `${key}`)}
                 index={key}
@@ -229,7 +222,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
                 length={dataLength}
                 theme={this.props.theme}
                 updateOption={this.updateOption}
-                validationMessage={get(validationMessage, `${key}`)}
               />
             );
           })}

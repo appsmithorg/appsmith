@@ -221,6 +221,10 @@ describe("generateDataTreeWidget", () => {
           key: "value",
         },
       ],
+      logBlackList: {
+        isValid: true,
+        value: true,
+      },
       value: "{{Input1.text}}",
       isDirty: true,
       isFocused: false,
@@ -240,6 +244,10 @@ describe("generateDataTreeWidget", () => {
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       defaultText: "Testing",
+      defaultMetaProps: ["text", "isDirty", "isFocused"],
+      defaultProps: {
+        text: "defaultText",
+      },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

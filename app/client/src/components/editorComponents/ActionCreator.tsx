@@ -215,8 +215,6 @@ const enumTypeGetter = (
 
 type ActionCreatorProps = {
   value: string;
-  isValid: boolean;
-  validationMessage?: string;
   onValueChange: (newValue: string) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
@@ -263,8 +261,6 @@ type SelectorViewProps = ViewProps & {
 
 type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
-  isValid: boolean;
-  validationMessage?: string;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
@@ -307,10 +303,8 @@ const views = {
           {props.label && <label>{props.label}</label>}
           <InputText
             additionalAutocomplete={props.additionalAutoComplete}
-            errorMessage={props.validationMessage}
             evaluatedValue={props.get(props.value, false) as string}
             expected={"string"}
-            isValid={props.isValid}
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {
@@ -769,8 +763,6 @@ function renderField(props: {
   value: string;
   field: any;
   label?: string;
-  isValid: boolean;
-  validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
@@ -944,8 +936,6 @@ function renderField(props: {
           props.onValueChange(finalValueToSet);
         },
         value: props.value,
-        isValid: props.isValid,
-        validationMessage: props.validationMessage,
         additionalAutoComplete: props.additionalAutoComplete,
       });
       break;
@@ -961,8 +951,6 @@ function Fields(props: {
   value: string;
   fields: any;
   label?: string;
-  isValid: boolean;
-  validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
@@ -995,7 +983,6 @@ function Fields(props: {
                     apiOptionTree={props.apiOptionTree}
                     depth={props.depth + 1}
                     fields={field}
-                    isValid={props.isValid}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
@@ -1007,7 +994,6 @@ function Fields(props: {
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
                     queryOptionTree={props.queryOptionTree}
-                    validationMessage={props.validationMessage}
                     value={selectorField.value}
                     widgetOptionTree={props.widgetOptionTree}
                   />
@@ -1039,7 +1025,6 @@ function Fields(props: {
             apiOptionTree={props.apiOptionTree}
             depth={props.depth + 1}
             fields={field}
-            isValid={props.isValid}
             key={index}
             label={selectorField.label}
             maxDepth={props.maxDepth}
@@ -1052,7 +1037,6 @@ function Fields(props: {
             }}
             pageDropdownOptions={props.pageDropdownOptions}
             queryOptionTree={props.queryOptionTree}
-            validationMessage={props.validationMessage}
             value={selectorField.value}
             widgetOptionTree={props.widgetOptionTree}
           />
@@ -1212,13 +1196,11 @@ export function ActionCreator(props: ActionCreatorProps) {
         apiOptionTree={apiOptionTree}
         depth={1}
         fields={fields}
-        isValid={props.isValid}
         maxDepth={1}
         modalDropdownList={modalDropdownList}
         onValueChange={props.onValueChange}
         pageDropdownOptions={pageDropdownOptions}
         queryOptionTree={queryOptionTree}
-        validationMessage={props.validationMessage}
         value={props.value}
         widgetOptionTree={widgetOptionTree}
       />

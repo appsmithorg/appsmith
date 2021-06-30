@@ -79,7 +79,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     cy.deleteDatasource(datasourceName);
   });
@@ -102,7 +102,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     const tableName = Math.random()
       .toString(36)
@@ -158,7 +158,7 @@ describe("Entity explorer datasource structure", function() {
           200,
         );
 
-        cy.get(commonlocators.entityExplorersearch).clear();
+        cy.get(commonlocators.entityExplorersearch).clear({ force: true });
         cy.deleteDatasource(datasourceName);
       });
   });

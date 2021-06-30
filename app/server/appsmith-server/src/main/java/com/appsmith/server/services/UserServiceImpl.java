@@ -435,7 +435,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findByEmail(user.getUsername())
+        return repository.findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -445,7 +445,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
@@ -623,7 +623,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
-
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
