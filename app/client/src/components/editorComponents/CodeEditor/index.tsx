@@ -207,7 +207,7 @@ class CodeEditor extends Component<Props, State> {
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
-          editor.setSize("100%", "auto");
+          editor.setSize("100%", "100%");
         }
 
         CodeEditor.updateMarkings(editor, this.props.marking);
