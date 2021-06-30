@@ -67,24 +67,23 @@ const SectionGrid = styled.div`
 `;
 const NewIntegrationsContainer = styled.div`
   ::-webkit-scrollbar {
-    width: 3px;
+    width: 4px;
   }
 
   /* Track */
   ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px ${Colors.MYSTIC};
     border-radius: 10px;
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${Colors.SLATE_GRAY};
+    background: ${Colors.MYSTIC};
     border-radius: 10px;
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.OUTER_SPACE};
+    background: ${Colors.PORCELAIN};
   }
   scrollbar-width: thin;
   overflow: auto;
