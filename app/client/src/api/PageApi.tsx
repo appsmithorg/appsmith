@@ -71,6 +71,16 @@ export interface UpdatePageRequest {
   isHidden?: boolean;
 }
 
+export interface SetPageOrderRequest {
+  order: number;
+  pageId: string;
+  applicationId: string;
+}
+
+export interface SetPageOrderResponse extends ApiResponse {
+  data: unknown;
+}
+
 export interface CreatePageResponse extends ApiResponse {
   data: unknown;
 }
@@ -122,6 +132,11 @@ class PageApi extends Api {
   };
 
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
+  static setPageOrderUrl = (
+    applicationId: string,
+    pageId: string,
+    order: number,
+  ) => `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`;
 
   static fetchPage(
     pageRequest: FetchPageRequest,
@@ -190,6 +205,18 @@ class PageApi extends Api {
     request: UpdateWidgetNameRequest,
   ): AxiosPromise<UpdateWidgetNameResponse> {
     return Api.put(PageApi.refactorLayoutURL, request);
+  }
+
+  static setPageOrder(
+    request: SetPageOrderRequest,
+  ): AxiosPromise<SetPageOrderResponse> {
+    return Api.put(
+      PageApi.setPageOrderUrl(
+        request.applicationId,
+        request.pageId,
+        request.order,
+      ),
+    );
   }
 }
 

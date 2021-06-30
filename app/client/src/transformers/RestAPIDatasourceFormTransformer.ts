@@ -9,6 +9,8 @@ import {
   GrantType,
   Oauth2Common,
   Basic,
+  ApiKey,
+  BearerToken,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -107,12 +109,34 @@ const formToDatasourceAuthentication = (
     }
   }
   if (authType === AuthType.basic) {
-    const basic: Basic = {
-      authenticationType: AuthType.basic,
-      username: authentication.username,
-      password: authentication.password,
-    };
-    return basic;
+    if ("username" in authentication) {
+      const basic: Basic = {
+        authenticationType: AuthType.basic,
+        username: authentication.username,
+        password: authentication.password,
+      };
+      return basic;
+    }
+  }
+  if (authType === AuthType.apiKey) {
+    if ("label" in authentication) {
+      const apiKey: ApiKey = {
+        authenticationType: AuthType.apiKey,
+        label: authentication.label,
+        value: authentication.value,
+        addTo: authentication.addTo,
+      };
+      return apiKey;
+    }
+  }
+  if (authType === AuthType.bearerToken) {
+    if ("bearerToken" in authentication) {
+      const bearerToken: BearerToken = {
+        authenticationType: AuthType.bearerToken,
+        bearerToken: authentication.bearerToken,
+      };
+      return bearerToken;
+    }
   }
   return null;
 };
@@ -174,6 +198,22 @@ const datasourceToFormAuthentication = (
       password: authentication.password || "",
     };
     return basic;
+  }
+  if (authType === AuthType.apiKey) {
+    const apiKey: ApiKey = {
+      authenticationType: AuthType.apiKey,
+      label: authentication.label || "",
+      value: authentication.value || "",
+      addTo: authentication.addTo || "",
+    };
+    return apiKey;
+  }
+  if (authType === AuthType.bearerToken) {
+    const bearerToken: BearerToken = {
+      authenticationType: AuthType.bearerToken,
+      bearerToken: authentication.bearerToken || "",
+    };
+    return bearerToken;
   }
 };
 

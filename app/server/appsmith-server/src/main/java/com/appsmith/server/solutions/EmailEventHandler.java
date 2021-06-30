@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
@@ -18,15 +17,16 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -41,11 +41,15 @@ public class EmailEventHandler {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
 
-    public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader) {
+    public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
+        if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
+            return Mono.just(Boolean.FALSE);
+        }
+
         return applicationRepository.findById(applicationId).flatMap(application -> {
             return organizationRepository.findById(application.getOrganizationId()).flatMap(organization -> {
                 applicationEventPublisher.publishEvent(
-                        new CommentAddedEvent(authorUserName, organization, application, originHeader, comment)
+                        new CommentAddedEvent(authorUserName, organization, application, originHeader, comment, subscribers)
                 );
                 return Mono.just(organization);
             });
@@ -53,6 +57,11 @@ public class EmailEventHandler {
     }
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, CommentThread thread, String originHeader) {
+        if(CollectionUtils.isEmpty(thread.getSubscribers())) {
+            // no subscriber found, return without doing anything
+            return Mono.just(Boolean.FALSE);
+        }
+
         return applicationRepository.findById(applicationId).flatMap(application -> {
             return organizationRepository.findById(application.getOrganizationId()).flatMap(organization -> {
                 applicationEventPublisher.publishEvent(
@@ -67,8 +76,11 @@ public class EmailEventHandler {
     @EventListener
     public void handle(CommentAddedEvent event) {
         this.sendEmailForComment(
-                event.getAuthorUserName(), event.getApplication(), event.getOrganization(),
-                event.getComment(), event.getOriginHeader()
+                event.getAuthorUserName(),
+                event.getOrganization(),
+                event.getComment(),
+                event.getOriginHeader(),
+                event.getSubscribers()
         ).subscribeOn(Schedulers.elastic())
         .subscribe();
     }
@@ -77,47 +89,50 @@ public class EmailEventHandler {
     @EventListener
     public void handle(CommentThreadClosedEvent event) {
         this.sendEmailForComment(
-                event.getAuthorUserName(), event.getApplication(), event.getOrganization(),
-                event.getCommentThread(), event.getOriginHeader()
+                event.getAuthorUserName(),
+                event.getOrganization(),
+                event.getCommentThread(),
+                event.getOriginHeader(),
+                event.getCommentThread().getSubscribers()
         )
         .subscribeOn(Schedulers.elastic())
         .subscribe();
     }
 
     private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
-                                             String originHeader, Application application, Organization organization) {
+                                             String originHeader, Organization organization) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
         CommentThread.CommentThreadState resolvedState = commentThread.getResolvedState();
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("App_User_Name", receiverName);
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
-        templateParams.put("Application_Name", application.getName());
+        templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("inviteUrl", originHeader);
 
         String emailSubject = String.format(
-                "%s has resolved comment in %s", resolvedState.getAuthorName(), application.getName()
+                "%s has resolved comment in %s", resolvedState.getAuthorName(), commentThread.getApplicationName()
         );
         return emailSender.sendMail(receiverEmail, emailSubject, THREAD_RESOLVED_EMAIL_TEMPLATE, templateParams);
     }
 
     private Mono<Boolean> getEmailSenderMono(UserRole receiverUserRole, Comment comment, String originHeader,
-                                             Application application, Organization organization) {
+                                             Organization organization) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
         String receiverEmail = receiverUserRole.getUsername();
 
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("App_User_Name", receiverName);
         templateParams.put("Commenter_Name", comment.getAuthorName());
-        templateParams.put("Application_Name", application.getName());
+        templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
         templateParams.put("inviteUrl", originHeader);
 
         String emailTemplate = COMMENT_ADDED_EMAIL_TEMPLATE;
         String emailSubject = String.format(
-                "New comment from %s in %s", comment.getAuthorName(), application.getName()
+                "New comment from %s in %s", comment.getAuthorName(), comment.getApplicationName()
         );
 
         // check if user has been mentioned in the comment
@@ -128,22 +143,16 @@ public class EmailEventHandler {
         return emailSender.sendMail(receiverEmail, emailSubject, emailTemplate, templateParams);
     }
 
-    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Application application, Organization organization,
-                                                  E commentDomain, String originHeader) {
-
+    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Organization organization, E commentDomain, String originHeader, Set<String> subscribers) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
-            if(!authorUserName.equals(userRole.getUsername())) {
+            if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
                 if(commentDomain instanceof Comment) {
                     Comment comment = (Comment)commentDomain;
-                    emailMonos.add(
-                            getEmailSenderMono(userRole, comment, originHeader, application, organization)
-                    );
+                    emailMonos.add(getEmailSenderMono(userRole, comment, originHeader, organization));
                 } else if(commentDomain instanceof CommentThread) {
                     CommentThread commentThread = (CommentThread) commentDomain;
-                    emailMonos.add(
-                            getEmailSenderMono(userRole, commentThread, originHeader, application, organization)
-                    );
+                    emailMonos.add(getEmailSenderMono(userRole, commentThread, originHeader, organization));
                 }
             }
         }

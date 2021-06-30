@@ -38,9 +38,13 @@ export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
+  highlight: boolean;
 }>`
   position: relative;
+  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
+  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   font-size: 12px;
+  user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
   background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
@@ -94,10 +98,11 @@ export type EntityProps = {
   className?: string;
   name: string;
   children?: ReactNode;
+  highlight?: boolean;
   icon: ReactNode;
   rightIcon?: ReactNode;
   disabled?: boolean;
-  action?: () => void;
+  action?: (e: any) => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
   onCreate?: () => void;
@@ -131,11 +136,11 @@ export const Entity = forwardRef(
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
-    const toggleChildren = () => {
+    const toggleChildren = (e: any) => {
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
-        props.action && props.action();
+        props.action && props.action(e);
       }
 
       if (props.onToggle) {
@@ -149,9 +154,9 @@ export const Entity = forwardRef(
       );
     };
 
-    const handleClick = () => {
-      if (props.action) props.action();
-      else toggleChildren();
+    const handleClick = (e: any) => {
+      if (props.action) props.action(e);
+      else toggleChildren(e);
     };
 
     const exitEditMode = useCallback(() => {
@@ -183,6 +188,10 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
+          className={`${props.highlight ? "highlighted" : ""} ${
+            props.active ? "active" : ""
+          }`}
+          highlight={!!props.highlight}
           spaced={!!props.children}
           step={props.step}
         >

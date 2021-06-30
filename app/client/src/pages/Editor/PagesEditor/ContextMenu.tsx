@@ -10,10 +10,11 @@ import { FormIcons } from "icons/FormIcons";
 import { Page } from "constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { Action } from "./PageListItem";
+import EditName from "./EditName";
 
 // render over popover portals
 const Container = styled.div`
-  padding: 10px;
+  padding: 12px;
   width: 280px;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
 
@@ -24,6 +25,10 @@ const Container = styled.div`
     font-weight: normal;
     font-size: 12px;
     text-transform: uppercase;
+  }
+
+  main {
+    padding: 4px;
   }
 `;
 
@@ -109,7 +114,7 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <h1>{page.pageName}</h1>
+              <EditName applicationId={applicationId} page={page} />
             </PageName>
             <Actions>
               <Action>

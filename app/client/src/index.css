@@ -93,12 +93,12 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
-
-/* translate interaction on button click */
-*[type="button"] {
-  transition: 0.2s all ease-in-out;
+/* making both the Modal layer and the Dropdown layer */
+.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+  z-index: 2 !important;
 }
 
-*[type="button"]:active {
-  transform: translateY(1px);
+/* Portals on the Modal widget */
+.bp3-modal-widget .bp3-portal {
+  z-index: 21 !important;
 }

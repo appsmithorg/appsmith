@@ -2,13 +2,12 @@ import { get, sortBy } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useParams, useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useCallback, useMemo, useState } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 
 import { AppState } from "reducers";
 import { Action } from "./PageListItem";
 import PageListItem from "./PageListItem";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createPage } from "actions/pageActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
@@ -16,6 +15,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { createPage, setPageOrder } from "actions/pageActions";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
@@ -74,7 +74,6 @@ function PagesEditor() {
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
-  const [order, setOrder] = useState(pages.map((_: any, index: any) => index));
 
   const sortedPages = useMemo(() => {
     return sortBy(pages, (page) => !page.isDefault);
@@ -99,6 +98,17 @@ function PagesEditor() {
     ];
     dispatch(createPage(params.applicationId, name, defaultPageLayouts, true));
   }, [dispatch, pages, params.applicationId]);
+
+  /**
+   * updates the order of page
+   */
+  const setPageOrderCallback = useCallback(
+    (pageId: string, newOrder: number) => {
+      console.log({ pageId, newOrder });
+      // dispatch(setPageOrder(params.applicationId, pageId, newOrder));
+    },
+    [dispatch, params.applicationId],
+  );
 
   // closes the pages editor
   const onClose = useCallback(() => {
@@ -136,13 +146,10 @@ function PagesEditor() {
         ItemRenderer={({ item }: any) => (
           <PageListItem applicationId={params.applicationId} item={item} />
         )}
-        initialOrder={order}
         itemHeight={70}
         items={sortedPages}
-        onUpdate={(newOrder: any) => {
-          setOrder(newOrder);
-
-          // call the sort api here
+        onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
+          setPageOrderCallback(sortedPages[originalIndex].pageName, newIndex);
         }}
       />
     </Wrapper>

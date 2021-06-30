@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { useDispatch } from "react-redux";
-import React, { useCallback, useState } from "react";
 import styled, { useTheme } from "styled-components";
+import React, { useCallback } from "react";
 
 import {
   updatePage,
@@ -9,12 +9,12 @@ import {
   deletePage,
   setPageAsDefault,
 } from "actions/pageActions";
+import EditName from "./EditName";
 import ContextMenu from "./ContextMenu";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
-import { resolveAsSpaceChar } from "utils/helpers";
+
 import { Page } from "constants/ReduxActionConstants";
-import EditName from "pages/Editor/Explorer/Entity/Name";
 
 export const Container = styled.div`
   display: flex;
@@ -28,29 +28,6 @@ export const ListItem = styled.div`
   align-items: center;
   padding: 10px;
   background-color: ${(props) => props.theme.colors.appBackground};
-`;
-
-export const EditNameContainer = styled.div`
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  padding-left: 4px;
-
-  & > .page-list-item-edit-icon {
-    display: none;
-    margin-left: 8px;
-    align-items: center;
-  }
-
-  &:hover .page-list-item-edit-icon {
-    display: flex;
-  }
-
-  & > div {
-    display: flex;
-    min-height: 36px;
-    align-items: center;
-  }
 `;
 
 const Actions = styled.div`
@@ -86,7 +63,6 @@ const DeleteIcon = FormIcons.DELETE_ICON;
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DragIcon = ControlIcons.DRAG_CONTROL;
 const HideIcon = ControlIcons.HIDE_COLUMN;
-const EditIcon = ControlIcons.EDIT_WHITE;
 
 const DefaultPageIcon = styled(HomeIcon)`
   margin-right: 5px;
@@ -101,14 +77,6 @@ function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
   const { applicationId, item } = props;
   const dispatch = useDispatch();
-  const [isEditing, setIsEditing] = useState(false);
-
-  const updateNameCallback = useCallback(
-    (name: string) => {
-      return dispatch(updatePage(item.pageId, name, !!item.isHidden));
-    },
-    [dispatch],
-  );
 
   const clonePageCallback = useCallback(
     (pageId: string): void => {
@@ -135,14 +103,6 @@ function PageListItem(props: PageListItemProps) {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch]);
 
-  const exitEditMode = useCallback(() => {
-    setIsEditing(false);
-  }, []);
-
-  const enterEditMode = useCallback(() => setIsEditing(true), []);
-
-  console.log({ isEditing });
-
   return (
     <Container>
       <ListItem>
@@ -152,27 +112,7 @@ function PageListItem(props: PageListItemProps) {
           height={20}
           width={20}
         />
-        <EditNameContainer>
-          <EditName
-            enterEditMode={enterEditMode}
-            entityId={item.pageId}
-            exitEditMode={exitEditMode}
-            isEditing={isEditing}
-            name={item.pageName}
-            nameTransformFn={resolveAsSpaceChar}
-            updateEntityName={updateNameCallback}
-          />
-          {!isEditing && (
-            <div className="page-list-item-edit-icon">
-              <EditIcon
-                color={get(theme, "colors.propertyPane.iconColor")}
-                height={14}
-                onClick={enterEditMode}
-                width={14}
-              />
-            </div>
-          )}
-        </EditNameContainer>
+        <EditName applicationId={applicationId} page={item} />
         <Actions>
           {item.isDefault && (
             <Action disabled title="Default page">

@@ -76,6 +76,7 @@ import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -573,8 +574,21 @@ function* storeAsDatasourceSaga() {
   const pageId = yield select(getCurrentPageId);
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
-
-  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+  const originalHeaders = _.get(values, "actionConfiguration.headers", []);
+  const [datasourceHeaders, actionHeaders] = _.partition(
+    originalHeaders,
+    ({ key, value }: { key: string; value: string }) => {
+      return !(isDynamicValue(key) || isDynamicValue(value));
+    },
+  );
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: "actionConfiguration.headers",
+      value: actionHeaders,
+    }),
+  );
+  _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(

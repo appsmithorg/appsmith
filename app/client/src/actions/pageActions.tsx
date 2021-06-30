@@ -329,3 +329,25 @@ export const setPageAsDefault = (pageId: string, applicationId?: string) => {
     },
   };
 };
+
+/**
+ * action for updating order of a page
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageOrder = (
+  applicationId: string,
+  pageId: string,
+  order: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_PAGE_ORDER_INIT,
+    payload: {
+      pageId: pageId,
+      order: order,
+      applicationId,
+    },
+  };
+};

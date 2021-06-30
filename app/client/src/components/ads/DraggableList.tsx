@@ -59,17 +59,9 @@ const DraggableListWrapper = styled.div`
   }
 `;
 
-function DraggableList({
-  initialOrder,
-  itemHeight,
-  ItemRenderer,
-  items,
-  onUpdate,
-}: any) {
+function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
   // order of items in the list
-  const order = useRef<any>(
-    initialOrder ?? items.map((_: any, index: any) => index),
-  );
+  const order = useRef<any>(items.map((_: any, index: any) => index));
 
   const onDrop = (newOrder: any, originalIndex: number, newIndex: number) => {
     onUpdate(newOrder, originalIndex, newIndex);
@@ -81,6 +73,7 @@ function DraggableList({
     // when items are updated(added/removed/updated) reassign order and animate springs.
     if (items.length !== order.current.length) {
       order.current = items.map((_: any, index: any) => index);
+
       setSprings(updateSpringStyles(order.current, itemHeight));
     }
   }, [items]);
@@ -117,6 +110,8 @@ function DraggableList({
       }
     }
   });
+
+  console.log({ items });
   return (
     <DraggableListWrapper
       className="content"

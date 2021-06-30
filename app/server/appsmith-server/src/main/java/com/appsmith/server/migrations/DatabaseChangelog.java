@@ -42,6 +42,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -99,7 +100,9 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -2385,5 +2388,246 @@ public class DatabaseChangelog {
          */
         firestoreActionQueries.stream()
                 .forEach(action -> mongoTemplate.save(action));
+    }
+
+    @ChangeSet(order = "071", id = "add-application-export-permissions", author = "")
+    public void addApplicationExportPermissions(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(where("userRoles").exists(true)),
+                Organization.class
+        );
+
+        for (final Organization organization : organizations) {
+            Set<String> adminUsernames = organization.getUserRoles()
+                    .stream()
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                    .map(role -> role.getUsername())
+                    .collect(Collectors.toSet());
+
+            if (adminUsernames.isEmpty()) {
+                continue;
+            }
+            // All the administrators of the organization should be allowed to export applications permission
+            Set<String> exportApplicationPermissionUsernames = new HashSet<>();
+            exportApplicationPermissionUsernames.addAll(adminUsernames);
+
+            Set<Policy> policies = organization.getPolicies();
+            if (policies == null) {
+                policies = new HashSet<>();
+            }
+
+            Optional<Policy> exportAppOrgLevelOptional = policies.stream()
+                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+
+            if (exportAppOrgLevelOptional.isPresent()) {
+                Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
+                exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
+            } else {
+                // this policy doesnt exist. create and add this to the policy set
+                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                        .users(exportApplicationPermissionUsernames).build();
+                organization.getPolicies().add(inviteUserPolicy);
+            }
+
+            mongoTemplate.save(organization);
+
+            // Update the applications with export applications policy for all administrators of the organization
+            List<Application> orgApplications = mongoTemplate.find(
+                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
+                    Application.class
+            );
+
+            for (final Application application : orgApplications) {
+                Set<Policy> applicationPolicies = application.getPolicies();
+                if (applicationPolicies == null) {
+                    applicationPolicies = new HashSet<>();
+                }
+
+                Optional<Policy> exportAppOptional = applicationPolicies.stream()
+                        .filter(policy -> policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())).findFirst();
+
+                if (exportAppOptional.isPresent()) {
+                    Policy exportAppPolicy = exportAppOptional.get();
+                    exportAppPolicy.getUsers().addAll(adminUsernames);
+                } else {
+                    // this policy doesn't exist, create and add this to the policy set
+                    Policy newExportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
+                            .users(adminUsernames).build();
+                    application.getPolicies().add(newExportAppPolicy);
+                }
+                
+                mongoTemplate.save(application);
+            }
+        }
+    }
+
+    private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
+        List<Property> templates = new ArrayList<>();
+        for (int i = 0; i < 22; i++) {
+            Property template = new Property();
+            if (configuration.containsKey(i)) {
+                template.setValue(configuration.get(i));
+            }
+            templates.add(template);
+        }
+        return templates;
+    }
+
+    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
+    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Snowflake");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("snowflake-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+
+    }
+
+    @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
+    public void migrateUpdateOneToUpdateManyMongoFormCommand(MongockTemplate mongockTemplate) {
+
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database with command type update_one or update_many
+        assert mongoPlugin != null;
+        List<NewAction> updateMongoActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+
+                    // Filter out all the actions which are of either of the two update command type
+                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 21) {
+                        Property commandProperty = pluginSpecifiedTemplates.get(2);
+                        if (commandProperty != null && commandProperty.getValue() != null) {
+                            String command = (String) commandProperty.getValue();
+                            if (command.equals("UPDATE_ONE") || command.equals("UPDATE_MANY")) {
+                                return true;
+                            }
+                        }
+                    }
+                    // Not an action of interest for migration.
+                    return false;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : updateMongoActions) {
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            String command = (String) pluginSpecifiedTemplates.get(2).getValue();
+
+            // In case of update one, migrate the query and update configurations.
+            if (command.equals("UPDATE_ONE")) {
+
+                String query = "";
+                String update = "";
+                String collection = "";
+
+                Property queryProperty = pluginSpecifiedTemplates.get(8);
+                if (queryProperty != null) {
+                    query = (String) queryProperty.getValue();
+                }
+
+                Property updateProperty = pluginSpecifiedTemplates.get(10);
+                if (updateProperty != null) {
+                    update = (String) updateProperty.getValue();
+                }
+
+                Property collectionProperty = pluginSpecifiedTemplates.get(19);
+                if (collectionProperty != null) {
+                    collection = (String) collectionProperty.getValue();
+                }
+
+                Map<Integer, Object> configMap = new HashMap<>();
+                configMap.put(0, pluginSpecifiedTemplates.get(0).getValue());
+                configMap.put(1, "FORM");
+                // All update commands have to be migrated to the new update name
+                configMap.put(2, "UPDATE");
+                configMap.put(19, collection);
+                // Query for all the documents in the collection
+                configMap.put(11, query);
+                configMap.put(12, update);
+                configMap.put(21, "SINGLE");
+
+                List<Property> updatedTemplates = generateMongoFormConfigTemplates(configMap);
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+
+            }
+        }
+
+        // Now that all the actions have been updated, save all the actions
+        for (NewAction action : updateMongoActions) {
+            mongockTemplate.save(action);
+        }
+    }
+
+    
+    @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
+    public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+        final List<User> missingCreatedAt = mongoTemplate.find(
+            query(where("createdAt").exists(false)),
+            User.class
+        );
+
+        for (User user : missingCreatedAt) {
+            user.setCreatedAt(Instant.parse("2019-01-07T00:00:00.00Z"));
+            mongoTemplate.save(user);
+        }
+
+        final List<User> missingUpdatedAt = mongoTemplate.find(
+            query(where("updatedAt").exists(false)),
+            User.class
+        );
+
+        for (User user : missingUpdatedAt) {
+            user.setUpdatedAt(Instant.now());
+            mongoTemplate.save(user);
+        }
+    }
+  
+    /**
+     * - Older order file where not present for the pages created within the application because page reordering with in
+     * the application was not supported.
+     * - New Form order field will be added to the Page object and is used to order the pages with in the application
+     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
+     * created pages of all the application present.
+     * - []
+     */
+    @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
+    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if(application.getPages() != null) {
+                int i = 0;
+                for (ApplicationPage page : application.getPages()) {
+                    page.setOrder(i);
+                    i++;
+                }
+                if(application.getPublishedPages() != null) {
+                    i = 0;
+                    for (ApplicationPage page : application.getPublishedPages()) {
+                        page.setOrder(i);
+                        i++;
+                    }
+                }
+                mongoTemplate.save(application);
+            }
+        }
     }
 }
