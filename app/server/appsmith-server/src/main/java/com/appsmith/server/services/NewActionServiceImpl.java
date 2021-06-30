@@ -598,26 +598,26 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                        Long timeElapsed = tuple1.getT1();
-                                        ActionExecutionResult result = tuple1.getT2();
+                                 Long timeElapsed = tuple1.getT1();
+                                 ActionExecutionResult result = tuple1.getT2();
 
-                                        log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread().getName(),
-                                                actionName.get(),
-                                                actionId,
-                                                timeElapsed
-                                        );
+                                 log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
 
-                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                                .flatMap(tuple2 -> {
-                                                    ActionExecutionResult actionExecutionResult = result;
-                                                    NewAction actionFromDb = tuple2.getT1();
-                                                    ActionDTO actionDTO = tuple2.getT2();
-                                                    Datasource datasourceFromDb = tuple2.getT3();
+                                return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                        .flatMap(tuple2 -> {
+                                            ActionExecutionResult actionExecutionResult = result;
+                                            NewAction actionFromDb = tuple2.getT1();
+                                            ActionDTO actionDTO = tuple2.getT2();
+                                            Datasource datasourceFromDb = tuple2.getT3();
 
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
-                                                            .thenReturn(result);
-                                                });
+                                            return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
+                                                    .thenReturn(result);
+                                        });
                                     }
                             );
                 })
