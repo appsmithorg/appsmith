@@ -229,7 +229,6 @@ class CodeEditor extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     this.editor.operation(() => {
-      this.editor.refresh();
       if (!this.state.isFocused) {
         // const currentMode = this.editor.getOption("mode");
         const editorValue = this.editor.getValue();
@@ -296,7 +295,6 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = () => {
     if (this.state.isFocused) return;
     this.setState({ isFocused: true });
-    this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
       const inputValue = this.props.input.value;
       this.editor.setOption("lineWrapping", true);
