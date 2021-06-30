@@ -49,8 +49,14 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import {
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -344,42 +350,33 @@ class CodeEditor extends Component<Props, State> {
     dataTree: DataTree,
     dataTreePath?: string,
   ): {
-    isValid: boolean;
-    validationMessage?: string;
-    jsErrorMessage?: string;
+    isInvalid: boolean;
+    errors: EvaluationError[];
+    pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
-      return { isValid: true, validationMessage: "", jsErrorMessage: "" };
+      return {
+        isInvalid: false,
+        errors: [],
+        pathEvaluatedValue: undefined,
+      };
     }
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      dataTreePath,
-    );
-    let isValidPath, validationMessagePath, jsErrorMessagePath;
-    if (dataTreePath && dataTreePath.match(/evaluatedValues/g)) {
-      isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
-      validationMessagePath = dataTreePath.replace(
-        "evaluatedValues",
-        "validationMessages",
-      );
-      jsErrorMessagePath = dataTreePath.replace(
-        "evaluatedValues",
-        "jsErrorMessages",
-      );
-    } else {
-      isValidPath = entityName + "invalidProps" + propertyPath;
-      validationMessagePath =
-        entityName + ".validationMessages." + propertyPath;
-      jsErrorMessagePath = entityName + ".jsErrorMessages." + propertyPath;
-    }
-    const isValid = !_.get(dataTree, isValidPath, false);
-    const validationMessage = _.get(
-      dataTree,
-      validationMessagePath,
-      "",
-    ) as string;
-    const jsErrorMessage = _.get(dataTree, jsErrorMessagePath, "") as string;
 
-    return { isValid, validationMessage, jsErrorMessage };
+    const errors = _.get(
+      dataTree,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+    const filteredLintErrors = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+
+    return {
+      isInvalid: filteredLintErrors.length > 0,
+      errors: filteredLintErrors,
+      pathEvaluatedValue,
+    };
   };
 
   render() {
@@ -405,14 +402,13 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
     const {
-      isValid,
-      jsErrorMessage,
-      validationMessage,
+      errors,
+      isInvalid,
+      pathEvaluatedValue,
     } = this.getPropertyValidation(dynamicData, dataTreePath);
-    const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
-      evaluated = _.get(dynamicData, dataTreePath);
+      evaluated = pathEvaluatedValue;
     }
 
     const showEvaluatedValue =
@@ -422,8 +418,8 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
-        isError={hasError}
+        isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
+        isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         theme={this.props.theme}
@@ -447,14 +443,13 @@ class CodeEditor extends Component<Props, State> {
           </Suspense>
         )}
         <EvaluatedValuePopup
-          error={validationMessage}
+          errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
-          hasError={hasError}
+          hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
-          jsError={jsErrorMessage}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
@@ -465,7 +460,7 @@ class CodeEditor extends Component<Props, State> {
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
-            hasError={hasError}
+            hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
