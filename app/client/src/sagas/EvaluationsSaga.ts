@@ -108,13 +108,17 @@ function getLatestEvalPropertyErrors(
       if (evalErrors.length) {
         // TODO Rank and set the most critical error
         const error = evalErrors[0];
+        const errorMessages = evalErrors.map((e) => ({
+          message: e.errorMessage,
+        }));
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
           text: PropertyEvalErrorTypeDebugMessage[error.errorType](
             propertyPath,
           ),
-          message: JSON.stringify(error.errorMessage),
+          messages: errorMessages,
           severity: error.severity,
           timestamp: moment().format("hh:mm:ss"),
           source: {
@@ -124,7 +128,7 @@ function getLatestEvalPropertyErrors(
             propertyPath: propertyPath,
           },
           state: {
-            value: evaluatedValue,
+            [propertyPath]: evaluatedValue,
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {

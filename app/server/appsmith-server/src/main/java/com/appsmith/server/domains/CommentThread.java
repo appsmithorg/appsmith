@@ -9,11 +9,10 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -47,6 +46,7 @@ public class CommentThread extends BaseDomain {
     @JsonIgnore
     Set<String> subscribers;
 
+    /** Edit/Published Mode */
     String mode;
 
     /**
@@ -64,9 +64,6 @@ public class CommentThread extends BaseDomain {
     // These comments are saved in a separate collection and loaded by the APIs separately.
     @Transient
     List<Comment> comments;
-
-    private static final DateTimeFormatter ISO_FORMATTER =
-            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     @Data
     public static class Position {
@@ -89,5 +86,4 @@ public class CommentThread extends BaseDomain {
     public String getUpdationTime() {
         return ISO_FORMATTER.format(updatedAt);
     }
-
 }
