@@ -22,6 +22,7 @@ import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_MODES,
 } from "constants/routes";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -66,25 +67,7 @@ const SectionGrid = styled.div`
   gap: 10px;
 `;
 const NewIntegrationsContainer = styled.div`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${Colors.MYSTIC};
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
+  ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
   max-height: calc(

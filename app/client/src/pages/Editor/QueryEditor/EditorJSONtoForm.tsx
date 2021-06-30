@@ -58,6 +58,7 @@ import { AppState } from "reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -123,25 +124,7 @@ const SettingsWrapper = styled.div`
   padding: 16px 30px;
   overflow-y: auto;
   height: 100%;
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${Colors.MYSTIC};
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
+  ${thinScrollbar};
 `;
 
 const GenerateWidgetButton = styled.a`
@@ -342,25 +325,7 @@ const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${Colors.MYSTIC};
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
+  ${thinScrollbar}
   a {
     font-size: 14px;
     line-height: 20px;
