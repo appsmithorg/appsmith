@@ -10,10 +10,11 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import ActiveDataSource from "./ActiveDataSource";
+import ActiveDataSource from "./ActiveDataSources";
+import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDatasources } from "selectors/entitiesSelector";
-import { Datasource } from "entities/Datasource";
+import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import Text, { TextType } from "components/ads/Text";
 import scrollIntoView from "scroll-into-view-if-needed";
 import {
@@ -25,17 +26,14 @@ import {
 const HeaderFlex = styled.div`
   display: flex;
   align-items: center;
-  & > p {
-    margin: 0 0 0 8px;
-  }
 `;
 
 const ApiHomePage = styled.div`
   font-size: 20px;
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   /* margin-left: 10px; */
-  min-height: 100%;
-  max-height: 100%;
+  min-height: calc(100vh - 66px);
+  max-height: calc(100vh - 66px);
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
@@ -62,15 +60,37 @@ const MainTabsContainer = styled.div`
 `;
 
 const SectionGrid = styled.div`
-  margin-top: 36px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 180px;
   gap: 10px;
 `;
 const NewIntegrationsContainer = styled.div`
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px ${Colors.MYSTIC};
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${Colors.SLATE_GRAY};
+    border-radius: 10px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.OUTER_SPACE};
+  }
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(100vh - 160px);
+  max-height: calc(
+    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
+  );
   /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
@@ -91,6 +111,7 @@ type IntegrationsHomeScreenProps = {
   };
   isCreating: boolean;
   dataSources: Datasource[];
+  mockDatasources: MockDatasource[];
 };
 
 type IntegrationsHomeScreenState = {
@@ -133,12 +154,18 @@ const SECONDARY_MENU: TabProp[] = [
     title: "Database",
     panelComponent: <div />,
   },
-  {
+];
+
+const getSecondaryMenu = (hasActiveSources: boolean) => {
+  const mockDbMenu = {
     key: "MOCK_DATABASE",
     title: "Mock Databases",
     panelComponent: <div />,
-  },
-];
+  };
+  return hasActiveSources
+    ? [...SECONDARY_MENU, mockDbMenu]
+    : [mockDbMenu, ...SECONDARY_MENU];
+};
 
 const SECONDARY_MENU_IDS = {
   API: 0,
@@ -163,6 +190,35 @@ const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
   MOCK_DATABASE: 1,
 };
+
+interface MockDataSourcesProps {
+  mockDatasources: MockDatasource[];
+  active: boolean;
+}
+
+function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
+  const useMockRef = useRef<HTMLDivElement>(null);
+  const isMounted = useRef(false);
+  useEffect(() => {
+    if (active && useMockRef.current) {
+      isMounted.current &&
+        scrollIntoView(useMockRef.current, {
+          behavior: "smooth",
+          scrollMode: "always",
+          block: "start",
+          boundary: document.getElementById("new-integrations-wrapper"),
+        });
+    } else {
+      isMounted.current = true;
+    }
+  }, [active]);
+  return (
+    <div id="mock-database" ref={useMockRef}>
+      <Text type={TextType.H2}>Mock Database</Text>
+      <MockDataSources mockDatasources={mockDatasources} />
+    </div>
+  );
+}
 
 function CreateNewAPI({
   active,
@@ -340,6 +396,14 @@ class IntegrationsHomeScreen extends React.Component<
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
           {dataSources.length === 0 && <AddDatasourceSecurely />}
+          {dataSources.length === 0 && (
+            <UseMockDatasources
+              active={
+                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
+              }
+              mockDatasources={this.props.mockDatasources}
+            />
+          )}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -356,6 +420,14 @@ class IntegrationsHomeScreen extends React.Component<
             location={location}
             pageId={pageId}
           />
+          {dataSources.length > 0 && (
+            <UseMockDatasources
+              active={
+                activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE
+              }
+              mockDatasources={this.props.mockDatasources}
+            />
+          )}
         </NewIntegrationsContainer>
       );
     } else {
@@ -374,37 +446,37 @@ class IntegrationsHomeScreen extends React.Component<
       );
     }
     return (
-      <ApiHomePage
-        className="t--integrationsHomePage"
-        style={{ overflow: "auto" }}
-      >
-        <HeaderFlex>
-          <CloseEditor />
-          <p className="sectionHeadings">Integrations</p>
-        </HeaderFlex>
-        <SectionGrid>
-          <MainTabsContainer>
-            <TabComponent
-              onSelect={this.onSelectPrimaryMenu}
-              selectedIndex={this.state.activePrimaryMenuId}
-              tabs={PRIMARY_MENU}
-            />
-          </MainTabsContainer>
-          <div />
-
-          {currentScreen}
-          {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW ? (
-            <TabComponent
-              onSelect={this.onSelectSecondaryMenu}
-              selectedIndex={this.state.activeSecondaryMenuId}
-              tabs={SECONDARY_MENU}
-              vertical
-            />
-          ) : (
+      <>
+        <CloseEditor />
+        <ApiHomePage
+          className="t--integrationsHomePage"
+          style={{ overflow: "auto" }}
+        >
+          <HeaderFlex>
+            <p className="sectionHeadings">Datasources</p>
+          </HeaderFlex>
+          <SectionGrid>
+            <MainTabsContainer>
+              <TabComponent
+                onSelect={this.onSelectPrimaryMenu}
+                selectedIndex={this.state.activePrimaryMenuId}
+                tabs={PRIMARY_MENU}
+              />
+            </MainTabsContainer>
             <div />
-          )}
-        </SectionGrid>
-      </ApiHomePage>
+
+            {currentScreen}
+            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+              <TabComponent
+                onSelect={this.onSelectSecondaryMenu}
+                selectedIndex={this.state.activeSecondaryMenuId}
+                tabs={getSecondaryMenu(dataSources.length > 0)}
+                vertical
+              />
+            )}
+          </SectionGrid>
+        </ApiHomePage>
+      </>
     );
   }
 }
@@ -412,6 +484,7 @@ class IntegrationsHomeScreen extends React.Component<
 const mapStateToProps = (state: AppState) => {
   return {
     dataSources: getDatasources(state),
+    mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
   };
 };

@@ -893,9 +893,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname)
-    .focus();
+    .focus()
+    .type(apiname, { force: true, delay: 500 })
+    .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
@@ -1774,7 +1774,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute an Integration")
+    .selectOnClickOption("Execute a Query")
     .selectOnClickOption(QueryName);
 });
 
@@ -1782,7 +1782,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute an Integration")
+    .selectOnClickOption("Execute a Query")
     .selectOnClickOption(ApiName);
 });
 
@@ -1855,14 +1855,18 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  // cy.get(datasourceEditor.editDatasource).click();
+  cy.get(
+    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
+  )
+    .last()
+    .click();
 
-  // cy.get(".t--delete-datasource").click();
-  // cy.wait("@deleteDatasource").should(
-  //   "have.nested.property",
-  //   "response.body.responseMeta.status",
-  //   200,
-  // );
+  cy.get(".t--delete-datasource").click();
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -2059,7 +2063,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute an Integration")
+    .contains("Execute a Query")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2515,7 +2519,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click();
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute an Integration")
+    .contains("Execute a Query")
     .click();
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)

@@ -104,6 +104,57 @@ function* fetchDatasourcesSaga() {
   }
 }
 
+function* fetchMockDatasourcesSaga() {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+export function* addMockDbToDatasources(
+  actionPayload: ReduxActionWithCallbacks<
+    { id: string; orgId: string },
+    unknown,
+    unknown
+  >,
+) {
+  try {
+    const { id, orgId } = actionPayload.payload;
+    const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
+      id,
+      orgId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
+        payload: response.data,
+      });
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ADD_MOCK_DATASOURCES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
@@ -773,6 +824,14 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+      fetchMockDatasourcesSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
+      addMockDbToDatasources,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
       createDatasourceFromFormSaga,

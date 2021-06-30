@@ -23,7 +23,6 @@ import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
-import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -87,7 +86,7 @@ const EditDatasourceButton = styled(Button)`
   &&&& {
     height: 32px;
     max-width: 160px;
-    border: 1.2px solid ${Colors.HIT_GRAY};
+    border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
@@ -124,22 +123,33 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     this.props.onTest(normalizedValues);
   };
 
+  onBackBtnClick = () => {
+    const { applicationId, pageId, viewMode } = this.props;
+    viewMode
+      ? history.push(BUILDER_PAGE_URL(applicationId, pageId))
+      : history.push(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.ACTIVE,
+          ),
+        );
+  };
+
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content);
+    return this.renderForm(content, this.onBackBtnClick);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      applicationId,
       datasourceId,
       handleDelete,
       isDeleting,
       isSaving,
       isTesting,
       messages,
-      pageId,
       pluginType,
     } = this.props;
     const { viewMode } = this.props;
@@ -149,20 +159,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <BackButton
-          onClick={() =>
-            viewMode
-              ? history.push(BUILDER_PAGE_URL(applicationId, pageId))
-              : history.push(
-                  INTEGRATION_EDITOR_URL(
-                    applicationId,
-                    pageId,
-                    INTEGRATION_TABS.ACTIVE,
-                  ),
-                )
-          }
-        />
-        <br />
         <Header>
           <FormTitleContainer>
             <PluginImage alt="Datasource" src={this.props.pluginImage} />

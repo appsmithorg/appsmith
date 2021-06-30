@@ -50,7 +50,7 @@ const EditDatasourceButton = styled(Button)`
   &&&& {
     height: 36px;
     max-width: 160px;
-    border: 1.2px solid ${Colors.HIT_GRAY};
+    border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
@@ -154,14 +154,12 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig) ? (
+      {!isNil(currentFormConfig) && (
         <CollapseComponent title="Show More">
           <DatasourceInfo>
             {renderDatasourceSection(currentFormConfig[0], datasource)}
           </DatasourceInfo>
         </CollapseComponent>
-      ) : (
-        undefined
       )}
     </Wrapper>
   );

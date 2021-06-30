@@ -11,7 +11,6 @@ type Props = RouteComponentProps<{
 
 const integrationsEditor = (props: Props) => {
   const { history, location, match } = props;
-  console.log("integrations editor");
   return (
     <div
       style={{

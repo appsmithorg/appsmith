@@ -316,6 +316,8 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
@@ -2338,6 +2340,8 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
   canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,

@@ -24,7 +24,7 @@ describe("Pages", function() {
       multiple: true,
     });
     cy.get(
-      ".bp3-icon-caret-right ~ .t--entity-name:contains(Integrations)",
+      ".bp3-icon-caret-right ~ .t--entity-name:contains(Datasources)",
     ).click({
       multiple: true,
     });
