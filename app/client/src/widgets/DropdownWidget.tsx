@@ -150,6 +150,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       ? this.props.selectedOptionValueArr
       : [];
   }
+  getDropdownPosition = (node: HTMLDivElement | null) => {
+    if (Boolean(node?.closest(".bp3-modal-widget"))) {
+      return document.querySelector(".bp3-modal-widget") as HTMLElement;
+    }
+    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+  };
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
@@ -161,6 +167,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return (
       <DropDownComponent
         disabled={this.props.isDisabled}
+        getDropdownPosition={this.getDropdownPosition}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
