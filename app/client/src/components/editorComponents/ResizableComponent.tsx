@@ -1,4 +1,4 @@
-import React, { useContext, useRef, memo } from "react";
+import React, { useContext, useRef, memo, useMemo } from "react";
 import { XYCoord } from "react-dnd";
 
 import {
@@ -16,12 +16,12 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
-  useWidgetSelection,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
+import { omit, get } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -39,6 +39,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -260,6 +261,20 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
+  const handles = useMemo(() => {
+    const allHandles = {
+      left: LeftHandleStyles,
+      top: TopHandleStyles,
+      bottom: BottomHandleStyles,
+      right: RightHandleStyles,
+      bottomRight: BottomRightHandleStyles,
+      topLeft: TopLeftHandleStyles,
+      topRight: TopRightHandleStyles,
+      bottomLeft: BottomLeftHandleStyles,
+    };
+
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
 
   const isEnabled =
     !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
@@ -269,16 +284,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
-      handles={{
-        left: LeftHandleStyles,
-        top: TopHandleStyles,
-        bottom: BottomHandleStyles,
-        right: RightHandleStyles,
-        bottomRight: BottomRightHandleStyles,
-        topLeft: TopLeftHandleStyles,
-        topRight: TopRightHandleStyles,
-        bottomLeft: BottomLeftHandleStyles,
-      }}
+      handles={handles}
       isColliding={isColliding}
       onStart={handleResizeStart}
       onStop={updateSize}

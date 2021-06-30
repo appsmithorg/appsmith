@@ -19,6 +19,7 @@ const Canvas = memo((props: CanvasProps) => {
         <ArtBoard
           className="t--canvas-artboard"
           data-testid="t--canvas-artboard"
+          id="art-board"
           width={props.dsl.rightColumn}
         >
           {props.dsl.widgetId &&
