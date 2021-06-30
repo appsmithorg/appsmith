@@ -834,6 +834,8 @@ public class MongoPluginTest {
                 "    }");
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
