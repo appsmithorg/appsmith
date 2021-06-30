@@ -109,6 +109,5 @@
   "paginationButton": ".rc-pagination-item",
   "switchWidgetActive": ".t--switch-widget-active",
   "switchWidgetInActive": ".t--switch-widget-inactive",
-  "switchWidgetLoading": ".t--switch-widget-loading",
-  "tablePageSizeChangeAction": ".t--property-control-onpagesizechange .t--open-dropdown-Select-Action"
+  "switchWidgetLoading": ".t--switch-widget-loading"
 }

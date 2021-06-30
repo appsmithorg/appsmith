@@ -31,7 +31,6 @@ interface TableProps {
   width: number;
   height: number;
   pageSize: number;
-  tablePageSize: number;
   widgetId: string;
   widgetName: string;
   searchKey: string;
@@ -39,8 +38,6 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
-  defaultPageSize?: number;
-  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -116,10 +113,7 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount =
-    props.defaultPageSize && props.totalRecordsCount
-      ? Math.ceil(props.totalRecordsCount / props.defaultPageSize)
-      : Math.ceil(props.data.length / props.pageSize);
+  const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -161,10 +155,7 @@ export function Table(props: TableProps) {
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
-  if (
-    props.serverSidePaginationEnabled ||
-    (props.defaultPageSize && props.totalRecordsCount)
-  ) {
+  if (props.serverSidePaginationEnabled) {
     startIndex = 0;
     endIndex = props.data.length;
   }
@@ -216,7 +207,6 @@ export function Table(props: TableProps) {
                 columns={tableHeadercolumns}
                 compactMode={props.compactMode}
                 currentPageIndex={currentPageIndex}
-                defaultPageSize={props.defaultPageSize}
                 editMode={props.editMode}
                 filters={props.filters}
                 isVisibleCompactMode={props.isVisibleCompactMode}
@@ -235,7 +225,6 @@ export function Table(props: TableProps) {
                 tableColumns={columns}
                 tableData={props.data}
                 tableSizes={tableSizes}
-                totalRecordsCount={props.totalRecordsCount}
                 updateCompactMode={props.updateCompactMode}
                 updatePageNo={props.updatePageNo}
                 widgetName={props.widgetName}
@@ -297,7 +286,7 @@ export function Table(props: TableProps) {
             <div
               {...getTableBodyProps()}
               className={`tbody ${
-                props.tablePageSize > subPage.length ? "no-scroll" : ""
+                props.pageSize > subPage.length ? "no-scroll" : ""
               }`}
               ref={tableBodyRef}
             >
@@ -338,9 +327,9 @@ export function Table(props: TableProps) {
                   </div>
                 );
               })}
-              {props.tablePageSize > subPage.length &&
+              {props.pageSize > subPage.length &&
                 renderEmptyRows(
-                  props.tablePageSize - subPage.length,
+                  props.pageSize - subPage.length,
                   props.columns,
                   props.width,
                   subPage,
