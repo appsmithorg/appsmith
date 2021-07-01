@@ -24,8 +24,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
@@ -66,6 +64,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final PolicyGenerator policyGenerator;
     private final PolicyUtils policyUtils;
     private final EmailEventHandler emailEventHandler;
+    private final SequenceService sequenceService;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -82,7 +81,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             PolicyGenerator policyGenerator,
             PolicyUtils policyUtils,
             EmailEventHandler emailEventHandler,
-            UserDataRepository userDataRepository) {
+            UserDataRepository userDataRepository, SequenceService sequenceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.userService = userService;
@@ -93,6 +92,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         this.policyUtils = policyUtils;
         this.emailEventHandler = emailEventHandler;
         this.userDataRepository = userDataRepository;
+        this.sequenceService = sequenceService;
     }
 
     @Override
@@ -204,14 +204,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
 
-        //TODO : Use sequenceDB for optimised results here
-        Query query = new Query();
-        query.addCriteria(Criteria.where("applicationId").is(applicationId).and("isPrivate").ne(Boolean.TRUE));
-        return mongoTemplate
-                .count(query, CommentThread.class)
-                .flatMap(count -> {
-                    count += 1;
-                    commentThread.setSequenceId("#" + count);
+        return sequenceService
+                .getNext(CommentThread.class, applicationId)
+                .flatMap(sequenceNumber -> {
+                    commentThread.setSequenceId("#" + sequenceNumber);
                     return Mono.zip(
                             sessionUserService.getCurrentUser(),
                             applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS)
