@@ -12,7 +12,7 @@ const Separator = styled.div`
   background-color: ${Colors.MERCURY};
 `;
 
-export const routeToEmptyEditorFromGenPage = (): void => {
+const routeToEmptyEditorFromGenPage = (): void => {
   const currentPath = window.location.pathname;
   const routes = currentPath.split(GEN_TEMPLATE_URL);
   const removedGenPageRoute = routes[0];

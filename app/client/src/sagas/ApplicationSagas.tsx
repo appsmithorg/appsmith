@@ -254,8 +254,7 @@ export function* updateApplicationSaga(
       ApplicationApi.updateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
-    console.log({ request, isValidResponse });
+    const isValidResponse: boolean = yield validateResponse(response);
     // as the redux store updates the app only on success.
     // we have to run this
     if (isValidResponse && request) {

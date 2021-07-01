@@ -19,6 +19,8 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+import { getGenerateTemplateFormURL } from "../../../constants/routes";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -44,6 +46,16 @@ const ActionButton = styled(Button)`
 const DatasourceImage = styled.img`
   height: 24px;
   width: auto;
+`;
+
+const GenerateTemplateButton = styled(Button)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    max-width: 200px;
+    border: 1px solid ${Colors.HIT_GRAY};
+    width: auto;
+  }
 `;
 
 const EditDatasourceButton = styled(Button)`
@@ -99,6 +111,8 @@ function DatasourceCard(props: DatasourceCardProps) {
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const { datasource } = props;
+  const supportTemplateGeneration =
+    VALID_PLUGINS_FOR_TEMPLATE[datasource.pluginId];
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -124,8 +138,17 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
+  const routeToGeneratePage = () => {
+    history.push(
+      `${getGenerateTemplateFormURL(
+        params.applicationId,
+        params.pageId,
+      )}?datasourceId=${datasource.id}&new_page=true`,
+    );
+  };
+
   return (
-    <Wrapper className="t--datasource">
+    <Wrapper className="t--datasource" key={datasource.id}>
       <DatasourceCardHeader className="t--datasource-name">
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
@@ -143,6 +166,15 @@ function DatasourceCard(props: DatasourceCardProps) {
           </Queries>
         </div>
         <ButtonsWrapper className="action-wrapper">
+          {supportTemplateGeneration ? (
+            <GenerateTemplateButton
+              category={Category.tertiary}
+              className="t--generate-template"
+              onClick={routeToGeneratePage}
+              text="Generate Template"
+            />
+          ) : null}
+
           <EditDatasourceButton
             category={Category.tertiary}
             className="t--edit-datasource"

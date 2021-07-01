@@ -35,7 +35,7 @@ import DataSourceOption, {
 } from "./DataSourceOption";
 
 // Temporary hardcoded valid plugins which support generate template
-// pluginId - pluginName
+// Record<pluginId, pluginName>
 export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
   "5c9f512f96c1a50004819786": "PostgreSQL",
   "5f16c4be93f44d4622f487e2": "Mysql",
@@ -102,6 +102,13 @@ interface DatasourceTableDropdownOption extends DropdownOption {
 type DropdownOptions = Array<DropdownOption>;
 
 // ---------- GeneratePageForm Component ----------
+
+export const GENERATE_PAGE_MODE = {
+  NEW: "NEW", // a new page is created for the template. (new pageId created)
+  REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
+};
+
+let currentMode = GENERATE_PAGE_MODE.REPLACE_EMPTY;
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
@@ -194,11 +201,13 @@ function GeneratePageForm() {
     dispatch(
       generateTemplateToUpdatePage({
         applicationId: currentApplicationId || "",
-        pageId: currentPageId || "",
+        pageId:
+          currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
         columns: [],
         columnName: selectedColumn.value,
         tableName: selectedTable.value || "",
         datasourceId: selectedDatasource.id || "",
+        mode: currentMode,
       }),
     );
   };
@@ -277,6 +286,10 @@ function GeneratePageForm() {
   useEffect(() => {
     const queryParams = new URLSearchParams(querySearch);
     const datasourceId = queryParams.get("datasourceId");
+    const generateNewPage = queryParams.get("new_page");
+    if (generateNewPage) {
+      currentMode = GENERATE_PAGE_MODE.NEW;
+    }
     if (datasourceId) {
       setNewDatasourceId(datasourceId);
       history.replace(window.location.pathname);

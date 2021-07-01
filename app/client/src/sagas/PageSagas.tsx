@@ -89,8 +89,7 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
-import { UpdatePageWithTemplateRequest } from "../api/PageApi";
-import { routeToEmptyEditorFromGenPage } from "../pages/Editor/GeneratePage/components/ActionCards";
+import { GenerateTemplatePageRequest } from "../api/PageApi";
 import { getGenerateTemplateURL } from "../constants/routes";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
@@ -109,7 +108,7 @@ export function* fetchPageListSaga(
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
       const pages: PageListPayload = response.data.pages.map((page) => ({
@@ -840,35 +839,40 @@ export function* populatePageDSLsSaga() {
   }
 }
 
-export function* updatePageWithTemplateSaga(
-  action: ReduxAction<UpdatePageWithTemplateRequest>,
+export function* generateTemplatePageSaga(
+  action: ReduxAction<GenerateTemplatePageRequest>,
 ) {
   try {
-    const request: UpdatePageWithTemplateRequest = action.payload;
-    const updatePageWithTemplateResponse: ApiResponse = yield call(
-      PageApi.updatePageWithTemplate,
+    const request: GenerateTemplatePageRequest = action.payload;
+
+    const response: ApiResponse = yield call(
+      PageApi.generateTemplatePage,
       request,
     );
 
-    const isValidResponse: boolean = yield validateResponse(
-      updatePageWithTemplateResponse,
-    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const pageId = updatePageWithTemplateResponse.data.id;
-
+      const pageId = response.data.id;
+      const applicationId =
+        response.data.applicationId || request.applicationId;
       yield handleFetchedPage({
-        fetchPageResponse: updatePageWithTemplateResponse,
+        fetchPageResponse: response,
         pageId,
       });
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
-      yield routeToEmptyEditorFromGenPage();
+
+      history.replace(BUILDER_PAGE_URL(applicationId, pageId));
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.UPDATE_PAGE_WITH_TEMPLATE_ERROR,
+      type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
       payload: {
         error,
       },
+    });
+    Toaster.show({
+      text: "Failed Generating template",
+      variant: Variant.danger,
     });
   }
 }
@@ -893,8 +897,8 @@ export default function* pageSagas() {
       fetchAllPublishedPagesSaga,
     ),
     takeLatest(
-      ReduxActionTypes.UPDATE_PAGE_WITH_TEMPLATE_INIT,
-      updatePageWithTemplateSaga,
+      ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
+      generateTemplatePageSaga,
     ),
   ]);
 }

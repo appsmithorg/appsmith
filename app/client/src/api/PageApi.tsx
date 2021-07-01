@@ -107,16 +107,17 @@ export interface UpdateWidgetNameResponse extends ApiResponse {
   data: PageLayout;
 }
 
-export interface UpdatePageWithTemplateRequest {
+export interface GenerateTemplatePageRequest {
   pageId: string;
   tableName: string;
   datasourceId: string;
   applicationId: string;
   columns?: string[];
   columnName?: string;
+  mode?: string;
 }
 
-export type UpdatePageWithTemplateRequestResponse = ApiResponse & {
+export type GenerateTemplatePageRequestResponse = ApiResponse & {
   data: {
     id: string;
     name: string;
@@ -133,8 +134,8 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
-  static getGenerateTemplateURL = (pageId: string) => {
-    return `${PageApi.url}/crud-page/${pageId}`;
+  static getGenerateTemplateURL = (pageId?: string) => {
+    return `${PageApi.url}/crud-page${pageId ? `/${pageId}` : ""}`;
   };
 
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
@@ -187,10 +188,14 @@ class PageApi extends Api {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 
-  static updatePageWithTemplate(
-    request: UpdatePageWithTemplateRequest,
+  static generateTemplatePage(
+    request: GenerateTemplatePageRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
+    if (request.pageId) {
+      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
+    } else {
+      return Api.post(PageApi.getGenerateTemplateURL(), request);
+    }
   }
 
   static fetchPageList(
