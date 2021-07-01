@@ -199,7 +199,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -383,7 +383,6 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
           headless: true
           record: true
           install: false
@@ -443,7 +442,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -512,7 +511,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
