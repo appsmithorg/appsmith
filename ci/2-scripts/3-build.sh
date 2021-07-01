@@ -46,9 +46,7 @@ APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
 npx serve -s "$CODEBUILD_SRC_DIR/client-dist" -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
 
-# Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export APPSMITH_DISABLE_TELEMETRY=true
-export APPSMITH_GOOGLE_MAPS_API_KEY=AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg
 
 echo Building client code
 cd "$CODEBUILD_SRC_DIR/app/client"
@@ -113,6 +111,7 @@ if ! curl --insecure --verbose localhost:8080; then
 fi
 
 # Create test users.
+# Note: The USERNAME values must be valid email addresses, or the signup API calls will fail.
 export CYPRESS_USERNAME=cy@example.com
 export CYPRESS_PASSWORD=cypas
 export CYPRESS_TESTUSERNAME1=cy1@example.com
