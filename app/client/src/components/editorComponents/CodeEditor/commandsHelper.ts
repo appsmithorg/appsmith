@@ -4,6 +4,8 @@ import { CommandsCompletion } from "utils/autocomplete/TernServer";
 import { checkIfCursorInsideBinding } from "./hintHelpers";
 import { generateQuickCommands } from "./generateQuickCommands";
 import { Datasource } from "entities/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import log from "loglevel";
 
 export const commandsHelper: HintHelper = (editor, data: any) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -86,6 +88,19 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
                 selected.action();
               } else {
                 updatePropertyValue(updatedValue + selected.text);
+              }
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { data, render, ...rest } = selected;
+                const { ENTITY_TYPE, name, pluginType } = data as any;
+                AnalyticsUtil.logEvent("SLASH_COMMAND", {
+                  ...rest,
+                  ENTITY_TYPE,
+                  name,
+                  pluginType,
+                });
+              } catch (e) {
+                log.debug(e, "Error logging slash command");
               }
             });
             CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
