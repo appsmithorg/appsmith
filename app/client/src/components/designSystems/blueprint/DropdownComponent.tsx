@@ -145,7 +145,6 @@ const DropdownContainer = styled.div`
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    console.log(Classes.DIALOG, "NOOOOOOOODAL");
     return (
       <DropdownContainer>
         <DropdownStyles />
