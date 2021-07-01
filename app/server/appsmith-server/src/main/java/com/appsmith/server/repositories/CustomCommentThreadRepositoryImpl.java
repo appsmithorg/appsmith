@@ -46,5 +46,4 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
                 CommentThread.class
         );
     }
-
 }

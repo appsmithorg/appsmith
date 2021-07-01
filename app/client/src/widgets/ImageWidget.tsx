@@ -78,6 +78,32 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.NUMBER,
           },
+          {
+            helpText:
+              "Sets how the Image should be resized to fit its container.",
+            propertyName: "objectFit",
+            label: "Object Fit",
+            controlType: "DROP_DOWN",
+            defaultValue: "cover",
+            options: [
+              {
+                label: "Contain",
+                value: "contain",
+              },
+              {
+                label: "Cover",
+                value: "cover",
+              },
+              {
+                label: "Auto",
+                value: "auto",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
         ],
       },
       {
@@ -99,7 +125,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { maxZoomLevel } = this.props;
+    const { maxZoomLevel, objectFit } = this.props;
     return (
       <ImageComponent
         defaultImageUrl={this.props.defaultImage}
@@ -109,6 +135,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         imageUrl={this.props.image}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
+        objectFit={objectFit}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         widgetId={this.props.widgetId}
@@ -140,6 +167,7 @@ export interface ImageWidgetProps extends WidgetProps {
   imageShape: ImageShape;
   defaultImage: string;
   maxZoomLevel: number;
+  objectFit: string;
   onClick?: string;
 }
 
