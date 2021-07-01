@@ -19,6 +19,8 @@ import java.util.Base64;
 @AllArgsConstructor
 public class UploadedFile {
 
+    private static final String BASE64_DELIMITER = ";base64,";
+
     String name;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -30,8 +32,8 @@ public class UploadedFile {
             return null;
         }
 
-        if (base64Content.contains(";base64,")) {
-            return Base64.getDecoder().decode(base64Content.split(";base64,")[1]); // TODO: fix magic string
+        if (base64Content.contains(BASE64_DELIMITER)) {
+            return Base64.getDecoder().decode(base64Content.split(BASE64_DELIMITER)[1]);
         }
 
         return Base64.getDecoder().decode(base64Content);
