@@ -1646,7 +1646,12 @@ export const light: ColorType = {
   mentionsInput,
   helpModal,
   globalSearch,
-  comments,
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
