@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   getBorderCSSShorthand,
@@ -171,10 +171,7 @@ class InputComponent extends React.Component<
 
   getLeftIcon = (inputType: InputType) => {
     if (inputType === "PHONE_NUMBER") {
-      const selectedISDCode = useMemo(
-        () => getSelectedISDCode(this.props.countryCode),
-        [this.props.countryCode],
-      );
+      const selectedISDCode = getSelectedISDCode(this.props.countryCode);
       return (
         <ISDCodeDropdown
           onISDCodeChange={this.props.onISDCodeChange}
@@ -183,10 +180,7 @@ class InputComponent extends React.Component<
         />
       );
     } else if (inputType === InputTypes.CURRENCY) {
-      const selectedCurrencyCode = useMemo(
-        () => getSelectedCurrency(this.props.currencyType),
-        [this.props.currencyType],
-      );
+      const selectedCurrencyCode = getSelectedCurrency(this.props.currencyType);
       return (
         <CurrencyTypeDropdown
           allowCurrencyChange={this.props.allowCurrencyChange}
