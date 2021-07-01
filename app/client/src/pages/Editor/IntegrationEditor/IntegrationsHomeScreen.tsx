@@ -276,7 +276,6 @@ class IntegrationsHomeScreen extends React.Component<
 > {
   constructor(props: Props) {
     super(props);
-    console.log("INtegrations Home screen");
 
     this.state = {
       page: 1,
