@@ -71,11 +71,19 @@ const ModeButton = styled.div<{ active: boolean; type: string }>`
         ? props.theme.colors.comments.activeModeIcon
         : props.theme.colors.comments.modeIcon};
   }
-  svg circle {
-    stroke: ${(props) =>
+
+  svg rect:not(:first-child) {
+    fill: ${(props) =>
       props.active
         ? props.theme.colors.comments.activeModeIcon
         : props.theme.colors.comments.modeIcon};
+  }
+
+  svg circle {
+    stroke: ${(props) =>
+      props.active
+        ? props.theme.colors.comments.activeModeIconCircleStroke
+        : props.theme.colors.comments.modeIconCircleStroke};
   }
 `;
 

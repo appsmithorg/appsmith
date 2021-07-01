@@ -937,6 +937,8 @@ type ColorType = {
     cardHoverBackground: string;
     introTitle: string;
     introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -1112,6 +1114,8 @@ const comments = {
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
   cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -1651,6 +1655,8 @@ export const light: ColorType = {
     activeModeBackground: "#EBEBEB",
     activeModeIcon: "#4B4848",
     modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
   },
   selected: lightShades[12],
   header: {
