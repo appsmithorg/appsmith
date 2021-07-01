@@ -73,6 +73,9 @@ public class DataUtils {
     public Object parseJsonBody(Object body) {
         try {
             if (body instanceof String) {
+                if ("" == body) {
+                    return body;
+                }
                 Object objectFromJson = objectFromJson((String) body);
                 if (objectFromJson != null) {
                     body = objectFromJson;
