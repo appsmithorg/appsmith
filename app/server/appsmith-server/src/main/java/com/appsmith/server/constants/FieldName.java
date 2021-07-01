@@ -61,7 +61,7 @@ public class FieldName {
     public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
-    public static String COMMENT = "bot";
+    public static String COMMENT = "comment";
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";

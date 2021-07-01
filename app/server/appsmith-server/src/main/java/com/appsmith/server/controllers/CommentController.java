@@ -56,7 +56,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
     }
 
     @GetMapping("/threads")
-    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@RequestParam(required = false) String applicationId) {
+    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@RequestParam String applicationId) {
         return service.getThreadsByApplicationId(applicationId)
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
