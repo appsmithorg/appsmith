@@ -276,6 +276,7 @@ class IntegrationsHomeScreen extends React.Component<
 > {
   constructor(props: Props) {
     super(props);
+    console.log("INtegrations Home screen");
 
     this.state = {
       page: 1,
@@ -386,9 +387,7 @@ class IntegrationsHomeScreen extends React.Component<
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
           {dataSources.length === 0 && <AddDatasourceSecurely />}
-          {dataSources.length === 0 &&
-            this.props.mockDatasources.length > 0 &&
-            mockDataSection}
+          {dataSources.length === 0 && mockDataSection}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -405,9 +404,7 @@ class IntegrationsHomeScreen extends React.Component<
             location={location}
             pageId={pageId}
           />
-          {dataSources.length > 0 &&
-            this.props.mockDatasources.length > 0 &&
-            mockDataSection}
+          {dataSources.length === 0 && mockDataSection}
         </NewIntegrationsContainer>
       );
     } else {
