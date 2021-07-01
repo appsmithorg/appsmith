@@ -110,12 +110,10 @@ const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
   ${(props) => getTypographyByKey(props, "btnLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
+`;
 
-  &:hover {
-    background-color: ${(props) =>
-      props.disabled ? Colors.GRAY_2 : Colors.WHITE};
-    color: ${Colors.DOVE_GRAY2};
-  }
+const Bold = styled.span`
+  font-weight: 500;
 `;
 
 // ---------- Types ----------
@@ -380,7 +378,7 @@ function GeneratePageForm() {
         {selectedDatasource.value ? (
           <SelectWrapper>
             <Label>
-              Select Table from <span>{selectedDatasource.label}</span>
+              Select Table from <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
@@ -395,7 +393,9 @@ function GeneratePageForm() {
         ) : null}
         {selectedTable.value ? (
           <SelectWrapper>
-            <Label>Select Column from {selectedTable.label}</Label>
+            <Label>
+              Select Column from <Bold>{selectedTable.label}</Bold>
+            </Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
               onSelect={onSelectColumn}
