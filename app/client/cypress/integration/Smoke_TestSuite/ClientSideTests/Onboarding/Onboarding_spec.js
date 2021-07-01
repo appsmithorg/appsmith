@@ -2,9 +2,6 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const pages = require("../../../../locators/Pages.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {
@@ -40,6 +37,9 @@ describe("Onboarding", function() {
         cy.get(".t--start-building")
           .should("be.visible")
           .click({ force: true });
+
+        cy.get(".t--create-query").click();
+        cy.wait("@createNewApi");
 
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout

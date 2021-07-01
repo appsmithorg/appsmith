@@ -19,7 +19,6 @@ import {
   getPluginIcon,
   homePageIcon,
   pageIcon,
-  apiIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -195,7 +194,7 @@ function ActionItem(props: {
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon =
     pluginType === PluginType.API
-      ? apiIcon
+      ? getActionConfig(pluginType)?.icon
       : getActionConfig(pluginType)?.getIcon(
           item.config,
           pluginGroups[item.config.datasource.pluginId],

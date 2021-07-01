@@ -41,8 +41,7 @@ describe("Confirm run action", function() {
       200,
     );
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
+    cy.get(queryEditor.deleteQuery).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
