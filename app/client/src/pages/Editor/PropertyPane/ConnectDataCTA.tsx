@@ -38,6 +38,10 @@ const StyledDiv = styled.div`
     color: #f86a2b;
     font-size: 12px;
     margin-top: 6px;
+
+    :hover {
+      text-decoration: underline;
+    }
   }
 `;
 
