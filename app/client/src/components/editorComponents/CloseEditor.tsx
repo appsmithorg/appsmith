@@ -1,15 +1,9 @@
 import TooltipComponent from "components/ads/Tooltip";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import React from "react";
-import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -26,9 +20,6 @@ const IconContainer = styled.div`
 `;
 
 function CloseEditor() {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
-
   const history = useHistory();
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -36,7 +27,7 @@ function CloseEditor() {
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.goBack();
   };
 
   return (
@@ -56,7 +47,7 @@ function CloseEditor() {
           style={{ color: "#0c0000", lineHeight: "14px" }}
           type={TextType.P1}
         >
-          Back to Canvas
+          Back
         </Text>
       </IconContainer>
     </TooltipComponent>
