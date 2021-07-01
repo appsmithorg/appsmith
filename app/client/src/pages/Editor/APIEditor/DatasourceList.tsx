@@ -8,6 +8,7 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -158,6 +159,7 @@ export default function DataSourceList(props: any) {
                                     props.applicationId,
                                     props.currentPageId,
                                     d.id,
+                                    getQueryParams(),
                                   ),
                                 );
                               }}

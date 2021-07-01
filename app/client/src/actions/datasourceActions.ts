@@ -31,15 +31,18 @@ export type UpdateDatasourceSuccessAction = {
   type: string;
   payload: Datasource;
   redirect: boolean;
+  queryParams?: Record<string, string>;
 };
 
 export const updateDatasourceSuccess = (
   payload: Datasource,
   redirect = true,
+  queryParams = {},
 ): UpdateDatasourceSuccessAction => ({
   type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
   payload,
   redirect,
+  queryParams,
 });
 
 export const redirectAuthorizationCode = (

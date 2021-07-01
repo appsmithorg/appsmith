@@ -13,10 +13,7 @@ import {
 } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getDatasources,
-  getPlugins,
-} from "../../../../selectors/entitiesSelector";
+import { getDatasources } from "../../../../selectors/entitiesSelector";
 import {
   Datasource,
   DatasourceStructure,
@@ -25,7 +22,7 @@ import {
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams } from "react-router";
+import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
   INTEGRATION_EDITOR_URL,
@@ -108,12 +105,12 @@ type DropdownOptions = Array<DropdownOption>;
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
-  const plugins = useSelector(getPlugins);
+  const querySearch = useLocation().search;
   const {
     applicationId: currentApplicationId,
     pageId: currentPageId,
   } = useParams<ExplorerURLParams>();
-
+  const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
@@ -212,13 +209,13 @@ function GeneratePageForm() {
         currentApplicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?previousRoute=generate-page-form`,
+      )}?initiator=generate-page`,
     );
   };
 
   useEffect(() => {
     const newDataSourceOptions = [];
-    console.log({ datasources, plugins });
+
     datasources.forEach(({ id, isValid, name, organizationId, pluginId }) => {
       if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
         newDataSourceOptions.push({
@@ -277,6 +274,37 @@ function GeneratePageForm() {
     }
   }, [datasourcesStructure, selectedDatasource, setDatasourceTableOptions]);
 
+  useEffect(() => {
+    const queryParams = new URLSearchParams(querySearch);
+    const datasourceId = queryParams.get("datasourceId");
+    if (datasourceId) {
+      setNewDatasourceId(datasourceId);
+    }
+  }, [querySearch]);
+
+  useEffect(() => {
+    if (newDatasourceId) {
+      let isNewDatasource = false;
+      let isDatasourceOfSupportedPlugin = false;
+      if (selectedDatasource.id !== newDatasourceId) {
+        isNewDatasource = true;
+        for (let i = 0; i < dataSourceOptions.length; i++) {
+          if (dataSourceOptions[i].id === newDatasourceId) {
+            isDatasourceOfSupportedPlugin = true;
+            onSelectDataSource(
+              dataSourceOptions[i].value,
+              dataSourceOptions[i],
+            );
+            setNewDatasourceId("");
+            break;
+          }
+        }
+      }
+      if (isNewDatasource && !isDatasourceOfSupportedPlugin) {
+      }
+    }
+  }, [newDatasourceId]);
+
   return (
     <div>
       <Wrapper>
@@ -304,6 +332,7 @@ function GeneratePageForm() {
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
+            optionWrapperHeight={"300px"}
             options={dataSourceOptions}
             renderOption={({ isSelected, option, optionClickHandler }) => (
               <DataSourceOption

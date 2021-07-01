@@ -25,6 +25,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
@@ -84,6 +85,7 @@ class DataSourceEditor extends React.Component<Props> {
           pageId,
           INTEGRATION_TABS.ACTIVE,
           INTEGRATION_EDITOR_MODES.AUTO,
+          getQueryParams(),
         ),
       ),
     );

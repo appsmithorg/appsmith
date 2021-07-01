@@ -179,7 +179,12 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
   );
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      getQueryParams(),
+    ),
   );
 }
 

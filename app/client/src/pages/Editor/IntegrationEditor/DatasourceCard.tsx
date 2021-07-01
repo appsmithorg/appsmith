@@ -18,6 +18,7 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -118,6 +119,7 @@ function DatasourceCard(props: DatasourceCardProps) {
         params.applicationId,
         params.pageId,
         datasource.id,
+        getQueryParams(),
       ),
     );
   };

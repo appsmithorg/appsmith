@@ -79,6 +79,8 @@ import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getQueryParams } from "../utils/AppsmithUtils";
+import { getGenerateTemplateFormURL } from "../constants/routes";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -145,7 +147,12 @@ export function* addMockDbToDatasources(
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
+        DATA_SOURCES_EDITOR_ID_URL(
+          applicationId,
+          pageId,
+          response.data.id,
+          getQueryParams(),
+        ),
       );
     }
   } catch (error) {
@@ -173,7 +180,7 @@ export function* deleteDatasourceSaga(
 
       if (
         window.location.pathname ===
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id, getQueryParams())
       ) {
         history.push(
           INTEGRATION_EDITOR_URL(
@@ -241,8 +248,8 @@ function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
 ) {
   try {
+    const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
-
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
@@ -264,7 +271,11 @@ function* updateDatasourceSaga(
 
       // Dont redirect if action payload has an onSuccess
       yield put(
-        updateDatasourceSuccess(response.data, !actionPayload.onSuccess),
+        updateDatasourceSuccess(
+          response.data,
+          !actionPayload.onSuccess,
+          queryParams,
+        ),
       );
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
@@ -604,7 +615,12 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      datasource.id,
+      getQueryParams(),
+    ),
   );
 }
 
@@ -690,9 +706,18 @@ function* storeAsDatasourceSaga() {
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   const updatedDatasource = action.payload;
 
-  if (
+  const { queryParams = {} } = action;
+  if (queryParams.initiator === "generate-page") {
+    history.push(
+      `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
+        updatedDatasource.id
+      }`,
+    );
+  } else if (
     actionRouteInfo &&
     updatedDatasource.id === actionRouteInfo.datasourceId &&
     action.redirect

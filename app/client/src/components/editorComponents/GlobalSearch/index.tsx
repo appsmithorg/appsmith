@@ -49,6 +49,7 @@ import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -364,7 +365,12 @@ function GlobalSearch() {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, item.pageId, item.id),
+      DATA_SOURCES_EDITOR_ID_URL(
+        params.applicationId,
+        item.pageId,
+        item.id,
+        getQueryParams(),
+      ),
     );
   };
 

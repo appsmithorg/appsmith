@@ -39,6 +39,7 @@ export type DropdownProps = CommonComponentProps & {
   width?: string;
   height?: string;
   showLabelOnly?: boolean;
+  optionWrapperHeight?: string;
   optionWidth?: string;
   showDropIcon?: boolean;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
@@ -103,9 +104,12 @@ const Selected = styled.div<{
 `;
 
 const DropdownWrapper = styled.div<{
+  maxHeight: string;
   width: string;
 }>`
   width: ${(props) => props.width};
+  max-height: ${(props) => (props.maxHeight ? props.maxHeight : "")};
+  overflow-y: ${(props) => (props.maxHeight ? "scroll" : "")};
   z-index: 1;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
@@ -296,7 +300,10 @@ export default function Dropdown(props: DropdownProps) {
           />
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
         </Selected>
-        <DropdownWrapper width={props.optionWidth || "260px"}>
+        <DropdownWrapper
+          maxHeight={props.optionWrapperHeight || "auto"}
+          width={props.optionWidth || "260px"}
+        >
           {props.options.map((option: DropdownOption, index: number) => {
             if (renderOption) {
               return renderOption({
