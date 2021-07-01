@@ -29,7 +29,7 @@ const DropdownTriggerIconWrapper = styled.div`
   }
 `;
 
-export const getISDCodeOptions = (): Array<DropdownOption> => {
+const getISDCodeOptions = (): Array<DropdownOption> => {
   return ISDCodeOptions.map((item: ISDCodeProps) => {
     return {
       leftElement: countryToFlag(item.code),
@@ -39,6 +39,8 @@ export const getISDCodeOptions = (): Array<DropdownOption> => {
     };
   });
 };
+
+export const ISDCodeDropdownOptions = getISDCodeOptions();
 
 export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
   const selectedCountry: ISDCodeProps =
