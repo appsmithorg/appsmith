@@ -174,19 +174,36 @@ export function CanvasDraggingArena({
     }[],
   ) => {
     if (isDragging) {
-      const sortedByTopBlocks = drawingBlocks.sort(
-        (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
-      );
-      const bottomMostBlock = sortedByTopBlocks[0];
+      let groupBlock;
+      if (drawingBlocks.length > 1) {
+        const sortedByTopBlocks = drawingBlocks.sort(
+          (each1, each2) =>
+            each2.top + each2.height - (each1.top + each1.height),
+        );
+        const bottomMostBlock = sortedByTopBlocks[0];
+        const topMostBlock = sortedByTopBlocks[sortedByTopBlocks.length - 1];
+        groupBlock = {
+          top: topMostBlock.top,
+          height:
+            topMostBlock.top + bottomMostBlock.top + bottomMostBlock.height,
+        };
+      } else {
+        const block = drawingBlocks[0];
+        groupBlock = {
+          top: block.top,
+          height: block.height,
+        };
+      }
+
       // const el = canvasRef?.current;
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
       );
       if (canvasRef.current) {
         // if (el && props.canDropTargetExtend) {
-        if (bottomMostBlock) {
+        if (groupBlock) {
           scrollElementIntoParentCanvasView2(
-            bottomMostBlock,
+            groupBlock,
             scrollParent,
             canvasRef.current,
           );
