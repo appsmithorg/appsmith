@@ -6,6 +6,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.arangodb.ArangoCollection;
@@ -16,6 +17,8 @@ import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.Permissions;
 import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.CollectionSchema;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -189,12 +192,11 @@ public class ArangoDBPluginTest {
     @Test
     public void testConnectToArangoDB() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-
-        Mono<ArangoDatabase> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        StepVerifier.create(dsConnectionMono)
-                .assertNext(obj -> {
-                    ArangoDatabase client = obj;
-                    assertNotNull(client);
+        Mono<DatasourceTestResult> testDsResult = pluginExecutor.testDatasource(dsConfig);
+        StepVerifier.create(testDsResult)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -220,6 +222,15 @@ public class ArangoDBPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+
+                    // Only one entry exists with age > 30
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+
+                    // Check if all fields are returned
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("Kierra Gentry", node.get("name").asText());
+                    assertEquals("F", node.get("gender").asText());
+                    assertEquals("40", node.get("age").asText());
                 })
                 .verifyComplete();
     }
@@ -244,6 +255,10 @@ public class ArangoDBPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+
+                    // On a successful update the server returns an empty array
+                    assertEquals(0, ((ArrayNode) result.getBody()).size());
+
                 })
                 .verifyComplete();
     }
