@@ -143,8 +143,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
         Mono<Comment> commentMono;
         if (!Boolean.TRUE.equals(commentThread.getIsPrivate())) {
-            Mono<Void> eventTriggerMono = triggerCommentEvent(user, comment);
-
             Set<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
             // add them to current thread so that we don't need to query again
             if (commentThread.getSubscribers() != null) {
@@ -153,7 +151,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 commentThread.setSubscribers(subscribersFromThisComment);
             }
             commentMono = threadRepository.addToSubscribers(commentThread.getId(), subscribersFromThisComment)
-                    .then(eventTriggerMono)
                     .then(repository.save(comment));
         } else {
             commentMono = repository.save(comment);
@@ -194,8 +191,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // 3. Pull the comment out of the list of comments, set it's `threadId` and save it separately.
         // 4. Populate the new comment's ID into the CommentThread object sent as response.
         final String applicationId = commentThread.getApplicationId();
-
-        return sessionUserService.getCurrentUser().flatMap(user -> {
+        final Mono<User> userMono = sessionUserService.getCurrentUser().flatMap(user -> {
+            if (user.getId() == null) {
+                return userService.findByEmail(user.getEmail());
+            } else {
+                return Mono.just(user);
+            }
+        });
+        return userMono.flatMap(user -> {
             return userDataRepository.findByUserId(user.getId())
                     .zipWith(applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS))
                     .switchIfEmpty(Mono.error(new AppsmithException(
@@ -205,7 +208,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         final UserData userData = tuple.getT1();
                         final Application application = tuple.getT2();
                         // check whether this thread should be converted to bot thread
-                        commentThread.setIsPrivate(userData.getLatestCommentEvent() == null);
+                        if(userData.getLatestCommentEvent() == null) {
+                            commentThread.setIsPrivate(true);
+                            userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+                            return userDataRepository.save(userData).then(
+                                    saveCommentThread(commentThread, application, user)
+                            );
+                        }
                         return saveCommentThread(commentThread, application, user);
                     })
                     .flatMapMany(thread -> {
@@ -219,6 +228,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                 commentSaverMonos.add(create(thread, user, comment, originHeader, !isFirst));
                                 isFirst = false;
                             }
+                        }
+
+                        if(Boolean.TRUE.equals(thread.getIsPrivate())) {
+                            // this is the first thread by this user, add a bot comment also
+                            commentSaverMonos.add(createBotComment(thread, user, CommentBotEvent.COMMENTED));
                         }
                         // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
                         // value is meaningful.
@@ -406,7 +420,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
         final Set<Policy> policies = new HashSet<>();
         Mono<Long> commentSeq;
-        if (commentThread.getIsPrivate()) {
+        if (Boolean.TRUE.equals(commentThread.getIsPrivate())) {
             Collection<Policy> policyCollection = policyUtils.generatePolicyFromPermission(
                     Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD),
                     user
@@ -432,16 +446,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         }).then(threadRepository.save(commentThread));
     }
 
-    private void updateBotThreadParameters(String applicationId, String pageId, User user, CommentThread commentThread) {
-        commentThread.setIsPrivate(true);
-        commentThread.setSequenceId("#0");
-    }
-
     private Mono<Comment> createBotComment(CommentThread commentThread, User user, CommentBotEvent commentBotEvent) {
         final Comment comment = new Comment();
         comment.setThreadId(commentThread.getId());
-        comment.setAuthorName(commentThread.getAuthorName());
-        comment.setAuthorUsername(commentThread.getAuthorUsername());
+        comment.setAuthorName(APPSMITH_BOT_NAME);
+        comment.setAuthorUsername(APPSMITH_BOT_USERNAME);
         comment.setApplicationId(commentThread.getApplicationId());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
@@ -477,42 +486,5 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         block.setDepth(0);
         body.setEntityMap(new HashMap<>());
         return repository.save(comment);
-    }
-
-    /**
-     * This method is used to trigger a BotEvent for the provided user.
-     * If this event is already handled i.e. present in UserData.commentBotEvents, it'll be ignored.
-     * Otherwise, it'll do the required actions e.g. create a bot thread or comment.
-     * It'll also update the UserData.commentBotEvents after the action.
-     *
-     * @param user        User for whom this event is triggered
-     * @param userComment
-     * @return A Void Mono
-     */
-    private Mono<Void> triggerCommentEvent(User user, Comment userComment) {
-        final CommentBotEvent event;
-        if (CommentUtils.isAnyoneMentioned(userComment)) {
-            event = CommentBotEvent.TAGGED;
-        } else {
-            event = CommentBotEvent.COMMENTED;
-        }
-
-        return userDataRepository.findByUserId(user.getId()).flatMap(userData -> {
-//            if(userData.getLatestCommentEvent() == null
-//                    || userData.getLatestCommentEvent().getOrder() < event.getOrder()) {
-//                // no event stored yet or current event is with higher order -> trigger this event
-//                userData.setLatestCommentEvent(event);
-//
-//                return threadRepository.findPrivateThread(userComment.getApplicationId())
-//                        .switchIfEmpty(updateBotThread(userComment.getApplicationId(), userComment.getPageId(), user))
-//                        .flatMap(savedBotThread ->
-//                            createBotComment(savedBotThread, user, event).map(savedBotComment -> {
-//                                savedBotThread.setComments(List.of(savedBotComment));
-//                                return savedBotComment;
-//                            }).thenReturn(savedBotThread)
-//                ).then(userDataRepository.save(userData)).then();
-//            }
-            return Mono.empty();
-        });
     }
 }
