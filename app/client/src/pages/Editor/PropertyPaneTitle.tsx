@@ -29,6 +29,7 @@ const FixedTitle = styled.div`
   z-index: 3;
   width: ${(props) =>
     props.theme.propertyPane.width - 2 * props.theme.spaces[5]}px;
+  margin: 0px ${(props) => props.theme.spaces[5]}px;
 `;
 
 const Wrapper = styled.div<{ iconCount: number }>`
