@@ -279,6 +279,7 @@ function GeneratePageForm() {
     const datasourceId = queryParams.get("datasourceId");
     if (datasourceId) {
       setNewDatasourceId(datasourceId);
+      history.replace(window.location.pathname);
     }
   }, [querySearch]);
 
