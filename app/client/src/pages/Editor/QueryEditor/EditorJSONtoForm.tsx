@@ -781,7 +781,7 @@ export function EditorJSONtoForm(props: Props) {
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper>
-            <ActionRightPane actionName={actionName} />
+            <ActionRightPane actionName={actionName} hasResponse={!!output} />
           </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>

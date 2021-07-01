@@ -6,9 +6,12 @@ import { Classes } from "components/ads/common";
 import { useState } from "react";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
+import SuggestedWidgets from "./SuggestedWidgets";
 
 const SideBar = styled.div`
-  padding: 0px 8px;
+  padding: 0px 8px 10px;
+  overflow: auto;
+  height: 100%;
 
   & > div {
     margin-top: 24px;
@@ -77,6 +80,7 @@ function ActionSidebar(props: any) {
   return (
     <SideBar>
       <Connections actionName={props.actionName} />
+      {props.hasResponse && <SuggestedWidgets actionName={props.actionName} />}
     </SideBar>
   );
 }
