@@ -6,7 +6,7 @@ const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe("Dynamic input autocomplete", () => {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
