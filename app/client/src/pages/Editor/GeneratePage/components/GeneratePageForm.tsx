@@ -13,7 +13,10 @@ import {
 } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
-import { getDatasources } from "../../../../selectors/entitiesSelector";
+import {
+  getDatasources,
+  getMockDatasources,
+} from "../../../../selectors/entitiesSelector";
 import {
   Datasource,
   DatasourceStructure,
@@ -29,6 +32,7 @@ import {
   INTEGRATION_TABS,
 } from "../../../../constants/routes";
 import history from "utils/history";
+import { MockDatasource } from "../../../../entities/Datasource/index";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   MOCK_DATABASES_OPTION_ID,
@@ -56,6 +60,25 @@ const DEFAULT_DROPDOWN_OPTION = {
   data: {},
 };
 
+const FAKE_DATASOURCE_OPTION = {
+  CONNECT_NEW_DATASOURCE_OPTION: {
+    id: CONNECT_NEW_DATASOURCE_OPTION_ID,
+    label: "Connect New Datasource",
+    value: "Connect New Datasource",
+    data: {
+      pluginId: "",
+    },
+  },
+  MOCK_DATASOURCE_HEADER: {
+    id: MOCK_DATABASES_OPTION_ID,
+    label: "Mock DataSources",
+    value: "Mock DataSources",
+    data: {
+      isValid: false,
+      pluginId: "",
+    },
+  },
+};
 //  ---------- Styles ----------
 
 const Wrapper = styled.div`
@@ -119,6 +142,7 @@ function GeneratePageForm() {
   } = useParams<ExplorerURLParams>();
   const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
+  const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
   );
@@ -224,42 +248,34 @@ function GeneratePageForm() {
 
   useEffect(() => {
     const newDataSourceOptions = [];
-
-    datasources.forEach(({ id, isValid, name, organizationId, pluginId }) => {
+    newDataSourceOptions.push(
+      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
+    );
+    datasources.forEach(({ id, name, pluginId }) => {
       if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
         newDataSourceOptions.push({
           id,
           label: name,
           value: name,
           data: {
-            isValid,
-            organizationId,
             pluginId,
           },
         });
     });
-    newDataSourceOptions.unshift(
-      {
-        id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-        label: "Connect New Datasource",
-        value: "Connect New Datasource",
-        data: {
-          isValid: false,
-          organizationId: "",
-          pluginId: "",
-        },
-      },
-      {
-        id: MOCK_DATABASES_OPTION_ID,
-        label: "Mock Databases ------------",
-        value: "Mock Databases ------------",
-        data: {
-          isValid: false,
-          organizationId: "",
-          pluginId: "",
-        },
-      },
-    );
+    newDataSourceOptions.push(FAKE_DATASOURCE_OPTION.MOCK_DATASOURCE_HEADER);
+    mockDatasources.forEach(({ id, name, pluginId }) => {
+      if (VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
+        newDataSourceOptions.push({
+          id,
+          label: name,
+          value: name,
+          data: {
+            pluginId,
+          },
+        });
+      }
+    });
+
     setDataSourceOptions(newDataSourceOptions);
   }, [datasources, setDataSourceOptions]);
 

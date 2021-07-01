@@ -73,10 +73,19 @@ const CreateIconWrapper = styled.div`
   margin: 0px 8px;
 `;
 
-const DatasourceImage = styled.img`
+const ImageWrapper = styled.div`
   height: 24px;
-  width: auto;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
   margin: 0px 8px;
+`;
+
+const DatasourceImage = styled.img`
+  height: 20px;
+  width: auto;
+  max-width: 36px;
 `;
 
 function DataSourceOption({
@@ -91,17 +100,18 @@ function DataSourceOption({
 
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
-  const notClickable = MOCK_DATABASES_OPTION_ID === dropdownOption.id;
-  const isNotDatasourceOption = isConnectNewDataSourceBtn || notClickable;
+  const isMockDatabaseHeader = MOCK_DATABASES_OPTION_ID === dropdownOption.id;
+  const isNotDatasourceOption =
+    isConnectNewDataSourceBtn || isMockDatabaseHeader;
   return (
     <OptionWrapper
       className="t--dropdown-option"
-      clickable={!notClickable}
+      clickable={!isMockDatabaseHeader}
       key={dropdownOption.id}
       onClick={() => {
         if (isConnectNewDataSourceBtn) {
           routeToCreateNewDatasource(dropdownOption);
-        } else if (!notClickable && optionClickHandler) {
+        } else if (!isMockDatabaseHeader && optionClickHandler) {
           optionClickHandler(dropdownOption);
         }
       }}
@@ -118,13 +128,19 @@ function DataSourceOption({
           </CreateIconWrapper>
         ) : null
       ) : (
-        <DatasourceImage
-          alt=""
-          className="dataSourceImage"
-          src={pluginImages[dropdownOption.data.pluginId]}
-        />
+        <ImageWrapper>
+          <DatasourceImage
+            alt=""
+            className="dataSourceImage"
+            src={pluginImages[dropdownOption.data.pluginId]}
+          />
+        </ImageWrapper>
       )}
-      <Text type={TextType.P1}>{label}</Text>
+
+      <Text type={isNotDatasourceOption ? TextType.H4 : TextType.P1}>
+        {label}
+      </Text>
+      {isMockDatabaseHeader ? null : null}
     </OptionWrapper>
   );
 }
