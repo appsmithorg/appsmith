@@ -24,10 +24,7 @@ import {
   setAppMode,
   updateAppPersistentStore,
 } from "actions/pageActions";
-import {
-  fetchDatasources,
-  fetchMockDatasources,
-} from "actions/datasourceActions";
+import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
@@ -117,16 +114,14 @@ function* initializeEditorSaga(
     if (!applicationAndLayoutCalls) return;
 
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
-      [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
+      [fetchPlugins(), fetchDatasources()],
       [
         ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
         ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-        ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
         ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-        ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ],
     );
     if (!pluginsAndDatasourcesCalls) return;

@@ -25,9 +25,7 @@ const ValueWrapper = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  &:not(first-child) {
-    margin-top: 9px;
-  }
+  margin-top: 9px;
 `;
 
 export const renderDatasourceSection = (
