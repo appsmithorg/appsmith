@@ -8,14 +8,6 @@ env:
 
 phases:
 
-  install:
-    on-failure: ABORT
-    runtime-versions:
-      java: corretto11
-      nodejs: 14
-    commands:
-      - source ci/3-scripts/1-install.sh
-
   build:
     on-failure: ABORT
     commands:
