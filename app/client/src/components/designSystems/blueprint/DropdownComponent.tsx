@@ -145,6 +145,7 @@ const DropdownContainer = styled.div`
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
+    console.log(Classes.DIALOG, "NOOOOOOOODAL");
     return (
       <DropdownContainer>
         <DropdownStyles />
@@ -184,6 +185,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             }}
           >
             <Button
+              disabled={this.props.disabled}
               rightIcon={IconNames.CHEVRON_DOWN}
               text={
                 !_.isEmpty(this.props.options) &&

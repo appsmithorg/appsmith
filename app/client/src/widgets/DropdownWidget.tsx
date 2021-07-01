@@ -102,35 +102,30 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{this.isRequired  ? !!this.selectedOption : true}}`,
-      selectedOption: `{{  _.find(this.options, { value:  this.selectedOptionValue }) }}`,
+      selectedOption: `{{  _.find(this.options, { value:  this.defaultValue }) }}`,
       selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      value: `{{  this.selectedOptionValue }}`,
-      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.selectedOptionValue }); return this.options[index]?.label; })()}}`,
+      value: `{{  this.defaultValue }}`,
+      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.label; })()}}`,
+      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.value; })()}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptionValue: "defaultOptionValue",
+      defaultValue: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptionValue: undefined,
+      defaultValue: undefined,
     };
-  }
-
-  getSelectedOptionValueArr(): string[] {
-    return Array.isArray(this.props.selectedOptionValueArr)
-      ? this.props.selectedOptionValueArr
-      : [];
   }
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.selectedOptionValue,
+      value: this.props.defaultValue,
     });
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
@@ -160,7 +155,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     }
     if (isChanged) {
       this.props.updateWidgetMetaProperty(
-        "selectedOptionValue",
+        "defaultValue",
         selectedOption.value,
         {
           triggerPropertyName: "onOptionChange",
@@ -199,7 +194,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   defaultOptionValue?: string | string[];
   isRequired: boolean;
   isFilterable: boolean;
-  selectedOptionValue: string;
+  defaultValue: string;
   selectedOptionLabel: string;
 }
 

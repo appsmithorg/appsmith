@@ -120,6 +120,7 @@ export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
 
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 

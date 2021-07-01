@@ -1,21 +1,8 @@
-import React, { useEffect, useState, useCallback } from "react";
-import Select, { SelectProps } from "rc-select";
+import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
-import { useRef } from "react";
-
-const inputIcon = (): JSX.Element => (
-  <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
-    <desc>chevron-down</desc>
-    <path
-      d="M12 5c-.28 0-.53.11-.71.29L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.71.29s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
-      fillRule="evenodd"
-    />
-  </svg>
-);
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -45,7 +32,7 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	}
 `;
 
-const DropdownStyles = createGlobalStyle`
+export const DropdownStyles = createGlobalStyle`
 .rc-select-dropdown-hidden {
 	display: none;
 }
@@ -205,7 +192,7 @@ const DropdownStyles = createGlobalStyle`
   }
 `;
 
-const MultiSelectContainer = styled.div`
+export const MultiSelectContainer = styled.div`
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -409,124 +396,18 @@ const MultiSelectContainer = styled.div`
     }
   }
 `;
-const StyledCheckbox = styled(Checkbox)`
+export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     margin: 0;
   }
 `;
 
-const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
-  return <StyledCheckbox checked={props.isSelected} />;
-};
-
-export interface MultiSelectProps
-  extends Required<
-    Pick<
-      SelectProps,
-      "disabled" | "options" | "placeholder" | "loading" | "dropdownStyle"
-    >
-  > {
-  mode?: "multiple" | "tags";
-  value: string[];
-  onChange: (value: DefaultValueType) => void;
-}
-
-function MultiSelectComponent({
-  disabled,
-  dropdownStyle,
-  loading,
-  onChange,
-  options,
-  placeholder,
-  value,
-}: MultiSelectProps): JSX.Element {
-  const [isSelectAll, setIsSelectAll] = useState(false);
-  const _menu = useRef<HTMLElement | null>(null);
-
-  const getDropdownPosition = useCallback((node: HTMLElement | null) => {
-    if (Boolean(node?.closest(".bp3-modal-widget"))) {
-      return document.querySelector(".bp3-modal-widget") as HTMLElement;
-    }
-    return document.querySelector(".appsmith_widget_0") as HTMLElement;
-  }, []);
-
-  const handleSelectAll = () => {
-    if (!isSelectAll) {
-      const allOption: string[] = options.map((option) => option.value);
-      onChange(allOption);
-      return;
-    }
-    return onChange([]);
-  };
-  useEffect(() => {
-    if (
-      !isSelectAll &&
-      options.length &&
-      value.length &&
-      options.length === value.length
-    ) {
-      setIsSelectAll(true);
-    }
-    if (isSelectAll && options.length !== value.length) {
-      setIsSelectAll(false);
-    }
-  }, [options, value]);
-
-  const dropdownRender = useCallback(
-    (
-      menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-    ) => (
-      <>
-        {options.length ? (
-          <StyledCheckbox
-            alignIndicator="left"
-            checked={isSelectAll}
-            label="Select all"
-            onChange={handleSelectAll}
-          />
-        ) : null}
-        {menu}
-      </>
-    ),
-    [isSelectAll, options],
-  );
-
-  const filterOption = useCallback(
-    (input, option) =>
-      option?.props.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-      option?.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0,
-    [],
-  );
-  return (
-    <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
-      <DropdownStyles />
-      <Select
-        animation="slide-up"
-        // TODO: Make Autofocus a variable in the property pane
-        // autoFocus
-        choiceTransitionName="rc-select-selection__choice-zoom"
-        className="rc-select"
-        disabled={disabled}
-        dropdownClassName="multi-select-dropdown"
-        dropdownRender={dropdownRender}
-        dropdownStyle={dropdownStyle}
-        filterOption={filterOption}
-        getPopupContainer={() => getDropdownPosition(_menu.current)}
-        inputIcon={inputIcon}
-        loading={loading}
-        maxTagCount={"responsive"}
-        maxTagPlaceholder={(e) => `+${e.length} more`}
-        menuItemSelectedIcon={menuItemSelectedIcon}
-        mode="multiple"
-        notFoundContent="No item Found"
-        onChange={onChange}
-        options={options}
-        placeholder={placeholder || "select option(s)"}
-        showArrow
-        value={value}
-      />
-    </MultiSelectContainer>
-  );
-}
-
-export default MultiSelectComponent;
+export const inputIcon = (): JSX.Element => (
+  <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
+    <desc>chevron-down</desc>
+    <path
+      d="M12 5c-.28 0-.53.11-.71.29L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.71.29s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
+      fillRule="evenodd"
+    />
+  </svg>
+);
