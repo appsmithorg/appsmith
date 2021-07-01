@@ -100,7 +100,7 @@ function* initializeEditorSaga(
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
         fetchPageList(applicationId, APP_MODE.EDIT),
-        fetchPage(pageId),
+        fetchPage(pageId, true),
         fetchApplication(applicationId, APP_MODE.EDIT),
       ],
       [
