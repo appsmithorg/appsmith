@@ -16,6 +16,7 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 export type CreateCommentRequest = {
   body: RawDraftContentState;
+  mode?: APP_MODE;
 };
 
 export type CreateCommentThreadRequest = {

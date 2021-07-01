@@ -3,9 +3,15 @@ describe("Name uniqueness test", function() {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
-    cy.CreateAPI("UniqueName");
+    cy.CreateAPI("Uni");
     cy.log("Creation of UniqueName Action successful");
-    cy.CreationOfUniqueAPIcheck("UniqueName");
+  });
+
+  it("Validate Unique Name", () => {
+    cy.CreationOfUniqueAPIcheck("Uni");
+  });
+
+  it("Validate download apiname check", () => {
     cy.CreationOfUniqueAPIcheck("download");
   });
 });

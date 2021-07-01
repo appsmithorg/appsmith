@@ -5,6 +5,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const pages = require("../../../../locators/Pages.json");
 
 const pageid = "MyPage";
 let datasourceName;
@@ -121,7 +122,12 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.runQuery();
 
     cy.deleteQuery();
-
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+    cy.wait(500);
+    cy.NavigateToQueryEditor();
+    cy.get(pages.integrationActiveTab)
+      .should("be.visible")
+      .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName)
       .find(".t--edit-datasource")
       .click();

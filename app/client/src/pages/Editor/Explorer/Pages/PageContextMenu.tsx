@@ -102,6 +102,7 @@ export function PageContextMenu(props: {
       label: "Set as Home Page",
     });
   }
+
   if (!props.isDefaultPage) {
     optionTree.push({
       value: "delete",

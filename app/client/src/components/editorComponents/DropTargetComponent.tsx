@@ -28,10 +28,10 @@ import { AppState } from "reducers";
 import { useSelector } from "react-redux";
 import {
   useShowPropertyPane,
-  useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -250,13 +250,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`
     : "100%";
 
-  const border =
+  const boxShadow =
     (isResizing || isDragging) &&
     isExactlyOver &&
     props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "1px solid #DDDDDD"
-      : "1px solid transparent";
-
+      ? "0px 0px 0px 1px #DDDDDD"
+      : "0px 0px 0px 1px transparent";
   const dropRef = !props.dropDisabled ? drop : undefined;
 
   return (
@@ -269,7 +268,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         ref={dropRef}
         style={{
           height,
-          border,
+          boxShadow,
         }}
       >
         {props.children}

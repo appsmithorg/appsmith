@@ -13,17 +13,18 @@ public class SqlUtils {
 
     /**
      * Example output for COLUMNS_QUERY:
-     * +------------+-----------+-------------+-------------+-------------+----------------+
-     * | TABLE_NAME | COLUMN_ID | COLUMN_NAME | COLUMN_TYPE | IS_NULLABLE | COLUMN_DEFAULT |
-     * +------------+-----------+-------------+-------------+-------------+----------------+
-     * | test       |         1 | id          | int         |           0 |                |
-     * | test       |         2 | firstname   | varchar     |           1 | Foo            |
-     * | test       |         3 | middlename  | varchar     |           1 |                |
-     * | test       |         4 | lastname    | varchar     |           1 |                |
-     * +------------+-----------+-------------+-------------+-------------+----------------+
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+
+     * | TABLE_SCHEMA | TABLE_NAME | COLUMN_ID | COLUMN_NAME | COLUMN_TYPE | IS_NULLABLE | COLUMN_DEFAULT |
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+
+     * | test_schema  | test       |         1 | id          | int         |           0 |                |
+     * | test_schema  | test       |         2 | firstname   | varchar     |           1 | Foo            |
+     * | test_schema  | test       |         3 | middlename  | varchar     |           1 |                |
+     * | test_schema  | test       |         4 | lastname    | varchar     |           1 |                |
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+
      */
     public static final String COLUMNS_QUERY =
             "SELECT " +
+                    "cols.table_schema as table_schema, " +
                     "cols.table_name as table_name, " +
                     "cols.ordinal_position as column_id, " +
                     "cols.column_name as column_name, " +
@@ -139,7 +140,7 @@ public class SqlUtils {
                 setFragments.append("\n    ").append(name).append(" = ").append(value);
             }
 
-            final String tableName = table.getName();
+            final String tableName = table.getSchema() + "." + table.getName();
             table.getTemplates().addAll(List.of(
                     new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", null),
                     new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
@@ -213,11 +214,13 @@ public class SqlUtils {
     }
 
     public static void getTableInfo(ResultSet row, Map<String, DatasourceStructure.Table> tablesByName) throws SQLException {
+        final String tableSchema = row.getString("TABLE_SCHEMA");
         final String tableName = row.getString("TABLE_NAME");
 
         if (!tablesByName.containsKey(tableName)) {
             tablesByName.put(tableName, new DatasourceStructure.Table(
                     DatasourceStructure.TableType.TABLE,
+                    tableSchema,
                     tableName,
                     new ArrayList<>(),
                     new ArrayList<>(),
