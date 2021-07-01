@@ -488,7 +488,11 @@ class CodeEditor extends Component<Props, State> {
             <Button
               className="commands-button"
               onClick={() =>
-                this.updatePropertyValue(this.props.input.value + "/")
+                this.updatePropertyValue(
+                  typeof this.props.input.value === "string"
+                    ? this.props.input.value + "/"
+                    : "/",
+                )
               }
               tag="button"
               text="/"
