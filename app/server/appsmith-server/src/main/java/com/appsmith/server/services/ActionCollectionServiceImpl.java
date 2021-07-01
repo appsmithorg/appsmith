@@ -403,6 +403,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(actionDTO -> {
                     actionDTO.setCollectionId(id);
+                    actionDTO.setArchivedAt(null);
                     if (actionDTO.getId() == null) {
                         // this is a new action, we need to create one
                         return layoutActionService.createAction(actionDTO);
