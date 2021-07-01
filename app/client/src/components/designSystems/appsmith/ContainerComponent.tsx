@@ -19,7 +19,6 @@ const StyledContainerComponent = styled.div<
   ${(props) =>
     props.containerStyle !== "none"
       ? `
-  box-shadow: 0px 0px 0px 1px #E7E7E7;
   border-radius: 0;`
       : ""}
   height: 100%;
@@ -29,7 +28,9 @@ const StyledContainerComponent = styled.div<
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
-    props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+    props.selected
+      ? "0px 0px 0px 3px rgba(59,130,246,0.5)"
+      : "0px 0px 0px 1px #E7E7E7"};
   z-index: ${(props) => (props.focused ? "3" : props.selected ? "2" : "1")};
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 
