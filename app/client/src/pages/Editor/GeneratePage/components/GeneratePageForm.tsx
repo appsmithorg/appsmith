@@ -13,7 +13,10 @@ import {
 } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
-import { getDatasources } from "../../../../selectors/entitiesSelector";
+import {
+  getDatasources,
+  getPlugins,
+} from "../../../../selectors/entitiesSelector";
 import {
   Datasource,
   DatasourceStructure,
@@ -24,12 +27,24 @@ import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector"
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
-import { DATA_SOURCES_EDITOR_URL } from "../../../../constants/routes";
+import {
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "../../../../constants/routes";
 import history from "utils/history";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   MOCK_DATABASES_OPTION_ID,
 } from "./DataSourceOption";
+
+// Temporary hardcoded valid plugins which support generate template
+// pluginId - pluginName
+export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
+  "5c9f512f96c1a50004819786": "PostgreSQL",
+  "5f16c4be93f44d4622f487e2": "Mysql",
+  "5f92f2628c11891d27ff0f1f": "MsSQL",
+  "5ff5af0851d64d5127abc597": "Redshift",
+};
 
 const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
@@ -93,6 +108,7 @@ type DropdownOptions = Array<DropdownOption>;
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
+  const plugins = useSelector(getPlugins);
   const {
     applicationId: currentApplicationId,
     pageId: currentPageId,
@@ -191,22 +207,31 @@ function GeneratePageForm() {
   };
 
   const routeToCreateNewDatasource = () => {
-    history.push(DATA_SOURCES_EDITOR_URL(currentApplicationId, currentPageId));
+    history.push(
+      `${INTEGRATION_EDITOR_URL(
+        currentApplicationId,
+        currentPageId,
+        INTEGRATION_TABS.NEW,
+      )}?previousRoute=generate-page-form`,
+    );
   };
 
   useEffect(() => {
-    const newDataSourceOptions = datasources.map(
-      ({ id, isValid, name, organizationId, pluginId }) => ({
-        id,
-        label: name,
-        value: name,
-        data: {
-          isValid,
-          organizationId,
-          pluginId,
-        },
-      }),
-    );
+    const newDataSourceOptions = [];
+    console.log({ datasources, plugins });
+    datasources.forEach(({ id, isValid, name, organizationId, pluginId }) => {
+      if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
+        newDataSourceOptions.push({
+          id,
+          label: name,
+          value: name,
+          data: {
+            isValid,
+            organizationId,
+            pluginId,
+          },
+        });
+    });
     newDataSourceOptions.unshift(
       {
         id: CONNECT_NEW_DATASOURCE_OPTION_ID,
@@ -249,7 +274,6 @@ function GeneratePageForm() {
         }));
         setDatasourceTableOptions(newTables);
       }
-      console.log({ selectedDatasourceStructure, datasourcesStructure });
     }
   }, [datasourcesStructure, selectedDatasource, setDatasourceTableOptions]);
 
