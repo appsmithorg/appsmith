@@ -74,7 +74,8 @@ import { createActionRequest, runActionInit } from "actions/actionActions";
 import {
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
@@ -595,12 +596,27 @@ function* createApplication() {
 function* createQuery() {
   const currentPageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
+  const currentSubstep = yield select(getCurrentSubStep);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
     const name = get(datasource, "name");
 
     return name === "Super Updates DB";
   });
+
+  // If the user is on substep 2 of the CREATE_QUERY step
+  // just run the query.
+  if (currentSubstep == 2) {
+    yield put({
+      type: "ONBOARDING_RUN_QUERY",
+    });
+
+    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+      step: 1,
+    });
+
+    return;
+  }
 
   if (onboardingDatasource) {
     const payload = {
@@ -619,10 +635,10 @@ function* createQuery() {
 
     yield put(createActionRequest(payload));
     history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.ACTIVE,
       ),
     );
 

@@ -2,6 +2,9 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const pages = require("../../../../locators/Pages.json");
+const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {

@@ -2,7 +2,10 @@ package com.external.plugins.constants;
 
 public class ConfigurationIndex {
     public static final int SMART_BSON_SUBSTITUTION = 0;
-    public static final int INPUT_TYPE = 1;
+
+    @Deprecated
+    public static final int INPUT_TYPE = 1; // Input type is no longer used. Raw type is now a type of command
+
     public static final int COMMAND = 2;
     public static final int COLLECTION = 19;
     public static final int FIND_QUERY = 3;
