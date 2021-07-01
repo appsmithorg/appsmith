@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import AdsButton from "components/ads/Button";
@@ -295,7 +294,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   render = () => {
     return (
       <>
-        <BackButton onClick={history.goBack} />
+        <BackButton />
         <RestApiForm>
           <form
             onSubmit={(e) => {
