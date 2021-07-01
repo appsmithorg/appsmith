@@ -10,6 +10,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
+importScripts("https://unpkg.com/@babel/standalone@7.14.7/babel.min.js");
 
 export type EvalResult = {
   result: any;
@@ -21,15 +22,18 @@ export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
 }
-
 const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
+  [EvaluationScriptType.EXPRESSION]: (script: string) =>
+    `(function(){ return ${script}})()`,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
-    `const userFunction = ${script}
-    return userFunction.apply(self, ARGUMENTS)`,
+    `(function(){
+      const userFunction = ${script}
+      return userFunction.apply(self, ARGUMENTS)
+     })()
+    `,
 };
 
 const getScriptToEval = (
@@ -87,6 +91,12 @@ export default function evaluate(
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
   const script = getScriptToEval(unescapedJS, evalArguments);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const transpiledCode = Babel.transform(script, {
+    presets: ["env"],
+    parserOpts: { strictMode: false },
+  }).code;
 
   return (function() {
     let errors: EvaluationError[] = [];
@@ -142,7 +152,7 @@ export default function evaluate(
       self[func] = undefined;
     });
     try {
-      result = Function(script)();
+      result = eval(transpiledCode);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       triggers = [...self.triggers];
