@@ -79,4 +79,8 @@ public class ApiKeyAuthentication extends APIConnection{
                 .build()
                 .toUri();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 36726c5188d2fd666d4d8c6e57382d7a879d49c1

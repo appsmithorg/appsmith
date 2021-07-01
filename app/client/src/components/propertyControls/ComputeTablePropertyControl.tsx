@@ -14,7 +14,7 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/ActionCreator";
+} from "components/editorComponents/ActionCreator/Fields";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -32,8 +32,6 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
   expected?: string;
   placeholder?: string;
@@ -44,10 +42,8 @@ export function InputText(props: {
   const {
     additionalDynamicData,
     dataTreePath,
-    errorMessage,
     evaluatedValue,
     expected,
-    isValid,
     onChange,
     placeholder,
     theme,
@@ -63,10 +59,6 @@ export function InputText(props: {
         input={{
           value: value,
           onChange: onChange,
-        }}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
@@ -93,11 +85,9 @@ class ComputeTablePropertyControl extends BaseControl<
       dataTreePath,
       defaultValue,
       expected,
-      isValid,
       label,
       propertyValue,
       theme,
-      validationMessage,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
     const value =
@@ -121,9 +111,7 @@ class ComputeTablePropertyControl extends BaseControl<
           currentRow,
         }}
         dataTreePath={dataTreePath}
-        errorMessage={validationMessage}
         expected={expected}
-        isValid={isValid}
         label={label}
         onChange={this.onTextChange}
         theme={theme}

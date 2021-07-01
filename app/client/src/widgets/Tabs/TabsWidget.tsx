@@ -137,7 +137,7 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  static getMetaPropertiesMap() {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedTabWidgetId: undefined,
     };
@@ -210,6 +210,13 @@ class TabsWidget extends BaseWidget<
           topRow: 1,
           newWidgetId,
           widgetId: this.props.widgetId,
+          leftColumn: 0,
+          rightColumn:
+            (this.props.rightColumn - this.props.leftColumn) *
+            this.props.parentColumnSpace,
+          bottomRow:
+            (this.props.bottomRow - this.props.topRow) *
+            this.props.parentRowSpace,
           props: {
             tabId: tab.id,
             tabName: tab.label,

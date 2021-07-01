@@ -33,5 +33,11 @@ public interface ApplicationPageService {
 
     Mono<PageDTO> deleteUnpublishedPage(String id);
 
-    Mono<Boolean> publish(String applicationId);
+    Mono<Application> publish(String applicationId);
+
+    void generateAndSetPagePolicies(Application application, PageDTO page);
+
+    Mono<Void> sendApplicationPublishedEvent(Application application);
+
+    Mono<Application> reorderPage(String applicationId, String pageId, Integer order);
 }

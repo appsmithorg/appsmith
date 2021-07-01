@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/formdsl.json");
 const pages = require("../../../../locators/Pages.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Form Widget Functionality", function() {
   before(() => {
@@ -23,10 +24,13 @@ describe("Form Widget Functionality", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.testCodeMirror(this.data.colour);
+    cy.get(widgetsPage.backgroundcolorPicker)
+      .first()
+      .click({ force: true });
+    cy.xpath(widgetsPage.greenColor).click();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", this.data.rgbValue);
+      .and("eq", "rgb(3, 179, 101)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
@@ -40,7 +44,7 @@ describe("Form Widget Functionality", function() {
   it("Form Widget Functionality To Verify The Colour", function() {
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", this.data.rgbValue);
+      .and("eq", "rgb(3, 179, 101)");
   });
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();

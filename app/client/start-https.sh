@@ -87,14 +87,6 @@ case "${uname_out}" in
         "
     ;;
     Darwin*)    machine=Mac
-        # workaround for apple silicon until host.docker.interal works as expected
-        if [[ "$(uname -m)" = "arm64" ]]; then
-            # if no server was passed
-            if [[ -z $1 ]]; then
-                server_proxy_pass="http://"$(ipconfig getifaddr en0)":8080"
-            fi
-            client_proxy_pass="http://"$(ipconfig getifaddr en0)":3000"
-        fi
         echo "
     Starting nginx for MacOS...
         "

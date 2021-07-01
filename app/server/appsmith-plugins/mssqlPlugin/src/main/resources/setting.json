@@ -17,7 +17,7 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "[Beta] Use Prepared Statement",
+          "label": "Use Prepared Statement",
           "info": "Turning on Prepared Statement makes the query parametrized. This in turn makes it resilient against SQL injections",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",

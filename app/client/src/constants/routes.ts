@@ -81,6 +81,36 @@ export const QUERIES_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
 
+export const INTEGRATION_TABS = {
+  ACTIVE: "ACTIVE",
+  NEW: "NEW",
+};
+
+export const INTEGRATION_EDITOR_MODES = {
+  AUTO: "auto",
+  MOCK: "mock",
+};
+export const INTEGRATION_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  selectedTab = ":selectedTab",
+  mode = "",
+): string =>
+  `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations/${selectedTab}${
+    mode ? "?mode=" + mode : ""
+  }`;
+
+export const INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  selectedPageId = ":importTo",
+): string => {
+  return `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}/integrations?importTo=${selectedPageId}`;
+};
+
 export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -175,6 +205,7 @@ export const BASE_SIGNUP_URL = `/signup`;
 export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
 export const BASE_LOGIN_URL = `/login`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
+export const SIGNUP_SUCCESS_URL = `/signup-success`;
 
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
@@ -183,3 +214,4 @@ export const matchApiPath = match(API_EDITOR_ID_URL());
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
 export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
 export const matchBuilderPath = match(BUILDER_URL);
+export const matchViewerPath = match(getApplicationViewerPageURL());

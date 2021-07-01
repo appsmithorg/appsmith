@@ -13,7 +13,7 @@ import {
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import { getViewModePageList } from "selectors/editorSelectors";
@@ -34,6 +34,7 @@ import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
+import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -138,6 +139,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
 
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
   function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
     return (
@@ -166,9 +171,14 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
-            </PrimaryLogoLink>
+            <div style={{ flex: 1 }}>
+              <PrimaryLogoLink to={APPLICATIONS_URL}>
+                <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+              </PrimaryLogoLink>
+            </div>
+            <div style={{ flex: 1 }}>
+              <ToggleCommentModeButton />
+            </div>
           </HeaderSection>
           <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
@@ -176,13 +186,13 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             )}
           </HeaderSection>
           <HeaderSection justify={"flex-end"}>
-            <ToggleCommentModeButton />
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
                   Form={AppInviteUsersForm}
                   applicationId={currentApplicationDetails.id}
                   canOutsideClickClose
+                  isOpen={showAppInviteUsersDialog}
                   orgId={currentOrgId}
                   title={currentApplicationDetails.name}
                   trigger={

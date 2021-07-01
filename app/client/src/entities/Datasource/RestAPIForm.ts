@@ -45,6 +45,8 @@ export interface Oauth2Common {
   headerPrefix: string;
   scopeString: string;
   isTokenHeader: boolean;
+  audience: string;
+  resource: string;
 }
 
 export interface ClientCredentials extends Oauth2Common {

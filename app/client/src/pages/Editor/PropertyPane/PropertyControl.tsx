@@ -22,6 +22,7 @@ import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
@@ -38,6 +39,7 @@ import {
   useChildWidgetEnhancementFns,
   useParentWithEnhancementFn,
 } from "sagas/WidgetEnhancementHelpers";
+import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -51,12 +53,13 @@ const PropertyControl = memo((props: Props) => {
     widgetProperties.widgetId,
   );
 
-  /** get all child enhancments functions */
+  /** get all child enhancements functions */
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
+    propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
@@ -188,6 +191,9 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            // TODO: Check whether these properties have
+            // dependent properties
+            propertyPath: propertiesToUpdate[0].propertyPath,
           },
           state: allUpdates,
         });
@@ -208,6 +214,7 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            propertyPath: propertyName,
           },
           state: {
             [propertyName]: propertyValue,
@@ -242,41 +249,25 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const getPropertyValidation = (
-    propertyName: string,
-  ): { isValid: boolean; validationMessage?: string } => {
-    let isValid = true;
-    let validationMessage = "";
-    if (widgetProperties) {
-      isValid = widgetProperties.invalidProps
-        ? !_.has(widgetProperties.invalidProps, propertyName)
-        : true;
-      const validationMsgPresent =
-        widgetProperties.validationMessages &&
-        _.has(widgetProperties.validationMessages, propertyName);
-      validationMessage = validationMsgPresent
-        ? _.get(widgetProperties.validationMessages, propertyName)
-        : "";
-    }
-    return { isValid, validationMessage };
-  };
-
   const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
-    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    // get the dataTreePath and apply enhancement if exists
+    let dataTreePath: string =
+      props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
+    if (childWidgetDataTreePathEnhancementFn) {
+      dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
+    }
+
     const evaluatedValue = _.get(
       widgetProperties,
-      `evaluatedValues.${propertyName}`,
+      getEvalValuePath(dataTreePath, false),
     );
 
-    const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
-    const config = {
+    const config: ControlData = {
       ...rest,
-      isValid,
       propertyValue,
-      validationMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
@@ -288,7 +279,6 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;

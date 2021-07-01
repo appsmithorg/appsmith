@@ -231,7 +231,6 @@ export const entityDefinitions = {
     isVisible: isVisible,
     files: "[file]",
     isDisabled: "bool",
-    uploadedFileUrls: "string",
   },
   LIST_WIDGET: (widget: any) => ({
     "!doc":
@@ -244,7 +243,16 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
+    items: generateTypeDef(widget.items),
+    listData: generateTypeDef(widget.listData),
   }),
+  IFRAME_WIDGET: {
+    "!doc": "Iframe widget is used to display iframes in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/iframe",
+    isVisible: isVisible,
+    source: "string",
+    title: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

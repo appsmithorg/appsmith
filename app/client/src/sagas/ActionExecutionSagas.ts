@@ -37,9 +37,15 @@ import _, { get, isString } from "lodash";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   BUILDER_PAGE_URL,
   convertToQueryParams,
   getApplicationViewerPageURL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
 } from "constants/routes";
 import {
   executeApiActionRequest,
@@ -109,6 +115,7 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { matchPath } from "react-router";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -528,7 +535,7 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        message: payload.body as string,
+        messages: [{ message: payload.body as string }],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -704,6 +711,42 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   }
 }
 
+function* runActionShortcutSaga() {
+  const location = window.location.pathname;
+  const match: any = matchPath(location, {
+    path: [
+      API_EDITOR_URL(),
+      API_EDITOR_ID_URL(),
+      QUERIES_EDITOR_URL(),
+      QUERIES_EDITOR_ID_URL(),
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+      INTEGRATION_EDITOR_URL(),
+    ],
+    exact: true,
+    strict: false,
+  });
+  if (!match || !match.params) return;
+  const { apiId, pageId, queryId } = match.params;
+  const actionId = apiId || queryId;
+  if (!actionId) return;
+  const trackerId = apiId
+    ? PerformanceTransactionName.RUN_API_SHORTCUT
+    : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
+  PerformanceTracker.startTracking(trackerId, {
+    actionId,
+    pageId,
+  });
+  AnalyticsUtil.logEvent(trackerId as EventName, {
+    actionId,
+  });
+  yield put({
+    type: ReduxActionTypes.RUN_ACTION_INIT,
+    payload: {
+      id: actionId,
+    },
+  });
+}
+
 function* runActionInitSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -831,9 +874,13 @@ function* runActionSaga(
             name: actionObject.name,
             id: actionId,
           },
-          message: !isString(payload.body)
-            ? JSON.stringify(payload.body)
-            : payload.body,
+          messages: [
+            {
+              message: !isString(payload.body)
+                ? JSON.stringify(payload.body)
+                : payload.body,
+            },
+          ],
           state: response.data?.request ?? null,
         });
 
@@ -933,6 +980,18 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
+      AppsmithConsole.error({
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${response.data.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: pageAction.name,
+          id: pageAction.id,
+        },
+        state: response.data?.request ?? null,
+        messages: [{ message: JSON.stringify(body) }],
+      });
+
       yield put(
         executeActionError({
           actionId: pageAction.id,
@@ -1017,6 +1076,10 @@ export function* watchActionExecutionSagas() {
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
     takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionInitSaga),
+    takeLatest(
+      ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
+      runActionShortcutSaga,
+    ),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

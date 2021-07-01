@@ -8,6 +8,7 @@ import CommentsOnboardingStep1 from "assets/images/comments-onboarding/step-1.pn
 import CommentsOnboardingStep2 from "assets/images/comments-onboarding/step-2.png";
 import CommentsOnboardingStep3 from "assets/images/comments-onboarding/step-3.png";
 import CommentsOnboardingStep4 from "assets/images/comments-onboarding/step-4.png";
+import CommentsOnboardingStep5 from "assets/images/comments-onboarding/step-5.png";
 
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -25,22 +26,47 @@ import { setCommentsIntroSeen } from "utils/storage";
 
 import { updateUserDetails } from "actions/userActions";
 
-const title1 = "Introducing Live Comments";
-const title2 = "Give feedback";
-const title3 = "Invite other people to your conversations";
-const title4 = "You are all set!";
-
-const content1 =
-  "We are introducing live comments. From now on you will be able to comment on your apps, tag other people and exchange thoughts in threads. Click ‘Next’ to learn more about comments and start commenting.";
-const content2 =
-  "Comment on your co-worker’s work and share your thoughts on what works and what needs change.";
-const content3 =
-  "When leaving a comment you can tag oter people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.";
-const content4 =
-  "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.";
+const introSteps = [
+  {
+    title: "Introducing Live Comments",
+    content:
+      "We are introducing live comments. From now on you will be able to comment on your apps, tag other people and exchange thoughts in threads. Click ‘Next’ to learn more about comments and start commenting.",
+    banner: CommentsOnboardingStep1,
+    hideBackBtn: true,
+  },
+  {
+    title: "Give feedback",
+    content:
+      "Comment on your co-worker’s work and share your thoughts on what works and what needs change.",
+    banner: CommentsOnboardingStep2,
+  },
+  {
+    title: "Invite other people to your conversations",
+    content:
+      "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
+    banner: CommentsOnboardingStep3,
+  },
+  {
+    title: "Tag a comment to a widget",
+    content:
+      "If you click on a component while in a comment mode you will tag that comment to that widget. This way if the widget is moved the comment will be moved as well. You can disconnect the comment and widget y simply moving the the comment away from the widget.",
+    banner: CommentsOnboardingStep4,
+  },
+  {
+    title: "You are all set!",
+    content:
+      "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.",
+    banner: CommentsOnboardingStep5,
+  },
+];
 
 const IntroContentContainer = styled.div`
   padding: ${(props) => props.theme.spaces[5]}px;
+`;
+
+const StyledImg = styled.img`
+  width: 100%;
+  object-fit: contain;
 `;
 
 function IntroStep(props: {
@@ -51,7 +77,7 @@ function IntroStep(props: {
 }) {
   return (
     <>
-      <img alt="" src={props.banner} />
+      <StyledImg alt="" src={props.banner} />
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text
@@ -83,31 +109,10 @@ const getSteps = (
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
 ) => [
-  {
+  ...introSteps.slice(0, 4).map((stepConfig: any) => ({
+    props: stepConfig,
     component: IntroStepThemed,
-    props: {
-      title: title1,
-      content: content1,
-      banner: CommentsOnboardingStep1,
-      hideBackBtn: true,
-    },
-  },
-  {
-    component: IntroStepThemed,
-    props: {
-      title: title2,
-      content: content2,
-      banner: CommentsOnboardingStep2,
-    },
-  },
-  {
-    component: IntroStepThemed,
-    props: {
-      title: title3,
-      content: content3,
-      banner: CommentsOnboardingStep3,
-    },
-  },
+  })),
   {
     component: ProfileForm,
     props: {
@@ -120,9 +125,7 @@ const getSteps = (
   {
     component: IntroStepThemed,
     props: {
-      title: title4,
-      content: content4,
-      banner: CommentsOnboardingStep4,
+      ...introSteps[4],
       hideBackBtn: true,
       nextBtnText: "Start Tutorial",
       onSubmit: startTutorial,

@@ -1,5 +1,5 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { get } from "lodash";
+import { get, uniqBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
 const handleAddCommentToThreadSuccess = (
@@ -11,7 +11,7 @@ const handleAddCommentToThreadSuccess = (
   const existingComments = get(commentThreadInStore, "comments", []);
   state.commentThreadsMap[commentThreadId] = {
     ...commentThreadInStore,
-    comments: Array.from(new Set([...existingComments, comment])),
+    comments: uniqBy([...existingComments, comment], "id"),
   };
 
   return { ...state };

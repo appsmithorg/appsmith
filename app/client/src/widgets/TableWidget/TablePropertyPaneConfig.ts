@@ -3,6 +3,7 @@ import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -144,6 +145,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.TABLE_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         helpText: "Columns",
@@ -198,6 +200,24 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "displayText",
+                  label: "Display Text",
+                  controlType: "COMPUTE_VALUE",
+                  customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "url";
+                  },
                   isBindProperty: false,
                   isTriggerProperty: false,
                 },
@@ -304,6 +324,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
@@ -407,6 +428,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
@@ -716,6 +738,51 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the compact mode",
+        propertyName: "isVisibleCompactMode",
+        label: "Compact Mode",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },

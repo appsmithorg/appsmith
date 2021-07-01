@@ -35,7 +35,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
@@ -45,7 +45,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: undefined,
         },
@@ -126,7 +126,7 @@ describe("Chart Custom Config validator", () => {
     const cases = [
       {
         input: {
-          type: "area2d",
+          type: "area",
           dataSource: {
             chart: {
               caption: "Countries With Most Oil Reserves [2017-18]",
@@ -175,7 +175,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: true,
           parsed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -222,7 +222,7 @@ describe("Chart Custom Config validator", () => {
           },
 
           transformed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -310,83 +310,14 @@ describe("Chart Custom Config validator", () => {
           },
         },
         output: {
-          isValid: true,
+          isValid: false,
+          message:
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
-            type: "area2d",
+            type: "",
             dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
-            },
-          },
-          transformed: {
-            type: "area2d",
-            dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
+              chart: {},
+              data: [],
             },
           },
         },
@@ -516,8 +447,7 @@ describe("List data validator", () => {
         input: "sting text",
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: "sting text",
         },
@@ -526,8 +456,7 @@ describe("List data validator", () => {
         input: undefined,
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: undefined,
         },
@@ -536,8 +465,7 @@ describe("List data validator", () => {
         input: {},
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: {},
         },

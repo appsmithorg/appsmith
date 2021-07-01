@@ -30,4 +30,7 @@ data:
   APPSMITH_REDIS_URL: redis://redis-service:6379
   APPSMITH_MONGODB_URI: $mongo_protocol$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_db?retryWrites=true&authSource=admin
   APPSMITH_DISABLE_TELEMETRY: "$disable_telemetry"
+  APPSMITH_RECAPTCHA_SITE_KEY= ""
+  APPSMITH_RECAPTCHA_SECRET_KEY= ""
+  APPSMITH_RECAPTCHA_ENABLED= "false"
 EOF

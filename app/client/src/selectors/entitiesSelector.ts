@@ -5,7 +5,7 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -18,6 +18,10 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
+};
+
+export const getMockDatasources = (state: AppState): MockDatasource[] => {
+  return state.entities.datasources.mockDatasourceList;
 };
 
 export const getPluginIdsOfNames = (
@@ -299,7 +303,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
-
+export const getCurrentPageWidgets = createSelector(
+  getPageWidgets,
+  getCurrentPageId,
+  (widgetsByPage, currentPageId) =>
+    currentPageId ? widgetsByPage[currentPageId] : {},
+);
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {

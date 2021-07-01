@@ -30,11 +30,15 @@ export const fetchPageList = (
   };
 };
 
-export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
+export const fetchPage = (
+  pageId: string,
+  isFirstLoad = false,
+): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
+      isFirstLoad,
     },
   };
 };
@@ -47,9 +51,13 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (): ReduxActionWithoutPayload => {
+export const fetchPageSuccess = (
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
+    postEvalActions,
+    payload: undefined,
   };
 };
 
@@ -104,9 +112,10 @@ export const updateAndSaveLayout = (
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 
