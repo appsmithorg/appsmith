@@ -16,6 +16,7 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
         console.log("handle close");
       }}
       overlayClassName="comments-onboarding-carousel"
+      portalClassName="comments-onboarding-carousel-portal"
       scrollContents
       width={325}
       zIndex={Layers.appComments}
