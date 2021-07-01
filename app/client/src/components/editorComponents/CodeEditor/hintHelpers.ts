@@ -4,7 +4,14 @@ import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-export const bindingHint: HintHelper = (editor) => {
+import { customTreeTypeDefCreator } from "../../../utils/autocomplete/customTreeTypeDefCreator";
+
+export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
+  if (additionalData) {
+    const customTreeDef = customTreeTypeDefCreator(additionalData);
+    TernServer.updateDef("customDataTree", customTreeDef);
+  }
+
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available

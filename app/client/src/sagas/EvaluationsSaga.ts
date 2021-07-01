@@ -296,8 +296,8 @@ function* updateTernDefinitions(
   updatedEntities.forEach((entityName) => {
     const entity = dataTree[entityName];
     if (entity) {
-      const entityDef = dataTreeTypeDefCreator(entity, entityName);
-      TernServer.updateDef(entityName, entityDef);
+      const { def, name } = dataTreeTypeDefCreator(entity, entityName);
+      TernServer.updateDef(name, def);
     }
   });
   removedPaths.forEach((path) => {

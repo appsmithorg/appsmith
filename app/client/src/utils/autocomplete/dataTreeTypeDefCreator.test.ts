@@ -38,7 +38,7 @@ describe("dataTreeTypeDefCreator", () => {
       validationPaths: {},
       logBlackList: {},
     };
-    const def = dataTreeTypeDefCreator(dataTreeEntity, "Input1");
+    const { def } = dataTreeTypeDefCreator(dataTreeEntity, "Input1");
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format

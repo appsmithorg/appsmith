@@ -116,16 +116,13 @@ class TernServer {
   }
 
   updateDef(name: string, def: Def) {
-    const dataTreeName = `DATA_TREE_${name}`;
-    def["!name"] = dataTreeName;
-    this.server.deleteDefs(dataTreeName);
+    this.server.deleteDefs(name);
     // @ts-ignore: No types available
     this.server.addDefs(def, true);
   }
 
   removeDef(name: string) {
-    const dataTreeName = `DATA_TREE_${name}`;
-    this.server.deleteDefs(dataTreeName);
+    this.server.deleteDefs(name);
   }
 
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
@@ -239,7 +236,6 @@ class TernServer {
   }
 
   sortCompletions(completions: Completion[]) {
-    debugger;
     // Add data tree completions before others
     const expectedDataType = this.getExpectedDataType();
     const dataTreeCompletions = completions

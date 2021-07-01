@@ -10,10 +10,11 @@ const skipProperties = ["!doc", "!url", "!type"];
 
 export const dataTreeTypeDefCreator = (
   entity: DataTreeEntity,
-  name: string,
-): Def => {
+  entityName: string,
+): { def: Def; name: string } => {
+  const defName = `DATA_TREE_${entityName}`;
   const def: any = {
-    "!name": name,
+    "!name": defName,
   };
   if (entity && "ENTITY_TYPE" in entity) {
     if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
@@ -22,14 +23,14 @@ export const dataTreeTypeDefCreator = (
         const definition = _.get(entityDefinitions, widgetType);
         if (_.isFunction(definition)) {
           const data = definition(entity);
-          const allData = flattenObjKeys(data, name);
+          const allData = flattenObjKeys(data, entityName);
           for (const [key, value] of Object.entries(allData)) {
             def[key] = value;
           }
-          def[name] = definition(entity);
+          def[entityName] = definition(entity);
         } else {
-          def[name] = definition;
-          const allFlattenData = flattenObjKeys(definition, name);
+          def[entityName] = definition;
+          const allFlattenData = flattenObjKeys(definition, entityName);
           for (const [key, value] of Object.entries(allFlattenData)) {
             def[key] = value;
           }
@@ -38,8 +39,8 @@ export const dataTreeTypeDefCreator = (
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       const actionDefs = entityDefinitions.ACTION(entity);
-      def[name] = actionDefs;
-      const finalData = flattenObjKeys(actionDefs, name);
+      def[entityName] = actionDefs;
+      const finalData = flattenObjKeys(actionDefs, entityName);
       for (const [key, value] of Object.entries(finalData)) {
         def[key] = value;
       }
@@ -51,7 +52,7 @@ export const dataTreeTypeDefCreator = (
   }
   def["!define"] = { ...extraDefs };
   extraDefs = {};
-  return def;
+  return { def, name: defName };
 };
 
 export function generateTypeDef(
