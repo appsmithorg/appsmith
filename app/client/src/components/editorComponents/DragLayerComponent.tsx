@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, RefObject, useRef } from "react";
+import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
-import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
+import { noCollision } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { DropTargetContext } from "./DropTargetComponent";
 const GRID_POINT_SIZE = 1;
 const WrappedDragLayer = styled.div<{
   columnWidth: number;
@@ -58,7 +57,7 @@ type DragLayerProps = {
 };
 
 function DragLayerComponent(props: DragLayerProps) {
-  const { updateDropTargetRows } = useContext(DropTargetContext);
+  // const { updateDropTargetRows } = useContext(DropTargetContext);
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   // useEffect(() => {
   //   const el = dropZoneRef.current;
@@ -76,7 +75,7 @@ function DragLayerComponent(props: DragLayerProps) {
     x: 0,
     y: 0,
   });
-  const { currentOffset, isDragging, widget } = useDragLayer((monitor) => ({
+  const { isDragging } = useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
     currentOffset: monitor.getSourceClientOffset(),
     widget: monitor.getItem(),
@@ -92,21 +91,21 @@ function DragLayerComponent(props: DragLayerProps) {
     ),
   }));
 
-  if (
-    currentOffset &&
-    props.isOver &&
-    props.canDropTargetExtend &&
-    isDragging
-  ) {
-    const row = currentDropRow(
-      props.parentRowHeight,
-      dropTargetOffset.current.y,
-      currentOffset.y,
-      widget,
-    );
+  // if (
+  //   currentOffset &&
+  //   props.isOver &&
+  //   props.canDropTargetExtend &&
+  //   isDragging
+  // ) {
+  //   const row = currentDropRow(
+  //     props.parentRowHeight,
+  //     dropTargetOffset.current.y,
+  //     currentOffset.y,
+  //     widget,
+  //   );
 
-    updateDropTargetRows && updateDropTargetRows(widget.widgetId, row);
-  }
+  //   updateDropTargetRows && updateDropTargetRows(widget.widgetId, row);
+  // }
 
   // let widgetWidth = 0;
   // let widgetHeight = 0;
@@ -116,19 +115,19 @@ function DragLayerComponent(props: DragLayerProps) {
   //     : widget.rightColumn - widget.leftColumn;
   //   widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
   // }
-  useEffect(() => {
-    const el = dropTargetMask.current;
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      if (
-        rect.x !== dropTargetOffset.current.x ||
-        rect.y !== dropTargetOffset.current.y
-      ) {
-        dropTargetOffset.current = { x: rect.x, y: rect.y };
-        props.onBoundsUpdate && props.onBoundsUpdate(rect);
-      }
-    }
-  });
+  // useEffect(() => {
+  //   const el = dropTargetMask.current;
+  //   if (el) {
+  //     const rect = el.getBoundingClientRect();
+  //     if (
+  //       rect.x !== dropTargetOffset.current.x ||
+  //       rect.y !== dropTargetOffset.current.y
+  //     ) {
+  //       dropTargetOffset.current = { x: rect.x, y: rect.y };
+  //       props.onBoundsUpdate && props.onBoundsUpdate(rect);
+  //     }
+  //   }
+  // });
 
   if (
     (!isDragging || !props.visible || !props.isOver) &&

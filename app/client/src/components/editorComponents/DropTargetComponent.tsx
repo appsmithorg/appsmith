@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   Context,
   createContext,
-  useEffect,
   memo,
   useRef,
 } from "react";
@@ -108,10 +107,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
-  useEffect(() => {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    setRows(snapRows);
-  }, [props.bottomRow, props.canExtend]);
+  // useEffect(() => {
+  //   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+  //   setRows(snapRows);
+  // }, [props.bottomRow, props.canExtend]);
 
   const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
     const newRows = calculateDropTargetRows(
@@ -139,8 +138,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,
       );
+      console.log(rows, newRows);
+
       if (rows < newRows) {
-        setRows(newRows);
+        setRows(newRows + 1);
         return newRows;
       }
       return false;
