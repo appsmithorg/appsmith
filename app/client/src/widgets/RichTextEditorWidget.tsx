@@ -125,18 +125,7 @@ class RichTextEditorWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{this.text}}`,
-      isValid: `{{
-        (()=>{
-          if (this.isRequired) {
-            if(this.text && this.text.length) {
-              return true;              
-            } else {
-              return false;
-            }
-          } 
-          return true;
-        })()
-      }}`,
+      isValid: `{{ this.isRequired ? this.text && this.text.length : true }}`,
     };
   }
 
