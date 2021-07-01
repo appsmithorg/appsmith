@@ -24,7 +24,6 @@ export type Authentication =
   | Basic
   | ApiKey
   | BearerToken;
-
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;

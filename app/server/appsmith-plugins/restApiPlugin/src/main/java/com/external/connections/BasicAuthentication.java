@@ -20,9 +20,7 @@ import static com.appsmith.external.constants.Authentication.BASIC_HEADER_PREFIX
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicAuthentication extends APIConnection {
-
     private String encodedAuthorizationHeader;
-    final private static String HEADER_PREFIX = "Basic ";
 
     public static Mono<BasicAuthentication> create(BasicAuth basicAuth) {
         final BasicAuthentication basicAuthentication = new BasicAuthentication();

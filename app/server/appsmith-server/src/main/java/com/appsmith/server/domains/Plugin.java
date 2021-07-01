@@ -1,5 +1,7 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,16 +21,18 @@ import java.util.Map;
 @Document
 public class Plugin extends BaseDomain {
 
-    public enum ResponseType {
-        TABLE,
-        JSON,
-    }
-
     String name;
 
     PluginType type;
 
+    // This reference determines the pf4j module to be used for plugin execution, etc
     String packageName;
+
+    // The plugin name is a unique identifier for each type of integration as seen by the user
+    String pluginName;
+
+    // Each plugin may have configurations that
+    String pluginSpecificationId;
 
     String jarLocation;
 
@@ -36,7 +40,7 @@ public class Plugin extends BaseDomain {
 
     String documentationLink;
 
-    ResponseType responseType;
+    DisplayDataType responseType;
 
     List<PluginParameterType> datasourceParams;
 
@@ -67,4 +71,18 @@ public class Plugin extends BaseDomain {
     @Transient
     Map<String, String> templates;
 
+    // Entry: <MethodName, TemplateId>
+    private Map<String, String> actionTemplateIds;
+
+    // A particular plugin can be capable of supporting multiple authentication mechanisms
+    // For each of the mechanisms, we store the datasource form template separately
+    private Map<Class<? extends AuthenticationDTO>, String> datasourceTemplateIds;
+
+    // Plugins can be divided into categories depending on their business use case
+    // A single plugin can belong to multiple categories
+    List<String> categories;
+
+    // credentialSteps - should be covered by authenticationDTO
+    // documentation - one liner separate from appsmith documentation?
+    // statistics - as an enhancement
 }

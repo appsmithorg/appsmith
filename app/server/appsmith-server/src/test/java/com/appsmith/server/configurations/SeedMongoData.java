@@ -142,6 +142,7 @@ public class SeedMongoData {
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
                 {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
+                {"Installed SAAS Plugin Name", PluginType.SAAS, "installed-saas-plugin"},
                 {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 

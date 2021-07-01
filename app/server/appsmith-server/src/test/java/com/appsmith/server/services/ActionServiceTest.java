@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -8,7 +9,6 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -18,6 +18,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionTemplate;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -34,8 +35,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ActionTemplateRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -99,6 +103,9 @@ public class ActionServiceTest {
 
     @Autowired
     PluginRepository pluginRepository;
+
+    @Autowired
+    ActionTemplateRepository actionTemplateRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -883,6 +890,57 @@ public class ActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void executeSaaSActionWithExternalDatasource() throws JsonProcessingException {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Default SaaS datasource");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installedSaasPlugin = pluginRepository.findByPackageName("installed-saas-plugin").block();
+        externalDatasource.setPluginId(installedSaasPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionWithExternalDatasource");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+        ActionTemplate actionTemplate = new ActionTemplate();
+        actionTemplate.setPluginId(installedSaasPlugin.getId());
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readTree("{\"test\":\"heading\"}");
+        actionTemplate.setResponseTransformationSpec(objectMapper.convertValue(jsonNode, Map.class));
+        final ActionTemplate actionTemplate1 = actionTemplateRepository.insert(actionTemplate).block();
+        assert actionTemplate1 != null;
+        action.setTemplateId(actionTemplate1.getId());
+
+        Mono<ActionExecutionResult> resultMono = layoutActionService.createAction(action)
+                .flatMap(savedAction -> {
+                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+                    executeActionDTO.setActionId(savedAction.getId());
+                    executeActionDTO.setViewMode(false);
+                    return newActionService.executeAction(executeActionDTO);
+                });
+
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getStatusCode()).isEqualTo("200");
+                    assertThat(((Map) result.getBody()).get("heading")).isEqualTo("value");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateShouldNotResetUserSetOnLoad() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1162,6 +1220,60 @@ public class ActionServiceTest {
                             .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between" +
                                     " 0 and 60000"))
                     ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateAction_saasActionWithRequestMapping_CreatesTransformedAction() throws JsonProcessingException {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin installedSaasPlugin = pluginRepository.findByPackageName("installed-saas-plugin").block();
+        ActionTemplate actionTemplate = new ActionTemplate();
+        assert installedSaasPlugin != null;
+        actionTemplate.setPluginId(installedSaasPlugin.getId());
+        final ActionConfiguration defaultActionConfiguration = new ActionConfiguration();
+        defaultActionConfiguration.setHeaders(List.of(new Property("defaultHeader", "defaultHeaderValue")));
+        actionTemplate.setDefaultActionConfiguration(defaultActionConfiguration);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readTree("{\"test\":\"heading\"}");
+        actionTemplate.setRequestTransformationSpec(objectMapper.convertValue(jsonNode, Map.class));
+        final ActionTemplate actionTemplate1 = actionTemplateRepository.insert(actionTemplate).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validSaaSAction");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(new Property("additionalHeader", "additionalHeaderValue")));
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setTimeoutInMillisecond("100");
+        actionConfiguration.setBody("{\"test\":\"value\"}");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+        assert actionTemplate1 != null;
+        action.setTemplateId(actionTemplate1.getId());
+
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action);
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction).isNotNull();
+                    assertThat(createdAction
+                            .getCombinedActionConfiguration()
+                            .getBody()
+                            .contains("heading")
+                    ).isTrue();
+                    assertThat(createdAction
+                            .getCombinedActionConfiguration()
+                            .getHeaders()
+                            .containsAll(List.of(
+                                    new Property("defaultHeader", "defaultHeaderValue"),
+                                    new Property("additionalHeader", "additionalHeaderValue")))
+                    ).isTrue();
+                    assertThat(createdAction.getTemplateId()).isEqualTo(actionTemplate1.getId());
                 })
                 .verifyComplete();
     }

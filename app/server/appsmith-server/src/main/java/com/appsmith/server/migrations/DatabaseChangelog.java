@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
@@ -520,7 +521,7 @@ public class DatabaseChangelog {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Postgress.png");
                 plugin.setDocumentationLink("https://www.postgresql.org/docs/12/index.html");
-                plugin.setResponseType(Plugin.ResponseType.TABLE);
+                plugin.setResponseType(DisplayDataType.TABLE);
 
             } else if ("restapi-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/RestAPI.png");
@@ -528,7 +529,7 @@ public class DatabaseChangelog {
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MongoDB.png");
                 plugin.setDocumentationLink("https://docs.mongodb.com/manual/reference/command/nav-crud/");
-                plugin.setResponseType(Plugin.ResponseType.JSON);
+                plugin.setResponseType(DisplayDataType.JSON);
 
             } else {
                 continue;
@@ -593,7 +594,7 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("mysql-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setResponseType(DisplayDataType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.jpg");
         plugin1.setDefaultInstall(true);
         try {
@@ -1001,7 +1002,7 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("elasticsearch-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setResponseType(DisplayDataType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
         plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
@@ -1021,7 +1022,7 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("dynamo-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setResponseType(DisplayDataType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
         plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
         plugin1.setDefaultInstall(true);
@@ -1051,7 +1052,7 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("redis-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setResponseType(DisplayDataType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
         plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
         plugin1.setDefaultInstall(true);
@@ -1071,7 +1072,7 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("mssql-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setResponseType(DisplayDataType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
         plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
         plugin1.setDefaultInstall(true);
@@ -1279,7 +1280,7 @@ public class DatabaseChangelog {
         plugin.setType(PluginType.DB);
         plugin.setPackageName("firestore-plugin");
         plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setResponseType(DisplayDataType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
         plugin.setDefaultInstall(true);
@@ -1566,7 +1567,7 @@ public class DatabaseChangelog {
         plugin.setType(PluginType.DB);
         plugin.setPackageName("redshift-plugin");
         plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setResponseType(DisplayDataType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
         plugin.setDefaultInstall(true);
@@ -1630,7 +1631,7 @@ public class DatabaseChangelog {
         plugin.setType(PluginType.DB);
         plugin.setPackageName("amazons3-plugin");
         plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setResponseType(DisplayDataType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
         plugin.setDefaultInstall(true);
@@ -2099,7 +2100,7 @@ public class DatabaseChangelog {
         plugin.setPackageName("google-sheets-plugin");
         plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setResponseType(DisplayDataType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
         plugin.setDefaultInstall(true);
