@@ -2640,8 +2640,8 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://img.favpng.com/24/1/23/arangodb-database-nosql-node-js-javascript-png-favpng-dtrzKHitb2M3LbsUJD5nBLy87.jpg");
-        plugin.setDocumentationLink("TBD");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ArangoDB.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-arango-db");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
