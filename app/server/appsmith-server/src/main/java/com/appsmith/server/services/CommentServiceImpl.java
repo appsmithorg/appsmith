@@ -196,13 +196,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // 3. Pull the comment out of the list of comments, set it's `threadId` and save it separately.
         // 4. Populate the new comment's ID into the CommentThread object sent as response.
         final String applicationId = commentThread.getApplicationId();
-        CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
-        initState.setActive(false);
-        initState.setAuthorName("");
-        initState.setAuthorUsername("");
-
-        commentThread.setPinnedState(initState);
-        commentThread.setResolvedState(initState);
 
         return sequenceService
                 .getNext(CommentThread.class, applicationId)
@@ -219,6 +212,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final Application application = tuple.getT2();
+                    CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
+                    initState.setActive(false);
+                    initState.setAuthorName("");
+                    initState.setAuthorUsername("");
+
+                    commentThread.setPinnedState(initState);
+                    commentThread.setResolvedState(initState);
                     commentThread.setApplicationName(application.getName());
                     commentThread.setAuthorName(user.getName());
                     commentThread.setAuthorUsername(user.getUsername());
@@ -234,10 +234,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ).get(AclPermission.MANAGE_THREAD.getValue()));
 
                     commentThread.setPolicies(policies);
-
-                    Set<String> viewedUser = new HashSet<>();
-                    viewedUser.add(user.getUsername());
-                    commentThread.setViewedByUsers(viewedUser);
+                    commentThread.setViewedByUsers(Set.of(user.getUsername()));
                     return threadRepository.save(commentThread);
                 })
                 .flatMapMany(thread -> {
@@ -252,16 +249,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             isFirst = false;
                         }
                     }
-
                     // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
                     // value is meaningful.
                     return Flux.concat(commentSaverMonos);
                 })
                 .collectList()
-                .zipWith(sessionUserService.getCurrentUser())
-                .map(tuple -> {
-                    final List<Comment> comments = tuple.getT1();
-                    commentThread.setComments(comments);
+                .map(commentList -> {
+                    commentThread.setComments(commentList);
                     commentThread.setIsViewed(true);
                     return commentThread;
                 });
