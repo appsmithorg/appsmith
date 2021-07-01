@@ -1098,4 +1098,166 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validChangeViewAccessCancelledMidWay() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Public View Application Midway Cancellation";
+        testApplication.setName(appName);
+
+        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
+                .block();
+
+        String pageId = originalApplication.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Public View App Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Public View Test action1");
+        action1.setPageId(pageId);
+        action1.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction1 = layoutActionService.createAction(action1).block();
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("Public View Test action2");
+        action2.setPageId(pageId);
+        action2.setDatasource(savedDatasource);
+        action2.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction2 = layoutActionService.createAction(action2).block();
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("Public View Test action3");
+        action3.setPageId(pageId);
+        action3.setDatasource(savedDatasource);
+        action3.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction3 = layoutActionService.createAction(action3).block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        // Trigger the change view access of application now.
+        applicationService.changeViewAccess(originalApplication.getId(), applicationAccessDTO)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        Mono<Application> applicationFromDbPostViewChange = Mono.just(originalApplication)
+                .flatMap(originalApp -> {
+                    try {
+                        // Before fetching the cloned application, sleep for 5 seconds to ensure that the cloning finishes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS);
+                })
+                .cache();
+
+        Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange
+                .flatMap(clonedAppFromDb -> newActionService
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .collectList()
+                );
+
+        Mono<List<PageDTO>> pagesMono = applicationFromDbPostViewChange
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+                .collectList();
+
+        Mono<List<Datasource>> datasourcesMono = applicationFromDbPostViewChange
+                .flatMapMany(application -> datasourceService.findAllByOrganizationId(application.getOrganizationId(), READ_DATASOURCES))
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourcesMono))
+                .assertNext(tuple -> {
+                    Application updatedApplication = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    List<PageDTO> pages = tuple.getT3();
+                    List<Datasource> datasources = tuple.getT4();
+
+                    assertThat(updatedApplication).isNotNull();
+                    assertThat(updatedApplication.getIsPublic()).isTrue();
+                    assertThat(updatedApplication
+                            .getPolicies()
+                            .stream()
+                            .filter(policy -> {
+                                if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            .findFirst()
+                            .get()
+                            .getUsers()
+                    ).contains("anonymousUser");
+
+                    for (PageDTO page : pages) {
+                        assertThat(page
+                                .getPolicies()
+                                .stream()
+                                .filter(policy -> {
+                                    if (policy.getPermission().equals(READ_PAGES.getValue())) {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                .findFirst()
+                                .get()
+                                .getUsers()
+                        ).contains("anonymousUser");
+                    }
+
+                    for (NewAction action : actions) {
+                        assertThat(action
+                                .getPolicies()
+                                .stream()
+                                .filter(policy -> {
+                                    if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                .findFirst()
+                                .get()
+                                .getUsers()
+                        ).contains("anonymousUser");
+                    }
+
+                    for (Datasource updatedDatasource : datasources) {
+                        assertThat(updatedDatasource
+                                .getPolicies()
+                                .stream()
+                                .filter(policy -> {
+                                    if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                                .findFirst()
+                                .get()
+                                .getUsers()
+                        ).contains("anonymousUser");
+                    }
+                })
+                .verifyComplete();
+
+    }
 }
