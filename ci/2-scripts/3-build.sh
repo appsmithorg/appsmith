@@ -158,6 +158,7 @@ if ! npx cypress run --headless --browser chrome \
 		--env 'NODE_ENV=development' \
 		--tag "$CODEBUILD_WEBHOOK_TRIGGER" \
 		--spec 'cypress/integration/Smoke_TestSuite/**/*.js'; then
+	echo "Cypress tests failed, printing backend server logs."
 	cat "$CODEBUILD_SRC_DIR/logs/server.log"
 	exit 3
 fi
