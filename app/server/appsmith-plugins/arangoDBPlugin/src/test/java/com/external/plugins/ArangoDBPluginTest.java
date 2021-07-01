@@ -1,7 +1,17 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
-import com.arangodb.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Endpoint;
+import com.arangodb.ArangoCollection;
+import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDBException;
+import com.arangodb.ArangoDatabase;
+import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.Permissions;
 import com.arangodb.model.CollectionCreateOptions;
@@ -20,7 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 
 /**
  * Unit tests for MongoPlugin

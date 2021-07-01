@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -17,11 +16,9 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
-import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
-import com.arangodb.model.CollectionSchema;
 import com.arangodb.model.CollectionsReadOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -47,21 +44,15 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.models.SSLDetails.AuthType.DEFAULT;
-import static com.appsmith.external.models.SSLDetails.AuthType.ENABLED;
-import static com.appsmith.external.models.SSLDetails.CACertificateType.BASE64_STRING;
 import static com.arangodb.internal.ArangoDefaults.DEFAULT_PORT;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 public class ArangoDBPlugin extends BasePlugin {
 
