@@ -18,16 +18,19 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const StyledDiv = styled.div`
-  color: #202223;
-  font-size: 15px;
-  background-color: rgb(248, 106, 43, 0.1);
-  padding: 8px 17px;
-  margin: 6px 0px;
+  color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
+  ${(props) => getTypographyByKey(props, "p1")}
+  background-color: ${(props) =>
+    props.theme.colors.propertyPane.ctaBackgroundColor};
+  padding: ${(props) => props.theme.spaces[3]}px ${(props) =>
+  props.theme.spaces[7]}px;
+  margin: ${(props) => props.theme.spaces[2]}px 0px;
 
   a:first-child {
-    margin-top: 6px;
+    margin-top: ${(props) => props.theme.spaces[2]}px;
   }
   a:nth-child(2) {
     border: none;
@@ -35,9 +38,9 @@ const StyledDiv = styled.div`
     text-transform: none;
     justify-content: flex-start;
     padding: 0px;
-    color: #f86a2b;
-    font-size: 12px;
-    margin-top: 6px;
+    color: ${(props) => props.theme.colors.propertyPane.ctaLearnMoreTextColor};
+    ${(props) => getTypographyByKey(props, "p3")}
+    margin-top: ${(props) => props.theme.spaces[2]}px;
 
     :hover {
       text-decoration: underline;
