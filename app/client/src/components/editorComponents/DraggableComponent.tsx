@@ -196,7 +196,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dispatch = useDispatch();
   const [mightBeDragging, setMightBeDragging] = useState(false);
   const mouseMove = (e: any) => {
-    if (mightBeDragging) {
+    if (mightBeDragging && !isResizingOrDragging) {
       e.preventDefault();
       setDragItemsInitialParent(true, props.parentId || "", props.widgetId);
       if (!selectedWidgets.includes(props.widgetId)) {
@@ -210,14 +210,18 @@ function DraggableComponent(props: DraggableComponentProps) {
     <DraggableWrapper
       className={className}
       onMouseDown={(e) => {
-        setMightBeDragging(true);
-        e.stopPropagation();
+        if (!isResizingOrDragging) {
+          setMightBeDragging(true);
+          e.stopPropagation();
+        }
       }}
       onMouseMove={mouseMove}
       onMouseOver={handleMouseOver}
       onMouseUp={(e) => {
-        setMightBeDragging(false);
-        e.stopPropagation();
+        if (!isResizingOrDragging) {
+          setMightBeDragging(false);
+          e.stopPropagation();
+        }
       }}
       style={style}
     >

@@ -47,6 +47,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   const selectedWidgets = useSelector(getSelectedWidgets);
   const isThisWidgetDragging =
     isDragging && selectedWidgets.includes(props.widgetId);
@@ -60,6 +63,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       padding: padding + "px",
       zIndex:
         isDragging &&
+        !isResizing &&
         !isThisWidgetDragging &&
         [
           "CONTAINER_WIDGET",
@@ -73,7 +77,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
           : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
-  }, [props.style, isDragging]);
+  }, [props.style, isDragging, isResizing]);
 
   const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
     props.widgetId,

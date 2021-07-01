@@ -79,7 +79,7 @@ export const CanvasSelectionArena = memo(
         const selectionCanvas: any = document.getElementById(
           `canvas-${widgetId}`,
         );
-        const scale = window.devicePixelRatio;
+        const scale = 1;
 
         const canvasCtx = selectionCanvas.getContext("2d");
         const initRectangle = (): SelectedArenaDimensions => ({

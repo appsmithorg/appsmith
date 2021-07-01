@@ -51,7 +51,7 @@ export const Directions: { [id: string]: string } = {
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];
-const SCROLL_THESHOLD = 10;
+const SCROLL_THESHOLD = 2.5;
 
 export const getScrollByPixels = function(
   elem: Element,

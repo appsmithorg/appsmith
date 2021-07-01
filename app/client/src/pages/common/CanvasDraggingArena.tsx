@@ -24,6 +24,7 @@ import { scrollElementIntoParentCanvasView2 } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { debounce, throttle } from "lodash";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -108,12 +109,18 @@ export function CanvasDraggingArena({
   const dragParent = useSelector(
     (state: AppState) => state.ui.widgetDragResize.dragParent,
   );
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
   const selectedWidgets = useSelector(getSelectedWidgets);
   const occupiedSpaces = useSelector(getOccupiedSpaces) || {};
   const childrenOccupiedSpaces: OccupiedSpace[] =
     occupiedSpaces[dragParent] || [];
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const newWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.newWidget,
   );
   const allWidgets = useSelector(getWidgets);
   // const widget = useSelector((state: AppState) => getWidget(state, widgetId));
@@ -123,18 +130,32 @@ export function CanvasDraggingArena({
   const dragCenterSpace = childrenOccupiedSpaces.find(
     (each) => each.id === dragCenter,
   );
-  const rectanglesToDraw = childrenOccupiedSpaces
-    .filter((each) => selectedWidgets.includes(each.id))
-    .map((each) => ({
-      top: each.top * snapRowSpace + (noPad ? 0 : CONTAINER_GRID_PADDING),
-      left: each.left * snapColumnSpace + (noPad ? 0 : CONTAINER_GRID_PADDING),
-      width: (each.right - each.left) * snapColumnSpace,
-      height: (each.bottom - each.top) * snapRowSpace,
-      columnWidth: each.right - each.left,
-      rowHeight: each.bottom - each.top,
-      widgetId: each.id,
-      isNotColliding: true,
-    }));
+  const rectanglesToDraw = !newWidget
+    ? childrenOccupiedSpaces
+        .filter((each) => selectedWidgets.includes(each.id))
+        .map((each) => ({
+          top: each.top * snapRowSpace + (noPad ? 0 : CONTAINER_GRID_PADDING),
+          left:
+            each.left * snapColumnSpace + (noPad ? 0 : CONTAINER_GRID_PADDING),
+          width: (each.right - each.left) * snapColumnSpace,
+          height: (each.bottom - each.top) * snapRowSpace,
+          columnWidth: each.right - each.left,
+          rowHeight: each.bottom - each.top,
+          widgetId: each.id,
+          isNotColliding: true,
+        }))
+    : [
+        {
+          top: 0,
+          left: 0,
+          width: newWidget.columns * snapColumnSpace,
+          height: newWidget.rows * snapRowSpace,
+          columnWidth: newWidget.columns,
+          rowHeight: newWidget.rows,
+          widgetId: newWidget.widgetId,
+          isNotColliding: true,
+        },
+      ];
   const { setIsDragging } = useWidgetDragResize();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
@@ -153,18 +174,19 @@ export function CanvasDraggingArena({
     }[],
   ) => {
     if (isDragging) {
-      const dragCenterBlock = drawingBlocks.find(
-        (each) => each.widgetId === dragCenter,
+      const sortedByTopBlocks = drawingBlocks.sort(
+        (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
       );
+      const bottomMostBlock = sortedByTopBlocks[0];
       // const el = canvasRef?.current;
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
       );
       if (canvasRef.current) {
         // if (el && props.canDropTargetExtend) {
-        if (dragCenterBlock) {
+        if (bottomMostBlock) {
           scrollElementIntoParentCanvasView2(
-            dragCenterBlock,
+            bottomMostBlock,
             scrollParent,
             canvasRef.current,
           );
@@ -183,6 +205,7 @@ export function CanvasDraggingArena({
       rowHeight: number;
       widgetId: string;
     }[],
+    rows: number,
   ) => {
     const sortedByTopBlocks = drawingBlocks.sort(
       (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
@@ -219,7 +242,20 @@ export function CanvasDraggingArena({
     // );
     // const bottomMostRow = bottomMostBlock.top + bottomMostBlock.height;
     console.log({ drawingBlocks, bottomMostBlock, top });
-    return updateDropTargetRows && updateDropTargetRows(widgetId, top + 20);
+    // const newRows = calculateDropTargetRows(
+    //   widgetId,
+    //   top,
+    //   minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+    //   occupiedSpaces[widgetId],
+    // );
+
+    // if (snapRows < newRows) {
+    //   // setRows(newRows);
+    //   return newRows;
+    // }
+    if (top > rows) {
+      return updateDropTargetRows && updateDropTargetRows(widgetId, top);
+    }
   };
   const { updateWidget } = useContext(EditorContext);
 
@@ -240,7 +276,7 @@ export function CanvasDraggingArena({
     });
     if (!cannotDrop) {
       drawingBlocks.forEach((each) => {
-        const widget = allWidgets[each.widgetId];
+        const widget = newWidget ? newWidget : allWidgets[each.widgetId];
         const updateWidgetParams = widgetOperationParams(
           widget,
           { x: each.left, y: each.top },
@@ -269,16 +305,15 @@ export function CanvasDraggingArena({
   };
 
   useEffect(() => {
-    if (isDragging && canvasRef.current) {
-      const rows = snapRows;
+    if (isDragging && canvasRef.current && !isResizing) {
+      let rows = snapRows;
       let canvasIsDragging = false;
-      const draggingCanvas: any = canvasRef.current;
       const scale = 1;
 
       // draggingCanvas.style.padding = `${noPad ? 0 : CONTAINER_GRID_PADDING}px`;
-      const { height, width } = draggingCanvas.getBoundingClientRect();
-      draggingCanvas.width = width * scale;
-      draggingCanvas.height = height * scale;
+      const { height, width } = canvasRef.current.getBoundingClientRect();
+      canvasRef.current.width = width * scale;
+      canvasRef.current.height = height * scale;
       const differentParent = dragParent !== widgetId;
       const parentDiff = {
         top:
@@ -306,36 +341,47 @@ export function CanvasDraggingArena({
         widgetId: string;
         isNotColliding: boolean;
       }[] = [];
-      const canvasCtx = draggingCanvas.getContext("2d");
+      let canvasCtx: any = canvasRef.current.getContext("2d");
       canvasCtx.globalCompositeOperation = "destination-over";
-      // const drawDragLayer = () => {
-      //   const canvas = canvasRef.current || draggingCanvas;
-      //   const { width } = canvas.getBoundingClientRect();
+      // const drawDragLayer = debounce(
+      //   (rows) => {
+      //     if (canvasRef.current && canvasDragLayerRef.current) {
+      //       const { height, width } = canvasRef.current.getBoundingClientRect();
+      //       canvasDragLayerRef.current.width = width * scale;
+      //       canvasDragLayerRef.current.height = height * scale;
+      //       const canvasCtx: any = canvasDragLayerRef.current.getContext("2d");
+      //       canvasCtx.clearRect(0, 0, width, height);
+      //       canvasCtx.beginPath(); // clear path if it has been used previously
+      //       // modify method to add to path instead
+      //       const draw = (x: any, y: any, width: any, height: any) => {
+      //         canvasCtx.fillStyle = `${"rgb(0, 0, 0, 1)"}`;
+      //         canvasCtx.strokeStyle = `${"rgb(0, 0, 0, 1)"}`;
+      //         canvasCtx.rect(x, y, width, height);
+      //       };
+      //       for (
+      //         let x = noPad ? 0 : CONTAINER_GRID_PADDING;
+      //         x < width;
+      //         x += snapColumnSpace
+      //       ) {
+      //         for (
+      //           let y = noPad ? 0 : CONTAINER_GRID_PADDING;
+      //           y < rows * snapRowSpace + (widgetId === "0" ? 200 : 0);
+      //           y += snapRowSpace
+      //         ) {
+      //           draw(x, y, 1, 1);
+      //         }
+      //       }
 
-      //   canvasCtx.beginPath(); // clear path if it has been used previously
-      //   // modify method to add to path instead
-      //   const draw = (x: any, y: any, width: any, height: any) => {
-      //     canvasCtx.fillStyle = `${"rgb(0, 0, 0, 1)"}`;
-      //     canvasCtx.strokeStyle = `${"rgb(0, 0, 0, 1)"}`;
-      //     canvasCtx.rect(x, y, width, height);
-      //   };
-      //   for (
-      //     let x = noPad ? 0 : CONTAINER_GRID_PADDING;
-      //     x < width;
-      //     x += snapColumnSpace
-      //   ) {
-      //     for (
-      //       let y = noPad ? 0 : CONTAINER_GRID_PADDING;
-      //       y < (rows + 1) * 10 - 200;
-      //       y += snapRowSpace
-      //     ) {
-      //       draw(x, y, 1, 1);
+      //       // when done, fill once
+      //       canvasCtx.fill();
       //     }
-      //   }
-
-      //   // when done, fill once
-      //   canvasCtx.fill();
-      // };
+      //   },
+      //   0,
+      //   {
+      //     leading: true,
+      //     trailing: true,
+      //   },
+      // );
       // canvasCtx.scale(scale, scale);
 
       const startPoints = {
@@ -347,15 +393,25 @@ export function CanvasDraggingArena({
         startPoints.top = 0;
         setIsDragging(false);
         onMouseOut();
-        onDrop(newRectanglesToDraw);
+        if (isDragging && canvasIsDragging) {
+          onDrop(newRectanglesToDraw);
+        }
       };
       const onMouseOut = () => {
-        draggingCanvas.style.zIndex = null;
-        canvasCtx.clearRect(0, 0, width, height);
-        canvasIsDragging = false;
+        if (canvasRef.current) {
+          const { height, width } = canvasRef.current.getBoundingClientRect();
+          canvasRef.current.style.zIndex = "";
+          canvasCtx.clearRect(0, 0, width, height);
+          canvasIsDragging = false;
+        }
       };
       const onMouseDown = (e: any) => {
-        if (isDragging && !canvasIsDragging) {
+        if (
+          !isResizing &&
+          isDragging &&
+          !canvasIsDragging &&
+          canvasRef.current
+        ) {
           canvasIsDragging = true;
           if (
             dragParent === widgetId &&
@@ -365,13 +421,14 @@ export function CanvasDraggingArena({
             startPoints.left = e.offsetX;
             startPoints.top = e.offsetY;
           }
-          draggingCanvas.style.zIndex = 2;
+          canvasRef.current.style.zIndex = "2";
+          // drawDragLayer(rows);
         }
       };
       const onMouseMove = (e: any) => {
-        if (canvasIsDragging) {
+        if (canvasIsDragging && canvasRef.current) {
           // console.log(startPoints, e.offsetX, draggingCanvas.offsetLeft);
-          canvasCtx.clearRect(0, 0, width, height);
+
           const diff = {
             left: e.offsetX - startPoints.left - parentDiff.left,
             top: e.offsetY - startPoints.top - parentDiff.top,
@@ -383,12 +440,18 @@ export function CanvasDraggingArena({
                   (each) => !selectedWidgets.includes(each.id),
                 )
               : currentOccSpaces;
-          newRectanglesToDraw = rectanglesToDraw.map((each) => ({
+          const drawingBlocks = rectanglesToDraw.map((each) => ({
             ...each,
             left: each.left + diff.left,
             top: each.top + diff.top,
+          }));
+          const newRows = updateRows(drawingBlocks, rows);
+          const rowDiff = newRows ? newRows - rows : 0;
+          rows = newRows && newRows !== rows ? newRows : rows;
+          newRectanglesToDraw = drawingBlocks.map((each) => ({
+            ...each,
             isNotColliding: noCollision(
-              { x: each.left + diff.left, y: each.top + diff.top },
+              { x: each.left, y: each.top },
               snapColumnSpace,
               snapRowSpace,
               { x: 0, y: 0 },
@@ -400,28 +463,100 @@ export function CanvasDraggingArena({
               GridDefaults.DEFAULT_GRID_COLUMNS,
             ),
           }));
-          updateRows(newRectanglesToDraw);
-          // const rowDiff = newRows && rows !== newRows ? newRows - rows : 0;
-          // rows = newRows && newRows !== rows ? newRows : rows;
-          // // if (rowDiff) {
-          // drawDragLayer();
-          // // }
+          if (rowDiff && canvasRef.current) {
+            notDoneYet = true;
+            drawInit(rowDiff, diff);
+          } else if (!notDoneYet) {
+            const { height, width } = canvasRef.current.getBoundingClientRect();
+            canvasCtx.clearRect(0, 0, width, height);
+            newRectanglesToDraw.forEach((each) => {
+              drawRectangle(each);
+            });
+          }
           // if (rowDiff) {
-          //   startPoints.top = startPoints.top + rowDiff * snapRowSpace;
           //   newRectanglesToDraw = newRectanglesToDraw.map((each) => {
-          //     each.top = each.top + rowDiff * snapRowSpace;
-          //     return each;
+          //     return {
+          //       ...each,
+          //       top: each.top - (rows - snapRows) * snapRowSpace,
+          //     };
           //   });
+          //   console.log({ rowDiff, rectanglesToDraw, newRectanglesToDraw });
           // }
 
           scrollToKeepUp(newRectanglesToDraw);
-          newRectanglesToDraw.forEach((each) => {
-            drawRectangle(each);
-          });
         } else {
           onMouseDown(e);
         }
       };
+      console.log("I am initiated again");
+      let notDoneYet = false;
+      const drawInit = throttle(
+        debounce(
+          (rowDiff, diff) => {
+            console.count("drawInit");
+            notDoneYet = true;
+            if (canvasRef.current) {
+              newRectanglesToDraw = rectanglesToDraw.map((each) => {
+                return {
+                  ...each,
+                  left: each.left + diff.left,
+                  top: each.top + diff.top,
+                };
+              });
+
+              canvasRef.current.height =
+                (rows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
+              canvasCtx = canvasRef.current.getContext("2d");
+              const {
+                height,
+                width,
+              } = canvasRef.current.getBoundingClientRect();
+              // drawDragLayer(rows);
+
+              canvasCtx.clearRect(0, 0, width, height);
+              notDoneYet = false;
+              newRectanglesToDraw.forEach((each) => {
+                drawRectangle(each);
+              });
+              // scrollToKeepUp(newRectanglesToDraw);
+            }
+          },
+          10,
+          {
+            leading: false,
+            trailing: true,
+          },
+        ),
+        10,
+        {
+          leading: false,
+          trailing: true,
+        },
+      );
+
+      // const drawInit = debounce(
+      //   (rowDiff, diff, occSpaces) => {
+      //     // // if (rowDiff) {
+      //     // drawDragLayer();
+      //     // // }
+      //     if (rowDiff) {
+      //       // startPoints.top = startPoints.top + rowDiff * snapRowSpace;
+      //       newRectanglesToDraw = rectanglesToDraw.map((each) => {
+      //         return {
+      //           ...each,
+      //           top: each.top + rowDiff * snapRowSpace
+      //         };
+      //       });
+      //     }
+
+      //     scrollToKeepUp(newRectanglesToDraw);
+      //   },
+      //   100,
+      //   {
+      //     leading: true,
+      //     trailing: true,
+      //   },
+      // );
       const drawRectangle = (selectionDimensions: {
         top: number;
         left: number;
@@ -432,53 +567,55 @@ export function CanvasDraggingArena({
         widgetId: string;
         isNotColliding: boolean;
       }) => {
-        const canvasCtx =
-          canvasRef.current?.getContext("2d") ||
-          draggingCanvas.getContext("2d");
-        const snappedXY = getSnappedXY(
-          snapColumnSpace,
-          snapRowSpace,
-          {
-            x: selectionDimensions.left,
-            y: selectionDimensions.top,
-          },
-          {
-            x: 0,
-            y: 0,
-          },
-        );
+        if (canvasRef.current) {
+          const canvasCtx: any = canvasRef.current.getContext("2d");
+          const snappedXY = getSnappedXY(
+            snapColumnSpace,
+            snapRowSpace,
+            {
+              x: selectionDimensions.left,
+              y: selectionDimensions.top,
+            },
+            {
+              x: 0,
+              y: 0,
+            },
+          );
 
-        canvasCtx.fillStyle = `${
-          selectionDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
-        }`;
-        canvasCtx.fillRect(
-          selectionDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
-          selectionDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
-          selectionDimensions.width,
-          selectionDimensions.height,
-        );
-        canvasCtx.fillStyle = `${
-          selectionDimensions.isNotColliding ? "rgb(233, 250, 243, 0.6)" : "red"
-        }`;
-        const strokeWidth = 1;
-        canvasCtx.setLineDash([3]);
-        canvasCtx.strokeStyle = "rgb(104,	113,	239)";
-        canvasCtx.strokeRect(
-          snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-          snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-          selectionDimensions.width - strokeWidth,
-          selectionDimensions.height - strokeWidth,
-        );
+          canvasCtx.fillStyle = `${
+            selectionDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
+          }`;
+          canvasCtx.fillRect(
+            selectionDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
+            selectionDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
+            selectionDimensions.width,
+            selectionDimensions.height,
+          );
+          canvasCtx.fillStyle = `${
+            selectionDimensions.isNotColliding
+              ? "rgb(233, 250, 243, 0.6)"
+              : "red"
+          }`;
+          const strokeWidth = 1;
+          canvasCtx.setLineDash([3]);
+          canvasCtx.strokeStyle = "rgb(104,	113,	239)";
+          canvasCtx.strokeRect(
+            snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+            snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+            selectionDimensions.width - strokeWidth,
+            selectionDimensions.height - strokeWidth,
+          );
+        }
       };
       const startDragging = () => {
-        draggingCanvas.addEventListener("mousemove", onMouseMove, false);
-        draggingCanvas.addEventListener("mouseup", onMouseUp, false);
-        draggingCanvas.addEventListener("mouseover", onMouseDown, false);
-        draggingCanvas.addEventListener("mouseout", onMouseOut, false);
+        canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
+        canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
+        canvasRef.current?.addEventListener("mouseover", onMouseDown, false);
+        canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
 
         if (canvasIsDragging) {
           // fix_dpi();
-          // drawDragLayer();
+          // drawDragLayer(rows);
           rectanglesToDraw.forEach((each) => {
             drawRectangle(each);
           });
@@ -486,17 +623,17 @@ export function CanvasDraggingArena({
       };
       startDragging();
       if (dragParent === widgetId) {
-        draggingCanvas.style.zIndex = 2;
+        canvasRef.current.style.zIndex = "2";
       }
       return () => {
-        draggingCanvas.removeEventListener("mousemove", onMouseMove);
-        draggingCanvas.removeEventListener("mouseup", onMouseUp);
-        draggingCanvas.removeEventListener("mouseenter", onMouseDown);
-        draggingCanvas.removeEventListener("mouseleave", onMouseOut);
+        canvasRef.current?.removeEventListener("mousemove", onMouseMove);
+        canvasRef.current?.removeEventListener("mouseup", onMouseUp);
+        canvasRef.current?.removeEventListener("mouseenter", onMouseDown);
+        canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
       };
     }
-  }, [isDragging]);
-  return isDragging ? (
+  }, [isDragging, newWidget, isResizing]);
+  return isDragging && !isResizing ? (
     <StyledSelectionCanvas
       data-testid={`canvas-dragging-${widgetId}`}
       id={`canvas-dragging-${widgetId}`}
@@ -504,4 +641,7 @@ export function CanvasDraggingArena({
     />
   ) : null;
 }
+CanvasDraggingArena.whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 CanvasDraggingArena.displayName = "CanvasDraggingArena";

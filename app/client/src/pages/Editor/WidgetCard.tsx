@@ -72,7 +72,7 @@ export const IconLabel = styled.h5`
 `;
 
 function WidgetCard(props: CardProps) {
-  const { setIsDragging } = useWidgetDragResize();
+  const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());
@@ -83,7 +83,8 @@ function WidgetCard(props: CardProps) {
         widgetType: props.details.type,
         widgetName: props.details.widgetCardName,
       });
-      setIsDragging && setIsDragging(true);
+      setDraggingNewWidget &&
+        setDraggingNewWidget(true, { ...props.details, widgetId });
       deselectAll();
     },
     end: (widget, monitor) => {
@@ -94,7 +95,7 @@ function WidgetCard(props: CardProps) {
       });
       // We've finished dragging, generate a new widgetId to be used for next drag.
       setWidgetId(generateReactKey());
-      setIsDragging && setIsDragging(false);
+      // setDraggingNewWidget && setDraggingNewWidget(false, undefined);
     },
   });
 

@@ -109,6 +109,20 @@ export const useWidgetDragResize = () => {
       },
       [dispatch],
     ),
+    setDraggingNewWidget: useCallback(
+      (isDragging: boolean, widget: any) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
+        dispatch({
+          type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING_2,
+          payload: { isDragging, widget },
+        });
+      },
+      [dispatch],
+    ),
     setDragItemsInitialParent: useCallback(
       (isDragging: boolean, dragParent: string, dragCenter: string) => {
         if (isDragging) {
