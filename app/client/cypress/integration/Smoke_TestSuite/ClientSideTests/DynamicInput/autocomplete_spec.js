@@ -13,22 +13,16 @@ describe("Dynamic input autocomplete", () => {
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
       .first()
-      .focus()
+      .click({ force: true })
+      .type("{uparrow}", { parseSpecialCharSequences: true })
       .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
-      .then(($cm) => {
-        if ($cm.val() !== "") {
-          cy.get(dynamicInputLocators.input)
-            .first()
-            .clear({
-              force: true,
-            });
-        }
-
+      .type("{backspace}", { parseSpecialCharSequences: true })
+      .then(() => {
         cy.get(dynamicInputLocators.input)
           .first()
+          .click({ force: true })
           .type("{{", {
-            force: true,
-            parseSpecialCharSequences: false,
+            parseSpecialCharSequences: true,
           });
 
         // Tests if autocomplete will open
@@ -42,9 +36,11 @@ describe("Dynamic input autocomplete", () => {
         // Tests if "No suggestions" message will pop if you type any garbage
         cy.get(dynamicInputLocators.input)
           .first()
-          .type("garbage", {
-            force: true,
-            parseSpecialCharSequences: false,
+          .click({ force: true })
+          .type("{uparrow}", { parseSpecialCharSequences: true })
+          .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
+          .type("{{ garbage", {
+            parseSpecialCharSequences: true,
           })
           .then(() => {
             cy.get(".CodeMirror-Tern-tooltip").should(
@@ -59,7 +55,7 @@ describe("Dynamic input autocomplete", () => {
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
       .first()
-      .focus();
+      .click({ force: true });
     cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
     // Test on api pane
     cy.NavigateToAPI_Panel();

@@ -4,7 +4,7 @@
   "requestTimeout": 21000,
   "pageLoadTimeout": 20000,
   "video": true,
-  "videoUploadOnPasses": false,
+  "videoUploadOnPasses": true,
   "reporter": "mochawesome",
   "reporterOptions": {
     "reportDir": "results",
