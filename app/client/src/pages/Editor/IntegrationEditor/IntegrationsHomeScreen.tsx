@@ -276,7 +276,6 @@ class IntegrationsHomeScreen extends React.Component<
 > {
   constructor(props: Props) {
     super(props);
-    console.log("INtegrations Home screen");
 
     this.state = {
       page: 1,
@@ -318,12 +317,12 @@ class IntegrationsHomeScreen extends React.Component<
       redirectMode === INTEGRATION_EDITOR_MODES.AUTO
     ) {
       // User will be taken to active tab if there are datasources
-      history.push(
+      history.replace(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
       );
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
-      history.push(
+      history.replace(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
       this.onSelectSecondaryMenu(SECONDARY_MENU_IDS.MOCK_DATABASE);
@@ -387,7 +386,9 @@ class IntegrationsHomeScreen extends React.Component<
       currentScreen = (
         <NewIntegrationsContainer id="new-integrations-wrapper">
           {dataSources.length === 0 && <AddDatasourceSecurely />}
-          {dataSources.length === 0 && mockDataSection}
+          {dataSources.length === 0 &&
+            this.props.mockDatasources.length > 0 &&
+            mockDataSection}
           <CreateNewAPI
             active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
             applicationId={applicationId}
@@ -404,7 +405,9 @@ class IntegrationsHomeScreen extends React.Component<
             location={location}
             pageId={pageId}
           />
-          {dataSources.length === 0 && mockDataSection}
+          {dataSources.length > 0 &&
+            this.props.mockDatasources.length > 0 &&
+            mockDataSection}
         </NewIntegrationsContainer>
       );
     } else {

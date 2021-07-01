@@ -104,7 +104,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
       return (
         <EmptyActiveDatasource>
           <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-            No active integrations found.{" "}
+            No active datasources found.{" "}
             <CreateButton
               category={Category.primary}
               onClick={this.props.onCreateNew}
