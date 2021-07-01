@@ -7,7 +7,11 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 import history from "utils/history";
 import {
   setGlobalSearchQuery,
@@ -60,10 +64,11 @@ function ConnectDataCTA() {
         category={Category.primary}
         onClick={() =>
           history.push(
-            QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+            INTEGRATION_EDITOR_URL(
               applicationId,
               pageId,
-              pageId,
+              INTEGRATION_TABS.NEW,
+              INTEGRATION_EDITOR_MODES.MOCK,
             ),
           )
         }
