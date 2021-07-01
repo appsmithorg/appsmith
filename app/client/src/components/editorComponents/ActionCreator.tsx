@@ -375,15 +375,19 @@ const fieldConfigs: FieldConfigs = {
     setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
+      let defaultParams = "";
       switch (type) {
         case ActionType.api:
         case ActionType.query:
           value = `${value}.run`;
           break;
+        case ActionType.navigateTo:
+          defaultParams = `,'{}','${NAVIGATION_TARGET_FIELD_OPTIONS[0].value}'`;
+          break;
         default:
           break;
       }
-      return value === "none" ? "" : `{{${value}()}}`;
+      return value === "none" ? "" : `{{${value}(${defaultParams})}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -871,7 +875,7 @@ function renderField(props: {
       if (fieldType === FieldType.NAVIGATION_TARGET_FIELD) {
         label = "Target";
         options = NAVIGATION_TARGET_FIELD_OPTIONS;
-        defaultText = "Navigation target";
+        defaultText = NAVIGATION_TARGET_FIELD_OPTIONS[0].label;
       }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options,
