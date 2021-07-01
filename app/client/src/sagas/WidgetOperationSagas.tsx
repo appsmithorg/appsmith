@@ -29,6 +29,7 @@ import {
 import {
   all,
   call,
+  delay,
   fork,
   put,
   select,
@@ -136,6 +137,9 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import { Editor } from "codemirror";
+import TernServer from "utils/autocomplete/TernServer";
+import { WIDGET_DATA_FIELD_MAP } from "components/editorComponents/ActionRightPane/SuggestedWidgets";
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
@@ -350,6 +354,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
         type: addChildAction.payload.type,
       },
     });
+
     yield put(updateAndSaveLayout(widgets));
 
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
@@ -1865,16 +1870,100 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       pageId,
       newWidget.newWidgetId,
     );
-    yield put({
-      type: ReduxActionTypes.SELECT_WIDGET_INIT,
-      payload: { widgetId: newWidget.newWidgetId },
-    });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     Toaster.show({
       text: createMessage(ERROR_ADD_WIDGET_FROM_QUERY),
       variant: Variant.danger,
     });
+  }
+}
+
+function* addWidget(action: any) {
+  const widgetConfig = action.payload;
+  const defaultConfig =
+    WidgetConfigResponse.config[widgetConfig.type as WidgetTypes];
+  const evalTree = yield select(getDataTree);
+  const widgets = yield select(getWidgets);
+  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
+
+  // const columns = 6 * GRID_DENSITY_MIGRATION_V1;
+  // const rows = 1 * GRID_DENSITY_MIGRATION_V1;
+  // const dimensions = {
+  //   rows,
+  //   columns,
+  // };
+  try {
+    let newWidget = {
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      parentId: "0",
+      renderMode: RenderModes.CANVAS,
+      isLoading: false,
+      // ...dimensions,
+      ...defaultConfig,
+      widgetName,
+      ...widgetConfig,
+    };
+
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+    } = yield calculateNewWidgetPosition(
+      newWidget,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    };
+
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+
+    navigateToCanvas(
+      {
+        applicationId,
+        pageId,
+      },
+      window.location.pathname,
+      pageId,
+      newWidget.newWidgetId,
+    );
+    yield delay(100);
+    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+
+    // Show autocomplete
+    yield delay(100);
+
+    const label = WIDGET_DATA_FIELD_MAP[widgetConfig.type].label;
+    const propertyPane = document.getElementsByClassName("t--propertypane");
+    const control = propertyPane[0].getElementsByClassName(
+      `t--property-control-${label}`,
+    );
+    const editorInstance: any = control[0].querySelector(".CodeMirror");
+    const cm: Editor = editorInstance?.CodeMirror;
+
+    cm.focus();
+    cm.setCursor(0, cm.getValue().length - 2);
+
+    const ternServer = new TernServer(evalTree);
+    const some: any = undefined;
+    ternServer.complete(cm, some, some);
+  } catch (error) {
+    console.log(error, "Error");
   }
 }
 
@@ -1885,6 +1974,7 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
       addTableWidgetFromQuerySaga,
     ),
+    takeEvery("ADD_WIDGET", addWidget),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
     takeEvery(ReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),
