@@ -202,10 +202,10 @@ export class JSONtoForm<
     return formData;
   };
 
-  renderForm = (content: any, onBackBtnClick: () => void) => {
+  renderForm = (content: any) => {
     return (
       <div>
-        <BackButton onClick={onBackBtnClick} />
+        <BackButton />
         <DBForm>{content}</DBForm>
       </div>
     );

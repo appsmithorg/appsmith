@@ -317,12 +317,12 @@ class IntegrationsHomeScreen extends React.Component<
       redirectMode === INTEGRATION_EDITOR_MODES.AUTO
     ) {
       // User will be taken to active tab if there are datasources
-      history.push(
+      history.replace(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
       );
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
-      history.push(
+      history.replace(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
       this.onSelectSecondaryMenu(SECONDARY_MENU_IDS.MOCK_DATABASE);

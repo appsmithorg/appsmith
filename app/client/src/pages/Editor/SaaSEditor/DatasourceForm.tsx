@@ -3,7 +3,6 @@ import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
 import { SAAS_EDITOR_URL } from "./constants";
-import history from "utils/history";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
@@ -42,11 +41,6 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -147,23 +141,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const {
-      formConfig,
-      match: {
-        params: { applicationId, pageId },
-      },
-    } = this.props;
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content, () => {
-      history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-          INTEGRATION_EDITOR_MODES.AUTO,
-        ),
-      );
-    });
+    return this.renderForm(content);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
