@@ -62,9 +62,24 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.page:
       return item?.pageName;
     case SEARCH_ITEM_TYPES.sectionTitle:
-      return item?.title;
     case SEARCH_ITEM_TYPES.placeholder:
+    case SEARCH_ITEM_TYPES.document:
       return item?.title;
+    default:
+      return "";
+  }
+};
+
+export const getItemPage = (item: SearchItem): string => {
+  const type = getItemType(item);
+
+  switch (type) {
+    case SEARCH_ITEM_TYPES.action:
+      return item?.config?.pageId;
+    case SEARCH_ITEM_TYPES.widget:
+    case SEARCH_ITEM_TYPES.page:
+      return item?.pageId;
+    // return item?.pageName;
     default:
       return "";
   }
