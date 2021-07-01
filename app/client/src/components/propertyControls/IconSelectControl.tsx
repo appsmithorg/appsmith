@@ -1,14 +1,21 @@
 import * as React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
 
+const IconSelectContainerStyles = createGlobalStyle`
+  .bp3-select-popover {
+    width: 230px;
+  }
+`;
+
 const StyledButton = styled(Button)`
   box-shadow: none !important;
   border: none !important;
+  border-radius: 0;
   background-color: #ffffff !important;
 
   > span.bp3-icon-caret-down {
@@ -20,15 +27,24 @@ const StyledMenu = styled(Menu)`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(50px, auto);
-  gap: 15px;
-  max-height: 200px;
+  gap: 8px;
+  max-height: 170px !important;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    background-color: #eeeeee;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #939090;
+  }
 `;
 
 const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
-  padding-top: 13px;
-  padding-bottom: 13px;
+  padding: 13px 5px;
 
   &:active,
   &:hover,
@@ -43,6 +59,7 @@ const StyledMenuItem = styled(MenuItem)`
   > div {
     width: 100%;
     text-align: center;
+    color: #939090 !important;
   }
 `;
 
@@ -67,24 +84,28 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
   public render() {
     const { propertyValue: iconName } = this.props;
     return (
-      <TypedSelect
-        itemListRenderer={this.renderMenu}
-        itemPredicate={this.filterIconName}
-        itemRenderer={this.renderIconItem}
-        items={ICON_NAMES}
-        noResults={<MenuItem disabled text="No results" />}
-        onItemSelect={this.handleIconChange}
-        popoverProps={{ minimal: true }}
-      >
-        <StyledButton
-          alignText={Alignment.LEFT}
-          className={Classes.TEXT_OVERFLOW_ELLIPSIS}
-          fill
-          icon={iconName}
-          rightIcon="caret-down"
-          text={iconName || NONE}
-        />
-      </TypedSelect>
+      <>
+        <IconSelectContainerStyles />
+        <TypedSelect
+          className="icon-select-container"
+          itemListRenderer={this.renderMenu}
+          itemPredicate={this.filterIconName}
+          itemRenderer={this.renderIconItem}
+          items={ICON_NAMES}
+          noResults={<MenuItem disabled text="No results" />}
+          onItemSelect={this.handleIconChange}
+          popoverProps={{ minimal: true }}
+        >
+          <StyledButton
+            alignText={Alignment.LEFT}
+            className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            fill
+            icon={iconName}
+            rightIcon="caret-down"
+            text={iconName || NONE}
+          />
+        </TypedSelect>
+      </>
     );
   }
 
@@ -111,6 +132,7 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
         icon={icon === NONE ? undefined : icon}
         key={icon}
         onClick={handleClick}
+        text={icon === NONE ? NONE : undefined}
       />
     );
   };

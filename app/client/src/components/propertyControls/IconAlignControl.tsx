@@ -17,7 +17,12 @@ const StyledButtonGroup = styled(ButtonGroup)`
 
 const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
   border: ${(props) => (props.active ? `1px solid #6A86CE` : `none`)};
+  border-radius: 0;
   background-color: #ffffff !important;
+
+  & > div {
+    display: flex;
+  }
 
   &.bp3-active {
     box-shadow: none !important;
