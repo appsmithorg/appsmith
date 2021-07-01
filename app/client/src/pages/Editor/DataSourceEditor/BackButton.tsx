@@ -17,7 +17,12 @@ const Back = styled.span`
 function BackButton() {
   const history = useHistory();
   return (
-    <Back onClick={history.goBack}>
+    <Back
+      onClick={() => {
+        history.goBack();
+        history.goBack();
+      }}
+    >
       <Icon icon="chevron-left" iconSize={16} />
       <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
         Back

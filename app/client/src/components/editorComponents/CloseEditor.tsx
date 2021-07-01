@@ -1,8 +1,6 @@
-import TooltipComponent from "components/ads/Tooltip";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
@@ -31,26 +29,12 @@ function CloseEditor() {
   };
 
   return (
-    <TooltipComponent
-      content={
-        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-          Close
-        </Text>
-      }
-      minWidth="auto !important"
-      minimal
-      position={Position.BOTTOM_LEFT}
-    >
-      <IconContainer onClick={handleClose}>
-        <Icon icon="chevron-left" iconSize={16} />
-        <Text
-          style={{ color: "#0c0000", lineHeight: "14px" }}
-          type={TextType.P1}
-        >
-          Back
-        </Text>
-      </IconContainer>
-    </TooltipComponent>
+    <IconContainer onClick={handleClose}>
+      <Icon icon="chevron-left" iconSize={16} />
+      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
+        Back
+      </Text>
+    </IconContainer>
   );
 }
 
