@@ -1181,17 +1181,16 @@ public class ApplicationServiceTest {
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
-        Mono<List<Datasource>> datasourcesMono = applicationFromDbPostViewChange
-                .flatMapMany(application -> datasourceService.findAllByOrganizationId(application.getOrganizationId(), READ_DATASOURCES))
-                .collectList();
+        Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
         StepVerifier
-                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourcesMono))
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
-                    List<Datasource> datasources = tuple.getT4();
+                    Datasource datasource1 = tuple.getT4();
 
                     assertThat(updatedApplication).isNotNull();
                     assertThat(updatedApplication.getIsPublic()).isTrue();
@@ -1241,21 +1240,21 @@ public class ApplicationServiceTest {
                         ).contains("anonymousUser");
                     }
 
-                    for (Datasource updatedDatasource : datasources) {
-                        assertThat(updatedDatasource
-                                .getPolicies()
-                                .stream()
-                                .filter(policy -> {
-                                    if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                .findFirst()
-                                .get()
-                                .getUsers()
-                        ).contains("anonymousUser");
-                    }
+
+                    assertThat(datasource1
+                            .getPolicies()
+                            .stream()
+                            .filter(policy -> {
+                                if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            .findFirst()
+                            .get()
+                            .getUsers()
+                    ).contains("anonymousUser");
+
                 })
                 .verifyComplete();
 
