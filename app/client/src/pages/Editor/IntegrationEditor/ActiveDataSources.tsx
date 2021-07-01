@@ -1,30 +1,28 @@
 import React from "react";
 import styled from "styled-components";
-import { Spinner, Button } from "@blueprintjs/core";
+import { Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
-import { Page } from "constants/ReduxActionConstants";
-import {
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-} from "constants/routes";
-import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
-import CloseEditor from "components/editorComponents/CloseEditor";
+import Text, { TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const QueryHomePage = styled.div`
-  padding: 20px;
+  ${thinScrollbar};
+  padding: 5px;
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
+  );
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -33,24 +31,25 @@ const QueryHomePage = styled.div`
   }
 `;
 
+const CreateButton = styled(Button)`
+  display: inline;
+  padding: 4px 8px;
+`;
+
+const EmptyActiveDatasource = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-const AddDatasource = styled(Button)`
-  padding: 23px;
-  border: 2px solid #d6d6d6;
-  justify-content: flex-start;
-  font-size: 16px;
-  font-weight: 500;
-`;
-
-const Boundary = styled.hr`
-  border: 1px solid #d0d7dd;
-  margin-top: 16px;
-`;
-
-type QueryHomeScreenProps = {
+type ActiveDataSourceProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
@@ -64,15 +63,12 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  pages: Page[];
-  pluginImages: Record<string, string>;
+  onCreateNew: () => void;
 };
 
-class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
+class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
   handleCreateNewQuery = (dataSource: Datasource) => {
-    const { actions, location } = this.props;
-    const params: string = location.search;
-    const pageId = new URLSearchParams(params).get("importTo");
+    const { actions, pageId } = this.props;
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
@@ -94,24 +90,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   };
 
   render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
-
-    const destinationPageId = new URLSearchParams(location.search).get(
-      "importTo",
-    );
-
-    if (!destinationPageId) {
-      history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
-    }
+    const { dataSources, isCreating } = this.props;
 
     if (isCreating) {
       return (
@@ -121,31 +100,25 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
+    if (dataSources.length === 0) {
+      return (
+        <EmptyActiveDatasource>
+          <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
+            No active integrations found.{" "}
+            <CreateButton
+              category={Category.primary}
+              onClick={this.props.onCreateNew}
+              size={Size.medium}
+              tag="button"
+              text="Create New"
+            />
+          </Text>
+        </EmptyActiveDatasource>
+      );
+    }
+
     return (
-      <QueryHomePage>
-        <CloseEditor />
-        <p className="sectionHeader">
-          Select a datasource to query or create a new one
-        </p>
-        <Boundary />
-        {dataSources.length < 2 ? (
-          <AddDatasourceSecurely
-            onAddDatasource={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-            }}
-          />
-        ) : (
-          <AddDatasource
-            className="t--add-datasource"
-            fill
-            icon={"plus"}
-            minimal
-            onClick={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-            }}
-            text="New Datasource"
-          />
-        )}
+      <QueryHomePage className="t--active-datasource-list">
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
@@ -161,9 +134,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  pluginImages: getPluginImages(state),
   actions: state.entities.actions,
-  pages: state.entities.pageList.pages,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -172,4 +143,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(QueryHomeScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSources);
