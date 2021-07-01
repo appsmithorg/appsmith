@@ -33,6 +33,7 @@ import PageApi, {
   FetchPublishedPageResponse,
   PageLayout,
   SavePageResponse,
+  SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
@@ -109,6 +110,7 @@ export function* fetchPageListSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
+      console.log({ pages: response.data });
       const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
@@ -468,12 +470,15 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
-      history.push(
-        BUILDER_PAGE_URL(
-          createPageAction.payload.applicationId,
-          response.data.id,
-        ),
-      );
+
+      if (!createPageAction.payload.blockNavigation) {
+        history.push(
+          BUILDER_PAGE_URL(
+            createPageAction.payload.applicationId,
+            response.data.id,
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -575,7 +580,9 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
 
       yield put(fetchActionsForPage(response.data.id));
 
-      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      if (!clonePageAction.payload.blockNavigation) {
+        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      }
     }
   } catch (error) {
     yield put({
@@ -817,6 +824,32 @@ export function* populatePageDSLsSaga() {
   }
 }
 
+/**
+ * saga to update the page order
+ *
+ * @param action
+ */
+export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
+  try {
+    const request: SetPageOrderRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.setPageOrder, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
+        payload: action.payload,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_PAGE_ORDER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -836,5 +869,6 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
       fetchAllPublishedPagesSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
   ]);
 }

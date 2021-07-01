@@ -63,16 +63,17 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
 
-  const onDrop = () => {
-    onUpdate(order.current);
-    order.current = items.map((_: any, index: any) => index);
-    setSprings(updateSpringStyles(order.current, itemHeight));
+  const onDrop = (newOrder: any, originalIndex: number, newIndex: number) => {
+    onUpdate(newOrder, originalIndex, newIndex);
+    order.current = newOrder;
+    setSprings(updateSpringStyles(newOrder, itemHeight));
   };
 
   useEffect(() => {
     // when items are updated(added/removed/updated) reassign order and animate springs.
     if (items.length !== order.current.length) {
       order.current = items.map((_: any, index: any) => index);
+
       setSprings(updateSpringStyles(order.current, itemHeight));
     }
   }, [items]);
@@ -105,10 +106,12 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
       if (!props.down) {
         order.current = newOrder;
         setSprings(updateSpringStyles(order.current, itemHeight));
-        debounce(onDrop, 400)();
+        debounce(onDrop, 400)(newOrder, curIndex, curRow);
       }
     }
   });
+
+  console.log({ items });
   return (
     <DraggableListWrapper
       className="content"

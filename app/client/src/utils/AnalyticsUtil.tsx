@@ -124,6 +124,7 @@ export type EventName =
   | "GSHEET_AUTH_COMPLETE"
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
+  | "PAGES_LIST_LOAD"
   | "BINDING_SUCCESS";
 
 function getApplicationId(location: Location) {

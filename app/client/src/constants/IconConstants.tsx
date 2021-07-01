@@ -9,6 +9,8 @@ export type IconProps = {
   onClick?: (e?: any) => void;
   className?: string;
   keepColors?: boolean;
+  disabled?: boolean;
+  cursor?: "move" | "grab" | "default";
 };
 
 export const IconWrapper = styled.div<IconProps>`
@@ -18,6 +20,14 @@ export const IconWrapper = styled.div<IconProps>`
   display: inline-block;
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
+  cursor: ${(props) =>
+    props.disabled
+      ? "not-allowed"
+      : props.onClick
+      ? "pointer"
+      : props.cursor ?? "default"};
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+
   && svg {
     width: ${(props) => props.width || props.theme.fontSizes[6]}px;
     height: ${(props) => props.height || props.theme.fontSizes[6]}px;
