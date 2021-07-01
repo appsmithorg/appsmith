@@ -1,14 +1,5 @@
 import React from "react";
-import { AppState } from "reducers";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
-import {
-  getModalDropdownList,
-  getNextModalName,
-} from "selectors/widgetSelectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
@@ -16,20 +7,9 @@ import {
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { createModalAction } from "actions/widgetActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
-import TreeStructure from "components/utils/TreeStructure";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
-import { checkCurrentStep } from "sagas/OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import { getWidgets } from "sagas/selectors";
-import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -71,11 +51,11 @@ const NAVIGATION_TARGET_FIELD_OPTIONS = [
   },
 ];
 
-const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
-const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
+export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
+export const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
-const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
-const IS_URL_OR_MODAL = /^'.*'$/;
+export const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
+export const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   let args: string[] = [];
@@ -213,14 +193,9 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-type ActionCreatorProps = {
-  value: string;
-  onValueChange: (newValue: string) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
-};
-
-const ActionType = {
+export const ActionType = {
   none: "none",
+  integration: "integration",
   api: "api",
   query: "query",
   showModal: "showModal",
@@ -321,7 +296,7 @@ const views = {
   },
 };
 
-const FieldType = {
+export const FieldType = {
   ACTION_SELECTOR_FIELD: "ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD: "ON_SUCCESS_FIELD",
   ON_ERROR_FIELD: "ON_ERROR_FIELD",
@@ -376,8 +351,7 @@ const fieldConfigs: FieldConfigs = {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {
-        case ActionType.api:
-        case ActionType.query:
+        case ActionType.integration:
           value = `${value}.run`;
           break;
         default:
@@ -541,233 +515,15 @@ const fieldConfigs: FieldConfigs = {
   },
 };
 
-const baseOptions: any = [
-  {
-    label: "No Action",
-    value: ActionType.none,
-  },
-  {
-    label: "Call An API",
-    value: ActionType.api,
-  },
-  {
-    label: "Execute a DB Query",
-    value: ActionType.query,
-  },
-  {
-    label: "Navigate To",
-    value: ActionType.navigateTo,
-  },
-  {
-    label: "Show Message",
-    value: ActionType.showAlert,
-  },
-  {
-    label: "Open Modal",
-    value: ActionType.showModal,
-  },
-  {
-    label: "Close Modal",
-    value: ActionType.closeModal,
-  },
-  {
-    label: "Store Value",
-    value: ActionType.storeValue,
-  },
-  {
-    label: "Download",
-    value: ActionType.download,
-  },
-  {
-    label: "Copy to Clipboard",
-    value: ActionType.copyToClipboard,
-  },
-  {
-    label: "Reset Widget",
-    value: ActionType.resetWidget,
-  },
-];
-function getOptionsWithChildren(
-  options: TreeDropdownOption[],
-  actions: ActionDataState,
-  createActionOption: TreeDropdownOption,
-) {
-  const option = options.find((option) => option.value === ActionType.api);
-  if (option) {
-    option.children = [createActionOption];
-    actions.forEach((action) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: action.config.name,
-        id: action.config.id,
-        value: action.config.name,
-        type: option.value,
-      } as TreeDropdownOption);
-    });
-  }
-  return options;
-}
-
-function getFieldFromValue(
-  value: string | undefined,
-  getParentValue?: Function,
-): any[] {
-  const fields: any[] = [
-    {
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-    },
-  ];
-  if (!value) {
-    return fields;
-  }
-  if (value.indexOf("run") !== -1) {
-    const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-    if (matches.length) {
-      const funcArgs = matches[0][2];
-      const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-      const successArg = args[0];
-      const errorArg = args[1];
-      let sucesssValue;
-      if (successArg && successArg.length > 0) {
-        sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
-      }
-      const successFields = getFieldFromValue(
-        sucesssValue,
-        (changeValue: string) => {
-          const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-          const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-          let successArg = args[0] ? args[0][0] : "() => {}";
-          const errorArg = args[1] ? args[1][0] : "() => {}";
-          successArg = changeValue.endsWith(")")
-            ? `() => ${changeValue}`
-            : `() => ${changeValue}()`;
-
-          return value.replace(
-            ACTION_TRIGGER_REGEX,
-            `{{$1(${successArg}, ${errorArg})}}`,
-          );
-        },
-      );
-      successFields[0].label = "onSuccess";
-      fields.push(successFields);
-
-      let errorValue;
-      if (errorArg && errorArg.length > 0) {
-        errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
-      }
-      const errorFields = getFieldFromValue(
-        errorValue,
-        (changeValue: string) => {
-          const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-          const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-          const successArg = args[0] ? args[0][0] : "() => {}";
-          let errorArg = args[1] ? args[1][0] : "() => {}";
-          errorArg = changeValue.endsWith(")")
-            ? `() => ${changeValue}`
-            : `() => ${changeValue}()`;
-          return value.replace(
-            ACTION_TRIGGER_REGEX,
-            `{{$1(${successArg}, ${errorArg})}}`,
-          );
-        },
-      );
-      errorFields[0].label = "onError";
-      fields.push(errorFields);
-    }
-    return fields;
-  }
-  if (value.indexOf("navigateTo") !== -1) {
-    fields.push({
-      field: FieldType.URL_FIELD,
-    });
-    fields.push({
-      field: FieldType.QUERY_PARAMS_FIELD,
-    });
-    fields.push({
-      field: FieldType.NAVIGATION_TARGET_FIELD,
-    });
-  }
-
-  if (value.indexOf("showModal") !== -1) {
-    fields.push({
-      field: FieldType.SHOW_MODAL_FIELD,
-    });
-  }
-  if (value.indexOf("closeModal") !== -1) {
-    fields.push({
-      field: FieldType.CLOSE_MODAL_FIELD,
-    });
-  }
-  if (value.indexOf("showAlert") !== -1) {
-    fields.push(
-      {
-        field: FieldType.ALERT_TEXT_FIELD,
-      },
-      {
-        field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("storeValue") !== -1) {
-    fields.push(
-      {
-        field: FieldType.KEY_TEXT_FIELD,
-      },
-      {
-        field: FieldType.VALUE_TEXT_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("resetWidget") !== -1) {
-    fields.push(
-      {
-        field: FieldType.WIDGET_NAME_FIELD,
-      },
-      {
-        field: FieldType.RESET_CHILDREN_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("download") !== -1) {
-    fields.push(
-      {
-        field: FieldType.DOWNLOAD_DATA_FIELD,
-      },
-      {
-        field: FieldType.DOWNLOAD_FILE_NAME_FIELD,
-      },
-      {
-        field: FieldType.DOWNLOAD_FILE_TYPE_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("copyToClipboard") !== -1) {
-    fields.push({
-      field: FieldType.COPY_TEXT_FIELD,
-    });
-  }
-  return fields;
-}
-
-function getPageDropdownOptions(state: AppState) {
-  return state.entities.pageList.pages.map((page) => ({
-    label: page.pageName,
-    id: page.pageId,
-    value: `'${page.pageName}'`,
-  }));
-}
-
 function renderField(props: {
   onValueChange: Function;
   value: string;
   field: any;
   label?: string;
-  apiOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
-  queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
+  integrationOptionTree: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
@@ -792,7 +548,7 @@ function renderField(props: {
     case FieldType.WIDGET_NAME_FIELD:
       let label = "";
       let defaultText = "Select Action";
-      let options = props.apiOptionTree;
+      let options = props.integrationOptionTree;
       let selectedLabelModifier = undefined;
       let displayValue = undefined;
       let getDefaults = undefined;
@@ -809,10 +565,7 @@ function renderField(props: {
           option: TreeDropdownOption,
           displayValue?: string,
         ) {
-          if (
-            option.type === ActionType.api ||
-            option.type === ActionType.query
-          ) {
+          if (option.type === ActionType.integration) {
             return (
               <HightlightedCode
                 codeText={`{{${option.label}.run()}}`}
@@ -891,7 +644,7 @@ function renderField(props: {
       break;
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: props.apiOptionTree,
+        options: props.integrationOptionTree,
         label: "",
         get: fieldConfig.getter,
         set: (value: string | DropdownOption) => {
@@ -951,9 +704,10 @@ function Fields(props: {
   value: string;
   fields: any;
   label?: string;
-  apiOptionTree: TreeDropdownOption[];
+  // apiOptionTree: TreeDropdownOption[];
+  integrationOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
-  queryOptionTree: TreeDropdownOption[];
+  // queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
@@ -980,9 +734,9 @@ function Fields(props: {
                 <li key={index}>
                   <Fields
                     additionalAutoComplete={props.additionalAutoComplete}
-                    apiOptionTree={props.apiOptionTree}
                     depth={props.depth + 1}
                     fields={field}
+                    integrationOptionTree={props.integrationOptionTree}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
@@ -993,7 +747,6 @@ function Fields(props: {
                       props.onValueChange(parentValue);
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
-                    queryOptionTree={props.queryOptionTree}
                     value={selectorField.value}
                     widgetOptionTree={props.widgetOptionTree}
                   />
@@ -1022,9 +775,9 @@ function Fields(props: {
         const selectorField = field[0];
         return (
           <Fields
-            apiOptionTree={props.apiOptionTree}
             depth={props.depth + 1}
             fields={field}
+            integrationOptionTree={props.integrationOptionTree}
             key={index}
             label={selectorField.label}
             maxDepth={props.maxDepth}
@@ -1036,7 +789,6 @@ function Fields(props: {
               props.onValueChange(parentValue);
             }}
             pageDropdownOptions={props.pageDropdownOptions}
-            queryOptionTree={props.queryOptionTree}
             value={selectorField.value}
             widgetOptionTree={props.widgetOptionTree}
           />
@@ -1052,158 +804,4 @@ function Fields(props: {
   }
 }
 
-function useModalDropdownList() {
-  const dispatch = useDispatch();
-  const nextModalName = useSelector(getNextModalName);
-
-  let finalList: TreeDropdownOption[] = [
-    {
-      label: "New Modal",
-      value: "Modal",
-      id: "create",
-      icon: "plus",
-      className: "t--create-modal-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const modalName = nextModalName;
-        if (setter) {
-          setter({
-            value: `${modalName}`,
-          });
-          dispatch(createModalAction(nextModalName));
-        }
-      },
-    },
-  ];
-
-  finalList = finalList.concat(
-    (useSelector(getModalDropdownList) || []) as TreeDropdownOption[],
-  );
-
-  return finalList;
-}
-
-function useApiOptionTree() {
-  const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId) || "";
-
-  const actions = useSelector(getActionsForCurrentPage).filter(
-    (action) =>
-      action.config.pluginType === PluginType.API ||
-      action.config.pluginType === PluginType.SAAS,
-  );
-  let filteredBaseOptions = baseOptions;
-
-  // For onboarding
-  const filterOptions = useSelector((state: AppState) =>
-    checkCurrentStep(state, OnboardingStep.ADD_INPUT_WIDGET),
-  );
-  if (filterOptions) {
-    filteredBaseOptions = baseOptions.filter(
-      (item: any) => item.value === ActionType.query,
-    );
-  }
-
-  const apiOptionTree = getOptionsWithChildren(filteredBaseOptions, actions, {
-    label: "Create API",
-    value: "api",
-    id: "create",
-    className: "t--create-api-btn",
-    icon: "plus",
-    onSelect: (option: TreeDropdownOption, setter?: Function) => {
-      const apiName = createNewApiName(actions, pageId);
-      if (setter) {
-        setter({
-          value: `${apiName}`,
-          type: ActionType.api,
-        });
-        dispatch(createNewApiAction(pageId, "API_PANE"));
-      }
-    },
-  });
-  return apiOptionTree;
-}
-
-function useWidgetOptionTree() {
-  const widgets = useSelector(getWidgets) || {};
-  return Object.values(widgets)
-    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
-    .map((w) => {
-      return {
-        label: w.widgetName,
-        id: w.widgetName,
-        value: `"${w.widgetName}"`,
-      };
-    });
-}
-function getQueryOptionsWithChildren(
-  options: TreeDropdownOption[],
-  queries: ActionDataState,
-  createQueryOption: TreeDropdownOption,
-) {
-  const option = options.find((option) => option.value === ActionType.query);
-  if (option) {
-    option.children = [createQueryOption];
-    queries.forEach((query) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: query.config.name,
-        id: query.config.id,
-        value: query.config.name,
-        type: option.value,
-      } as TreeDropdownOption);
-    });
-  }
-  return options;
-}
-
-function useQueryOptionTree() {
-  const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId) || "";
-
-  const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === PluginType.DB,
-  );
-  const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
-    label: "Create Query",
-    value: "query",
-    id: "create",
-    icon: "plus",
-    className: "t--create-query-btn",
-    onSelect: (option: TreeDropdownOption, setter?: Function) => {
-      const queryName = createNewQueryName(queries, pageId);
-      if (setter) {
-        setter({
-          value: `${queryName}`,
-          type: ActionType.query,
-        });
-        dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
-      }
-    },
-  });
-  return queryOptionTree;
-}
-
-export function ActionCreator(props: ActionCreatorProps) {
-  const apiOptionTree = useApiOptionTree();
-  const widgetOptionTree = useWidgetOptionTree();
-  const queryOptionTree = useQueryOptionTree();
-  const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  const fields = getFieldFromValue(props.value);
-  return (
-    <TreeStructure>
-      <Fields
-        additionalAutoComplete={props.additionalAutoComplete}
-        apiOptionTree={apiOptionTree}
-        depth={1}
-        fields={fields}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={pageDropdownOptions}
-        queryOptionTree={queryOptionTree}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-    </TreeStructure>
-  );
-}
+export default Fields;
