@@ -63,6 +63,13 @@
         </dependency>
 
         <!-- Test Dependencies -->
+
+        <dependency>
+            <groupId>com.github.goodforgod</groupId>
+            <artifactId>arangodb-testcontainer</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -7,20 +7,21 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.SSLDetails;
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDB;
-import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.Permissions;
 import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.CollectionSchema;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -28,16 +29,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-
 /**
- * Unit tests for MongoPlugin
+ * Unit tests for ArangoDBPlugin
  */
 
 public class ArangoDBPluginTest {
@@ -54,9 +53,11 @@ public class ArangoDBPluginTest {
 
     @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer container = new GenericContainer(CompletableFuture.completedFuture("arangodb/arangodb:3.7.5"))
+    public static GenericContainer container = new GenericContainer(DockerImageName.parse("arangodb/arangodb:3.7.12"))
             .withEnv(Map.of("ARANGO_ROOT_PASSWORD", password))
-            .withExposedPorts(8529);
+            .withExposedPorts(8529)
+            .waitingFor(Wait.forHttp("/"));
+
 
     @BeforeClass
     public static void setUp() {
@@ -72,15 +73,9 @@ public class ArangoDBPluginTest {
                 .useProtocol(Protocol.HTTP_VPACK)
                 .build();
 
-        //create database
-        try {
-            arangoDB.createDatabase(dbName);
-        } catch (ArangoDBException arangoDBException) {
-            //ignore
-            System.out.println(arangoDBException);
-        }
+
+        arangoDB.createDatabase(dbName);
         ArangoDatabase arangoDatabase = arangoDB.db(dbName);
-        arangoDatabase.grantAccess(user, Permissions.RW);
 
         //create collection
         CollectionSchema schema = new CollectionSchema();
@@ -164,11 +159,6 @@ public class ArangoDBPluginTest {
         ));
     }
 
-    @AfterClass
-    public static void tearDown() {
-        arangoDB.shutdown();
-    }
-
     private DatasourceConfiguration createDatasourceConfiguration() {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(address);
@@ -178,6 +168,9 @@ public class ArangoDBPluginTest {
         connection.setMode(Connection.Mode.READ_WRITE);
         connection.setType(Connection.Type.DIRECT);
         connection.setDefaultDatabaseName(dbName);
+        connection.setSsl(new SSLDetails());
+        connection.getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+        connection.getSsl().setCaCertificateType(SSLDetails.CACertificateType.NONE);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setConnection(connection);
