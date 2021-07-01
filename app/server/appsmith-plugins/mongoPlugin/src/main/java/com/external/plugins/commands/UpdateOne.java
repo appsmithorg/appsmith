@@ -17,6 +17,7 @@ import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDAT
 
 @Getter
 @Setter
+@Deprecated
 public class UpdateOne extends MongoCommand {
     String query;
     String sort;

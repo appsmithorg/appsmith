@@ -7,8 +7,11 @@ import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
 
-const PositionedWidget = styled.div``;
-
+const PositionedWidget = styled.div`
+  &:hover {
+    z-index: ${Layers.positionedWidget + 1} !important;
+  }
+`;
 type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
@@ -24,7 +27,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   const openPropertyPane = useClickOpenPropPane();
-
   // memoized classname
   const containerClassName = useMemo(() => {
     return (

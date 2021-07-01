@@ -4,7 +4,7 @@ const dsl = require("../../../fixtures/listdsl.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("Container Widget Functionality", function() {
-  const items = JSON.parse(dsl.dsl.children[0].items);
+  const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
     cy.addDsl(dsl);

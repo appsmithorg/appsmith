@@ -1,14 +1,13 @@
-import React, { useRef, useEffect } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { createPortal } from "react-dom";
-import PopperJS, { Placement, PopperOptions } from "popper.js";
-import { noop } from "utils/AppsmithUtils";
-import { draggableElement } from "./utils";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { Colors } from "constants/Colors";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import PopperJS, { Placement, PopperOptions } from "popper.js";
+import React, { useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AppState } from "reducers";
-import { useSelector } from "react-redux";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import styled, { ThemeProvider } from "styled-components";
+import { noop } from "utils/AppsmithUtils";
+import { draggableElement } from "./utils";
 
 export type PopperProps = {
   zIndex: number;
@@ -60,9 +59,13 @@ export default (props: PopperProps) => {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
-  const popperTheme = useSelector((state: AppState) =>
-    getThemeDetails(state, themeMode),
+  // Meomoizing to avoid rerender of draggable icon.
+  // What is the cost of memoizing?
+  const popperTheme = useMemo(
+    () => getThemeDetails({} as AppState, themeMode),
+    [themeMode],
   );
+
   useEffect(() => {
     const parentElement = props.targetNode && props.targetNode.parentElement;
     if (
@@ -133,7 +136,7 @@ export default (props: PopperProps) => {
   }, [
     props.targetNode,
     props.isOpen,
-    props.modifiers,
+    JSON.stringify(props.modifiers),
     props.placement,
     disablePopperEvents,
   ]);

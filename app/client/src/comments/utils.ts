@@ -1,5 +1,9 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -85,11 +89,13 @@ export const getCommentThreadURL = ({
   commentThreadId,
   isResolved,
   pageId,
+  mode = APP_MODE.PUBLISHED,
 }: {
   applicationId?: string;
   commentThreadId: string;
   isResolved?: boolean;
   pageId?: string;
+  mode?: APP_MODE;
 }) => {
   const queryParams: Record<string, any> = {
     commentThreadId,
@@ -100,8 +106,13 @@ export const getCommentThreadURL = ({
     queryParams.isResolved = true;
   }
 
+  const urlBuilder =
+    mode === APP_MODE.PUBLISHED
+      ? getApplicationViewerPageURL
+      : BUILDER_PAGE_URL;
+
   const url = new URL(
-    `${window.location.origin}${BUILDER_PAGE_URL(
+    `${window.location.origin}${urlBuilder(
       applicationId,
       pageId,
       queryParams,

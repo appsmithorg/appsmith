@@ -2,9 +2,11 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { cloneDeep, get, isString } from "lodash";
+import { cloneDeep, get, isString, filter, set } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { getWidget } from "./selectors";
 
 /**
  * checks if triggerpaths contains property path passed
@@ -79,7 +81,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
             "",
           );
 
-          value = `{{${listWidget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
 
           currentWidget[key] = value;
 
@@ -169,9 +171,56 @@ export const handleSpecificCasesWhilePasting = (
     });
 
     widgets[widget.widgetId] = widget;
+  } else if (widget.type === WidgetTypes.MODAL_WIDGET) {
+    // if Modal is being coppied handle all onClose action rename
+    const oldWidgetName = Object.keys(widgetNameMap).find(
+      (key) => widgetNameMap[key] === widget.widgetName,
+    );
+    // get all the button, icon widgets
+    const copiedBtnIcnWidgets = filter(
+      newWidgetList,
+      (copyWidget) =>
+        copyWidget.type === "BUTTON_WIDGET" ||
+        copyWidget.type === "ICON_WIDGET",
+    );
+    // replace oldName with new one if any of this widget have onClick action for old modal
+    copiedBtnIcnWidgets.map((copyWidget) => {
+      if (copyWidget.onClick) {
+        const newOnClick = widgets[copyWidget.widgetId].onClick.replace(
+          oldWidgetName,
+          widget.widgetName,
+        );
+        set(widgets[copyWidget.widgetId], "onClick", newOnClick);
+      }
+    });
   }
 
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
   return widgets;
 };
+
+export function* getWidgetChildren(widgetId: string): any {
+  const childrenIds: string[] = [];
+  const widget = yield select(getWidget, widgetId);
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+  const { children = [] } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      if (children.hasOwnProperty(childIndex)) {
+        const child = children[childIndex];
+        childrenIds.push(child);
+        const grandChildren = yield call(getWidgetChildren, child);
+        if (grandChildren.length) {
+          childrenIds.push(...grandChildren);
+        }
+      }
+    }
+  }
+  return childrenIds;
+}

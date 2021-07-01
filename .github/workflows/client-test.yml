@@ -27,13 +27,11 @@ jobs:
   build:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
-    # Only PR approvals of internally created PRs should trigger this workflow
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
       (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)
+      github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -117,6 +115,9 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
             REACT_APP_SHOW_ONBOARDING_FORM=true \
+            APPSMITH_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} \
+            APPSMITH_RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }} \
+            APPSMITH_RECAPTCHA_ENABLED=true \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
