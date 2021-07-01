@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import {
   getBorderCSSShorthand,
@@ -27,11 +27,11 @@ import {
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
 import CurrencyTypeDropdown, {
-  getCurrencyOptions,
+  CurrencyDropdownOptions,
   getSelectedCurrency,
 } from "components/ads/CurrencyCodeDropdown";
 import ISDCodeDropdown, {
-  getISDCodeOptions,
+  ISDCodeDropdownOptions,
   getSelectedISDCode,
 } from "components/ads/ISDCodeDropdown";
 /**
@@ -169,6 +169,36 @@ class InputComponent extends React.Component<
     }
   };
 
+  getLeftIcon = (inputType: InputType) => {
+    if (inputType === "PHONE_NUMBER") {
+      const selectedISDCode = useMemo(
+        () => getSelectedISDCode(this.props.countryCode),
+        [this.props.countryCode],
+      );
+      return (
+        <ISDCodeDropdown
+          onISDCodeChange={this.props.onISDCodeChange}
+          options={ISDCodeDropdownOptions}
+          selected={selectedISDCode}
+        />
+      );
+    } else if (inputType === InputTypes.CURRENCY) {
+      const selectedCurrencyCode = useMemo(
+        () => getSelectedCurrency(this.props.currencyType),
+        [this.props.currencyType],
+      );
+      return (
+        <CurrencyTypeDropdown
+          allowCurrencyChange={this.props.allowCurrencyChange}
+          onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+          options={CurrencyDropdownOptions}
+          selected={selectedCurrencyCode}
+        />
+      );
+    }
+    return this.props.leftIcon;
+  };
+
   isNumberInputType(inputType: InputType) {
     return (
       inputType === "INTEGER" ||
@@ -219,45 +249,29 @@ class InputComponent extends React.Component<
     }
   };
 
-  private numericInputComponent = () => (
-    <NumericInput
-      allowNumericCharactersOnly
-      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-      disabled={this.props.disabled}
-      intent={this.props.intent}
-      leftIcon={
-        this.props.inputType === "PHONE_NUMBER" ? (
-          <ISDCodeDropdown
-            onISDCodeChange={this.props.onISDCodeChange}
-            options={getISDCodeOptions()}
-            selected={getSelectedISDCode(this.props.countryCode)}
-          />
-        ) : this.props.inputType !== InputTypes.CURRENCY ? (
-          this.props.leftIcon
-        ) : (
-          this.props.inputType === InputTypes.CURRENCY && (
-            <CurrencyTypeDropdown
-              allowCurrencyChange={this.props.allowCurrencyChange}
-              onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-              options={getCurrencyOptions()}
-              selected={getSelectedCurrency(this.props.currencyType)}
-            />
-          )
-        )
-      }
-      max={this.props.maxNum}
-      maxLength={this.props.maxChars}
-      min={this.props.minNum}
-      onBlur={() => this.setFocusState(false)}
-      onFocus={() => this.setFocusState(true)}
-      onKeyDown={this.onKeyDown}
-      onValueChange={this.onNumberChange}
-      placeholder={this.props.placeholder}
-      stepSize={this.props.stepSize}
-      // type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-      value={this.props.value}
-    />
-  );
+  private numericInputComponent = () => {
+    const leftIcon = this.getLeftIcon(this.props.inputType);
+    return (
+      <NumericInput
+        allowNumericCharactersOnly
+        className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
+        disabled={this.props.disabled}
+        intent={this.props.intent}
+        leftIcon={leftIcon}
+        max={this.props.maxNum}
+        maxLength={this.props.maxChars}
+        min={this.props.minNum}
+        onBlur={() => this.setFocusState(false)}
+        onFocus={() => this.setFocusState(true)}
+        onKeyDown={this.onKeyDown}
+        onValueChange={this.onNumberChange}
+        placeholder={this.props.placeholder}
+        stepSize={this.props.stepSize}
+        value={this.props.value}
+      />
+    );
+  };
+
   private textAreaInputComponent = () => (
     <TextArea
       className={this.props.isLoading ? "bp3-skeleton" : ""}
@@ -310,7 +324,6 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
-    console.log(this.props);
     return (
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}

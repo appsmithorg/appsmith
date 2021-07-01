@@ -1,4 +1,3 @@
-// 20210608001520
 // https://gist.githubusercontent.com/somangshu/93c83900714d14fe86502be6c48738c7/raw/5ebdc149d599f5661d2c87c59f23d6889cc93129/country.json
 
 export interface CurrencyOptionProps {
@@ -8,7 +7,6 @@ export interface CurrencyOptionProps {
   label: string;
   phone: string;
   symbol_native: string;
-  country_code?: string;
 }
 
 export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
@@ -36,22 +34,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "93",
     symbol_native: "؋",
   },
-  // {
-  //   code: "AG",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Antigua and Barbuda",
-  //   phone: "1-268",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "AI",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Anguilla",
-  //   phone: "1-264",
-  //   symbol_native: null,
-  // },
   {
     code: "AL",
     currency: "ALL",
@@ -68,22 +50,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "374",
     symbol_native: "դր.",
   },
-  // {
-  //   code: "AO",
-  //   currency: "AOA",
-  //   currency_name: null,
-  //   label: "Angola",
-  //   phone: "244",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "AQ",
-  //   currency: "",
-  //   currency_name: null,
-  //   label: "Antarctica",
-  //   phone: "672",
-  //   symbol_native: null,
-  // },
   {
     code: "AR",
     currency: "ARS",
@@ -116,14 +82,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "61",
     symbol_native: "$",
   },
-  // {
-  //   code: "AW",
-  //   currency: "AWG",
-  //   currency_name: null,
-  //   label: "Aruba",
-  //   phone: "297",
-  //   symbol_native: null,
-  // },
   {
     code: "AX",
     currency: "EUR",
@@ -148,14 +106,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "387",
     symbol_native: "KM",
   },
-  // {
-  //   code: "BB",
-  //   currency: "BBD",
-  //   currency_name: null,
-  //   label: "Barbados",
-  //   phone: "1-246",
-  //   symbol_native: null,
-  // },
   {
     code: "BD",
     currency: "BDT",
@@ -220,14 +170,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "590",
     symbol_native: "€",
   },
-  // {
-  //   code: "BM",
-  //   currency: "BMD",
-  //   currency_name: null,
-  //   label: "Bermuda",
-  //   phone: "1-441",
-  //   symbol_native: null,
-  // },
   {
     code: "BN",
     currency: "BND",
@@ -252,22 +194,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "55",
     symbol_native: "R$",
   },
-  // {
-  //   code: "BS",
-  //   currency: "BSD",
-  //   currency_name: null,
-  //   label: "Bahamas",
-  //   phone: "1-242",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "BT",
-  //   currency: "BTN",
-  //   currency_name: null,
-  //   label: "Bhutan",
-  //   phone: "975",
-  //   symbol_native: null,
-  // },
   {
     code: "BV",
     currency: "NOK",
@@ -404,14 +330,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "506",
     symbol_native: "₡",
   },
-  // {
-  //   code: "CU",
-  //   currency: "CUP",
-  //   currency_name: null,
-  //   label: "Cuba",
-  //   phone: "53",
-  //   symbol_native: null,
-  // },
   {
     code: "CV",
     currency: "CVE",
@@ -420,14 +338,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "238",
     symbol_native: "CV$",
   },
-  // {
-  //   code: "CW",
-  //   currency: "ANG",
-  //   currency_name: null,
-  //   label: "Curacao",
-  //   phone: "599",
-  //   symbol_native: null,
-  // },
   {
     code: "CX",
     currency: "AUD",
@@ -476,14 +386,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "45",
     symbol_native: "kr",
   },
-  // {
-  //   code: "DM",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Dominica",
-  //   phone: "1-767",
-  //   symbol_native: null,
-  // },
   {
     code: "DO",
     currency: "DOP",
@@ -564,22 +466,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "358",
     symbol_native: "€",
   },
-  // {
-  //   code: "FJ",
-  //   currency: "FJD",
-  //   currency_name: null,
-  //   label: "Fiji",
-  //   phone: "679",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "FK",
-  //   currency: "FKP",
-  //   currency_name: null,
-  //   label: "Falkland Islands (Malvinas)",
-  //   phone: "500",
-  //   symbol_native: null,
-  // },
   {
     code: "FM",
     currency: "USD",
@@ -620,14 +506,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "44",
     symbol_native: "£",
   },
-  // {
-  //   code: "GD",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Grenada",
-  //   phone: "1-473",
-  //   symbol_native: null,
-  // },
   {
     code: "GE",
     currency: "GEL",
@@ -660,14 +538,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "233",
     symbol_native: "GH₵",
   },
-  // {
-  //   code: "GI",
-  //   currency: "GIP",
-  //   currency_name: null,
-  //   label: "Gibraltar",
-  //   phone: "350",
-  //   symbol_native: null,
-  // },
   {
     code: "GL",
     currency: "DKK",
@@ -676,14 +546,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "299",
     symbol_native: "kr",
   },
-  // {
-  //   code: "GM",
-  //   currency: "GMD",
-  //   currency_name: null,
-  //   label: "Gambia",
-  //   phone: "220",
-  //   symbol_native: null,
-  // },
   {
     code: "GN",
     currency: "GNF",
@@ -748,14 +610,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "245",
     symbol_native: "CFA",
   },
-  // {
-  //   code: "GY",
-  //   currency: "GYD",
-  //   currency_name: null,
-  //   label: "Guyana",
-  //   phone: "592",
-  //   symbol_native: null,
-  // },
   {
     code: "HK",
     currency: "HKD",
@@ -788,14 +642,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "385",
     symbol_native: "kn",
   },
-  // {
-  //   code: "HT",
-  //   currency: "HTG",
-  //   currency_name: null,
-  //   label: "Haiti",
-  //   phone: "509",
-  //   symbol_native: null,
-  // },
   {
     code: "HU",
     currency: "HUF",
@@ -843,7 +689,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     label: "India",
     phone: "91",
     symbol_native: "₹",
-    country_code: "+91",
   },
   {
     code: "IO",
@@ -925,14 +770,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "254",
     symbol_native: "Ksh",
   },
-  // {
-  //   code: "KG",
-  //   currency: "KGS",
-  //   currency_name: null,
-  //   label: "Kyrgyzstan",
-  //   phone: "996",
-  //   symbol_native: null,
-  // },
   {
     code: "KH",
     currency: "KHR",
@@ -957,22 +794,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "269",
     symbol_native: "FC",
   },
-  // {
-  //   code: "KN",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Saint Kitts and Nevis",
-  //   phone: "1-869",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "KP",
-  //   currency: "KPW",
-  //   currency_name: null,
-  //   label: "Korea, Democratic People's Republic of",
-  //   phone: "850",
-  //   symbol_native: null,
-  // },
   {
     code: "KR",
     currency: "KRW",
@@ -989,14 +810,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "965",
     symbol_native: "د.ك.‏",
   },
-  // {
-  //   code: "KY",
-  //   currency: "KYD",
-  //   currency_name: null,
-  //   label: "Cayman Islands",
-  //   phone: "1-345",
-  //   symbol_native: null,
-  // },
   {
     code: "KZ",
     currency: "KZT",
@@ -1005,14 +818,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "7",
     symbol_native: "тңг.",
   },
-  // {
-  //   code: "LA",
-  //   currency: "LAK",
-  //   currency_name: null,
-  //   label: "Lao People's Democratic Republic",
-  //   phone: "856",
-  //   symbol_native: null,
-  // },
   {
     code: "LB",
     currency: "LBP",
@@ -1021,14 +826,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "961",
     symbol_native: "ل.ل.‏",
   },
-  // {
-  //   code: "LC",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Saint Lucia",
-  //   phone: "1-758",
-  //   symbol_native: null,
-  // },
   {
     code: "LI",
     currency: "CHF",
@@ -1045,22 +842,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "94",
     symbol_native: "SL Re",
   },
-  // {
-  //   code: "LR",
-  //   currency: "LRD",
-  //   currency_name: null,
-  //   label: "Liberia",
-  //   phone: "231",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "LS",
-  //   currency: "LSL",
-  //   currency_name: null,
-  //   label: "Lesotho",
-  //   phone: "266",
-  //   symbol_native: null,
-  // },
   {
     code: "LT",
     currency: "LTL",
@@ -1173,14 +954,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "95",
     symbol_native: "K",
   },
-  // {
-  //   code: "MN",
-  //   currency: "MNT",
-  //   currency_name: null,
-  //   label: "Mongolia",
-  //   phone: "976",
-  //   symbol_native: null,
-  // },
   {
     code: "MO",
     currency: "MOP",
@@ -1205,22 +978,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "596",
     symbol_native: "€",
   },
-  // {
-  //   code: "MR",
-  //   currency: "MRO",
-  //   currency_name: null,
-  //   label: "Mauritania",
-  //   phone: "222",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "MS",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Montserrat",
-  //   phone: "1-664",
-  //   symbol_native: null,
-  // },
   {
     code: "MT",
     currency: "EUR",
@@ -1237,22 +994,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "230",
     symbol_native: "MURs",
   },
-  // {
-  //   code: "MV",
-  //   currency: "MVR",
-  //   currency_name: null,
-  //   label: "Maldives",
-  //   phone: "960",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "MW",
-  //   currency: "MWK",
-  //   currency_name: null,
-  //   label: "Malawi",
-  //   phone: "265",
-  //   symbol_native: null,
-  // },
   {
     code: "MX",
     currency: "MXN",
@@ -1285,14 +1026,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "264",
     symbol_native: "N$",
   },
-  // {
-  //   code: "NC",
-  //   currency: "XPF",
-  //   currency_name: null,
-  //   label: "New Caledonia",
-  //   phone: "687",
-  //   symbol_native: null,
-  // },
   {
     code: "NE",
     currency: "XOF",
@@ -1397,22 +1130,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "51",
     symbol_native: "S/.",
   },
-  // {
-  //   code: "PF",
-  //   currency: "XPF",
-  //   currency_name: null,
-  //   label: "French Polynesia",
-  //   phone: "689",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "PG",
-  //   currency: "PGK",
-  //   currency_name: null,
-  //   label: "Papua New Guinea",
-  //   phone: "675",
-  //   symbol_native: null,
-  // },
   {
     code: "PH",
     currency: "PHP",
@@ -1549,22 +1266,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "966",
     symbol_native: "ر.س.‏",
   },
-  // {
-  //   code: "SB",
-  //   currency: "SBD",
-  //   currency_name: null,
-  //   label: "Solomon Islands",
-  //   phone: "677",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "SC",
-  //   currency: "SCR",
-  //   currency_name: null,
-  //   label: "Seychelles",
-  //   phone: "248",
-  //   symbol_native: null,
-  // },
   {
     code: "SD",
     currency: "SDG",
@@ -1589,14 +1290,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "65",
     symbol_native: "$",
   },
-  // {
-  //   code: "SH",
-  //   currency: "SHP",
-  //   currency_name: null,
-  //   label: "Saint Helena",
-  //   phone: "290",
-  //   symbol_native: null,
-  // },
   {
     code: "SI",
     currency: "EUR",
@@ -1621,14 +1314,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "421",
     symbol_native: "€",
   },
-  // {
-  //   code: "SL",
-  //   currency: "SLL",
-  //   currency_name: null,
-  //   label: "Sierra Leone",
-  //   phone: "232",
-  //   symbol_native: null,
-  // },
   {
     code: "SM",
     currency: "EUR",
@@ -1653,30 +1338,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "252",
     symbol_native: "Ssh",
   },
-  // {
-  //   code: "SR",
-  //   currency: "SRD",
-  //   currency_name: null,
-  //   label: "Suriname",
-  //   phone: "597",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "SS",
-  //   currency: "SSP",
-  //   currency_name: null,
-  //   label: "South Sudan",
-  //   phone: "211",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "ST",
-  //   currency: "STD",
-  //   currency_name: null,
-  //   label: "Sao Tome and Principe",
-  //   phone: "239",
-  //   symbol_native: null,
-  // },
   {
     code: "SV",
     currency: "USD",
@@ -1685,14 +1346,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "503",
     symbol_native: "$",
   },
-  // {
-  //   code: "SX",
-  //   currency: "ANG",
-  //   currency_name: null,
-  //   label: "Sint Maarten (Dutch part)",
-  //   phone: "1-721",
-  //   symbol_native: null,
-  // },
   {
     code: "SY",
     currency: "SYP",
@@ -1701,14 +1354,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "963",
     symbol_native: "ل.س.‏",
   },
-  // {
-  //   code: "SZ",
-  //   currency: "SZL",
-  //   currency_name: null,
-  //   label: "Swaziland",
-  //   phone: "268",
-  //   symbol_native: null,
-  // },
   {
     code: "TC",
     currency: "USD",
@@ -1749,14 +1394,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "66",
     symbol_native: "฿",
   },
-  // {
-  //   code: "TJ",
-  //   currency: "TJS",
-  //   currency_name: null,
-  //   label: "Tajikistan",
-  //   phone: "992",
-  //   symbol_native: null,
-  // },
   {
     code: "TK",
     currency: "NZD",
@@ -1773,14 +1410,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "670",
     symbol_native: "$",
   },
-  // {
-  //   code: "TM",
-  //   currency: "TMT",
-  //   currency_name: null,
-  //   label: "Turkmenistan",
-  //   phone: "993",
-  //   symbol_native: null,
-  // },
   {
     code: "TN",
     currency: "TND",
@@ -1885,14 +1514,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "379",
     symbol_native: "€",
   },
-  // {
-  //   code: "VC",
-  //   currency: "XCD",
-  //   currency_name: null,
-  //   label: "Saint Vincent and the Grenadines",
-  //   phone: "1-784",
-  //   symbol_native: null,
-  // },
   {
     code: "VE",
     currency: "VEF",
@@ -1925,30 +1546,6 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "84",
     symbol_native: "₫",
   },
-  // {
-  //   code: "VU",
-  //   currency: "VUV",
-  //   currency_name: null,
-  //   label: "Vanuatu",
-  //   phone: "678",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "WF",
-  //   currency: "XPF",
-  //   currency_name: null,
-  //   label: "Wallis and Futuna",
-  //   phone: "681",
-  //   symbol_native: null,
-  // },
-  // {
-  //   code: "WS",
-  //   currency: "WST",
-  //   currency_name: null,
-  //   label: "Samoa",
-  //   phone: "685",
-  //   symbol_native: null,
-  // },
   {
     code: "XK",
     currency: "EUR",
@@ -1989,12 +1586,4 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "260",
     symbol_native: "ZK",
   },
-  // {
-  //   code: "ZW",
-  //   currency: "ZWL",
-  //   currency_name: null,
-  //   label: "Zimbabwe",
-  //   phone: "263",
-  //   symbol_native: null,
-  // },
 ];

@@ -32,7 +32,7 @@ const CurrencyIconWrapper = styled.span`
   color: #090707;
 `;
 
-export const getCurrencyOptions = (): Array<DropdownOption> => {
+const getCurrencyOptions = (): Array<DropdownOption> => {
   return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
     return {
       leftElement: countryToFlag(item.code),
@@ -42,6 +42,8 @@ export const getCurrencyOptions = (): Array<DropdownOption> => {
     };
   });
 };
+
+export const CurrencyDropdownOptions = getCurrencyOptions();
 
 export const getSelectedCurrency = (currencyType?: string): DropdownOption => {
   const selectedCurrency: CurrencyOptionProps | undefined = currencyType
@@ -68,16 +70,13 @@ interface CurrencyDropdownProps {
 }
 
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
+  const selectedCurrency = getSelectedCurrency(props.selected.value).id;
   if (!props.allowCurrencyChange) {
-    return (
-      <CurrencyIconWrapper>
-        {getSelectedCurrency(props.selected.value).id}
-      </CurrencyIconWrapper>
-    );
+    return <CurrencyIconWrapper>{selectedCurrency}</CurrencyIconWrapper>;
   }
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper className="t--input-currency-change">
-      {getSelectedCurrency(props.selected.value).id}
+      {selectedCurrency}
       <Icon name="downArrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>
   );

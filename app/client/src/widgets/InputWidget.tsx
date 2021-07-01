@@ -14,8 +14,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
-import { getISDCodeOptions } from "components/ads/ISDCodeDropdown";
-import { getCurrencyOptions } from "components/ads/CurrencyCodeDropdown";
+import { ISDCodeDropdownOptions } from "components/ads/ISDCodeDropdown";
+import { CurrencyDropdownOptions } from "components/ads/CurrencyCodeDropdown";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -84,7 +84,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or country name",
-            options: getISDCodeOptions(),
+            options: ISDCodeDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
             },
@@ -99,7 +99,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or name",
-            options: getCurrencyOptions(),
+            options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
@@ -304,10 +304,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         }()
       }}`,
       value: `{{this.text}}`,
-      countryCode:
-        "{{this.selectedCountryCode ? this.selectedCountryCode : this.defaultCountryCode}}",
-      currencyType:
-        "{{this.selectedCurrencyType ? this.selectedCurrencyType : this.defaultCurrencyType}}",
+      countryCode: "{{this.selectedCountryCode ?? this.defaultCountryCode}}",
+      currencyType: "{{this.selectedCurrencyType ?? this.defaultCurrencyType}}",
     };
   }
 
