@@ -4,12 +4,12 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
+  DATA_SOURCES_EDITOR_URL,
   QueryEditorRouteParams,
 } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
+import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
@@ -147,11 +147,9 @@ class QueryEditor extends React.Component<Props> {
     }));
 
     const onCreateDatasourceClick = () => {
-      history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-      );
+      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     };
-    return (
+    return queryId ? (
       <QueryEditorForm
         DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
         dataSources={dataSources}
@@ -165,6 +163,15 @@ class QueryEditor extends React.Component<Props> {
         onRunClick={this.handleRunClick}
         runErrorMessage={runErrorMessage[queryId]}
         settingConfig={settingConfig}
+      />
+    ) : (
+      <QueryHomeScreen
+        applicationId={applicationId}
+        dataSources={dataSources}
+        history={this.props.history}
+        isCreating={isCreating}
+        location={this.props.location}
+        pageId={pageId}
       />
     );
   }

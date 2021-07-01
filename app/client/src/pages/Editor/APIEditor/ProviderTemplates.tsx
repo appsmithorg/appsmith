@@ -28,7 +28,7 @@ import {
   addApiToPage,
 } from "actions/providerActions";
 import { getDuplicateName } from "utils/AppsmithUtils";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -306,10 +306,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             iconSize={16}
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
+                API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
                   applicationId,
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
+                  destinationPageId ? destinationPageId : pageId,
                 ),
               )
             }
@@ -318,10 +318,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             className="backBtnText"
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
+                API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
                   applicationId,
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
+                  destinationPageId ? destinationPageId : pageId,
                 ),
               )
             }

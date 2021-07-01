@@ -28,8 +28,7 @@ function ActionLink(props: EntityLinkProps) {
       const { id, pageId, pluginType } = action;
       const actionConfig = getActionConfig(pluginType);
       const url =
-        applicationId &&
-        actionConfig?.getURL(applicationId, pageId, id, pluginType);
+        applicationId && actionConfig?.getURL(applicationId, pageId, id);
 
       if (url) {
         history.push(url);
