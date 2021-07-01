@@ -23,6 +23,7 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 <br />
 <br>
 <img src="static/images/integrations.png" width="320px">
+<img width="783" alt="MVC-Github-Readme" src="https://user-images.githubusercontent.com/1650391/124094578-d1618480-da50-11eb-839b-c702c2574f15.png">
 
 </p>
 <br>
