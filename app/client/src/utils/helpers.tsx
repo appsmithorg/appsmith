@@ -74,13 +74,8 @@ export const getScrollByPixels = function(
 
 export const getScrollByPixels2 = function(
   elem: {
-    left: number;
     top: number;
-    width: number;
     height: number;
-    columnWidth: number;
-    rowHeight: number;
-    widgetId: string;
   },
   scrollParent: Element,
   child: Element,
@@ -129,13 +124,8 @@ export const scrollElementIntoParentCanvasView = (
 
 export const scrollElementIntoParentCanvasView2 = (
   el: {
-    left: number;
     top: number;
-    width: number;
     height: number;
-    columnWidth: number;
-    rowHeight: number;
-    widgetId: string;
   } | null,
   parent: Element | null,
   child: Element | null,
