@@ -65,7 +65,7 @@ function ConnectDataCTA() {
   }, []);
 
   return (
-    <StyledDiv>
+    <StyledDiv className="t--propertypane-connect-cta">
       Data Required
       <Button
         category={Category.primary}
