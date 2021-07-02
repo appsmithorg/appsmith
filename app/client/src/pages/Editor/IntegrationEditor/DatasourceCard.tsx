@@ -84,7 +84,7 @@ const Queries = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
-  display: none;
+  display: flex;
   gap: 10px;
 `;
 
