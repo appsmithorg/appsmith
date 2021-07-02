@@ -16,7 +16,6 @@ REACT_APP_ENVIRONMENT=PRODUCTION \
 REACT_APP_SHOW_ONBOARDING_FORM=true \
 	yarn run build
 
-source "$CODEBUILD_SRC_DIR/ci/common/extra-env.sh"
 mv -v build client-dist
 tar -caf client-dist.tgz client-dist
 aws s3 cp --no-progress client-dist.tgz "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz"
