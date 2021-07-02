@@ -1161,7 +1161,8 @@ public class ApplicationServiceTest {
         Mono<Application> applicationFromDbPostViewChange = Mono.just(originalApplication)
                 .flatMap(originalApp -> {
                     try {
-                        // Before fetching the cloned application, sleep for 5 seconds to ensure that the cloning finishes
+                        // Before fetching the public application, sleep for 5 seconds to ensure that the updating
+                        // all appsmith objects with public permission finishes.
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
