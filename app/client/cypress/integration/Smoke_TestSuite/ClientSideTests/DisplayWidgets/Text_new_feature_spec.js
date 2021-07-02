@@ -60,7 +60,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(3, 179, 101)");
-    cy.get(widgetsPage.textColor)
+    cy.get(widgetsPage.textColorInput)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");

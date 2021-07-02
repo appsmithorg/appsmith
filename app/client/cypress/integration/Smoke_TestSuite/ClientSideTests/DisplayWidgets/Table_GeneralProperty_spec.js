@@ -93,7 +93,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget change text size and validate", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
-    cy.openPropertyPane("tablewidget");
+    // cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextAlign)
       .first()
@@ -144,7 +144,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
-    cy.get(widgetsPage.textColor)
+    cy.get(widgetsPage.textColorInput)
+      .first()
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
@@ -156,7 +157,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(500);
     cy.xpath(widgetsPage.greenColor)
       .first()
-      .click();
+      .click({ force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "1",
@@ -164,7 +165,7 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(widgetsPage.backgroundColorInput)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");

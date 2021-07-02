@@ -176,9 +176,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
           usePortal
         >
           {color ? (
-            <ColorIcon color={color} />
+            <ColorIcon className="t--color-picker" color={color} />
           ) : (
-            <NoColorIconWrapper>
+            <NoColorIconWrapper className="t--color-picker">
               <NoColorIcon>
                 <div className="line" />
               </NoColorIcon>
