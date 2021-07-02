@@ -95,7 +95,7 @@ function WidgetCard(props: CardProps) {
       });
       // We've finished dragging, generate a new widgetId to be used for next drag.
       setWidgetId(generateReactKey());
-      // setDraggingNewWidget && setDraggingNewWidget(false, undefined);
+      setDraggingNewWidget && setDraggingNewWidget(false, undefined);
     },
   });
 
