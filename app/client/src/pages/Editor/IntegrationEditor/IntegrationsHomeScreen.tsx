@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { AppState } from "reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
 import { Colors } from "constants/Colors";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
@@ -23,6 +22,7 @@ import {
   INTEGRATION_EDITOR_MODES,
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
+import BackButton from "../DataSourceEditor/BackButton";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -451,7 +451,7 @@ class IntegrationsHomeScreen extends React.Component<
     }
     return (
       <>
-        <CloseEditor />
+        <BackButton />
         <ApiHomePage
           className="t--integrationsHomePage"
           style={{ overflow: "auto" }}

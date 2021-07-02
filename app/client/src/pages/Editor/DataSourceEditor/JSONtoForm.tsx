@@ -9,7 +9,7 @@ import { Datasource } from "entities/Datasource";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import BackButton from "./BackButton";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -205,7 +205,7 @@ export class JSONtoForm<
   renderForm = (content: any) => {
     return (
       <div>
-        <BackButton />
+        <CloseEditor />
         <DBForm>{content}</DBForm>
       </div>
     );
