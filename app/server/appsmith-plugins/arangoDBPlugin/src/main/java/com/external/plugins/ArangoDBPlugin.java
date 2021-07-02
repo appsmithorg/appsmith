@@ -15,7 +15,8 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.arangodb.ArangoCursor;
-import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDB.Builder;
+import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
@@ -31,20 +32,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,13 +42,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.arangodb.internal.ArangoDefaults.DEFAULT_PORT;
+import static com.external.utils.SSLUtils.setSSLContext;
+import static com.external.utils.SSLUtils.setSSLParam;
+import static com.external.utils.StructureUtils.generateTemplatesAndStructureForACollection;
+import static com.external.utils.StructureUtils.getOneDocumentQuery;
 
 public class ArangoDBPlugin extends BasePlugin {
 
-    private static final String X_509_TYPE = "X.509";
-    private static final String CERT_ALIAS = "caCert";
-    private static final String SSL_PROTOCOL = "TLS";
+    private static long DEFAULT_PORT = 8529L;
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -133,13 +124,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     );
                 }
 
-                String username = auth.getUsername();
-                String password = auth.getPassword();
-                String dbName = auth.getDatabaseName();
-                ArangoDB.Builder dbBuilder = new ArangoDB.Builder()
-                        .user(username)
-                        .password(password)
-                        .useProtocol(Protocol.HTTP_VPACK);
+                Builder dbBuilder;
 
                 if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                     return Mono.error(
@@ -165,6 +150,7 @@ public class ArangoDBPlugin extends BasePlugin {
                         );
                     }
 
+                    dbBuilder = getBasicBuilder(auth);
                     nonEmptyEndpoints.stream()
                             .forEach(endpoint -> {
                                 String host = endpoint.getHost();
@@ -178,114 +164,38 @@ public class ArangoDBPlugin extends BasePlugin {
                  * are never expected to be null because form.json always assigns a default value to authType object.
                  */
                 SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-                switch (sslAuthType) {
-                    case DEFAULT:
-                        /* do nothing i.e. use default driver setting */
-
-                        break;
-                    case ENABLED:
-                        dbBuilder.useSsl(true);
-
-                        break;
-                    case DISABLED:
-                        dbBuilder.useSsl(false);
-
-                        break;
-                    default:
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                                " Appsmith customer support to resolve this."
-                                )
-                        );
+                try {
+                    setSSLParam(dbBuilder, sslAuthType);
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
                 }
 
-                SSLDetails.CACertificateType caCertificateType = datasourceConfiguration.getConnection().getSsl().getCaCertificateType();
-                switch (caCertificateType) {
-                    case NONE:
-                        /* do nothing */
-
-                        break;
-                    case FILE:
-                    case BASE64_STRING:
-                        if (!isCaCertificateAvailable(datasourceConfiguration)) {
-                            return Mono.error(
-                                    new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                            "Could not find CA certificate file. Please provide a CA certificate."
-                                    )
-                            );
-                        }
-
-                        try {
-                            dbBuilder.sslContext(getSslContext(datasourceConfiguration));
-                        } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException
-                                | KeyManagementException e) {
-                            return Mono.error(
-                                    new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                            "Appsmith server encountered an error when getting ssl context. Please " +
-                                                    "contact Appsmith customer support to resolve this."
-                                    )
-                            );
-                        }
-
-                        break;
-                    default:
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Appsmith server has found an unexpected CA certificate option: " +
-                                                caCertificateType + ". Please reach out to Appsmith customer support " +
-                                                "to resolve this."
-                                )
-                        );
+                try {
+                    setSSLContext(dbBuilder, datasourceConfiguration);
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
                 }
 
+                String dbName = auth.getDatabaseName();
                 return Mono.just(dbBuilder.build().db(dbName));
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }
 
+        Builder getBasicBuilder(DBAuth auth) {
+            String username = auth.getUsername();
+            String password = auth.getPassword();
+            Builder dbBuilder = new Builder()
+                    .user(username)
+                    .password(password)
+                    .useProtocol(Protocol.HTTP_VPACK);
+
+            return dbBuilder;
+        }
+
         private boolean isNonEmptyEndpoint(Endpoint endpoint) {
             if (endpoint != null && StringUtils.isNotNullOrEmpty(endpoint.getHost())) {
-                return true;
-            }
-
-            return false;
-        }
-
-        private SSLContext getSslContext(DatasourceConfiguration datasourceConfiguration) throws CertificateException
-                , KeyStoreException, IOException, NoSuchAlgorithmException, KeyManagementException {
-            InputStream certificateIs =
-                    new ByteArrayInputStream(datasourceConfiguration.getConnection().getSsl()
-                            .getCaCertificateFile().getDecodedContent());
-            CertificateFactory certificateFactory = CertificateFactory.getInstance(X_509_TYPE);
-            X509Certificate caCertificate =
-                    (X509Certificate) certificateFactory.generateCertificate(certificateIs);
-
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null);
-            keyStore.setCertificateEntry(CERT_ALIAS, caCertificate);
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
-
-            SSLContext sslContext = SSLContext.getInstance(SSL_PROTOCOL);
-            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
-
-            return sslContext;
-        }
-
-        private boolean isCaCertificateAvailable(DatasourceConfiguration datasourceConfiguration) {
-            if (datasourceConfiguration.getConnection() != null
-                    && datasourceConfiguration.getConnection().getSsl() != null
-                    && datasourceConfiguration.getConnection().getSsl().getCaCertificateFile() != null
-                    && StringUtils.isNotNullOrEmpty(datasourceConfiguration.getConnection().getSsl()
-                    .getCaCertificateFile().getBase64Content())) {
                 return true;
             }
 
@@ -351,22 +261,59 @@ public class ArangoDBPlugin extends BasePlugin {
 
             CollectionsReadOptions options = new CollectionsReadOptions();
             options.excludeSystem(true);
-            Collection<CollectionEntity> collections = db.getCollections(options);
+            Collection<CollectionEntity> collections;
+            try {
+                collections = db.getCollections(options);
+            } catch (ArangoDBException e) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                "Appsmith server has failed to fetch list of collections from database. Please check " +
+                                        "if the database credentials are valid and/or you have the required " +
+                                        "permissions."
+                        )
+                );
+            }
 
             return Flux.fromIterable(collections)
                     .filter(collectionEntity -> !collectionEntity.getIsSystem())
                     .flatMap(collectionEntity -> {
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
-                        final String name = collectionEntity.getName();
-                        tables.add(new DatasourceStructure.Table(
-                                DatasourceStructure.TableType.COLLECTION,
-                                null,
-                                name,
-                                columns,
-                                new ArrayList<>(),
-                                templates
-                        ));
+                        final String collectionName = collectionEntity.getName();
+                        tables.add(
+                                new DatasourceStructure.Table(
+                                        DatasourceStructure.TableType.COLLECTION,
+                                        null,
+                                        collectionName,
+                                        columns,
+                                        new ArrayList<>(),
+                                        templates
+                                )
+                        );
+
+                        ArangoCursor<Map> cursor = db.query(getOneDocumentQuery(collectionName), null, null, Map.class);
+                        Map document = new HashMap();
+                        List<Map> docList = cursor.asListRemaining();
+                        if (!CollectionUtils.isEmpty(docList)) {
+                            document = docList.get(0);
+                        }
+
+                        return Mono.zip(
+                                Mono.just(columns),
+                                Mono.just(templates),
+                                Mono.just(collectionName),
+                                Mono.just(document)
+                        );
+                    })
+                    .flatMap(tuple -> {
+                        final ArrayList<DatasourceStructure.Column> columns = tuple.getT1();
+                        final ArrayList<DatasourceStructure.Template> templates = tuple.getT2();
+                        String collectionName = tuple.getT3();
+                        Map document = tuple.getT4();
+
+                        generateTemplatesAndStructureForACollection(collectionName, document, columns,
+                                templates);
 
                         return Mono.just(structure);
                     })
