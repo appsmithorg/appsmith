@@ -114,11 +114,11 @@ function DatasourceCard(props: DatasourceCardProps) {
   const editDatasource = () => {
     dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
+      `${DATA_SOURCES_EDITOR_ID_URL(
         params.applicationId,
         params.pageId,
         datasource.id,
-      ),
+      )}?from=datasources`,
     );
   };
 

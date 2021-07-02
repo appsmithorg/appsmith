@@ -7,6 +7,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import {
+  BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "../../constants/routes";
@@ -30,15 +31,18 @@ function CloseEditor() {
   const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const params: string = location.search;
+  const redirectTo = new URLSearchParams(params).get("from");
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
-
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      redirectTo === "datasources"
+        ? INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE)
+        : BUILDER_PAGE_URL(applicationId, pageId),
     );
   };
 
