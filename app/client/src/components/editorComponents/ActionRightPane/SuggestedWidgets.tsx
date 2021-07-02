@@ -64,12 +64,12 @@ function SuggestedWidgets(props: any) {
             [fieldName]: {
               [generateReactKey()]: {
                 seriesName: "Sales",
-                data: `{{${props.actionName}.data.}}`,
+                data: `{{${props.actionName}.data}}`,
               },
             },
           }
         : {
-            [fieldName]: `{{${props.actionName}.data.}}`,
+            [fieldName]: `{{${props.actionName}.data}}`,
           };
 
     dispatch({
