@@ -339,7 +339,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onCurrencyTypeChange = (code?: string) => {
-    const currencyType = code || "USD";
+    const currencyType = code;
     if (this.props.renderMode === RenderModes.CANVAS) {
       this.props.updateWidgetMetaProperty("selectedCurrencyType", currencyType);
     } else {
@@ -395,7 +395,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -404,7 +403,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
-
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}

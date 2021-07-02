@@ -50,10 +50,7 @@ import { Datasource } from "entities/Datasource";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.backBanner}
-  );
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: hidden;
   width: 100%;
   ${FormLabel} {
@@ -74,8 +71,8 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 124px;
 `;
@@ -479,189 +476,183 @@ function ApiEditorForm(props: Props) {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
   return (
-    <>
-      <CloseEditor />
-      <Form onSubmit={handleSubmit}>
-        <MainConfiguration>
-          <FormRow className="form-row-header">
-            <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor page="API_PANE" />
-            </NameWrapper>
-            <ActionButtons className="t--formActionButtons">
-              <MoreActionsMenu
-                className="t--more-action-menu"
-                id={currentActionConfig ? currentActionConfig.id : ""}
-                name={currentActionConfig ? currentActionConfig.name : ""}
-                pageId={pageId}
-              />
-              <Button
-                className="t--apiFormRunBtn"
-                isLoading={isRunning}
-                onClick={() => {
-                  onRunClick();
-                }}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </ActionButtons>
-          </FormRow>
-          <FormRow className="api-info-row">
-            <BoundaryContainer>
-              <RequestDropdownField
-                className="t--apiFormHttpMethod"
-                height={"35px"}
-                name="actionConfiguration.httpMethod"
-                optionWidth={"100px"}
-                options={HTTP_METHOD_OPTIONS}
-                placeholder="Method"
-                width={"100px"}
-              />
-            </BoundaryContainer>
-            <DatasourceWrapper className="t--dataSourceField">
-              <EmbeddedDatasourcePathField
-                name="actionConfiguration.path"
-                placeholder="https://mock-api.appsmith.com/users"
-                pluginId={pluginId}
-                theme={theme}
-              />
-            </DatasourceWrapper>
-          </FormRow>
-        </MainConfiguration>
-        {hintMessages && (
-          <HelpSection>
-            {hintMessages.map((msg, i) => (
-              <Callout fill key={i} text={msg} variant={Variant.warning} />
-            ))}
-          </HelpSection>
-        )}
-        <Wrapper>
-          <SecondaryWrapper>
-            <TabbedViewContainer>
-              <TabComponent
-                onSelect={setSelectedIndex}
-                selectedIndex={selectedIndex}
-                tabs={[
-                  {
-                    key: "headers",
-                    title: "Headers",
-                    count: headersCount,
-                    panelComponent: (
-                      <TabSection>
-                        {apiBindHelpSectionVisible &&
-                          renderHelpSection(
-                            handleClickLearnHow,
-                            setApiBindHelpSectionVisible,
-                          )}
-                        {props.datasourceHeaders.length > 0 && (
-                          <ImportedHeaders headers={props.datasourceHeaders} />
-                        )}
-                        <KeyValueFieldArray
-                          actionConfig={actionConfigurationHeaders}
-                          dataTreePath={`${actionName}.config.headers`}
-                          hideHeader={!!props.datasourceHeaders.length}
-                          label="Headers"
-                          name="actionConfiguration.headers"
-                          placeholder="Value"
-                          theme={theme}
-                        />
-                      </TabSection>
-                    ),
-                  },
-                  {
-                    key: "params",
-                    title: "Params",
-                    count: paramsCount,
-                    panelComponent: (
-                      <TabSection>
-                        <KeyValueFieldArray
-                          dataTreePath={`${actionName}.config.queryParameters`}
-                          label="Params"
-                          name="actionConfiguration.queryParameters"
-                          theme={theme}
-                        />
-                      </TabSection>
-                    ),
-                  },
-                  {
-                    key: "body",
-                    title: "Body",
-                    panelComponent: allowPostBody ? (
-                      <PostBodyData
-                        dataTreePath={`${actionName}.config`}
-                        theme={theme}
-                      />
-                    ) : (
-                      <NoBodyMessage>
-                        <Text type={TextType.P2}>
-                          This request does not have a body
-                        </Text>
-                      </NoBodyMessage>
-                    ),
-                  },
-                  {
-                    key: "pagination",
-                    title: "Pagination",
-                    panelComponent: (
-                      <Pagination
-                        onTestClick={props.onRunClick}
-                        paginationType={props.paginationType}
-                        theme={theme}
-                      />
-                    ),
-                  },
-                  {
-                    key: "settings",
-                    title: "Settings",
-                    panelComponent: (
-                      <SettingsWrapper>
-                        <ActionSettings
-                          actionSettingsConfig={settingsConfig}
-                          formName={API_EDITOR_FORM_NAME}
-                          theme={theme}
-                        />
-                      </SettingsWrapper>
-                    ),
-                  },
-                ]}
-              />
-              {!showDatasources && (
-                <DatasourceListTrigger
-                  onClick={() => toggleDatasources(!showDatasources)}
-                >
-                  <Icon name="datasource" size={IconSize.LARGE} />
-                  <TabTitle>Datasources</TabTitle>
-                </DatasourceListTrigger>
-              )}
-            </TabbedViewContainer>
-            <ApiResponseView
-              apiName={actionName}
-              onRunClick={onRunClick}
+    <Form onSubmit={handleSubmit}>
+      <MainConfiguration>
+        <FormRow className="form-row-header">
+          <NameWrapper className="t--nameOfApi">
+            <CloseEditor />
+            <ActionNameEditor page="API_PANE" />
+          </NameWrapper>
+          <ActionButtons className="t--formActionButtons">
+            <MoreActionsMenu
+              className="t--more-action-menu"
+              id={currentActionConfig ? currentActionConfig.id : ""}
+              name={currentActionConfig ? currentActionConfig.name : ""}
+              pageId={pageId}
+            />
+            <Button
+              className="t--apiFormRunBtn"
+              isLoading={isRunning}
+              onClick={() => {
+                onRunClick();
+              }}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
+          </ActionButtons>
+        </FormRow>
+        <FormRow className="api-info-row">
+          <BoundaryContainer>
+            <RequestDropdownField
+              className="t--apiFormHttpMethod"
+              height={"35px"}
+              name="actionConfiguration.httpMethod"
+              optionWidth={"100px"}
+              options={HTTP_METHOD_OPTIONS}
+              placeholder="Method"
+              width={"100px"}
+            />
+          </BoundaryContainer>
+          <DatasourceWrapper className="t--dataSourceField">
+            <EmbeddedDatasourcePathField
+              name="actionConfiguration.path"
+              placeholder="https://mock-api.appsmith.com/users"
+              pluginId={pluginId}
               theme={theme}
             />
-          </SecondaryWrapper>
-          {showDatasources && (
-            <>
-              <DataSourceList
-                applicationId={props.applicationId}
-                currentPageId={props.currentPageId}
-                datasources={props.datasources}
-                onClick={updateDatasource}
+          </DatasourceWrapper>
+        </FormRow>
+      </MainConfiguration>
+      {hintMessages && (
+        <HelpSection>
+          {hintMessages.map((msg, i) => (
+            <Callout fill key={i} text={msg} variant={Variant.warning} />
+          ))}
+        </HelpSection>
+      )}
+      <Wrapper>
+        <SecondaryWrapper>
+          <TabbedViewContainer>
+            <TabComponent
+              onSelect={setSelectedIndex}
+              selectedIndex={selectedIndex}
+              tabs={[
+                {
+                  key: "headers",
+                  title: "Headers",
+                  count: headersCount,
+                  panelComponent: (
+                    <TabSection>
+                      {apiBindHelpSectionVisible &&
+                        renderHelpSection(
+                          handleClickLearnHow,
+                          setApiBindHelpSectionVisible,
+                        )}
+                      {props.datasourceHeaders.length > 0 && (
+                        <ImportedHeaders headers={props.datasourceHeaders} />
+                      )}
+                      <KeyValueFieldArray
+                        actionConfig={actionConfigurationHeaders}
+                        dataTreePath={`${actionName}.config.headers`}
+                        hideHeader={!!props.datasourceHeaders.length}
+                        label="Headers"
+                        name="actionConfiguration.headers"
+                        placeholder="Value"
+                        theme={theme}
+                      />
+                    </TabSection>
+                  ),
+                },
+                {
+                  key: "params",
+                  title: "Params",
+                  count: paramsCount,
+                  panelComponent: (
+                    <TabSection>
+                      <KeyValueFieldArray
+                        dataTreePath={`${actionName}.config.queryParameters`}
+                        label="Params"
+                        name="actionConfiguration.queryParameters"
+                        theme={theme}
+                      />
+                    </TabSection>
+                  ),
+                },
+                {
+                  key: "body",
+                  title: "Body",
+                  panelComponent: allowPostBody ? (
+                    <PostBodyData
+                      dataTreePath={`${actionName}.config`}
+                      theme={theme}
+                    />
+                  ) : (
+                    <NoBodyMessage>
+                      <Text type={TextType.P2}>
+                        This request does not have a body
+                      </Text>
+                    </NoBodyMessage>
+                  ),
+                },
+                {
+                  key: "pagination",
+                  title: "Pagination",
+                  panelComponent: (
+                    <Pagination
+                      onTestClick={props.onRunClick}
+                      paginationType={props.paginationType}
+                      theme={theme}
+                    />
+                  ),
+                },
+                {
+                  key: "settings",
+                  title: "Settings",
+                  panelComponent: (
+                    <SettingsWrapper>
+                      <ActionSettings
+                        actionSettingsConfig={settingsConfig}
+                        formName={API_EDITOR_FORM_NAME}
+                        theme={theme}
+                      />
+                    </SettingsWrapper>
+                  ),
+                },
+              ]}
+            />
+            {!showDatasources && (
+              <DatasourceListTrigger
+                onClick={() => toggleDatasources(!showDatasources)}
+              >
+                <Icon name="datasource" size={IconSize.LARGE} />
+                <TabTitle>Datasources</TabTitle>
+              </DatasourceListTrigger>
+            )}
+          </TabbedViewContainer>
+          <ApiResponseView apiName={actionName} theme={theme} />
+        </SecondaryWrapper>
+        {showDatasources && (
+          <>
+            <DataSourceList
+              applicationId={props.applicationId}
+              currentPageId={props.currentPageId}
+              datasources={props.datasources}
+              onClick={updateDatasource}
+            />
+            <CloseIconContainer>
+              <Icon
+                className="close-modal-icon"
+                name="close-modal"
+                onClick={() => toggleDatasources(!showDatasources)}
+                size={IconSize.SMALL}
               />
-              <CloseIconContainer>
-                <Icon
-                  className="close-modal-icon"
-                  name="close-modal"
-                  onClick={() => toggleDatasources(!showDatasources)}
-                  size={IconSize.SMALL}
-                />
-              </CloseIconContainer>
-            </>
-          )}
-        </Wrapper>
-      </Form>
-    </>
+            </CloseIconContainer>
+          </>
+        )}
+      </Wrapper>
+    </Form>
   );
 }
 

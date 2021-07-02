@@ -12,7 +12,6 @@ import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
-import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -29,8 +28,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
     const path = props.actionConfig?.generateCreatePageURL(
       params?.applicationId,
       props.page.pageId,
-      INTEGRATION_TABS.NEW,
-      INTEGRATION_EDITOR_MODES.AUTO,
+      props.page.pageId,
     );
     history.push(path);
   }, [props.actionConfig, props.page.pageId, params]);

@@ -173,7 +173,9 @@ class CurlImportForm extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
-  const { pageId: destinationPageId } = props.match.params;
+  const destinationPageId = new URLSearchParams(props.location.search).get(
+    "importTo",
+  );
 
   if (destinationPageId) {
     return {

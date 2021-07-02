@@ -9,7 +9,6 @@ import { Datasource } from "entities/Datasource";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import BackButton from "./BackButton";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -50,6 +49,7 @@ export const ActionButton = styled(BaseButton)`
 
 const DBForm = styled.div`
   padding: 20px;
+  margin-left: 10px;
   margin-right: 0px;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: auto;
@@ -202,13 +202,8 @@ export class JSONtoForm<
     return formData;
   };
 
-  renderForm = (content: any, onBackBtnClick: () => void) => {
-    return (
-      <div>
-        <BackButton onClick={onBackBtnClick} />
-        <DBForm>{content}</DBForm>
-      </div>
-    );
+  renderForm = (content: any) => {
+    return <DBForm>{content}</DBForm>;
   };
 
   renderMainSection = (section: any, index: number) => {

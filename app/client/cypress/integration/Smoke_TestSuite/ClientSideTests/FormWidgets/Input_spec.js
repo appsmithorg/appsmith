@@ -137,10 +137,11 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
+    cy.closePropertyPane("inputwidget");
   });
 
   it("Input Functionality To check currency input type", function() {
-    // cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidget");
     cy.selectDropdownValue(commonlocators.dataType, "Currency");
     cy.togglebar(commonlocators.allowCurrencyChange);
     cy.testJsontext("regex", "");

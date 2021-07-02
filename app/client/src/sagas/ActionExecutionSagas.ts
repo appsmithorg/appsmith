@@ -45,7 +45,6 @@ import {
   getApplicationViewerPageURL,
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
-  INTEGRATION_EDITOR_URL,
 } from "constants/routes";
 import {
   executeApiActionRequest,
@@ -720,7 +719,6 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_URL(),
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
-      INTEGRATION_EDITOR_URL(),
     ],
     exact: true,
     strict: false,

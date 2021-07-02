@@ -298,7 +298,12 @@ describe("Cut/Copy/Paste hotkey", () => {
     selectedWidgets = await component.queryAllByTestId(
       "t--widget-propertypane-toggle",
     );
-    expect(selectedWidgets.length).toBe(0);
+    //adding extra time to let cut cmd works
+    jest.useFakeTimers();
+    setTimeout(() => {
+      expect(selectedWidgets.length).toBe(0);
+    }, 500);
+    jest.runAllTimers();
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

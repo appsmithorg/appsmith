@@ -17,8 +17,6 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  EMPTY_RESPONSE_FIRST_HALF,
-  EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
@@ -33,7 +31,6 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import Button, { Size } from "components/ads/Button";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -146,11 +143,6 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
-`;
-
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -160,7 +152,6 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
-    onRunClick: () => void;
   };
 
 export const EMPTY_RESPONSE: ActionResponse = {
@@ -231,18 +222,7 @@ function ApiResponseView(props: Props) {
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
               <Icon name="no-response" />
-              <Text type={TextType.P1}>
-                {EMPTY_RESPONSE_FIRST_HALF()}
-                <InlineButton
-                  isLoading={isRunning}
-                  onClick={props.onRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
-                {EMPTY_RESPONSE_LAST_HALF()}
-              </Text>
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor

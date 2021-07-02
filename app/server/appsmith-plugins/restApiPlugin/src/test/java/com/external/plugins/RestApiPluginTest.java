@@ -26,8 +26,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -67,34 +64,6 @@ public class RestApiPluginTest {
                     assertEquals(requestBody, data.toString());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
-        Object encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                true);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertEquals(expected_value, encoded_value);
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
-        Object encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                false);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertNotEquals(expected_value, encoded_value);
     }
 
     @Test
