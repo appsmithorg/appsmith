@@ -203,16 +203,22 @@ const reduceReactions = (
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
           const { byUsername, emoji } = reaction;
+          const sameAsCurrent = byUsername === username;
+          const user = sameAsCurrent ? "You" : byUsername;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
+            res[reaction.emoji].users = Array.from(
+              new Set([...(res[reaction.emoji].users || []), user]),
+            );
           } else {
             res[emoji] = {
               count: 1,
               reactionEmoji: emoji,
+              users: [user],
             } as ComponentReaction;
           }
 
-          if (byUsername === username) {
+          if (sameAsCurrent) {
             res[reaction.emoji].active = true;
           }
 

@@ -15,6 +15,7 @@ import _, {
   isPlainObject,
   isString,
   isUndefined,
+  startsWith,
   toNumber,
   toString,
 } from "lodash";
@@ -1112,6 +1113,22 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed,
         message: `This value must be integer`,
+      };
+    }
+    return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.COLOR_PICKER_TEXT]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    // check value should be string
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](value, props);
+    // check value should not html tag or unparsed js
+    if (startsWith(parsed, "{{") || startsWith(parsed, "<")) {
+      return {
+        isValid: false,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
       };
     }
     return { isValid, parsed };
