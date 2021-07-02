@@ -22,7 +22,7 @@ echo "$BASH_VERSION"
 java -version
 node --version
 
-source "$CODEBUILD_SRC_DIR/ci/extra-env.sh"
+source "$CODEBUILD_SRC_DIR/ci/common/extra-env.sh"
 aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz" .
 aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz" .
 

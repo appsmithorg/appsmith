@@ -26,7 +26,7 @@ mkdir -p dist/plugins
 mv -v appsmith-server/target/server-1.0-SNAPSHOT.jar dist/
 rsync -av --exclude "original-*.jar" appsmith-plugins/*/target/*.jar dist/plugins/
 
-source "$CODEBUILD_SRC_DIR/ci/extra-env.sh"
+source "$CODEBUILD_SRC_DIR/ci/common/extra-env.sh"
 mv -v dist server-dist
 tar -caf server-dist.tgz server-dist
 aws s3 cp --no-progress server-dist.tgz "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz"

@@ -20,7 +20,7 @@ if [[ -z $DOCKER_TAG_NAME ]]; then
 	DOCKER_TAG_NAME="${CODEBUILD_SOURCE_VERSION:-release}"
 fi
 
-source "$CODEBUILD_SRC_DIR/ci/extra-env.sh"
+source "$CODEBUILD_SRC_DIR/ci/common/extra-env.sh"
 aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz" .
 aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz" .
 
