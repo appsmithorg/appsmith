@@ -13,7 +13,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     /**Create an Api1 of Paginate with Table Page No */
     cy.createAndFillApi(
       this.data.paginationUrl,
-      "users?page={{Table1.pageNo}}&pageSize={{10}}",
+      "users?page={{Table1.pageNo}}&pageSize={{Table1.pageSize}}",
     );
     cy.RunAPI();
   });
@@ -59,6 +59,23 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.ValidatePublishTableData("11");
   });
 
+  it("Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function() {
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.SearchEntityandOpen("Table1");
+    cy.testJsontext("totalrecordcount", 20);
+    cy.PublishtheApp();
+    cy.wait(500);
+    cy.wait("@postExecute");
+    cy.wait(500);
+    cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
+    cy.ValidateTableData("1");
+
+    cy.get(commonlocators.tableNextPage).click({ force: true });
+    cy.wait("@postExecute");
+    cy.wait(500);
+    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
+  });
+
   it("Test_Add Paginate with Response URL and Execute the Api", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     /** Create Api2 of Paginate with Response URL*/
@@ -91,32 +108,5 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
     cy.wait(5000);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-  });
-
-  it("Table-Text, Validate Server Side Pagination of Paginate with Table Default Page Size and Total Record Count", function() {
-    cy.SearchEntityandOpen("Table1");
-    cy.callApi("Api1");
-    cy.wait(300);
-    cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
-    cy.wait(300);
-    //Add on page size change action
-    cy.get(commonlocators.tablePageSizeChangeAction).click({
-      force: true,
-    });
-    cy.wait(300);
-    cy.callApi("Api1");
-    cy.wait(300);
-    cy.testJsontext("totalrecordcount", 20);
-
-    cy.PublishtheApp();
-    cy.wait("@postExecute");
-    cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
-    cy.ValidateTableData("1");
-
-    cy.get(commonlocators.tableNextPage).click({ force: true });
-    cy.wait("@postExecute");
-    cy.wait(500);
-    cy.ValidateTableData("11");
-    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
   });
 });
