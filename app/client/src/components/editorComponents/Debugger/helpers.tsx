@@ -6,7 +6,8 @@ import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID, // TODO - chagnes it to normal URL
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
@@ -121,10 +122,10 @@ export const onIntegrationsEditor = (
 ) => {
   return (
     window.location.pathname.indexOf(
-      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.ACTIVE,
       ),
     ) > -1
   );
