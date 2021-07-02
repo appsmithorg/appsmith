@@ -20,11 +20,9 @@ if [[ -z $DOCKER_TAG_NAME ]]; then
 	DOCKER_TAG_NAME="${CODEBUILD_SOURCE_VERSION:-release}"
 fi
 
-# Replace `/` characters to `--` in the initiator.
-# Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
-batch_id="${CODEBUILD_INITIATOR//\//--}"
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$batch_id/client-dist.tgz" .
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$batch_id/server-dist.tgz" .
+source "$CODEBUILD_SRC_DIR/ci/extra-env.sh"
+aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz" .
 
 tar -xaf client-dist.tgz
 mv -v client-dist "$CODEBUILD_SRC_DIR/app/client/build"

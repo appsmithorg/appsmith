@@ -16,9 +16,7 @@ REACT_APP_ENVIRONMENT=PRODUCTION \
 REACT_APP_SHOW_ONBOARDING_FORM=true \
 	yarn run build
 
-# Replace `/` characters to `--` in the initiator.
-# Sample CODEBUILD_INITIATOR: `codebuild-appsmith-ce-service-role/AWSCodeBuild-146ccba7-69a4-42b1-935b-e5ea50fc7535`
-batch_id="${CODEBUILD_INITIATOR//\//--}"
+source "$CODEBUILD_SRC_DIR/ci/extra-env.sh"
 mv -v build client-dist
 tar -caf client-dist.tgz client-dist
-aws s3 cp --no-progress client-dist.tgz "$S3_BUCKET_PREFIX/builds/$batch_id/client-dist.tgz"
+aws s3 cp --no-progress client-dist.tgz "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz"
