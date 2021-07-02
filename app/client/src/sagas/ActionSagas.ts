@@ -59,9 +59,9 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
+  API_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -330,11 +330,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 export function* deleteActionSaga(
-  actionPayload: ReduxAction<{
-    id: string;
-    name: string;
-    onSuccess?: () => void;
-  }>,
+  actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
     const id = actionPayload.payload.id;
@@ -375,16 +371,14 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      if (isApi || isSaas) {
+        history.push(API_EDITOR_URL(applicationId, pageId));
+      }
 
-      if (!!actionPayload.payload.onSuccess) {
-        actionPayload.payload.onSuccess();
-      } else {
-        const applicationId = yield select(getCurrentApplicationId);
-        const pageId = yield select(getCurrentPageId);
-
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
+      if (isQuery) {
+        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
 
       AppsmithConsole.info({

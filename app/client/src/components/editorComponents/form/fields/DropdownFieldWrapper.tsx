@@ -1,5 +1,4 @@
 import Dropdown from "components/ads/Dropdown";
-import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
 
@@ -40,7 +39,6 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
 
   return (
     <Dropdown
-      bgColor={Colors.ROYAL_BLUE}
       className={props.className}
       height={props.height}
       onSelect={onSelectHandler}

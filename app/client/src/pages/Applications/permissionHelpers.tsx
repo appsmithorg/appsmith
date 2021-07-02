@@ -7,6 +7,7 @@ export enum PERMISSION_TYPE {
   READ_ORGANIZATION = "read:organizations",
   INVITE_USER_TO_ORGANIZATION = "inviteUsers:organization",
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
+  PUBLISH_APPLICATION = "publish:orgApplications",
 }
 
 export const isPermitted = (permissions: string[], type: string) => {

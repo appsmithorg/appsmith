@@ -5,8 +5,6 @@
     "runQuery": ".t--run-query",
     "saveQuery": ".t--save-query",
     "deleteQuery": ".t--delete-query",
-    "queryMoreAction": ".t--more-action-menu",
-    "deleteUsingContext": ".t--apiFormDeleteBtn",
     "createQuery": ".t--create-query",
     "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
     "addDatasource": ".t--add-datasource",

@@ -81,36 +81,6 @@ export const QUERIES_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
 
-export const INTEGRATION_TABS = {
-  ACTIVE: "ACTIVE",
-  NEW: "NEW",
-};
-
-export const INTEGRATION_EDITOR_MODES = {
-  AUTO: "auto",
-  MOCK: "mock",
-};
-export const INTEGRATION_EDITOR_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  selectedTab = ":selectedTab",
-  mode = "",
-): string =>
-  `${BUILDER_PAGE_URL(applicationId, pageId)}/integrations/${selectedTab}${
-    mode ? "?mode=" + mode : ""
-  }`;
-
-export const INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  selectedPageId = ":importTo",
-): string => {
-  return `${BUILDER_PAGE_URL(
-    applicationId,
-    pageId,
-  )}/integrations?importTo=${selectedPageId}`;
-};
-
 export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",

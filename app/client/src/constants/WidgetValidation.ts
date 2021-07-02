@@ -31,6 +31,7 @@ export enum VALIDATION_TYPES {
   ROW_INDICES = "ROW_INDICES",
   IMAGE = "IMAGE",
   TABS_DATA = "TABS_DATA",
+  COLOR_PICKER_TEXT = "COLOR_PICKER_TEXT",
 }
 
 export type ValidationResponse = {

@@ -24,6 +24,12 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 
 let pageidcopy = " ";
 
+export const initLocalstorage = () => {
+  cy.window().then((window) => {
+    window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+  });
+};
+
 Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
@@ -373,6 +379,8 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  initLocalstorage();
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
@@ -507,9 +515,6 @@ Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
-    .should("be.visible")
-    .click({ force: true });
-  cy.get(pages.integrationCreateNew)
     .should("be.visible")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
@@ -893,9 +898,6 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(pages.addEntityAPI).click();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
@@ -1784,7 +1786,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Execute a DB Query")
     .selectOnClickOption(QueryName);
 });
 
@@ -1792,7 +1794,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Call An API")
     .selectOnClickOption(ApiName);
 });
 
@@ -1865,11 +1867,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
-    .last()
-    .click();
+  cy.get(datasourceEditor.editDatasource).click();
 
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
@@ -1892,9 +1890,7 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(explorer.addDBQueryEntity)
     .last()
     .click({ force: true });
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  cy.get(queryEditor.addDatasource).click();
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
@@ -1924,11 +1920,7 @@ Cypress.Commands.add("saveDatasource", () => {
 
 Cypress.Commands.add("testSaveDatasource", () => {
   cy.saveDatasource();
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
-    .last()
-    .click();
+  cy.get(datasourceEditor.editDatasource).click();
   cy.testDatasource();
 });
 
@@ -1986,9 +1978,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
+
   cy.contains(".t--datasource-name", datasourceName)
     .find(".t--edit-datasource")
     .click();
@@ -2048,8 +2038,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
     200,
   );
 
-  cy.get(queryEditor.queryMoreAction).click();
-  cy.get(queryEditor.deleteUsingContext).click();
+  cy.get(queryEditor.deleteQuery).click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -2073,7 +2062,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute a Query")
+    .contains("Execute a DB Query")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2241,9 +2230,6 @@ Cypress.Commands.add("UpdateChartType", (typeOfChart) => {
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
@@ -2529,7 +2515,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click();
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a Query")
+    .contains("Call An API")
     .click();
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
