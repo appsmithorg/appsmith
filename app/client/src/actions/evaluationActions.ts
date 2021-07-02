@@ -1,0 +1,85 @@
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "../constants/ReduxActionConstants";
+import _ from "lodash";
+import { DataTree } from "../entities/DataTree/dataTreeFactory";
+import { DependencyMap } from "../utils/DynamicBindingUtils";
+
+export const FIRST_EVAL_REDUX_ACTIONS = [
+  // Pages
+  ReduxActionTypes.FETCH_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+];
+export const EVALUATE_REDUX_ACTIONS = [
+  ...FIRST_EVAL_REDUX_ACTIONS,
+  // Actions
+  ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+  ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
+  ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+  ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+  ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+  ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
+  ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
+  ReduxActionTypes.CREATE_ACTION_SUCCESS,
+  ReduxActionTypes.UPDATE_ACTION_PROPERTY,
+  ReduxActionTypes.DELETE_ACTION_SUCCESS,
+  ReduxActionTypes.COPY_ACTION_SUCCESS,
+  ReduxActionTypes.MOVE_ACTION_SUCCESS,
+  ReduxActionTypes.RUN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.RUN_ACTION_ERROR,
+  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
+  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  // App Data
+  ReduxActionTypes.SET_APP_MODE,
+  ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  // Widgets
+  ReduxActionTypes.UPDATE_LAYOUT,
+  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  // Widget Meta
+  ReduxActionTypes.SET_META_PROP,
+  ReduxActionTypes.RESET_WIDGET_META,
+  // Batches
+  ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+];
+export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return (
+      _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length > 0
+    );
+  }
+  return true;
+};
+
+export const setEvaluatedTree = (dataTree: DataTree): ReduxAction<DataTree> => {
+  return {
+    type: ReduxActionTypes.SET_EVALUATED_TREE,
+    payload: dataTree,
+  };
+};
+
+export const setDependencyMap = (
+  inverseDependencyMap: DependencyMap,
+): ReduxAction<{ inverseDependencyMap: DependencyMap }> => {
+  return {
+    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
+    payload: { inverseDependencyMap },
+  };
+};
+
+export const setLastEvaluationOrder = (evaluationOrder: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_LAST_EVALUATION_ORDER,
+    payload: evaluationOrder,
+  };
+};

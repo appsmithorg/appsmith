@@ -51,7 +51,7 @@ export type Hinter = {
     expected: string,
     entityName: string,
   ) => void;
-  update?: (data: DataTree) => void;
+  update?: (data: DataTree, recentEvaluations: string[][]) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };
 

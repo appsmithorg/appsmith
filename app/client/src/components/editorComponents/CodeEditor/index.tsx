@@ -57,6 +57,7 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { EvaluationOrderState } from "../../../reducers/evaluationReducers/evaluationOrderReducer";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -72,6 +73,7 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  recentEvaluations: EvaluationOrderState;
 }
 
 export type EditorStyleProps = {
@@ -224,7 +226,9 @@ class CodeEditor extends Component<Props, State> {
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
-          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
+          (hinter) =>
+            hinter.update &&
+            hinter.update(this.props.dynamicData, this.props.recentEvaluations),
         );
       }
     }
@@ -532,6 +536,7 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
+  recentEvaluations: state.evaluations.recentEvaluations,
 });
 
 export default Sentry.withProfiler(connect(mapStateToProps)(CodeEditor));

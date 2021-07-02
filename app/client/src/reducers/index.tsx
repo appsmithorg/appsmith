@@ -47,6 +47,7 @@ import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
+import { EvaluationOrderState } from "./evaluationReducers/evaluationOrderReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -107,5 +108,6 @@ export interface AppState {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
+    recentEvaluations: EvaluationOrderState;
   };
 }
