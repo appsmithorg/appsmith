@@ -96,13 +96,6 @@ public class SSLUtils {
                 break;
             case FILE:
             case BASE64_STRING:
-                if (!isCaCertificateAvailable(datasourceConfiguration)) {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find CA certificate. Please provide a CA certificate."
-                    );
-                }
-
                 try {
                     builder.sslContext(getSslContext(datasourceConfiguration));
                 } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException

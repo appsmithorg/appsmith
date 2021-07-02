@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -42,6 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.utils.SSLUtils.isCaCertificateAvailable;
 import static com.external.utils.SSLUtils.setSSLContext;
 import static com.external.utils.SSLUtils.setSSLParam;
 import static com.external.utils.StructureUtils.generateTemplatesAndStructureForACollection;
@@ -65,6 +67,10 @@ public class ArangoDBPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(ArangoDatabase db,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
+            if (!isConnectionValid(db)) {
+                return Mono.error(new StaleConnectionException());
+            }
 
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
@@ -105,59 +111,36 @@ public class ArangoDBPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * - ArangoDatabase object does not seem to provide any API to check if connection object is valid, hence
+         * adding only null check for now.
+         */
+        private boolean isConnectionValid(ArangoDatabase db) {
+            if (db == null) {
+                return false;
+            }
+
+            return true;
+        }
+
 
         @Override
         public Mono<ArangoDatabase> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
 
+                List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
+                        .filter(endpoint -> isNonEmptyEndpoint(endpoint))
+                        .collect(Collectors.toList());
+
                 DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (isAuthenticationMissing(auth)) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Could not find required authentication info. At least one of 'Username', " +
-                                            "'Password', 'Database Name' fields is missing. Please edit the " +
-                                            "'Username', 'Password' and 'Database Name' fields to provide " +
-                                            "authentication info."
-                            )
-                    );
-                }
-
-                Builder dbBuilder;
-
-                if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Could not find host address. Please edit the 'Host Address' and/or the 'Port' " +
-                                            "field to provide the desired endpoint."
-                            )
-                    );
-                }
-                else {
-                    List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
-                            .filter(endpoint -> isNonEmptyEndpoint(endpoint))
-                            .collect(Collectors.toList());
-
-                    if (CollectionUtils.isEmpty(nonEmptyEndpoints)) {
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                        "Could not find host address. Please edit the 'Host Address' and/or the 'Port' " +
-                                                "field to provide the desired endpoint."
-                                )
-                        );
-                    }
-
-                    dbBuilder = getBasicBuilder(auth);
-                    nonEmptyEndpoints.stream()
-                            .forEach(endpoint -> {
-                                String host = endpoint.getHost();
-                                int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
-                                dbBuilder.host(host, port);
-                            });
-                }
+                Builder dbBuilder = getBasicBuilder(auth);
+                nonEmptyEndpoints.stream()
+                        .forEach(endpoint -> {
+                            String host = endpoint.getHost();
+                            int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+                            dbBuilder.host(host, port);
+                        });
 
                 /**
                  * - datasource.connection, datasource.connection.ssl, datasource.connection.ssl.authType objects
@@ -177,16 +160,26 @@ public class ArangoDBPlugin extends BasePlugin {
                 }
 
                 String dbName = auth.getDatabaseName();
+
+                /**
+                 * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
+                 * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+                 */
                 return Mono.just(dbBuilder.build().db(dbName));
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * - Builder properties are explained here:
+         * https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+         */
         private Builder getBasicBuilder(DBAuth auth) {
             String username = auth.getUsername();
             String password = auth.getPassword();
             Builder dbBuilder = new Builder()
+                    .maxConnections(5)
                     .user(username)
                     .password(password)
                     .useProtocol(Protocol.HTTP_VPACK);
@@ -222,16 +215,51 @@ public class ArangoDBPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("No endpoint provided. Please provide a host:port where ArangoDB is reachable.");
-            } else {
-                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
-                    invalids.add("Missing host for endpoint");
-                }
+            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (isAuthenticationMissing(auth)) {
+               invalids.add(
+                       "Could not find required authentication info. At least one of 'Username', 'Password', " +
+                               "'Database Name' fields is missing. Please edit the 'Username', 'Password' and " +
+                               "'Database Name' fields to provide authentication info."
+               );
+            }
+
+            if (!isEndpointAvailable(datasourceConfiguration.getEndpoints())) {
+                invalids.add(
+                        "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
+                                "endpoint."
+                );
+            }
+
+            SSLDetails.CACertificateType caCertificateType = datasourceConfiguration.getConnection().getSsl()
+                    .getCaCertificateType();
+            if (!SSLDetails.CACertificateType.NONE.equals(caCertificateType)
+                    && !isCaCertificateAvailable(datasourceConfiguration)) {
+                    invalids.add("Could not find CA certificate. Please provide a CA certificate.");
             }
 
             return invalids;
+        }
+
+        /**
+         * - Check if at least one non-null / non-empty endpoint is available.
+         */
+        private boolean isEndpointAvailable(List<Endpoint> endpoints) {
+            // Check if the list of endpoints is null or empty.
+            if (CollectionUtils.isEmpty(endpoints)) {
+                return false;
+            }
+
+            List<Endpoint> nonEmptyEndpoints = endpoints.stream()
+                    .filter(endpoint -> isNonEmptyEndpoint(endpoint))
+                    .collect(Collectors.toList());
+
+            // Check if at least one endpoint in the list is non-null and non-empty.
+            if (CollectionUtils.isEmpty(nonEmptyEndpoints)) {
+                return false;
+            }
+
+            return true;
         }
 
         @Override

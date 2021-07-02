@@ -1,4 +1,5 @@
 REMOVE "1" IN users
 
-//Use widget data in a query by replacing static values with {{ widgetName.property }}.
-//Read more at https://www.arangodb.com/docs/stable/aql/
+// Use widget data in a query by replacing static values with {{ widgetName.property }}. To understand more please
+// check out https://docs.appsmith.com/core-concepts/capturing-data-write
+// Read more at https://www.arangodb.com/docs/stable/aql/

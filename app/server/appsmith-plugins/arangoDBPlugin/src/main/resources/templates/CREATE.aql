@@ -4,5 +4,6 @@ INSERT {
     email: "{{ nameInput.text }}"
 } INTO users
 
-//nameInput and genderDropdown are example widgets, replace them with your widget names.
-//Read more at https://www.arangodb.com/docs/stable/aql/
+// nameInput and genderDropdown are example widgets, replace them with your widget names. To understand more please
+// check out: https://docs.appsmith.com/core-concepts/capturing-data-write
+// Read more at https://www.arangodb.com/docs/stable/aql/
