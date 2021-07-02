@@ -149,10 +149,12 @@ const getSecondaryMenu = (hasActiveSources: boolean) => {
     : [mockDbMenu, ...SECONDARY_MENU];
 };
 
-const SECONDARY_MENU_IDS = {
-  API: 0,
-  DATABASE: 1,
-  MOCK_DATABASE: 2,
+const getSecondaryMenuIds = (hasActiveSources = false) => {
+  return {
+    API: 0 + (hasActiveSources ? 0 : 1),
+    DATABASE: 1 + (hasActiveSources ? 0 : 1),
+    MOCK_DATABASE: 2 - (hasActiveSources ? 0 : 2),
+  };
 };
 
 // const TERTIARY_MENU: TabProp[] = [
@@ -196,7 +198,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Mock Database</Text>
+      <Text type={TextType.H2}>Mock Databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -280,7 +282,7 @@ class IntegrationsHomeScreen extends React.Component<
     this.state = {
       page: 1,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: SECONDARY_MENU_IDS.API,
+      activeSecondaryMenuId: getSecondaryMenuIds().API,
     };
   }
 
@@ -325,7 +327,9 @@ class IntegrationsHomeScreen extends React.Component<
       history.replace(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
-      this.onSelectSecondaryMenu(SECONDARY_MENU_IDS.MOCK_DATABASE);
+      this.onSelectSecondaryMenu(
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
+      );
     } else {
       this.syncActivePrimaryMenu();
     }
@@ -336,7 +340,7 @@ class IntegrationsHomeScreen extends React.Component<
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    const { applicationId, history, pageId } = this.props;
+    const { applicationId, dataSources, history, pageId } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
     }
@@ -353,7 +357,7 @@ class IntegrationsHomeScreen extends React.Component<
       activeSecondaryMenuId:
         activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
           ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
-          : SECONDARY_MENU_IDS.API,
+          : getSecondaryMenuIds(dataSources.length > 0).API,
     });
   };
 
@@ -377,7 +381,10 @@ class IntegrationsHomeScreen extends React.Component<
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
         <UseMockDatasources
-          active={activeSecondaryMenuId === SECONDARY_MENU_IDS.MOCK_DATABASE}
+          active={
+            activeSecondaryMenuId ===
+            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE
+          }
           mockDatasources={this.props.mockDatasources}
         />
       ) : null;
@@ -390,7 +397,10 @@ class IntegrationsHomeScreen extends React.Component<
             this.props.mockDatasources.length > 0 &&
             mockDataSection}
           <CreateNewAPI
-            active={activeSecondaryMenuId === SECONDARY_MENU_IDS.API}
+            active={
+              activeSecondaryMenuId ===
+              getSecondaryMenuIds(dataSources.length > 0).API
+            }
             applicationId={applicationId}
             history={history}
             isCreating={isCreating}
@@ -398,7 +408,10 @@ class IntegrationsHomeScreen extends React.Component<
             pageId={pageId}
           />
           <CreateNewDatasource
-            active={activeSecondaryMenuId === SECONDARY_MENU_IDS.DATABASE}
+            active={
+              activeSecondaryMenuId ===
+              getSecondaryMenuIds(dataSources.length > 0).DATABASE
+            }
             applicationId={applicationId}
             history={history}
             isCreating={isCreating}
