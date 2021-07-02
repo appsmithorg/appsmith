@@ -20,8 +20,8 @@ if [[ -z $DOCKER_TAG_NAME ]]; then
 	DOCKER_TAG_NAME="${CODEBUILD_SOURCE_VERSION:-release}"
 fi
 
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz" .
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PREFIX/$BATCH_ID/client-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PREFIX/$BATCH_ID/server-dist.tgz" .
 
 tar -xaf client-dist.tgz
 mv -v client-dist "$CODEBUILD_SRC_DIR/app/client/build"

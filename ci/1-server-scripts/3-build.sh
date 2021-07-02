@@ -28,4 +28,4 @@ rsync -av --exclude "original-*.jar" appsmith-plugins/*/target/*.jar dist/plugin
 
 mv -v dist server-dist
 tar -caf server-dist.tgz server-dist
-aws s3 cp --no-progress server-dist.tgz "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz"
+aws s3 cp --no-progress server-dist.tgz "$S3_BUILDS_PREFIX/$BATCH_ID/server-dist.tgz"

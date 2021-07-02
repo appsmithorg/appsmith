@@ -22,8 +22,8 @@ echo "$BASH_VERSION"
 java -version
 node --version
 
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz" .
-aws s3 cp --no-progress "$S3_BUCKET_PREFIX/builds/$BATCH_ID/server-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PREFIX/$BATCH_ID/client-dist.tgz" .
+aws s3 cp --no-progress "$S3_BUILDS_PREFIX/$BATCH_ID/server-dist.tgz" .
 
 tar -xaf client-dist.tgz
 tar -xaf server-dist.tgz

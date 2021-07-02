@@ -18,4 +18,4 @@ REACT_APP_SHOW_ONBOARDING_FORM=true \
 
 mv -v build client-dist
 tar -caf client-dist.tgz client-dist
-aws s3 cp --no-progress client-dist.tgz "$S3_BUCKET_PREFIX/builds/$BATCH_ID/client-dist.tgz"
+aws s3 cp --no-progress client-dist.tgz "$S3_BUILDS_PREFIX/$BATCH_ID/client-dist.tgz"
