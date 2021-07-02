@@ -24,6 +24,12 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 
 let pageidcopy = " ";
 
+export const initLocalstorage = () => {
+  cy.window().then((window) => {
+    window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+  });
+};
+
 Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
@@ -373,6 +379,8 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  initLocalstorage();
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
