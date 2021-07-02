@@ -21,5 +21,4 @@ phases:
       - mkdir -pv ci/logs
       - source ci/cleanup.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
     finally:
-      - UPLOAD_LOGS_ON_SUCCESS=1
       - source ci/common/upload-logs.sh
