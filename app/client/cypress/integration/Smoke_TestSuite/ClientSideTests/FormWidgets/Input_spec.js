@@ -137,6 +137,7 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
+    cy.closePropertyPane("inputwidget");
   });
 
   it("Input Functionality To check currency input type", function() {
