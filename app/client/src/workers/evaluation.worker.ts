@@ -47,18 +47,24 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
+        let dataTreeObject: any = {};
+        let evaluationOrder: Array<string> = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-            dataTreeEvaluator.createFirstTree(unevalTree);
-            dataTree = dataTreeEvaluator.evalTree;
+            dataTreeObject = dataTreeEvaluator.createFirstTree(unevalTree);
+            dataTree = dataTreeObject.dataTree;
+            evaluationOrder = dataTreeObject.evaluationOrder;
+            // dataTreeEvaluator.sortedDepedencies
           } else {
-            dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTreeObject = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTree = dataTreeObject.dataTree;
+            evaluationOrder = dataTreeObject.evaluationOrder;
           }
 
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
-          dataTree = JSON.parse(JSON.stringify(dataTree));
+          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
@@ -79,10 +85,12 @@ ctx.addEventListener(
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
+        // step 6: eval order
         return {
           dataTree,
           dependencies,
           errors,
+          evaluationOrder,
           logs,
         };
       }
@@ -108,7 +116,8 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
-        const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
+        dataTreeEvaluator.updateDataTree(dataTree);
+        const evalTree = dataTreeEvaluator.evalTree;
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
@@ -120,7 +129,7 @@ ctx.addEventListener(
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
         const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_ERROR) {
+          if (error.type === EvalErrorTypes.EVAL_PROPERTY_ERROR) {
             return {
               ...error,
               type: EvalErrorTypes.EVAL_TRIGGER_ERROR,

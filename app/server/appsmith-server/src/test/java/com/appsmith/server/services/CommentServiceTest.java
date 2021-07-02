@@ -57,7 +57,7 @@ public class CommentServiceTest {
                     thread.setComments(List.of(
                             makePlainTextComment("comment one")
                     ));
-                    return commentService.createThread(thread);
+                    return commentService.createThread(thread, "https://app.appsmith.com");
                 })
                 .zipWhen(thread -> commentService.getThreadsByApplicationId(thread.getApplicationId()));
 
@@ -128,7 +128,7 @@ public class CommentServiceTest {
                     thread.setComments(List.of(
                             makePlainTextComment("Test Comment")
                     ));
-                    return commentService.createThread(thread);
+                    return commentService.createThread(thread, "https://app.appsmith.com");
                 })
                 .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
                 .cache();
@@ -163,7 +163,7 @@ public class CommentServiceTest {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
                     thread.setComments(List.of(makePlainTextComment("Test Comment")));
-                    return commentService.createThread(thread);
+                    return commentService.createThread(thread, "https://app.appsmith.com");
                 })
                 .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
                 .flatMap(comment -> {
@@ -202,7 +202,7 @@ public class CommentServiceTest {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
                     thread.setComments(List.of(makePlainTextComment("Test Comment")));
-                    return commentService.createThread(thread);
+                    return commentService.createThread(thread, "https://app.appsmith.com");
                 })
                 .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
                 .flatMap(comment -> {

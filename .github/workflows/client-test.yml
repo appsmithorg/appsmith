@@ -13,7 +13,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [release, master]
+    branches: [release, release-frozen, master]
     paths:
       - "app/client/**"
       - "!app/client/cypress/manual_TestSuite/**"
@@ -27,13 +27,11 @@ jobs:
   build:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
-    # Only PR approvals of internally created PRs should trigger this workflow
     if: |
-      github.event_name == 'workflow_dispatch' || 
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
-      github.event.pull_request.head.repo.full_name == github.repository)
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -116,6 +114,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
+            REACT_APP_SHOW_ONBOARDING_FORM=true \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -197,7 +196,7 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release' || github.event.pull_request.head.ref == 'release'
         shell: bash
         run: |
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
@@ -211,8 +210,23 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
+      - name: Pull release-frozen server docker container and start it locally
+        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
+        shell: bash
+        run: |
+          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+            --env APPSMITH_ENCRYPTION_PASSWORD=password \
+            --env APPSMITH_ENCRYPTION_SALT=salt \
+            --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
+
       - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
+        if: github.ref == 'refs/heads/master'
         shell: bash
         run: |
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
@@ -297,15 +311,15 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then 
-            echo "Integration tests completed successfully!"; 
-            exit 0; 
-          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then 
-            echo "Integration tests were skipped"; 
-            exit 1; 
-          else 
-            echo "Integration tests have failed"; 
-            exit 1; 
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
           fi
 
   package:
@@ -315,7 +329,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
 
     steps:
       # Checkout the code
@@ -344,6 +358,14 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+
+      # Build release-frozen Docker image and push to Docker Hub
+      - name: Push release-frozen image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release-frozen' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin

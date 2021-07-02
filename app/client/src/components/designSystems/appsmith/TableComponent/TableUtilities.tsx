@@ -49,7 +49,7 @@ export const renderCell = (
           </CellWrapper>
         );
       }
-      const imageSplitRegex = /[^(base64)],/;
+      const imageSplitRegex = /(?<!base64),/g;
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
@@ -75,7 +75,7 @@ export const renderCell = (
                   </a>
                 );
               } else {
-                return <div>Invalid Image</div>;
+                return <div key={index}>Invalid Image</div>;
               }
             })}
         </CellWrapper>
@@ -112,14 +112,15 @@ export const renderCell = (
           tableWidth={tableWidth}
           title={value.toString()}
         >
-          {value.toString()}
+          {value && columnType === ColumnTypes.URL && cellProperties.displayText
+            ? cellProperties.displayText
+            : value.toString()}
         </AutoToolTipComponent>
       );
   }
 };
 
 interface RenderActionProps {
-  isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
@@ -142,7 +143,6 @@ export const renderActions = (
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
-            isSelected={props.isSelected}
             key={index}
             onCommandClick={props.onCommandClick}
           />
@@ -153,7 +153,6 @@ export const renderActions = (
 };
 
 function TableAction(props: {
-  isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;

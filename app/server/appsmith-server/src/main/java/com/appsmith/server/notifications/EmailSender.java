@@ -43,7 +43,7 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, String> params) {
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
 
         /**
          * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
@@ -122,7 +122,7 @@ public class EmailSender {
      * @return Template string with Mustache replacements applied.
      * @throws IOException bubbled from Mustache renderer.
      */
-    private String replaceEmailTemplate(String template, Map<String, String> params) throws IOException {
+    private String replaceEmailTemplate(String template, Map<String, ? extends Object> params) throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory();
         StringWriter stringWriter = new StringWriter();
         Mustache mustache = mf.compile(template);

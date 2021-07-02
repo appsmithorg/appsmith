@@ -59,7 +59,7 @@ export const HintStyles = createGlobalStyle<{
   }
 
   .datasource-hint {
-    padding: 10px;
+    padding: 10px 20px 10px 10px !important;
     display: block;
     width: 500px;
     height: 32px;

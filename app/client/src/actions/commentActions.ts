@@ -19,17 +19,6 @@ export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
 });
 
-// todo remove (for dev)
-export const setCommentThreadsSuccess = (payload: any) => ({
-  type: ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS,
-  payload,
-});
-
-// todo remove (for dev)
-export const initCommentThreads = () => ({
-  type: ReduxActionTypes.INIT_COMMENT_THREADS,
-});
-
 export const commentEvent = (payload: CommentEventPayload) => ({
   type: COMMENT_EVENTS_CHANNEL,
   payload,
@@ -256,5 +245,14 @@ export const hideCommentsIntroCarousel = () => ({
 
 export const setAreCommentsEnabled = (flag: boolean) => ({
   type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+  payload: flag,
+});
+
+export const fetchUnreadCommentThreadsCountRequest = () => ({
+  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_REQUEST,
+});
+
+export const fetchUnreadCommentThreadsCountSuccess = (flag: boolean) => ({
+  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
   payload: flag,
 });

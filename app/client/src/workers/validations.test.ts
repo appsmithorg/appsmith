@@ -126,7 +126,7 @@ describe("Chart Custom Config validator", () => {
     const cases = [
       {
         input: {
-          type: "area2d",
+          type: "area",
           dataSource: {
             chart: {
               caption: "Countries With Most Oil Reserves [2017-18]",
@@ -175,7 +175,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: true,
           parsed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -222,7 +222,7 @@ describe("Chart Custom Config validator", () => {
           },
 
           transformed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -310,83 +310,14 @@ describe("Chart Custom Config validator", () => {
           },
         },
         output: {
-          isValid: true,
+          isValid: false,
+          message:
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
-            type: "area2d",
+            type: "",
             dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
-            },
-          },
-          transformed: {
-            type: "area2d",
-            dataSource: {
-              data: [
-                {
-                  label: "Venezuela",
-                  value: "290",
-                },
-                {
-                  label: "Saudi",
-                  value: "260",
-                },
-                {
-                  label: "Canada",
-                  value: "180",
-                },
-                {
-                  label: "Iran",
-                  value: "140",
-                },
-                {
-                  label: "Russia",
-                  value: "115",
-                },
-                {
-                  label: "UAE",
-                  value: "100",
-                },
-                {
-                  label: "US",
-                  value: "30",
-                },
-                {
-                  label: "China",
-                  value: "30",
-                },
-              ],
+              chart: {},
+              data: [],
             },
           },
         },
@@ -575,5 +506,39 @@ describe("List data validator", () => {
       const response = validator(input, widgetProps);
       expect(response).toStrictEqual(expected[index]);
     });
+  });
+});
+
+describe("Color Picker Text validator", () => {
+  const validator = VALIDATORS.COLOR_PICKER_TEXT;
+  const inputs = [
+    "#e0e0e0",
+    "rgb(200,200,200)",
+    "{{Text2.text}}",
+    "<p>red</p>",
+  ];
+  const expected = [
+    {
+      isValid: true,
+      parsed: "#e0e0e0",
+    },
+    {
+      isValid: true,
+      parsed: "rgb(200,200,200)",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+  ];
+  inputs.forEach((input, index) => {
+    const response = validator(input, DUMMY_WIDGET);
+    expect(response).toStrictEqual(expected[index]);
   });
 });

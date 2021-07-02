@@ -7,6 +7,7 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface FetchPageRequest {
   id: string;
+  isFirstLoad?: boolean;
 }
 
 export interface FetchPublishedPageRequest {
