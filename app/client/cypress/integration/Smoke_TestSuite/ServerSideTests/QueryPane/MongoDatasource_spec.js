@@ -30,8 +30,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
 
     cy.get("@getPluginForm").should("not.be.null");
-    cy.xpath('//div[contains(text(),"Form Input")]').click({ force: true });
-    cy.xpath('//div[contains(text(),"Raw Input")]').click({ force: true });
+    cy.xpath('//div[contains(text(),"Find Document(s)")]').click({
+      force: true,
+    });
+    cy.xpath('//div[contains(text(),"Raw")]').click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
