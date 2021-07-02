@@ -15,7 +15,7 @@ phases:
       nodejs: 14
     commands:
       - mkdir -pv ci/logs
-      - source ci/2-scripts/1-install.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+      - source ci/2-scripts/1-install.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
     finally:
       - source ci/common/upload-logs.sh
 
@@ -23,7 +23,7 @@ phases:
     on-failure: ABORT
     commands:
       - mkdir -pv ci/logs
-      - source ci/2-scripts/3-build.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+      - source ci/2-scripts/3-build.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
     finally:
       - source ci/common/upload-logs.sh
 
