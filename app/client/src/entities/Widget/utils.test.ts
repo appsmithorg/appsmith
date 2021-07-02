@@ -154,7 +154,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        totalRecordsCount: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onRowSelected: true,
@@ -168,7 +167,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: "DEFAULT_SELECTED_ROW",
         isVisible: "BOOLEAN",
         tableData: "TABLE_DATA",
-        totalRecordsCount: "NUMBER",
       },
     };
 
