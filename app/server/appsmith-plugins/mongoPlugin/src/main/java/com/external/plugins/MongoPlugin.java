@@ -24,16 +24,8 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
-import com.external.plugins.commands.Aggregate;
-import com.external.plugins.commands.Count;
-import com.external.plugins.commands.Delete;
-import com.external.plugins.commands.Distinct;
-import com.external.plugins.commands.Find;
-import com.external.plugins.commands.Insert;
-import com.external.plugins.commands.MongoCommand;
-import com.external.plugins.commands.UpdateMany;
-import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -41,8 +33,6 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.Decimal128;
-import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
@@ -56,19 +46,14 @@ import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,16 +63,19 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.MongoPluginUtils.urlEncode;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
@@ -95,7 +83,6 @@ import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -228,7 +215,8 @@ public class MongoPlugin extends BasePlugin {
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
-                if (isFormInput(actionConfiguration.getPluginSpecifiedTemplates())) {
+                // If not raw, then it must be form input.
+                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
                     List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
                             executeActionDTO.getParams(), parameters);
                     actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
@@ -305,6 +293,12 @@ public class MongoPlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
+                    )
+                    // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
+                    // database drops the connection which makes the client throw the following exception.
+                    .onErrorMap(
+                            MongoSocketWriteException.class,
+                            error -> new StaleConnectionException()
                     )
                     .flatMap(mongoOutput -> {
                         try {
@@ -389,6 +383,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
+                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -410,66 +405,6 @@ public class MongoPlugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
-        }
-
-        private Boolean isFormInput(List<Property> templates) {
-            if ((templates.size() >= (1 + INPUT_TYPE)) &&
-                    (templates.get(INPUT_TYPE) != null) &&
-                    ("FORM".equals(templates.get(INPUT_TYPE).getValue())) &&
-                    (templates.size() >= (1 + COMMAND)) &&
-                    (templates.get(COMMAND) != null) &&
-                    (templates.get(COMMAND).getValue() != null)) {
-                return TRUE;
-            }
-            return FALSE;
-        }
-
-        private String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
-            List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
-            if (templates != null) {
-                if (isFormInput(templates)) {
-                    // The user has configured FORM for command input. Parse the commands appropriately
-
-                    MongoCommand command = null;
-                    switch ((String) templates.get(COMMAND).getValue()) {
-                        case "INSERT":
-                            command = new Insert(actionConfiguration);
-                            break;
-                        case "FIND":
-                            command = new Find(actionConfiguration);
-                            break;
-                        case "UPDATE":
-                            command = new UpdateMany(actionConfiguration);
-                            break;
-                        case "UPDATE_ONE":
-                            command = new UpdateOne(actionConfiguration);
-                            break;
-                        case "DELETE":
-                            command = new Delete(actionConfiguration);
-                            break;
-                        case "COUNT":
-                            command = new Count(actionConfiguration);
-                            break;
-                        case "DISTINCT":
-                            command = new Distinct(actionConfiguration);
-                            break;
-                        case "AGGREGATE":
-                            command = new Aggregate(actionConfiguration);
-                            break;
-                        default:
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
-                    }
-                    if (!command.isValid()) {
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
-                    }
-
-                    return command.parseCommand().toJson();
-                }
-            }
-
-            // We reached here. This means either this is a RAW command input or some configuration error has happened
-            // in which case, we default to RAW
-            return actionConfiguration.getBody();
         }
 
         private String smartSubstituteBSON(String rawQuery,
@@ -502,19 +437,6 @@ public class MongoPlugin extends BasePlugin {
             }
 
             return templates;
-        }
-
-        private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
-            // Explicitly set default database.
-            String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-
-            // If that's not available, pick the authentication database.
-            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (StringUtils.isEmpty(databaseName) && authentication != null) {
-                databaseName = authentication.getDatabaseName();
-            }
-
-            return databaseName;
         }
 
         @Override
@@ -942,83 +864,6 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private static void generateTemplatesAndStructureForACollection(String collectionName,
-                                                                        Document document,
-                                                                        ArrayList<DatasourceStructure.Column> columns,
-                                                                        ArrayList<DatasourceStructure.Template> templates) {
-            String filterFieldName = null;
-            String filterFieldValue = null;
-            Map<String, String> sampleInsertValues = new LinkedHashMap<>();
-
-            for (Map.Entry<String, Object> entry : document.entrySet()) {
-                final String name = entry.getKey();
-                final Object value = entry.getValue();
-                String type;
-
-                if (value instanceof Integer) {
-                    type = "Integer";
-                    sampleInsertValues.put(name, "1");
-                } else if (value instanceof Long) {
-                    type = "Long";
-                    sampleInsertValues.put(name, "NumberLong(\"1\")");
-                } else if (value instanceof Double) {
-                    type = "Double";
-                    sampleInsertValues.put(name, "1");
-                } else if (value instanceof Decimal128) {
-                    type = "BigDecimal";
-                    sampleInsertValues.put(name, "NumberDecimal(\"1\")");
-                } else if (value instanceof String) {
-                    type = "String";
-                    sampleInsertValues.put(name, "\"new value\"");
-                    if (filterFieldName == null || filterFieldName.compareTo(name) > 0) {
-                        filterFieldName = name;
-                        filterFieldValue = (String) value;
-                    }
-                } else if (value instanceof ObjectId) {
-                    type = "ObjectId";
-                    if (!value.equals("_id")) {
-                        sampleInsertValues.put(name, "ObjectId(\"a_valid_object_id_hex\")");
-                    }
-                } else if (value instanceof Collection) {
-                    type = "Array";
-                    sampleInsertValues.put(name, "[1, 2, 3]");
-                } else if (value instanceof Date) {
-                    type = "Date";
-                    sampleInsertValues.put(name, "new Date(\"2019-07-01\")");
-                } else {
-                    type = "Object";
-                    sampleInsertValues.put(name, "{}");
-                }
-
-                columns.add(new DatasourceStructure.Column(name, type, null));
-            }
-
-            columns.sort(Comparator.naturalOrder());
-
-            Map<String, Object> templateConfiguration = new HashMap<>();
-            templateConfiguration.put("collectionName", collectionName);
-            templateConfiguration.put("filterFieldName", filterFieldName);
-            templateConfiguration.put("filterFieldValue", filterFieldValue);
-            templateConfiguration.put("sampleInsertValues", sampleInsertValues);
-
-            templates.addAll(
-                    new Find().generateTemplate(templateConfiguration)
-            );
-
-
-            templates.addAll(
-                    new Insert().generateTemplate(templateConfiguration)
-            );
-
-            templates.addAll(
-                    new UpdateMany().generateTemplate(templateConfiguration)
-            );
-
-            templates.addAll(
-                    new Delete().generateTemplate(templateConfiguration)
-            );
-        }
-
         @Override
         public Object substituteValueInInput(int index,
                                              String binding,
@@ -1037,10 +882,6 @@ public class MongoPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
-    }
-
-    private static String urlEncode(String text) {
-        return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 
     private static Object cleanUp(Object object) {
