@@ -1,11 +1,17 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
 
-export const setCanvasSelectionStateAction = (start: boolean) => {
+export const setCanvasSelectionStateAction = (
+  start: boolean,
+  widgetId: string,
+) => {
   return {
     type: start
       ? ReduxActionTypes.START_CANVAS_SELECTION
       : ReduxActionTypes.STOP_CANVAS_SELECTION,
+    payload: {
+      widgetId,
+    },
   };
 };
 
