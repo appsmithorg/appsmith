@@ -332,336 +332,352 @@ export function CanvasDraggingArena({
   };
 
   useEffect(() => {
-    if (isDragging && canvasRef.current && !isResizing) {
-      let rows = snapRows;
-      let canvasIsDragging = false;
+    if (canvasRef.current && !isResizing) {
       const scale = 1;
 
-      // draggingCanvas.style.padding = `${noPad ? 0 : CONTAINER_GRID_PADDING}px`;
-      const { height, width } = canvasRef.current.getBoundingClientRect();
-      canvasRef.current.width = width * scale;
-      canvasRef.current.height = height * scale;
-      const differentParent = dragParent !== widgetId;
-      const parentDiff = {
-        top:
-          differentParent && dragCenterSpace
-            ? dragCenterSpace.top * snapRowSpace +
-              (noPad ? 0 : CONTAINER_GRID_PADDING)
-            : noPad
-            ? 0
-            : CONTAINER_GRID_PADDING,
-        left:
-          differentParent && dragCenterSpace
-            ? dragCenterSpace.left * snapColumnSpace +
-              (noPad ? 0 : CONTAINER_GRID_PADDING)
-            : noPad
-            ? 0
-            : CONTAINER_GRID_PADDING,
-      };
-      let newRectanglesToDraw: {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-        columnWidth: number;
-        rowHeight: number;
-        widgetId: string;
-        isNotColliding: boolean;
-      }[] = [];
-      let canvasCtx: any = canvasRef.current.getContext("2d");
-      canvasCtx.globalCompositeOperation = "destination-over";
-      // const drawDragLayer = debounce(
-      //   (rows) => {
-      //     if (canvasRef.current && canvasDragLayerRef.current) {
-      //       const { height, width } = canvasRef.current.getBoundingClientRect();
-      //       canvasDragLayerRef.current.width = width * scale;
-      //       canvasDragLayerRef.current.height = height * scale;
-      //       const canvasCtx: any = canvasDragLayerRef.current.getContext("2d");
-      //       canvasCtx.clearRect(0, 0, width, height);
-      //       canvasCtx.beginPath(); // clear path if it has been used previously
-      //       // modify method to add to path instead
-      //       const draw = (x: any, y: any, width: any, height: any) => {
-      //         canvasCtx.fillStyle = `${"rgb(0, 0, 0, 1)"}`;
-      //         canvasCtx.strokeStyle = `${"rgb(0, 0, 0, 1)"}`;
-      //         canvasCtx.rect(x, y, width, height);
-      //       };
-      //       for (
-      //         let x = noPad ? 0 : CONTAINER_GRID_PADDING;
-      //         x < width;
-      //         x += snapColumnSpace
-      //       ) {
-      //         for (
-      //           let y = noPad ? 0 : CONTAINER_GRID_PADDING;
-      //           y < rows * snapRowSpace + (widgetId === "0" ? 200 : 0);
-      //           y += snapRowSpace
-      //         ) {
-      //           draw(x, y, 1, 1);
-      //         }
-      //       }
-
-      //       // when done, fill once
-      //       canvasCtx.fill();
-      //     }
-      //   },
-      //   0,
-      //   {
-      //     leading: true,
-      //     trailing: true,
-      //   },
-      // );
-      // canvasCtx.scale(scale, scale);
-
-      const startPoints = {
-        left: 20,
-        top: 20,
-      };
-      const onMouseUp = () => {
-        startPoints.left = 20;
-        startPoints.top = 20;
-        if (newWidget) {
-          setDraggingNewWidget(false, undefined);
-        } else {
-          setIsDragging(false);
-        }
-        onMouseOut();
-        if (isDragging && canvasIsDragging) {
-          onDrop(newRectanglesToDraw);
-        }
-      };
+      let canvasIsDragging = false;
       const onMouseOut = () => {
         if (canvasRef.current) {
           const { height, width } = canvasRef.current.getBoundingClientRect();
+          const canvasCtx: any = canvasRef.current.getContext("2d");
           canvasRef.current.style.zIndex = "";
-          canvasCtx.clearRect(0, 0, width, height);
+          canvasCtx.clearRect(0, 0, width * scale, height * scale);
           canvasIsDragging = false;
         }
       };
-      const onMouseDown = (e: any) => {
-        if (
-          !isResizing &&
-          isDragging &&
-          !canvasIsDragging &&
-          canvasRef.current
-        ) {
-          canvasIsDragging = true;
+      if (isDragging) {
+        let rows = snapRows;
+
+        // draggingCanvas.style.padding = `${noPad ? 0 : CONTAINER_GRID_PADDING}px`;
+        const { height, width } = canvasRef.current.getBoundingClientRect();
+        canvasRef.current.width = width * scale;
+        canvasRef.current.height = height * scale;
+
+        const differentParent = dragParent !== widgetId;
+        const parentDiff = {
+          top:
+            differentParent && dragCenterSpace
+              ? dragCenterSpace.top * snapRowSpace +
+                (noPad ? 0 : CONTAINER_GRID_PADDING)
+              : noPad
+              ? 0
+              : CONTAINER_GRID_PADDING,
+          left:
+            differentParent && dragCenterSpace
+              ? dragCenterSpace.left * snapColumnSpace +
+                (noPad ? 0 : CONTAINER_GRID_PADDING)
+              : noPad
+              ? 0
+              : CONTAINER_GRID_PADDING,
+        };
+        let newRectanglesToDraw: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+          columnWidth: number;
+          rowHeight: number;
+          widgetId: string;
+          isNotColliding: boolean;
+        }[] = [];
+        let canvasCtx: any = canvasRef.current.getContext("2d");
+        canvasCtx.globalCompositeOperation = "destination-over";
+        canvasCtx.scale(scale, scale);
+        // const drawDragLayer = debounce(
+        //   (rows) => {
+        //     if (canvasRef.current && canvasDragLayerRef.current) {
+        //       const { height, width } = canvasRef.current.getBoundingClientRect();
+        //       canvasDragLayerRef.current.width = width * scale;
+        //       canvasDragLayerRef.current.height = height * scale;
+        //       const canvasCtx: any = canvasDragLayerRef.current.getContext("2d");
+        //       canvasCtx.clearRect(0, 0, width, height);
+        //       canvasCtx.beginPath(); // clear path if it has been used previously
+        //       // modify method to add to path instead
+        //       const draw = (x: any, y: any, width: any, height: any) => {
+        //         canvasCtx.fillStyle = `${"rgb(0, 0, 0, 1)"}`;
+        //         canvasCtx.strokeStyle = `${"rgb(0, 0, 0, 1)"}`;
+        //         canvasCtx.rect(x, y, width, height);
+        //       };
+        //       for (
+        //         let x = noPad ? 0 : CONTAINER_GRID_PADDING;
+        //         x < width;
+        //         x += snapColumnSpace
+        //       ) {
+        //         for (
+        //           let y = noPad ? 0 : CONTAINER_GRID_PADDING;
+        //           y < rows * snapRowSpace + (widgetId === "0" ? 200 : 0);
+        //           y += snapRowSpace
+        //         ) {
+        //           draw(x, y, 1, 1);
+        //         }
+        //       }
+
+        //       // when done, fill once
+        //       canvasCtx.fill();
+        //     }
+        //   },
+        //   0,
+        //   {
+        //     leading: true,
+        //     trailing: true,
+        //   },
+        // );
+
+        const startPoints = {
+          left: 20,
+          top: 20,
+        };
+        const onMouseUp = () => {
+          startPoints.left = 20;
+          startPoints.top = 20;
+          if (newWidget) {
+            setDraggingNewWidget(false, undefined);
+          } else {
+            setIsDragging(false);
+          }
+          onMouseOut();
+          if (isDragging && canvasIsDragging) {
+            onDrop(newRectanglesToDraw);
+          }
+        };
+
+        const onMouseDown = (e: any) => {
           if (
-            dragParent === widgetId &&
-            startPoints.left === 20 &&
-            startPoints.top === 20
+            !isResizing &&
+            isDragging &&
+            !canvasIsDragging &&
+            canvasRef.current
           ) {
-            startPoints.left = e.offsetX;
-            startPoints.top = e.offsetY;
+            canvasIsDragging = true;
+            if (
+              dragParent === widgetId &&
+              startPoints.left === 20 &&
+              startPoints.top === 20
+            ) {
+              startPoints.left = e.offsetX;
+              startPoints.top = e.offsetY;
+            }
+            canvasRef.current.style.zIndex = "2";
+            // drawDragLayer(rows);
           }
-          canvasRef.current.style.zIndex = "2";
-          // drawDragLayer(rows);
-        }
-      };
-      const onMouseMove = (e: any) => {
-        if (canvasIsDragging && canvasRef.current) {
-          // console.log(startPoints, e.offsetX, draggingCanvas.offsetLeft);
+        };
+        const onMouseMove = (e: any) => {
+          if (canvasIsDragging && canvasRef.current) {
+            // console.log(startPoints, e.offsetX, draggingCanvas.offsetLeft);
 
-          const diff = {
-            left: e.offsetX - startPoints.left - parentDiff.left,
-            top: e.offsetY - startPoints.top - parentDiff.top,
-          };
-          const currentOccSpaces = occupiedSpaces[widgetId];
-          const occSpaces: OccupiedSpace[] =
-            dragParent === widgetId
-              ? childrenOccupiedSpaces.filter(
-                  (each) => !selectedWidgets.includes(each.id),
-                )
-              : currentOccSpaces;
-          const drawingBlocks = rectanglesToDraw.map((each) => ({
-            ...each,
-            left: each.left + diff.left,
-            top: each.top + diff.top,
-          }));
-          const newRows = updateRows(drawingBlocks, rows);
-          const rowDiff = newRows ? newRows - rows : 0;
-          rows = newRows && newRows !== rows ? newRows : rows;
-          newRectanglesToDraw = drawingBlocks.map((each) => ({
-            ...each,
-            isNotColliding: noCollision(
-              { x: each.left, y: each.top },
-              snapColumnSpace,
-              snapRowSpace,
-              { x: 0, y: 0 },
-              each.columnWidth,
-              each.rowHeight,
-              each.widgetId,
-              occSpaces,
-              rows,
-              GridDefaults.DEFAULT_GRID_COLUMNS,
-            ),
-          }));
-          if (rowDiff && canvasRef.current) {
-            notDoneYet = true;
-            drawInit(rowDiff, diff);
-          } else if (!notDoneYet) {
-            const { height, width } = canvasRef.current.getBoundingClientRect();
-            canvasCtx.clearRect(0, 0, width, height);
-            newRectanglesToDraw.forEach((each) => {
-              drawRectangle(each);
-            });
-          }
-          // if (rowDiff) {
-          //   newRectanglesToDraw = newRectanglesToDraw.map((each) => {
-          //     return {
-          //       ...each,
-          //       top: each.top - (rows - snapRows) * snapRowSpace,
-          //     };
-          //   });
-          //   console.log({ rowDiff, rectanglesToDraw, newRectanglesToDraw });
-          // }
-
-          scrollToKeepUp(newRectanglesToDraw);
-        } else {
-          onMouseDown(e);
-        }
-      };
-      console.log("I am initiated again");
-      let notDoneYet = false;
-      const drawInit = throttle(
-        debounce(
-          (rowDiff, diff) => {
-            console.count("drawInit");
-            notDoneYet = true;
-            if (canvasRef.current) {
-              newRectanglesToDraw = rectanglesToDraw.map((each) => {
-                return {
-                  ...each,
-                  left: each.left + diff.left,
-                  top: each.top + diff.top,
-                };
-              });
-
-              canvasRef.current.height =
-                (rows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
-              canvasCtx = canvasRef.current.getContext("2d");
+            const diff = {
+              left: e.offsetX - startPoints.left - parentDiff.left,
+              top: e.offsetY - startPoints.top - parentDiff.top,
+            };
+            const currentOccSpaces = occupiedSpaces[widgetId];
+            const occSpaces: OccupiedSpace[] =
+              dragParent === widgetId
+                ? childrenOccupiedSpaces.filter(
+                    (each) => !selectedWidgets.includes(each.id),
+                  )
+                : currentOccSpaces;
+            const drawingBlocks = rectanglesToDraw.map((each) => ({
+              ...each,
+              left: each.left + diff.left,
+              top: each.top + diff.top,
+            }));
+            const newRows = updateRows(drawingBlocks, rows);
+            const rowDiff = newRows ? newRows - rows : 0;
+            rows = newRows && newRows !== rows ? newRows : rows;
+            newRectanglesToDraw = drawingBlocks.map((each) => ({
+              ...each,
+              isNotColliding: noCollision(
+                { x: each.left, y: each.top },
+                snapColumnSpace,
+                snapRowSpace,
+                { x: 0, y: 0 },
+                each.columnWidth,
+                each.rowHeight,
+                each.widgetId,
+                occSpaces,
+                rows,
+                GridDefaults.DEFAULT_GRID_COLUMNS,
+              ),
+            }));
+            if (rowDiff && canvasRef.current) {
+              notDoneYet = true;
+              drawInit(rowDiff, diff);
+            } else if (!notDoneYet) {
               const {
                 height,
                 width,
               } = canvasRef.current.getBoundingClientRect();
-              // drawDragLayer(rows);
-
-              canvasCtx.clearRect(0, 0, width, height);
-              notDoneYet = false;
+              canvasCtx.clearRect(0, 0, width * scale, height * scale);
               newRectanglesToDraw.forEach((each) => {
                 drawRectangle(each);
               });
-              // scrollToKeepUp(newRectanglesToDraw);
             }
-          },
+            // if (rowDiff) {
+            //   newRectanglesToDraw = newRectanglesToDraw.map((each) => {
+            //     return {
+            //       ...each,
+            //       top: each.top - (rows - snapRows) * snapRowSpace,
+            //     };
+            //   });
+            //   console.log({ rowDiff, rectanglesToDraw, newRectanglesToDraw });
+            // }
+
+            scrollToKeepUp(newRectanglesToDraw);
+          } else {
+            onMouseDown(e);
+          }
+        };
+        console.log("I am initiated again");
+        let notDoneYet = false;
+        const drawInit = throttle(
+          debounce(
+            (rowDiff, diff) => {
+              console.count("drawInit");
+              notDoneYet = true;
+              if (canvasRef.current) {
+                newRectanglesToDraw = rectanglesToDraw.map((each) => {
+                  return {
+                    ...each,
+                    left: each.left + diff.left,
+                    top: each.top + diff.top,
+                  };
+                });
+
+                canvasRef.current.height =
+                  rows * snapRowSpace + (widgetId === "0" ? 200 : 0) * scale;
+                canvasCtx = canvasRef.current.getContext("2d");
+                canvasCtx.scale(scale, scale);
+                const {
+                  height,
+                  width,
+                } = canvasRef.current.getBoundingClientRect();
+                // drawDragLayer(rows);
+
+                canvasCtx.clearRect(0, 0, width * scale, height * scale);
+                notDoneYet = false;
+                newRectanglesToDraw.forEach((each) => {
+                  drawRectangle(each);
+                });
+                // scrollToKeepUp(newRectanglesToDraw);
+              }
+            },
+            10,
+            {
+              leading: false,
+              trailing: true,
+            },
+          ),
           10,
           {
             leading: false,
             trailing: true,
           },
-        ),
-        10,
-        {
-          leading: false,
-          trailing: true,
-        },
-      );
+        );
 
-      // const drawInit = debounce(
-      //   (rowDiff, diff, occSpaces) => {
-      //     // // if (rowDiff) {
-      //     // drawDragLayer();
-      //     // // }
-      //     if (rowDiff) {
-      //       // startPoints.top = startPoints.top + rowDiff * snapRowSpace;
-      //       newRectanglesToDraw = rectanglesToDraw.map((each) => {
-      //         return {
-      //           ...each,
-      //           top: each.top + rowDiff * snapRowSpace
-      //         };
-      //       });
-      //     }
+        // const drawInit = debounce(
+        //   (rowDiff, diff, occSpaces) => {
+        //     // // if (rowDiff) {
+        //     // drawDragLayer();
+        //     // // }
+        //     if (rowDiff) {
+        //       // startPoints.top = startPoints.top + rowDiff * snapRowSpace;
+        //       newRectanglesToDraw = rectanglesToDraw.map((each) => {
+        //         return {
+        //           ...each,
+        //           top: each.top + rowDiff * snapRowSpace
+        //         };
+        //       });
+        //     }
 
-      //     scrollToKeepUp(newRectanglesToDraw);
-      //   },
-      //   100,
-      //   {
-      //     leading: true,
-      //     trailing: true,
-      //   },
-      // );
-      const drawRectangle = (selectionDimensions: {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-        columnWidth: number;
-        rowHeight: number;
-        widgetId: string;
-        isNotColliding: boolean;
-      }) => {
-        if (canvasRef.current) {
-          const canvasCtx: any = canvasRef.current.getContext("2d");
-          const snappedXY = getSnappedXY(
-            snapColumnSpace,
-            snapRowSpace,
-            {
-              x: selectionDimensions.left,
-              y: selectionDimensions.top,
-            },
-            {
-              x: 0,
-              y: 0,
-            },
-          );
+        //     scrollToKeepUp(newRectanglesToDraw);
+        //   },
+        //   100,
+        //   {
+        //     leading: true,
+        //     trailing: true,
+        //   },
+        // );
+        const drawRectangle = (selectionDimensions: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+          columnWidth: number;
+          rowHeight: number;
+          widgetId: string;
+          isNotColliding: boolean;
+        }) => {
+          if (canvasRef.current) {
+            const canvasCtx: any = canvasRef.current.getContext("2d");
+            const snappedXY = getSnappedXY(
+              snapColumnSpace,
+              snapRowSpace,
+              {
+                x: selectionDimensions.left,
+                y: selectionDimensions.top,
+              },
+              {
+                x: 0,
+                y: 0,
+              },
+            );
 
-          canvasCtx.fillStyle = `${
-            selectionDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
-          }`;
-          canvasCtx.fillRect(
-            selectionDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
-            selectionDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
-            selectionDimensions.width,
-            selectionDimensions.height,
-          );
-          canvasCtx.fillStyle = `${
-            selectionDimensions.isNotColliding
-              ? "rgb(233, 250, 243, 0.6)"
-              : "red"
-          }`;
-          const strokeWidth = 1;
-          canvasCtx.setLineDash([3]);
-          canvasCtx.strokeStyle = "rgb(104,	113,	239)";
-          canvasCtx.strokeRect(
-            snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-            snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-            selectionDimensions.width - strokeWidth,
-            selectionDimensions.height - strokeWidth,
-          );
+            canvasCtx.fillStyle = `${
+              selectionDimensions.isNotColliding
+                ? "rgb(104,	113,	239, 0.6)"
+                : "red"
+            }`;
+            canvasCtx.fillRect(
+              selectionDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              selectionDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              selectionDimensions.width,
+              selectionDimensions.height,
+            );
+            canvasCtx.fillStyle = `${
+              selectionDimensions.isNotColliding
+                ? "rgb(233, 250, 243, 0.6)"
+                : "red"
+            }`;
+            const strokeWidth = 1;
+            canvasCtx.setLineDash([3]);
+            canvasCtx.strokeStyle = "rgb(104,	113,	239)";
+            canvasCtx.strokeRect(
+              snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              selectionDimensions.width - strokeWidth,
+              selectionDimensions.height - strokeWidth,
+            );
+          }
+        };
+        const startDragging = () => {
+          canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
+          canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
+          canvasRef.current?.addEventListener("mouseover", onMouseDown, false);
+          canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
+          canvasRef.current?.addEventListener("mouseleave", onMouseOut, false);
+
+          if (canvasIsDragging) {
+            // fix_dpi();
+            // drawDragLayer(rows);
+            rectanglesToDraw.forEach((each) => {
+              drawRectangle(each);
+            });
+          }
+        };
+        startDragging();
+        if (dragParent === widgetId) {
+          canvasRef.current.style.zIndex = "2";
         }
-      };
-      const startDragging = () => {
-        canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
-        canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
-        canvasRef.current?.addEventListener("mouseover", onMouseDown, false);
-        canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
-
-        if (canvasIsDragging) {
-          // fix_dpi();
-          // drawDragLayer(rows);
-          rectanglesToDraw.forEach((each) => {
-            drawRectangle(each);
-          });
-        }
-      };
-      startDragging();
-      if (dragParent === widgetId) {
-        canvasRef.current.style.zIndex = "2";
+        return () => {
+          canvasRef.current?.removeEventListener("mousemove", onMouseMove);
+          canvasRef.current?.removeEventListener("mouseup", onMouseUp);
+          canvasRef.current?.removeEventListener("mouseover", onMouseDown);
+          canvasRef.current?.removeEventListener("mouseout", onMouseOut);
+          canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
+        };
+      } else {
+        onMouseOut();
       }
-      return () => {
-        canvasRef.current?.removeEventListener("mousemove", onMouseMove);
-        canvasRef.current?.removeEventListener("mouseup", onMouseUp);
-        canvasRef.current?.removeEventListener("mouseenter", onMouseDown);
-        canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
-      };
     }
   }, [isDragging, newWidget, isResizing]);
   return isDragging && !isResizing ? (

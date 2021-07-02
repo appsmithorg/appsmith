@@ -2,8 +2,6 @@ import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
-import { theme } from "constants/DefaultTheme";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { throttle } from "lodash";
 import React, { memo, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,7 +43,7 @@ export const CanvasSelectionArena = memo(
       (state: AppState) => state.ui.widgetDragResize.isDragging,
     );
     const mainContainer = useSelector((state: AppState) =>
-      getWidget(state, MAIN_CONTAINER_WIDGET_ID),
+      getWidget(state, widgetId),
     );
     const currentPageId = useSelector(getCurrentPageId);
     const appLayout = useSelector(getCurrentApplicationLayout);
@@ -95,9 +93,8 @@ export const CanvasSelectionArena = memo(
         const init = () => {
           const { height, width } = selectionCanvas.getBoundingClientRect();
           if (height && width) {
-            selectionCanvas.width = mainContainer.rightColumn * scale;
-            selectionCanvas.height =
-              (mainContainer.bottomRow + theme.canvasBottomPadding) * scale;
+            selectionCanvas.width = width;
+            selectionCanvas.height = height;
           }
           canvasCtx.scale(scale, scale);
           selectionCanvas.addEventListener("click", onClick, false);
@@ -196,7 +193,7 @@ export const CanvasSelectionArena = memo(
           selectionRectangle.width = 0;
           selectionRectangle.height = 0;
           isDragging = true;
-          dispatch(setCanvasSelectionStateAction(true));
+          dispatch(setCanvasSelectionStateAction(true, widgetId));
           // bring the canvas to the top layer
           selectionCanvas.style.zIndex = 2;
         };
@@ -210,7 +207,7 @@ export const CanvasSelectionArena = memo(
               selectionCanvas.height,
             );
             selectionCanvas.style.zIndex = null;
-            dispatch(setCanvasSelectionStateAction(false));
+            dispatch(setCanvasSelectionStateAction(false, widgetId));
           }
         };
         const onMouseMove = (e: any) => {

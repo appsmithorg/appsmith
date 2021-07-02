@@ -210,7 +210,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     <DraggableWrapper
       className={className}
       onMouseDown={(e) => {
-        if (!isResizingOrDragging) {
+        if (!e.metaKey && !isResizingOrDragging) {
           setMightBeDragging(true);
           e.stopPropagation();
         }
