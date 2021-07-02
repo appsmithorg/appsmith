@@ -1197,12 +1197,7 @@ public class ApplicationServiceTest {
                     assertThat(updatedApplication
                             .getPolicies()
                             .stream()
-                            .filter(policy -> {
-                                if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                             .findFirst()
                             .get()
                             .getUsers()
@@ -1212,12 +1207,7 @@ public class ApplicationServiceTest {
                         assertThat(page
                                 .getPolicies()
                                 .stream()
-                                .filter(policy -> {
-                                    if (policy.getPermission().equals(READ_PAGES.getValue())) {
-                                        return true;
-                                    }
-                                    return false;
-                                })
+                                .filter(policy -> policy.getPermission().equals(READ_PAGES.getValue()))
                                 .findFirst()
                                 .get()
                                 .getUsers()
@@ -1228,12 +1218,7 @@ public class ApplicationServiceTest {
                         assertThat(action
                                 .getPolicies()
                                 .stream()
-                                .filter(policy -> {
-                                    if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
-                                        return true;
-                                    }
-                                    return false;
-                                })
+                                .filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue()))
                                 .findFirst()
                                 .get()
                                 .getUsers()
@@ -1244,12 +1229,7 @@ public class ApplicationServiceTest {
                     assertThat(datasource1
                             .getPolicies()
                             .stream()
-                            .filter(policy -> {
-                                if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                                    return true;
-                                }
-                                return false;
-                            })
+                            .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
                             .findFirst()
                             .get()
                             .getUsers()
