@@ -217,11 +217,8 @@ function DraggableComponent(props: DraggableComponentProps) {
       }}
       onMouseMove={mouseMove}
       onMouseOver={handleMouseOver}
-      onMouseUp={(e) => {
-        if (!isResizingOrDragging) {
-          setMightBeDragging(false);
-          e.stopPropagation();
-        }
+      onMouseUp={() => {
+        setMightBeDragging(false);
       }}
       style={style}
     >

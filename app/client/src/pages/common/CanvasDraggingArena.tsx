@@ -156,7 +156,8 @@ export function CanvasDraggingArena({
           isNotColliding: true,
         },
       ];
-  const { setIsDragging } = useWidgetDragResize();
+  const { setDraggingNewWidget, setIsDragging } = useWidgetDragResize();
+
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
@@ -177,15 +178,18 @@ export function CanvasDraggingArena({
       let groupBlock;
       if (drawingBlocks.length > 1) {
         const sortedByTopBlocks = drawingBlocks.sort(
+          (each2, each1) => each2.top - each1.top,
+        );
+        const topMostBlock = sortedByTopBlocks[0];
+        const sortedByBottomBlocks = drawingBlocks.sort(
           (each1, each2) =>
             each2.top + each2.height - (each1.top + each1.height),
         );
-        const bottomMostBlock = sortedByTopBlocks[0];
-        const topMostBlock = sortedByTopBlocks[sortedByTopBlocks.length - 1];
+        const bottomMostBlock = sortedByBottomBlocks[0];
         groupBlock = {
           top: topMostBlock.top,
           height:
-            topMostBlock.top + bottomMostBlock.top + bottomMostBlock.height,
+            bottomMostBlock.top - topMostBlock.top + bottomMostBlock.height,
         };
       } else {
         const block = drawingBlocks[0];
@@ -292,32 +296,38 @@ export function CanvasDraggingArena({
       return !each.isNotColliding;
     });
     if (!cannotDrop) {
-      drawingBlocks.forEach((each) => {
-        const widget = newWidget ? newWidget : allWidgets[each.widgetId];
-        const updateWidgetParams = widgetOperationParams(
-          widget,
-          { x: each.left, y: each.top },
-          { x: 0, y: 0 },
-          snapColumnSpace,
-          snapRowSpace,
-          widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
-        );
-
-        // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
-        const widgetBottomRow =
-          updateWidgetParams.payload.topRow +
-          (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
-        persistDropTargetRows &&
-          persistDropTargetRows(widget.widgetId, widgetBottomRow);
-
-        /* Finally update the widget */
-        updateWidget &&
-          updateWidget(
-            updateWidgetParams.operation,
-            updateWidgetParams.widgetId,
-            updateWidgetParams.payload,
+      drawingBlocks
+        .sort(
+          (each1, each2) =>
+            each1.top + each1.height - (each2.top + each2.height),
+        )
+        .forEach((each) => {
+          const widget = newWidget ? newWidget : allWidgets[each.widgetId];
+          const updateWidgetParams = widgetOperationParams(
+            widget,
+            { x: each.left, y: each.top },
+            { x: 0, y: 0 },
+            snapColumnSpace,
+            snapRowSpace,
+            widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
           );
-      });
+
+          // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
+          const widgetBottomRow =
+            updateWidgetParams.payload.topRow +
+            (updateWidgetParams.payload.rows ||
+              widget.bottomRow - widget.topRow);
+          persistDropTargetRows &&
+            persistDropTargetRows(widget.widgetId, widgetBottomRow);
+
+          /* Finally update the widget */
+          updateWidget &&
+            updateWidget(
+              updateWidgetParams.operation,
+              updateWidgetParams.widgetId,
+              updateWidgetParams.payload,
+            );
+        });
     }
   };
 
@@ -402,13 +412,17 @@ export function CanvasDraggingArena({
       // canvasCtx.scale(scale, scale);
 
       const startPoints = {
-        left: 0,
-        top: 0,
+        left: 20,
+        top: 20,
       };
       const onMouseUp = () => {
-        startPoints.left = 0;
-        startPoints.top = 0;
-        setIsDragging(false);
+        startPoints.left = 20;
+        startPoints.top = 20;
+        if (newWidget) {
+          setDraggingNewWidget(false, undefined);
+        } else {
+          setIsDragging(false);
+        }
         onMouseOut();
         if (isDragging && canvasIsDragging) {
           onDrop(newRectanglesToDraw);
@@ -432,8 +446,8 @@ export function CanvasDraggingArena({
           canvasIsDragging = true;
           if (
             dragParent === widgetId &&
-            startPoints.left === 0 &&
-            startPoints.top === 0
+            startPoints.left === 20 &&
+            startPoints.top === 20
           ) {
             startPoints.left = e.offsetX;
             startPoints.top = e.offsetY;
