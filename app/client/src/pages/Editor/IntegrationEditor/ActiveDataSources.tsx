@@ -119,11 +119,11 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
 
     return (
       <QueryHomePage className="t--active-datasource-list">
-        {dataSources.map((datasource) => {
+        {dataSources.map((datasource, idx) => {
           return (
             <DatasourceCard
               datasource={datasource}
-              key={datasource.id}
+              key={`${datasource.id}_${idx}`}
               onCreateQuery={this.handleCreateNewQuery}
             />
           );
