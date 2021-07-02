@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { ReactNode, useState, useEffect, useCallback } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
@@ -17,6 +17,16 @@ export type DropdownOption = {
   onSelect?: (value?: string) => void;
 };
 
+export interface RenderDropdownOptionType {
+  option: DropdownOption;
+  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+}
+
+type RenderOption = ({
+  option,
+  optionClickHandler,
+}: RenderDropdownOptionType) => ReactNode;
+
 export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
@@ -28,8 +38,8 @@ export type DropdownProps = CommonComponentProps & {
   showDropIcon?: boolean;
   headerLabel?: string;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
-  OptionValueNode?: typeof DefaultOptionValueNode;
   bgColor?: string;
+  renderOption?: RenderOption;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -227,47 +237,12 @@ function DefaultDropDownValueNode({
   );
 }
 
-function DefaultOptionValueNode({
-  option,
-  showLabelOnly,
-}: {
-  option: DropdownOption;
-  showLabelOnly?: boolean;
-}) {
-  return (
-    <>
-      {option.icon ? (
-        <SelectedIcon
-          fillColor={option?.iconColor}
-          name={option.icon}
-          size={option.iconSize || IconSize.XXS}
-        />
-      ) : null}
-
-      {showLabelOnly ? (
-        <Text type={TextType.P1}>{option.label}</Text>
-      ) : option.label && option.value ? (
-        <LabelWrapper className="label-container">
-          <Text type={TextType.H5}>{option.value}</Text>
-          <Text type={TextType.P1}>{option.label}</Text>
-        </LabelWrapper>
-      ) : (
-        <Text type={TextType.P1}>{option.value}</Text>
-      )}
-
-      {option.subText ? (
-        <StyledSubText type={TextType.P3}>{option.subText}</StyledSubText>
-      ) : null}
-    </>
-  );
-}
-
 export default function Dropdown(props: DropdownProps) {
   const {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
-    OptionValueNode = DefaultOptionValueNode,
+    renderOption,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -319,6 +294,12 @@ export default function Dropdown(props: DropdownProps) {
             <HeaderWrapper>{props.headerLabel}</HeaderWrapper>
           )}
           {props.options.map((option: DropdownOption, index: number) => {
+            if (renderOption) {
+              return renderOption({
+                option,
+                optionClickHandler,
+              });
+            }
             return (
               <OptionWrapper
                 className="t--dropdown-option"
@@ -326,10 +307,30 @@ export default function Dropdown(props: DropdownProps) {
                 onClick={() => optionClickHandler(option)}
                 selected={selected.value === option.value}
               >
-                <OptionValueNode
-                  option={option}
-                  showLabelOnly={props.showLabelOnly}
-                />
+                {option.icon ? (
+                  <SelectedIcon
+                    fillColor={option?.iconColor}
+                    name={option.icon}
+                    size={option.iconSize || IconSize.XXS}
+                  />
+                ) : null}
+
+                {props.showLabelOnly ? (
+                  <Text type={TextType.P1}>{option.label}</Text>
+                ) : option.label && option.value ? (
+                  <LabelWrapper className="label-container">
+                    <Text type={TextType.H5}>{option.value}</Text>
+                    <Text type={TextType.P1}>{option.label}</Text>
+                  </LabelWrapper>
+                ) : (
+                  <Text type={TextType.P1}>{option.value}</Text>
+                )}
+
+                {option.subText ? (
+                  <StyledSubText type={TextType.P3}>
+                    {option.subText}
+                  </StyledSubText>
+                ) : null}
               </OptionWrapper>
             );
           })}
