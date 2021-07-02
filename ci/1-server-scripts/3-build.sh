@@ -31,4 +31,4 @@ rsync -av --exclude "original-*.jar" appsmith-plugins/*/target/*.jar dist/plugin
 batch_id="${CODEBUILD_INITIATOR//\//--}"
 mv -v dist server-dist
 tar -caf server-dist.tgz server-dist
-aws s3 cp --no-progress server-dist.tgz "$S3_BUILDS_PATH/$batch_id/server-dist.tgz"
+aws s3 cp --no-progress server-dist.tgz "$S3_BUCKET_PREFIX/builds/$batch_id/server-dist.tgz"
