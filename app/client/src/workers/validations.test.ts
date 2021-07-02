@@ -508,3 +508,37 @@ describe("List data validator", () => {
     });
   });
 });
+
+describe("Color Picker Text validator", () => {
+  const validator = VALIDATORS.COLOR_PICKER_TEXT;
+  const inputs = [
+    "#e0e0e0",
+    "rgb(200,200,200)",
+    "{{Text2.text}}",
+    "<p>red</p>",
+  ];
+  const expected = [
+    {
+      isValid: true,
+      parsed: "#e0e0e0",
+    },
+    {
+      isValid: true,
+      parsed: "rgb(200,200,200)",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+  ];
+  inputs.forEach((input, index) => {
+    const response = validator(input, DUMMY_WIDGET);
+    expect(response).toStrictEqual(expected[index]);
+  });
+});

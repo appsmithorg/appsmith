@@ -24,6 +24,12 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 
 let pageidcopy = " ";
 
+export const initLocalstorage = () => {
+  cy.window().then((window) => {
+    window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+  });
+};
+
 Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
@@ -373,6 +379,8 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  initLocalstorage();
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
@@ -887,9 +895,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname)
-    .focus();
+    .focus()
+    .type(apiname, { force: true, delay: 500 })
+    .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
