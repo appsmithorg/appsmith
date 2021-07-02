@@ -31,14 +31,14 @@ const DividerWrapper = styled.div<{
     return padStyle;
   }}
 `;
-const HorizontalDivider = styled.div<DividerComponentProps>`
+const HorizontalDivider = styled.div<Partial<DividerComponentProps>>`
   height: 0px;
   width: 100%;
   border-top: ${(props) =>
     `${props.thickness || 1}px ${props.strokeStyle ||
       "solid"} ${props.dividerColor || "black"};`};
 `;
-const VerticalDivider = styled.div<DividerComponentProps>`
+const VerticalDivider = styled.div<Partial<DividerComponentProps>>`
   width: 0px;
   height: 100%;
   border-right: ${(props) =>
@@ -94,7 +94,14 @@ const CapWrapper = styled.div<{
 
 class DividerComponent extends React.Component<DividerComponentProps> {
   render() {
-    const { capSide, capType, orientation, thickness } = this.props;
+    const {
+      capSide,
+      capType,
+      dividerColor,
+      orientation,
+      strokeStyle,
+      thickness,
+    } = this.props;
     const showStartCap =
       capType !== "nc" && (isUndefined(capSide) ? false : capSide <= 0);
     const showEndCap =
@@ -108,9 +115,19 @@ class DividerComponent extends React.Component<DividerComponentProps> {
         thickness={thickness || 1}
       >
         {orientation === "horizontal" ? (
-          <HorizontalDivider data-testid="dividerHorizontal" {...this.props} />
+          <HorizontalDivider
+            data-testid="dividerHorizontal"
+            dividerColor={dividerColor}
+            strokeStyle={strokeStyle}
+            thickness={thickness}
+          />
         ) : (
-          <VerticalDivider data-testid="dividerVertical" {...this.props} />
+          <VerticalDivider
+            data-testid="dividerVertical"
+            dividerColor={dividerColor}
+            strokeStyle={strokeStyle}
+            thickness={thickness}
+          />
         )}
 
         {showStartCap && this.renderCap(true)}
