@@ -11,8 +11,15 @@ phases:
   build:
     on-failure: ABORT
     commands:
-      - source ci/3-scripts/3-build.sh
+      - mkdir -pv ci/logs
+      - source ci/3-scripts/3-build.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+    finally:
+      - source ci/upload-logs.sh
 
   post_build:
     commands:
-      - source ci/cleanup.sh
+      - mkdir -pv ci/logs
+      - source ci/cleanup.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+    finally:
+      - UPLOAD_LOGS_ON_SUCCESS=1
+      - source ci/upload-logs.sh
