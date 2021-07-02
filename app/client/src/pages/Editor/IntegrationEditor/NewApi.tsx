@@ -153,7 +153,9 @@ function NewApiScreen(props: Props) {
     }
   };
   const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) + location.search;
+    getCurlImportPageURL(applicationId, pageId) +
+    "?from=datasources" +
+    location.search;
 
   return (
     <StyledContainer>
