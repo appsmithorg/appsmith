@@ -148,8 +148,11 @@ const useDependencyList = (name: string) => {
 };
 
 const OptionWrapper = styled.div`
-  align-items: center;
+  padding: ${(props) => props.theme.spaces[2] + 1}px
+    ${(props) => props.theme.spaces[5]}px;
+  cursor: pointer;
   display: flex;
+  align-items: center;
   line-height: 8px;
 
   span:first-child {
@@ -163,14 +166,41 @@ const OptionWrapper = styled.div`
     overflow: hidden;
     white-space: initial;
     text-overflow: ellipsis;
+    color: ${(props) => props.theme.colors.propertyPane.label};
+  }
+
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
+
+  &:not(:hover) {
+    svg {
+      path {
+        fill: #6a86ce;
+      }
+    }
+  }
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
+
+    &&& svg {
+      rect {
+        fill: ${(props) => props.theme.colors.textOnDarkBG};
+      }
+    }
+
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+    }
   }
 `;
 
-function DummyOption(props: any) {
+function OptionNode(props: any) {
   const entityInfo = useGetEntityInfo(props.option.value);
 
   return (
-    <OptionWrapper>
+    <OptionWrapper onClick={props.optionClickHandler}>
       <span>{entityInfo?.icon}</span>
       <Text type={TextType.H6}>
         {props.option.label}{" "}
@@ -206,9 +236,6 @@ function PropertyPaneConnections(props: any) {
   return (
     <TopLayer>
       <Dropdown
-        OptionValueNode={(OptionValueNodeProps) => (
-          <DummyOption {...OptionValueNodeProps} />
-        )}
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
@@ -220,8 +247,17 @@ function PropertyPaneConnections(props: any) {
         disabled={!dependencies.dependencyOptions.length}
         headerLabel="Incoming connections"
         height="28px"
-        onSelect={navigateToEntity}
         options={dependencies.dependencyOptions}
+        renderOption={(optionProps) => {
+          return (
+            <OptionNode
+              option={optionProps.option}
+              optionClickHandler={() =>
+                navigateToEntity(optionProps.option.value)
+              }
+            />
+          );
+        }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
@@ -229,9 +265,6 @@ function PropertyPaneConnections(props: any) {
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
-        OptionValueNode={(OptionValueNodeProps) => (
-          <DummyOption {...OptionValueNodeProps} />
-        )}
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
@@ -245,6 +278,16 @@ function PropertyPaneConnections(props: any) {
         height="28px"
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
+        renderOption={(optionProps) => {
+          return (
+            <OptionNode
+              option={optionProps.option}
+              optionClickHandler={() =>
+                navigateToEntity(optionProps.option.value)
+              }
+            />
+          );
+        }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
