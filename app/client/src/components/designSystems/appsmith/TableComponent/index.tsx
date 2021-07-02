@@ -42,8 +42,6 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
-  tablePageSize: number;
-  defaultPageSize?: number;
   totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
@@ -82,7 +80,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
-    defaultPageSize,
     disableDrag,
     editMode,
     filters,
@@ -107,7 +104,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
-    tablePageSize,
     totalRecordsCount,
     triggerRowSelection,
     updateCompactMode,
@@ -235,7 +231,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
-      defaultPageSize={defaultPageSize}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -263,7 +258,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
-      tablePageSize={tablePageSize}
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
@@ -279,7 +273,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
-    prev.defaultPageSize === next.defaultPageSize &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&
@@ -296,7 +289,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&
     prev.pageSize === next.pageSize &&
-    prev.tablePageSize === next.tablePageSize &&
     prev.prevPageClick === next.prevPageClick &&
     prev.searchKey === next.searchKey &&
     prev.searchTableData === next.searchTableData &&

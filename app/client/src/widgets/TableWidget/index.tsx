@@ -538,14 +538,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
-    //update pageNo when defaultPageSize or totalRecordsCount is changed
-    if (
-      this.props.defaultPageSize &&
-      this.props.totalRecordCount &&
-      this.props.pageNo
-    ) {
+    //handle selected pageNo does not exist due to change of totalRecordsCount
+    if (this.props.serverSidePaginationEnabled && this.props.totalRecordCount) {
       const maxAllowedPageNumber = Math.ceil(
-        this.props.totalRecordCount / this.props.defaultPageSize,
+        this.props.totalRecordCount / this.props.pageSize,
       );
       if (this.props.pageNo > maxAllowedPageNumber) {
         this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
@@ -576,10 +572,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateSelectedRowIndex();
     }
 
-    if (
-      this.props.pageSize !== prevProps.pageSize ||
-      this.props.defaultPageSize !== prevProps.defaultPageSize
-    ) {
+    if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -635,30 +628,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
     const {
       totalRecordsCount,
-      defaultPageSize,
+      pageSize,
       filteredTableData = [],
       isVisibleCompactMode,
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      serverSidePaginationEnabled,
     } = this.props;
-    const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
     const tableColumns = this.getTableColumns() || [];
     const paginatedFilteredData = [...filteredTableData];
-    if (defaultPageSize && totalRecordsCount) {
+    if (serverSidePaginationEnabled && totalRecordsCount) {
       //if total records count configured is more than tableData
-      if (this.props.pageNo * defaultPageSize > totalRecordsCount) {
-        const count =
-          totalRecordsCount - (this.props.pageNo - 1) * defaultPageSize;
+      if (this.props.pageNo * pageSize > totalRecordsCount) {
+        const count = totalRecordsCount - (this.props.pageNo - 1) * pageSize;
         paginatedFilteredData.splice(count, paginatedFilteredData.length);
-      }
-      // Manage defaultPageSize data
-      if (paginatedFilteredData.length > defaultPageSize) {
-        paginatedFilteredData.splice(
-          defaultPageSize,
-          paginatedFilteredData.length,
-        );
       }
     }
     const transformedData = this.transformData(
@@ -680,7 +665,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          defaultPageSize={defaultPageSize}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
@@ -713,7 +697,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
-          tablePageSize={Math.max(1, this.props.pageSize)}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           updateCompactMode={this.handleCompactModeChange}

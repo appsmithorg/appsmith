@@ -93,7 +93,6 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
-  defaultPageSize?: number;
   totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];

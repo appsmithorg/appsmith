@@ -664,24 +664,6 @@ export default [
         validation: VALIDATION_TYPES.TEXT,
       },
       {
-        propertyName: "totalRecordsCount",
-        label: "Total Record Count",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Enter total record count",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: VALIDATION_TYPES.NUMBER,
-      },
-      {
-        propertyName: "defaultPageSize",
-        label: "Default Page Size",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Enter default page size",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: VALIDATION_TYPES.NUMBER,
-      },
-      {
         helpText: "Selects the default selected row",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
@@ -699,6 +681,18 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "totalRecordsCount",
+        label: "Total Record Count",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter total record count",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.NUMBER,
+        hidden: (props: TableWidgetProps) => {
+          return !props.serverSidePaginationEnabled;
+        },
       },
       {
         helpText: "Controls the visibility of the widget",

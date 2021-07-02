@@ -116,7 +116,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        defaultPageSize: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -165,7 +164,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
-        defaultPageSize: "NUMBER",
         defaultSearchText: "TEXT",
         defaultSelectedRow: "DEFAULT_SELECTED_ROW",
         isVisible: "BOOLEAN",
