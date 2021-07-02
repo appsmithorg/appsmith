@@ -3,12 +3,11 @@ import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
 import { SAAS_EDITOR_URL } from "./constants";
-import history from "utils/history";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import Button from "components/editorComponents/Button";
+import AdsButton from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -42,11 +41,6 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -83,7 +77,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const CreateApiButton = styled(BaseButton)`
+const CreateApiButton = styled(AdsButton)`
   &&& {
     max-width: 120px;
     margin-right: 9px;
@@ -147,23 +141,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const {
-      formConfig,
-      match: {
-        params: { applicationId, pageId },
-      },
-    } = this.props;
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content, () => {
-      history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-          INTEGRATION_EDITOR_MODES.AUTO,
-        ),
-      );
-    });
+    return this.renderForm(content);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
@@ -182,21 +162,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <br />
         <Header>
           <FormTitleContainer>
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           <CreateApiButton
-            accent="primary"
             className="t--create-query"
             disabled={this.validate()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
+            isLoading={isSaving}
             onClick={() => this.createApiAction()}
-            text="New API"
+            text="New Query"
           />
         </Header>
 

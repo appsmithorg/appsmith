@@ -142,10 +142,14 @@ export function* addMockDbToDatasources(
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
+      });
+      yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
       );
     }
   } catch (error) {
@@ -602,10 +606,14 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-
-  history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
-  );
+  // this redirects to the same route, so checking first.
+  if (
+    history.location.pathname !==
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id)
+  )
+    history.push(
+      DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+    );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {

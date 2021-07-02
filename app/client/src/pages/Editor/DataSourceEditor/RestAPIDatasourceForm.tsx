@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import AdsButton from "components/ads/Button";
@@ -15,7 +14,6 @@ import {
 } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import BackButton from "./BackButton";
 import InputTextControl, {
   StyledInfo,
 } from "components/formControls/InputTextControl";
@@ -57,6 +55,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -125,7 +124,7 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  //margin-top: 16px;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -295,7 +294,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   render = () => {
     return (
       <>
-        <BackButton onClick={history.goBack} />
+        <CloseEditor />
         <RestApiForm>
           <form
             onSubmit={(e) => {

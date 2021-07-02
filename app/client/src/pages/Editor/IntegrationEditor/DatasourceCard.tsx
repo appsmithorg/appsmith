@@ -118,6 +118,9 @@ function DatasourceCard(props: DatasourceCardProps) {
         params.applicationId,
         params.pageId,
         datasource.id,
+        {
+          from: "datasources",
+        },
       ),
     );
   };

@@ -80,7 +80,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
         },
         eventData: {
           actionType: "Query",
-          from: "home-screen",
+          from: "datasources",
           dataSource: dataSource.name,
         },
         pluginId: dataSource.pluginId,
@@ -104,7 +104,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
       return (
         <EmptyActiveDatasource>
           <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-            No active integrations found.{" "}
+            No active datasources found.{" "}
             <CreateButton
               category={Category.primary}
               onClick={this.props.onCreateNew}
@@ -119,11 +119,11 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
 
     return (
       <QueryHomePage className="t--active-datasource-list">
-        {dataSources.map((datasource) => {
+        {dataSources.map((datasource, idx) => {
           return (
             <DatasourceCard
               datasource={datasource}
-              key={datasource.id}
+              key={`${datasource.id}_${idx}`}
               onCreateQuery={this.handleCreateNewQuery}
             />
           );
