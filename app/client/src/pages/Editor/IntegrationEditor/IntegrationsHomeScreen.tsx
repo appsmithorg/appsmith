@@ -282,7 +282,9 @@ class IntegrationsHomeScreen extends React.Component<
     this.state = {
       page: 1,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: getSecondaryMenuIds().API,
+      activeSecondaryMenuId: getSecondaryMenuIds(
+        props.mockDatasources.length > 0,
+      ).API,
     };
   }
 
@@ -335,8 +337,17 @@ class IntegrationsHomeScreen extends React.Component<
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     this.syncActivePrimaryMenu();
+    const { applicationId, dataSources, history, pageId } = this.props;
+    if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
+      history.replace(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      this.onSelectSecondaryMenu(
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
+      );
+    }
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
