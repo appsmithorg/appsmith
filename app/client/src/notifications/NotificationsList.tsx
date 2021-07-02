@@ -9,7 +9,9 @@ import {
   notificationsSelector,
   fetchingNotificationsSelector,
 } from "selectors/notificationSelectors";
-import NotificationListItem from "./NotificationListItem";
+import NotificationListItem, {
+  NOTIFICATION_HEIGHT,
+} from "./NotificationListItem";
 import { AppsmithNotification } from "entities/Notification";
 
 import {
@@ -97,8 +99,6 @@ function NotificationsListHeader() {
     </StyledHeader>
   );
 }
-
-const NOTIFICATION_HEIGHT = 63;
 
 const Footer = styled.div`
   display: flex;
