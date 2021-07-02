@@ -227,10 +227,11 @@ function CheckBoxCheckIcon() {
 }
 
 export const renderCheckBoxCell = (isChecked: boolean) => (
-  <CellCheckboxWrapper className="td t--table-multiselect">
-    <CellCheckbox isChecked={isChecked}>
-      {isChecked && <CheckBoxCheckIcon />}
-    </CellCheckbox>
+  <CellCheckboxWrapper
+    className="td t--table-multiselect"
+    isChecked={isChecked}
+  >
+    <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
   </CellCheckboxWrapper>
 );
 
@@ -240,11 +241,12 @@ export const renderCheckBoxHeaderCell = (
 ) => (
   <CellCheckboxWrapper
     className="th header-reorder t--table-multiselect-header"
+    isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
     style={{ padding: "0px", justifyContent: "center" }}
   >
-    <CellCheckbox isChecked={!!checkState}>
+    <CellCheckbox>
       {checkState === 1 && <CheckBoxCheckIcon />}
       {checkState === 2 && <CheckBoxLineIcon />}
     </CellCheckbox>

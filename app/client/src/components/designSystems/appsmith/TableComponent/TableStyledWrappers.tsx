@@ -420,16 +420,35 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)`
+export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
   justify-content: center;
   width: 40px;
+  background: ${Colors.WHITE};
+  & > div {
+    background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
+  }
+
+  ${(props) =>
+    props.isChecked
+      ? `
+    background: #FAFAFA;
+    &:hover {
+      background: ${Colors.OPAQ_BLUE};
+    }
+    `
+      : `
+    &:hover {
+      & > div {
+        background: ${Colors.Gallery};
+      }
+    }
+  `}
 `;
 
-export const CellCheckbox = styled.div<{ isChecked: boolean }>`
+export const CellCheckbox = styled.div`
   height: 15px;
   width: 15px;
   border: 0.5px solid ${Colors.GEYSER_LIGHT};
-  background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
   position: relative;
   .th-svg {
     display: block;
