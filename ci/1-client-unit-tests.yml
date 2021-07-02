@@ -18,4 +18,4 @@ phases:
       - mkdir -pv ci/logs
       - source ci/1-client-scripts/3-build.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
-      - source ci/upload-logs.sh
+      - source ci/common/upload-logs.sh

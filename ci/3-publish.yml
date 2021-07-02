@@ -14,7 +14,7 @@ phases:
       - mkdir -pv ci/logs
       - source ci/3-scripts/3-build.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
-      - source ci/upload-logs.sh
+      - source ci/common/upload-logs.sh
 
   post_build:
     commands:
@@ -22,4 +22,4 @@ phases:
       - source ci/cleanup.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
       - UPLOAD_LOGS_ON_SUCCESS=1
-      - source ci/upload-logs.sh
+      - source ci/common/upload-logs.sh

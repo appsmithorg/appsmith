@@ -15,7 +15,7 @@ phases:
       - mkdir -pv ci/logs
       - source ci/1-server-scripts/1-install.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
-      - source ci/upload-logs.sh
+      - source ci/common/upload-logs.sh
 
   build:
     on-failure: ABORT
@@ -23,7 +23,7 @@ phases:
       - mkdir -pv ci/logs
       - source ci/1-server-scripts/3-build.sh >> "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
-      - source ci/upload-logs.sh
+      - source ci/common/upload-logs.sh
 
 cache:
   paths:
