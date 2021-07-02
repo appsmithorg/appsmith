@@ -253,9 +253,10 @@ export const entityDefinitions = {
     source: "string",
     title: "string",
   },
-  MENU_WIDGET: {
-    "!doc": "Menus are used to represent a set of actions in a group.",
-    "!url": "https://docs.appsmith.com/widget-reference/menu",
+  MENU_BUTTON_WIDGET: {
+    "!doc":
+      "Menu button widget is used to represent a set of actions in a group.",
+    "!url": "https://docs.appsmith.com/widget-reference/menu-button",
     isVisible: isVisible,
     label: "string",
   },

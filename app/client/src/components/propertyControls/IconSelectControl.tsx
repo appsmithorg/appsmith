@@ -9,6 +9,10 @@ import BaseControl, { ControlProps } from "./BaseControl";
 const IconSelectContainerStyles = createGlobalStyle`
   .bp3-select-popover {
     width: 230px;
+
+    .bp3-input-group {
+      margin: 5px !important;
+    }
   }
 `;
 
@@ -29,6 +33,8 @@ const StyledMenu = styled(Menu)`
   grid-auto-rows: minmax(50px, auto);
   gap: 8px;
   max-height: 170px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
 
   &::-webkit-scrollbar {
     width: 8px;

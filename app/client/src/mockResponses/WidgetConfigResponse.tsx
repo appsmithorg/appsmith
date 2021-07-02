@@ -1100,7 +1100,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Iframe",
       version: 1,
     },
-    [WidgetTypes.MENU_WIDGET]: {
+    [WidgetTypes.MENU_BUTTON_WIDGET]: {
       label: "Open Menu",
       isDisabled: false,
       isCompact: false,

@@ -107,10 +107,10 @@ import IframeWidget, {
   IframeWidgetProps,
   ProfiledIframeWidget,
 } from "widgets/IframeWidget";
-import MenuWidget, {
-  MenuWidgetProps,
-  ProfiledMenuWidget,
-} from "widgets/MenuWidget";
+import MenuButtonWidget, {
+  MenuButtonWidgetProps,
+  ProfiledMenuButtonWidget,
+} from "widgets/MenuButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -478,16 +478,16 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.MENU_WIDGET,
+      WidgetTypes.MENU_BUTTON_WIDGET,
       {
-        buildWidget(widgetData: MenuWidgetProps): JSX.Element {
-          return <ProfiledMenuWidget {...widgetData} />;
+        buildWidget(widgetData: MenuButtonWidgetProps): JSX.Element {
+          return <ProfiledMenuButtonWidget {...widgetData} />;
         },
       },
-      MenuWidget.getDerivedPropertiesMap(),
-      MenuWidget.getDefaultPropertiesMap(),
-      MenuWidget.getMetaPropertiesMap(),
-      MenuWidget.getPropertyPaneConfig(),
+      MenuButtonWidget.getDerivedPropertiesMap(),
+      MenuButtonWidget.getDefaultPropertiesMap(),
+      MenuButtonWidget.getMetaPropertiesMap(),
+      MenuButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

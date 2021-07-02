@@ -119,9 +119,9 @@ export const HelpMap = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
-  MENU_WIDGET: {
-    path: "/widget-reference/menu",
-    searchKey: "Menu",
+  MENU_BUTTON_WIDGET: {
+    path: "/widget-reference/menu-button",
+    searchKey: "Menu Button",
   },
 };
 

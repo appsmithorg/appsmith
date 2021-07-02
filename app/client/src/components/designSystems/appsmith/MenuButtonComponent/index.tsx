@@ -7,7 +7,7 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 
-export const MenuContainer = styled.div`
+export const MenuButtonContainer = styled.div`
   width: 100%;
   height: 100%;
   text-align: center;
@@ -215,7 +215,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   );
 }
 
-export interface MenuComponentProps extends ComponentProps {
+export interface MenuButtonComponentProps extends ComponentProps {
   label?: string;
   textColor?: string;
   isDisabled?: boolean;
@@ -244,11 +244,11 @@ export interface MenuComponentProps extends ComponentProps {
   onItemClicked: (onClick: string | undefined) => void;
 }
 
-function MenuComponent(props: MenuComponentProps) {
+function MenuButtonComponent(props: MenuButtonComponentProps) {
   const { isCompact, isDisabled, menuItems, onItemClicked } = props;
 
   return (
-    <MenuContainer>
+    <MenuButtonContainer>
       <Popover2
         content={
           <PopoverContent
@@ -264,8 +264,8 @@ function MenuComponent(props: MenuComponentProps) {
       >
         <PopoverTargetButton {...props} />
       </Popover2>
-    </MenuContainer>
+    </MenuButtonContainer>
   );
 }
 
-export default MenuComponent;
+export default MenuButtonComponent;

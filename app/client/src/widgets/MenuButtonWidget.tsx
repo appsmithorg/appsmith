@@ -8,9 +8,9 @@ import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import MenuComponent from "components/designSystems/appsmith/MenuComponent";
+import MenuButtonComponent from "components/designSystems/appsmith/MenuButtonComponent";
 
-export interface MenuWidgetProps extends WidgetProps {
+export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   textColor?: string;
   isDisabled?: boolean;
@@ -38,7 +38,7 @@ export interface MenuWidgetProps extends WidgetProps {
   iconAlign?: Alignment;
 }
 
-class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
+class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -92,7 +92,7 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
           },
           {
             propertyName: "isCompact",
-            helpText: "Decides if the widget is in compact mode",
+            helpText: "Decides if menu items will consume lesser space",
             label: "Compact",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -186,8 +186,7 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
                     {
                       propertyName: "iconName",
                       label: "Icon",
-                      helpText:
-                        "Name of a Blueprint UI icon (or an icon element) to render before or after the text",
+                      helpText: "Sets the icon to be used for a menu item",
                       controlType: "ICON_SELECT",
                       isBindProperty: false,
                       isTriggerProperty: false,
@@ -238,8 +237,7 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
           {
             propertyName: "iconName",
             label: "Icon",
-            helpText:
-              "Name of a Blueprint UI icon (or an icon element) to render before or after the text",
+            helpText: "Sets the icon to be used in the menu button",
             controlType: "ICON_SELECT",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -281,7 +279,7 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <MenuComponent
+      <MenuButtonComponent
         {...this.props}
         onItemClicked={this.menuItemClickHandler}
       />
@@ -289,9 +287,9 @@ class MenuWidget extends BaseWidget<MenuWidgetProps, WidgetState> {
   }
 
   getWidgetType(): WidgetType {
-    return WidgetTypes.MENU_WIDGET;
+    return WidgetTypes.MENU_BUTTON_WIDGET;
   }
 }
 
-export default MenuWidget;
-export const ProfiledMenuWidget = Sentry.withProfiler(MenuWidget);
+export default MenuButtonWidget;
+export const ProfiledMenuButtonWidget = Sentry.withProfiler(MenuButtonWidget);

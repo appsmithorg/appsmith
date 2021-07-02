@@ -23,7 +23,7 @@ import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
 import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
 import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
-import { ReactComponent as MenuIcon } from "assets/icons/widget/menu.svg";
+import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -149,9 +149,9 @@ export const WidgetIcons: {
       <EmbedIcon />
     </IconWrapper>
   ),
-  MENU_WIDGET: (props: IconProps) => (
+  MENU_BUTTON_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <MenuIcon />
+      <MenuButtonIcon />
     </IconWrapper>
   ),
 };

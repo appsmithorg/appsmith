@@ -175,7 +175,7 @@ const FIELD_VALUES: Record<
     borderOpacity: "number",
     borderWidth: "number",
   },
-  MENU_WIDGET: {
+  MENU_BUTTON_WIDGET: {
     isVisible: "boolean",
     label: "string",
   },
