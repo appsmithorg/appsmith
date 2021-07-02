@@ -202,6 +202,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         });
         return userMono.flatMap(user -> {
             return userDataRepository.findByUserId(user.getId())
+                    .defaultIfEmpty(new UserData(user.getId()))
                     .zipWith(applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
@@ -326,37 +327,39 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     private Mono<Boolean> triggerBotThreadResolved(CommentThread resolvedThread, User user) {
-        return userDataRepository.findByUserId(user.getId()).flatMap(userData -> {
-            if (userData.getLatestCommentEvent() == CommentBotEvent.COMMENTED) {
-                // update the user data
-                userData.setLatestCommentEvent(CommentBotEvent.RESOLVED);
-                Mono<UserData> saveUserDataMono = userDataRepository.save(userData);
+        return userDataRepository.findByUserId(user.getId())
+                .defaultIfEmpty(new UserData(user.getId()))
+                .flatMap(userData -> {
+                    if (userData.getLatestCommentEvent() == CommentBotEvent.COMMENTED) {
+                        // update the user data
+                        userData.setLatestCommentEvent(CommentBotEvent.RESOLVED);
+                        Mono<UserData> saveUserDataMono = userDataRepository.save(userData);
 
-                Mono<CommentThread> saveThreadMono = applicationService.getById(resolvedThread.getApplicationId())
-                        .flatMap(application -> {
-                            // create a new bot thread
-                            CommentThread commentThread = new CommentThread();
-                            commentThread.setIsPrivate(true);
-                            CommentThread.Position position = new CommentThread.Position();
-                            position.setTop(0.558882236480713f);
-                            position.setLeft(73.5241470336914f);
-                            commentThread.setPosition(position);
-                            commentThread.setPageId(resolvedThread.getPageId());
-                            commentThread.setRefId(resolvedThread.getRefId());
-                            commentThread.setApplicationId(resolvedThread.getApplicationId());
-                            commentThread.setMode(resolvedThread.getMode());
+                        Mono<CommentThread> saveThreadMono = applicationService.getById(resolvedThread.getApplicationId())
+                                .flatMap(application -> {
+                                    // create a new bot thread
+                                    CommentThread commentThread = new CommentThread();
+                                    commentThread.setIsPrivate(true);
+                                    CommentThread.Position position = new CommentThread.Position();
+                                    position.setTop(0.558882236480713f);
+                                    position.setLeft(73.5241470336914f);
+                                    commentThread.setPosition(position);
+                                    commentThread.setPageId(resolvedThread.getPageId());
+                                    commentThread.setRefId(resolvedThread.getRefId());
+                                    commentThread.setApplicationId(resolvedThread.getApplicationId());
+                                    commentThread.setMode(resolvedThread.getMode());
 
-                            return saveCommentThread(commentThread, application, user)
-                                    .flatMap(savedCommentThread ->
-                                            createBotComment(savedCommentThread, user, CommentBotEvent.RESOLVED)
-                                                    .thenReturn(savedCommentThread)
-                                    );
-                        });
+                                    return saveCommentThread(commentThread, application, user)
+                                            .flatMap(savedCommentThread ->
+                                                    createBotComment(savedCommentThread, user, CommentBotEvent.RESOLVED)
+                                                            .thenReturn(savedCommentThread)
+                                            );
+                                });
 
-                return saveUserDataMono.then(saveThreadMono).thenReturn(TRUE);
-            }
-            return Mono.just(FALSE);
-        });
+                        return saveUserDataMono.then(saveThreadMono).thenReturn(TRUE);
+                    }
+                    return Mono.just(FALSE);
+                });
     }
 
     @Override
