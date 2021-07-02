@@ -369,6 +369,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }
@@ -383,7 +384,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const pageId = yield select(getCurrentPageId);
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      {
+        from: "datasources",
+      },
+    ),
   );
 }
 

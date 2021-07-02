@@ -76,8 +76,7 @@ class DataSourceEditor extends React.Component<Props> {
   handleSave = (formData: Datasource) => {
     const { applicationId, pageId } = this.props.match.params;
     const { history } = this.props;
-    this.props.updateDatasource(
-      formData,
+    this.props.updateDatasource(formData, () =>
       history.push(
         INTEGRATION_EDITOR_URL(
           applicationId,

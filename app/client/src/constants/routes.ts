@@ -73,8 +73,14 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
-): string =>
-  `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
+  params?: Record<string, string>,
+): string => {
+  const queryparams = convertToQueryParams(params);
+  return `${DATA_SOURCES_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${datasourceId}${queryparams}`;
+};
 
 export const QUERIES_EDITOR_URL = (
   applicationId = ":applicationId",

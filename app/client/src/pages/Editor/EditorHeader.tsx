@@ -292,7 +292,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  fill
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}
