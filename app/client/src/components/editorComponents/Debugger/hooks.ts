@@ -17,7 +17,7 @@ import {
   getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
 import { isWidget, isAction } from "workers/evaluationUtils";
-import { onApiEditor, onQueryEditor, onCanvas } from "./helpers";
+import { onIntegrationsEditor, onCanvas } from "./helpers";
 import history from "utils/history";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
@@ -70,10 +70,7 @@ export const useSelectedEntity = () => {
 
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
-    if (
-      onApiEditor(applicationId, currentPageId) ||
-      onQueryEditor(applicationId, currentPageId)
-    ) {
+    if (onIntegrationsEditor(applicationId, currentPageId)) {
       const id = params.apiId || params.queryId;
 
       return getAction(state, id);
@@ -92,10 +89,7 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  if (
-    onApiEditor(applicationId, currentPageId) ||
-    onQueryEditor(applicationId, currentPageId)
-  ) {
+  if (onIntegrationsEditor(applicationId, currentPageId)) {
     return {
       name: action?.name ?? "",
       type: ENTITY_TYPE.ACTION,

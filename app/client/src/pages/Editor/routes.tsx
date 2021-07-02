@@ -136,6 +136,11 @@ class EditorsRouter extends React.Component<
               path={INTEGRATION_EDITOR_URL()}
             />
             <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
+            />
+            <SentryRoute
               component={ApiEditor}
               exact
               path={API_EDITOR_ID_URL()}

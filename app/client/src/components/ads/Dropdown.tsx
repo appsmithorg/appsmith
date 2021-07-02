@@ -26,8 +26,10 @@ export type DropdownProps = CommonComponentProps & {
   showLabelOnly?: boolean;
   optionWidth?: string;
   showDropIcon?: boolean;
+  headerLabel?: string;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
   bgColor?: string;
+  OptionValueNode?: typeof DefaultOptionValueNode;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -174,6 +176,12 @@ const StyledSubText = styled(Text)`
   }
 `;
 
+const HeaderWrapper = styled.div`
+  color: #6d6d6d;
+  font-size: 10px;
+  padding: 0px 7px 7px 7px;
+`;
+
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
@@ -219,11 +227,47 @@ function DefaultDropDownValueNode({
   );
 }
 
+function DefaultOptionValueNode({
+  option,
+  showLabelOnly,
+}: {
+  option: DropdownOption;
+  showLabelOnly?: boolean;
+}) {
+  return (
+    <>
+      {option.icon ? (
+        <SelectedIcon
+          fillColor={option?.iconColor}
+          name={option.icon}
+          size={option.iconSize || IconSize.XXS}
+        />
+      ) : null}
+
+      {showLabelOnly ? (
+        <Text type={TextType.P1}>{option.label}</Text>
+      ) : option.label && option.value ? (
+        <LabelWrapper className="label-container">
+          <Text type={TextType.H5}>{option.value}</Text>
+          <Text type={TextType.P1}>{option.label}</Text>
+        </LabelWrapper>
+      ) : (
+        <Text type={TextType.P1}>{option.value}</Text>
+      )}
+
+      {option.subText ? (
+        <StyledSubText type={TextType.P3}>{option.subText}</StyledSubText>
+      ) : null}
+    </>
+  );
+}
+
 export default function Dropdown(props: DropdownProps) {
   const {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
+    OptionValueNode = DefaultOptionValueNode,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -271,6 +315,9 @@ export default function Dropdown(props: DropdownProps) {
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
         </Selected>
         <DropdownWrapper width={props.optionWidth || "260px"}>
+          {props.headerLabel && (
+            <HeaderWrapper>{props.headerLabel}</HeaderWrapper>
+          )}
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
@@ -279,30 +326,10 @@ export default function Dropdown(props: DropdownProps) {
                 onClick={() => optionClickHandler(option)}
                 selected={selected.value === option.value}
               >
-                {option.icon ? (
-                  <SelectedIcon
-                    fillColor={option?.iconColor}
-                    name={option.icon}
-                    size={option.iconSize || IconSize.XXS}
-                  />
-                ) : null}
-
-                {props.showLabelOnly ? (
-                  <Text type={TextType.P1}>{option.label}</Text>
-                ) : option.label && option.value ? (
-                  <LabelWrapper className="label-container">
-                    <Text type={TextType.H5}>{option.value}</Text>
-                    <Text type={TextType.P1}>{option.label}</Text>
-                  </LabelWrapper>
-                ) : (
-                  <Text type={TextType.P1}>{option.value}</Text>
-                )}
-
-                {option.subText ? (
-                  <StyledSubText type={TextType.P3}>
-                    {option.subText}
-                  </StyledSubText>
-                ) : null}
+                <OptionValueNode
+                  option={option}
+                  showLabelOnly={props.showLabelOnly}
+                />
               </OptionWrapper>
             );
           })}

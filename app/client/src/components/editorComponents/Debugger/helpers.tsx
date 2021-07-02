@@ -6,8 +6,7 @@ import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   BUILDER_PAGE_URL,
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID, // TODO - chagnes it to normal URL
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
@@ -116,25 +115,17 @@ export function getDependencyChain(
   });
   return currentChain;
 }
-
-export const onApiEditor = (
+export const onIntegrationsEditor = (
   applicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
-};
-
-export const onQueryEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
+      INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        applicationId,
+        currentPageId,
+        currentPageId,
+      ),
     ) > -1
   );
 };

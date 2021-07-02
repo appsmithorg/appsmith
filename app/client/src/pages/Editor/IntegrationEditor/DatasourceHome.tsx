@@ -133,11 +133,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
     return (
       <DatasourceHomePage>
         <DatasourceCardsContainer>
-          {plugins.map((plugin) => {
+          {plugins.map((plugin, idx) => {
             return (
               <DatasourceCard
                 className="eachDatasourceCard"
-                key={plugin.id}
+                key={`${plugin.id}_${idx}`}
                 onClick={() =>
                   this.goToCreateDatasource(plugin.id, plugin.name)
                 }
