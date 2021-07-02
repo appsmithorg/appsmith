@@ -6,6 +6,15 @@ import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import {
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "../../constants/routes";
+import { useSelector } from "react-redux";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
   width: 100%;
@@ -19,13 +28,18 @@ const IconContainer = styled.div`
 
 function CloseEditor() {
   const history = useHistory();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.goBack();
+
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
   };
 
   return (
