@@ -2,7 +2,7 @@
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
-import ecma from "tern/defs/ecmascript.json";
+import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
@@ -11,6 +11,8 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
+  extraLibraries,
+  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -150,6 +152,10 @@ class TernServer {
     ) {
       after = '"]';
     }
+    const bindings = getDynamicBindings(focusedValue);
+    const isEmpty =
+      bindings.stringSegments.length === 1 &&
+      bindings.jsSnippets[0].trim() === "";
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
@@ -164,11 +170,12 @@ class TernServer {
           data: completion,
           origin: completion.origin,
           type: dataType,
+          isHeader: false,
         });
       }
     }
-    completions = this.sortCompletions(completions);
-    const indexToBeSelected = completions.length > 1 ? 1 : 0;
+    completions = this.sortCompletions(completions, isEmpty);
+    const indexToBeSelected = completions[0].isHeader ? 1 : 0;
     const obj = {
       from: from,
       to: to,
@@ -231,27 +238,82 @@ class TernServer {
     });
   }
 
-  sortCompletions(completions: Completion[]) {
-    // Add data tree completions before others
+  sortCompletions(completions: Completion[], findBestMatch: boolean) {
+    type CompletionType =
+      | "DATA_TREE"
+      | "MATCHING_TYPE"
+      | "OTHER"
+      | "CONTEXT"
+      | "JS"
+      | "LIBRARY";
+    const completionType: Record<CompletionType, Completion[]> = {
+      MATCHING_TYPE: [],
+      DATA_TREE: [],
+      CONTEXT: [],
+      JS: [],
+      LIBRARY: [],
+      OTHER: [],
+    };
+    completions.forEach((completion) => {
+      if (completion.origin === "dataTree") {
+        completionType.DATA_TREE.push(completion);
+        return;
+      }
+      if (
+        completion.origin === "[doc]" ||
+        completion.origin === "customDataTree"
+      ) {
+        completionType.CONTEXT.push(completion);
+        return;
+      }
+      if (
+        completion.origin === "ecmascript" ||
+        completion.origin === "base64-js"
+      ) {
+        completionType.JS.push(completion);
+        return;
+      }
+      if (
+        extraLibraries
+          .map((lib) => lib.displayName)
+          .indexOf(completion.origin) > -1
+      ) {
+        completionType.LIBRARY.push(completion);
+        return;
+      }
+      completionType.OTHER.push(completion);
+    });
     const expectedDataType = this.getExpectedDataType();
-    const dataTreeCompletions = completions
-      .filter((c) => c.origin === "dataTree")
-      .sort((a: Completion, b: Completion) => {
+    if (findBestMatch && expectedDataType) {
+      completionType.MATCHING_TYPE = completionType.DATA_TREE.filter(
+        (c) => c.type === expectedDataType,
+      );
+
+      if (completionType.MATCHING_TYPE.length) {
+        completionType.MATCHING_TYPE.unshift({
+          text: "Best Match",
+          displayText: "Best Match",
+          className: "CodeMirror-hint-header",
+          data: { doc: "" },
+          origin: "",
+          type: "UNKNOWN",
+          isHeader: true,
+        });
+      }
+    }
+
+    completionType.DATA_TREE = completionType.DATA_TREE.sort(
+      (a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
         } else if (a.type !== "FUNCTION" && b.type === "FUNCTION") {
           return -1;
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
-      });
-    const sameDataType = dataTreeCompletions.filter(
-      (c) => c.type === expectedDataType,
+      },
     );
-    const otherDataType = dataTreeCompletions.filter(
-      (c) => c.type !== expectedDataType,
-    );
-    if (otherDataType.length && sameDataType.length) {
-      const otherDataTitle: Completion = {
+    if (completionType.DATA_TREE.length) {
+      completionType.DATA_TREE.unshift({
         text: "Search results",
         displayText: "Search results",
         className: "CodeMirror-hint-header",
@@ -259,28 +321,15 @@ class TernServer {
         origin: "",
         type: "UNKNOWN",
         isHeader: true,
-      };
-      const sameDataTitle: Completion = {
-        text: "Best Match",
-        displayText: "Best Match",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      };
-      sameDataType.unshift(sameDataTitle);
-      otherDataType.unshift(otherDataTitle);
+      });
     }
-    const docCompletetions = completions.filter((c) => c.origin === "[doc]");
-    const otherCompletions = completions.filter(
-      (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
-    );
     return [
-      ...docCompletetions,
-      ...sameDataType,
-      ...otherDataType,
-      ...otherCompletions,
+      ...completionType.CONTEXT,
+      ...completionType.MATCHING_TYPE,
+      ...completionType.DATA_TREE,
+      ...completionType.LIBRARY,
+      ...completionType.JS,
+      ...completionType.OTHER,
     ];
   }
 
@@ -406,6 +455,7 @@ class TernServer {
       end?: any;
       start?: any;
       file?: any;
+      includeKeywords?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {
@@ -414,6 +464,7 @@ class TernServer {
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
+    query.includeKeywords = true;
     if (!query.end) {
       const lineValue = this.lineValue(doc);
       const focusedValue = this.getFocusedDynamicValue(doc);
