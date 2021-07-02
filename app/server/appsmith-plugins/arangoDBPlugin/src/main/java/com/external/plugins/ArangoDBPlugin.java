@@ -183,7 +183,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        Builder getBasicBuilder(DBAuth auth) {
+        private Builder getBasicBuilder(DBAuth auth) {
             String username = auth.getUsername();
             String password = auth.getPassword();
             Builder dbBuilder = new Builder()
