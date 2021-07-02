@@ -261,7 +261,7 @@ function RapidApiEditorForm(props: Props) {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView apiName={props.apiName} />
+        <ApiResponseView apiName={props.apiName} onRunClick={onRunClick} />
       </SecondaryWrapper>
     </Form>
   );
