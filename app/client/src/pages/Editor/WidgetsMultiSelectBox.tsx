@@ -260,7 +260,6 @@ function WidgetsMultiSelectBox(props: {
     dispatch(deleteSelectedWidget(true));
   };
 
-  console.log({ shouldRender });
   if (!shouldRender) return false;
 
   return (

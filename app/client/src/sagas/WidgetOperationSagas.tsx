@@ -1496,16 +1496,19 @@ function* pasteWidgetSaga() {
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
   );
-  const focussedWidget: FlattenedWidgetProps | undefined = yield select(
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
     getFocusedWidget,
+  );
+
+  selectedWidget = yield checkIfPastingIntoListWidget(
+    selectedWidget || focusedWidget,
   );
 
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     { ...stateWidgets },
-    selectedWidget || focussedWidget,
+    selectedWidget,
   );
 
-  selectedWidget = yield checkIfPastingIntoListWidget(selectedWidget);
   let widgets = { ...stateWidgets };
   const newlyCreatedWidgetIds: string[] = [];
   const sortedWidgetList = copiedWidgetGroups.sort(
