@@ -225,7 +225,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend =
       childWidgetData.virtualizedEnabled && false
         ? true
@@ -236,6 +236,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.noPad = true;
     childWidgetData.bottomRow =
       this.props.bottomRow * this.props.parentRowSpace - 45;
+    childWidgetData.shouldScrollContents = false;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };

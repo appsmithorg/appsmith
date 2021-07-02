@@ -20,6 +20,7 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -179,6 +180,7 @@ function WidgetsMultiSelectBox(props: {
     const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
 
     return (
+      props.widgetType === WidgetTypes.CANVAS_WIDGET &&
       isMultipleWidgetsSelected &&
       hasCommonParent &&
       get(selectedWidgets, "0.parentId") === props.widgetId
