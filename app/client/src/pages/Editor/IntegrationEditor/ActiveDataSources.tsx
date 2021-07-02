@@ -80,7 +80,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
         },
         eventData: {
           actionType: "Query",
-          from: "home-screen",
+          from: "datasources",
           dataSource: dataSource.name,
         },
         pluginId: dataSource.pluginId,

@@ -369,6 +369,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }

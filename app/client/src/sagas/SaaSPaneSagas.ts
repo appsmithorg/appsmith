@@ -51,6 +51,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   history.push(
     SAAS_EDITOR_API_ID_URL(applicationId, pageId, plugin.packageName, id, {
       editName: "true",
+      from: "datasources",
     }),
   );
 }
