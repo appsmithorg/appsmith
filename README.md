@@ -23,6 +23,7 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 <br />
 <br>
 <img src="static/images/integrations.png" width="320px">
+<img width="783" alt="MVC-Github-Readme" src="https://user-images.githubusercontent.com/1650391/124094578-d1618480-da50-11eb-839b-c702c2574f15.png">
 
 </p>
 <br>
@@ -126,45 +127,58 @@ We love our contributors! We're committed to fostering an open and welcoming env
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://arpitmohan.com"><img src="https://avatars2.githubusercontent.com/u/458946?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Arpit Mohan</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=mohanarpit" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Nikhil-Nandagopal"><img src="https://avatars2.githubusercontent.com/u/3897254?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nikhil Nandagopal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Nikhil-Nandagopal" title="Documentation">📖</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=Nikhil-Nandagopal" title="Code">💻</a> <a href="#projectManagement-Nikhil-Nandagopal" title="Project Management">📆</a></td>
+    <td align="center"><a href="https://github.com/areyabhishek"><img src="https://avatars1.githubusercontent.com/u/30255708?v=4?s=100" width="100px;" alt=""/><br /><sub><b>areyabhishek</b></sub></a><br /><a href="#ideas-areyabhishek" title="Ideas, Planning, & Feedback">🤔</a> <a href="#design-areyabhishek" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/trishaanand"><img src="https://avatars2.githubusercontent.com/u/8403079?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Trisha Anand</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=trishaanand" title="Code">💻</a> <a href="#infra-trishaanand" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-trishaanand" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/hetunandu"><img src="https://avatars2.githubusercontent.com/u/12022471?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Hetu Nandu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=hetunandu" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=hetunandu" title="Tests">⚠️</a> <a href="#ideas-hetunandu" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/riodeuno"><img src="https://avatars1.githubusercontent.com/u/103687?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abhinav Jha</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=riodeuno" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/satbir121"><img src="https://avatars3.githubusercontent.com/u/39981226?v=4?s=100" width="100px;" alt=""/><br /><sub><b>satbir121</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=satbir121" title="Code">💻</a> <a href="#ideas-satbir121" title="Ideas, Planning, & Feedback">🤔</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://sharats.me"><img src="https://avatars3.githubusercontent.com/u/120119?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Shrikant Sharat Kandula</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=sharat87" title="Code">💻</a> <a href="#plugin-sharat87" title="Plugin/utility libraries">🔌</a></td>
+    <td align="center"><a href="https://github.com/aakashDesign"><img src="https://avatars2.githubusercontent.com/u/65771350?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aakash Shrivastava</b></sub></a><br /><a href="#design-aakashDesign" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/Debsourabh"><img src="https://avatars2.githubusercontent.com/u/34486435?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Debsourabh Ghosh</b></sub></a><br /><a href="#design-Debsourabh" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/NandanAnantharamu"><img src="https://avatars1.githubusercontent.com/u/67676905?v=4?s=100" width="100px;" alt=""/><br /><sub><b>NandanAnantharamu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=NandanAnantharamu" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/prapullac"><img src="https://avatars3.githubusercontent.com/u/71753653?v=4?s=100" width="100px;" alt=""/><br /><sub><b>prapullac</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aprapullac" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=prapullac" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/Saket2"><img src="https://avatars0.githubusercontent.com/u/49346036?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Saket Agrawal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3ASaket2" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=Saket2" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://harishkotra.me"><img src="https://avatars1.githubusercontent.com/u/4999463?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Harish Kotra</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aharishkotra" title="Bug reports">🐛</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/visibleajay"><img src="https://avatars0.githubusercontent.com/u/13945951?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ajay Kumar</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Avisibleajay" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=visibleajay" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/akbansa"><img src="https://avatars0.githubusercontent.com/u/13042781?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anshul Bansal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aakbansa" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=akbansa" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/gogetter22"><img src="https://avatars3.githubusercontent.com/u/71608910?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Navia Garg</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Agogetter22" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/Xniveres"><img src="https://avatars0.githubusercontent.com/u/56609232?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Xniveres</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3AXniveres" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/daniel-shuy"><img src="https://avatars1.githubusercontent.com/u/17351764?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel Shuy</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=daniel-shuy" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=daniel-shuy" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://prashantchaubey.com"><img src="https://avatars3.githubusercontent.com/u/14848874?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Prashant Chaubey</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pc9795" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/A-Scratchy"><img src="https://avatars0.githubusercontent.com/u/25309929?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Adam</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=A-Scratchy" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/sumanthyedoti"><img src="https://avatars3.githubusercontent.com/u/30371888?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sumanth Yedoti</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=sumanthyedoti" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/nidhi-nair"><img src="https://avatars2.githubusercontent.com/u/5298848?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nidhi</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=nidhi-nair" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jsartisan"><img src="https://avatars1.githubusercontent.com/u/6636360?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pawan Kumar</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=jsartisan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/sumitsum"><img src="https://avatars0.githubusercontent.com/u/1757421?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sumit Kumar</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=sumitsum" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/rishabhsaxena"><img src="https://avatars0.githubusercontent.com/u/1944800?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rishabh Saxena </b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rishabhsaxena" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/ofpiyush"><img src="https://avatars0.githubusercontent.com/u/292174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Piyush Mishra</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=ofpiyush" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/akash-codemonk"><img src="https://avatars2.githubusercontent.com/u/67054171?v=4?s=100" width="100px;" alt=""/><br /><sub><b>akash-codemonk</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=akash-codemonk" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/vicky-primathon"><img src="https://avatars2.githubusercontent.com/u/67091118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>vicky-primathon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=vicky-primathon" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/devrk96"><img src="https://avatars0.githubusercontent.com/u/68607686?v=4?s=100" width="100px;" alt=""/><br /><sub><b>devrk96</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=devrk96" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/trdillon"><img src="https://avatars.githubusercontent.com/u/26350151?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Tim Dillon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=trdillon" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/zegerhoogeboom"><img src="https://avatars.githubusercontent.com/u/5371096?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zeger Hoogeboom</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=zegerhoogeboom" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Devedunkey"><img src="https://avatars.githubusercontent.com/u/29448764?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Young Yoo</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Devedunkey" title="Code">💻</a></td>
+    <td align="center"><a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dwayne Forde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abhishek</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=monarch0111" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Navdeep Singh</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=navdeepsingh" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/aswathkk"><img src="https://avatars.githubusercontent.com/u/10436935?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aswath K</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=aswathkk" title="Code">💻</a></td>
+  </tr>
+</table>
 
-<a href="http://arpitmohan.com"><img src="https://avatars2.githubusercontent.com/u/458946?v=4?s=100" width="60px;" alt="Arpit Mohan"/></a>
-<a href="https://github.com/Nikhil-Nandagopal"><img src="https://avatars2.githubusercontent.com/u/3897254?v=4?s=100" width="60px;" alt="Nikhil Nandagopal"/></a>
-<a href="https://github.com/areyabhishek"><img src="https://avatars1.githubusercontent.com/u/30255708?v=4?s=100" width="60px;" alt="Abhishek Nayak"/></a>
-<a href="https://github.com/trishaanand"><img src="https://avatars2.githubusercontent.com/u/8403079?v=4?s=100" width="60px;" alt="Trisha Anand"/></a>
-<a href="https://github.com/hetunandu"><img src="https://avatars2.githubusercontent.com/u/12022471?v=4?s=100" width="60px;" alt="Hetu Nandu"/></a>
-<a href="https://github.com/riodeuno"><img src="https://avatars1.githubusercontent.com/u/103687?v=4?s=100" width="60px;" alt="Abhinav Jha"/></a>
-<a href="https://github.com/satbir121"><img src="https://avatars3.githubusercontent.com/u/39981226?v=4?s=100" width="60px;" alt="Satbir"/></a>
-<a href="https://sharats.me"><img src="https://avatars3.githubusercontent.com/u/120119?v=4?s=100" width="60px;" alt="Shrikant Sharat Kandula"/></a>
-<a href="https://github.com/aakashDesign"><img src="https://avatars2.githubusercontent.com/u/65771350?v=4?s=100" width="60px;" alt="Aakash Shrivastava"/></a>
-<a href="https://github.com/Debsourabh"><img src="https://avatars2.githubusercontent.com/u/34486435?v=4?s=100" width="60px;" alt="Debsourabh Ghosh"/></a>
-<a href="https://github.com/NandanAnantharamu"><img src="https://avatars1.githubusercontent.com/u/67676905?v=4?s=100" width="60px;" alt="Nandan Anantharamu"/></a>
-<a href="https://github.com/prapullac"><img src="https://avatars3.githubusercontent.com/u/71753653?v=4?s=100" width="60px;" alt="Prapullac"/></a>
-<a href="https://github.com/Saket2"><img src="https://avatars0.githubusercontent.com/u/49346036?v=4?s=100" width="60px;" alt="Saket Agarwal"/></a>
-<a href="https://harishkotra.me"><img src="https://avatars1.githubusercontent.com/u/4999463?v=4?s=100" width="60px;" alt="Harish Kotra"/></a>
-<a href="https://github.com/visibleajay"><img src="https://avatars0.githubusercontent.com/u/13945951?v=4?s=100" width="60px;" alt="Ajay Kumar"/></a>
-<a href="https://github.com/akbansa"><img src="https://avatars0.githubusercontent.com/u/13042781?v=4?s=100" width="60px;" alt="Anshul Bansal"/></a>
-<a href="https://github.com/gogetter22"><img src="https://avatars3.githubusercontent.com/u/71608910?v=4?s=100" width="60px;" alt="Navia Garg"/></a>
-<a href="https://github.com/Xniveres"><img src="https://avatars0.githubusercontent.com/u/56609232?v=4?s=100" width="60px;" alt="Xniveres"/></a>
-<a href="https://github.com/daniel-shuy"><img src="https://avatars1.githubusercontent.com/u/17351764?v=4?s=100" width="60px;" alt="Daniel Shuy"/></a>
-<a href="http://prashantchaubey.com"><img src="https://avatars3.githubusercontent.com/u/14848874?v=4?s=100" width="60px;" alt="Prashant Chaubey"/></a>
-<a href="https://github.com/A-Scratchy"><img src="https://avatars0.githubusercontent.com/u/25309929?v=4?s=100" width="60px;" alt="Adam"/></a>
-<a href="https://github.com/sumanthyedoti"><img src="https://avatars3.githubusercontent.com/u/30371888?v=4?s=100" width="60px;" alt="Sumanth Yedoti"/></a>
-<a href="https://github.com/nidhi-nair"><img src="https://avatars2.githubusercontent.com/u/5298848?v=4?s=100" width="60px;" alt="Nidhi"/></a>
-<a href="https://github.com/jsartisan"><img src="https://avatars1.githubusercontent.com/u/6636360?v=4?s=100" width="60px;" alt="Pawan Kumar"/></a>
-<a href="https://github.com/sumitsum"><img src="https://avatars0.githubusercontent.com/u/1757421?v=4?s=100" width="60px;" alt="Sumit Kumar"/></a>
-<a href="https://github.com/rishabhsaxena"><img src="https://avatars0.githubusercontent.com/u/1944800?v=4?s=100" width="60px;" alt="Rishabh Saxena"/></a>
-<a href="https://github.com/ofpiyush"><img src="https://avatars0.githubusercontent.com/u/292174?v=4?s=100" width="60px;" alt="Piyush Mishra"/></a>
-<a href="https://github.com/akash-codemonk"><img src="https://avatars2.githubusercontent.com/u/67054171?v=4?s=100" width="60px;" alt="akash-codemonk"/></a>
-<a href="https://github.com/vicky-primathon"><img src="https://avatars2.githubusercontent.com/u/67091118?v=4?s=100" width="60px;" alt="vicky-primathon"/></a>
-<a href="https://github.com/devrk96"><img src="https://avatars0.githubusercontent.com/u/68607686?v=4?s=100" width="60px;" alt="devrk96"/></a>
-<a href="https://github.com/trdillon"><img src="https://avatars.githubusercontent.com/u/26350151?v=4?s=100" width="60px;" alt="Tim Dillon"/></a>
-<a href="https://github.com/zegerhoogeboom"><img src="https://avatars.githubusercontent.com/u/5371096?v=4?s=100" width="60px;" alt="Zeger Hoogeboom"/></a>
-<a href="https://github.com/Devedunkey"><img src="https://avatars.githubusercontent.com/u/29448764?v=4?s=100" width="60px;" alt="Young Yoo"/></a>
-<a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="60px;" alt="wayne Forde"/></a>
-<a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="60px;" alt="Abhishek"/></a>
-<a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="60px;" alt=""/></a>
-<a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="60px;" alt="Ashok"/></a>
-<br>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 
