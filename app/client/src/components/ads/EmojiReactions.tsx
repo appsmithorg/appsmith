@@ -140,7 +140,6 @@ function EmojiReactions({
       addOrRemove as ReactionOperation,
     );
   };
-
   return (
     <Container>
       {!hideReactions &&
