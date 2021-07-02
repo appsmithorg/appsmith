@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
@@ -703,6 +702,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      */
     private String getSuggestedWidget(Object data) {
 
+        if(data instanceof String) {
+            return "TEXT_WIDGET";
+        }
+
         if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
             ArrayNode array = (ArrayNode) data;
             Integer length = array.size();
@@ -718,9 +721,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 return "LIST_WIDGET";
             }
             return "TABLE_WIDGET";
-        } else {
-            return "";
         }
+        return "TEXT_WIDGET";
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
