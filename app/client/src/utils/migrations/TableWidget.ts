@@ -16,6 +16,7 @@ import {
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
+import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
@@ -104,7 +105,7 @@ export const tableWidgetPropertyPaneMigrations = (
               ? columnNameMap[accessor]
               : accessor,
           // Generate computed value
-          computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+          computedValue: getCurrentRowBinding(child.widgetName, accessor),
         };
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {

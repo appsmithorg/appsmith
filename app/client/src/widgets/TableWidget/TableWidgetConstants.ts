@@ -39,3 +39,6 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     asc: boolean;
   };
 }
+
+export const getCurrentRowBinding = (entityName: string, userInput: string) =>
+  `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput} ))`;

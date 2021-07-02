@@ -9,6 +9,7 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 /*
  ********************************{Grid Density Migration}*********************************
  */
@@ -184,8 +185,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "step",
-          computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+          computedValue: getCurrentRowBinding("Table1", "currentRow.step"),
         },
         task: {
           index: 1,
@@ -200,8 +200,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "task",
-          computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+          computedValue: getCurrentRowBinding("Table1", "currentRow.task"),
         },
         status: {
           index: 2,
@@ -216,8 +215,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "status",
-          computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+          computedValue: getCurrentRowBinding("Table1", "currentRow.status"),
         },
         action: {
           index: 3,
@@ -234,8 +232,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           label: "action",
           onClick:
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
-          computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+          computedValue: getCurrentRowBinding("Table1", "currentRow.action"),
         },
       },
       derivedColumns: {},
