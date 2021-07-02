@@ -769,9 +769,9 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText: "Toggle visibility of the compact mode",
+        helpText: "Toggle visibility of the row height",
         propertyName: "isVisibleCompactMode",
-        label: "Compact Mode",
+        label: "Row Height",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
