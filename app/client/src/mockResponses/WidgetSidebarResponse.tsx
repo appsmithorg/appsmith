@@ -106,6 +106,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "RATE_WIDGET",
+    widgetCardName: "Rating",
+    key: generateReactKey(),
+  },
+  {
     type: "IFRAME_WIDGET",
     widgetCardName: "Iframe",
     key: generateReactKey(),
