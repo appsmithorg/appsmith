@@ -28,6 +28,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
 
 export const renderCell = (
   value: any,
@@ -35,8 +36,8 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  onClick: () => void = noop,
   isSelected?: boolean,
-  onClick?: () => void,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -69,7 +70,7 @@ export const renderCell = (
                       if (isSelected) {
                         e.stopPropagation();
                       }
-                      !!onClick && onClick();
+                      onClick();
                     }}
                   >
                     <div

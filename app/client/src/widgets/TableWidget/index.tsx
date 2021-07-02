@@ -215,8 +215,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isHidden,
               cellProperties,
               componentWidth,
-              isSelected,
               onClick,
+              isSelected,
             );
           } else {
             return renderCell(
