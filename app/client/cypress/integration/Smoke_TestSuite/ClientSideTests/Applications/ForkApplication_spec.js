@@ -8,7 +8,6 @@ let parentApplicationDsl;
 
 describe("Fork application across orgs", function() {
   before(() => {
-    dsl.dsl.version = 27; // latest migrated version
     cy.addDsl(dsl);
   });
 
