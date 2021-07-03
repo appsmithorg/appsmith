@@ -2,12 +2,7 @@ import { Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import {
-  createMessage,
-  NO_LOGS,
-  OPEN_THE_DEBUGGER,
-  PRESS,
-} from "constants/messages";
+import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   API_EDITOR_URL,
@@ -31,7 +26,10 @@ const BlankStateWrapper = styled.div`
   }
 `;
 
-export function BlankState(props: { hasShortCut?: boolean }) {
+export function BlankState(props: {
+  placeholderText?: string;
+  hasShortCut?: boolean;
+}) {
   return (
     <BlankStateWrapper>
       {props.hasShortCut ? (
@@ -41,7 +39,7 @@ export function BlankState(props: { hasShortCut?: boolean }) {
           {createMessage(OPEN_THE_DEBUGGER)}
         </span>
       ) : (
-        <span>{createMessage(NO_LOGS)}</span>
+        <span>{props.placeholderText}</span>
       )}
     </BlankStateWrapper>
   );
