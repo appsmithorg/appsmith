@@ -18,7 +18,7 @@ import {
 } from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
-  width: 100%;
+  //width: 100%;
   height: 30px;
   display: flex;
   align-items: center;

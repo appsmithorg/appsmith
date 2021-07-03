@@ -11,7 +11,7 @@ import {
 import { BUILDER_PAGE_URL } from "../../../constants/routes";
 
 const Back = styled.span`
-  width: 100%;
+  //width: 100%;
   height: 30px;
   display: flex;
   align-items: center;
