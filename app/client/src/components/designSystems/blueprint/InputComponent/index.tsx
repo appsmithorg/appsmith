@@ -61,7 +61,7 @@ const InputComponentWrapper = styled((props) => (
       z-index: 16;
       svg {
         path {
-          fill: ${(props) => props.theme.colors.icon.hover};
+          fill: ${(props) => props.theme.colors.icon?.hover};
         }
       }
     }
@@ -278,6 +278,7 @@ class InputComponent extends React.Component<
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
       placeholder={this.props.placeholder}
+      style={{ resize: "none" }}
       value={this.props.value}
     />
   );
