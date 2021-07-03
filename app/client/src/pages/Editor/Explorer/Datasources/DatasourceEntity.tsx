@@ -16,6 +16,7 @@ import {
   fetchDatasourceStructure,
   saveDatasourceName,
   expandDatasourceEntity,
+  setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -47,6 +48,9 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
         ),
       );
     } else {
+      dispatch(
+        setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
+      );
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
           params.applicationId,
