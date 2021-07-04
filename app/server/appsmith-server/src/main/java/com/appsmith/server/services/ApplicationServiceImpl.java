@@ -57,7 +57,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService, CommentThreadRepository commentThreadRepository) {
+                                  ConfigService configService,
+                                  CommentThreadRepository commentThreadRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
@@ -82,17 +83,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .flatMap(objects -> {
                     Application application = objects.getT1();
                     Authentication auth = objects.getT2().getAuthentication();
-                    User user = (User) auth.getPrincipal();
-                    if(!user.isAnonymous()) {
-                        return commentThreadRepository.countUnreadThreads(id, user.getUsername())
-                                .map(aLong -> {
-                                    application.setUnreadComments(aLong);
-                                    return application;
-                                });
-                    } else {
-                        return Mono.just(application);
-                    }
+                    return setUnreadCommentCount(application, auth);
                 });
+    }
+
+    private Mono<Application> setUnreadCommentCount(Application application, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        if(!user.isAnonymous()) {
+            return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
+                    .map(aLong -> {
+                        application.setUnreadComments(aLong);
+                        return application;
+                    });
+        } else {
+            return Mono.just(application);
+        }
     }
 
     @Override
@@ -203,16 +208,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .flatMap(objects -> {
                     Application application = objects.getT1();
                     Authentication auth = objects.getT2().getAuthentication();
-                    User user = (User) auth.getPrincipal();
-                    if(!user.isAnonymous()) {
-                        return commentThreadRepository.countUnreadThreads(applicationId, user.getUsername())
-                                .map(aLong -> {
-                                    application.setUnreadComments(aLong);
-                                    return application;
-                                });
-                    } else {
-                        return Mono.just(application);
-                    }
+                    return setUnreadCommentCount(application, auth);
                 });
     }
 
