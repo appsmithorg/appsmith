@@ -6,11 +6,33 @@ import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
+import { useDispatch, useSelector } from "react-redux";
+import { snipingModeSelector } from "../../../selectors/commentsSelectors";
+import { setSnipingMode as setSnipingModeAction } from "../../../actions/commentActions";
+import { Colors } from "constants/Colors";
 
 const PositionedWidget = styled.div`
   &:hover {
     z-index: ${Layers.positionedWidget + 1} !important;
-    border: 10px solid blue;
+  }
+
+  .sniping-cover {
+    width: 100%;
+    height: 100%;
+    transition: 0.5s ease;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: ${Colors.DANUBE};
+  }
+
+  &:hover .sniping-cover {
+    opacity: 0.3;
+    cursor: pointer;
   }
 `;
 type PositionedContainerProps = {
@@ -24,6 +46,8 @@ type PositionedContainerProps = {
 };
 
 export function PositionedContainer(props: PositionedContainerProps) {
+  const isSnipingMode = useSelector(snipingModeSelector);
+  const dispatch = useDispatch();
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
@@ -55,10 +79,16 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
-  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
-    props.widgetId,
-    openPropertyPane,
-  ]);
+  const openPropPane = useCallback(
+    (e) => {
+      console.log("This is the sniping mode!");
+      openPropertyPane(e, props.widgetId);
+      if (isSnipingMode) {
+        dispatch(setSnipingModeAction(false));
+      }
+    },
+    [props.widgetId, openPropertyPane, isSnipingMode],
+  );
 
   return (
     <PositionedWidget
@@ -72,6 +102,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
       style={containerStyle}
     >
       {props.children}
+      {isSnipingMode && (
+        <div className="sniping-cover" onClick={openPropPane} />
+      )}
     </PositionedWidget>
   );
 }
