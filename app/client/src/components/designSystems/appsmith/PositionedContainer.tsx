@@ -10,6 +10,7 @@ import { Layers } from "constants/Layers";
 const PositionedWidget = styled.div`
   &:hover {
     z-index: ${Layers.positionedWidget + 1} !important;
+    border: 10px solid blue;
   }
 `;
 type PositionedContainerProps = {

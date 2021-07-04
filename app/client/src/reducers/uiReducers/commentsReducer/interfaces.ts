@@ -6,6 +6,7 @@ export interface CommentsReduxState {
   applicationCommentThreadsByRef: Record<string, Record<string, Array<string>>>;
   unpublishedCommentThreads: Record<string, CommentThread>;
   isCommentMode: boolean;
+  isSnipingMode: boolean;
   creatingNewThread: boolean;
   creatingNewThreadComment: boolean;
   appCommentsFilter: typeof filterOptions[number]["value"];

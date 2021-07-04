@@ -26,6 +26,7 @@ const initialState: CommentsReduxState = {
   applicationCommentThreadsByRef: {},
   unpublishedCommentThreads: {},
   isCommentMode: false,
+  isSnipingMode: false,
   creatingNewThread: false,
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
@@ -74,6 +75,13 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     isCommentMode: action.payload,
     isIntroCarouselVisible: false,
+  }),
+  [ReduxActionTypes.SET_SNIPING_MODE]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isSnipingMode: action.payload,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,

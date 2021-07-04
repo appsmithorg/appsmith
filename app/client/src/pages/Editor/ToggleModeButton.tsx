@@ -7,10 +7,12 @@ import { ReactComponent as Pen } from "assets/icons/comments/pen.svg";
 import { ReactComponent as Eye } from "assets/icons/comments/eye.svg";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
+import { ReactComponent as SnipingMode } from "assets/icons/ads/general.svg";
 import { Indices } from "constants/Layers";
 
 import {
   setCommentMode as setCommentModeAction,
+  setSnipingMode as setSnipingModeAction,
   fetchApplicationCommentsRequest,
   showCommentsIntroCarousel,
 } from "actions/commentActions";
@@ -18,6 +20,7 @@ import {
   commentModeSelector,
   areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector,
   showUnreadIndicator as showUnreadIndicatorSelector,
+  snipingModeSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
@@ -89,13 +92,20 @@ const useUpdateCommentMode = async (currentUser?: User) => {
       dispatch(setCommentModeAction(updatedIsCommentMode)),
     [],
   );
+  const setSnipingModeInStore = useCallback(
+    (isSnipingMode) => dispatch(setSnipingModeAction(isSnipingMode)),
+    [],
+  );
 
   const handleLocationUpdate = async () => {
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
     const isCommentsIntroSeen = await getCommentsIntroSeen();
-    const updatedIsCommentMode = isCommentMode === "true" ? true : false;
+    const updatedIsCommentMode = isCommentMode === "true";
 
+    const isSnipingMode = searchParams.get("isSnipingMode");
+    const updatedIsSnipingMode = isSnipingMode === "true";
+    setSnipingModeInStore(updatedIsSnipingMode);
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
     } else {
@@ -126,6 +136,17 @@ export const setCommentModeInUrl = (isCommentMode: boolean) => {
   // on toggling comment mode
   searchParams.delete("commentId");
   searchParams.delete("commentThreadId");
+  history.replace({
+    pathname: currentURL.pathname,
+    search: searchParams.toString(),
+    hash: currentURL.hash,
+  });
+};
+
+export const setSnipingModeInUrl = (isSnipingMode: boolean) => {
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  searchParams.set("isSnipingMode", `${isSnipingMode}`);
   history.replace({
     pathname: currentURL.pathname,
     search: searchParams.toString(),
@@ -229,9 +250,35 @@ function CommentModeBtn({
   );
 }
 
+function SnipingModeBtn({
+  handleSetSnipingModeButton,
+  isSnipingMode,
+}: {
+  handleSetSnipingModeButton: () => void;
+  isSnipingMode: boolean;
+}) {
+  return (
+    <ModeButton active={isSnipingMode} onClick={handleSetSnipingModeButton}>
+      <TooltipComponent
+        content={
+          <>
+            Sniping Mode
+            <span style={{ color: "#fff", marginLeft: 20 }}>S</span>
+          </>
+        }
+        hoverOpenDelay={1000}
+        position={Position.BOTTOM}
+      >
+        <SnipingMode />
+      </TooltipComponent>
+    </ModeButton>
+  );
+}
+
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
   const [
@@ -249,10 +296,21 @@ function ToggleCommentModeButton() {
 
   const handleSetCommentModeButton = useCallback(() => {
     setCommentModeInUrl(true);
+    setSnipingModeInUrl(false);
     proceedToNextTourStep();
     setShowCommentButtonDiscoveryTooltipInState(false);
     setShowCommentsButtonToolTip();
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
+
+  const handleSetSnipingModeButton = useCallback(() => {
+    setCommentModeInUrl(false);
+    setSnipingModeInUrl(true);
+  }, []);
+
+  const handleSetEditModeButton = useCallback(() => {
+    setCommentModeInUrl(false);
+    setSnipingModeInUrl(false);
+  }, []);
 
   // Show comment mode button only on the canvas editor and viewer
   const [shouldHide, setShouldHide] = useState(false);
@@ -271,8 +329,8 @@ function ToggleCommentModeButton() {
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
-            active={!isCommentMode}
-            onClick={() => setCommentModeInUrl(false)}
+            active={!isCommentMode && !isSnipingMode}
+            onClick={handleSetEditModeButton}
           >
             <ViewOrEditMode mode={mode} />
           </ModeButton>
@@ -288,6 +346,12 @@ function ToggleCommentModeButton() {
               }}
             />
           </TooltipComponent>
+          <SnipingModeBtn
+            {...{
+              handleSetSnipingModeButton,
+              isSnipingMode,
+            }}
+          />
         </div>
       </TourTooltipWrapper>
     </Container>
