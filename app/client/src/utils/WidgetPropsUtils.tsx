@@ -810,6 +810,13 @@ const migrateDatePickerMinMaxDate = (
       currentDSL.maxDate = "2121-12-31T18:29:00.000Z";
     }
   }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.forEach(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateDatePickerMinMaxDate(eachWidgetDSL);
+      },
+    );
+  }
   return currentDSL;
 };
 
