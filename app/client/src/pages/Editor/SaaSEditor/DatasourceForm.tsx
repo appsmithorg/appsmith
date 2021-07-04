@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
-import { SAAS_EDITOR_DATASOURCE_ID_URL, SAAS_EDITOR_URL } from "./constants";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import Button from "components/editorComponents/Button";
 import AdsButton, { Category } from "components/ads/Button";
@@ -42,7 +42,8 @@ import { Toaster } from "components/ads/Toast";
 import { PluginType, SaaSAction } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
-import { Colors } from "../../../constants/Colors";
+import { Colors } from "constants/Colors";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -209,7 +210,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   deleteDatasource(
                     datasourceId,
                     historyPush(
-                      SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
+                      INTEGRATION_EDITOR_URL(
+                        applicationId,
+                        pageId,
+                        INTEGRATION_TABS.NEW,
+                      ),
                     ),
                   )
                 }
