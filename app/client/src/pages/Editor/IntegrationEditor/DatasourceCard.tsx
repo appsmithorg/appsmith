@@ -1,8 +1,8 @@
 import { Datasource } from "entities/Datasource";
-import { isStoredDatasource } from "entities/Action";
+import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React from "react";
-import { isNil } from "lodash";
+import React, { useMemo } from "react";
+import { isNil, keyBy } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
@@ -18,6 +18,7 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -111,18 +112,37 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const editDatasource = () => {
-    dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
-    history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
-        params.pageId,
-        datasource.id,
-        {
-          from: "datasources",
-        },
-      ),
-    );
+    const plugin = pluginGroups[datasource.pluginId];
+    if (plugin && plugin.type === PluginType.SAAS) {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          params.applicationId,
+          params.pageId,
+          plugin.packageName,
+          datasource.id,
+          {
+            from: "datasources",
+          },
+        ),
+      );
+    } else {
+      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
+      history.push(
+        DATA_SOURCES_EDITOR_ID_URL(
+          params.applicationId,
+          params.pageId,
+          datasource.id,
+          {
+            from: "datasources",
+          },
+        ),
+      );
+    }
   };
 
   return (
