@@ -742,6 +742,51 @@ export default [
     ],
   },
   {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the row height",
+        propertyName: "isVisibleCompactMode",
+        label: "Row Height",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+    ],
+  },
+  {
     sectionName: "Styles",
     children: [
       {

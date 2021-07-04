@@ -7,12 +7,12 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
-  useWidgetSelection,
   useShowPropertyPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const DraggableWrapper = styled.div`
   display: block;

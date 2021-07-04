@@ -49,7 +49,7 @@ export const renderCell = (
           </CellWrapper>
         );
       }
-      const imageSplitRegex = /[^(base64)],/;
+      const imageSplitRegex = /(?<!base64),/g;
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
@@ -75,7 +75,7 @@ export const renderCell = (
                   </a>
                 );
               } else {
-                return <div>Invalid Image</div>;
+                return <div key={index}>Invalid Image</div>;
               }
             })}
         </CellWrapper>

@@ -24,6 +24,8 @@ import FilePicker, {
 } from "components/ads/FilePicker";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
+// trigger tests
+
 const InputLabelWrapper = styled.div`
   width: 150px;
   display: flex;

@@ -29,7 +29,9 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
-import UserApi from "api/UserApi";
+import { getAppMode } from "selectors/applicationSelectors";
+
+import { USER_PHOTO_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -49,10 +51,7 @@ import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -204,16 +203,22 @@ const reduceReactions = (
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
           const { byUsername, emoji } = reaction;
+          const sameAsCurrent = byUsername === username;
+          const user = sameAsCurrent ? "You" : byUsername;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
+            res[reaction.emoji].users = Array.from(
+              new Set([...(res[reaction.emoji].users || []), user]),
+            );
           } else {
             res[emoji] = {
               count: 1,
               reactionEmoji: emoji,
+              users: [user],
             } as ComponentReaction;
           }
 
-          if (byUsername === username) {
+          if (sameAsCurrent) {
             res[reaction.emoji].active = true;
           }
 
@@ -270,18 +275,20 @@ function CommentCard({
   const pinnedByUsername = commentThread.pinnedState?.authorUsername;
   let pinnedBy = commentThread.pinnedState?.authorName;
 
+  const appMode = useSelector(getAppMode);
+
   if (currentUserUsername === pinnedByUsername) {
     pinnedBy = "You";
   }
 
-  const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const commentThreadURL = getCommentThreadURL({
     applicationId,
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
-    pageId,
+    pageId: commentThread?.pageId,
+    mode: appMode,
   });
 
   const copyCommentLink = () => {
@@ -394,7 +401,7 @@ function CommentCard({
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>

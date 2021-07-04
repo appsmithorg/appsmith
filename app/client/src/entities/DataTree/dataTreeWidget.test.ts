@@ -244,6 +244,10 @@ describe("generateDataTreeWidget", () => {
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       defaultText: "Testing",
+      defaultMetaProps: ["text", "isDirty", "isFocused"],
+      defaultProps: {
+        text: "defaultText",
+      },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

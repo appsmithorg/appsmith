@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import { AppState } from "reducers";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getWidget } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
