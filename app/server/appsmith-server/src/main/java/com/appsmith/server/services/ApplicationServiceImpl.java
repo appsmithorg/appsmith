@@ -15,11 +15,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -44,6 +47,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
+    private final CommentThreadRepository commentThreadRepository;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -53,10 +57,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService) {
+                                  ConfigService configService, CommentThreadRepository commentThreadRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
+        this.commentThreadRepository = commentThreadRepository;
     }
 
     @Override
@@ -72,7 +77,22 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .zipWith(ReactiveSecurityContextHolder.getContext())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    Authentication auth = objects.getT2().getAuthentication();
+                    User user = (User) auth.getPrincipal();
+                    if(!user.isAnonymous()) {
+                        return commentThreadRepository.countUnreadThreads(id, user.getUsername())
+                                .map(aLong -> {
+                                    application.setUnreadComments(aLong);
+                                    return application;
+                                });
+                    } else {
+                        return Mono.just(application);
+                    }
+                });
     }
 
     @Override
@@ -178,6 +198,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
+                })
+                .zipWith(ReactiveSecurityContextHolder.getContext())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    Authentication auth = objects.getT2().getAuthentication();
+                    User user = (User) auth.getPrincipal();
+                    if(!user.isAnonymous()) {
+                        return commentThreadRepository.countUnreadThreads(applicationId, user.getUsername())
+                                .map(aLong -> {
+                                    application.setUnreadComments(aLong);
+                                    return application;
+                                });
+                    } else {
+                        return Mono.just(application);
+                    }
                 });
     }
 

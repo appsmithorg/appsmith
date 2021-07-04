@@ -418,7 +418,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<Long> getUnreadCount(String applicationId) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->
-                        threadRepository.countByApplicationIdAndViewedByUsersNot(applicationId, user.getUsername())
+                        threadRepository.countUnreadThreads(applicationId, user.getUsername())
                 );
     }
 }
