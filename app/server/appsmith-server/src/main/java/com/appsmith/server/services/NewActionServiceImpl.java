@@ -723,6 +723,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return "TABLE_WIDGET";
         }
         return "TEXT_WIDGET";
+
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
