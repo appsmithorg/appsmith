@@ -19,7 +19,7 @@ const PositionedWidget = styled.div`
   .sniping-cover {
     width: 100%;
     height: 100%;
-    transition: 0.5s ease;
+    transition: 0.15s ease;
     opacity: 0;
     position: absolute;
     top: 50%;
