@@ -155,88 +155,6 @@ describe("Select all hotkey", () => {
 });
 
 describe("Cut/Copy/Paste hotkey", () => {
-  it("Should copy and paste all selected widgets with hotkey cmd + c and cmd + v ", async () => {
-    const children: any = buildChildren([
-      {
-        type: "TABS_WIDGET",
-        topRow: 5,
-        bottomRow: 30,
-        leftColumn: 5,
-        rightColumn: 30,
-      },
-      {
-        type: "SWITCH_WIDGET",
-        topRow: 5,
-        bottomRow: 10,
-        leftColumn: 40,
-        rightColumn: 48,
-      },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    const component = render(
-      <MockPageDSL dsl={dsl}>
-        <GlobalHotKeys>
-          <MockCanvas />
-        </GlobalHotKeys>
-      </MockPageDSL>,
-    );
-    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
-    // deselect all other widgets
-    fireEvent.click(artBoard);
-    act(() => {
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "A",
-        65,
-        false,
-        true,
-      );
-    });
-
-    let selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(2);
-    act(() => {
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "C",
-        67,
-        false,
-        true,
-      );
-    });
-    act(() => {
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "V",
-        86,
-        false,
-        true,
-      );
-    });
-    await component.findByText(children[0].widgetName + "Copy");
-    act(() => {
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "A",
-        65,
-        false,
-        true,
-      );
-    });
-
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
-    expect(selectedWidgets.length).toBe(4);
-  });
   it("Should cut and paste all selected widgets with hotkey cmd + x and cmd + v ", async () => {
     const children: any = buildChildren([
       {
@@ -325,5 +243,87 @@ describe("Cut/Copy/Paste hotkey", () => {
       "t--widget-propertypane-toggle",
     );
     expect(selectedWidgets.length).toBe(2);
+  });
+  it("Should copy and paste all selected widgets with hotkey cmd + c and cmd + v ", async () => {
+    const children: any = buildChildren([
+      {
+        type: "TABS_WIDGET",
+        topRow: 5,
+        bottomRow: 30,
+        leftColumn: 5,
+        rightColumn: 30,
+      },
+      {
+        type: "SWITCH_WIDGET",
+        topRow: 5,
+        bottomRow: 10,
+        leftColumn: 40,
+        rightColumn: 48,
+      },
+    ]);
+    const dsl: any = widgetCanvasFactory.build({
+      children,
+    });
+    const component = render(
+      <MockPageDSL dsl={dsl}>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
+    // deselect all other widgets
+    fireEvent.click(artBoard);
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "A",
+        65,
+        false,
+        true,
+      );
+    });
+
+    let selectedWidgets = await component.queryAllByTestId(
+      "t--widget-propertypane-toggle",
+    );
+    expect(selectedWidgets.length).toBe(2);
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "C",
+        67,
+        false,
+        true,
+      );
+    });
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "V",
+        86,
+        false,
+        true,
+      );
+    });
+    await component.findByText(children[0].widgetName + "Copy");
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "A",
+        65,
+        false,
+        true,
+      );
+    });
+
+    selectedWidgets = await component.queryAllByTestId(
+      "t--widget-propertypane-toggle",
+    );
+    expect(selectedWidgets.length).toBe(4);
   });
 });
