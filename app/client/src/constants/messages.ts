@@ -319,6 +319,9 @@ export const EMAIL_ADDRESS = () => "Email Address";
 export const FIRST_AND_LAST_NAME = () => "First and last name";
 export const MARK_ALL_AS_READ = () => "Mark all as read";
 export const INVITE_A_NEW_USER = () => "Invite a new user";
+export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
+export const ONE_UNREAD_MESSAGE = () => "1 unread conversation";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -329,10 +332,13 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
+export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 

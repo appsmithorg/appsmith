@@ -71,4 +71,5 @@ public class FieldName {
     public static String MONGO_ESCAPE_CLASS = "appsmith_mongo_escape_class";
     public static String MONGO_UNESCAPED_ID = "_id";
     public static String MONGO_UNESCAPED_CLASS = "_class";
+    public static String DATASOURCE_STRUCTURE = "datasource structure";
 }

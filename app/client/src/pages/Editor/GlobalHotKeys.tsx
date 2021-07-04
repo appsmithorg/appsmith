@@ -9,9 +9,11 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
-  selectAllWidgetsInit,
-  selectAllWidgets,
 } from "actions/widgetActions";
+import {
+  selectAllWidgetsInCanvasInitAction,
+  selectMultipleWidgetsAction,
+} from "actions/widgetSelectionActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
@@ -60,12 +62,6 @@ class GlobalHotKeys extends React.Component<Props> {
       return true;
     }
     return false;
-  }
-
-  public areMultipleWidgetsSelected() {
-    const multipleWidgetsSelected =
-      this.props.selectedWidgets && this.props.selectedWidgets.length >= 2;
-    return !!multipleWidgetsSelected;
   }
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
@@ -127,10 +123,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Copy Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
             }
           }}
@@ -172,10 +165,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Cut Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.cutSelectedWidget();
             }
           }}
@@ -248,8 +238,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
-    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
-    deselectAllWidgets: () => dispatch(selectAllWidgets([])),
+    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
+    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
   };
 };
