@@ -109,6 +109,7 @@ class DividerComponent extends React.Component<DividerComponentProps> {
 
     return (
       <DividerWrapper
+        className="t--divider-widget"
         isHorizontal={orientation === "horizontal"}
         showEndCap={showEndCap}
         showStartCap={showStartCap}

@@ -157,7 +157,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
       <DividerComponent
         capSide={this.props.capSide}
         capType={this.props.capType}
-        className="t--divider-widget"
         dividerColor={this.props.dividerColor}
         orientation={this.props.orientation}
         strokeStyle={this.props.strokeStyle}
