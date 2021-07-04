@@ -6,6 +6,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +52,9 @@ public class CommentServiceTest {
 
     @Autowired
     OrganizationService organizationService;
+
+    @Autowired
+    PolicyUtils policyUtils;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -234,20 +240,31 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getUnreadCount() {
+        User user = new User();
+        user.setEmail("api_user");
+        Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.READ_THREAD),
+                user
+        );
+        Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
+
         // first thread which is read by api_user
         CommentThread c1 = new CommentThread();
         c1.setApplicationId("test-application-1");
         c1.setViewedByUsers(Set.of("api_user", "user2"));
+        c1.setPolicies(policies);
 
         // second thread which is not read by api_user
         CommentThread c2 = new CommentThread();
         c2.setApplicationId("test-application-1");
         c2.setViewedByUsers(Set.of("user2"));
+        c2.setPolicies(policies);
 
         // third thread which is read by api_user but in another application
         CommentThread c3 = new CommentThread();
         c3.setApplicationId("test-application-2");
         c3.setViewedByUsers(Set.of("user2", "api_user"));
+        c3.setPolicies(policies);
 
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
