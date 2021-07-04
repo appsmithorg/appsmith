@@ -36,8 +36,11 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -685,12 +688,42 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
+        result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
         return result;
+    }
+
+    /**
+     * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
+     */
+    private String getSuggestedWidget(Object data) {
+
+        if(data instanceof String) {
+            return "TEXT_WIDGET";
+        }
+
+        if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
+            ArrayNode array = (ArrayNode) data;
+            Integer length = array.size();
+            ObjectNode objectNode = (ObjectNode)array.get(0);
+            Integer fieldsCount = array.get(0).size();
+            if( objectNode.has("X") && objectNode.has("Y") && objectNode.has("value")) {
+                return "CHART_WIDGET";
+            }
+            if(length <= 10 && fieldsCount == 1) {
+                return "DROP_DOWN_WIDGET";
+            }
+            if(length <= 20 && fieldsCount <= 5) {
+                return "LIST_WIDGET";
+            }
+            return "TABLE_WIDGET";
+        }
+        return "TEXT_WIDGET";
+
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
