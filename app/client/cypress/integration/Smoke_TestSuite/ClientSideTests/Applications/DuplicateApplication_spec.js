@@ -16,8 +16,13 @@ describe("Duplicate application", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type("A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.wait(4000);
+    cy.wait("@updateLayout").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.wait("@updateLayout").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
+      cy.log(JSON.stringify(parentApplicationDsl));
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
