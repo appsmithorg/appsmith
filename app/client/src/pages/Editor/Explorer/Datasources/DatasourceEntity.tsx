@@ -45,6 +45,9 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
           params.pageId,
           props.plugin.packageName,
           props.datasource.id,
+          {
+            viewMode: true,
+          },
         ),
       );
     } else {
