@@ -2,40 +2,56 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.MockDataDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,6 +75,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
+    private final CloudServicesConfig cloudServicesConfig;
+
+    public MockDataDTO mockData = new MockDataDTO();
+
+    private Instant cacheExpiryTime = null;
+
+    @Value("${github_repo}")
+    private String repo;
+
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -74,7 +101,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService) {
+                                 EncryptionService encryptionService, CloudServicesConfig cloudServicesConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -84,6 +111,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
         this.encryptionService = encryptionService;
+        this.cloudServicesConfig = cloudServicesConfig;
     }
 
     @Override
@@ -405,4 +433,68 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
+
+    @Override
+    public Mono<JSONObject> getMockDataSet() {
+        if (cacheExpiryTime != null && Instant.now().isBefore(cacheExpiryTime)) {
+            return Mono.justOrEmpty(mockData.getMockdbs());
+        }
+
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        if (StringUtils.isEmpty(baseUrl)) {
+            return Mono.justOrEmpty(mockData.getMockdbs());
+        }
+
+        return  WebClient
+                .create( baseUrl + "/api/v1/mocks")
+                .get()
+                .exchange()
+                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
+                .map(result -> result.getData())
+                .map(config -> {
+                    mockData = config;
+                    cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
+                    return config.getMockdbs();
+                })
+                .doOnError(error -> log.error("Error fetching mock data sets config from cloud services", error));
+
+    }
+
+    @Override
+    public Mono<Datasource> createMockDataSet(String name, String orgId, String pluginId) {
+
+        if (cacheExpiryTime == null || !Instant.now().isBefore(cacheExpiryTime)) {
+            getMockDataSet();
+        }
+
+        Datasource datasource = new Datasource();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        Endpoint endpoint = new Endpoint();
+
+        connection.setMode(Connection.Mode.READ_WRITE);
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
+        connection.setSsl(sslDetails);
+
+        JSONObject credentials = mockData.getCredentials();
+        HashMap credentialsMap = (HashMap)credentials.get(name);
+        endpoint.setHost(credentials.getAsString(credentialsMap.get("host").toString()));
+        List<Endpoint> listEndpoint = new ArrayList<>();
+        listEndpoint.add(endpoint);
+        authenticationDTO.setAuthenticationType("dbAuth");
+
+        datasourceConfiguration.setUrl(credentialsMap.get("host").toString());
+        datasourceConfiguration.setEndpoints(listEndpoint);
+        datasourceConfiguration.setConnection(connection);
+
+        datasource.setOrganizationId(orgId);
+        datasource.setPluginId(pluginId);
+        datasource.setName(name.toUpperCase(Locale.ROOT)+"-Mock");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        return create(datasource);
+    }
+
 }

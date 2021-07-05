@@ -36,20 +36,22 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
-    private final ConfigService configService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final DatasourceService datasourceService;
 
     private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-mockdb";
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService, ConfigService configService, ExamplesOrganizationCloner examplesOrganizationCloner) {
+                                AuthenticationService authenticationService,
+                                ExamplesOrganizationCloner examplesOrganizationCloner,
+                                DatasourceService datasourceService) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
-        this.configService = configService;
         this.examplesOrganizationCloner = examplesOrganizationCloner;
+        this.datasourceService = datasourceService;
     }
 
     @PostMapping("/test")
@@ -91,13 +93,15 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     @GetMapping("/mocks")
     public Mono<ResponseDTO<JSONObject>> getMockDataSets() {
-        return configService.getByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getConfig(), null));
+        return datasourceService.getMockDataSet()
+                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config, null));
     }
 
     @PostMapping("/mocks")
-    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestParam String datasourceId, @RequestParam String organizationId) {
-        return examplesOrganizationCloner.cloneDatasource(datasourceId, organizationId)
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestParam String name,
+                                                           String organizationId,
+                                                           String pluginId) {
+        return datasourceService.createMockDataSet(name, organizationId, pluginId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 
