@@ -57,7 +57,7 @@ describe("Leave organization test spec", function() {
         .within(() => {
           cy.get(homePage.orgNamePopover)
             .first()
-            .click();
+            .click({ force: true });
         });
       cy.get(homePage.orgNamePopoverContent)
         .find("a")
