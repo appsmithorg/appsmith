@@ -520,3 +520,29 @@ export function getSafeToRenderDataTree(
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
+
+export function getParams(func: any) {
+  let str = func.toString();
+  str = str
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/(.)*/g, "")
+    .replace(/{[\s\S]*}/, "")
+    .replace(/=>/g, "")
+    .trim();
+  const start = str.indexOf("(") + 1;
+  const end = str.length - 1;
+  const result = str.substring(start, end).split(", ");
+  const params: any = [];
+  result.forEach((element: any) => {
+    // Removing any default value
+    element = element.split("=");
+    if (element.length > 0 && element[0].length > 0) {
+      const result = {
+        name: element[0],
+        initalValue: element[1] ? JSON.parse(element[1]) : null,
+      };
+      params.push(result);
+    }
+  });
+  return params;
+}

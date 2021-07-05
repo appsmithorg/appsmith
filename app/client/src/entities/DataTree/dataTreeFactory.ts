@@ -4,7 +4,6 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
-import { JSActionResponse } from "api/JSActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
@@ -16,7 +15,6 @@ import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { JSSubAction } from "entities/JSAction";
 
 export type ActionDescription<T> = {
   type: string;

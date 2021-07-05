@@ -59,6 +59,15 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<{ data: JSAction }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.data.id)
+        return { ...a, config: action.payload.data };
+      return a;
+    }),
   [ReduxActionTypes.COPY_JS_ACTION_INIT]: (
     state: JSActionDataState,
     action: ReduxAction<{

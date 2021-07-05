@@ -230,10 +230,15 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   });
 }
 
-export function* parseUpdateJSAction(body: string) {
-  yield call(worker.request, EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY, {
-    body,
-  });
+export function* parseJSAction(body: string) {
+  const parsedObject = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
+    {
+      body,
+    },
+  );
+  return parsedObject;
 }
 
 /**
@@ -292,6 +297,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

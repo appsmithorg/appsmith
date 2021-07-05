@@ -11,14 +11,19 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getJSActions } from "selectors/entitiesSelector";
+import { getJSAction, getJSActions } from "selectors/entitiesSelector";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { JSAction } from "entities/JSAction";
 import { createJSActionRequest } from "actions/jsActionActions";
 import { JS_FUNCTION_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { parseUpdateJSAction } from "./EvaluationsSaga";
+import { parseJSAction } from "./EvaluationsSaga";
+import { getJSActionIdFromURL } from "../pages/Editor/Explorer/helpers";
+import { getDifferenceInJSAction } from "../utils/JSPaneUtils";
+import JSActionAPI from "../api/JSActionAPI";
+import { GenericApiResponse } from "../api/ApiResponses";
+import { updateJSActionSuccess } from "../actions/jsPaneActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   // const organizationId = yield select(getCurrentOrgId);
@@ -50,12 +55,24 @@ function* handleJSActionCreatedSaga(actionPayload: ReduxAction<JSAction>) {
 
 function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   const body = actionPayload.body;
-  yield call(parseUpdateJSAction, body);
+  const parsedBody = yield call(parseJSAction, body);
+  const jsActionId = getJSActionIdFromURL();
+  if (jsActionId) {
+    const jsAction: JSAction = yield select(getJSAction, jsActionId);
+    const data = getDifferenceInJSAction(parsedBody, jsAction);
+    console.log("**data", data);
+    return data;
+  }
 }
 
 function* handleSaveJSAction(actionPayload: ReduxAction<{ body: string }>) {
   const { body } = actionPayload.payload;
-  yield call(handleParseUpdateJSAction, { body: body });
+  const data = yield call(handleParseUpdateJSAction, { body: body });
+  // const response: GenericApiResponse<JSAction> = yield JSActionAPI.updateJSAction(
+  //   data,
+  // );
+  console.log("***", data);
+  yield put(updateJSActionSuccess({ data: data }));
 }
 
 export default function* root() {
@@ -68,6 +85,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSActionCreatedSaga,
     ),
-    takeLatest(ReduxActionTypes.SAVE_JS_ACTION, handleSaveJSAction),
+    takeLatest(ReduxActionTypes.UPDATE_JS_ACTION_INIT, handleSaveJSAction),
   ]);
 }

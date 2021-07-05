@@ -27,7 +27,7 @@ import {
   StyledFormRow,
 } from "../QueryEditor/EditorJSONtoForm";
 import JSActionNameEditor from "./JSActionNameEditor";
-import { saveJSAction } from "actions/jsPaneActions";
+import { updateJSAction } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 
 const Form = styled.form`
@@ -128,7 +128,7 @@ function JSEditorForm(props: Props) {
   };
 
   const handleOnChange = (event: string) => {
-    dispatch(saveJSAction(event));
+    dispatch(updateJSAction(event));
   };
 
   return (

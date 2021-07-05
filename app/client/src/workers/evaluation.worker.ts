@@ -13,6 +13,7 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
+  getParams,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 
@@ -159,7 +160,41 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body } = requestData;
-        //parsing needs to be done
+        if (!dataTreeEvaluator) {
+          return true;
+        }
+        try {
+          const parsed = body && eval("(" + body + ")");
+          const parsedLength = Object.keys(parsed).length;
+          const actions = [];
+          const variables = [];
+          if (parsedLength > 0) {
+            for (const key in parsed) {
+              if (parsed.hasOwnProperty(key)) {
+                if (typeof parsed[key] === "function") {
+                  const value = parsed[key];
+                  const params = getParams(value);
+                  actions.push({
+                    name: key,
+                    body: parsed[key].toString(),
+                    arguments: params,
+                  });
+                } else {
+                  variables.push({
+                    name: key,
+                    initialValue: parsed[key],
+                  });
+                }
+              }
+            }
+          }
+          return {
+            actions: actions,
+            variables: variables,
+          };
+        } catch (e) {
+          //error
+        }
         return true;
       }
       default: {

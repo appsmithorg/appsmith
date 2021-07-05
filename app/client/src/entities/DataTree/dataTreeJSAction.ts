@@ -1,4 +1,3 @@
-import ActionLink from "components/editorComponents/GlobalSearch/ActionLink";
 import {
   DataTreeJSAction,
   ENTITY_TYPE,
@@ -25,7 +24,7 @@ export const generateDataTreeJSAction = (
       data[action.name] = null;
       subActionsObject[action.name] = action.actionConfiguration.body;
       meta[action.name] = {
-        arguements: action.jsArguments,
+        arguments: action.actionConfiguration.jsArguments,
       };
     }
   }

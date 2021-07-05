@@ -39,13 +39,12 @@ export interface JSAction extends BaseAction {
 export interface JSSubAction {
   actionId: string;
   name: string;
-  parentObjectId: string;
+  collectionId: string;
   executeOnLoad: boolean;
   actionConfiguration: {
     body: string;
     isAsync: boolean;
-    arguments: Array<string>;
     timeoutInMilliseconds: number;
+    jsArguments?: Array<variable>;
   };
-  jsArguments?: Array<variable>;
 }

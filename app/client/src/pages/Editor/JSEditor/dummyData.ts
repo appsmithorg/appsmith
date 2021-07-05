@@ -14,24 +14,26 @@ export const jsData = [
         initialValue: "undefined",
       },
     ],
-    body: `{ data: [], run1: function() { console.log(\"this is function 1 body\")}}`,
+    body: `{
+      data: [],
+      run1: function() { console.log('this is function 1 body')}
+    }`,
     actions: [
       {
         actionId: "11",
-        name: "all",
-        parentObjectId: "unknown_collection_parent_id",
+        name: "run1",
+        collectionId: "unknown_collection_parent_id",
         executeOnLoad: false,
-        jsArguments: [
-          {
-            name: "arg1",
-            initialValue: "undefined",
-          },
-        ],
         actionConfiguration: {
-          body: "function all(){...}",
+          body: "function() { console.log('this is function 1 body')}",
           isAsync: true,
-          arguments: [],
           timeoutInMilliseconds: 3000,
+          jsArguments: [
+            {
+              name: "arg1",
+              initialValue: "undefined",
+            },
+          ],
         },
       },
     ],
@@ -49,24 +51,26 @@ export const jsData = [
         initialValue: "undefined",
       },
     ],
-    body: `{data: [], run2: function() { console.log(\"this is function 2 body\")}}`,
+    body: `{
+      data: [],
+      run2: function() { console.log("this is function 2 body")}
+    }`,
     actions: [
       {
         actionId: "21",
         name: "all",
-        parentObjectId: "unknown_collection_parent_id",
+        collectionId: "unknown_collection_parent_id",
         executeOnLoad: false,
-        jsArguments: [
-          {
-            name: "arg1",
-            initialValue: "undefined",
-          },
-        ],
         actionConfiguration: {
           body: "function all(){...}",
           isAsync: true,
-          arguments: [],
           timeoutInMilliseconds: 3000,
+          jsArguments: [
+            {
+              name: "arg1",
+              initialValue: "undefined",
+            },
+          ],
         },
       },
     ],
@@ -91,19 +95,18 @@ export const newFunction = {
     {
       actionId: "21",
       name: "function2.all",
-      parentObjectId: "unknown_collection_parent_id",
+      collectionId: "unknown_collection_parent_id",
       executeOnLoad: false,
-      jsArguments: [
-        {
-          name: "arg1",
-          initialValue: "undefined",
-        },
-      ],
       actionConfiguration: {
         body: "function all(){...}",
         isAsync: true,
-        arguments: [],
         timeoutInMilliseconds: 3000,
+        jsArguments: [
+          {
+            name: "arg1",
+            initialValue: "undefined",
+          },
+        ],
       },
     },
   ],

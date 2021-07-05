@@ -1,5 +1,6 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { JSAction } from "entities/JSAction";
 export interface JsPaneReduxState {
   isCreating: boolean; // RR
   isFetching: boolean; // RR
@@ -32,6 +33,20 @@ const jsPaneReducer = createReducer(initialState, {
   ): JsPaneReduxState => ({
     ...state,
     isCreating: false,
+  }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ data: JSAction }>,
+  ) => ({
+    ...state,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.data.id]: false,
+    },
+    isDirty: {
+      ...state.isDirty,
+      [action.payload.data.id]: false,
+    },
   }),
 });
 

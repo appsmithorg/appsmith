@@ -445,7 +445,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   DELETE_JS_ACTION_INIT: "DELETE_JS_ACTION_INIT",
   DELETE_JS_ACTION_SUCCESS: "DELETE_JS_ACTION_SUCCESS",
   PARSE_UPDATE_JS_ACTION: "PARSE_UPDATE_JS_ACTION",
-  SAVE_JS_ACTION: "SAVE_JS_ACTION",
+  UPDATE_JS_ACTION_INIT: "UPDATE_JS_ACTION_INIT",
+  UPDATE_JS_ACTION_SUCCESS: "UPDATE_JS_ACTION_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
