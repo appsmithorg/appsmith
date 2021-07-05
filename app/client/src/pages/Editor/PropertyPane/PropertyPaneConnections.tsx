@@ -20,7 +20,6 @@ const TopLayer = styled.div`
   flex: 1;
   justify-content: space-between;
   border-bottom: 0.5px solid #e0dede;
-  width: ${(props) => props.theme.propertyPane.width - props.theme.spaces[5]}px;
 
   .layout-control {
     border: none;

@@ -50,8 +50,7 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{
   margin-left: ${(props) => props.theme.spaces[10]}px;
   padding-top: 0px;
   border-right: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   text-transform: none;
 `;
 
@@ -83,13 +82,18 @@ export const PropertyControlsWrapper = styled.div`
   padding-top: 0px;
 `;
 
-export const PropertyPaneBodyWrapper = styled.div`
-  margin-top: ${(props) => props.theme.propertyPane.titleHeight + 22}px;
-`;
-
 export const FixedHeader = styled.div`
   position: fixed;
   z-index: 3;
+`;
+
+export const PropertyPaneBodyWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+  max-height: ${(props) =>
+    props.theme.propertyPane.height -
+    (props.theme.propertyPane.titleHeight +
+      props.theme.propertyPane.connectionsHeight)}px;
+  overflow: auto;
 `;
 
 function PropertyPaneView(
@@ -112,62 +116,59 @@ function PropertyPaneView(
 
   return (
     <>
-      <FixedHeader>
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-        <PropertyPaneTitle
-          actions={[
-            {
-              tooltipContent: "Copy Widget",
-              icon: (
-                <CopyIcon
-                  className="t--copy-widget"
-                  height={14}
-                  onClick={handleCopy}
-                  width={14}
-                />
-              ),
-            },
-            {
-              tooltipContent: "Delete Widget",
-              icon: (
-                <DeleteIcon
-                  className="t--delete-widget"
-                  height={16}
-                  onClick={handleDelete}
-                  width={16}
-                />
-              ),
-            },
-            {
-              tooltipContent: <span>Explore widget related docs</span>,
-              icon: <PropertyPaneHelpButton />,
-            },
-            {
-              tooltipContent: "Close",
-              icon: (
-                <Icon
-                  className={"t--property-pane-close-btn"}
-                  icon="cross"
-                  iconSize={16}
-                  onClick={(e: any) => {
-                    AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-                      widgetType: widgetProperties.widgetType,
-                      widgetId: widgetProperties.widgetId,
-                    });
-                    hidePropertyPane();
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                />
-              ),
-            },
-          ]}
-          key={widgetProperties.widgetId}
-          title={widgetProperties.widgetName}
-          widgetId={widgetProperties.widgetId}
-          widgetType={widgetProperties?.type}
-        />
-      </FixedHeader>
+      <PropertyPaneTitle
+        actions={[
+          {
+            tooltipContent: "Copy Widget",
+            icon: (
+              <CopyIcon
+                className="t--copy-widget"
+                height={14}
+                onClick={handleCopy}
+                width={14}
+              />
+            ),
+          },
+          {
+            tooltipContent: "Delete Widget",
+            icon: (
+              <DeleteIcon
+                className="t--delete-widget"
+                height={16}
+                onClick={handleDelete}
+                width={16}
+              />
+            ),
+          },
+          {
+            tooltipContent: <span>Explore widget related docs</span>,
+            icon: <PropertyPaneHelpButton />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                className={"t--property-pane-close-btn"}
+                icon="cross"
+                iconSize={16}
+                onClick={(e: any) => {
+                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                    widgetType: widgetProperties.widgetType,
+                    widgetId: widgetProperties.widgetId,
+                  });
+                  hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              />
+            ),
+          },
+        ]}
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
+      />
       <PropertyPaneBodyWrapper>
         {!doActionsExist && <ConnectDataCTA />}
         <PropertyControlsWrapper>
@@ -255,6 +256,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
         ref={this.panelWrapperRef}
         themeMode={this.getTheme()}
       >
+        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         <StyledPanelStack
           initialPanel={{
             component: PropertyPaneView,
