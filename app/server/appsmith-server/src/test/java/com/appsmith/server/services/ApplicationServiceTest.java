@@ -307,6 +307,34 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void invalidUpdateApplication() {
+        Application testApp1 = new Application();
+        testApp1.setName("validApplication1");
+        Application testApp2 = new Application();
+        testApp2.setName("validApplication2");
+
+        Mono<List<Application>> createMultipleApplications = Mono.zip(
+            applicationPageService.createApplication(testApp1, orgId),
+            applicationPageService.createApplication(testApp2, orgId))
+            .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
+
+            Mono<Application> updateInvalidApplication = createMultipleApplications
+            .map(applicationList -> {
+                Application savedTestApp1 = applicationList.get(0);
+                Application savedTestApp2 = applicationList.get(1);
+                savedTestApp2.setName(savedTestApp1.getName());
+                return savedTestApp2;
+            })
+            .flatMap(t -> applicationService.update(t.getId(), t));
+
+        StepVerifier.create(updateInvalidApplication)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(testApp1.getName(), FieldName.NAME)))
+            .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void reuseDeletedAppName() {
         Application firstApp = new Application();
         firstApp.setName("Ghost app");
@@ -766,6 +794,7 @@ public class ApplicationServiceTest {
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
         applicationPage.setIsDefault(false);
+        applicationPage.setOrder(1);
 
         StepVerifier
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
@@ -811,13 +840,13 @@ public class ApplicationServiceTest {
         Mono<Application> updatedDefaultPageApplicationMono = applicationMono
                 .flatMap(application -> applicationPageService.makePageDefault(application.getId(), newPage.getId()));
 
-        ApplicationPage unpublishedEditedPage = new ApplicationPage();
-        unpublishedEditedPage.setId(newPage.getId());
-        unpublishedEditedPage.setIsDefault(true);
-
         ApplicationPage publishedEditedPage = new ApplicationPage();
         publishedEditedPage.setId(newPage.getId());
         publishedEditedPage.setIsDefault(false);
+
+        ApplicationPage unpublishedEditedPage = new ApplicationPage();
+        unpublishedEditedPage.setId(newPage.getId());
+        unpublishedEditedPage.setIsDefault(true);
 
         StepVerifier
                 .create(updatedDefaultPageApplicationMono)
@@ -825,11 +854,23 @@ public class ApplicationServiceTest {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
                     assertThat(publishedPages).size().isEqualTo(2);
-                    assertThat(publishedPages).containsAnyOf(publishedEditedPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: publishedPages) {
+                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault().equals(publishedEditedPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(unpublishedEditedPage);
+                    isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault().equals(unpublishedEditedPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }
@@ -873,7 +914,13 @@ public class ApplicationServiceTest {
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(applicationPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault().equals(applicationPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }

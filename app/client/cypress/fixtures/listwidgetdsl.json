@@ -27,7 +27,7 @@
                 "gridType": "vertical",
                 "enhancements": true,
                 "gridGap": 0,
-                "listData": [],
+                "listData": "",
                 "widgetName": "List1",
                 "children": [
                     {

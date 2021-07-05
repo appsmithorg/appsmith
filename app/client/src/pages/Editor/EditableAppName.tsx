@@ -8,6 +8,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 type EditableTextWrapperProps = EditableTextProps & {
   isNewApp: boolean;
+  isError: boolean;
 };
 
 const Container = styled.div`
@@ -44,29 +45,32 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
 
   return (
     <Container>
-      <EditableText
-        className={props.className}
-        defaultValue={props.defaultValue}
-        editInteractionKind={props.editInteractionKind}
-        fill={props.fill}
-        hideEditIcon
-        isEditingDefault={isEditingDefault}
-        isInvalid={(value: string) => {
-          if (value.trim() === "") {
-            Toaster.show({
-              text: "Application name can't be empty",
-              variant: Variant.danger,
-            });
-          }
-          return false;
-        }}
-        onBlur={(value) => {
-          if (props.onBlur) props.onBlur(value);
-          setIsEditingDefault(false);
-        }}
-        placeholder={props.placeholder}
-        savingState={props.savingState}
-      />
+      {props.defaultValue && (
+        <EditableText
+          className={props.className}
+          defaultValue={props.defaultValue}
+          editInteractionKind={props.editInteractionKind}
+          fill={props.fill}
+          hideEditIcon
+          isEditingDefault={isEditingDefault}
+          isError={props.isError}
+          isInvalid={(value: string) => {
+            if (value.trim() === "") {
+              Toaster.show({
+                text: "Application name can't be empty",
+                variant: Variant.danger,
+              });
+            }
+            return false;
+          }}
+          onBlur={(value) => {
+            if (props.onBlur) props.onBlur(value);
+            setIsEditingDefault(false);
+          }}
+          placeholder={props.placeholder}
+          savingState={props.savingState}
+        />
+      )}
     </Container>
   );
 }
