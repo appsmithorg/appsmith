@@ -20,25 +20,33 @@ export type EvalResult = {
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
+  TRIGGERS = "TRIGGERS",
 }
 
 const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
+  [EvaluationScriptType.EXPRESSION]: (script: string) => `return (
+    ${script}
+  )`,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
     `const userFunction = ${script}
     return userFunction.apply(self, ARGUMENTS)`,
+  [EvaluationScriptType.TRIGGERS]: (script) => `(function() { ${script} })()`,
 };
 
 const getScriptToEval = (
   userScript: string,
   evalArguments?: Array<any>,
+  isTriggerBased = false,
 ): string => {
-  const scriptType = evalArguments
-    ? EvaluationScriptType.ANONYMOUS_FUNCTION
-    : EvaluationScriptType.EXPRESSION;
+  let scriptType = EvaluationScriptType.EXPRESSION;
+  if (evalArguments) {
+    scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
+  } else if (isTriggerBased) {
+    scriptType = EvaluationScriptType.TRIGGERS;
+  }
   return evaluationScripts[scriptType](userScript);
 };
 
@@ -81,12 +89,13 @@ export default function evaluate(
   js: string,
   data: DataTree,
   evalArguments?: Array<any>,
+  isTriggerBased = false,
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
-  const script = getScriptToEval(unescapedJS, evalArguments);
+  const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
 
   return (function() {
     let errors: EvaluationError[] = [];
