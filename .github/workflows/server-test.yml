@@ -223,7 +223,7 @@ jobs:
         working-directory: app/server
         if: steps.filterserver.outputs.server == 'false'
         run: |
-            mvn package -DskipTests
+            ./build.sh -DskipTests
             
       - name: Build and test package
         env:
@@ -235,20 +235,7 @@ jobs:
         working-directory: app/server
         if: steps.filterserver.outputs.server == 'true'
         run: |
-            mvn package
-
-      - name: mkdir plugins
-        working-directory: app/server
-        run: |
-            mkdir -p dist/plugins
-      - name: cp
-        working-directory: app/server
-        run: |
-            cp ./appsmith-server/target/server-1.0-SNAPSHOT.jar dist/
-      - name: rsync
-        working-directory: app/server
-        run: |
-            rsync -av --exclude "original-*.jar" ./appsmith-plugins/*/target/*.jar dist/plugins/
+            ./build.sh
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -270,7 +257,7 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        #job: [0, 1]
+        
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
