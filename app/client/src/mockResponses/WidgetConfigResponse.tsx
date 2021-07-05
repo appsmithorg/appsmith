@@ -747,7 +747,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
-                return  ${modifiedAction};
+                return ( ${modifiedAction} );
               })();
             })}}`;
 
