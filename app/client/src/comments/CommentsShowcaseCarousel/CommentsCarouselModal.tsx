@@ -13,7 +13,7 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
       isOpen
       left={25}
       onClose={() => {
-        console.log("handle close");
+        // TODO (rishabh) handle close
       }}
       overlayClassName="comments-onboarding-carousel"
       scrollContents
