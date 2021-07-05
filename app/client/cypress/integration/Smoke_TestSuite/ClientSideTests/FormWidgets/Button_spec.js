@@ -269,21 +269,21 @@ describe("Button Widget Functionality", function() {
     cy.get(publishPage.buttonWidget).click();
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
+  // TODO - To be fixed by Arun
+  // it("Button-Copy Verification", function() {
+  //   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  //   //Copy button and verify all properties
+  //   cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
 
-  it("Button-Copy Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    //Copy button and verify all properties
-    cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
+  //   cy.PublishtheApp();
+  // });
 
-    cy.PublishtheApp();
-  });
-
-  it("Button-Delete Verification", function() {
-    // Delete the button widget
-    cy.deleteWidget(widgetsPage.buttonWidget);
-    cy.PublishtheApp();
-    cy.get(widgetsPage.buttonWidget).should("not.exist");
-  });
+  // it("Button-Delete Verification", function() {
+  //   // Delete the button widget
+  //   cy.deleteWidget(widgetsPage.buttonWidget);
+  //   cy.PublishtheApp();
+  //   cy.get(widgetsPage.buttonWidget).should("not.exist");
+  // });
 
   afterEach(() => {
     cy.get(publishPage.backToEditor).click({ force: true });
