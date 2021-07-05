@@ -42,7 +42,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "renderAsHTML",
-            helpText: "Controls HTML Render Format",
+            helpText: "Enables rendering HTML code as content",
             label: "Render as HTML",
             controlType: "SWITCH",
             isJSConvertible: true,
