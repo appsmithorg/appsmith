@@ -156,7 +156,10 @@ export function CanvasDraggingArena({
           isNotColliding: true,
         },
       ];
-  const { setDraggingNewWidget, setIsDragging } = useWidgetDragResize();
+  const {
+    setDraggingNewWidget,
+    setDragItemsInitialParent,
+  } = useWidgetDragResize();
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
@@ -433,7 +436,7 @@ export function CanvasDraggingArena({
           if (newWidget) {
             setDraggingNewWidget(false, undefined);
           } else {
-            setIsDragging(false);
+            setDragItemsInitialParent(false, "", "");
           }
           onMouseOut();
           if (isDragging && canvasIsDragging) {
