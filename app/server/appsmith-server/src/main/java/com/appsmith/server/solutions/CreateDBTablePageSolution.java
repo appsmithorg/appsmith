@@ -212,7 +212,6 @@ public class CreateDBTablePageSolution {
                 layout.setLayoutOnLoadActions(null);
 
                 final String templateTableRef =  TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
-                //We are expecting only one table will be present for MVP
                 Datasource templateDatasource = applicationJson
                     .getDatasourceList()
                     .stream()
