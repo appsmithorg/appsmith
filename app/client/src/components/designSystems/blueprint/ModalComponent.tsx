@@ -72,6 +72,7 @@ export type ModalComponentProps = {
   right?: number;
   hasBackDrop?: boolean;
   zIndex?: number;
+  portalClassName?: string;
 };
 
 /* eslint-disable react/display-name */
@@ -100,7 +101,7 @@ export function ModalComponent(props: ModalComponentProps) {
       hasBackdrop={false}
       isOpen={props.isOpen}
       onClose={props.onClose}
-      portalClassName={MODAL_PORTAL_CLASSNAME}
+      portalClassName={`${MODAL_PORTAL_CLASSNAME} ${props.portalClassName}`}
       usePortal
     >
       <Container

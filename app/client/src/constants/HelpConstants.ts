@@ -119,7 +119,10 @@ export const HelpMap = {
     path: "",
     searchKey: "",
   },
-
+  RATE_WIDGET: {
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
   IFRAME_WIDGET: {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",

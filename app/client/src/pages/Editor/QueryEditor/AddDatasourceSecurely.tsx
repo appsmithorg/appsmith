@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Secure from "assets/images/secure.svg";
 import AppsmithDatasource from "assets/images/appsmith-datasource.svg";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
@@ -9,52 +10,54 @@ const Wrapper = styled.div`
   padding: 23px;
   flex-direction: row;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .datasource-img {
-    height: 108px;
-  }
-`;
-
-const HeadWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  & > img {
-    margin-right: 10px;
-  }
 `;
 
 const Header = styled.div`
   font-weight: 600;
   font-size: 24px;
-  line-height: 32px;
   color: ${Colors.OXFORD_BLUE};
+  margin-top: 8px;
 `;
 
-const Content = styled.p`
+const Content = styled.div`
   margin-top: 8px;
   color: ${Colors.OXFORD_BLUE};
-  max-width: 360px;
-  font-size: 14px;
-  line-height: 20px;
+  max-width: 65%;
 `;
 
-function AddDatasourceSecurely() {
+const ActionButton = styled(BaseButton)`
+  &&& {
+    max-width: 155px;
+    max-height: 36px;
+    margin-top: 18px;
+  }
+`;
+
+type AddDatasourceSecurelyProps = {
+  onAddDatasource: () => void;
+};
+
+function AddDatasourceSecurely(props: AddDatasourceSecurelyProps) {
   return (
     <Wrapper>
       <div>
-        <HeadWrapper>
-          <img src={Secure} />
-          <Header>Secure & fast database connection</Header>
-        </HeadWrapper>
+        <img src={Secure} />
+        <Header>Secure & fast database connection</Header>
         <Content>
           Connect your database to start building read/write workflows. Your
           Passwords are fully encrypted and we never store any of your data.
           That’s a promise.
         </Content>
+        <ActionButton
+          accent="primary"
+          className="t--add-datasource"
+          filled
+          icon={"plus"}
+          onClick={props.onAddDatasource}
+          text="New Datasource"
+        />
       </div>
-      <img className="datasource-img" src={AppsmithDatasource} />
+      <img src={AppsmithDatasource} />
     </Wrapper>
   );
 }

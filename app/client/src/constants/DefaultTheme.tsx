@@ -50,28 +50,6 @@ export const hideScrollbar = css`
   }
 `;
 
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${Colors.MYSTIC};
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -338,8 +316,6 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
-  integrationsPageUnusableHeight: string;
-  backBanner: string;
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
@@ -961,6 +937,8 @@ type ColorType = {
     cardHoverBackground: string;
     introTitle: string;
     introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -1136,6 +1114,8 @@ const comments = {
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
   cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -1670,7 +1650,14 @@ export const light: ColorType = {
   mentionsInput,
   helpModal,
   globalSearch,
-  comments,
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2362,8 +2349,6 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  integrationsPageUnusableHeight: "182px",
-  backBanner: "30px",
   canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,

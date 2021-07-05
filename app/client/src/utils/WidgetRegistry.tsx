@@ -107,6 +107,10 @@ import MultiSelectWidget, {
   MultiSelectWidgetProps,
   ProfiledMultiSelectWidget,
 } from "widgets/MultiSelectWidget";
+import RateWidget, {
+  RateWidgetProps,
+  ProfiledRateWidget,
+} from "widgets/RateWidget";
 import IframeWidget, {
   IframeWidgetProps,
   ProfiledIframeWidget,
@@ -475,6 +479,19 @@ export default class WidgetBuilderRegistry {
       MultiSelectWidget.getMetaPropertiesMap(),
       MultiSelectWidget.getPropertyPaneConfig(),
     );
+    WidgetFactory.registerWidgetBuilder(
+      "RATE_WIDGET",
+      {
+        buildWidget(widgetData: RateWidgetProps): JSX.Element {
+          return <ProfiledRateWidget {...widgetData} />;
+        },
+      },
+      RateWidget.getDerivedPropertiesMap(),
+      RateWidget.getDefaultPropertiesMap(),
+      RateWidget.getMetaPropertiesMap(),
+      RateWidget.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.IFRAME_WIDGET,
       {
