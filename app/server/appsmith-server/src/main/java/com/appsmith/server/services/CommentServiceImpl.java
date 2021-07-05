@@ -127,6 +127,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setApplicationId(commentThread.getApplicationId());
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setPageId(commentThread.getPageId());
+        comment.setOrgId(commentThread.getOrgId());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),
@@ -346,7 +347,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                     commentThread.setPosition(position);
                                     commentThread.setPageId(resolvedThread.getPageId());
                                     commentThread.setRefId(resolvedThread.getRefId());
-                                    commentThread.setApplicationId(resolvedThread.getApplicationId());
                                     commentThread.setMode(resolvedThread.getMode());
 
                                     return saveCommentThread(commentThread, application, user)
@@ -455,8 +455,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         initState.setAuthorName("");
         initState.setAuthorUsername("");
 
+        commentThread.setOrgId(application.getOrganizationId());
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
+        commentThread.setApplicationId(application.getId());
         commentThread.setApplicationName(application.getName());
 
         commentThread.setAuthorName(user.getName());
@@ -497,6 +499,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setAuthorName(APPSMITH_BOT_NAME);
         comment.setAuthorUsername(APPSMITH_BOT_USERNAME);
         comment.setApplicationId(commentThread.getApplicationId());
+        comment.setOrgId(commentThread.getOrgId());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),
