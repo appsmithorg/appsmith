@@ -3765,6 +3765,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/node-forge@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.10.0.tgz#14888032a0e873a746b3a7f2b320b44d19ccb104"
+  integrity sha512-qxCPxN/6s/kY4Xud/1T6gIQtJjRz09UWSA8fTEfUXu4rC9EkFt4KA3s8bYLvkNJmIEWlVeuhZ1CFl7F5rp3FCA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "14.11.8"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.8.tgz#fe2012f2355e4ce08bca44aeb3abbb21cf88d33f"
@@ -12315,6 +12322,7 @@ node-fetch@^1.0.1:
 node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
+  integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
 
 node-gyp@^7.1.0:
   version "7.1.2"
