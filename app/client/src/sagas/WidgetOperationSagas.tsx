@@ -1483,6 +1483,7 @@ function* pasteWidgetSaga() {
     parentId: string;
     list: WidgetProps[];
   }[] = yield getCopiedWidgets();
+
   if (!Array.isArray(copiedWidgetGroups)) {
     return;
     // to avoid invoking old copied widgets
@@ -1492,12 +1493,16 @@ function* pasteWidgetSaga() {
     getSelectedWidget,
   );
 
+  selectedWidget = yield checkIfPastingIntoListWidget(
+    selectedWidget,
+    copiedWidgetGroups,
+  );
+
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     { ...stateWidgets },
     selectedWidget,
   );
 
-  selectedWidget = yield checkIfPastingIntoListWidget(selectedWidget);
   let widgets = { ...stateWidgets };
   const newlyCreatedWidgetIds: string[] = [];
   const sortedWidgetList = copiedWidgetGroups.sort(

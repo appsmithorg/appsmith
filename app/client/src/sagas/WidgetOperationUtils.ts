@@ -9,7 +9,8 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { getWidget, getWidgetMetaProps } from "./selectors";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getWidget, getWidgetMetaProps, getWidgets } from "./selectors";
 
 /**
  * checks if triggerpaths contains property path passed
@@ -251,8 +252,11 @@ export const getParentWidgetIdForPasting = function*(
         newWidgetParentId = selectedWidget.parentId;
       }
     }
-    // Select the selected widget if the widget is container like
-    if (selectedWidget.children) {
+    // Select the selected widget if the widget is container like ( excluding list widget )
+    if (
+      selectedWidget.children &&
+      selectedWidget.type !== WidgetTypes.LIST_WIDGET
+    ) {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -291,7 +295,16 @@ export const getParentWidgetIdForPasting = function*(
 
 export const checkIfPastingIntoListWidget = function*(
   selectedWidget: FlattenedWidgetProps | undefined,
+  copiedWidgets: {
+    widgetId: string;
+    parentId: string;
+    list: WidgetProps[];
+  }[],
 ) {
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  console.log({ selectedWidget });
+
   // when list widget is selected, if the user is pasting, we want it to be pasted in the template
   // which is first children of list widget
   if (
@@ -305,7 +318,17 @@ export const checkIfPastingIntoListWidget = function*(
     );
     const firstChildId = childrenIds[0];
 
-    selectedWidget = yield select(getWidget, firstChildId);
+    // if any copiedWidget is a list widget, we will paste into the parent of list widget
+    for (let i = 0; i < copiedWidgets.length; i++) {
+      const copiedWidgetId = copiedWidgets[i].widgetId;
+      const copiedWidget = stateWidgets[copiedWidgetId];
+
+      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+        return selectedWidget;
+      }
+    }
+
+    return yield select(getWidget, firstChildId);
   }
   return selectedWidget;
 };
