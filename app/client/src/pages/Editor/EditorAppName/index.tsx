@@ -64,6 +64,9 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     line-height: 19px !important;
     padding: 8px 5px;
   }
+  &&&& .${Classes.EDITABLE_TEXT_INPUT} {
+    padding: 8px 25px 8px 5px;
+  }
 `;
 
 const StyledIcon = styled(Icon)`

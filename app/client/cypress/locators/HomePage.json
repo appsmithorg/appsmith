@@ -52,6 +52,7 @@
     "enablePublicAccess": ".slider",
     "closeBtn": ".bp3-dialog-close-button",
     "applicationName": ".t--application-name",
+    "portalMenuItem": ".bp3-portal .bp3-menu-item",
     "profileMenu": ".bp3-popover-wrapper.profile-menu",
     "signOutIcon": ".t--logout-icon",
     "headerAppSmithLogo": ".t--Appsmith-logo-image",
