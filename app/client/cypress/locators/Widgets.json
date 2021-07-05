@@ -85,6 +85,8 @@
     "toggleTextSize": ".t--property-control-textsize .t--js-toggle",
     "toggleVerticalAlig": ".t--property-control-verticalalignment .t--js-toggle",
     "toggleVisible": ".t--property-control-visible .t--js-toggle",
+    "backgroundJSVisible":".t--property-control-background .t--js-toggle",
+    "itemBackgroundJSVisible":".t--property-control-itembackground .t--js-toggle",
     "inputToggleVisible": "div.t--property-control-visible div.CodeMirror-lines",
     "toggleDisable": ".t--property-control-disabled .t--js-toggle",
     "inputToggleDisable": "div.t--property-control-disabled div.CodeMirror-lines",
@@ -105,5 +107,10 @@
     "switchWidgetActive": ".t--switch-widget-active",
     "switchWidgetInactive": ".t--switch-widget-inactive",
     "switchWidgetLoading": ".t--switch-widget-loading",
-    "chartPlotGroup": "g.raphael-group-63-plot-group"
+    "colorsAvailable": ".bp3-popover-dismiss",
+    "listWidget":"[type=LIST_WIDGET]",
+    "itemContainerWidget":"[type=CONTAINER_WIDGET]",
+    "listWidgetName":".t--propery-page-title",
+    "toggleBackground": ".t--property-control-background .t--js-toggle",
+    "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle"
 }
