@@ -61,7 +61,6 @@ export const TableWrapper = styled.div<{
       ${hideScrollbar};
     }
     .tr {
-      width: calc(100% - 8px);
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
