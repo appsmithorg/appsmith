@@ -93,7 +93,7 @@ class TextComponent extends React.Component<TextComponentProps> {
         >
           <Interweave
             content={text}
-            escapeHtml={!renderAsHTML}
+            escapeHtml={renderAsHTML}
             matchers={[new EmailMatcher("email"), new UrlMatcher("url")]}
           />
         </StyledText>
