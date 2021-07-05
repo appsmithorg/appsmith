@@ -34,6 +34,7 @@ const StyledMenuItem = styled(MenuItem)`
   width: ${NAVIGATION_BAR_MENU_WIDTH};
   background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
   color: ${NAVIGATION_BAR_CONTENT_COLOR};
+  border-radius: 0;
 
   :hover {
     color: ${NAVIGATION_BAR_CONTENT_COLOR};

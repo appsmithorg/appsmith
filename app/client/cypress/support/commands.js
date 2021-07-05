@@ -255,10 +255,13 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  cy.get(homePage.applicationName).click();
-  cy.get(homePage.portalMenuItem)
-    .contains("Rename", { matchCase: false })
-    .click();
+  if (document.querySelectorAll(homePage.editingAppName).length === 0) {
+    cy.get(homePage.applicationName).click();
+    cy.get(homePage.portalMenuItem)
+      .contains("Rename", { matchCase: false })
+      .click();
+  }
+
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -280,10 +283,13 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  cy.get(homePage.applicationName).click();
-  cy.get(homePage.portalMenuItem)
-    .contains("Rename", { matchCase: false })
-    .click();
+  if (document.querySelectorAll(homePage.editingAppName).length === 0) {
+    cy.get(homePage.applicationName).click();
+    cy.get(homePage.portalMenuItem)
+      .contains("Rename", { matchCase: false })
+      .click();
+  }
+
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",

@@ -79,10 +79,12 @@ const StyledMenu = styled(Menu)`
   margin-top: -8px;
   background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
   font-size: ${NAVIGATION_BAR_MENU_FONT_SIZE};
+  border-radius: 0;
 
-  &&& .${Classes.MENU} {
+  &&& .${Classes.MENU}, &&& .${Classes.MENU_SUBMENU} {
     background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
     color: ${NAVIGATION_BAR_CONTENT_COLOR};
+    border-radius: 0;
   }
 `;
 
@@ -103,8 +105,6 @@ export default function EditorAppName(props: EditorAppNameProps) {
     SavingState.NOT_STARTED,
   );
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-  const dropDownIconName = isPopoverOpen ? "upArrow" : "downArrow";
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
@@ -193,7 +193,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
         {!isEditing && (
           <StyledIcon
             fillColor={NAVIGATION_BAR_CONTENT_COLOR}
-            name={dropDownIconName}
+            name="downArrow"
             size={IconSize.XXS}
           />
         )}
