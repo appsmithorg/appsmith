@@ -303,8 +303,6 @@ export const checkIfPastingIntoListWidget = function*(
 ) {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-  console.log({ selectedWidget });
-
   // when list widget is selected, if the user is pasting, we want it to be pasted in the template
   // which is first children of list widget
   if (
