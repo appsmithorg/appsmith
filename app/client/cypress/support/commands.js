@@ -1736,9 +1736,7 @@ Cypress.Commands.add("getAlert", (alertcss) => {
 
   cy.get(alertcss)
     .click({ force: true })
-    .type("{command}{A}{del}")
-    .type("hello")
-    .should("not.to.be.empty");
+    .type("hello");
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
@@ -1768,9 +1766,7 @@ Cypress.Commands.add(
 
     cy.get(alertcss)
       .click({ force: true })
-      .type("{command}{A}{del}")
-      .type("hello")
-      .should("not.to.be.empty");
+      .type("hello");
     cy.get(".t--open-dropdown-Select-type").click({ force: true });
     cy.get(".bp3-popover-content .bp3-menu li")
       .contains("Success")
