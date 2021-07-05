@@ -280,9 +280,14 @@ function* updateDatasourceSaga(
         },
       });
       if (actionPayload.onSuccess) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        actionPayload.onSuccess();
+        try {
+          // if onSuccess is just a callback function.
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          actionPayload.onSuccess();
+        } catch (e) {
+          yield put(actionPayload.onSuccess);
+        }
       }
       if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
