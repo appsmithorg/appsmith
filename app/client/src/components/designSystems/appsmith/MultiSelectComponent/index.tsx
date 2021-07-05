@@ -7,7 +7,10 @@ import {
   MultiSelectContainer,
   StyledCheckbox,
 } from "./index.styled";
-import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
+import {
+  CANVAS_CLASSNAME,
+  MODAL_PORTAL_CLASSNAME,
+} from "constants/WidgetConstants";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -43,7 +46,7 @@ function MultiSelectComponent({
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
-    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {
