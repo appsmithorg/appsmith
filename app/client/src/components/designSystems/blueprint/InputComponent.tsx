@@ -16,7 +16,11 @@ import {
   Classes,
   ControlGroup,
   TextArea,
+  Position,
 } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+import { IconWrapper } from "constants/IconConstants";
 import { InputType } from "widgets/InputWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
@@ -40,6 +44,7 @@ const InputComponentWrapper = styled((props) => (
   multiline: string;
   hasError: boolean;
 }>`
+  flex-direction: column;
   &&&& {
     .${Classes.INPUT} {
       box-shadow: none;
@@ -84,13 +89,33 @@ const InputComponentWrapper = styled((props) => (
     align-items: center;
     label {
       ${labelStyle}
-      flex: 0 1 30%;
       margin: 7px ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
       align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
+`;
+
+const ToolTipIcon = styled(IconWrapper)`
+  &&&:hover {
+    svg {
+      path {
+        fill: black;
+      }
+    }
+  }
+`;
+
+const TextLableWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex: 1;
+`;
+
+const TextInputWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex: 1;
 `;
 
 class InputComponent extends React.Component<
@@ -250,28 +275,42 @@ class InputComponent extends React.Component<
         numeric={this.isNumberInputType(this.props.inputType)}
       >
         {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
+          <TextLableWrapper>
+            <Label
+              className={
+                this.props.isLoading
+                  ? Classes.SKELETON
+                  : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }
+            >
+              {this.props.label}
+            </Label>
+
+            <Tooltip
+              content={this.props.tooltip || ""}
+              hoverOpenDelay={200}
+              position={Position.TOP}
+            >
+              <ToolTipIcon color="#A9A7A7" height={14} width={14}>
+                <HelpIcon />
+              </ToolTipIcon>
+            </Tooltip>
+          </TextLableWrapper>
+        )}
+        <TextInputWrapper>
+          <ErrorTooltip
+            isOpen={this.props.isInvalid && this.props.showError}
+            message={
+              this.props.errorMessage ||
+              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.props.label}
-          </Label>
-        )}
-        <ErrorTooltip
-          isOpen={this.props.isInvalid && this.props.showError}
-          message={
-            this.props.errorMessage ||
-            createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-          }
-        >
-          {this.renderInputComponent(
-            this.props.inputType,
-            this.props.multiline,
-          )}
-        </ErrorTooltip>
+            {this.renderInputComponent(
+              this.props.inputType,
+              this.props.multiline,
+            )}
+          </ErrorTooltip>
+        </TextInputWrapper>
       </InputComponentWrapper>
     );
   }
@@ -288,6 +327,7 @@ export interface InputComponentProps extends ComponentProps {
   intent?: Intent;
   defaultValue?: string;
   label: string;
+  tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
   fill?: boolean;

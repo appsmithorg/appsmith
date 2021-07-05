@@ -54,6 +54,26 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Label Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter tooltip text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
             propertyName: "defaultText",
@@ -326,6 +346,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
+        tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
         {...conditionalProps}
@@ -358,6 +379,7 @@ export interface InputValidator {
 export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
   defaultText?: string;
+  tooltip?: string;
   isDisabled?: boolean;
   text: string;
   regex?: string;
