@@ -16,7 +16,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 
-const DEFS = [forge];
+const DEFS = [ecma, lodash, base64, moment, xmlJs, forge];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
