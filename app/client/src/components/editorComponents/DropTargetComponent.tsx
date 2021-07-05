@@ -6,6 +6,7 @@ import React, {
   createContext,
   memo,
   useRef,
+  useEffect,
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
@@ -107,10 +108,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
-  // useEffect(() => {
-  //   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-  //   setRows(snapRows);
-  // }, [props.bottomRow, props.canExtend]);
+  useEffect(() => {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    setRows(snapRows);
+  }, [props.bottomRow, props.canExtend]);
 
   const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
     const newRows = calculateDropTargetRows(
