@@ -186,6 +186,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);
+        showPropertyPane();
         persistDropTargetRows(widget.widgetId, widgetBottomRow);
 
         /* Finally update the widget */

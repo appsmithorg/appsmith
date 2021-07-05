@@ -78,6 +78,8 @@ describe("Select all hotkey", () => {
     expect(canvasWidgets.length).toBe(2);
     if (canvasWidgets[1].firstChild) {
       fireEvent.mouseOver(canvasWidgets[1].firstChild);
+      // simulating double click to open property pane.
+      fireEvent.click(canvasWidgets[1].firstChild);
       fireEvent.click(canvasWidgets[1].firstChild);
     }
     propPane = component.queryByTestId("t--propertypane");

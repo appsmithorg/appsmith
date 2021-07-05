@@ -14,10 +14,7 @@ import {
   computeFinalRowCols,
   computeRowCols,
 } from "./ResizableUtils";
-import {
-  useShowPropertyPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
@@ -59,7 +56,6 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isCommentMode = useSelector(commentModeSelector);
 
-  const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -236,10 +232,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
-    // Let the propertypane show.
-    // The propertypane decides whether to show itself, based on
-    // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
 
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
