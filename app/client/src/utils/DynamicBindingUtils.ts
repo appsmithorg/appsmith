@@ -9,6 +9,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
 import { Severity } from "entities/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import forge from "node-forge";
 
 export type DependencyMap = Record<string, Array<string>>;
 
@@ -139,6 +140,15 @@ export const extraLibraries: ExtraLibrary[] = [
     version: "3.17.5",
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     displayName: "xmlParser",
+  },
+  {
+    accessor: "forge",
+    // We are removing some functionalities of node-forge because they wont
+    // work in the worker thread
+    lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
+    version: "0.10.0",
+    docsURL: "https://github.com/digitalbazaar/forge",
+    displayName: "forge",
   },
 ];
 
