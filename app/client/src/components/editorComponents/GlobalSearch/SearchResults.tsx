@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
@@ -29,6 +29,12 @@ import { PluginType } from "entities/Action";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
+const overflowCSS = css`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 export const SearchItemContainer = styled.div<{
   isActiveItem: boolean;
   itemType: SEARCH_ITEM_TYPES;
@@ -51,6 +57,20 @@ export const SearchItemContainer = styled.div<{
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
 
+  .text {
+    max-width: 100px;
+    ${overflowCSS}
+  }
+
+  .subtext {
+    color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
+    font-size: ${(props) => props.theme.fontSizes[1]}px;
+    margin-right: ${(props) => `${props.theme.spaces[2]}px`};
+    display: ${(props) => (props.isActiveItem ? "inline" : "none")};
+    max-width: 50px;
+    ${overflowCSS}
+  }
+
   &:hover {
     background-color: ${(props) =>
       props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
@@ -59,6 +79,10 @@ export const SearchItemContainer = styled.div<{
         : "unset"};
     ${StyledActionLink} {
       visibility: visible;
+    }
+
+    .subtext {
+      display: inline;
     }
   }
 
@@ -89,6 +113,12 @@ const StyledDocumentIcon = styled(DocumentIcon)`
     }
   }
   display: flex;
+`;
+
+const TextWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
 `;
 
 function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
@@ -125,15 +155,18 @@ function WidgetItem(props: {
 }) {
   const { item, query } = props;
   const { type } = item || {};
-  let title = getItemTitle(item);
+  const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  title = `${title} / ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
       <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </TextWrapper>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
@@ -167,15 +200,18 @@ function ActionItem(props: {
           pluginGroups[item.config.datasource.pluginId],
         );
 
-  let title = getItemTitle(item);
+  const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  title = `${title} / ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
       <ActionIconWrapper>{icon}</ActionIconWrapper>
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </TextWrapper>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>

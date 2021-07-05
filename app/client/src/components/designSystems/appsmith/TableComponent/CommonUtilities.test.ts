@@ -31,7 +31,6 @@ describe("TableUtilities", () => {
       "url",
       true,
     );
-    // console.log(JSON.stringify(sortedTableData));
     expect(sortedTableData).toStrictEqual(expected);
   });
 });

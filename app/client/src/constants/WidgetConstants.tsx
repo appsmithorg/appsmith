@@ -27,6 +27,7 @@ export enum WidgetTypes {
   LIST_WIDGET = "LIST_WIDGET",
   SWITCH_WIDGET = "SWITCH_WIDGET",
   TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
+  RATE_WIDGET = "RATE_WIDGET",
   IFRAME_WIDGET = "IFRAME_WIDGET",
   DIVIDER_WIDGET = "DIVIDER_WIDGET",
 }
@@ -149,3 +150,17 @@ export const TEXT_SIZES = {
 };
 
 export type TextSize = keyof typeof TextSizes;
+
+export enum RateSizes {
+  SMALL = "SMALL",
+  MEDIUM = "MEDIUM",
+  LARGE = "LARGE",
+}
+
+export const RATE_SIZES = {
+  SMALL: 12,
+  MEDIUM: 16,
+  LARGE: 21,
+};
+
+export type RateSize = keyof typeof RateSizes;

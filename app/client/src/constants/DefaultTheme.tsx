@@ -869,6 +869,7 @@ type ColorType = {
     separator: string;
     searchItemHighlight: string;
     searchItemText: string;
+    searchItemSubText: string;
     highlightedTextUnderline: string;
     documentationCtaBackground: string;
     documentationCtaText: string;
@@ -936,6 +937,8 @@ type ColorType = {
     cardHoverBackground: string;
     introTitle: string;
     introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -1037,6 +1040,7 @@ const notifications = {
   markAllAsReadButtonText: "#716E6E",
   unreadIndicator: "#F86A2B",
   bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
@@ -1110,6 +1114,8 @@ const comments = {
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
   cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -1153,6 +1159,7 @@ const globalSearch = {
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemSubText: "rgba(255, 255, 255, 0.4)",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
@@ -1643,7 +1650,14 @@ export const light: ColorType = {
   mentionsInput,
   helpModal,
   globalSearch,
-  comments,
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
