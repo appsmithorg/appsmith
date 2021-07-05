@@ -270,19 +270,20 @@ function* updateDatasourceSaga(
       yield put(
         updateDatasourceSuccess(response.data, !actionPayload.onSuccess),
       );
-      if (actionPayload.onSuccess) {
-        yield put(actionPayload.onSuccess);
-      }
+      yield put(
+        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
+      );
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
           id: response.data.id,
         },
       });
-      yield put(
-        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
-      );
-
+      if (actionPayload.onSuccess) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        actionPayload.onSuccess();
+      }
       if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
