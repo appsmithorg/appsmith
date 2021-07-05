@@ -2525,13 +2525,13 @@ Cypress.Commands.add("ValidatePaginationInputData", () => {
 Cypress.Commands.add("callApi", (apiname) => {
   cy.get(commonlocators.callApi)
     .first()
-    .click();
+    .click({ force: true });
   cy.get(commonlocators.singleSelectMenuItem)
     .contains("Execute a Query")
-    .click();
+    .click({ force: true });
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("assertPageSave", () => {
