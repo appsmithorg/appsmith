@@ -1,8 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Transient;
@@ -17,7 +15,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Document
-public class CommentThread extends BaseDomain {
+public class CommentThread extends AbstractCommentDomain {
 
     Boolean isPrivate;
 
@@ -27,17 +25,13 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-    String pageId;
+    String widgetType;
 
     CommentThreadState pinnedState;
 
     CommentThreadState resolvedState;
 
     String sequenceId;
-
-    String applicationId;
-
-    String applicationName;
 
     @JsonIgnore
     Set<String> viewedByUsers;
@@ -50,15 +44,6 @@ public class CommentThread extends BaseDomain {
 
     /** Edit/Published Mode */
     String mode;
-
-    /**
-     * Display name of the user, who authored this comment thread.
-     */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String authorName;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String authorUsername;
 
     @Transient
     Boolean isViewed;
