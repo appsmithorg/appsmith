@@ -83,11 +83,14 @@ public class CreateDBTablePageSolution {
 
     private final String FIND_QUERY = "FindQuery";
 
+    // This column will be used to map filter in Find and Select query. This particular field is added to have
+    // uniformity across different datasources
     private final String DEFAULT_SEARCH_COLUMN = "col3";
 
     private final long MIN_TABLE_COLUMNS = 2;
 
-    // These fields contain the widget fields those need to be mapped between template DB table and DB table in current context
+    // These fields contain the widget fields those need to be mapped between template DB table and DB table in
+    // current context
     private final Set<String> WIDGET_FIELDS = Set.of(
         "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible"
     );
@@ -97,7 +100,7 @@ public class CreateDBTablePageSolution {
         .put("postgres-plugin", "SQL")
         .put("mongo-plugin", "Mongo")
         .put("mysql-plugin", "SQL")
-        .put("elasticsearch-plugin", "Elastisearch")
+        .put("elasticsearch-plugin", "Elasticsearch")
         .put("dynamo-plugin","Dynamo")
         .put("redis-plugin","Redis")
         .put("mssql-plugin", "SQL")
@@ -114,6 +117,11 @@ public class CreateDBTablePageSolution {
     // Pattern to get string between "_" and ._} : "templateTableColumnName" => templateTableColumnName mapped to tableColumnName
     final static Pattern fieldNamePattern = Pattern.compile("(?<=[\".])([^ ,.{}]*?)(?=[\"}])");
 
+    /**
+     * @param pageId for which the template page needs to be replicated
+     * @param pageResourceDTO
+     * @return generated pageDTO from the template resource
+     */
     public Mono<PageDTO> createPageFromDBTable(String pageId, CRUDPageResourceDTO pageResourceDTO) {
 
         AtomicReference<String> savedPageId = new AtomicReference<>(pageId);
@@ -177,7 +185,7 @@ public class CreateDBTablePageSolution {
                 try {
                     BeanCopyUtils.copyNestedNonNullProperties(fetchTemplateApplication(FILE_PATH), applicationJson);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage());
                 }
                 List<NewPage> pageList = applicationJson.getPageList();
 
@@ -273,8 +281,16 @@ public class CreateDBTablePageSolution {
             });
     }
 
+
+    /**
+     * @param applicationId
+     * @param pageId
+     * @param tableName
+     * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
+     */
     private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName) {
 
+        log.debug("Fetching page from application {}", applicationId);
         if(pageId != null) {
             return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -326,7 +342,12 @@ public class CreateDBTablePageSolution {
             .findAny()
             .orElse(null);
     }
-    
+
+    /**
+     * @param filePath template application path
+     * @return application resource
+     * @throws IOException
+     */
     private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
         final String jsonContent = StreamUtils.copyToString(
             new DefaultResourceLoader().getResource(filePath).getInputStream(),
@@ -338,8 +359,16 @@ public class CreateDBTablePageSolution {
         
         return gson.fromJson(jsonContent, ApplicationJson.class);
     }
-    
-    
+
+    /**
+     * @param datasource
+     * @param tableName
+     * @param pageId
+     * @param templateActionList Actions from the template application related to specific datasource
+     * @param mappedColumns Mapped column names between template and resource table under consideration
+     * @param deletedWidgetNames Deleted column ref when template application have more # of columns than the users table
+     * @return cloned actions from template application actions
+     */
     private Flux<ActionDTO> cloneActionsFromTemplateApplication(Datasource datasource,
                                                                 String tableName,
                                                                 String pageId,
@@ -347,7 +376,7 @@ public class CreateDBTablePageSolution {
                                                                 Map<String, String> mappedColumns,
                                                                 Set<String> deletedWidgetNames
     ) {
-        
+        log.debug("Cloning actions from template application for pageId {}", pageId);
         return Flux.fromIterable(templateActionList)
             .flatMap(templateAction -> {
                 ActionDTO actionDTO = new ActionDTO();
@@ -387,12 +416,20 @@ public class CreateDBTablePageSolution {
                 return layoutActionService.createAction(actionDTO);
             });
     }
-    
+
+    /**
+     * @param sourceTable provides keys for Map from column names
+     * @param destTable provides values for Map from column names
+     * @param searchColumn specific column provided to implement the filter for Select and Find query
+     * @param tableColumns Specific columns provided by higher order function to act as values for Map
+     * @return Map of sourceColumnNames to tableColumns
+     */
     private Map<String, String> mapTableColumnNames(Table sourceTable,
                                                     Table destTable,
                                                     final String searchColumn,
                                                     Set<String> tableColumns) {
 
+        log.debug("Mapping column names with template application for table {}", destTable.getName());
         Map<String, String> mappedTableColumns = new HashMap<>();
 
         if (searchColumn != null && !searchColumn.isEmpty()) {
@@ -459,6 +496,12 @@ public class CreateDBTablePageSolution {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * @param dsl
+     * @param mappedColumnsAndTableNames map to replace column names
+     * @param deletedWidgets return the widgets those are deleted from the dsl
+     * @return updated dsl for the widget
+     */
     private JSONObject extractAndUpdateAllWidgetFromDSL(JSONObject dsl,
                                                         Map<String, String> mappedColumnsAndTableNames,
                                                         Set<String> deletedWidgets) {
@@ -488,10 +531,10 @@ public class CreateDBTablePageSolution {
                     JSONObject child =
                         extractAndUpdateAllWidgetFromDSL(object, mappedColumnsAndTableNames, deletedWidgets);
                     String widgetType = child.getAsString(FieldName.WIDGET_TYPE);
-                    if (widgetType.equals(FieldName.TABLE_WIDGET)
-                        || widgetType.equals(FieldName.CONTAINER_WIDGET)
-                        || widgetType.equals(FieldName.CANVAS_WIDGET)
-                        || widgetType.equals(FieldName.FORM_WIDGET)
+                    if (FieldName.TABLE_WIDGET.equals(widgetType)
+                        || FieldName.CONTAINER_WIDGET.equals(widgetType)
+                        || FieldName.CANVAS_WIDGET.equals(widgetType)
+                        || FieldName.FORM_WIDGET.equals(widgetType)
                         || !child.toString().contains(DELETE_FIELD)
                     ) {
                         newChildren.add(child);
@@ -540,6 +583,11 @@ public class CreateDBTablePageSolution {
         return widgetDsl;
     }
 
+    /**
+     * @param actionConfiguration
+     * @param deletedWidgetNames widgets for which references to be removed from the actions
+     * @return updated ActionConfiguration with deleteWidgets ref removed
+     */
     private ActionConfiguration deleteUnwantedWidgetReferenceInActions(ActionConfiguration actionConfiguration, Set<String> deletedWidgetNames) {
 
         // Need to delete widget names from body when template datasource have more number of columns
@@ -554,10 +602,9 @@ public class CreateDBTablePageSolution {
                 ? DELETE_FIELD : field.group()
             ));
         }
-        /** When the connected datasource have less number of columns than template datasource, delete the
-         * unwanted fields
-         * \n"DELETE_FIELD" : '{{Widget.property}}',\n => "" : As mapping is not present
-         */
+
+        // When the connected datasource have less number of columns than template datasource, delete the unwanted fields
+        // \n"DELETE_FIELD" : '{{Widget.property}}',\n => "" : As mapping is not present
         final String regex = "[\"\n].*" + DELETE_FIELD + ".*[,\n]";
         if (actionConfiguration.getBody() != null) {
             actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(regex, ""));
