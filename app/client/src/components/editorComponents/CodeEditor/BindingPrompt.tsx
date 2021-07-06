@@ -54,7 +54,7 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+          Type <CurlyBraces>{"/"}</CurlyBraces> to access quick commands
         </>
       )}
     </Wrapper>
