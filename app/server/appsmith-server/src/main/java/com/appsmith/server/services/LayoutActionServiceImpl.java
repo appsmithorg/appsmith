@@ -442,7 +442,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param newName
      * @return
      */
-    private Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
+    @Override
+    public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (pageId != null) {
             params.add(FieldName.PAGE_ID, pageId);
@@ -450,7 +451,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
-                .map(action -> action.getName())
+                .map(action -> {
+                    // For actions that do not belong to a collection, fully qualified name will not exist
+                    if (action.getFullyQualifiedName() != null) {
+                        return action.getFullyQualifiedName();
+                    } else {
+                        return action.getName();
+                    }
+                })
                 .collect(toSet());
 
         /*

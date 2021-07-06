@@ -2642,6 +2642,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/JSFile.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/js-reference/using-js");
+
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2651,4 +2652,5 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
 }

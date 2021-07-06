@@ -22,6 +22,7 @@ public interface Url {
     String GROUP_URL = BASE_URL + VERSION + "/groups";
     String PERMISSION_URL = BASE_URL + VERSION + "/permissions";
     String COLLECTION_URL = BASE_URL + VERSION + "/collections";
+    String ACTION_COLLECTION_URL = COLLECTION_URL + "/actions";
     String IMPORT_URL = BASE_URL + VERSION + "/import";
     String PROVIDER_URL = BASE_URL + VERSION + "/providers";
     String MARKETPLACE_URL = BASE_URL + VERSION + "/marketplace";
