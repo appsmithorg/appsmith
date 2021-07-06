@@ -19,7 +19,6 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { historyPush } from "actions/utilActions";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -43,7 +42,6 @@ import { PluginType, SaaSAction } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -206,18 +204,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
-                onClick={() =>
-                  deleteDatasource(
-                    datasourceId,
-                    historyPush(
-                      INTEGRATION_EDITOR_URL(
-                        applicationId,
-                        pageId,
-                        INTEGRATION_TABS.NEW,
-                      ),
-                    ),
-                  )
-                }
+                onClick={() => deleteDatasource(datasourceId)}
                 text="Delete"
               />
               <StyledButton
