@@ -1,5 +1,5 @@
 const commentsLocators = require("../../../../locators/commentsLocators.json");
-const commonLocators = require("../../../../locators/commonLocators.json");
+const commonLocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
 
