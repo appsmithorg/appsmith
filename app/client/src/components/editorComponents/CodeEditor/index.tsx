@@ -375,7 +375,7 @@ class CodeEditor extends Component<Props, State> {
             ...payload,
             callback: (binding: string) => {
               const value = this.editor.getValue() + binding;
-              this.updatePropertyValue(value, value.length);
+              this.updatePropertyValue(value);
             },
           });
         },
@@ -405,8 +405,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.focus();
     if (cursor === undefined) {
       if (value) {
-        // If user clicks on the `/` btn the cursor position should be at the end of the input str
-        cursor = value.length;
+        cursor = value.length - 2;
       } else {
         cursor = 1;
       }
@@ -506,13 +505,13 @@ class CodeEditor extends Component<Props, State> {
           >
             <Button
               className="commands-button"
-              onClick={() =>
-                this.updatePropertyValue(
+              onClick={() => {
+                const newValue =
                   typeof this.props.input.value === "string"
                     ? this.props.input.value + "/"
-                    : "/",
-                )
-              }
+                    : "/";
+                this.updatePropertyValue(newValue, newValue.length);
+              }}
               tag="button"
               text="/"
             />
