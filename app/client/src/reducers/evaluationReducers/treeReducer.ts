@@ -24,22 +24,15 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     // Selectively update the widgets to prevent all the widgets from
     // re-rendering
     const updatedEntities: Set<string> = new Set();
-    // @note If more things are added outside the evaluation order that
-    // affect the UI, remember to update them here.
 
-    // Make a list of evaluation paths for updated entities
+    // Make a list of updated entities
     evaluationOrder.forEach((path) => {
       const { entityName } = getEntityNameAndPropertyPath(path);
-      updatedEntities.add(`${entityName}.__evaluation__`);
+      updatedEntities.add(entityName);
     });
 
-    // Update evaluation for changed items
+    // Update the changed entities
     updatedEntities.forEach((path) => {
-      set(state, path, get(dataTree, path));
-    });
-
-    // Update all other changed entities
-    evaluationOrder.forEach((path) => {
       set(state, path, get(dataTree, path));
     });
   },
