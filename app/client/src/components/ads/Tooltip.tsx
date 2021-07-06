@@ -8,6 +8,7 @@ type Variant = "dark" | "light";
 
 type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
+  disabled?: boolean;
   position?: Position;
   children: JSX.Element | React.ReactNode;
   variant?: Variant;

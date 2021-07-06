@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, indexOf, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString, set } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
@@ -36,6 +36,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       fontStyle: "BOLD",
       textAlign: "LEFT",
       textColor: Colors.THUNDER,
+      renderAsHTML: true,
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Text",
@@ -263,6 +264,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         task: 245,
         step: 62,
         status: 75,
+      },
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const primaryColumns = cloneDeep(widget.primaryColumns);
+              const columnIds = Object.keys(primaryColumns);
+              columnIds.forEach((columnId) => {
+                set(
+                  primaryColumns,
+                  `${columnId}.computedValue`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                );
+              });
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "primaryColumns",
+                  propertyValue: primaryColumns,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
       },
       isVisibleSearch: true,
       isVisibleFilters: true,
