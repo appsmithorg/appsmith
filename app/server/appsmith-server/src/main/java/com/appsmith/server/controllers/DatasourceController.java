@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
+import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.solutions.AuthenticationService;
@@ -28,6 +29,7 @@ import reactor.core.publisher.Mono;
 import net.minidev.json.JSONObject;
 
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -92,7 +94,7 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     }
 
     @GetMapping("/mocks")
-    public Mono<ResponseDTO<JSONObject>> getMockDataSets() {
+    public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
         return datasourceService.getMockDataSet()
                 .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config, null));
     }

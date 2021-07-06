@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class MockDataDTO {
     String id;
 
-    JSONObject mockdbs;
+    List<MockDataSet> mockdbs;
 
-    JSONObject credentials;
+    List<MockDataCredentials> credentials;
 
     String name;
 }

@@ -4,10 +4,12 @@ import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
@@ -19,7 +21,9 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
+import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -80,12 +84,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     public MockDataDTO mockData = new MockDataDTO();
 
     private Instant cacheExpiryTime = null;
-
-    @Value("${github_repo}")
-    private String repo;
-
-    @Value("${is.cloud-hosted:false}")
-    private boolean isCloudHosted;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -435,7 +433,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<JSONObject> getMockDataSet() {
+    public Mono<List<MockDataSet>> getMockDataSet() {
         if (cacheExpiryTime != null && Instant.now().isBefore(cacheExpiryTime)) {
             return Mono.justOrEmpty(mockData.getMockdbs());
         }
@@ -446,7 +444,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         return  WebClient
-                .create( baseUrl + "/api/v1/mocks")
+                .create( "http://localhost:8090" + "/api/v1/mocks")
                 .get()
                 .exchange()
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
@@ -464,37 +462,85 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     public Mono<Datasource> createMockDataSet(String name, String orgId, String pluginId) {
 
         if (cacheExpiryTime == null || !Instant.now().isBefore(cacheExpiryTime)) {
-            getMockDataSet();
+            getMockDataSet().block();
         }
 
+        DatasourceConfiguration datasourceConfiguration;
+        if (name.equals("movies")) {
+            datasourceConfiguration = getMongoDataSourceConfiguration(name);
+        } else {
+            datasourceConfiguration = getPostgresDataSourceConfiguration(name);
+        }
         Datasource datasource = new Datasource();
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        Connection connection = new Connection();
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
-        Endpoint endpoint = new Endpoint();
-
-        connection.setMode(Connection.Mode.READ_WRITE);
-        SSLDetails sslDetails = new SSLDetails();
-        sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
-        connection.setSsl(sslDetails);
-
-        JSONObject credentials = mockData.getCredentials();
-        HashMap credentialsMap = (HashMap)credentials.get(name);
-        endpoint.setHost(credentials.getAsString(credentialsMap.get("host").toString()));
-        List<Endpoint> listEndpoint = new ArrayList<>();
-        listEndpoint.add(endpoint);
-        authenticationDTO.setAuthenticationType("dbAuth");
-
-        datasourceConfiguration.setUrl(credentialsMap.get("host").toString());
-        datasourceConfiguration.setEndpoints(listEndpoint);
-        datasourceConfiguration.setConnection(connection);
-
         datasource.setOrganizationId(orgId);
         datasource.setPluginId(pluginId);
-        datasource.setName(name.toUpperCase(Locale.ROOT)+"-Mock");
+        datasource.setName(name.toUpperCase(Locale.ROOT)+" - Mock");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
         return create(datasource);
+    }
+
+    private DatasourceConfiguration getMongoDataSourceConfiguration(String name) {
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        DBAuth auth = new DBAuth();
+        Property property = new Property();
+        List<Property> listProperty = new ArrayList<>();
+        SSLDetails sslDetails = new SSLDetails();
+
+        MockDataCredentials credentials = mockData.getCredentials().stream().filter( cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+
+        property.setKey("Use Mongo Connection String URI");
+        property.setValue("Yes");
+        listProperty.add(property);
+        property = new Property();
+        property.setKey("Connection String URI");
+        listProperty.add(property);
+        property.setValue(credentials.getHost());
+        sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        connection.setSsl(sslDetails);
+        connection.setMode(Connection.Mode.READ_WRITE);
+        connection.setType(Connection.Type.DIRECT);
+
+        auth.setAuthType(DBAuth.Type.SCRAM_SHA_1);
+        auth.setDatabaseName(credentials.getDbname());
+        auth.setPassword(credentials.getPassword());
+        auth.setUsername(credentials.getUsername());
+
+        datasourceConfiguration.setProperties(listProperty);
+        datasourceConfiguration.setConnection(connection);
+        datasourceConfiguration.setAuthentication(auth);
+        return datasourceConfiguration;
+
+    }
+
+    private DatasourceConfiguration getPostgresDataSourceConfiguration(String name) {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        DBAuth auth = new DBAuth();
+        SSLDetails sslDetails = new SSLDetails();
+        Endpoint endpoint = new Endpoint();
+        List<Endpoint> endpointList = new ArrayList<>();
+
+        MockDataCredentials credentials = mockData.getCredentials().stream().filter( cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+
+        sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
+        connection.setSsl(sslDetails);
+        connection.setMode(Connection.Mode.READ_WRITE);
+        endpoint.setHost(credentials.getHost());
+        endpointList.add(endpoint);
+
+
+        auth.setDatabaseName(credentials.getDbname());
+        auth.setPassword(credentials.getPassword());
+        auth.setUsername(credentials.getUsername());
+
+        datasourceConfiguration.setConnection(connection);
+        datasourceConfiguration.setAuthentication(auth);
+        datasourceConfiguration.setEndpoints(endpointList);
+        return datasourceConfiguration;
     }
 
 }

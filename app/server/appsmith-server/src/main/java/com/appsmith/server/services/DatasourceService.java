@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.dtos.MockDataSet;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +33,7 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<Datasource> populateHintMessages(Datasource datasource);
 
-    Mono<JSONObject> getMockDataSet();
+    Mono<List<MockDataSet>> getMockDataSet();
 
     Mono<Datasource> createMockDataSet(String name, String orgId, String pluginId);
 }
