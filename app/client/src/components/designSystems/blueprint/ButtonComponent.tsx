@@ -233,22 +233,17 @@ function RecaptchaComponent(
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
-  const recaptcha2 = true;
-  if (recaptcha2) {
-    return (
-      <RecaptchButtonWrapper>
-        {props.children}
-        <div
-          className="g-recaptcha"
-          data-sitekey={props.googleRecaptchaKey}
-          data-size="invisible"
-          onClick={onClickButtonHandler}
-        />
-      </RecaptchButtonWrapper>
-    );
-  } else {
-    return <div onClick={onClickButtonHandler}>{props.children}</div>;
-  }
+  return (
+    <RecaptchButtonWrapper>
+      {props.children}
+      <div
+        className="g-recaptcha"
+        data-sitekey={props.googleRecaptchaKey}
+        data-size="invisible"
+        onClick={onClickButtonHandler}
+      />
+    </RecaptchButtonWrapper>
+  );
 }
 
 function BtnWrapper(
