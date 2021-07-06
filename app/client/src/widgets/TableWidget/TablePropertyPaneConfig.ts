@@ -447,8 +447,6 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (
@@ -769,9 +767,9 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText: "Toggle visibility of the compact mode",
+        helpText: "Toggle visibility of the row height",
         propertyName: "isVisibleCompactMode",
-        label: "Compact Mode",
+        label: "Row Height",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
