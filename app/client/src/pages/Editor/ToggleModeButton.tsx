@@ -32,7 +32,18 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
-const ModeButton = styled.div<{ active: boolean }>`
+import { createMessage, ONE_UNREAD_MESSAGE } from "constants/messages";
+
+import localStorage from "utils/localStorage";
+
+const getShowCommentsButtonToolTip = () => {
+  const flag = localStorage.getItem("ShowCommentsButtonToolTip");
+  return flag === null || !!flag;
+};
+const setShowCommentsButtonToolTip = (value = "") =>
+  localStorage.setItem("ShowCommentsButtonToolTip", value);
+
+const ModeButton = styled.div<{ active: boolean; type: string }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -48,12 +59,31 @@ const ModeButton = styled.div<{ active: boolean }>`
 
   svg path {
     fill: ${(props) =>
+      props.type !== "fill"
+        ? "transparent"
+        : props.active
+        ? props.theme.colors.comments.activeModeIcon
+        : props.theme.colors.comments.modeIcon};
+    stroke: ${(props) =>
+      props.type !== "stroke"
+        ? "transparent"
+        : props.active
+        ? props.theme.colors.comments.activeModeIcon
+        : props.theme.colors.comments.modeIcon};
+  }
+
+  svg rect:not(:first-child) {
+    fill: ${(props) =>
       props.active
         ? props.theme.colors.comments.activeModeIcon
         : props.theme.colors.comments.modeIcon};
   }
+
   svg circle {
-    stroke: transparent;
+    stroke: ${(props) =>
+      props.active
+        ? props.theme.colors.comments.activeModeIconCircleStroke
+        : props.theme.colors.comments.modeIconCircleStroke};
   }
 `;
 
@@ -156,11 +186,82 @@ function ViewModeReset() {
   );
 }
 
+const tourToolTipProps = {
+  hasOverlay: true,
+  modifiers: {
+    offset: { enabled: true, offset: "3, 20" },
+    arrow: {
+      enabled: true,
+      fn: (data: any) => ({
+        ...data,
+        offsets: {
+          ...data.offsets,
+          arrow: {
+            top: -8,
+            left: 80,
+          },
+        },
+      }),
+    },
+  },
+  pulseStyles: {
+    top: 20,
+    left: 28,
+    height: 30,
+    width: 30,
+  },
+  showPulse: true,
+  tourIndex: 0,
+  tourType: TourType.COMMENTS_TOUR,
+};
+
+function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
+  return mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />;
+}
+
+function CommentModeBtn({
+  handleSetCommentModeButton,
+  isCommentMode,
+  showUnreadIndicator,
+}: {
+  handleSetCommentModeButton: () => void;
+  isCommentMode: boolean;
+  showUnreadIndicator: boolean;
+}) {
+  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+
+  return (
+    <ModeButton
+      active={isCommentMode}
+      className="t--switch-comment-mode-on"
+      onClick={handleSetCommentModeButton}
+      type="stroke"
+    >
+      <TooltipComponent
+        content={
+          <>
+            Comment Mode
+            <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+          </>
+        }
+        hoverOpenDelay={1000}
+        position={Position.BOTTOM}
+      >
+        <CommentModeIcon />
+      </TooltipComponent>
+    </ModeButton>
+  );
+}
+
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
+  const [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ] = useState(getShowCommentsButtonToolTip());
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
@@ -169,6 +270,13 @@ function ToggleCommentModeButton() {
   );
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
+
+  const handleSetCommentModeButton = useCallback(() => {
+    setCommentModeInUrl(true);
+    proceedToNextTourStep();
+    setShowCommentButtonDiscoveryTooltipInState(false);
+    setShowCommentsButtonToolTip();
+  }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
   // Show comment mode button only on the canvas editor and viewer
   const [shouldHide, setShouldHide] = useState(false);
@@ -182,65 +290,29 @@ function ToggleCommentModeButton() {
 
   if (!commentsEnabled) return null;
 
-  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
-
   return (
     <Container>
-      <TourTooltipWrapper
-        hasOverlay
-        modifiers={{
-          offset: { enabled: true, offset: "3, 20" },
-          arrow: {
-            enabled: true,
-            fn: (data) => ({
-              ...data,
-              offsets: {
-                ...data.offsets,
-                arrow: {
-                  top: -8,
-                  left: 80,
-                },
-              },
-            }),
-          },
-        }}
-        pulseStyles={{
-          top: 20,
-          left: 28,
-          height: 30,
-          width: 30,
-        }}
-        showPulse
-        tourIndex={0}
-        tourType={TourType.COMMENTS_TOUR}
-      >
+      <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
             onClick={() => setCommentModeInUrl(false)}
+            type="fill"
           >
-            {mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />}
+            <ViewOrEditMode mode={mode} />
           </ModeButton>
-          <ModeButton
-            active={isCommentMode}
-            onClick={() => {
-              setCommentModeInUrl(true);
-              proceedToNextTourStep();
-            }}
+          <TooltipComponent
+            content={createMessage(ONE_UNREAD_MESSAGE)}
+            isOpen={showCommentButtonDiscoveryTooltip}
           >
-            <TooltipComponent
-              content={
-                <>
-                  Comment Mode
-                  <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-                </>
-              }
-              hoverOpenDelay={1000}
-              position={Position.BOTTOM}
-            >
-              <CommentModeIcon />
-            </TooltipComponent>
-          </ModeButton>
+            <CommentModeBtn
+              {...{
+                handleSetCommentModeButton,
+                isCommentMode,
+                showUnreadIndicator,
+              }}
+            />
+          </TooltipComponent>
         </div>
       </TourTooltipWrapper>
     </Container>

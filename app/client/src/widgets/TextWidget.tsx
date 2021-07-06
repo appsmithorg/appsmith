@@ -40,6 +40,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
           },
+          {
+            propertyName: "renderAsHTML",
+            helpText: "Enables rendering HTML code as content",
+            label: "Render as HTML",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {
@@ -56,8 +66,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "textColor",
             label: "Text Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.COLOR_PICKER_TEXT,
           },
           {
             propertyName: "fontSize",
@@ -150,6 +162,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
         key={this.props.widgetId}
+        renderAsHTML={this.props.renderAsHTML}
         shouldScroll={this.props.shouldScroll}
         text={this.props.text}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
@@ -184,6 +197,7 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
+  renderAsHTML: boolean;
 }
 
 export default TextWidget;

@@ -120,7 +120,8 @@ function TableFilters(props: TableFilterProps) {
         }
         selectMenu={toggleFilterPane}
         selected={isTableFilterPaneVisible}
-        title="Filters"
+        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+        titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
       >
         <FilterIcon />
       </TableAction>
