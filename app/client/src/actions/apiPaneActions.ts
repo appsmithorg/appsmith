@@ -70,3 +70,11 @@ export const updateBodyContentType = (
   type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
   payload: { title, apiId },
 });
+
+export const redirectToNewIntegrations = (
+  applicationId: string,
+  pageId: string,
+): ReduxAction<{ applicationId: string; pageId: string }> => ({
+  type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+  payload: { applicationId, pageId },
+});
