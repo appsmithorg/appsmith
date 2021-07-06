@@ -401,7 +401,8 @@ class CodeEditor extends Component<Props, State> {
     this.editor.focus();
     if (cursor === undefined) {
       if (value) {
-        cursor = value.length - 2;
+        // If user clicks on the `/` btn the cursor position should be at the end of the input str
+        cursor = value.length;
       } else {
         cursor = 1;
       }
