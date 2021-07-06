@@ -811,7 +811,7 @@ const migrateDatePickerMinMaxDate = (
     }
   }
   if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children.forEach(
+    currentDSL.children.map(
       (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
         migrateDatePickerMinMaxDate(eachWidgetDSL);
       },
