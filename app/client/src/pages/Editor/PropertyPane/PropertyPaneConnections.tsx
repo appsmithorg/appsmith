@@ -1,8 +1,7 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown from "components/ads/Dropdown";
-import { DependencyMap } from "utils/DynamicBindingUtils";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -14,6 +13,7 @@ import { isStoredDatasource } from "entities/Action";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks";
+import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 
 const TopLayer = styled.div`
   display: flex;
@@ -49,102 +49,6 @@ const SelectedNodeWrapper = styled.div<{ iconAlignment: "LEFT" | "RIGHT" }>`
     margin-top: 1px;
   }
 `;
-
-export function getDependenciesFromInverseDependencies(
-  deps: DependencyMap,
-  entityName: string | null,
-) {
-  if (!entityName) return null;
-
-  const directDependencies = new Set<string>();
-  const inverseDependencies = new Set<string>();
-
-  Object.entries(deps).forEach(([dependant, dependencies]) => {
-    (dependencies as any).map((dependency: any) => {
-      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        directDependencies.add(entity);
-      } else if (
-        dependant.includes(entityName) &&
-        !dependency.includes(entityName)
-      ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        inverseDependencies.add(entity);
-      }
-    });
-  });
-
-  return {
-    inverseDependencies: Array.from(inverseDependencies),
-    directDependencies: Array.from(directDependencies),
-  };
-}
-
-const useGetEntityInfo = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-
-  const entity = dataTree[name];
-  const action = useSelector((state: AppState) =>
-    isAction(entity) ? getAction(state, entity.actionId) : undefined,
-  );
-
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
-  const datasource = useSelector((state: AppState) =>
-    action && isStoredDatasource(action.datasource)
-      ? getDatasource(state, action.datasource.id)
-      : undefined,
-  );
-
-  if (isWidget(entity)) {
-    const icon = getWidgetIcon(entity.type);
-
-    return {
-      name,
-      icon,
-    };
-  } else if (isAction(entity)) {
-    return {
-      name,
-      icon,
-      datasourceName: datasource?.name ?? "",
-    };
-  }
-};
-
-const useDependencyList = (name: string) => {
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const entityDependencies = getDependenciesFromInverseDependencies(
-    deps.inverseDependencyMap,
-    name,
-  );
-  const dependencyOptions =
-    entityDependencies?.directDependencies.map((e) => ({
-      label: e,
-      value: e,
-    })) ?? [];
-  const inverseDependencyOptions =
-    entityDependencies?.inverseDependencies.map((e) => ({
-      label: e,
-      value: e,
-    })) ?? [];
-
-  return {
-    dependencyOptions,
-    inverseDependencyOptions,
-  };
-};
 
 const OptionWrapper = styled.div`
   padding: ${(props) => props.theme.spaces[2] + 1}px
@@ -195,6 +99,70 @@ const OptionWrapper = styled.div`
   }
 `;
 
+type PropertyPaneConnectionsProps = {
+  widgetName: string;
+};
+
+const useGetEntityInfo = (name: string) => {
+  const dataTree = useSelector(getDataTree);
+
+  const entity = dataTree[name];
+  const action = useSelector((state: AppState) =>
+    isAction(entity) ? getAction(state, entity.actionId) : undefined,
+  );
+
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
+  const datasource = useSelector((state: AppState) =>
+    action && isStoredDatasource(action.datasource)
+      ? getDatasource(state, action.datasource.id)
+      : undefined,
+  );
+
+  if (isWidget(entity)) {
+    const icon = getWidgetIcon(entity.type);
+
+    return {
+      name,
+      icon,
+    };
+  } else if (isAction(entity)) {
+    return {
+      name,
+      icon,
+      datasourceName: datasource?.name ?? "",
+    };
+  }
+};
+
+const useDependencyList = (name: string) => {
+  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const entityDependencies = useMemo(() => {
+    return getDependenciesFromInverseDependencies(
+      deps.inverseDependencyMap,
+      name,
+    );
+  }, [name, deps.inverseDependencyMap]);
+  const dependencyOptions =
+    entityDependencies?.directDependencies.map((e) => ({
+      label: e,
+      value: e,
+    })) ?? [];
+  const inverseDependencyOptions =
+    entityDependencies?.inverseDependencies.map((e) => ({
+      label: e,
+      value: e,
+    })) ?? [];
+
+  return {
+    dependencyOptions,
+    inverseDependencyOptions,
+  };
+};
+
 function OptionNode(props: any) {
   const entityInfo = useGetEntityInfo(props.option.value);
 
@@ -228,7 +196,7 @@ function TriggerNode(props: any) {
   );
 }
 
-function PropertyPaneConnections(props: any) {
+function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
 
@@ -296,4 +264,4 @@ function PropertyPaneConnections(props: any) {
   );
 }
 
-export default PropertyPaneConnections;
+export default memo(PropertyPaneConnections);

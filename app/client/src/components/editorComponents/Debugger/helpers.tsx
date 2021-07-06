@@ -5,9 +5,9 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
+  API_EDITOR_URL,
   BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
@@ -116,17 +116,25 @@ export function getDependencyChain(
   });
   return currentChain;
 }
-export const onIntegrationsEditor = (
+
+export const onApiEditor = (
   applicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
-        currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      API_EDITOR_URL(applicationId, currentPageId),
+    ) > -1
+  );
+};
+
+export const onQueryEditor = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      QUERIES_EDITOR_URL(applicationId, currentPageId),
     ) > -1
   );
 };
