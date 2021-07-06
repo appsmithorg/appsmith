@@ -202,13 +202,10 @@ public class MongoPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
+            // Default smart substitution to true
             if (CollectionUtils.isEmpty(properties)) {
-                /**
-                 * TODO :
-                 * In case the smart bson substitution configuration is missing, default to true once smart bson
-                 * substitution is no longer in beta.
-                 */
-                smartBsonSubstitution = false;
+
+                smartBsonSubstitution = true;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_BSON_SUBSTITUTION) != null) {
@@ -218,10 +215,10 @@ public class MongoPlugin extends BasePlugin {
                 } else if (ssubValue instanceof String) {
                     smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
                 } else {
-                    smartBsonSubstitution = false;
+                    smartBsonSubstitution = true;
                 }
             } else {
-                smartBsonSubstitution = false;
+                smartBsonSubstitution = true;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
