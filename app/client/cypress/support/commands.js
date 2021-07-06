@@ -2191,7 +2191,9 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     .children()
     .last()
     .invoke("text")
-    .then((originalWidget) => {
+    .then((x) => {
+      cy.log(x);
+      let originalWidget = x.replaceAll("x", "");
       cy.log(originalWidget);
       cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.reload();
@@ -2204,7 +2206,9 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
         .children()
         .last()
         .invoke("text")
-        .then((copiedWidget) => {
+        .then((y) => {
+          cy.log(y);
+          let copiedWidget = y.replaceAll("x", "");
           cy.log(copiedWidget);
           expect(originalWidget).to.be.equal(copiedWidget);
         });
