@@ -264,16 +264,16 @@ describe("Table Widget Functionality", function() {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
+      cy.get(publish.rowHeight).click();
+      cy.get(publish.rowHeightOpt)
         .contains("Tall")
         .click();
       cy.scrollTabledataPublish("3", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
       });
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
+      cy.get(publish.rowHeight).click();
+      cy.get(publish.rowHeightOpt)
         .contains("Short")
         .click();
       cy.readTabledataPublish("4", "3").then((tabData) => {
