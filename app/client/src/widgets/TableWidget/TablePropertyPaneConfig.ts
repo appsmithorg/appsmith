@@ -447,8 +447,6 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (
