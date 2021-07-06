@@ -34,10 +34,10 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="loader" style="width: 30vw;"></div>
   <!--
-    To keep zIndex for tooltips higher than app comments, todo remove when migrating to Tooltip2 
+    To keep zIndex for tooltips higher than app comments, todo remove when migrating to Tooltip2
     Currently the className does not apply to the portal root, so we're unable to work with z-indexes based on that
   -->
-  <div id="tooltip-root"></div> 
+  <div id="tooltip-root"></div>
   <div id="header-root"></div>
   <div id="root"></div>
   <script type="text/javascript">
@@ -80,7 +80,7 @@
         return window.localStorage.setItem(key, value);
       }
     };
-    
+
     // Note: The following handler is necessary for when we have a new deployment.
 
     // What happens?
@@ -103,7 +103,7 @@
       const regex = /\/static\/js\/(\w.+).js$/;
       const chunkLoadErrorMessage = "Unexpected token '<'"
       if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
-        console.log("chunk load failed!", url);
+        console.error("chunk load failed!", url);
         // First check if we've set the flag to not reload on chunk load fail
         const donotReload = localStorageUtil.getItem("donotReloadOnChunkLoadFail");
           if(!donotReload){
@@ -131,7 +131,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/pageService.js").catch(error => {
-            console.log("Service Worker Registration failed: " + error);
+            console.error("Service Worker Registration failed: " + error);
           });
         });
       }

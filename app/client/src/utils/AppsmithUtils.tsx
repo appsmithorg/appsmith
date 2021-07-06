@@ -150,7 +150,7 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const noop = () => {
-  console.log("noop");
+  log.debug("noop");
 };
 
 export const stopEventPropagation = (e: any) => {
@@ -182,7 +182,9 @@ export const convertToString = (value: any): string => {
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
   if (localStorage && localStorage.getItem) {
-    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    const localStorageLevel = localStorage.getItem(
+      "logLevelOverride",
+    ) as LogLevelDesc;
     if (localStorageLevel) logLevel = localStorageLevel;
   }
   return logLevel;

@@ -195,13 +195,29 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   componentDidUpdate() {
-    this.ensureOAuthDefaultsAreCorrect();
+    if (!this.props.formData) return;
+
+    const { authType } = this.props.formData;
+
+    if (authType === AuthType.OAuth2) {
+      this.ensureOAuthDefaultsAreCorrect();
+    } else if (authType === AuthType.apiKey) {
+      this.ensureAPIKeyDefaultsAreCorrect();
+    }
   }
 
   isDirty(prop: any) {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
+
+  ensureAPIKeyDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
+    const { authentication } = this.props.formData;
+    if (!authentication || !_.get(authentication, "addTo")) {
+      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
+    }
+  };
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
@@ -212,27 +228,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return false;
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
-      return false;
     }
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
       this.props.change("authentication.headerPrefix", "Bearer");
-      return false;
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
       }
     }
-    return true;
   };
 
   disableSave = (): boolean => {
