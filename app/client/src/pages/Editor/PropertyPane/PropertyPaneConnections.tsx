@@ -103,6 +103,11 @@ type PropertyPaneConnectionsProps = {
   widgetName: string;
 };
 
+type TriggerNodeProps = {
+  entityCount: number;
+  iconAlignment: "LEFT" | "RIGHT";
+};
+
 const useGetEntityInfo = (name: string) => {
   const dataTree = useSelector(getDataTree);
 
@@ -179,14 +184,16 @@ function OptionNode(props: any) {
   );
 }
 
-function TriggerNode(props: any) {
+function TriggerNode(props: TriggerNodeProps) {
+  const ENTITY = props.entityCount > 1 ? "entities" : "entity";
+
   return (
     <SelectedNodeWrapper iconAlignment={props.iconAlignment}>
       {props.iconAlignment === "LEFT" && (
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
       )}
       <span>
-        {props.entityCount ? `${props.entityCount} entities` : "No Entity"}
+        {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
       </span>
       {props.iconAlignment === "RIGHT" && (
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
