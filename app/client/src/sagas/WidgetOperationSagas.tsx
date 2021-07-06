@@ -126,6 +126,7 @@ import {
   doesTriggerPathsContainPropertyPath,
   getParentWidgetIdForPasting,
   getWidgetChildren,
+  groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
@@ -1483,7 +1484,7 @@ function getNextWidgetName(
  * this saga create a new widget from the copied one to store
  */
 function* pasteWidgetSaga() {
-  const copiedWidgetGroups: {
+  let copiedWidgetGroups: {
     widgetId: string;
     parentId: string;
     list: WidgetProps[];
@@ -1521,48 +1522,11 @@ function* pasteWidgetSaga() {
   );
   const evalTree = yield select(getDataTree);
 
-  console.log({ copiedWidgetGroups });
-  // const containerWidgetId = generateReactKey();
-  // const columns = 8 * GRID_DENSITY_MIGRATION_V1;
-  // const rows = 7 * GRID_DENSITY_MIGRATION_V1;
-  // const widgetName = getNextWidgetName(
-  //   widgets,
-  //   WidgetTypes.CONTAINER_WIDGET,
-  //   evalTree,
-  // );
-  // const newContainerWidget: FlattenedWidgetProps = {
-  //   parentId: MAIN_CONTAINER_WIDGET_ID,
-  //   widgetName: widgetName,
-  //   type: WidgetTypes.CONTAINER_WIDGET,
-  //   widgetId: containerWidgetId,
-  //   leftColumn: 0,
-  //   topRow: 0,
-  //   bottomRow: 50,
-  //   rightColumn: 10,
-  //   columns,
-  //   rows,
-  //   tabId: "",
-  //   children: [
-  //     {
-  //       type: "CANVAS_WIDGET",
-  //       containerStyle: "none",
-  //       canExtend: false,
-  //       detachFromLayout: true,
-  //       children: [],
-  //     },
-  //   ],
-  //   renderMode: RenderModes.CANVAS,
-  //   version: 1,
-  //   isLoading: false,
-  //   parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  //   parentColumnSpace: 1,
-  // };
+  copiedWidgetGroups = groupWidgetsIntoContainer(copiedWidgetGroups);
 
-  // copiedWidgetGroups.push({
-  //   list: [newContainerWidget],
-  //   widgetId: newContainerWidget.widgetId,
-  //   parentId: "0",
-  // });
+  // console.log({ copiedWidgetGroups });
+
+  // return;
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>

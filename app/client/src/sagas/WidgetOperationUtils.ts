@@ -1,16 +1,26 @@
 import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { cloneDeep, get, isString, filter, set } from "lodash";
+import { cloneDeep, get, isString, filter, set, minBy, maxBy } from "lodash";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
+
+interface CopiedWidgetGroup {
+  widgetId: string;
+  parentId: string;
+  list: WidgetProps[];
+}
 
 /**
  * checks if triggerpaths contains property path passed
@@ -332,3 +342,75 @@ export const checkIfPastingIntoListWidget = function(
   }
   return selectedWidget;
 };
+
+export function groupWidgetsIntoContainer(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+): CopiedWidgetGroup[] {
+  const containerWidgetId = generateReactKey();
+  const columns = 8 * GRID_DENSITY_MIGRATION_V1;
+  const rows = 7 * GRID_DENSITY_MIGRATION_V1;
+  const widgetName = `Container${containerWidgetId}`;
+
+  const copiedWidgets = copiedWidgetGroups.map((copiedWidgetGroup) =>
+    copiedWidgetGroup.list.find(
+      (w) => w.widgetId === copiedWidgetGroup.widgetId,
+    ),
+  );
+
+  const boundary = {
+    top: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
+    left: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
+    bottom: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.bottomRow),
+    right: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.rightColumn),
+  };
+
+  const newCanvasWidget: FlattenedWidgetProps = {
+    bottomRow: 400,
+    canExtend: false,
+    children: [],
+    containerStyle: "none",
+    detachFromLayout: true,
+    isLoading: false,
+    isVisible: true,
+    leftColumn: 0,
+    minHeight: 400,
+    parentColumnSpace: 1,
+    parentId: "n3ish2fmih",
+    parentRowSpace: 1,
+    rightColumn: 634,
+    topRow: 0,
+    type: "CANVAS_WIDGET",
+    renderMode: RenderModes.CANVAS,
+    version: 1,
+    widgetId: generateReactKey(),
+    widgetName: `Canvas${generateReactKey()}`,
+  };
+  const newContainerWidget: FlattenedWidgetProps = {
+    parentId: MAIN_CONTAINER_WIDGET_ID,
+    widgetName: widgetName,
+    type: WidgetTypes.CONTAINER_WIDGET,
+    widgetId: containerWidgetId,
+    leftColumn: boundary.left?.leftColumn || 0, // calculat
+    topRow: boundary.top?.topRow || 0, // calculate this from select
+    bottomRow: boundary.bottom?.bottomRow || 0, // calculate this from selected widgets
+    rightColumn: boundary.right?.rightColumn || 0, // calculate this from selected widgets
+    columns,
+    rows,
+    tabId: "",
+    children: [newCanvasWidget.widgetId],
+    renderMode: RenderModes.CANVAS,
+    version: 1,
+    isLoading: false,
+    isVisible: true,
+    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    parentColumnSpace: 1,
+  };
+
+  return [
+    {
+      list: [newContainerWidget, newCanvasWidget],
+      widgetId: newContainerWidget.widgetId,
+      parentId: "0",
+    },
+  ];
+}
