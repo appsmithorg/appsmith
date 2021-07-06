@@ -22,7 +22,6 @@ import Tooltip from "components/ads/Tooltip";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
 import { InputType } from "widgets/InputWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
@@ -44,7 +43,7 @@ const InputComponentWrapper = styled((props) => (
   multiline: string;
   hasError: boolean;
 }>`
-  flex-direction: column;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
     .${Classes.INPUT} {
       box-shadow: none;
@@ -89,7 +88,7 @@ const InputComponentWrapper = styled((props) => (
     align-items: center;
     label {
       ${labelStyle}
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
+      margin-right: 5px;
       text-align: right;
       align-self: flex-start;
     }
@@ -97,19 +96,24 @@ const InputComponentWrapper = styled((props) => (
 `;
 
 const ToolTipIcon = styled(IconWrapper)`
+  cursor: help;
+  margin-top: 1.5px;
   &&&:hover {
     svg {
       path {
-        fill: black;
+        fill: #716e6e;
       }
     }
   }
 `;
 
-const TextLableWrapper = styled.div`
-  width: 100%;
+const TextLableWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
-  flex: 1;
+  max-height: 20px;
 `;
 
 const TextInputWrapper = styled.div`
@@ -267,34 +271,45 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
+    const { label, tooltip } = this.props;
+    const showLabelHeader = label || tooltip;
+
     return (
       <InputComponentWrapper
+        compactMode={this.props.compactMode}
         fill
         hasError={this.props.isInvalid}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
-        {this.props.label && (
-          <TextLableWrapper>
-            <Label
-              className={
-                this.props.isLoading
-                  ? Classes.SKELETON
-                  : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }
-            >
-              {this.props.label}
-            </Label>
-
-            <Tooltip
-              content={this.props.tooltip || ""}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <ToolTipIcon color="#A9A7A7" height={14} width={14}>
-                <HelpIcon />
-              </ToolTipIcon>
-            </Tooltip>
+        {showLabelHeader && (
+          <TextLableWrapper compactMode={this.props.compactMode}>
+            {this.props.label && (
+              <Label
+                className={
+                  this.props.isLoading
+                    ? Classes.SKELETON
+                    : Classes.TEXT_OVERFLOW_ELLIPSIS
+                }
+              >
+                {this.props.label}
+              </Label>
+            )}
+            {this.props.tooltip && (
+              <Tooltip
+                content={this.props.tooltip || ""}
+                hoverOpenDelay={200}
+                position={Position.TOP}
+              >
+                <ToolTipIcon
+                  color={Colors.SILVER_CHALICE}
+                  height={14}
+                  width={14}
+                >
+                  <HelpIcon />
+                </ToolTipIcon>
+              </Tooltip>
+            )}
           </TextLableWrapper>
         )}
         <TextInputWrapper>
@@ -340,6 +355,7 @@ export interface InputComponentProps extends ComponentProps {
   placeholder?: string;
   isLoading: boolean;
   multiline: boolean;
+  compactMode: boolean;
   isInvalid: boolean;
   showError: boolean;
   onFocusChange: (state: boolean) => void;

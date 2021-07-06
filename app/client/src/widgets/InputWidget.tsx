@@ -327,6 +327,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
+        compactMode={
+          // show label and Input side by side if true
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              (GRID_DENSITY_MIGRATION_V1 + 2) >
+              1 && this.props.inputType === "TEXT"
+          )
+        }
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
@@ -337,7 +345,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         multiline={
           // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           (this.props.bottomRow - this.props.topRow) /
-            GRID_DENSITY_MIGRATION_V1 >
+            (GRID_DENSITY_MIGRATION_V1 + 2) >
             1 && this.props.inputType === "TEXT"
         }
         onFocusChange={this.handleFocusChange}
