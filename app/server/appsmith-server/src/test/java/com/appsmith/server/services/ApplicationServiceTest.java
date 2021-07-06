@@ -328,8 +328,7 @@ public class ApplicationServiceTest {
             .flatMap(t -> applicationService.update(t.getId(), t));
 
         StepVerifier.create(updateInvalidApplication)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(testApp1.getName(), FieldName.NAME)))
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
             .verify();
     }
 
