@@ -20,11 +20,11 @@ mkdir -p "$CODEBUILD_SRC_DIR/logs"
 
 # Start a MongoDB server.
 mkdir -p /data/db
-nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" & disown $!
+nohup mongod > "$CODEBUILD_SRC_DIR/logs/mongod.log" 2>&1 & disown $!
 export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 
 # Start a Redis server.
-nohup redis-server > "$CODEBUILD_SRC_DIR/logs/redis.log" & disown $!
+nohup redis-server > "$CODEBUILD_SRC_DIR/logs/redis.log" 2>&1 & disown $!
 export APPSMITH_REDIS_URL="redis://localhost:6379"
 
 } 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
