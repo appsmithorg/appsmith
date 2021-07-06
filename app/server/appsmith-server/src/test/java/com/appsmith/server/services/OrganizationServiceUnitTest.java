@@ -15,14 +15,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
@@ -93,13 +88,5 @@ public class OrganizationServiceUnitTest {
                 .create(organizationMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
                 .verify();
-    }
-
-    @Test
-    public void hello() {
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
-                .repeat()  // So the file size looks like it's much larger than what it actually is.
-                ;
     }
 }
