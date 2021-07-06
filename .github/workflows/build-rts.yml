@@ -64,9 +64,9 @@ jobs:
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{steps.vars.outputs.tag}}
 
       # Build release-frozen Docker image and push to Docker Hub
       - name: Push release-frozen image to Docker Hub
@@ -80,11 +80,11 @@ jobs:
       - name: Push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly
 
   # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional
   # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml.

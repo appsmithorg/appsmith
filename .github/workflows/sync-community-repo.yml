@@ -13,15 +13,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
+        persist-credentials: false
         ref: release
         fetch-depth: 0
+        token: ${{ secrets.PAT_GITHUB }}
 
     # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
-    - name: repo-sync
+    - name: Sync release branch from community repo
       run: |
         git remote add community https://github.com/appsmithorg/appsmith.git
-        git config user.email "automated@github.com"
-        git config user.name "Automated Github Action"
+        git config --local user.email "automated@github.com"
+        git config --local user.name "Automated Github Action"
         git pull community release --no-edit
-        git push origin release
+    
+    - name: Push changes to the release branch
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.PAT_GITHUB }}
+        branch: release
 

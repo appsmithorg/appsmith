@@ -115,6 +115,9 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
             REACT_APP_SHOW_ONBOARDING_FORM=true \
+            APPSMITH_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} \
+            APPSMITH_RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }} \
+            APPSMITH_RECAPTCHA_ENABLED=true \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -199,6 +202,7 @@ jobs:
         if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release' || github.event.pull_request.head.ref == 'release'
         shell: bash
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -208,7 +212,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:release
 
       - name: Pull release-frozen server docker container and start it locally
         if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
@@ -229,6 +233,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         shell: bash
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -238,7 +243,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly
 
       - name: Installing Yarn serve
         run: |
@@ -291,7 +296,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Upload the screenshots as artifacts if there's a failure
+        # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -359,9 +364,9 @@ jobs:
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.branch_name.outputs.tag}}
 
       # Build release-frozen Docker image and push to Docker Hub
       - name: Push release-frozen image to Docker Hub
@@ -375,8 +380,8 @@ jobs:
       - name: Push production image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
