@@ -259,7 +259,10 @@ class CodeEditor extends Component<Props, State> {
   }
 
   startAutocomplete() {
-    this.hinters = this.props.hinting.map((helper) => {
+    this.hinters = (this.props.showLightningMenu !== false
+      ? this.props.hinting
+      : [bindingHint]
+    ).map((helper) => {
       return helper(
         this.editor,
         this.props.dynamicData,
@@ -309,9 +312,10 @@ class CodeEditor extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
-    if (!cm.state.completionActive) this.setState({ isFocused: false });
+    // on blur closing the binding prompt for an editor regardless.
+    this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -401,7 +405,8 @@ class CodeEditor extends Component<Props, State> {
     this.editor.focus();
     if (cursor === undefined) {
       if (value) {
-        cursor = value.length - 2;
+        // If user clicks on the `/` btn the cursor position should be at the end of the input str
+        cursor = value.length;
       } else {
         cursor = 1;
       }
@@ -574,6 +579,7 @@ class CodeEditor extends Component<Props, State> {
               editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
+              showLightningMenu={this.props.showLightningMenu}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>

@@ -62,8 +62,14 @@ export const thinScrollbar = css`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${Colors.MYSTIC};
+    background: transparent;
     border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${Colors.PORCELAIN};
+      border-radius: 10px;
+    }
   }
 
   /* Handle on hover */
