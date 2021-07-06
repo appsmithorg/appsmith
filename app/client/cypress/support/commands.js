@@ -241,6 +241,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   );
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($btn) => {
+    if (!$btn.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -255,13 +266,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  if (document.querySelectorAll(homePage.editingAppName).length === 0) {
-    cy.get(homePage.applicationName).click();
-    cy.get(homePage.portalMenuItem)
-      .contains("Rename", { matchCase: false })
-      .click();
-  }
-
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -283,13 +288,7 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  if (document.querySelectorAll(homePage.editingAppName).length === 0) {
-    cy.get(homePage.applicationName).click();
-    cy.get(homePage.portalMenuItem)
-      .contains("Rename", { matchCase: false })
-      .click();
-  }
-
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",

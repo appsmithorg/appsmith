@@ -127,6 +127,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
       const errorMessage = inputValidation && inputValidation(defaultValue);
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
+      e.stopPropagation();
     },
     [inputValidation, defaultValue],
   );
@@ -161,7 +162,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
     </StyledMenu>
   );
 
-  return (
+  return defaultValue !== "" ? (
     <Popover
       autoFocus={false}
       content={NavigationMenuItems}
@@ -199,5 +200,5 @@ export default function EditorAppName(props: EditorAppNameProps) {
         )}
       </Container>
     </Popover>
-  );
+  ) : null;
 }

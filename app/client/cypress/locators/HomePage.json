@@ -52,7 +52,7 @@
     "enablePublicAccess": ".slider",
     "closeBtn": ".bp3-dialog-close-button",
     "applicationName": ".t--application-name",
-    "editingAppName": ".bp3-editable-text-editing.t--application-name",
+    "editingAppName": "bp3-editable-text-editing",
     "portalMenuItem": ".bp3-portal .bp3-menu-item",
     "profileMenu": ".bp3-popover-wrapper.profile-menu",
     "signOutIcon": ".t--logout-icon",
