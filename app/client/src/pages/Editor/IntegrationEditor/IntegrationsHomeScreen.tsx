@@ -64,7 +64,7 @@ const SectionGrid = styled.div`
   margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 180px;
-  gap: 10px;
+  gap: 10px 16px;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
