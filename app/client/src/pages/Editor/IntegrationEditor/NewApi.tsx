@@ -58,7 +58,7 @@ const StyledContainer = styled.div`
 
 const ApiCardsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
   text-align: center;
   min-width: 150px;
@@ -77,7 +77,6 @@ const ApiCard = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 70px;
-  padding-left: 8px;
   &:hover {
     background: ${Colors.Gallery};
     cursor: pointer;

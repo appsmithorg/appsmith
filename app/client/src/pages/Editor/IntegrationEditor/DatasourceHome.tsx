@@ -34,7 +34,7 @@ const DatasourceHomePage = styled.div`
 
 const DatasourceCardsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
   text-align: center;
   min-width: 150px;

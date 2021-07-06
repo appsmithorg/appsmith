@@ -10,8 +10,9 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 const MockDataSourceWrapper = styled.div`
   padding: 5px;
   overflow: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
   /* height: calc(
     100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
   ); */
