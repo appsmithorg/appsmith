@@ -17,6 +17,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -364,6 +365,9 @@ export default class DataTreeEvaluator {
           }
         },
       );
+    }
+    if (isJSAction(entity)) {
+      //this is js action dependency map
     }
     return dependencies;
   }
@@ -1193,4 +1197,8 @@ function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
 
 function isAction(entity: DataTreeEntity): entity is DataTreeAction {
   return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
+}
+
+function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION;
 }

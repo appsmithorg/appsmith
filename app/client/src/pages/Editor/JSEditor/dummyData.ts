@@ -15,7 +15,7 @@ export const jsData = [
       },
     ],
     body: `{
-      data: [],
+      results: [],
       run1: function() { console.log('this is function 1 body')}
     }`,
     actions: [
@@ -52,7 +52,7 @@ export const jsData = [
       },
     ],
     body: `{
-      data: [],
+      results: [],
       run2: function() { console.log("this is function 2 body")}
     }`,
     actions: [
@@ -90,7 +90,7 @@ export const newFunction = {
       initialValue: "undefined",
     },
   ],
-  body: `{data: [], run100: function() { console.log(\"this is function 100 body\")}}`,
+  body: `{results: [], run100: function() { console.log(\"this is function 100 body\")}}`,
   actions: [
     {
       actionId: "21",

@@ -54,12 +54,38 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
           def[key] = value;
         }
       }
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+        const result: any = _.omit(entity, [
+          "ENTITY_TYPE",
+          "actionId",
+          "pluginType",
+        ]);
+        const dataObj = entity.data;
+        const jsOptions: any = {};
+        for (const key in result) {
+          if (dataObj.hasOwnProperty(key)) {
+            jsOptions[key] =
+              "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+          } else {
+            jsOptions[key] = generateTypeDef(entity[key]);
+          }
+        }
+        def[entityName] = jsOptions;
+        const flattenedjsObjects = flattenObjKeys(jsOptions, entityName);
+        for (const [key, value] of Object.entries(flattenedjsObjects)) {
+          def[key] = value;
+        }
+      }
     }
   });
   def["!define"] = { ...GLOBAL_DEFS, ...extraDefs };
   extraDefs = {};
   return { ...def, ...GLOBAL_FUNCTIONS };
 };
+
+export function getIfFunction(key: any, dataObj: any) {
+  return dataObj[key];
+}
 
 export function generateTypeDef(
   obj: any,
