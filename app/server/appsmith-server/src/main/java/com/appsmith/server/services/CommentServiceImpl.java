@@ -331,10 +331,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
         return threadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .collectList()
-                .flatMap(threads -> Mono.zip(
-                        Mono.just(threads),
-                        sessionUserService.getCurrentUser()
-                ))
+                .zipWith(sessionUserService.getCurrentUser())
+//                .flatMap(threads -> Mono.zip(
+//                        Mono.just(threads),
+//                        sessionUserService.getCurrentUser()
+//                ))
                 .flatMap(tuple -> {
                     List<CommentThread> threads = tuple.getT1();
                     User user = tuple.getT2();

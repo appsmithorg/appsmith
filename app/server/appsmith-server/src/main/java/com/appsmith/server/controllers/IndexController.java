@@ -9,6 +9,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.togglz.core.manager.FeatureManager;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -24,17 +25,23 @@ public class IndexController {
 
     private final ChannelTopic topic;
 
+//    private final FeatureManager featureManager;
+
     @Autowired
     public IndexController(SessionUserService service,
                            ReactiveRedisTemplate<String, String> reactiveTemplate,
-                           ChannelTopic topic) {
+                           ChannelTopic topic
+                           ) {
         this.service = service;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
+//        this.featureManager = featureManager;
     }
 
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
+        boolean active = TogglzFeature.FEATURE_ONE.isActive();
+        System.out.println("Got active feature flag: " + active);
         Mono<User> userMono = service.getCurrentUser();
         return userMono
                 .map(obj -> obj.getUsername())
