@@ -41,6 +41,18 @@ const AccentColorMap: Record<ButtonStyleName, string> = {
   error: "error",
 };
 
+const RecaptchButtonWrapper = styled.div`
+  height: 100%;
+  position: relative;
+  .g-recaptcha {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    cursor: pointer;
+  }
+`;
+
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
   <Button {..._.omit(props, ["accent", "filled"])} />
 ))<ButtonStyleProps>`
@@ -191,6 +203,27 @@ function RecaptchaComponent(
     }
   };
 
+  const onClickButtonHandler = (event: React.MouseEvent<HTMLElement>) => {
+    if (status === ScriptStatus.READY) {
+      (window as any).grecaptcha.ready(() => {
+        try {
+          (window as any).grecaptcha
+            .execute(props.googleRecaptchaKey, { action: "submit" })
+            .then((token: any) => {
+              props.clickWithRecaptcha(token);
+            })
+            .catch(() => {
+              // Handle corrent key with wrong
+              handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+            });
+        } catch (ex) {
+          // Handle wrong key
+          handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
+        }
+      });
+    }
+  };
+
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
 
   if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
@@ -200,32 +233,22 @@ function RecaptchaComponent(
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
-  return (
-    <div
-      onClick={(event: React.MouseEvent<HTMLElement>) => {
-        if (status === ScriptStatus.READY) {
-          (window as any).grecaptcha.ready(() => {
-            try {
-              (window as any).grecaptcha
-                .execute(props.googleRecaptchaKey, { action: "submit" })
-                .then((token: any) => {
-                  props.clickWithRecaptcha(token);
-                })
-                .catch(() => {
-                  // Handle corrent key with wrong
-                  handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
-                });
-            } catch (ex) {
-              // Handle wrong key
-              handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
-            }
-          });
-        }
-      }}
-    >
-      {props.children}
-    </div>
-  );
+  const recaptcha2 = true;
+  if (recaptcha2) {
+    return (
+      <RecaptchButtonWrapper>
+        {props.children}
+        <div
+          className="g-recaptcha"
+          data-sitekey={props.googleRecaptchaKey}
+          data-size="invisible"
+          onClick={onClickButtonHandler}
+        />
+      </RecaptchButtonWrapper>
+    );
+  } else {
+    return <div onClick={onClickButtonHandler}>{props.children}</div>;
+  }
 }
 
 function BtnWrapper(
