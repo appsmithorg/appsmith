@@ -1301,7 +1301,11 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
 
 function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const parentWidgetId = action.payload.widgetId;
-  const childrenIds: string[] = yield call(getWidgetChildren, parentWidgetId);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const childrenIds: string[] = getWidgetChildren(
+    canvasWidgets,
+    parentWidgetId,
+  );
   for (const childIndex in childrenIds) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
@@ -1494,6 +1498,7 @@ function* pasteWidgetSaga() {
   );
 
   selectedWidget = yield checkIfPastingIntoListWidget(
+    stateWidgets,
     selectedWidget,
     copiedWidgetGroups,
   );
