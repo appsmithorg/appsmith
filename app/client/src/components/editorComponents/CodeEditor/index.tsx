@@ -309,9 +309,10 @@ class CodeEditor extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
-    if (!cm.state.completionActive) this.setState({ isFocused: false });
+    // on blur closing the binding prompt for an editor regardless.
+    this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
