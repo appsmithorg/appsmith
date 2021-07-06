@@ -3,8 +3,11 @@
 set -o errexit
 set -o xtrace
 
-echo "$BASH_VERSION"
+echo "BASH_VERSION: '$BASH_VERSION'"
 java -version
+
+echo "APPSMITH_MONGODB_URI: '$APPSMITH_MONGODB_URI'"
+echo "APPSMITH_REDIS_URL: '$APPSMITH_REDIS_URL'"
 
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot

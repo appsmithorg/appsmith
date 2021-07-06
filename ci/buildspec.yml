@@ -34,7 +34,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress1
+    - identifier: cypress01
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -42,7 +42,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress2
+    - identifier: cypress02
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -50,7 +50,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress3
+    - identifier: cypress03
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -58,7 +58,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress4
+    - identifier: cypress04
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -66,7 +66,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress5
+    - identifier: cypress05
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -74,7 +74,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress6
+    - identifier: cypress06
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -82,7 +82,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress7
+    - identifier: cypress07
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -90,7 +90,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress8
+    - identifier: cypress08
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -98,7 +98,7 @@ batch:
       debug-session: true
 
     # Run all Cypress tests.
-    - identifier: cypress9
+    - identifier: cypress09
       depend-on: [client_unit_tests, server_unit_tests]
       buildspec: ci/2-cypress.yml
       env:
@@ -170,15 +170,15 @@ batch:
         privileged-mode: true
       debug-session: true
       depend-on:
-        - cypress1
-        - cypress2
-        - cypress3
-        - cypress4
-        - cypress5
-        - cypress6
-        - cypress7
-        - cypress8
-        - cypress9
+        - cypress01
+        - cypress02
+        - cypress03
+        - cypress04
+        - cypress05
+        - cypress06
+        - cypress07
+        - cypress08
+        - cypress09
         - cypress10
         - cypress11
         - cypress12
