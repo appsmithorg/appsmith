@@ -17,6 +17,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -127,7 +128,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(analyticsService::sendUpdateEvent);
+            .onErrorResume(error -> {
+                if (error instanceof DuplicateKeyException) {
+                    // Error message : E11000 duplicate key error collection: appsmith.application index:
+                    // organization_application_deleted_compound_index dup key:
+                    // { organizationId: "******", name: "AppName", deletedAt: null }
+                    if (error.getCause().getMessage().contains("name:")) {
+                        return Mono.error(
+                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
+                        );
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
+                }
+                return Mono.error(error);
+            })
+            .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -135,11 +150,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-
-
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        return repository
+        Mono<Application> updateApplicationMono = repository
                 .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
@@ -156,6 +169,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
                     return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+
+        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
+        //  subscriber has cancelled its subscription, the create method will still generates its event.
+        return Mono.create(sink -> updateApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -251,4 +270,5 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     return application;
                 });
     }
+
 }

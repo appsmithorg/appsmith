@@ -201,6 +201,7 @@ class InputComponent extends React.Component<
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
       placeholder={this.props.placeholder}
+      style={{ resize: "none" }}
       value={this.props.value}
     />
   );

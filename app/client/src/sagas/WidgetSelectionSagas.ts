@@ -5,15 +5,16 @@ import { getWidgetImmediateChildren, getWidgets } from "./selectors";
 import log from "loglevel";
 import {
   deselectMultipleWidgetsAction,
-  selectAllWidgetsAction,
   selectMultipleWidgetsAction,
   selectWidgetAction,
   selectWidgetInitAction,
+  silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -59,13 +60,16 @@ function* selectedWidgetAncestrySaga(
   }
 }
 
-function* selectAllWidgetsSaga() {
-  const allWidgetsOnMainContainer: string[] = yield select(
+function* selectAllWidgetsInCanvasSaga(
+  action: ReduxAction<{ canvasId: string }>,
+) {
+  const { canvasId } = action.payload;
+  const allWidgetsOnCanvas: string[] = yield select(
     getWidgetImmediateChildren,
-    MAIN_CONTAINER_WIDGET_ID,
+    canvasId,
   );
-  if (allWidgetsOnMainContainer && allWidgetsOnMainContainer.length) {
-    yield put(selectAllWidgetsAction(allWidgetsOnMainContainer));
+  if (allWidgetsOnCanvas && allWidgetsOnCanvas.length) {
+    yield put(selectMultipleWidgetsAction(allWidgetsOnCanvas));
     Toaster.show({
       text: createMessage(SELECT_ALL_WIDGETS_MSG),
       variant: Variant.info,
@@ -79,8 +83,8 @@ function* deselectNonSiblingsOfWidgetSaga(
 ) {
   const { isMultiSelect, widgetId } = action.payload;
   if (isMultiSelect) {
-    const allWidgets = yield select(getWidgets);
-    const parentId = allWidgets[widgetId].parentId;
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const parentId: any = allWidgets[widgetId].parentId;
     const childWidgets: string[] = yield select(
       getWidgetImmediateChildren,
       parentId,
@@ -127,10 +131,30 @@ function* shiftSelectWidgetsSaga(
         : lastSelectedWidgetIndex;
     const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
     if (unSelectedSiblings && unSelectedSiblings.length) {
-      yield put(selectMultipleWidgetsAction(unSelectedSiblings));
+      yield put(silentAddSelectionsAction(unSelectedSiblings));
     }
   }
   yield put(selectWidgetInitAction(widgetId, true));
+}
+
+function* selectMultipleWidgetsSaga(
+  action: ReduxAction<{ widgetIds: string[] }>,
+) {
+  const { widgetIds } = action.payload;
+  if (!widgetIds || !widgetIds.length) {
+    return;
+  }
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const parentToMatch = allWidgets[widgetIds[0]].parentId;
+  const doesNotMatchParent = widgetIds.some((each) => {
+    return allWidgets[each].parentId !== parentToMatch;
+  });
+  if (doesNotMatchParent) {
+    return;
+  } else {
+    yield put(selectWidgetAction());
+    yield put(selectMultipleWidgetsAction(widgetIds));
+  }
 }
 
 export function* widgetSelectionSagas() {
@@ -146,8 +170,12 @@ export function* widgetSelectionSagas() {
       deselectNonSiblingsOfWidgetSaga,
     ),
     takeLatest(
+      ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
+      selectAllWidgetsInCanvasSaga,
+    ),
+    takeLatest(
       ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-      selectAllWidgetsSaga,
+      selectMultipleWidgetsSaga,
     ),
   ]);
 }

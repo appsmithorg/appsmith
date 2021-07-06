@@ -291,7 +291,11 @@ class FilePickerWidget extends BaseWidget<
             plugin.closeModal();
           }
         },
-        locale: {},
+        locale: {
+          strings: {
+            closeModal: "Close",
+          },
+        },
       })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
@@ -380,11 +384,16 @@ class FilePickerWidget extends BaseWidget<
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
+          callback: this.handleActionComplete,
         },
       });
 
       this.setState({ isLoading: true });
     }
+  };
+
+  handleActionComplete = () => {
+    this.setState({ isLoading: false });
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {

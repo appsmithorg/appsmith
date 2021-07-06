@@ -4,12 +4,14 @@ import com.appsmith.external.models.ActionConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -255,56 +257,57 @@ public class MustacheHelper {
         }
     }
 
+    /**
+     * - If object is null, then return object.
+     * - If object is an Appsmith domain object then iterate over all fields of the object and render field values
+     * for each of them.
+     * - If object is list type then iterate over each item in the list and render field value for them.
+     * - If object is map type, then iterate over each value in the map and render field value for them.
+     * - If the object is string type (base case), then do the binding substitution if applicable.
+     * - If the object falls under none of the above conditions then return the object without doing anything.
+     */
     public static <T> T renderFieldValues(T object, Map<String, String> context) {
-        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        if (object == null) {
+            return object;
+        }
 
-        try {
-
-            for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
-                // For properties like `class` that don't have a set method, just ignore them.
-                if (propertyDescriptor.getWriteMethod() == null) {
-                    continue;
-                }
-
-                String name = propertyDescriptor.getName();
-                Object value = sourceBeanWrapper.getPropertyValue(name);
-
-                // If value is null, don't copy it over to target and just move on to the next property.
-                if (value == null) {
-                    continue;
-                }
-
-                if (isDomainModel(propertyDescriptor.getPropertyType())) {
-                    // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
-                    // values are not null.
-                    renderFieldValues(value, context);
-
-                } else if (value instanceof List) {
-                    for (Object childValue : (List) value) {
-                        if (childValue != null && isDomainModel(childValue.getClass())) {
-                            renderFieldValues(childValue, context);
-                        }
+        if (isDomainModel(object.getClass())) {
+            try {
+                final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+                for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
+                    // For properties like `class` that don't have a set method, just ignore them.
+                    if (propertyDescriptor.getWriteMethod() == null) {
+                        continue;
                     }
 
-                } else if (value instanceof Map) {
-                    for (Object childValue : ((Map) value).values()) {
-                        if (childValue != null && isDomainModel(childValue.getClass())) {
-                            renderFieldValues(childValue, context);
-                        }
-                    }
-
-                } else if (value instanceof String) {
-                    sourceBeanWrapper.setPropertyValue(
-                            name,
-                            render((String) value, context)
-                    );
-
+                    String name = propertyDescriptor.getName();
+                    Object value = sourceBeanWrapper.getPropertyValue(name);
+                    sourceBeanWrapper.setPropertyValue(name, renderFieldValues(value, context));
                 }
+            } catch (BeansException e) {
+                log.error("Exception caught while substituting values in mustache template.", e);
+            }
+        } else if (object instanceof List) {
+            List renderedList = new ArrayList();
+            for (Object childValue : (List) object) {
+                renderedList.add(renderFieldValues(childValue, context));
             }
 
-        } catch (Exception e) {
-            log.error("Exception caught while substituting values in mustache template.", e);
+            return (T) renderedList;
 
+        } else if (object instanceof Map) {
+            Map renderedMap = new HashMap();
+            for (Object entry : ((Map)object).entrySet()) {
+                renderedMap.put(
+                        ((Map.Entry) entry).getKey(), // key
+                        renderFieldValues(((Map.Entry) entry).getValue(), context) // value
+                );
+            }
+
+            return (T) renderedMap;
+
+        } else if (object instanceof String) {
+            return (T) render((String) object, context);
         }
 
         return object;

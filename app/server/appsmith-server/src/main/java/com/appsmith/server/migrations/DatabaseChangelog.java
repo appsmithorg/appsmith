@@ -42,6 +42,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -176,8 +177,8 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
+        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
                 organization.setPlugins(new ArrayList<>());
             }
@@ -190,7 +191,7 @@ public class DatabaseChangelog {
                         .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
             }
 
-            mongoTemplate.save(organization);
+            mongockTemplate.save(organization);
         }
     }
 
@@ -586,7 +587,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "018", id = "install-mysql-plugins", author = "")
-    public void mysqlPlugin(MongoTemplate mongoTemplate) {
+    public void mysqlPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Mysql");
         plugin1.setType(PluginType.DB);
@@ -994,7 +995,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
-    public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
+    public void addElasticSearchPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("ElasticSearch");
         plugin1.setType(PluginType.DB);
@@ -1014,7 +1015,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
-    public void addDynamoPlugin(MongoTemplate mongoTemplate) {
+    public void addDynamoPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("DynamoDB");
         plugin1.setType(PluginType.DB);
@@ -1044,7 +1045,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
-    public void addRedisPlugin(MongoTemplate mongoTemplate) {
+    public void addRedisPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Redis");
         plugin1.setType(PluginType.DB);
@@ -1064,7 +1065,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
-    public void addMsSqlPlugin(MongoTemplate mongoTemplate) {
+    public void addMsSqlPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("MsSQL");
         plugin1.setType(PluginType.DB);
@@ -1272,7 +1273,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
-    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+    public void addFirestorePlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Firestore");
         plugin.setType(PluginType.DB);
@@ -1559,7 +1560,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
-    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
+    public void addRedshiftPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Redshift");
         plugin.setType(PluginType.DB);
@@ -1623,7 +1624,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
-    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
+    public void addAmazonS3Plugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Amazon S3");
         plugin.setType(PluginType.DB);
@@ -2091,7 +2092,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
-    public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
+    public void addGoogleSheetsPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
@@ -2454,7 +2455,7 @@ public class DatabaseChangelog {
                             .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
-
+                
                 mongoTemplate.save(application);
             }
         }
@@ -2473,7 +2474,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
-    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+    public void addSnowflakePlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Snowflake");
         plugin.setType(PluginType.DB);
@@ -2493,7 +2494,6 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
 
     }
-
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
     public void migrateUpdateOneToUpdateManyMongoFormCommand(MongockTemplate mongockTemplate) {
@@ -2600,5 +2600,168 @@ public class DatabaseChangelog {
             user.setUpdatedAt(Instant.now());
             mongoTemplate.save(user);
         }
+    }
+  
+    /**
+     * - Older order file where not present for the pages created within the application because page reordering with in
+     * the application was not supported.
+     * - New Form order field will be added to the Page object and is used to order the pages with in the application
+     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
+     * created pages of all the application present.
+     * - []
+     */
+    @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
+    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if(application.getPages() != null) {
+                int i = 0;
+                for (ApplicationPage page : application.getPages()) {
+                    page.setOrder(i);
+                    i++;
+                }
+                if(application.getPublishedPages() != null) {
+                    i = 0;
+                    for (ApplicationPage page : application.getPublishedPages()) {
+                        page.setOrder(i);
+                        i++;
+                    }
+                }
+                mongoTemplate.save(application);
+            }
+        }
+    }
+
+    @ChangeSet(order = "076", id = "mongo-form-migrate-raw", author = "")
+    public void migrateRawInputTypeToRawCommand(MongockTemplate mongockTemplate) {
+
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database with input type set to raw.
+        assert mongoPlugin != null;
+        List<NewAction> rawMongoQueryActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    boolean result = false;
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+
+                    List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+
+                    // Filter out all the unpublished actions which have the input type raw configured.
+                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
+                        Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
+                        if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
+                            String inputType = (String) inputTypeProperty.getValue();
+                            if (inputType.equals("RAW")) {
+                                result = true;
+                            }
+                        }
+                    }
+
+                    ActionDTO publishedAction = mongoAction.getPublishedAction();
+                    if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                        pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+                        // Filter out all the published actions which have the input type raw configured.
+                        if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
+                            Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
+                            if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
+                                String inputType = (String) inputTypeProperty.getValue();
+                                if (inputType.equals("RAW")) {
+                                    result = true;
+                                }
+                            }
+                        }
+                    }
+                    return result;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : rawMongoQueryActions) {
+
+            Boolean smartSub = true;
+            Property smartSubProperty;
+            Map<Integer, Object> configMap;
+            List<Property> updatedTemplates;
+
+            // Migrate the unpublished actions
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            if (pluginSpecifiedTemplates != null) {
+                smartSubProperty = pluginSpecifiedTemplates.get(0);
+                if (smartSubProperty != null) {
+                    Object value = smartSubProperty.getValue();
+                    if (value instanceof Boolean) {
+                        smartSub = (Boolean) value;
+                    } else if (value instanceof String) {
+                        smartSub = Boolean.parseBoolean((String) value);
+                    }
+                }
+
+                configMap = new HashMap<>();
+                configMap.put(0, smartSub);
+                configMap.put(2, "RAW");
+
+                updatedTemplates = generateMongoFormConfigTemplates(configMap);
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+            }
+
+
+            // Now migrate the published actions
+            ActionDTO publishedAction = action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+                if (pluginSpecifiedTemplates != null) {
+                    smartSub = true;
+                    smartSubProperty = pluginSpecifiedTemplates.get(0);
+                    if (smartSubProperty != null) {
+                        Object value = smartSubProperty.getValue();
+                        if (value instanceof Boolean) {
+                            smartSub = (Boolean) value;
+                        } else if (value instanceof String) {
+                            smartSub = Boolean.parseBoolean((String) value);
+                        }
+                    }
+
+                    configMap = new HashMap<>();
+                    configMap.put(0, smartSub);
+                    configMap.put(2, "RAW");
+
+                    updatedTemplates = generateMongoFormConfigTemplates(configMap);
+                    action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+                }
+            }
+        }
+
+        // Now that all the actions have been updated, save all the actions
+        for (NewAction action : rawMongoQueryActions) {
+            mongockTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "077", id = "add-arangodb-plugin", author = "")
+    public void addArangoDBPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("ArangoDB");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("arangodb-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ArangoDB.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-arango-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }
