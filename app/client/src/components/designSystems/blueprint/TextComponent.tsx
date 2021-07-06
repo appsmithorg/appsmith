@@ -64,6 +64,7 @@ export interface TextComponentProps extends ComponentProps {
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
+  renderAsHTML?: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -73,6 +74,7 @@ class TextComponent extends React.Component<TextComponentProps> {
       ellipsize,
       fontSize,
       fontStyle,
+      renderAsHTML,
       text,
       textAlign,
       textColor,
@@ -91,6 +93,7 @@ class TextComponent extends React.Component<TextComponentProps> {
         >
           <Interweave
             content={text}
+            escapeHtml={renderAsHTML}
             matchers={[new EmailMatcher("email"), new UrlMatcher("url")]}
           />
         </StyledText>

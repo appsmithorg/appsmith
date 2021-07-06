@@ -69,7 +69,7 @@
     "textColor": ".t--property-control-textcolor .t--color-picker",
     "textColorInput": ".t--property-control-textcolor input",
     "backgroundcolorPicker": ".t--property-control-backgroundcolor .t--color-picker",
-    "greenColor": "//div[@color='rgb(3, 179, 101)']",
+    "greenColor": "//div[@color='#03b365']",
     "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
     "backgroundColor": ".t--property-control-cellbackground .t--color-picker",
     "backgroundColorInput": ".t--property-control-cellbackground input",
