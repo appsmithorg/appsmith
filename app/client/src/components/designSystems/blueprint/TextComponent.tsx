@@ -30,11 +30,13 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
+  margin?: string;
 }>`
   height: 100%;
   overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
+  margin: ${(props) => props.margin};
   display: flex;
   width: 100%;
   justify-content: flex-start;
@@ -64,6 +66,7 @@ export interface TextComponentProps extends ComponentProps {
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
+  margin?: string;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -73,6 +76,7 @@ class TextComponent extends React.Component<TextComponentProps> {
       ellipsize,
       fontSize,
       fontStyle,
+      margin,
       text,
       textAlign,
       textColor,
@@ -85,6 +89,7 @@ class TextComponent extends React.Component<TextComponentProps> {
           ellipsize={ellipsize}
           fontSize={fontSize}
           fontStyle={fontStyle}
+          margin={margin}
           scroll={!!this.props.shouldScroll}
           textAlign={textAlign}
           textColor={textColor}
