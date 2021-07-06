@@ -12,6 +12,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -36,7 +37,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -700,11 +700,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     /**
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
+     * @return
      */
-    private String getSuggestedWidget(Object data) {
+    private WidgetType getSuggestedWidget(Object data) {
 
         if(data instanceof String) {
-            return "TEXT_WIDGET";
+            return WidgetType.TEXT_WIDGET;
         }
 
         if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
@@ -714,17 +715,17 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             Integer fieldsCount = array.get(0).size();
             if( (objectNode.has("x") || (objectNode.has("X")) )&&
                     (objectNode.has("y") || (objectNode.has("Y"))) ) {
-                return "CHART_WIDGET";
+                return WidgetType.CHART_WIDGET;
             }
             if(fieldsCount <= 2) {
-                return "DROP_DOWN_WIDGET";
+                return WidgetType.DROP_DOWN_WIDGET;
             }
             if(length <= 20 && fieldsCount <= 5) {
-                return "LIST_WIDGET";
+                return WidgetType.LIST_WIDGET;
             }
-            return "TABLE_WIDGET";
+            return WidgetType.TABLE_WIDGET;
         }
-        return "TEXT_WIDGET";
+        return WidgetType.TEXT_WIDGET;
 
     }
 

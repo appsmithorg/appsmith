@@ -15,6 +15,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -442,7 +443,7 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -472,7 +473,7 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -499,7 +500,7 @@ public class ActionServiceTest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -791,7 +792,7 @@ public class ActionServiceTest {
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
                                         ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
 
-        String expectedWidget = mockResult.getSuggestedWidget();
+        WidgetType expectedWidget = mockResult.getSuggestedWidget();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
@@ -1220,7 +1221,7 @@ public class ActionServiceTest {
                 "]");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1260,7 +1261,7 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1300,7 +1301,7 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1331,7 +1332,7 @@ public class ActionServiceTest {
         mockResult.setBody(null);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget("TEXT_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1394,7 +1395,7 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget("CHART_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.CHART_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1499,7 +1500,7 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget("TABLE_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.TABLE_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1596,7 +1597,7 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget("LIST_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.LIST_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1649,7 +1650,7 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget("DROP_DOWN_WIDGET");
+        mockResult.setSuggestedWidget(WidgetType.DROP_DOWN_WIDGET);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
