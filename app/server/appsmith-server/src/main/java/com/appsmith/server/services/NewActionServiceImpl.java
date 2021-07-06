@@ -656,7 +656,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypes(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result));
     }
 
     /*
@@ -683,12 +683,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result) {
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
         result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
+
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
@@ -711,10 +712,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             Integer length = array.size();
             ObjectNode objectNode = (ObjectNode)array.get(0);
             Integer fieldsCount = array.get(0).size();
-            if( objectNode.has("X") && objectNode.has("Y") && objectNode.has("value")) {
+            if( (objectNode.has("x") || (objectNode.has("X")) )&&
+                    (objectNode.has("y") || (objectNode.has("Y"))) ) {
                 return "CHART_WIDGET";
             }
-            if(length <= 10 && fieldsCount == 1) {
+            if(fieldsCount <= 2) {
                 return "DROP_DOWN_WIDGET";
             }
             if(length <= 20 && fieldsCount <= 5) {
