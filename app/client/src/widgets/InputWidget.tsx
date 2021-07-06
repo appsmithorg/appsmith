@@ -324,14 +324,20 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+    const minInputSingleLineHeight =
+      this.props.label || this.props.tooltip
+        ? // adjust height for label | tooltip extra div
+          GRID_DENSITY_MIGRATION_V1 + 2
+        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
+          GRID_DENSITY_MIGRATION_V1;
 
     return (
       <InputComponent
+        // show label and Input side by side if true
         compactMode={
-          // show label and Input side by side if true
           !(
             (this.props.bottomRow - this.props.topRow) /
-              (GRID_DENSITY_MIGRATION_V1 + 2) >
+              GRID_DENSITY_MIGRATION_V1 >
               1 && this.props.inputType === "TEXT"
           )
         }
@@ -343,9 +349,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         label={this.props.label}
         multiline={
-          // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           (this.props.bottomRow - this.props.topRow) /
-            (GRID_DENSITY_MIGRATION_V1 + 2) >
+            minInputSingleLineHeight >
             1 && this.props.inputType === "TEXT"
         }
         onFocusChange={this.handleFocusChange}
