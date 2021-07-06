@@ -1,8 +1,6 @@
 set -o errexit
 set -o xtrace
 
-{
-
 UBUNTU_RELEASE="$(lsb_release -dc | awk '$1 == "Codename:" { print $2 }')"
 echo "UBUNTU_RELEASE: $UBUNTU_RELEASE"
 
@@ -26,5 +24,3 @@ export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
 # Start a Redis server.
 nohup redis-server > "$CODEBUILD_SRC_DIR/logs/redis.log" 2>&1 & disown $!
 export APPSMITH_REDIS_URL="redis://localhost:6379"
-
-} 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
