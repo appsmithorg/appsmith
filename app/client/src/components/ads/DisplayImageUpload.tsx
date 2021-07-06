@@ -191,6 +191,7 @@ export default function DisplayImageUpload({
       >
         <Dashboard
           id="uppy-img-upload-dashboard"
+          note="File size must not exceed 3 MB"
           plugins={["ImageEditor"]}
           uppy={uppy}
         />
