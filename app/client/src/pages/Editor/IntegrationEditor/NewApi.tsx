@@ -1,12 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
+import PlusLogo from "assets/images/Plus-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -165,7 +165,11 @@ function NewApiScreen(props: Props) {
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
-              <Icon className="content-icon" icon="plus" iconSize={28} />
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
             </div>
             <p className="textBtn">Create new</p>
           </CardContentWrapper>
