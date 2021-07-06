@@ -20,4 +20,3 @@ phases:
       - source ci/1-client-scripts/3-build.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
     finally:
       - source ci/common/upload-logs.sh
-      - exit $CODEBUILD_BUILD_SUCCEEDING
