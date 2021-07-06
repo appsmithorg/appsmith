@@ -12,7 +12,6 @@
     "html": true,
     "json": false
   },
-  "chromeWebSecurity": false,
   "viewportHeight": 900,
   "viewportWidth": 1400,
   "retries": {
