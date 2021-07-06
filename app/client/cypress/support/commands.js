@@ -2194,6 +2194,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     .then((x) => {
       cy.log(x);
       let originalWidget = x.replaceAll("x", "");
+      originalWidget = originalWidget.replaceAll(/\u200B/g, "");
       cy.log(originalWidget);
       cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.reload();
@@ -2209,6 +2210,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
         .then((y) => {
           cy.log(y);
           let copiedWidget = y.replaceAll("x", "");
+          copiedWidget = copiedWidget.replaceAll(/\u200B/g, "");
           cy.log(copiedWidget);
           expect(originalWidget).to.be.equal(copiedWidget);
         });
