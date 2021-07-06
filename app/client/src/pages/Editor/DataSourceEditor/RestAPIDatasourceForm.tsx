@@ -5,7 +5,6 @@ import { DATASOURCE_REST_API_FORM } from "constants/forms";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
-import AdsButton from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -142,12 +141,12 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const CreateApiButton = styled(AdsButton)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
+const CreateApiButton = styled(BaseButton)`
+  &&& {
     max-width: 120px;
-    width: auto;
+    margin-right: 9px;
+    align-self: center;
+    min-height: 32px;
   }
 `;
 
@@ -196,13 +195,29 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   componentDidUpdate() {
-    this.ensureOAuthDefaultsAreCorrect();
+    if (!this.props.formData) return;
+
+    const { authType } = this.props.formData;
+
+    if (authType === AuthType.OAuth2) {
+      this.ensureOAuthDefaultsAreCorrect();
+    } else if (authType === AuthType.apiKey) {
+      this.ensureAPIKeyDefaultsAreCorrect();
+    }
   }
 
   isDirty(prop: any) {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
+
+  ensureAPIKeyDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
+    const { authentication } = this.props.formData;
+    if (!authentication || !_.get(authentication, "addTo")) {
+      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
+    }
+  };
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
@@ -213,27 +228,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return false;
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
-      return false;
     }
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
       this.props.change("authentication.headerPrefix", "Bearer");
-      return false;
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
       }
     }
-    return true;
   };
 
   disableSave = (): boolean => {
@@ -294,40 +304,44 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   render = () => {
     return (
-      <>
-        <BackButton onClick={history.goBack} />
-        <RestApiForm>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            {this.renderHeader()}
-            {this.renderEditor()}
-            {this.renderSave()}
-          </form>
-        </RestApiForm>
-      </>
+      <RestApiForm>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          {this.renderHeader()}
+          {this.renderEditor()}
+          {this.renderSave()}
+        </form>
+      </RestApiForm>
     );
   };
 
   renderHeader = () => {
     const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
-      <Header>
-        <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
-          <FormTitle focusOnMount={isNewDatasource} />
-        </FormTitleContainer>
+      <>
+        <BackButton onClick={history.goBack} />
+        <br />
+        <Header>
+          <FormTitleContainer>
+            <PluginImage alt="Datasource" src={pluginImage} />
+            <FormTitle focusOnMount={isNewDatasource} />
+          </FormTitleContainer>
 
-        <CreateApiButton
-          className="t--create-query"
-          disabled={this.disableSave()}
-          isLoading={isSaving}
-          onClick={this.createApiAction}
-          text="New API"
-        />
-      </Header>
+          <CreateApiButton
+            accent="primary"
+            className="t--create-query"
+            disabled={this.disableSave()}
+            filled
+            icon={"plus"}
+            loading={isSaving}
+            onClick={() => this.createApiAction()}
+            text="New API"
+          />
+        </Header>
+      </>
     );
   };
 

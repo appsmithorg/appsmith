@@ -63,18 +63,6 @@ class DatasourcesApi extends API {
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
     );
   }
-
-  static fetchMockDatasources(): AxiosPromise<
-    GenericApiResponse<Datasource[]>
-  > {
-    return API.get(DatasourcesApi.url + "/mocks");
-  }
-
-  static addMockDbToDatasources(id: string, orgId: string): Promise<any> {
-    return API.post(
-      DatasourcesApi.url + `/mocks?datasourceId=${id}&organizationId=${orgId}`,
-    );
-  }
 }
 
 export default DatasourcesApi;

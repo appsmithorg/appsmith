@@ -10,19 +10,29 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { Icon } from "@blueprintjs/core";
+import Icon, { IconSize } from "components/ads/Icon";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
 const IconContainer = styled.div`
-  width: 100%;
-  height: 30px;
+  width: 22px;
+  height: 22px;
   display: flex;
+  margin-right: 16px;
+  justify-content: center;
   align-items: center;
   cursor: pointer;
-  padding-left: 16px;
-  /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
+  svg {
+    width: 12px;
+    height: 12px;
+    path {
+      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
+    }
+  }
+  &:hover {
+    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+  }
 `;
 
 function CloseEditor() {
@@ -51,13 +61,11 @@ function CloseEditor() {
       position={Position.BOTTOM_LEFT}
     >
       <IconContainer onClick={handleClose}>
-        <Icon icon="chevron-left" iconSize={16} />
-        <Text
-          style={{ color: "#0c0000", lineHeight: "14px" }}
-          type={TextType.P1}
-        >
-          Back to Canvas
-        </Text>
+        <Icon
+          className="close-modal-icon"
+          name="close-modal"
+          size={IconSize.LARGE}
+        />
       </IconContainer>
     </TooltipComponent>
   );

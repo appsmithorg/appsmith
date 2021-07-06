@@ -14,8 +14,7 @@ import {
   APPLICATIONS_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -60,9 +59,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
   const action = yield select(getAction, id);
   if (!action) {
-    history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
-    );
+    history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
   }
 
