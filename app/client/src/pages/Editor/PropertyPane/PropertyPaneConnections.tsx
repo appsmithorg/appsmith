@@ -1,7 +1,10 @@
 import React, { memo, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import Dropdown from "components/ads/Dropdown";
+import Dropdown, {
+  DefaultDropDownValueNodeProps,
+} from "components/ads/Dropdown";
+import Tooltip from "components/ads/Tooltip";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -28,18 +31,14 @@ const TopLayer = styled.div`
   }
 `;
 
-const SelectedNodeWrapper = styled.div<{ iconAlignment: "LEFT" | "RIGHT" }>`
+const SelectedNodeWrapper = styled.div<{ entityCount: number }>`
   display: flex;
   align-items: center;
   justify-content: center;
   color: #090707;
   font-size: 12px;
   width: 114px;
-
-  ${(props) =>
-    props.iconAlignment === "LEFT"
-      ? `border-right: 0.5px solid #e0dede;`
-      : `border-left: 0.5px solid #e0dede;`}
+  opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
     padding: 0 4px;
@@ -103,9 +102,10 @@ type PropertyPaneConnectionsProps = {
   widgetName: string;
 };
 
-type TriggerNodeProps = {
+type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   entityCount: number;
   iconAlignment: "LEFT" | "RIGHT";
+  connectionType: "INCOMING" | "OUTGOING";
 };
 
 const useGetEntityInfo = (name: string) => {
@@ -184,16 +184,21 @@ function OptionNode(props: any) {
   );
 }
 
-function TriggerNode(props: TriggerNodeProps) {
+const TriggerNode = memo((props: TriggerNodeProps) => {
   const ENTITY = props.entityCount > 1 ? "entities" : "entity";
+  const tooltipText = !!props.entityCount
+    ? `See ${props.connectionType.toLowerCase()} connections`
+    : `No ${props.connectionType.toLowerCase()} connections`;
 
   return (
-    <SelectedNodeWrapper iconAlignment={props.iconAlignment}>
+    <SelectedNodeWrapper entityCount={props.entityCount}>
       {props.iconAlignment === "LEFT" && (
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
       )}
       <span>
-        {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
+        <Tooltip content={tooltipText} disabled={props.isOpen}>
+          {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
+        </Tooltip>
       </span>
       {props.iconAlignment === "RIGHT" && (
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
@@ -201,7 +206,8 @@ function TriggerNode(props: TriggerNodeProps) {
       <Icon keepColors name="expand-more" size={IconSize.XS} />
     </SelectedNodeWrapper>
   );
-}
+});
+TriggerNode.displayName = "TriggerNode";
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
@@ -214,6 +220,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
           <TriggerNode
             iconAlignment={"LEFT"}
             {...selectedValueProps}
+            connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
           />
         )}
@@ -243,6 +250,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
           <TriggerNode
             iconAlignment={"RIGHT"}
             {...selectedValueProps}
+            connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
           />
         )}

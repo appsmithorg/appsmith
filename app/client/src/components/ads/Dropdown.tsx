@@ -17,6 +17,12 @@ export type DropdownOption = {
   onSelect?: (value?: string) => void;
 };
 
+export interface DefaultDropDownValueNodeProps {
+  selected: DropdownOption;
+  showLabelOnly?: boolean;
+  isOpen?: boolean;
+}
+
 export interface RenderDropdownOptionType {
   option: DropdownOption;
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
@@ -218,13 +224,10 @@ const SelectedIcon = styled(Icon)`
   }
 `;
 
-function DefaultDropDownValueNode({
+export function DefaultDropDownValueNode({
   selected,
   showLabelOnly,
-}: {
-  selected: DropdownOption;
-  showLabelOnly?: boolean;
-}) {
+}: DefaultDropDownValueNodeProps) {
   return (
     <SelectedDropDownHolder>
       {selected.icon ? (
@@ -284,6 +287,7 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           <SelectedValueNode
+            isOpen={isOpen}
             selected={selected}
             showLabelOnly={props.showLabelOnly}
           />
