@@ -36,7 +36,10 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -1346,5 +1349,325 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, new ArrayList<>());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithChartWidgetData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": [\n" +
+                "  {\n" +
+                "    \"x\": \"Mon\",\n" +
+                "    \"y\": 10000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Tue\",\n" +
+                "    \"y\": 12000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Wed\",\n" +
+                "    \"y\": 32000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Thu\",\n" +
+                "    \"y\": 28000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Fri\",\n" +
+                "    \"y\": 14000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Sat\",\n" +
+                "    \"y\": 19000\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"x\": \"Sun\",\n" +
+                "    \"y\": 36000\n" +
+                "  }\n" +
+                "]}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setSuggestedWidget("CHART_WIDGET");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithTableWidgetData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": [\n" +
+                "\t{\n" +
+                "\t\t\"id\": \"0001\",\n" +
+                "\t\t\"type\": \"donut\",\n" +
+                "\t\t\"name\": \"Cake\",\n" +
+                "\t\t\"ppu\": 0.55,\n" +
+                "\t\t\"batters\":\n" +
+                "\t\t\t{\n" +
+                "\t\t\t\t\"batter\":\n" +
+                "\t\t\t\t\t[\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" },\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1003\", \"type\": \"Blueberry\" },\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1004\", \"type\": \"Devil's Food\" }\n" +
+                "\t\t\t\t\t]\n" +
+                "\t\t\t},\n" +
+                "\t\t\"topping\":\n" +
+                "\t\t\t[\n" +
+                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
+                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
+                "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n" +
+                "\t\t\t\t{ \"id\": \"5007\", \"type\": \"Powdered Sugar\" },\n" +
+                "\t\t\t\t{ \"id\": \"5006\", \"type\": \"Chocolate with Sprinkles\" },\n" +
+                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
+                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
+                "\t\t\t]\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"id\": \"0002\",\n" +
+                "\t\t\"type\": \"donut\",\n" +
+                "\t\t\"name\": \"Raised\",\n" +
+                "\t\t\"ppu\": 0.55,\n" +
+                "\t\t\"batters\":\n" +
+                "\t\t\t{\n" +
+                "\t\t\t\t\"batter\":\n" +
+                "\t\t\t\t\t[\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" }\n" +
+                "\t\t\t\t\t]\n" +
+                "\t\t\t},\n" +
+                "\t\t\"topping\":\n" +
+                "\t\t\t[\n" +
+                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
+                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
+                "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n" +
+                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
+                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
+                "\t\t\t]\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"id\": \"0003\",\n" +
+                "\t\t\"type\": \"donut\",\n" +
+                "\t\t\"name\": \"Old Fashioned\",\n" +
+                "\t\t\"ppu\": 0.55,\n" +
+                "\t\t\"batters\":\n" +
+                "\t\t\t{\n" +
+                "\t\t\t\t\"batter\":\n" +
+                "\t\t\t\t\t[\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n" +
+                "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" }\n" +
+                "\t\t\t\t\t]\n" +
+                "\t\t\t},\n" +
+                "\t\t\"topping\":\n" +
+                "\t\t\t[\n" +
+                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
+                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
+                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
+                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
+                "\t\t\t]\n" +
+                "\t}\n" +
+                "]}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setSuggestedWidget("TABLE_WIDGET");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithListWidgetData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": [\n" +
+                "    {\n" +
+                "        \"url\": \"images/thumbnails/0001.jpg\",\n" +
+                "        \"width\": 32,\n" +
+                "        \"height\": 32\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0001.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0002.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0002.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0003.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0004.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0005.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0006.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0007.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0008.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0009.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"url\": \"images/0010.jpg\",\n" +
+                "        \"width\": 200,\n" +
+                "        \"height\": 200\n" +
+                "    }\n" +
+                "]}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setSuggestedWidget("LIST_WIDGET");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithDropdownWidgetData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": [\n" +
+                "    {\n" +
+                "     \"CarType\": \"BMW\",\n" +
+                "     \"carID\": \"bmw123\"\n" +
+                "     },\n" +
+                "      {\n" +
+                "     \"CarType\": \"mercedes\",\n" +
+                "     \"carID\": \"merc123\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "     \"CarType\": \"volvo\",\n" +
+                "     \"carID\": \"vol123r\"\n" +
+                "       },\n" +
+                "       {\n" +
+                "     \"CarType\": \"ford\",\n" +
+                "     \"carID\": \"ford123\"\n" +
+                "       }\n" +
+                "  ]}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setSuggestedWidget("DROP_DOWN_WIDGET");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
     }
 }
