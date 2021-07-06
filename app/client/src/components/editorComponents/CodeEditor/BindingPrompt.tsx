@@ -36,6 +36,7 @@ function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
+  showLightningMenu?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;
@@ -54,7 +55,13 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type <CurlyBraces>{"/"}</CurlyBraces> to access quick commands
+          Type{" "}
+          <CurlyBraces>
+            {props.showLightningMenu === false ? "{{" : "/"}
+          </CurlyBraces>{" "}
+          {props.showLightningMenu === false
+            ? "to see a list of variables"
+            : "to access quick commands"}
         </>
       )}
     </Wrapper>

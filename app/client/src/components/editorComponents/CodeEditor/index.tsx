@@ -259,7 +259,10 @@ class CodeEditor extends Component<Props, State> {
   }
 
   startAutocomplete() {
-    this.hinters = this.props.hinting.map((helper) => {
+    this.hinters = (this.props.showLightningMenu !== false
+      ? this.props.hinting
+      : [bindingHint]
+    ).map((helper) => {
       return helper(
         this.editor,
         this.props.dynamicData,
@@ -576,6 +579,7 @@ class CodeEditor extends Component<Props, State> {
               editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
+              showLightningMenu={this.props.showLightningMenu}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
