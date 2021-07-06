@@ -7,9 +7,10 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call, select } from "redux-saga/effects";
+import { select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { getWidget, getWidgetMetaProps } from "./selectors";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getWidgetMetaProps } from "./selectors";
 
 /**
  * checks if triggerpaths contains property path passed
@@ -203,9 +204,12 @@ export const handleSpecificCasesWhilePasting = (
   return widgets;
 };
 
-export function* getWidgetChildren(widgetId: string): any {
+export function getWidgetChildren(
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+): any {
   const childrenIds: string[] = [];
-  const widget = yield select(getWidget, widgetId);
+  const widget = get(canvasWidgets, widgetId);
   // When a form widget tries to resetChildrenMetaProperties
   // But one or more of its container like children
   // have just been deleted, widget can be undefined
@@ -218,7 +222,7 @@ export function* getWidgetChildren(widgetId: string): any {
       if (children.hasOwnProperty(childIndex)) {
         const child = children[childIndex];
         childrenIds.push(child);
-        const grandChildren = yield call(getWidgetChildren, child);
+        const grandChildren = getWidgetChildren(canvasWidgets, child);
         if (grandChildren.length) {
           childrenIds.push(...grandChildren);
         }
@@ -251,8 +255,11 @@ export const getParentWidgetIdForPasting = function*(
         newWidgetParentId = selectedWidget.parentId;
       }
     }
-    // Select the selected widget if the widget is container like
-    if (selectedWidget.children) {
+    // Select the selected widget if the widget is container like ( excluding list widget )
+    if (
+      selectedWidget.children &&
+      selectedWidget.type !== WidgetTypes.LIST_WIDGET
+    ) {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -289,8 +296,14 @@ export const getParentWidgetIdForPasting = function*(
   return newWidgetParentId;
 };
 
-export const checkIfPastingIntoListWidget = function*(
+export const checkIfPastingIntoListWidget = function(
+  canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
+  copiedWidgets: {
+    widgetId: string;
+    parentId: string;
+    list: WidgetProps[];
+  }[],
 ) {
   // when list widget is selected, if the user is pasting, we want it to be pasted in the template
   // which is first children of list widget
@@ -299,13 +312,23 @@ export const checkIfPastingIntoListWidget = function*(
     selectedWidget.children &&
     selectedWidget?.type === WidgetTypes.LIST_WIDGET
   ) {
-    const childrenIds: string[] = yield call(
-      getWidgetChildren,
+    const childrenIds: string[] = getWidgetChildren(
+      canvasWidgets,
       selectedWidget.children[0],
     );
     const firstChildId = childrenIds[0];
 
-    selectedWidget = yield select(getWidget, firstChildId);
+    // if any copiedWidget is a list widget, we will paste into the parent of list widget
+    for (let i = 0; i < copiedWidgets.length; i++) {
+      const copiedWidgetId = copiedWidgets[i].widgetId;
+      const copiedWidget = canvasWidgets[copiedWidgetId];
+
+      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+        return selectedWidget;
+      }
+    }
+
+    return get(canvasWidgets, firstChildId);
   }
   return selectedWidget;
 };
