@@ -242,8 +242,8 @@ Cypress.Commands.add("launchApp", (appName) => {
 });
 
 Cypress.Commands.add("AppSetupForRename", () => {
-  cy.get(homePage.applicationName).then(($btn) => {
-    if (!$btn.hasClass(homePage.editingAppName)) {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click();
       cy.get(homePage.portalMenuItem)
         .contains("Rename", { matchCase: false })
