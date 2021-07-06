@@ -9,7 +9,6 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import { NAVIGATION_BAR_DANGER_COLOR } from "constants/NavigationConstants";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
@@ -153,7 +152,7 @@ export const GetNavigationMenuData = ({
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
       isVisible: isApplicationIdPresent,
-      style: { color: NAVIGATION_BAR_DANGER_COLOR },
+      style: { color: "#F22B2B" },
     },
   ];
 };

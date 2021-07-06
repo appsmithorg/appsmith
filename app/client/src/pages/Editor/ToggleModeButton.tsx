@@ -43,7 +43,7 @@ const getShowCommentsButtonToolTip = () => {
 const setShowCommentsButtonToolTip = (value = "") =>
   localStorage.setItem("ShowCommentsButtonToolTip", value);
 
-const ModeButton = styled.div<{ active: boolean }>`
+const ModeButton = styled.div<{ active: boolean; showSelectedMode: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -53,7 +53,7 @@ const ModeButton = styled.div<{ active: boolean }>`
   height: ${(props) => props.theme.smallHeaderHeight};
   width: ${(props) => props.theme.smallHeaderHeight};
   background: ${(props) =>
-    props.active
+    props.active && props.showSelectedMode
       ? props.theme.colors.comments.activeModeBackground
       : "transparent"};
 
@@ -204,16 +204,22 @@ function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
 function CommentModeBtn({
   handleSetCommentModeButton,
   isCommentMode,
+  showSelectedMode,
   showUnreadIndicator,
 }: {
   handleSetCommentModeButton: () => void;
   isCommentMode: boolean;
   showUnreadIndicator: boolean;
+  showSelectedMode: boolean;
 }) {
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
 
   return (
-    <ModeButton active={isCommentMode} onClick={handleSetCommentModeButton}>
+    <ModeButton
+      active={isCommentMode}
+      onClick={handleSetCommentModeButton}
+      showSelectedMode={showSelectedMode}
+    >
       <TooltipComponent
         content={
           <>
@@ -230,7 +236,13 @@ function CommentModeBtn({
   );
 }
 
-function ToggleCommentModeButton() {
+type ToggleCommentModeButtonProps = {
+  showSelectedMode?: boolean;
+};
+
+function ToggleCommentModeButton({
+  showSelectedMode = true,
+}: ToggleCommentModeButtonProps) {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
@@ -274,6 +286,7 @@ function ToggleCommentModeButton() {
           <ModeButton
             active={!isCommentMode}
             onClick={() => setCommentModeInUrl(false)}
+            showSelectedMode={showSelectedMode}
           >
             <ViewOrEditMode mode={mode} />
           </ModeButton>
@@ -286,6 +299,7 @@ function ToggleCommentModeButton() {
                 handleSetCommentModeButton,
                 isCommentMode,
                 showUnreadIndicator,
+                showSelectedMode,
               }}
             />
           </TooltipComponent>

@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 
 import styled from "styled-components";
-import { MenuItem } from "@blueprintjs/core";
+import { Classes, MenuItem } from "@blueprintjs/core";
 import { noop } from "lodash";
 
-import {
-  NAVIGATION_BAR_MENU_WIDTH,
-  NAVIGATION_BAR_CONTENT_COLOR,
-  NAVIGATION_BAR_BACKGROUND_COLOR,
-} from "constants/NavigationConstants";
 import { CommonComponentProps } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export enum MenuTypes {
   MENU = "menu",
@@ -31,13 +27,22 @@ export interface MenuItemData {
 }
 
 const StyledMenuItem = styled(MenuItem)`
-  width: ${NAVIGATION_BAR_MENU_WIDTH};
-  background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
-  color: ${NAVIGATION_BAR_CONTENT_COLOR};
+  width: 240px;
+  background: ${(props) =>
+    props.theme.colors.navigationMenu.backgroundInactive};
+  color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
   border-radius: 0;
 
-  :hover {
-    color: ${NAVIGATION_BAR_CONTENT_COLOR};
+  &&&:hover {
+    color: ${(props) => props.theme.colors.navigationMenu.contentActive};
+    background: ${(props) =>
+      props.theme.colors.navigationMenu.backgroundActive};
+    background-color: ${(props) =>
+      props.theme.colors.navigationMenu.backgroundActive};
+  }
+
+  > .${Classes.MENU_ITEM_LABEL} {
+    color: ${(props) => props.theme.colors.navigationMenu.label};
   }
 `;
 
@@ -76,6 +81,9 @@ export function NavigationMenuItem({
   const handleClick = (e: React.SyntheticEvent) => {
     setIsPopoverOpen(false);
     if (onClick) onClick(e);
+    AnalyticsUtil.logEvent("APP_MENU_OPTION_CLICK", {
+      option: text,
+    });
   };
 
   const handleReconfirmClick = (e: React.SyntheticEvent) => {
@@ -89,6 +97,9 @@ export function NavigationMenuItem({
     } else if (onClick) {
       setIsPopoverOpen(false);
       onClick(e);
+      AnalyticsUtil.logEvent("APP_MENU_OPTION_CLICK", {
+        option: text,
+      });
       setConfirm({
         isConfirm: false,
         text: text,

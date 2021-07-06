@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import {
@@ -170,6 +170,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
 
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+
   const handlePublish = () => {
     if (applicationId) {
       publishApplication(applicationId);
@@ -249,14 +251,16 @@ export function EditorHeader(props: EditorHeaderProps) {
                 applicationList.filter((el) => el.id === applicationId).length >
                 0
               }
+              isPopoverOpen={isPopoverOpen}
               onBlur={(value: string) =>
                 updateApplicationDispatch(applicationId || "", {
                   name: value,
                   currentApp: true,
                 })
               }
+              setIsPopoverOpen={setIsPopoverOpen}
             />
-            <ToggleModeButton />
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
         <HeaderSection>

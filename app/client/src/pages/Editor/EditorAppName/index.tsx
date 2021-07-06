@@ -11,11 +11,6 @@ import { SavingState } from "components/ads/EditableTextSubComponent";
 import { EditInteractionKind } from "components/ads/EditableText";
 import { CommonComponentProps } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import {
-  NAVIGATION_BAR_CONTENT_COLOR,
-  NAVIGATION_BAR_BACKGROUND_COLOR,
-  NAVIGATION_BAR_MENU_FONT_SIZE,
-} from "constants/NavigationConstants";
 
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
@@ -36,16 +31,33 @@ type EditorAppNameProps = CommonComponentProps & {
   isError?: boolean;
   isNewApp: boolean;
   currentDeployLink: string;
+  isPopoverOpen: boolean;
+  setIsPopoverOpen: typeof noop;
 };
 
 const Container = styled.div<{ isPopoverOpen: boolean }>`
   display: flex;
   cursor: pointer;
   ${(props) =>
-      props.isPopoverOpen && `background-color: rgba(167, 182, 194, 0.3);`}
-    :hover {
-    background-color: rgba(167, 182, 194, 0.3);
+    props.isPopoverOpen &&
+    `
+      background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
+      > span {
+        background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
+      }`}
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.navigationMenu.backgroundInactive};
+    > span {
+      background-color: ${(props) =>
+        props.theme.colors.navigationMenu.backgroundInactive};
+    }
   }
+
+  > span {
+    height: ${(props) => props.theme.smallHeaderHeight};
+  }
+
   & .${Classes.POPOVER_TARGET} {
     height: 100%;
   }
@@ -73,18 +85,45 @@ const StyledIcon = styled(Icon)`
   height: 100%;
   padding-right: 10px;
   align-self: center;
+
+  svg path {
+    fill: ${(props) => props.theme.colors.navigationMenu.contentActive};
+  }
 `;
 
 const StyledMenu = styled(Menu)`
   margin-top: -8px;
-  background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
-  font-size: ${NAVIGATION_BAR_MENU_FONT_SIZE};
+  background: ${(props) =>
+    props.theme.colors.navigationMenu.backgroundInactive};
+  color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
+  font-size: 14px;
   border-radius: 0;
+  padding: 0;
 
   &&& .${Classes.MENU}, &&& .${Classes.MENU_SUBMENU} {
-    background: ${NAVIGATION_BAR_BACKGROUND_COLOR};
-    color: ${NAVIGATION_BAR_CONTENT_COLOR};
+    background: ${(props) =>
+      props.theme.colors.navigationMenu.backgroundInactive};
+    color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
     border-radius: 0;
+    padding: 0;
+
+    .${Classes.ICON} {
+      color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
+    }
+
+    .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN} > .${Classes.MENU_ITEM} {
+      color: ${(props) => props.theme.colors.navigationMenu.contentActive};
+      background: ${(props) =>
+        props.theme.colors.navigationMenu.backgroundActive};
+      background-color: ${(props) =>
+        props.theme.colors.navigationMenu.backgroundActive};
+    }
+  }
+
+  &&& .${Classes.MENU_SUBMENU}:hover {
+    .${Classes.ICON} {
+      color: ${(props) => props.theme.colors.navigationMenu.contentActive};
+    }
   }
 `;
 
@@ -96,6 +135,8 @@ export default function EditorAppName(props: EditorAppNameProps) {
     defaultValue,
     deploy,
     isNewApp,
+    isPopoverOpen,
+    setIsPopoverOpen,
   } = props;
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
@@ -104,7 +145,6 @@ export default function EditorAppName(props: EditorAppNameProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
@@ -134,7 +174,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
 
   const handleAppNameClick = useCallback(() => {
     if (!isEditing) {
-      setIsPopoverOpen((isOpen) => {
+      setIsPopoverOpen((isOpen: boolean) => {
         return !isOpen;
       });
     }
@@ -193,7 +233,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
         />
         {!isEditing && (
           <StyledIcon
-            fillColor={NAVIGATION_BAR_CONTENT_COLOR}
+            fillColor="#858282"
             name="downArrow"
             size={IconSize.XXS}
           />
