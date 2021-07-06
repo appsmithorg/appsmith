@@ -2193,7 +2193,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     .invoke("text")
     .then((originalWidget) => {
       cy.log(originalWidget);
-      cy.get(widgetsPage.copyWidget).click();
+      cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
@@ -2213,7 +2213,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
 
 Cypress.Commands.add("deleteWidget", (widget) => {
   // Delete the button widget
-  cy.get(widgetsPage.removeWidget).click();
+  cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
