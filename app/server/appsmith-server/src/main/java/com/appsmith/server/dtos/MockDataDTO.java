@@ -2,7 +2,6 @@ package com.appsmith.server.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minidev.json.JSONObject;
 
 import java.util.List;
 

@@ -4,7 +4,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.MockDataSet;
-import net.minidev.json.JSONObject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
