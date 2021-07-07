@@ -120,6 +120,10 @@ public class EmailEventHandler {
         );
     }
 
+    private String getUnsubscribeThreadLink(String threadId, UserRole userRole, String originHeader) {
+        return String.format("%s/unsubscribe-email.html?t=%s&u=%s", originHeader, threadId, userRole.getUserId());
+    }
+
     private Mono<Boolean> getResolveThreadEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
                                              String originHeader, Organization organization,  Application application) {
         String receiverName = StringUtils.isEmpty(receiverUserRole.getName()) ? "User" : receiverUserRole.getName();
@@ -137,6 +141,9 @@ public class EmailEventHandler {
                 receiverUserRole.getUsername(),
                 originHeader)
         );
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(
+                commentThread.getId(), receiverUserRole, originHeader
+        ));
         templateParams.put("Resolved", true);
 
         String emailSubject = String.format(
@@ -162,6 +169,9 @@ public class EmailEventHandler {
                 comment.getThreadId(),
                 receiverUserRole.getUsername(),
                 originHeader)
+        );
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(
+                comment.getThreadId(), receiverUserRole, originHeader)
         );
 
         String emailSubject = String.format(

@@ -18,15 +18,31 @@
         <p class="c4"><span class="c5">Are you sure you want to unsubscribe?</span></p>
         <p class="c4"><span class="c5">Please note that you'll be subscribed again if someone tags you in a comment or you reply to a comment.</span></p>
 
-        <p class="c4"><button>I understand, unsubscribe me</button></p>
+        <p class="c4"><button type="button" onclick="unsubscribe()">I understand, unsubscribe me</button></p>
       </div>
       <div id="success">
         <p class="c4"><span class="c5">Successfully unsubscribed from the email notifications.</span></p>
+        <p class="c4"><a href="/">Back to home</a></p>
       </div>
     </div>
     <script type="text/javascript">
     function unsubscribe() {
-      document.getElementById('form')
+      const xhttp = new XMLHttpRequest();
+      var url = new URL(window.location.href);
+      var tid = url.searchParams.get("t");
+      var uid = url.searchParams.get("u");
+      
+      if(tid && uid) {
+        xhttp.onload = function() {
+          if(this.status === 204) {
+            document.getElementById("form").style.display = "none";
+            document.getElementById("success").style.display = "block";
+          }
+        }
+        xhttp.open("POST", "/api/public/v1/comments/threads/" + tid + "/unsubscribe/" + uid, true);
+        xhttp.setRequestHeader('Content-type', 'application/json');
+        xhttp.send();
+      }
     }
     </script>
   </body>

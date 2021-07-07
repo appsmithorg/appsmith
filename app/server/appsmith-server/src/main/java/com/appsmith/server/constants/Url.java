@@ -30,6 +30,6 @@ public interface Url {
     String MARKETPLACE_ITEM_URL = BASE_URL + VERSION + "/items";
     String ASSET_URL = BASE_URL + VERSION + "/assets";
     String COMMENT_URL = BASE_URL + VERSION + "/comments";
-    String PUBLIC_COMMENT_URL = PUBLIC + BASE_URL + VERSION + "/comments";
+    String PUBLIC_COMMENT_URL = BASE_URL + PUBLIC + VERSION + "/comments";
     String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
 }
