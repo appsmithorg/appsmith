@@ -103,7 +103,6 @@ export const generateQuickCommands = (
     [],
     3,
   );
-  console.log({ currentEntityType });
   if (currentEntityType === "WIDGET") {
     createNewCommandsMatchingSearchText.push(
       ...matchingCommands([newDatasource], searchText, []),
