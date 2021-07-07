@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class MockDataSet {
 
+    String pluginType;
+
     String packageName;
 
-    String datasource;
+    String pluginName;
 
     String description;
 
