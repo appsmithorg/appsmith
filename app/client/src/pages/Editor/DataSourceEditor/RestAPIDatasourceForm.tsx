@@ -87,7 +87,10 @@ const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.headerHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
