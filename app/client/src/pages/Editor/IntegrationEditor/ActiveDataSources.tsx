@@ -114,13 +114,13 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
   render() {
     const { dataSources, isCreating } = this.props;
 
-    if (isCreating) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
+    // if (isCreating) {
+    //   return (
+    //     <LoadingContainer>
+    //       <Spinner size={30} />
+    //     </LoadingContainer>
+    //   );
+    // }
 
     if (dataSources.length === 0) {
       return (
@@ -145,6 +145,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
           return (
             <DatasourceCard
               datasource={datasource}
+              isCreating={isCreating}
               key={`${datasource.id}_${idx}`}
               onCreateQuery={this.handleCreateNewQuery}
             />
