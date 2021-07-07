@@ -67,36 +67,8 @@ export const useCanvasSnapRowsUpdateHook = () => {
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
-    setIsDragging: useCallback(
-      (isDragging: boolean) => {
-        if (isDragging) {
-          document.body.classList.add("dragging");
-        } else {
-          document.body.classList.remove("dragging");
-        }
-        dispatch({
-          type: ReduxActionTypes.SET_WIDGET_DRAGGING,
-          payload: { isDragging },
-        });
-      },
-      [dispatch],
-    ),
     setDraggingNewWidget: useCallback(
-      (isDragging: boolean, widget: any) => {
-        if (isDragging) {
-          document.body.classList.add("dragging");
-        } else {
-          document.body.classList.remove("dragging");
-        }
-        dispatch({
-          type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING_2,
-          payload: { isDragging, widget },
-        });
-      },
-      [dispatch],
-    ),
-    setDragItemsInitialParent: useCallback(
-      (isDragging: boolean, dragParent: string, dragCenter: string) => {
+      (isDragging: boolean, newWidgetProps: any) => {
         if (isDragging) {
           document.body.classList.add("dragging");
         } else {
@@ -104,7 +76,25 @@ export const useWidgetDragResize = () => {
         }
         dispatch({
           type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
-          payload: { isDragging, dragParent, dragCenter },
+          payload: { isDragging, newWidgetProps },
+        });
+      },
+      [dispatch],
+    ),
+    setDraggingState: useCallback(
+      (
+        isDragging: boolean,
+        dragGroupActualParent = "",
+        draggingGroupCenter = "",
+      ) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
+        dispatch({
+          type: ReduxActionTypes.SET_WIDGET_DRAGGING,
+          payload: { isDragging, dragGroupActualParent, draggingGroupCenter },
         });
       },
       [dispatch],
