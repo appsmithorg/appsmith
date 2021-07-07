@@ -231,7 +231,10 @@ export function DefaultDropDownValueNode({
   return (
     <SelectedDropDownHolder>
       {selected.icon ? (
-        <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+        <SelectedIcon
+          name={selected.icon}
+          size={selected.iconSize || IconSize.XXS}
+        />
       ) : null}
       <Text type={TextType.P1}>
         {showLabelOnly ? selected.label : selected.value}
