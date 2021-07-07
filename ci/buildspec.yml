@@ -23,7 +23,7 @@ batch:
         compute-type: BUILD_GENERAL1_MEDIUM
       debug-session: true
 
-#   # Run unit tests on client and server.1
+#   # Run unit tests on client and server.
 #   - identifier: server_unit_tests
 #     buildspec: ci/1-server-unit-tests.yml
 #     env:
