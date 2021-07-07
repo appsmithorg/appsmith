@@ -592,7 +592,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         childCanvas.children = canvasChildren;
       } catch (e) {
-        console.log({ error: e });
+        log.error(e);
       }
 
       return this.renderChild(childCanvas);

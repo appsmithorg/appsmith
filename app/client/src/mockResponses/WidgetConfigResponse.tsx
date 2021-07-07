@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, indexOf, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString, set } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
@@ -263,6 +263,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         task: 245,
         step: 62,
         status: 75,
+      },
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const primaryColumns = cloneDeep(widget.primaryColumns);
+              const columnIds = Object.keys(primaryColumns);
+              columnIds.forEach((columnId) => {
+                set(
+                  primaryColumns,
+                  `${columnId}.computedValue`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                );
+              });
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "primaryColumns",
+                  propertyValue: primaryColumns,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
       },
       isVisibleSearch: true,
       isVisibleFilters: true,
@@ -1091,6 +1117,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         ],
       },
     },
+    RATE_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
+      maxCount: 5,
+      defaultRate: 5,
+      activeColor: Colors.RATE_ACTIVE,
+      inactiveColor: Colors.RATE_INACTIVE,
+      size: "MEDIUM",
+      isRequired: false,
+      isAllowHalf: false,
+      isDisabled: false,
+      widgetName: "Rating",
+    },
     [WidgetTypes.IFRAME_WIDGET]: {
       source: "https://www.wikipedia.org/",
       borderOpacity: 100,
@@ -1098,6 +1137,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 8 * GRID_DENSITY_MIGRATION_V1,
       columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Iframe",
+      version: 1,
+    },
+    DIVIDER_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Divider",
+      orientation: "horizontal",
+      capType: "nc",
+      capSide: 0,
+      strokeStyle: "solid",
+      dividerColor: "black",
+      thickness: 2,
+      isVisible: true,
       version: 1,
     },
   },

@@ -47,6 +47,7 @@ import { get } from "lodash";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { AppState } from "reducers";
+import log from "loglevel";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -315,7 +316,8 @@ function* fetchUnreadCommentsCount() {
     yield put(fetchUnreadCommentThreadsCountSuccess(response.data.count > 0));
     // }
   } catch (e) {
-    console.log(e, "handle error");
+    log.error(e);
+    // todo (rishabh) handle error
   }
 }
 

@@ -28,5 +28,6 @@
         <module>amazons3Plugin</module>
         <module>googleSheetsPlugin</module>
         <module>snowflakePlugin</module>
+        <module>arangoDBPlugin</module>
     </modules>
 </project>
