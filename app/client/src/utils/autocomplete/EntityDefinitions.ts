@@ -63,6 +63,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
   },
   TABLE_WIDGET: (widget: any) => ({
     "!doc":
