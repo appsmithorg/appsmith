@@ -8,8 +8,8 @@
     "buttonWidget": ".t--draggable-buttonwidget",
     "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
-    "copyWidget": ":nth-child(2) > .bp3-popover-target > .sc-bdnylx > svg",
-    "removeWidget": ":nth-child(3) > .bp3-popover-target > .sc-bdnylx > svg",
+    "copyWidget": ".t--copy-widget svg",
+    "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .bp3-panel-stack-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
     "textWidget": ".t--draggable-textwidget",
@@ -105,5 +105,6 @@
     "switchWidgetActive": ".t--switch-widget-active",
     "switchWidgetInactive": ".t--switch-widget-inactive",
     "switchWidgetLoading": ".t--switch-widget-loading",
-    "chartPlotGroup": "g.raphael-group-63-plot-group"
+    "chartPlotGroup": "g.raphael-group-63-plot-group",
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
 }

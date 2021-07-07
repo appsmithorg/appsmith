@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
+import AdsButton from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -13,7 +13,6 @@ import {
   reduxForm,
 } from "redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import BackButton from "./BackButton";
 import InputTextControl, {
   StyledInfo,
 } from "components/formControls/InputTextControl";
@@ -56,6 +55,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -87,7 +87,10 @@ const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.headerHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -124,7 +127,7 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  //margin-top: 16px;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -141,12 +144,15 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const CreateApiButton = styled(BaseButton)`
-  &&& {
-    max-width: 120px;
-    margin-right: 9px;
-    align-self: center;
-    min-height: 32px;
+const CreateApiButton = styled(AdsButton)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    //max-width: 120px;
+    width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -304,44 +310,41 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   render = () => {
     return (
-      <RestApiForm>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {this.renderHeader()}
-          {this.renderEditor()}
-          {this.renderSave()}
-        </form>
-      </RestApiForm>
+      <>
+        <CloseEditor />
+        <RestApiForm>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {this.renderHeader()}
+            {this.renderEditor()}
+            {this.renderSave()}
+          </form>
+        </RestApiForm>
+      </>
     );
   };
 
   renderHeader = () => {
     const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
-      <>
-        <BackButton onClick={history.goBack} />
-        <br />
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={pluginImage} />
-            <FormTitle focusOnMount={isNewDatasource} />
-          </FormTitleContainer>
+      <Header>
+        <FormTitleContainer>
+          <PluginImage alt="Datasource" src={pluginImage} />
+          <FormTitle focusOnMount={isNewDatasource} />
+        </FormTitleContainer>
 
-          <CreateApiButton
-            accent="primary"
-            className="t--create-query"
-            disabled={this.disableSave()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-            text="New API"
-          />
-        </Header>
-      </>
+        <CreateApiButton
+          className="t--create-query"
+          disabled={this.disableSave()}
+          icon="plus"
+          isLoading={isSaving}
+          onClick={this.createApiAction}
+          text="New API"
+        />
+      </Header>
     );
   };
 

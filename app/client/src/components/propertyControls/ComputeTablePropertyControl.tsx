@@ -14,7 +14,7 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/ActionCreator";
+} from "components/editorComponents/ActionCreator/Fields";
 
 const PromptMessage = styled.span`
   line-height: 17px;

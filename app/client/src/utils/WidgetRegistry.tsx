@@ -57,6 +57,9 @@ import ListWidget, { CONFIG as LIST_WIDGET_CONFIG } from "widgets/ListWidget";
 import SwitchWidget, {
   CONFIG as SWITCH_WIDGET_CONFIG,
 } from "widgets/SwitchWidget";
+import DividerWidget, {
+  CONFIG as DIVIDER_WIDGET_CONFIG,
+} from "widgets/DividerWidget";
 import TabsMigratorWidget, {
   CONFIG as TABS_MIGRATOR_WIDGET_CONFIG,
 } from "widgets/Tabs/TabsMigrator";
@@ -100,5 +103,6 @@ export const registerWidgets = () => {
   registerWidget(RateWidget, RATE_WIDGET_CONFIG);
   registerWidget(IframeWidget, IFRAME_WIDGET_CONFIG);
   registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
+  registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

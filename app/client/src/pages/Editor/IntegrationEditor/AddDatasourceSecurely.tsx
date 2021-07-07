@@ -10,54 +10,52 @@ const Wrapper = styled.div`
   padding: 23px;
   flex-direction: row;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .datasource-img {
+    height: 108px;
+  }
+`;
+
+const HeadWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  & > img {
+    margin-right: 10px;
+  }
 `;
 
 const Header = styled.div`
   font-weight: 600;
   font-size: 24px;
+  line-height: 32px;
   color: ${Colors.OXFORD_BLUE};
-  margin-top: 8px;
 `;
 
-const Content = styled.div`
+const Content = styled.p`
   margin-top: 8px;
   color: ${Colors.OXFORD_BLUE};
-  max-width: 65%;
+  max-width: 360px;
+  font-size: 14px;
+  line-height: 20px;
 `;
 
-const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 155px;
-    max-height: 36px;
-    margin-top: 18px;
-  }
-`;
-
-type AddDatasourceSecurelyProps = {
-  onAddDatasource: () => void;
-};
-
-function AddDatasourceSecurely(props: AddDatasourceSecurelyProps) {
+function AddDatasourceSecurely() {
   return (
     <Wrapper>
       <div>
-        <img src={Secure} />
-        <Header>Secure & fast database connection</Header>
+        <HeadWrapper>
+          <img src={Secure} />
+          <Header>Secure & fast database connection</Header>
+        </HeadWrapper>
         <Content>
           Connect your database to start building read/write workflows. Your
           Passwords are fully encrypted and we never store any of your data.
           That’s a promise.
         </Content>
-        <ActionButton
-          accent="primary"
-          className="t--add-datasource"
-          filled
-          icon={"plus"}
-          onClick={props.onAddDatasource}
-          text="New Datasource"
-        />
       </div>
-      <img src={AppsmithDatasource} />
+      <img className="datasource-img" src={AppsmithDatasource} />
     </Wrapper>
   );
 }

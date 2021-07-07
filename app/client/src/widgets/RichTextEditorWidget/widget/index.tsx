@@ -58,6 +58,16 @@ class RichTextEditorWidget extends BaseWidget<
             validation: VALIDATION_TYPES.TEXT,
           },
           {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -111,6 +121,7 @@ class RichTextEditorWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{this.text}}`,
+      isValid: `{{ this.isRequired ? this.text && this.text.length : true }}`,
     };
   }
 
@@ -158,6 +169,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   onTextChange?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  isRequired?: boolean;
 }
 
 export default RichTextEditorWidget;

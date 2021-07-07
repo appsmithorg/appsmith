@@ -123,6 +123,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
