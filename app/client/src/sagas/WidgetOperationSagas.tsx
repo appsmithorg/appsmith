@@ -130,9 +130,6 @@ import {
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
   getTopMostSelectedWidget,
-  updateWidgetIdOfTabsWhenPasting,
-  updateTableColumnPropertiesWhenPasting,
-  updateCopiedWidgetProps,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
@@ -1521,10 +1518,6 @@ function* pasteWidgetSaga() {
 
   // copiedWidgetGroups = groupWidgetsIntoContainer(copiedWidgetGroups);
 
-  // console.log({ copiedWidgetGroups });
-
-  // return;
-
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
       call(function*() {
@@ -1541,7 +1534,6 @@ function* pasteWidgetSaga() {
         };
 
         // Log the paste event.
-        // Note: analytics should not be part of business logic.
         AnalyticsUtil.logEvent("WIDGET_PASTE", {
           widgetName: copiedWidget.widgetName,
           widgetType: copiedWidget.type,
@@ -1555,12 +1547,15 @@ function* pasteWidgetSaga() {
           nextAvailableRow,
           true,
         );
+        // goToNextAvailableRow = true,
+        // persistColumnPosition = false,
 
         // Get a flat list of all the widgets to be updated
         const widgetList = copiedWidgets.list;
         const widgetIdMap: Record<string, string> = {};
         const widgetNameMap: Record<string, string> = {};
         const newWidgetList: FlattenedWidgetProps[] = [];
+        let newWidgetId: string = copiedWidget.widgetId;
         // Generate new widgetIds for the flat list of all the widgets to be updated
 
         widgetList.forEach((widget) => {
@@ -1588,17 +1583,125 @@ function* pasteWidgetSaga() {
             });
           }
 
-          updateWidgetIdOfTabsWhenPasting(widget, widgetIdMap);
-          updateTableColumnPropertiesWhenPasting(widget, widgets, evalTree);
+          // Update the tabs for the tabs widget.
+          if (widget.tabsObj && widget.type === WidgetTypes.TABS_WIDGET) {
+            try {
+              const tabs = Object.values(widget.tabsObj);
+              if (Array.isArray(tabs)) {
+                widget.tabsObj = tabs.reduce((obj: any, tab) => {
+                  tab.widgetId = widgetIdMap[tab.widgetId];
+                  obj[tab.id] = tab;
+                  return obj;
+                }, {});
+              }
+            } catch (error) {
+              log.debug("Error updating tabs", error);
+            }
+          }
 
-          updateCopiedWidgetProps(
-            widget,
-            widgets,
-            pastingIntoWidgetId,
-            newWidgetPosition,
-            widget.widgetId === widgetIdMap[copiedWidget.widgetId],
-          );
+          // Update the table widget column properties
+          if (widget.type === WidgetTypes.TABLE_WIDGET) {
+            try {
+              const oldWidgetName = widget.widgetName;
+              const newWidgetName = getNextWidgetName(
+                widgets,
+                widget.type,
+                evalTree,
+              );
+              // If the primaryColumns of the table exist
+              if (widget.primaryColumns) {
+                // For each column
+                for (const [columnId, column] of Object.entries(
+                  widget.primaryColumns,
+                )) {
+                  // For each property in the column
+                  for (const [key, value] of Object.entries(
+                    column as ColumnProperties,
+                  )) {
+                    // Replace reference of previous widget with the new widgetName
+                    // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+                    widget.primaryColumns[columnId][key] = isString(value)
+                      ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                      : value;
+                  }
+                }
+              }
+              // Use the new widget name we used to replace the column properties above.
+              widget.widgetName = newWidgetName;
+            } catch (error) {
+              log.debug("Error updating table widget properties", error);
+            }
+          }
 
+          // If it is the copied widget, update position properties
+          if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
+            const {
+              bottomRow,
+              leftColumn,
+              rightColumn,
+              topRow,
+            } = newWidgetPosition;
+            newWidgetId = widget.widgetId;
+            widget.leftColumn = leftColumn;
+            widget.topRow = topRow;
+            widget.bottomRow = bottomRow;
+            widget.rightColumn = rightColumn;
+            widget.parentId = pastingIntoWidgetId;
+            // Also, update the parent widget in the canvas widgets
+            // to include this new copied widget's id in the parent's children
+            let parentChildren = [widget.widgetId];
+            const widgetChildren = widgets[pastingIntoWidgetId].children;
+            if (widgetChildren && Array.isArray(widgetChildren)) {
+              // Add the new child to existing children
+              parentChildren = parentChildren.concat(widgetChildren);
+            }
+            const updateBottomRow =
+              widget.bottomRow * widget.parentRowSpace >
+              widgets[pastingIntoWidgetId].bottomRow;
+            widgets = {
+              ...widgets,
+              [pastingIntoWidgetId]: {
+                ...widgets[pastingIntoWidgetId],
+                ...(updateBottomRow
+                  ? {
+                      bottomRow: widget.bottomRow * widget.parentRowSpace,
+                    }
+                  : {}),
+                children: parentChildren,
+              },
+            };
+            // If the copied widget's boundaries exceed the parent's
+            // Make the parent scrollable
+            if (
+              widgets[pastingIntoWidgetId].bottomRow *
+                widgets[widget.parentId].parentRowSpace <=
+              widget.bottomRow * widget.parentRowSpace
+            ) {
+              const parentOfPastingWidget =
+                widgets[pastingIntoWidgetId].parentId;
+              if (
+                parentOfPastingWidget &&
+                widget.parentId !== MAIN_CONTAINER_WIDGET_ID
+              ) {
+                const parent = widgets[parentOfPastingWidget];
+                widgets[parentOfPastingWidget] = {
+                  ...parent,
+                  shouldScrollContents: true,
+                };
+              }
+            }
+          } else {
+            // For all other widgets in the list
+            // (These widgets will be descendants of the copied widget)
+            // This means, that their parents will also be newly copied widgets
+            // Update widget's parent widget ids with the new parent widget ids
+            const newParentId = newWidgetList.find((newWidget) =>
+              widget.parentId
+                ? newWidget.widgetId === widgetIdMap[widget.parentId]
+                : false,
+            )?.widgetId;
+            if (newParentId) widget.parentId = newParentId;
+          }
           // Generate a new unique widget name
           widget.widgetName = getNextWidgetName(
             widgets,
@@ -1613,7 +1716,6 @@ function* pasteWidgetSaga() {
           // Add the new widget to the canvas widgets
           widgets[widget.widgetId] = widget;
         }
-
         newlyCreatedWidgetIds.push(widgetIdMap[copiedWidgetId]);
         // 1. updating template in the copied widget and deleting old template associations
         // 2. updating dynamicBindingPathList in the copied grid widget
@@ -1630,11 +1732,10 @@ function* pasteWidgetSaga() {
       }),
     ),
   );
-  // save the new DSL
+
   yield put(updateAndSaveLayout(widgets));
-  newlyCreatedWidgetIds.forEach((newWidgetId) => {
-    setTimeout(() => flashElementById(newWidgetId), 100);
-  });
+
+  flashElementById(newlyCreatedWidgetIds, 100);
 
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
