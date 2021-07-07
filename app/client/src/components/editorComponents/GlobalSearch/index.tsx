@@ -45,13 +45,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-// import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
-// import { currentPageId } from "sagas/selectors";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -256,7 +254,6 @@ function GlobalSearch() {
 
   const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
-  // const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
   const searchResults = useMemo(() => {
     if (!query) {
@@ -284,28 +281,6 @@ function GlobalSearch() {
       documentationSearchResults,
       currentPageId,
     );
-
-    // const actionsAndWidgetsSorted = [
-    //   ...filteredActions,
-    //   ...filteredWidgets,
-    // ].sort((a, b) => sortActionsAndWidgets(a, b, currentPageId));
-
-    // const entities = [
-    //   entitiesSectionTitle,
-    //   ...actionsAndWidgetsSorted,
-    //   ...filteredPages,
-    //   ...filteredDatasources,
-    // ];
-
-    // if (entities.length > 1) {
-    //   results.push(...entities);
-    // }
-
-    // if (documentationSearchResults.length > 0) {
-    //   results.push(docsSectionTitle, ...documentationSearchResults);
-    // }
-
-    // return results;
   }, [
     filteredWidgets,
     filteredActions,
