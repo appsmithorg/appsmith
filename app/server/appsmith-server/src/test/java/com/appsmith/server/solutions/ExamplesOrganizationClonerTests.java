@@ -799,6 +799,7 @@ public class ExamplesOrganizationClonerTests {
                             Connection.Type.DIRECT,
                             new SSLDetails(
                                     SSLDetails.AuthType.ALLOW,
+                                    SSLDetails.CACertificateType.NONE,
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),

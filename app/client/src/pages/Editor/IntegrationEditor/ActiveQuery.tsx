@@ -1,26 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { Spinner, Button } from "@blueprintjs/core";
+import { Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
-import { Page } from "constants/ReduxActionConstants";
-import {
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-} from "constants/routes";
-import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
-import CloseEditor from "components/editorComponents/CloseEditor";
 
 const QueryHomePage = styled.div`
-  padding: 20px;
+  padding: 5px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -37,19 +29,6 @@ const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-const AddDatasource = styled(Button)`
-  padding: 23px;
-  border: 2px solid #d6d6d6;
-  justify-content: flex-start;
-  font-size: 16px;
-  font-weight: 500;
-`;
-
-const Boundary = styled.hr`
-  border: 1px solid #d0d7dd;
-  margin-top: 16px;
-`;
-
 type QueryHomeScreenProps = {
   dataSources: Datasource[];
   applicationId: string;
@@ -64,8 +43,6 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  pages: Page[];
-  pluginImages: Record<string, string>;
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
@@ -94,24 +71,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   };
 
   render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
-
-    const destinationPageId = new URLSearchParams(location.search).get(
-      "importTo",
-    );
-
-    if (!destinationPageId) {
-      history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
-    }
+    const { dataSources, isCreating } = this.props;
 
     if (isCreating) {
       return (
@@ -123,29 +83,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <CloseEditor />
-        <p className="sectionHeader">
-          Select a datasource to query or create a new one
-        </p>
-        <Boundary />
-        {dataSources.length < 2 ? (
-          <AddDatasourceSecurely
-            onAddDatasource={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-            }}
-          />
-        ) : (
-          <AddDatasource
-            className="t--add-datasource"
-            fill
-            icon={"plus"}
-            minimal
-            onClick={() => {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-            }}
-            text="New Datasource"
-          />
-        )}
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
@@ -161,9 +98,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  pluginImages: getPluginImages(state),
   actions: state.entities.actions,
-  pages: state.entities.pageList.pages,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
