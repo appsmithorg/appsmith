@@ -1,17 +1,11 @@
 import React, { CSSProperties, useState } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
-import { useDrag, DragSourceMonitor } from "react-dnd";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -44,41 +38,34 @@ type DraggableComponentProps = WidgetProps;
 /**
  * can drag helper function for react-dnd hook
  *
- * @param isResizing
+ * @param isResizingOrDragging
  * @param isDraggingDisabled
  * @param props
  * @returns
  */
 export const canDrag = (
-  isResizing: boolean,
+  isResizingOrDragging: boolean,
   isDraggingDisabled: boolean,
   props: any,
   isCommentMode: boolean,
 ) => {
   return (
-    !isResizing && !isDraggingDisabled && !props?.dragDisabled && !isCommentMode
+    !isResizingOrDragging &&
+    !isDraggingDisabled &&
+    !props?.dragDisabled &&
+    !isCommentMode
   );
 };
 
 function DraggableComponent(props: DraggableComponentProps) {
-  // Dispatch hook handy to toggle property pane
-  const showPropertyPane = useShowPropertyPane();
-  const showTableFilterPane = useShowTableFilterPane();
-
   // Dispatch hook handy to set a widget as focused/selected
-  const { focusWidget, selectWidget } = useWidgetSelection();
+  const { focusWidget } = useWidgetSelection();
 
   const isCommentMode = useSelector(commentModeSelector);
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
-  const { setDragItemsInitialParent, setIsDragging } = useWidgetDragResize();
-
-  // This state tells us which widget is selected
-  // The value is the widgetId of the selected widget
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-  );
+  const { setDraggingState } = useWidgetDragResize();
 
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
@@ -106,54 +93,11 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
-  const [{ isCurrentWidgetDragging }] = useDrag({
-    item: props as WidgetProps,
-    collect: (monitor: DragSourceMonitor) => ({
-      isCurrentWidgetDragging: monitor.isDragging(),
-    }),
-    begin: () => {
-      // When this draggable starts dragging
-
-      // Make sure that this widget is selected
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
-      // Make sure that this tableFilterPane should close
-      showTableFilterPane && showTableFilterPane();
-      // Tell the rest of the application that a widget has started dragging
-      setIsDragging && setIsDragging(true);
-      AnalyticsUtil.logEvent("WIDGET_DRAG", {
-        widgetName: props.widgetName,
-        widgetType: props.type,
-      });
-    },
-    end: (widget, monitor) => {
-      // When this draggable is dropped, we try to open the propertypane
-      // We pass the second parameter to make sure the previous toggle state (open/close)
-      // of the property pane is taken into account.
-      // See utils/hooks/dragResizeHooks.tsx
-      const didDrop = monitor.didDrop();
-      if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-      }
-      // Take this to the bottom of the stack. So that it runs last.
-      // We do this because, we don't want erroraneous mouse clicks to propagate.
-      setTimeout(() => setIsDragging && setIsDragging(false), 0);
-      AnalyticsUtil.logEvent("WIDGET_DROP", {
-        widgetName: props.widgetName,
-        widgetType: props.type,
-        didDrop: didDrop,
-      });
-    },
-    canDrag: () => {
-      // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return canDrag(isResizing, isDraggingDisabled, props, isCommentMode);
-    },
-  });
-
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-
+  const isCurrentWidgetDragging =
+    isDragging && selectedWidgets.includes(props.widgetId);
+  const isCurrentWidgetDraggingResizing = isResizing && isCurrentWidgetDragging;
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -174,10 +118,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const widgetBoundaries = (
     <WidgetBoundaries
       style={{
-        opacity:
-          isResizingOrDragging && !selectedWidgets.includes(props.widgetId)
-            ? 1
-            : 0,
+        opacity: isCurrentWidgetDraggingResizing ? 1 : 0,
         position: "absolute",
         transform: `translate(-50%, -50%)`,
         top: "50%",
@@ -191,14 +132,19 @@ function DraggableComponent(props: DraggableComponentProps) {
     .join("")
     .toLowerCase()}`;
   // const { setIsDragging } = useWidgetDragResize();
-
+  const allowDrag = canDrag(
+    isResizingOrDragging,
+    isDraggingDisabled,
+    props,
+    isCommentMode,
+  );
   const className = `${classNameForTesting}`;
   const dispatch = useDispatch();
   const [mightBeDragging, setMightBeDragging] = useState(false);
   const mouseMove = (e: any) => {
-    if (mightBeDragging && !isResizingOrDragging) {
+    if (mightBeDragging && allowDrag) {
       e.preventDefault();
-      setDragItemsInitialParent(true, props.parentId || "", props.widgetId);
+      setDraggingState(true, props.parentId || "", props.widgetId);
       if (!selectedWidgets.includes(props.widgetId)) {
         dispatch(selectWidgetInitAction(props.widgetId));
       }
@@ -210,7 +156,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     <DraggableWrapper
       className={className}
       onMouseDown={(e) => {
-        if (!e.metaKey && !isResizingOrDragging) {
+        if (!e.metaKey && allowDrag) {
           setMightBeDragging(true);
           e.stopPropagation();
         }

@@ -107,7 +107,7 @@ export function CanvasDraggingArena({
   widgetId: string;
 }) {
   const dragParent = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragParent,
+    (state: AppState) => state.ui.widgetDragResize.dragGroupActualParent,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -125,7 +125,7 @@ export function CanvasDraggingArena({
   const allWidgets = useSelector(getWidgets);
   // const widget = useSelector((state: AppState) => getWidget(state, widgetId));
   const dragCenter = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragCenter,
+    (state: AppState) => state.ui.widgetDragResize.draggingGroupCenter,
   );
   const dragCenterSpace = childrenOccupiedSpaces.find(
     (each) => each.id === dragCenter,
@@ -156,10 +156,7 @@ export function CanvasDraggingArena({
           isNotColliding: true,
         },
       ];
-  const {
-    setDraggingNewWidget,
-    setDragItemsInitialParent,
-  } = useWidgetDragResize();
+  const { setDraggingNewWidget, setDraggingState } = useWidgetDragResize();
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
@@ -436,7 +433,7 @@ export function CanvasDraggingArena({
           if (newWidget) {
             setDraggingNewWidget(false, undefined);
           } else {
-            setDragItemsInitialParent(false, "", "");
+            setDraggingState(false);
           }
           onMouseOut();
           if (isDragging && canvasIsDragging) {

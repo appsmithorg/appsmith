@@ -6,8 +6,8 @@ const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   isResizing: false,
-  dragParent: "",
-  dragCenter: "",
+  dragGroupActualParent: "",
+  draggingGroupCenter: "",
   newWidget: undefined,
   lastSelectedWidget: undefined,
   selectedWidgets: [],
@@ -22,33 +22,27 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isDraggingDisabled = action.payload.isDraggingDisabled;
   },
+  [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{
+      isDragging: boolean;
+      dragGroupActualParent: string;
+      draggingGroupCenter: string;
+    }>,
+  ) => {
+    state.dragGroupActualParent = action.payload.dragGroupActualParent;
+    state.isDragging = action.payload.isDragging;
+    state.draggingGroupCenter = action.payload.draggingGroupCenter;
+  },
   [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{
       isDragging: boolean;
-      dragParent: string;
-      dragCenter: string;
-    }>,
-  ) => {
-    state.dragParent = action.payload.dragParent;
-    state.isDragging = action.payload.isDragging;
-    state.dragCenter = action.payload.dragCenter;
-  },
-  [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING_2]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{
-      isDragging: boolean;
-      widget: string;
+      newWidgetProps: any;
     }>,
   ) => {
     state.isDragging = action.payload.isDragging;
-    state.newWidget = action.payload.widget;
-  },
-  [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ isDragging: boolean }>,
-  ) => {
-    state.isDragging = action.payload.isDragging;
+    state.newWidget = action.payload.newWidgetProps;
   },
   [ReduxActionTypes.SET_WIDGET_RESIZING]: (
     state: WidgetDragResizeState,
@@ -134,8 +128,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
-  dragParent: string;
-  dragCenter: string;
+  dragGroupActualParent: string;
+  draggingGroupCenter: string;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;
