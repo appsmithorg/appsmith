@@ -2766,7 +2766,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
-    public void setSvgLogoToPluginIcons(MongoTemplate mongoTemplate) {
+    public void setSvgLogoToPluginIcons(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/postgresql.svg");
@@ -2790,6 +2790,8 @@ public class DatabaseChangelog {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/elastic.svg");
             } else if ("mysql-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mysql.svg");
+            } else if ("arangodb-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/arangodb.svg");
             } else {
                 continue;
             }
