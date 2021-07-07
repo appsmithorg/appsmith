@@ -131,7 +131,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     .split("_")
     .join("")
     .toLowerCase()}`;
-  // const { setIsDragging } = useWidgetDragResize();
+
   const allowDrag = canDrag(
     isResizingOrDragging,
     isDraggingDisabled,
