@@ -1,6 +1,7 @@
 # Build phase script for units node in the main build graph.
 
 set -o errexit
+set -o pipefail
 set -o xtrace
 
 echo "BASH_VERSION: '$BASH_VERSION'"

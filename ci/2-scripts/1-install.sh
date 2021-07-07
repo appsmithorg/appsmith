@@ -1,4 +1,5 @@
 set -o errexit
+set -o pipefail
 set -o xtrace
 
 wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -

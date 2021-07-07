@@ -1,6 +1,7 @@
 # Build Docker images for client and server, and push to registry/registries.
 
 set -o errexit
+set -o pipefail
 set -o xtrace
 
 aws --version

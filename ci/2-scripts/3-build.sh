@@ -1,6 +1,5 @@
-#!/bin/bash
-
 set -o errexit
+set -o pipefail
 set -o xtrace
 
 curl-fail() {
@@ -27,8 +26,6 @@ aws s3 cp --no-progress "$S3_BUILDS_PREFIX/$BATCH_ID/server-dist.tgz" .
 
 tar -xaf client-dist.tgz
 tar -xaf server-dist.tgz
-
-ls
 du -sh client-dist server-dist
 
 echo Building server code
@@ -37,11 +34,11 @@ APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot \
 	APPSMITH_CLOUD_SERVICES_BASE_URL='' \
 	APPSMITH_IS_SELF_HOSTED=false \
-	java -jar server-*.jar > "$CODEBUILD_SRC_DIR/logs/server.log" &
+	java -jar server-*.jar > "$CODEBUILD_SRC_DIR/logs/server.log" 2>&1 &
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port.
 echo "127.0.0.1	dev.appsmith.com" | tee -a /etc/hosts
-npx serve -s "$CODEBUILD_SRC_DIR/client-dist" -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" &
+npx serve -s "$CODEBUILD_SRC_DIR/client-dist" -p 3000 > "$CODEBUILD_SRC_DIR/logs/client.log" 2>&1 &
 
 export APPSMITH_DISABLE_TELEMETRY=true
 

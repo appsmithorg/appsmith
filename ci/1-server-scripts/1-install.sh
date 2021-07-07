@@ -1,4 +1,5 @@
 set -o errexit
+set -o pipefail
 set -o xtrace
 
 UBUNTU_RELEASE="$(lsb_release -dc | awk '$1 == "Codename:" { print $2 }')"
