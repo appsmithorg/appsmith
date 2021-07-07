@@ -92,6 +92,7 @@ export type EditorStyleProps = {
   disabled?: boolean;
   link?: string;
   showLightningMenu?: boolean;
+  mutedHinting?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
@@ -366,6 +367,7 @@ class CodeEditor extends Component<Props, State> {
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+        mutedHinting: this.props.mutedHinting,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         updatePropertyValue: this.updatePropertyValue.bind(this),
