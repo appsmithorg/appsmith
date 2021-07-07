@@ -63,15 +63,21 @@ const Selected = styled.div<{
   disabled?: boolean;
   height: string;
   bgColor?: string;
+  hasError?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
-  background: ${(props) =>
-    props.disabled
-      ? props.theme.colors.dropdown.header.disabledBg
-      : !!props.bgColor
+  background: ${(props) => {
+    if (props.disabled) {
+      return props.theme.colors.dropdown.header.disabledBg;
+    } else if (props.hasError) {
+      return Colors.FAIR_PINK;
+    }
+    return !!props.bgColor
       ? props.bgColor
-      : props.theme.colors.dropdown.header.bg};
+      : props.theme.colors.dropdown.header.bg;
+  }};
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -321,6 +327,7 @@ export default function Dropdown(props: DropdownProps) {
             bgColor={props.bgColor}
             className={props.className}
             disabled={disabled}
+            hasError={!!errorMsg}
             height={props.height || "38px"}
             isOpen={isOpen}
             onClick={() => setIsOpen(!isOpen)}

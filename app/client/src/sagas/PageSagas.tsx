@@ -91,6 +91,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
 import { getGenerateTemplateURL } from "../constants/routes";
+import {
+  generateTemplateError,
+  generateTemplateSuccess,
+} from "../actions/pageActions";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -852,6 +856,10 @@ export function* generateTemplatePageSaga(
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      Toaster.show({
+        text: "Successfully generated a page",
+        variant: Variant.success,
+      });
       const pageId = response.data.id;
       const applicationId =
         response.data.applicationId || request.applicationId;
@@ -859,17 +867,13 @@ export function* generateTemplatePageSaga(
         fetchPageResponse: response,
         pageId,
       });
+      yield put(generateTemplateSuccess());
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
 
       history.replace(BUILDER_PAGE_URL(applicationId, pageId));
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
-      payload: {
-        error,
-      },
-    });
+    yield put(generateTemplateError());
     Toaster.show({
       text: "Failed Generating template",
       variant: Variant.danger,

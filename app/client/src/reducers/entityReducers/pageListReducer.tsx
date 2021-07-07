@@ -8,6 +8,7 @@ import {
 
 const initialState: PageListReduxState = {
   pages: [],
+  isGeneratingTemplatePage: false,
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -103,6 +104,21 @@ export const pageListReducer = createReducer(initialState, {
     }
     return { ...state, pages };
   },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: true };
+  },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: false };
+  },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: false };
+  },
 });
 
 export type SupportedLayouts =
@@ -121,6 +137,7 @@ export interface PageListReduxState {
   defaultPageId?: string;
   currentPageId?: string;
   appLayout?: AppLayoutConfig;
+  isGeneratingTemplatePage?: boolean;
 }
 
 export default pageListReducer;

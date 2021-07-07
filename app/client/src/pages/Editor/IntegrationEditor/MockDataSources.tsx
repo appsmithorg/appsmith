@@ -7,6 +7,7 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { addMockDatasourceToOrg } from "actions/datasourceActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 const MockDataSourceWrapper = styled.div`
   padding: 5px;
@@ -106,10 +107,12 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   const { datasource, orgId } = props;
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
-  const addMockDataSource = useCallback(
-    () => dispatch(addMockDatasourceToOrg(datasource.id, orgId)),
-    [datasource.id, orgId],
-  );
+  const addMockDataSource = useCallback(() => {
+    const queryParams = getQueryParams();
+    dispatch(
+      addMockDatasourceToOrg(datasource.id, orgId, queryParams.initiator),
+    );
+  }, [datasource.id, orgId]);
   return (
     <CardWrapper className="t--mock-datasource">
       <DatasourceCardHeader className="t--datasource-name">

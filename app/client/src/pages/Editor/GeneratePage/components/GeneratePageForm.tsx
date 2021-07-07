@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "../../../../constants/DefaultTheme";
-import { DescWrapper, Title } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -25,6 +24,7 @@ import {
   INTEGRATION_TABS,
 } from "../../../../constants/routes";
 import history from "utils/history";
+import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelectors";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
@@ -92,6 +92,15 @@ const FAKE_DATASOURCE_OPTION = {
     },
   },
 };
+
+const ALLOWED_SEARCH_DATATYPE = [
+  "text",
+  "string",
+  "char",
+  "varchar",
+  "character",
+  "text string",
+];
 //  ---------- Styles ----------
 
 const Wrapper = styled.div`
@@ -128,6 +137,19 @@ const Bold = styled.span`
   font-weight: 500;
 `;
 
+export const DescWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const Title = styled.p`
+  ${(props) => getTypographyByKey(props, "p1")};
+  font-weight: 500;
+  color: ${Colors.CODE_GRAY};
+  font-size: 24px;
+`;
 // ---------- Types ----------
 interface DatasourceTableDropdownOption extends DropdownOption {
   data: DatasourceTable;
@@ -152,6 +174,7 @@ function GeneratePageForm() {
   } = useParams<ExplorerURLParams>();
   const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
+  const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
 
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
@@ -184,83 +207,73 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const onSelectDataSource = (
-    datasource: string | undefined,
-    dataSourceObj: DropdownOption | undefined,
-  ) => {
-    if (datasource && dataSourceObj) {
-      selectDataSource(dataSourceObj);
-      setSelectedDatasourceTableOptions([]);
-      setSelectedTableColumnOptions([]);
-      selectTable(DEFAULT_DROPDOWN_OPTION);
-      selectColumn(DEFAULT_DROPDOWN_OPTION);
-      if (dataSourceObj.id) {
-        dispatch(fetchDatasourceStructure(dataSourceObj.id));
-      }
-    }
-  };
-
-  const onSelectTable = (
-    table: string | undefined,
-    TableObj: DatasourceTableDropdownOption,
-  ) => {
-    if (table && TableObj) {
-      selectTable(TableObj);
-      setSelectedTableColumnOptions([]);
-      selectColumn(DEFAULT_DROPDOWN_OPTION);
-      const { data } = TableObj;
-      if (data.columns) {
-        const newSelectedTableColumnOptions: DropdownOption[] = [];
-        data.columns.map((column) => {
-          if (column.type === "text") {
-            newSelectedTableColumnOptions.push({
-              id: column.name,
-              label: column.name,
-              value: column.name,
-              subText: column.type,
-            });
-          }
-        });
-        if (newSelectedTableColumnOptions.length) {
-          setSelectedTableColumnOptions(newSelectedTableColumnOptions);
+  const onSelectDataSource = useCallback(
+    (
+      datasource: string | undefined,
+      dataSourceObj: DropdownOption | undefined,
+    ) => {
+      if (datasource && dataSourceObj) {
+        selectDataSource(dataSourceObj);
+        setSelectedDatasourceTableOptions([]);
+        setSelectedTableColumnOptions([]);
+        selectTable(DEFAULT_DROPDOWN_OPTION);
+        selectColumn(DEFAULT_DROPDOWN_OPTION);
+        if (dataSourceObj.id) {
+          dispatch(fetchDatasourceStructure(dataSourceObj.id));
         }
       }
-    }
-  };
+    },
+    [
+      selectDataSource,
+      setSelectedDatasourceTableOptions,
+      setSelectedTableColumnOptions,
+      selectTable,
+      selectColumn,
+      dispatch,
+    ],
+  );
 
-  const onSelectColumn = (
-    table: string | undefined,
-    ColumnObj: DropdownOption | undefined,
-  ) => {
-    if (table && ColumnObj) {
-      selectColumn(ColumnObj);
-    }
-  };
+  const onSelectTable = useCallback(
+    (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
+      if (table && TableObj) {
+        selectTable(TableObj);
+        selectColumn(DEFAULT_DROPDOWN_OPTION);
+        const { data } = TableObj;
 
-  const handleFormSubmit = () => {
-    dispatch(
-      generateTemplateToUpdatePage({
-        applicationId: currentApplicationId || "",
-        pageId:
-          currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
-        columns: [],
-        columnName: selectedColumn.value,
-        tableName: selectedTable.value || "",
-        datasourceId: selectedDatasource.id || "",
-        mode: currentMode,
-      }),
-    );
-  };
+        if (data.columns) {
+          const newSelectedTableColumnOptions: DropdownOption[] = [];
+          data.columns.map((column) => {
+            if (
+              column.type &&
+              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
+            ) {
+              newSelectedTableColumnOptions.push({
+                id: column.name,
+                label: column.name,
+                value: column.name,
+                subText: column.type,
+              });
+            }
+          });
+          if (newSelectedTableColumnOptions.length) {
+            setSelectedTableColumnOptions(newSelectedTableColumnOptions);
+          }
+        } else {
+          setSelectedTableColumnOptions([]);
+        }
+      }
+    },
+    [selectTable, setSelectedTableColumnOptions, selectColumn],
+  );
 
-  const routeToCreateNewDatasource = () => {
-    history.push(
-      `${INTEGRATION_EDITOR_URL(
-        currentApplicationId,
-        currentPageId,
-        INTEGRATION_TABS.NEW,
-      )}?initiator=generate-page`,
-    );
-  };
+  const onSelectColumn = useCallback(
+    (table: string | undefined, ColumnObj: DropdownOption | undefined) => {
+      if (table && ColumnObj) {
+        selectColumn(ColumnObj);
+      }
+    },
+    [selectColumn],
+  );
 
   useEffect(() => {
     const newDataSourceOptions = [];
@@ -342,6 +355,31 @@ function GeneratePageForm() {
     }
   }, [newDatasourceId]);
 
+  const routeToCreateNewDatasource = useCallback(() => {
+    history.push(
+      `${INTEGRATION_EDITOR_URL(
+        currentApplicationId,
+        currentPageId,
+        INTEGRATION_TABS.NEW,
+      )}?initiator=generate-page`,
+    );
+  }, []);
+
+  const handleFormSubmit = () => {
+    dispatch(
+      generateTemplateToUpdatePage({
+        applicationId: currentApplicationId || "",
+        pageId:
+          currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
+        // columns: [],
+        columnName: selectedColumn.value,
+        tableName: selectedTable.value || "",
+        datasourceId: selectedDatasource.id || "",
+        mode: currentMode,
+      }),
+    );
+  };
+
   const showSubmitButton = selectedTable.value;
   const submitButtonDisable = !selectedTable.value;
   // const showTableDropdown =
@@ -354,7 +392,6 @@ function GeneratePageForm() {
     : PluginFormInputFieldMap.DEFAULT;
   const tableLabel = pluginField.TABLE;
   const columnLabel = pluginField.COLUMN;
-  const errorMsg = "";
   return (
     <div>
       <Wrapper>
@@ -390,9 +427,6 @@ function GeneratePageForm() {
               Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
-              bgColor={errorMsg ? "#FFE9E9" : ""}
-              disabled={IsFetchingDatasourceStructure}
-              errorMsg={errorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
               isLoading={IsFetchingDatasourceStructure}
               onSelect={onSelectTable}
@@ -408,11 +442,11 @@ function GeneratePageForm() {
         {selectedTable.value ? (
           <SelectWrapper>
             <Label>
-              Select {columnLabel} from <Bold>{selectedTable.label}</Bold>
+              Select a searchable {columnLabel} from
+              <Bold> {selectedTable.label} </Bold>
             </Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
-              isLoading
               onSelect={onSelectColumn}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
               optionWrapperHeight={"300px"}
@@ -428,6 +462,7 @@ function GeneratePageForm() {
             category={Category.secondary}
             data-cy="generate-page-form-submit"
             disabled={submitButtonDisable}
+            isLoading={isGeneratingTemplatePage}
             onClick={handleFormSubmit}
             size={Size.large}
             text="Generate Page"

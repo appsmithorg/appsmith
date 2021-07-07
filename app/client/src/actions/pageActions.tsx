@@ -303,6 +303,18 @@ export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
   extraParams: Record<any, any>;
 }
 
+export const generateTemplateSuccess = () => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
+  };
+};
+
+export const generateTemplateError = () => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_ERROR,
+  };
+};
+
 export const generateTemplateToUpdatePage = ({
   applicationId,
   columns,

@@ -30,6 +30,7 @@ const Heading = styled.h1`
   letter-spacing: 0px;
   text-align: center;
   margin: 0;
+  font-family: ${(props) => props.theme.fonts.text};
 `;
 
 const SubHeading = styled.p`
@@ -50,15 +51,19 @@ function GeneratePage() {
       dispatch(updateCurrentPage(params.pageId));
     }
   }, [currentPageId, params.pageId, dispatch]);
+  const isGenerateFormPage = window.location.pathname.includes("/form");
+  const heading = isGenerateFormPage ? "🚀 Quick Page Wizard" : "📃 New Page";
 
   return (
     <Container>
       <HeadingContainer>
-        <Heading> 🚀 Quick Page Wizard </Heading>
+        <Heading> {heading}</Heading>
       </HeadingContainer>
-      <SubHeading>
-        Auto create a simple CRUD interface on top of your data
-      </SubHeading>
+      {isGenerateFormPage ? (
+        <SubHeading>
+          Auto create a simple CRUD interface on top of your data
+        </SubHeading>
+      ) : null}
 
       <PageContent />
     </Container>

@@ -20,11 +20,11 @@ export const DescWrapper = styled.div`
 export const Title = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
   font-weight: 500;
-  color: ${Colors.OXFORD_BLUE};
-  font-size: 24px;
+  color: ${Colors.CODE_GRAY};
+  font-size: 14px;
 `;
 
 export const SubTitle = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
-  color: ${Colors.DARK_GRAY};
+  color: ${Colors.GRAY};
 `;

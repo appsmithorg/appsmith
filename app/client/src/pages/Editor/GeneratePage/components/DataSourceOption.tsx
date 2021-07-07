@@ -74,17 +74,15 @@ const CreateIconWrapper = styled.div`
 
 const ImageWrapper = styled.div`
   height: 24px;
-  width: 36px;
+  width: auto;
   display: flex;
   align-items: center;
-  /* justify-content: center; */
   margin: 0px 8px;
 `;
 
 const DatasourceImage = styled.img`
   height: 20px;
   width: auto;
-  max-width: 36px;
 `;
 
 function DataSourceOption({
@@ -95,11 +93,10 @@ function DataSourceOption({
 }: RenderDropdownOptionType) {
   const { label } = dropdownOption;
   const { routeToCreateNewDatasource = () => null } = extraProps;
-  const pluginImages = useSelector(getPluginImages); // ISSUE
-
+  const pluginImages = useSelector(getPluginImages);
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
-  const isNotDatasourceOption = isConnectNewDataSourceBtn || isSelectedNode;
+  // const isNotDatasourceOption = isConnectNewDataSourceBtn || isSelectedNode;
   return (
     <OptionWrapper
       className="t--dropdown-option"
@@ -114,16 +111,14 @@ function DataSourceOption({
       }}
       selected={isSelectedNode}
     >
-      {isNotDatasourceOption ? (
-        isConnectNewDataSourceBtn ? (
-          <CreateIconWrapper>
-            <FormIcons.CREATE_NEW_ICON
-              color={Colors.GRAY2}
-              height={20}
-              width={20}
-            />
-          </CreateIconWrapper>
-        ) : null
+      {isConnectNewDataSourceBtn ? (
+        <CreateIconWrapper>
+          <FormIcons.CREATE_NEW_ICON
+            color={Colors.GRAY2}
+            height={20}
+            width={20}
+          />
+        </CreateIconWrapper>
       ) : (
         <ImageWrapper>
           <DatasourceImage

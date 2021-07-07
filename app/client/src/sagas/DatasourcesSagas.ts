@@ -122,20 +122,24 @@ function* fetchMockDatasourcesSaga() {
   }
 }
 
-export function* addMockDbToDatasources(
-  actionPayload: ReduxActionWithCallbacks<
+interface addMockDb
+  extends ReduxActionWithCallbacks<
     { id: string; orgId: string },
     unknown,
     unknown
-  >,
-) {
+  > {
+  extraParams?: any;
+}
+
+export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
     const { id, orgId } = actionPayload.payload;
+    const { initiator } = actionPayload.extraParams;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
       id,
       orgId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
@@ -148,17 +152,25 @@ export function* addMockDbToDatasources(
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
-      history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationId,
-          pageId,
-          INTEGRATION_TABS.ACTIVE,
-          "",
-          getQueryParams(),
-        ),
-      );
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const pageId: string = yield select(getCurrentPageId);
+      if (initiator && initiator === "generate-page") {
+        history.push(
+          `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
+            response.data.id
+          }`,
+        );
+      } else {
+        history.push(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.ACTIVE,
+            "",
+            getQueryParams(),
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({
