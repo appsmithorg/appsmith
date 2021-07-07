@@ -310,14 +310,84 @@ describe("Chart Custom Config validator", () => {
           },
         },
         output: {
-          isValid: false,
-          message:
-            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
+          isValid: true,
           parsed: {
-            type: "",
+            type: "area2d",
             dataSource: {
-              chart: {},
-              data: [],
+              data: [
+                {
+                  label: "Venezuela",
+                  value: "290",
+                },
+                {
+                  label: "Saudi",
+                  value: "260",
+                },
+                {
+                  label: "Canada",
+                  value: "180",
+                },
+                {
+                  label: "Iran",
+                  value: "140",
+                },
+                {
+                  label: "Russia",
+                  value: "115",
+                },
+                {
+                  label: "UAE",
+                  value: "100",
+                },
+                {
+                  label: "US",
+                  value: "30",
+                },
+                {
+                  label: "China",
+                  value: "30",
+                },
+              ],
+            },
+          },
+
+          transformed: {
+            type: "area2d",
+            dataSource: {
+              data: [
+                {
+                  label: "Venezuela",
+                  value: "290",
+                },
+                {
+                  label: "Saudi",
+                  value: "260",
+                },
+                {
+                  label: "Canada",
+                  value: "180",
+                },
+                {
+                  label: "Iran",
+                  value: "140",
+                },
+                {
+                  label: "Russia",
+                  value: "115",
+                },
+                {
+                  label: "UAE",
+                  value: "100",
+                },
+                {
+                  label: "US",
+                  value: "30",
+                },
+                {
+                  label: "China",
+                  value: "30",
+                },
+              ],
             },
           },
         },
