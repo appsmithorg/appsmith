@@ -10,20 +10,25 @@ import {
 } from "actions/commentActions";
 
 import { newNotificationEvent } from "actions/notificationActions";
-import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 export default function* handleSocketEvent(event: any) {
   const currentUser = yield select(getCurrentUser);
+  const currentApplication = yield select(getCurrentApplication);
 
   switch (event.type) {
     // comments
     case SOCKET_EVENTS.INSERT_COMMENT_THREAD: {
       yield put(newCommentThreadEvent(event.payload[0]));
 
-      const isCreatedByMe =
-        event.payload[0].thread?.authorUsername === currentUser.username;
-      if (!isCreatedByMe) yield put(incrementThreadUnreadCount());
+      const { thread } = event.payload[0];
+      const isForCurrentApplication =
+        thread?.applicationId === currentApplication.id;
+
+      const isCreatedByMe = thread?.authorUsername === currentUser.username;
+      if (!isCreatedByMe && isForCurrentApplication)
+        yield put(incrementThreadUnreadCount());
       return;
     }
     case SOCKET_EVENTS.INSERT_COMMENT: {
