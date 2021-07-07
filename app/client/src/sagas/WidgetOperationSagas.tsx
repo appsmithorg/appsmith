@@ -1496,7 +1496,7 @@ export function getNextWidgetName(
  * this saga create a new widget from the copied one to store
  */
 function* pasteWidgetSaga() {
-  const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+  let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
 
   // to avoid invoking old copied widgets
   if (!Array.isArray(copiedWidgetGroups)) return;
@@ -1516,7 +1516,11 @@ function* pasteWidgetSaga() {
     widgets,
   );
 
-  // copiedWidgetGroups = groupWidgetsIntoContainer(copiedWidgetGroups);
+  copiedWidgetGroups = groupWidgetsIntoContainer(
+    copiedWidgetGroups,
+    pastingIntoWidgetId,
+    getTopMostWidget,
+  );
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
