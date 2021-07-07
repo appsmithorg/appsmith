@@ -18,6 +18,6 @@ phases:
       - set -o pipefail
       - source ci/common/extra-env.sh
       - mkdir -pv ci/logs
-      - source ci/1-client-scripts/3-build.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
+      - source ci/1-client-scripts/3-build.sh > "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
     finally:
       - source ci/common/upload-logs.sh
