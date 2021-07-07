@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -30,11 +29,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -43,7 +39,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -52,7 +47,6 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -99,7 +93,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService, CloudServicesConfig cloudServicesConfig) {
+                                 EncryptionService encryptionService,
+                                 CloudServicesConfig cloudServicesConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -444,7 +439,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         return  WebClient
-                .create( "http://localhost:8090" + "/api/v1/mocks")
+                .create( baseUrl + "/api/v1/mocks")
                 .get()
                 .exchange()
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
