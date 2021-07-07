@@ -9,16 +9,6 @@ export const IconWrapper = styled.div`
   align-items: center;
 `;
 
-export const RoundBg = styled.div`
-  height: 32px;
-  width: 32px;
-  border-radius: 50%;
-  background-color: ${Colors.Gallery};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 export const DescWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -31,6 +21,7 @@ export const Title = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
   font-weight: 500;
   color: ${Colors.OXFORD_BLUE};
+  font-size: 24px;
 `;
 
 export const SubTitle = styled.p`

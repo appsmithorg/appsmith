@@ -2,13 +2,7 @@ import { Colors } from "constants/Colors";
 import React, { JSXElementConstructor } from "react";
 import styled from "styled-components";
 import { IconProps } from "constants/IconConstants";
-import {
-  IconWrapper,
-  RoundBg,
-  DescWrapper,
-  Title,
-  SubTitle,
-} from "./commonStyle";
+import { IconWrapper, DescWrapper, Title, SubTitle } from "./commonStyle";
 
 const CardWrapper = styled.button`
   display: flex;
@@ -39,9 +33,7 @@ function ActionCard(props: actionCardProps) {
   return (
     <CardWrapper onClick={onClick}>
       <IconWrapper>
-        <RoundBg>
-          <Icon color={Colors.GRAY2} height={16} width={16} />
-        </RoundBg>
+        <Icon color={Colors.GRAY2} height={16} width={16} />
       </IconWrapper>
       <DescWrapper>
         <Title>{props.title}</Title>

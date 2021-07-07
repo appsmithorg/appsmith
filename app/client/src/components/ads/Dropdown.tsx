@@ -3,8 +3,9 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
-import styled from "constants/DefaultTheme";
+import styled, { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import Spinner from "./Spinner";
 
 export type DropdownOption = {
   label?: string;
@@ -22,11 +23,13 @@ export interface RenderDropdownOptionType {
   index?: number;
   option: DropdownOption;
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
-  isSelected?: boolean;
+  isSelectedNode?: boolean;
   extraProps?: any;
+  errorMsg?: string;
 }
 
 type RenderOption = ({
+  errorMsg,
   index,
   option,
   optionClickHandler,
@@ -45,6 +48,8 @@ export type DropdownProps = CommonComponentProps & {
   SelectedValueNode?: typeof DefaultDropDownValueNode;
   renderOption?: RenderOption;
   bgColor?: string;
+  isLoading?: boolean;
+  errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -102,6 +107,8 @@ const Selected = styled.div<{
           }`};
   }
 `;
+
+const DropdownSelect = styled.div``;
 
 const DropdownWrapper = styled.div<{
   maxHeight: string;
@@ -220,27 +227,46 @@ const SelectedIcon = styled(Icon)`
   }
 `;
 
+const ErrorMsg = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: #f22b2b;
+  margin: 6px 0px 10px;
+`;
+
+const ErrorLabel = styled.span`
+  ${(props) => getTypographyByKey(props, "p1")};
+  color: #f22b2b;
+`;
+
 function DefaultDropDownValueNode({
+  errorMsg,
   renderNode,
   selected,
   showLabelOnly,
 }: {
+  errorMsg?: string;
   selected: DropdownOption;
   showLabelOnly?: boolean;
   renderNode?: RenderOption;
 }) {
+  const LabelText = showLabelOnly ? selected.label : selected.value;
+  function Label() {
+    return errorMsg ? (
+      <ErrorLabel>{LabelText}</ErrorLabel>
+    ) : (
+      <Text type={TextType.P1}>{LabelText}</Text>
+    );
+  }
   return (
     <SelectedDropDownHolder>
       {renderNode ? (
-        renderNode({ isSelected: true, option: selected })
+        renderNode({ isSelectedNode: true, option: selected, errorMsg })
       ) : (
         <>
           {selected.icon ? (
             <SelectedIcon name={selected.icon} size={IconSize.XXS} />
           ) : null}
-          <Text type={TextType.P1}>
-            {showLabelOnly ? selected.label : selected.value}
-          </Text>
+          <Label />
         </>
       )}
     </SelectedDropDownHolder>
@@ -251,8 +277,10 @@ export default function Dropdown(props: DropdownProps) {
   const {
     onSelect,
     showDropIcon = true,
+    isLoading = false,
     SelectedValueNode = DefaultDropDownValueNode,
     renderOption,
+    errorMsg = "",
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -270,6 +298,9 @@ export default function Dropdown(props: DropdownProps) {
     },
     [onSelect],
   );
+
+  const disabled = props.disabled || isLoading;
+  const downIconColor = errorMsg ? "#f22b2b" : "";
   return (
     <DropdownContainer
       data-cy={props.cypressSelector}
@@ -279,27 +310,40 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         boundary="scrollParent"
-        isOpen={isOpen && !props.disabled}
+        isOpen={isOpen && !disabled}
         minimal
         onInteraction={(state) => setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
       >
-        <Selected
-          bgColor={props.bgColor}
-          className={props.className}
-          disabled={props.disabled}
-          height={props.height || "38px"}
-          isOpen={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <SelectedValueNode
-            renderNode={renderOption}
-            selected={selected}
-            showLabelOnly={props.showLabelOnly}
-          />
-          {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
-        </Selected>
+        <DropdownSelect>
+          <Selected
+            bgColor={props.bgColor}
+            className={props.className}
+            disabled={disabled}
+            height={props.height || "38px"}
+            isOpen={isOpen}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <SelectedValueNode
+              errorMsg={errorMsg}
+              renderNode={renderOption}
+              selected={selected}
+              showLabelOnly={props.showLabelOnly}
+            />
+            {isLoading ? (
+              <Spinner size={IconSize.LARGE} />
+            ) : showDropIcon ? (
+              <Icon
+                fillColor={downIconColor}
+                hoverFillColor={downIconColor}
+                name="downArrow"
+                size={IconSize.XXS}
+              />
+            ) : null}
+          </Selected>
+          {errorMsg && !isOpen ? <ErrorMsg>{errorMsg}</ErrorMsg> : null}
+        </DropdownSelect>
         <DropdownWrapper
           maxHeight={props.optionWrapperHeight || "auto"}
           width={props.optionWidth || "260px"}

@@ -38,8 +38,8 @@ function ActionCards() {
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
         onClick={routeToEmptyEditorFromGenPage}
-        subTitle="Add datasources and then connect to widgets manually"
-        title="Build it From Scratch"
+        subTitle="Start from scratch and create your custom UI"
+        title="Build with Drag & Drop"
       />
       <Separator />
       <ActionCard
@@ -52,8 +52,8 @@ function ActionCards() {
           />
         )}
         onClick={AddParamToShowGenForm}
-        subTitle="Connect datasource and we generate the application"
-        title="Generate from Data"
+        subTitle="Start with a simple CRUD UI and customize it"
+        title="Generate from a Data Table"
       />
     </>
   );

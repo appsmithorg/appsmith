@@ -17,7 +17,6 @@ const getUniqueId = () => {
 };
 
 export const CONNECT_NEW_DATASOURCE_OPTION_ID = getUniqueId();
-export const MOCK_DATABASES_OPTION_ID = getUniqueId();
 
 //  ---------- Styles ----------
 
@@ -90,7 +89,7 @@ const DatasourceImage = styled.img`
 
 function DataSourceOption({
   extraProps,
-  isSelected,
+  isSelectedNode,
   option: dropdownOption,
   optionClickHandler,
 }: RenderDropdownOptionType) {
@@ -100,22 +99,20 @@ function DataSourceOption({
 
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
-  const isMockDatabaseHeader = MOCK_DATABASES_OPTION_ID === dropdownOption.id;
-  const isNotDatasourceOption =
-    isConnectNewDataSourceBtn || isMockDatabaseHeader;
+  const isNotDatasourceOption = isConnectNewDataSourceBtn || isSelectedNode;
   return (
     <OptionWrapper
       className="t--dropdown-option"
-      clickable={!isMockDatabaseHeader}
+      clickable
       key={dropdownOption.id}
       onClick={() => {
         if (isConnectNewDataSourceBtn) {
           routeToCreateNewDatasource(dropdownOption);
-        } else if (!isMockDatabaseHeader && optionClickHandler) {
+        } else if (optionClickHandler) {
           optionClickHandler(dropdownOption);
         }
       }}
-      selected={isSelected}
+      selected={isSelectedNode}
     >
       {isNotDatasourceOption ? (
         isConnectNewDataSourceBtn ? (
@@ -137,10 +134,7 @@ function DataSourceOption({
         </ImageWrapper>
       )}
 
-      <Text type={isNotDatasourceOption ? TextType.H4 : TextType.P1}>
-        {label}
-      </Text>
-      {isMockDatabaseHeader ? null : null}
+      <Text type={TextType.P1}>{label}</Text>
     </OptionWrapper>
   );
 }

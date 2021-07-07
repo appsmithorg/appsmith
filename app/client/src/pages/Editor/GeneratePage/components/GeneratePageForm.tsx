@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "../../../../constants/DefaultTheme";
-import {
-  IconWrapper,
-  RoundBg,
-  DescWrapper,
-  Title,
-  SubTitle,
-} from "./commonStyle";
+import { DescWrapper, Title } from "./commonStyle";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
-  getMockDatasources,
+  getIsFetchingDatasourceStructure,
 } from "../../../../selectors/entitiesSelector";
 import {
   Datasource,
@@ -32,19 +25,48 @@ import {
   INTEGRATION_TABS,
 } from "../../../../constants/routes";
 import history from "utils/history";
-import { MockDatasource } from "../../../../entities/Datasource/index";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
-  MOCK_DATABASES_OPTION_ID,
 } from "./DataSourceOption";
 
 // Temporary hardcoded valid plugins which support generate template
 // Record<pluginId, pluginName>
 export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
   "5c9f512f96c1a50004819786": "PostgreSQL",
+  "5e687c18fb01e64e6a3f873f": "MongoDB",
   "5f16c4be93f44d4622f487e2": "Mysql",
   "5f92f2628c11891d27ff0f1f": "MsSQL",
   "5ff5af0851d64d5127abc597": "Redshift",
+  // "5ca385dc81b37f0004b4db85": "REST API",
+  // "5e75ce2b8f4b473507a4a52e": "Rapid API Plugin",
+  // "5f9008736e895f2d2942eb07": "ElasticSearch",
+  // "5f90331f8373f73ad9b2fd2e": "DynamoDB",
+  // "5f9169920c6d936f469f4c8a": "Redis",
+  // "5fbbc39ad1f71d6666c32e4b": "Firestore",
+  "6023b4a070eb652de19476d3": "S3",
+  // "6080f9266b8cfd602957ba72": "Google Sheets",
+  // "60cb22feef0bd0550e175f3d": "Snowflake",
+};
+
+export const PluginFormInputFieldMap: Record<
+  string,
+  { DATASOURCE: string; TABLE: string; COLUMN: string }
+> = {
+  "5e687c18fb01e64e6a3f873f": {
+    DATASOURCE: "MongoDB",
+    TABLE: "Collection",
+    COLUMN: "Field",
+  },
+  "6023b4a070eb652de19476d3": {
+    DATASOURCE: "S3",
+    TABLE: "Bucket",
+    COLUMN: "Keys",
+  },
+  DEFAULT: {
+    DATASOURCE: "SQL Based",
+    TABLE: "Table",
+    COLUMN: "Column",
+  },
 };
 
 const DROPDOWN_DIMENSION = {
@@ -69,15 +91,6 @@ const FAKE_DATASOURCE_OPTION = {
       pluginId: "",
     },
   },
-  MOCK_DATASOURCE_HEADER: {
-    id: MOCK_DATABASES_OPTION_ID,
-    label: "Mock DataSources",
-    value: "Mock DataSources",
-    data: {
-      isValid: false,
-      pluginId: "",
-    },
-  },
 };
 //  ---------- Styles ----------
 
@@ -87,7 +100,6 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   padding: 10px 20px 0px;
-  margin: 20px 10px 0px;
   border: none;
 `;
 
@@ -140,15 +152,19 @@ function GeneratePageForm() {
   } = useParams<ExplorerURLParams>();
   const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
-  const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
+
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
+  );
+
+  const IsFetchingDatasourceStructure: boolean = useSelector(
+    getIsFetchingDatasourceStructure,
   );
 
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
-  const [datasourceTableOptions, setDatasourceTableOptions] = useState<
+  const [datasourceTableOptions, setSelectedDatasourceTableOptions] = useState<
     DropdownOptions
   >([]);
 
@@ -174,6 +190,8 @@ function GeneratePageForm() {
   ) => {
     if (datasource && dataSourceObj) {
       selectDataSource(dataSourceObj);
+      setSelectedDatasourceTableOptions([]);
+      setSelectedTableColumnOptions([]);
       selectTable(DEFAULT_DROPDOWN_OPTION);
       selectColumn(DEFAULT_DROPDOWN_OPTION);
       if (dataSourceObj.id) {
@@ -188,6 +206,7 @@ function GeneratePageForm() {
   ) => {
     if (table && TableObj) {
       selectTable(TableObj);
+      setSelectedTableColumnOptions([]);
       selectColumn(DEFAULT_DROPDOWN_OPTION);
       const { data } = TableObj;
       if (data.columns) {
@@ -219,7 +238,6 @@ function GeneratePageForm() {
   };
 
   const handleFormSubmit = () => {
-    //  TODO :- find solution to avoid empty string
     dispatch(
       generateTemplateToUpdatePage({
         applicationId: currentApplicationId || "",
@@ -260,19 +278,6 @@ function GeneratePageForm() {
           },
         });
     });
-    newDataSourceOptions.push(FAKE_DATASOURCE_OPTION.MOCK_DATASOURCE_HEADER);
-    mockDatasources.forEach(({ id, name, pluginId }) => {
-      if (VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
-        newDataSourceOptions.push({
-          id,
-          label: name,
-          value: name,
-          data: {
-            pluginId,
-          },
-        });
-      }
-    });
 
     setDataSourceOptions(newDataSourceOptions);
   }, [datasources, setDataSourceOptions]);
@@ -292,10 +297,14 @@ function GeneratePageForm() {
             columns,
           },
         }));
-        setDatasourceTableOptions(newTables);
+        setSelectedDatasourceTableOptions(newTables);
       }
     }
-  }, [datasourcesStructure, selectedDatasource, setDatasourceTableOptions]);
+  }, [
+    datasourcesStructure,
+    selectedDatasource,
+    setSelectedDatasourceTableOptions,
+  ]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(querySearch);
@@ -333,24 +342,24 @@ function GeneratePageForm() {
     }
   }, [newDatasourceId]);
 
+  const showSubmitButton = selectedTable.value;
+  const submitButtonDisable = !selectedTable.value;
+  // const showTableDropdown =
+  const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginID;
+  const pluginField: {
+    TABLE: string;
+    COLUMN: string;
+  } = selectedDatasourcePluginId
+    ? PluginFormInputFieldMap[selectedDatasourcePluginId]
+    : PluginFormInputFieldMap.DEFAULT;
+  const tableLabel = pluginField.TABLE;
+  const columnLabel = pluginField.COLUMN;
+  const errorMsg = "";
   return (
     <div>
       <Wrapper>
-        <IconWrapper>
-          <RoundBg>
-            <Icon
-              fillColor={Colors.GRAY2}
-              hoverFillColor={Colors.GRAY2}
-              name="wand"
-              size={IconSize.MEDIUM}
-            />
-          </RoundBg>
-        </IconWrapper>
         <DescWrapper>
-          <Title>Generate from Data</Title>
-          <SubTitle>
-            Connect datasource and generate the application automatically.
-          </SubTitle>
+          <Title>Generate from Table Data</Title>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
@@ -362,10 +371,10 @@ function GeneratePageForm() {
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             optionWrapperHeight={"300px"}
             options={dataSourceOptions}
-            renderOption={({ isSelected, option, optionClickHandler }) => (
+            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
               <DataSourceOption
                 extraProps={{ routeToCreateNewDatasource }}
-                isSelected={isSelected}
+                isSelectedNode={isSelectedNode}
                 option={option}
                 optionClickHandler={optionClickHandler}
               />
@@ -378,12 +387,17 @@ function GeneratePageForm() {
         {selectedDatasource.value ? (
           <SelectWrapper>
             <Label>
-              Select Table from <Bold>{selectedDatasource.label}</Bold>
+              Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
+              bgColor={errorMsg ? "#FFE9E9" : ""}
+              disabled={IsFetchingDatasourceStructure}
+              errorMsg={errorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
+              isLoading={IsFetchingDatasourceStructure}
               onSelect={onSelectTable}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
+              optionWrapperHeight={"300px"}
               options={datasourceTableOptions}
               selected={selectedTable}
               showLabelOnly
@@ -394,12 +408,14 @@ function GeneratePageForm() {
         {selectedTable.value ? (
           <SelectWrapper>
             <Label>
-              Select Column from <Bold>{selectedTable.label}</Bold>
+              Select {columnLabel} from <Bold>{selectedTable.label}</Bold>
             </Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
+              isLoading
               onSelect={onSelectColumn}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
+              optionWrapperHeight={"300px"}
               options={selectedTableColumnOptions}
               selected={selectedColumn}
               showLabelOnly
@@ -407,11 +423,11 @@ function GeneratePageForm() {
             />
           </SelectWrapper>
         ) : null}
-        {selectedTable.value ? (
+        {showSubmitButton ? (
           <FormSubmitButton
             category={Category.secondary}
             data-cy="generate-page-form-submit"
-            disabled={!selectedTable.value}
+            disabled={submitButtonDisable}
             onClick={handleFormSubmit}
             size={Size.large}
             text="Generate Page"

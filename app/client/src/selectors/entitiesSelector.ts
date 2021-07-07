@@ -30,6 +30,10 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
+export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure;
+};
+
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
 };

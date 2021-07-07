@@ -1,4 +1,3 @@
-import { getTypographyByKey } from "constants/DefaultTheme";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
@@ -6,6 +5,7 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "../../../selectors/editorSelectors";
 import { updateCurrentPage } from "../../../actions/pageActions";
+import { getTypographyByKey } from "../../../constants/DefaultTheme";
 
 const Container = styled.div`
   display: flex;
@@ -34,7 +34,8 @@ const Heading = styled.h1`
 
 const SubHeading = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
-  margin: 10px;
+  margin: 20px 0px;
+  color: #000000;
 `;
 
 function GeneratePage() {
@@ -53,11 +54,12 @@ function GeneratePage() {
   return (
     <Container>
       <HeadingContainer>
-        <Heading> 🚀 Quick page generation</Heading>
+        <Heading> 🚀 Quick Page Wizard </Heading>
       </HeadingContainer>
       <SubHeading>
-        Select data, table and columns and generate the page.
+        Auto create a simple CRUD interface on top of your data
       </SubHeading>
+
       <PageContent />
     </Container>
   );
