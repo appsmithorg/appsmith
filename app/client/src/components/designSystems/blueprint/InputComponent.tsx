@@ -186,20 +186,27 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
 }
 
 const getSelectedItem = (currencyType?: string): DropdownOption => {
-  const selectedCurrency: CurrencyOptionProps | undefined = currencyType
+  let selectedCurrency: CurrencyOptionProps | undefined = currencyType
     ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
         return item.currency === currencyType;
       })
     : undefined;
-  if (selectedCurrency) {
-    return {
-      label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
-      searchText: selectedCurrency.label,
-      value: selectedCurrency.currency,
-      id: selectedCurrency.symbol_native,
+  if (!selectedCurrency) {
+    selectedCurrency = {
+      code: "US",
+      currency: "USD",
+      currency_name: "US Dollar",
+      label: "United States",
+      phone: "1",
+      symbol_native: "$",
     };
   }
-  return CurrencyTypeOptions[0];
+  return {
+    label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
+    searchText: selectedCurrency.label,
+    value: selectedCurrency.currency,
+    id: selectedCurrency.symbol_native,
+  };
 };
 
 const countryToFlag = (isoCode: string) => {
