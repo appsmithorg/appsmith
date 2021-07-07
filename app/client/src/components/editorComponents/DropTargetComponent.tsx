@@ -4,7 +4,6 @@ import React, {
   Context,
   createContext,
   memo,
-  useRef,
   useEffect,
 } from "react";
 import styled from "styled-components";
@@ -59,8 +58,6 @@ export const DropTargetContext: Context<{
     widgetBottomRow: number,
   ) => number | false;
   persistDropTargetRows?: (widgetId: string, row: number) => void;
-  handleBoundsUpdate?: (rect: DOMRect) => void;
-  dropRef?: React.RefObject<HTMLDivElement>;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
@@ -122,7 +119,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       );
 
       if (rows < newRows) {
-        setRows(newRows + 1);
+        setRows(newRows);
         return newRows;
       }
       return false;
@@ -150,7 +147,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
-  const dropRef = useRef<HTMLDivElement>(null);
 
   return (
     <DropTargetContext.Provider
@@ -162,7 +158,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       <StyledDropTarget
         className={"t--drop-target"}
         onClick={handleFocus}
-        ref={dropRef}
         style={{
           height,
           boxShadow,
