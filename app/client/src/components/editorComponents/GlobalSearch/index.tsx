@@ -354,7 +354,12 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(params.applicationId, pageId, id);
+    const url = actionConfig?.getURL(
+      params.applicationId,
+      pageId,
+      id,
+      pluginType,
+    );
     toggleShow();
     url && history.push(url);
   };
