@@ -3,17 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button from "components/ads/Button";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import history from "utils/history";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
-import {
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
@@ -51,10 +48,12 @@ const Wrapper = styled.div`
   margin-top: 18px;
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
+    height: 36px;
+    max-width: 120px;
     width: auto;
-    align-self: center;
   }
 `;
 
@@ -107,10 +106,10 @@ function Connected() {
 
     dispatch(createActionRequest(payload));
     history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         params.applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.ACTIVE,
       ),
     );
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
@@ -148,10 +147,10 @@ function Connected() {
       }),
     );
     history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         params.applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.NEW,
       ),
     );
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
@@ -173,10 +172,7 @@ function Connected() {
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
           <ActionButton
-            accent="primary"
             className="t--create-query"
-            filled
-            icon={"plus"}
             onClick={isDBDatasource ? createQueryAction : createApiAction}
             text={isDBDatasource ? "New Query" : "New API"}
           />

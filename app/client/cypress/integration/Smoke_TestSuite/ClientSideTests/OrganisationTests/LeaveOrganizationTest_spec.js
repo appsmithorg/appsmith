@@ -51,14 +51,7 @@ describe("Leave organization test spec", function() {
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.visit("/applications");
-      cy.get(homePage.orgList.concat(newOrganizationName).concat(")"))
-        .scrollIntoView()
-        .should("be.visible")
-        .within(() => {
-          cy.get(homePage.orgNamePopover)
-            .first()
-            .click();
-        });
+      cy.openOrgOptionsPopup(newOrganizationName);
       cy.get(homePage.orgNamePopoverContent)
         .find("a")
         .should("have.length", 1)
