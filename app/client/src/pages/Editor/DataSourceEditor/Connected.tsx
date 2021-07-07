@@ -4,24 +4,18 @@ import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
 import Button from "components/ads/Button";
-import { getDatasource, getPlugin } from "selectors/entitiesSelector";
+import { getDatasource } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
-import history from "utils/history";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
-import { ApiActionConfig, PluginType, QueryAction } from "entities/Action";
+import { QueryAction } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { createMessage, ERROR_ADD_API_INVALID_URL } from "constants/messages";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -75,11 +69,6 @@ function Connected() {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const plugin = useSelector((state: AppState) =>
-    getPlugin(state, datasource?.pluginId ?? ""),
-  );
-  const isDBDatasource = plugin?.type === PluginType.DB;
-
   const createQueryAction = useCallback(() => {
     const newQueryName = createNewQueryName(actions, currentPageId || "");
     let payload = {
@@ -108,55 +97,8 @@ function Connected() {
       }
 
     dispatch(createActionRequest(payload));
-    history.push(
-      INTEGRATION_EDITOR_URL(
-        params.applicationId,
-        currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
-    );
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
 
-  const createApiAction = useCallback(() => {
-    const newApiName = createNewApiName(actions, currentPageId || "");
-    const headers = datasource?.datasourceConfiguration?.headers ?? [];
-    const defaultApiActionConfig: ApiActionConfig = {
-      ...DEFAULT_API_ACTION_CONFIG,
-      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
-    };
-
-    if (!datasource?.datasourceConfiguration?.url) {
-      Toaster.show({
-        text: createMessage(ERROR_ADD_API_INVALID_URL),
-        variant: Variant.danger,
-      });
-
-      return;
-    }
-
-    dispatch(
-      createActionRequest({
-        name: newApiName,
-        pageId: currentPageId,
-        pluginId: datasource.pluginId,
-        datasource: {
-          id: datasource.id,
-        },
-        eventData: {
-          actionType: "API",
-          from: "datasource-pane",
-        },
-        actionConfiguration: defaultApiActionConfig,
-      }),
-    );
-    history.push(
-      INTEGRATION_EDITOR_URL(
-        params.applicationId,
-        currentPageId,
-        INTEGRATION_TABS.NEW,
-      ),
-    );
-  }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
 
@@ -177,8 +119,8 @@ function Connected() {
           <ActionButton
             className="t--create-query"
             icon="plus"
-            onClick={isDBDatasource ? createQueryAction : createApiAction}
-            text={isDBDatasource ? "New Query" : "New API"}
+            onClick={createQueryAction}
+            text={"New Query"}
           />
         </OnboardingIndicator>
       </Header>
