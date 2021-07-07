@@ -185,10 +185,10 @@ function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   );
 }
 
-const getSelectedItem = (currencyType?: string): DropdownOption => {
-  let selectedCurrency: CurrencyOptionProps | undefined = currencyType
+const getSelectedItem = (currencyCountryCode?: string): DropdownOption => {
+  let selectedCurrency: CurrencyOptionProps | undefined = currencyCountryCode
     ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.currency === currencyType;
+        return item.code === currencyCountryCode;
       })
     : undefined;
   if (!selectedCurrency) {
@@ -204,7 +204,7 @@ const getSelectedItem = (currencyType?: string): DropdownOption => {
   return {
     label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
     searchText: selectedCurrency.label,
-    value: selectedCurrency.currency,
+    value: selectedCurrency.code,
     id: selectedCurrency.symbol_native,
   };
 };
@@ -225,7 +225,8 @@ export const getCurrencyOptions = (): Array<DropdownOption> => {
       leftElement: countryToFlag(item.code),
       searchText: item.label,
       label: `${item.currency} - ${item.currency_name}`,
-      value: item.currency,
+      value: item.code,
+      id: item.symbol_native,
     };
   });
 };
@@ -340,7 +341,7 @@ class InputComponent extends React.Component<
                 allowCurrencyChange={this.props.allowCurrencyChange}
                 onCurrencyTypeChange={this.props.onCurrencyTypeChange}
                 options={getCurrencyOptions()}
-                selected={getSelectedItem(this.props.currencyType)}
+                selected={getSelectedItem(this.props.currencyCountryCode)}
               />
             )
       }
@@ -457,7 +458,7 @@ export interface InputComponentProps extends ComponentProps {
   disabled?: boolean;
   intent?: Intent;
   defaultValue?: string;
-  currencyType?: string;
+  currencyCountryCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
