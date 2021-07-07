@@ -213,11 +213,11 @@ function RecaptchaComponent(
               props.clickWithRecaptcha(token);
             })
             .catch(() => {
-              // Handle corrent key with wrong
+              // Handle incorrent google recaptcha site key
               handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
             });
         } catch (ex) {
-          // Handle wrong key
+          // Handle error due to google recaptcha key of different domain
           handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
         }
       });
