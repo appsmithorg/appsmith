@@ -128,7 +128,12 @@ export const useEntityLink = () => {
         const actionConfig = getActionConfig(entity.pluginType);
         const url =
           applicationId &&
-          actionConfig?.getURL(applicationId, pageId || "", entity.actionId);
+          actionConfig?.getURL(
+            applicationId,
+            pageId || "",
+            entity.actionId,
+            entity.pluginType,
+          );
 
         if (url) {
           history.push(url);
