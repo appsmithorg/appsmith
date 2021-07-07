@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
@@ -8,7 +7,6 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
 import { Action, ApiActionConfig, PluginType } from "entities/Action";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
@@ -46,10 +44,6 @@ const EmptyActiveDatasource = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
 `;
 
 type ActiveDataSourceProps = {
