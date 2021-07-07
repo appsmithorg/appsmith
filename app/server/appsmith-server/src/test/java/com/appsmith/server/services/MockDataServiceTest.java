@@ -68,12 +68,10 @@ public class MockDataServiceTest {
                     assertThat(mockDataSets.getMockdbs().size()).isEqualTo(2);
                     assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
                         return data.getName().equals("movies") &&
-                                data.getPluginName().equals("MongoDB") &&
                                 data.getPackageName().equals("mongo-plugin");
                     }));
                     assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
                         return data.getName().equals("users") &&
-                                data.getPluginName().equals("PostgreSQL") &&
                                 data.getPackageName().equals("postgres-plugin");
                     }));
                 })
@@ -90,7 +88,7 @@ public class MockDataServiceTest {
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("movies");
         mockDataSource.setOrganizationId(orgId);
-        mockDataSource.setPluginName("MongoDB");
+        mockDataSource.setPluginName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
         StepVerifier
@@ -129,7 +127,7 @@ public class MockDataServiceTest {
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("users");
         mockDataSource.setOrganizationId(orgId);
-        mockDataSource.setPluginName("PostgreSQL");
+        mockDataSource.setPluginName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
         StepVerifier

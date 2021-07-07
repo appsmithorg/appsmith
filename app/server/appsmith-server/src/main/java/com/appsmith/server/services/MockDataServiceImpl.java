@@ -80,7 +80,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
-            if (mockDataSource.getPluginName().equals("MongoDB")) {
+            if (mockDataSource.getPluginName().equals("mongo-plugin")) {
                 datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             } else {
                 datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
@@ -111,8 +111,8 @@ public class MockDataServiceImpl implements MockDataService {
         listProperty.add(property);
         property = new Property();
         property.setKey("Connection String URI");
-        listProperty.add(property);
         property.setValue(credentials.getHost());
+        listProperty.add(property);
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
 
         connection.setSsl(sslDetails);
