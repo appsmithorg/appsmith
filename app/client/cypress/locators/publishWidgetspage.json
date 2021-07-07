@@ -11,6 +11,7 @@
   "formWidget": ".t--widget-formwidget",
   "imageWidget": ".t--widget-imagewidget",
   "dropdownWidget": ".t--widget-dropdownwidget",
+  "multiselectwidget": ".t--widget-multiselectwidget",
   "tabWidget": ".t--widget-tabswidget",
   "chartWidget": ".t--widget-chartwidget",
   "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",

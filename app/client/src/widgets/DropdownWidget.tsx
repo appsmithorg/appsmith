@@ -22,7 +22,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
               "Allows users to select a single option. Values must be unique",
             propertyName: "options",
             label: "Options",
-            controlType: "OPTION_INPUT",
+            controlType: "INPUT_TEXT",
             placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,

@@ -39,19 +39,6 @@ describe("Dropdown Widget Functionality", function() {
       formWidgetsPage.dropdownWidget,
       commonlocators.containerInnerText,
     );
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .click({ force: true });
-    cy.get(commonlocators.dropdownmenu)
-      .children()
-      .contains("Multi Select")
-      .click();
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .should("have.text", "Multi Select");
-    /**
-     * @param{Show Alert} Css for InputChange
-     */
     cy.getAlert(commonlocators.optionchangetextDropdown);
     cy.get(formWidgetsPage.dropdownInput).click({ force: true });
     cy.get(formWidgetsPage.dropdownInput).type("Option");

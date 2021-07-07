@@ -12,70 +12,48 @@ describe("MultiSelect Widget Functionality", function() {
   });
   it("Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidget");
-
     cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultoption", "{{ undefined }}");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.testJsontext("defaultvalue", "{{ undefined }}");
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".multi-select-dropdown")
       .contains("Option 3")
       .click({ force: true });
-
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-item-content")
+      .first()
       .should("have.text", "Option 3");
   });
   it("Selects value with enter in default value", () => {
-    // cy.openPropertyPane("dropdownwidget");
-    cy.testJsontext("defaultoption", "3\n");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
+    cy.testJsontext("defaultvalue", "3\n");
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-item-content")
+      .first()
       .should("have.text", "Option 3");
   });
-  it("Dropdown Widget Functionality", function() {
-    cy.widgetText(
-      "lock",
-      formWidgetsPage.dropdownWidget,
-      commonlocators.containerInnerText,
-    );
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .click({ force: true });
-    cy.get(commonlocators.dropdownmenu)
-      .children()
-      .contains("Multi Select")
-      .click();
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .should("have.text", "Multi Select");
-    /**
-     * @param{Show Alert} Css for InputChange
-     */
-    cy.getAlert(commonlocators.optionchangetextDropdown);
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.PublishtheApp();
-  });
   it("Dropdown Functionality To Validate Options", function() {
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 2");
-    cy.get(publish.backToEditor).click();
+    cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
+    cy.get(formWidgetsPage.mulitiselectInput).type("Option");
+    cy.dropdownMultiSelectDynamic("Option 2");
   });
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
+    cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
+      "not.exist",
+    );
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("multiselectwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("be.visible");
+    cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
+      "be.visible",
+    );
     cy.get(publish.backToEditor).click();
   });
 });
