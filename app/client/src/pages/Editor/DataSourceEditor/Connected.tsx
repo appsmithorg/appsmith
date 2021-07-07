@@ -52,8 +52,11 @@ const ActionButton = styled(Button)`
   padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 120px;
+    //max-width: 120px;
     width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -173,6 +176,7 @@ function Connected() {
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
           <ActionButton
             className="t--create-query"
+            icon="plus"
             onClick={isDBDatasource ? createQueryAction : createApiAction}
             text={isDBDatasource ? "New Query" : "New API"}
           />

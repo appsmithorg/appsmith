@@ -51,7 +51,13 @@ export const ActionButton = styled(BaseButton)`
 const DBForm = styled.div`
   padding: 20px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(
+    100vh -
+      (
+        ${(props) => props.theme.smallHeaderHeight} +
+          ${(props) => props.theme.backBanner}
+      )
+  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;

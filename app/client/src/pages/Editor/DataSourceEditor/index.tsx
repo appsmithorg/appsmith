@@ -66,12 +66,10 @@ class DataSourceEditor extends React.Component<Props> {
     }
   }
   handleSubmit = () => {
-    console.log("Handle Submit");
     this.props.submitForm(DATASOURCE_DB_FORM);
   };
 
   handleSave = (formData: Datasource) => {
-    console.log("Handle Save");
     const { applicationId, pageId } = this.props.match.params;
     this.props.updateDatasource(
       formData,

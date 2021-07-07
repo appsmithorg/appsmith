@@ -76,7 +76,7 @@ const NewIntegrationsContainer = styled.div`
   /* padding-bottom: 300px; */
   /* margin-top: 16px; */
   & > div {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 `;
 
