@@ -1,7 +1,7 @@
 export const commentsTourStepsEditMode = [
   {
     id: "ENTER_COMMENTS_MODE",
-    data: { message: "Click on the icon \n to access comments." },
+    data: { message: "Click on the icon to access \n comments." },
   },
   {
     id: "CREATE_UNPUBLISHED_COMMENT",
@@ -16,7 +16,7 @@ export const commentsTourStepsEditMode = [
 export const commentsTourStepsPublishedMode = [
   {
     id: "ENTER_COMMENTS_MODE",
-    data: { message: "Click on the icon \n to access comments." },
+    data: { message: "Click on the icon to access \n comments." },
   },
   {
     id: "CREATE_UNPUBLISHED_COMMENT",

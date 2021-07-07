@@ -51,16 +51,28 @@ function TourTooltipWrapper(props: Props) {
   const isCurrentStepActive = useSelector(
     (state: AppState) => getActiveTourIndex(state) === tourIndex,
   );
-  const isCurrentTourActive = useSelector((state: AppState) => {
+  const matchingActiveTourType = useSelector((state: AppState) => {
     const activeTourType = getActiveTourType(state) as TourType;
-    return typeof tourType === "string"
-      ? activeTourType === tourType
-      : tourType.indexOf(activeTourType) !== -1;
+
+    if (typeof tourType === "string") {
+      return activeTourType === tourType && tourType;
+    } else if (Array.isArray(tourType)) {
+      const activeTour = tourType.find(
+        (tour: TourType) => tour === activeTourType,
+      );
+      return activeTour;
+    }
   });
-  const tourStepsConfig = TourStepsByType[tourType as TourType];
-  const tourStepConfig = tourStepsConfig[tourIndex];
-  const isOpen = isCurrentStepActive && isCurrentTourActive;
+  const tourStepsConfig = TourStepsByType[matchingActiveTourType as TourType];
+  const tourStepConfig = tourStepsConfig && tourStepsConfig[tourIndex];
+  const isOpen = isCurrentStepActive && matchingActiveTourType;
   const dotRef = useRef<HTMLDivElement>(null);
+
+  console.log({
+    tourType,
+    tourStepsConfig,
+    tourIndex,
+  });
 
   useEffect(() => {
     const anim = lottie.loadAnimation({
