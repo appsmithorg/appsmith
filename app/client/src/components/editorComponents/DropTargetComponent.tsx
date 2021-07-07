@@ -79,9 +79,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-  );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -150,13 +147,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     return false;
   };
 
-  const isChildFocused =
-    !!childWidgets &&
-    !!selectedWidget &&
-    childWidgets.length > 0 &&
-    childWidgets.indexOf(selectedWidget) > -1;
-
-  const isChildResizing = !!isResizing && isChildFocused;
   // Make this component a drop target
   const [{ isExactlyOver }] = useDrop({
     accept: Object.values(WidgetTypes),
@@ -288,21 +278,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
-        <DragLayerComponent
-          canDropTargetExtend={canDropTargetExtend}
-          force={isDragging}
-          isOver={isExactlyOver}
-          isResizing={isChildResizing}
-          noPad={props.noPad || false}
-          occupiedSpaces={spacesOccupiedBySiblingWidgets}
-          onBoundsUpdate={handleBoundsUpdate}
-          parentCols={props.snapColumns}
-          parentColumnWidth={props.snapColumnSpace}
-          parentRowHeight={props.snapRowSpace}
-          parentRows={rows}
-          parentWidgetId={props.widgetId}
-          visible={isExactlyOver || isChildResizing}
-        />
+        {(isDragging || isResizing) && (
+          <DragLayerComponent
+            noPad={props.noPad || false}
+            parentColumnWidth={props.snapColumnSpace}
+            parentRowHeight={props.snapRowSpace}
+          />
+        )}
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
