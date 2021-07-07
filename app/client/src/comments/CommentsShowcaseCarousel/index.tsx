@@ -23,40 +23,41 @@ import { updateUserDetails } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
+import { getAppMode } from "selectors/entitiesSelector";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
-const introSteps = [
+const introStepsEditMode = [
   {
     title: "Introducing Live Comments",
     content:
-      "We are introducing live comments. From now on you will be able to comment on your apps, tag other people and exchange thoughts in threads. Click ‘Next’ to learn more about comments and start commenting.",
+      "You can now collaborate with your users to build apps faster. Invite your team to comment on your apps, exchange thoughts & ship your ideas.",
     banner: getBanner(1),
     hideBackBtn: true,
   },
   {
-    title: "Give feedback",
+    title: "Give Contextual Feedback",
     content:
-      "Comment on your co-worker’s work and share your thoughts on what works and what needs change.",
+      "Drop a comment on a widget to suggest an improvement. Comments are tagged to the widget and move along with it. Update the widget and iterate your way to shipping your ideas!",
     banner: getBanner(2),
   },
+];
+
+const introStepsViewMode = [
   {
-    title: "Invite other people to your conversations",
+    title: "Introducing Live Comments",
     content:
-      "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
-    banner: getBanner(3),
+      "You can now collaborate with your developers to build apps faster. Exchange thoughts, leave feedback & ship your ideas.",
+    banner: getBanner(1),
+    hideBackBtn: true,
   },
   {
-    title: "Tag a comment to a widget",
+    title: "Give Contextual Feedback",
     content:
-      "If you click on a component while in a comment mode you will tag that comment to that widget. This way if the widget is moved the comment will be moved as well. You can disconnect the comment and widget y simply moving the the comment away from the widget.",
-    banner: getBanner(4),
-  },
-  {
-    title: "You are all set!",
-    content:
-      "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.",
-    banner: getBanner(5),
+      "Drop a comment on a widget to suggest an improvement or report an issue. Comments are tagged to the widget, resolve them once the updates are live!",
+    banner: getBanner(2),
   },
 ];
 
@@ -108,30 +109,32 @@ const getSteps = (
   startTutorial: () => void,
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
-) => [
-  ...introSteps.slice(0, 4).map((stepConfig: any) => ({
-    props: stepConfig,
-    component: IntroStepThemed,
-  })),
-  {
-    component: ProfileForm,
-    props: {
-      isSubmitDisabled: isSubmitProfileFormDisabled,
-      onSubmit: onSubmitProfileForm,
-      initialValues: initialProfileFormValues,
-      emailDisabled,
+  appMode?: APP_MODE,
+) => {
+  const introSteps =
+    appMode === APP_MODE.EDIT ? introStepsEditMode : introStepsViewMode;
+
+  return [
+    ...introSteps.map((stepConfig: any) => ({
+      props: stepConfig,
+      component: IntroStepThemed,
+    })),
+    {
+      component: ProfileForm,
+      props: {
+        isSubmitDisabled: isSubmitProfileFormDisabled,
+        initialValues: initialProfileFormValues,
+        emailDisabled,
+        nextBtnText: "Start Tutorial",
+        onSubmit: () => {
+          startTutorial();
+          onSubmitProfileForm();
+        },
+        hideBackBtn: true,
+      },
     },
-  },
-  {
-    component: IntroStepThemed,
-    props: {
-      ...introSteps[4],
-      hideBackBtn: true,
-      nextBtnText: "Start Tutorial",
-      onSubmit: startTutorial,
-    },
-  },
-];
+  ];
+};
 
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
@@ -152,8 +155,15 @@ export default function CommentsShowcaseCarousel() {
     dispatch(updateUserDetails({ name, email }));
   };
 
+  const appMode = useSelector(getAppMode);
+
+  const tourType =
+    appMode === APP_MODE.EDIT
+      ? TourType.COMMENTS_TOUR_EDIT_MODE
+      : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
+
   const startTutorial = () => {
-    dispatch(setActiveTour(TourType.COMMENTS_TOUR));
+    dispatch(setActiveTour(tourType));
     dispatch(hideCommentsIntroCarousel());
     setCommentsIntroSeen(true);
   };
@@ -164,6 +174,7 @@ export default function CommentsShowcaseCarousel() {
     startTutorial,
     initialProfileFormValues,
     !!email,
+    appMode,
   );
 
   if (!isIntroCarouselVisible) return null;
