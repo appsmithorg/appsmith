@@ -188,21 +188,23 @@ export function CanvasDraggingArena({
     }[],
     rows: number,
   ) => {
-    const sortedByTopBlocks = drawingBlocks.sort(
-      (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
-    );
-    const bottomMostBlock = sortedByTopBlocks[0];
-    const [, top] = getDropZoneOffsets(
-      snapColumnSpace,
-      snapRowSpace,
-      {
-        x: bottomMostBlock.left,
-        y: bottomMostBlock.top + bottomMostBlock.height,
-      } as XYCoord,
-      { x: 0, y: 0 },
-    );
-    if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-      return updateDropTargetRows && updateDropTargetRows(widgetId, top);
+    if (drawingBlocks.length > 1) {
+      const sortedByTopBlocks = drawingBlocks.sort(
+        (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
+      );
+      const bottomMostBlock = sortedByTopBlocks[0];
+      const [, top] = getDropZoneOffsets(
+        snapColumnSpace,
+        snapRowSpace,
+        {
+          x: bottomMostBlock.left,
+          y: bottomMostBlock.top + bottomMostBlock.height,
+        } as XYCoord,
+        { x: 0, y: 0 },
+      );
+      if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
+        return updateDropTargetRows && updateDropTargetRows(widgetId, top);
+      }
     }
   };
   const { updateWidget } = useContext(EditorContext);
@@ -259,7 +261,7 @@ export function CanvasDraggingArena({
   };
 
   useEffect(() => {
-    if (canvasRef.current && !isResizing) {
+    if (canvasRef.current && !isResizing && rectanglesToDraw.length > 0) {
       const scale = 1;
 
       let canvasIsDragging = false;
@@ -329,7 +331,7 @@ export function CanvasDraggingArena({
           }
         };
 
-        const onMouseDown = () => {
+        const onMouseDown = (e: any) => {
           if (
             !isResizing &&
             isDragging &&
@@ -350,6 +352,7 @@ export function CanvasDraggingArena({
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
+            onMouseMove(e);
           }
         };
         const onMouseMove = (e: any) => {
@@ -404,7 +407,7 @@ export function CanvasDraggingArena({
 
             scrollToKeepUp(newRectanglesToDraw);
           } else {
-            onMouseDown();
+            onMouseDown(e);
           }
         };
         let notDoneYet = false;
@@ -510,7 +513,7 @@ export function CanvasDraggingArena({
           canvasRef.current?.addEventListener("mouseover", onMouseDown, false);
           canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
           canvasRef.current?.addEventListener("mouseleave", onMouseOut, false);
-
+          document.body.addEventListener("mouseup", onMouseUp, false);
           if (canvasIsDragging) {
             // fix_dpi();
             // drawDragLayer(rows);
@@ -529,12 +532,13 @@ export function CanvasDraggingArena({
           canvasRef.current?.removeEventListener("mouseover", onMouseDown);
           canvasRef.current?.removeEventListener("mouseout", onMouseOut);
           canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
+          document.body.removeEventListener("mouseup", onMouseUp);
         };
       } else {
         onMouseOut();
       }
     }
-  }, [isDragging, newWidget, isResizing]);
+  }, [isDragging, newWidget, isResizing, rectanglesToDraw]);
   return isDragging && !isResizing ? (
     <StyledSelectionCanvas
       data-testid={`canvas-dragging-${widgetId}`}

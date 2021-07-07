@@ -9,7 +9,6 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { useCallback } from "react";
 import { useEffect } from "react";
 
 const DraggableWrapper = styled.div`
@@ -145,59 +144,32 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dispatch = useDispatch();
   const mightBeDragging = useRef(false);
   const draggableRef = useRef<HTMLDivElement>(null);
-  const startPoints = useRef({
-    top: props.bottomRow / 2,
-    left: props.rightColumn / 2,
-  });
   useEffect(() => {
     mightBeDragging.current = false;
   }, [isResizing]);
-  const onMouseMove = useCallback(
-    (e: any) => {
-      if (draggableRef.current && mightBeDragging.current && allowDrag) {
-        e.preventDefault();
-        if (!selectedWidgets.includes(props.widgetId)) {
-          dispatch(selectWidgetInitAction(props.widgetId));
-        }
-        mightBeDragging.current = false;
-        setDraggingState(
-          true,
-          props.parentId || "",
-          props.widgetId,
-          startPoints.current,
-        );
-        e.stopPropagation();
-      }
-    },
-    [allowDrag, selectedWidgets, setDraggingState],
-  );
 
-  const onMouseDown = useCallback(
-    (e: any) => {
-      if (!e.metaKey && allowDrag && draggableRef.current) {
-        mightBeDragging.current = true;
-        const bounds = draggableRef.current.getBoundingClientRect();
-        startPoints.current = {
-          top: (e.clientY - bounds.top) / props.parentRowSpace,
-          left: (e.clientX - bounds.left) / props.parentColumnSpace,
-        };
-        e.stopPropagation();
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggableRef.current && !e.metaKey) {
+      if (!selectedWidgets.includes(props.widgetId)) {
+        dispatch(selectWidgetInitAction(props.widgetId));
       }
-    },
-    [allowDrag],
-  );
-
-  const onMouseUp = useCallback(() => {
-    mightBeDragging.current = false;
-  }, []);
+      const bounds = draggableRef.current.getBoundingClientRect();
+      const startPoints = {
+        top: (e.clientY - bounds.top) / props.parentRowSpace,
+        left: (e.clientX - bounds.left) / props.parentColumnSpace,
+      };
+      setDraggingState(true, props.parentId || "", props.widgetId, startPoints);
+    }
+  };
 
   return (
     <DraggableWrapper
       className={className}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
+      draggable={allowDrag}
+      onDragStartCapture={onDragStart}
       onMouseOver={handleMouseOver}
-      onMouseUp={onMouseUp}
       ref={draggableRef}
       style={style}
     >
