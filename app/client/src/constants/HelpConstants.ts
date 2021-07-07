@@ -127,6 +127,10 @@ export const HelpMap = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

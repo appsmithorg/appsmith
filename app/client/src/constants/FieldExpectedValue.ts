@@ -192,6 +192,15 @@ const FIELD_VALUES: Record<
     borderOpacity: "number",
     borderWidth: "number",
   },
+  DIVIDER_WIDGET: {
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    isVisible: "boolean",
+    strokeStyle: "solid | dashed | dotted",
+    dividerColor: "string",
+    thickness: "number",
+  },
 };
 
 export default FIELD_VALUES;

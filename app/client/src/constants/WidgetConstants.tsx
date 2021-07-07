@@ -30,6 +30,7 @@ export enum WidgetTypes {
   TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
   RATE_WIDGET = "RATE_WIDGET",
   IFRAME_WIDGET = "IFRAME_WIDGET",
+  DIVIDER_WIDGET = "DIVIDER_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
