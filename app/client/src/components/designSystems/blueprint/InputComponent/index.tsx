@@ -184,13 +184,15 @@ class InputComponent extends React.Component<
         />
       );
     } else if (inputType === InputTypes.CURRENCY) {
-      const selectedCurrencyCode = getSelectedCurrency(this.props.currencyType);
+      const selectedCurrencyCountryCode = getSelectedCurrency(
+        this.props.currencyCountryCode,
+      );
       return (
         <CurrencyTypeDropdown
           allowCurrencyChange={this.props.allowCurrencyChange}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
-          selected={selectedCurrencyCode}
+          selected={selectedCurrencyCountryCode}
         />
       );
     }
@@ -370,7 +372,7 @@ export interface InputComponentProps extends ComponentProps {
   disabled?: boolean;
   intent?: Intent;
   defaultValue?: string;
-  currencyType?: string;
+  currencyCountryCode?: string;
   noOfDecimals?: number;
   countryCode?: string;
   allowCurrencyChange?: boolean;

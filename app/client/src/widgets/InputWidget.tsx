@@ -93,7 +93,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText: "Changes the type of currency",
-            propertyName: "defaultCurrencyType",
+            propertyName: "currencyCountryCode",
             label: "Currency",
             enableSearch: true,
             dropdownHeight: "195px",
@@ -335,11 +335,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onCurrencyTypeChange = (code?: string) => {
-    const currencyType = code;
+    const currencyCountryCode = code;
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetMetaProperty("selectedCurrencyType", currencyType);
+      super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
     } else {
-      this.props.updateWidgetMetaProperty("selectedCurrencyType", currencyType);
+      this.props.updateWidgetMetaProperty(
+        "selectedCurrencyCountryCode",
+        currencyCountryCode,
+      );
     }
   };
 
@@ -391,6 +394,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const currencyCountryCode =
+      this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -403,7 +408,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
         countryCode={this.props.countryCode}
-        currencyType={this.props.currencyType}
+        currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
@@ -457,7 +462,7 @@ export interface InputValidator {
 }
 export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
-  currencyType?: string;
+  currencyCountryCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   countryCode?: string;

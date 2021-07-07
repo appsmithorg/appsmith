@@ -38,17 +38,20 @@ const getCurrencyOptions = (): Array<DropdownOption> => {
       leftElement: countryToFlag(item.code),
       searchText: item.label,
       label: `${item.currency} - ${item.currency_name}`,
-      value: item.currency,
+      value: item.code,
+      id: item.symbol_native,
     };
   });
 };
 
 export const CurrencyDropdownOptions = getCurrencyOptions();
 
-export const getSelectedCurrency = (currencyType?: string): DropdownOption => {
-  let selectedCurrency: CurrencyOptionProps | undefined = currencyType
+export const getSelectedCurrency = (
+  currencyCountryCode?: string,
+): DropdownOption => {
+  let selectedCurrency: CurrencyOptionProps | undefined = currencyCountryCode
     ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.currency === currencyType;
+        return item.code === currencyCountryCode;
       })
     : undefined;
   if (!selectedCurrency) {
@@ -64,13 +67,13 @@ export const getSelectedCurrency = (currencyType?: string): DropdownOption => {
   return {
     label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
     searchText: selectedCurrency.label,
-    value: selectedCurrency.currency,
+    value: selectedCurrency.code,
     id: selectedCurrency.symbol_native,
   };
 };
 
 interface CurrencyDropdownProps {
-  onCurrencyTypeChange: (code?: string) => void;
+  onCurrencyTypeChange: (currencyCountryCode?: string) => void;
   options: Array<DropdownOption>;
   selected: DropdownOption;
   allowCurrencyChange?: boolean;
