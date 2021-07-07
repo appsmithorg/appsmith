@@ -11,6 +11,10 @@ export const commentsTourStepsEditMode = [
     id: "SAY_HELLO",
     data: { message: "Say hello to team appsmith" },
   },
+  {
+    id: "RESOLVE",
+    data: { message: "Resolve this comment \n when you're done" },
+  },
 ];
 
 export const commentsTourStepsPublishedMode = [
