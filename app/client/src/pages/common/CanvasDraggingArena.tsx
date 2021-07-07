@@ -340,11 +340,13 @@ export function CanvasDraggingArena({
               startPoints.left =
                 ((dragParent === widgetId ? dragCenterSpace.left : 0) +
                   dragStartPoints.left) *
-                snapColumnSpace;
+                  snapColumnSpace +
+                (noPad ? 0 : 2 * CONTAINER_GRID_PADDING);
               startPoints.top =
                 ((dragParent === widgetId ? dragCenterSpace.top : 0) +
                   dragStartPoints.top) *
-                snapRowSpace;
+                  snapRowSpace +
+                (noPad ? 0 : 2 * CONTAINER_GRID_PADDING);
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";

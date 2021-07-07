@@ -10,6 +10,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { useCallback } from "react";
+import { useEffect } from "react";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -148,6 +149,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     top: props.bottomRow / 2,
     left: props.rightColumn / 2,
   });
+  useEffect(() => {
+    mightBeDragging.current = false;
+  }, [isResizing]);
   const onMouseMove = useCallback(
     (e: any) => {
       if (draggableRef.current && mightBeDragging.current && allowDrag) {
