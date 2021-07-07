@@ -31,7 +31,7 @@ function OverlayCommentsWrapper({ children, refId }: Props) {
   const dispatch = useDispatch();
 
   const proceedToNextTourStep = useProceedToNextTourStep(
-    TourType.COMMENTS_TOUR,
+    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
     1,
   );
 

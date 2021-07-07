@@ -428,7 +428,7 @@ function CommentCard({
                 {inline ? (
                   <TourTooltipWrapper
                     tourIndex={2}
-                    tourType={TourType.COMMENTS_TOUR}
+                    tourType={TourType.COMMENTS_TOUR_PUBLISHED_MODE}
                   >
                     <ResolveCommentButton
                       handleClick={toggleResolved as () => void}

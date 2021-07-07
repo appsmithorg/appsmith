@@ -217,7 +217,10 @@ const tourToolTipProps = {
   },
   showPulse: true,
   tourIndex: 0,
-  tourType: TourType.COMMENTS_TOUR,
+  tourType: [
+    TourType.COMMENTS_TOUR_EDIT_MODE,
+    TourType.COMMENTS_TOUR_PUBLISHED_MODE,
+  ],
 };
 
 function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
@@ -282,7 +285,7 @@ function ToggleCommentModeButton({
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
-    TourType.COMMENTS_TOUR,
+    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
     0,
   );
 

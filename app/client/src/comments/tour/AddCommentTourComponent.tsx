@@ -14,7 +14,13 @@ const Dot = styled.div`
 export default function AddCommentTourComponent() {
   return (
     <Dot>
-      <TourTooltipWrapper tourIndex={1} tourType={TourType.COMMENTS_TOUR}>
+      <TourTooltipWrapper
+        tourIndex={1}
+        tourType={[
+          TourType.COMMENTS_TOUR_EDIT_MODE,
+          TourType.COMMENTS_TOUR_PUBLISHED_MODE,
+        ]}
+      >
         <div />
       </TourTooltipWrapper>
     </Dot>

@@ -17,7 +17,7 @@ import { Indices } from "constants/Layers";
 type Props = {
   children: React.ReactNode;
   hasOverlay?: boolean;
-  tourType: TourType;
+  tourType: TourType | Array<TourType>;
   tourIndex: number;
   modifiers?: Modifiers;
   onClick?: () => void;
@@ -51,9 +51,12 @@ function TourTooltipWrapper(props: Props) {
   const isCurrentStepActive = useSelector(
     (state: AppState) => getActiveTourIndex(state) === tourIndex,
   );
-  const isCurrentTourActive = useSelector(
-    (state: AppState) => getActiveTourType(state) === tourType,
-  );
+  const isCurrentTourActive = useSelector((state: AppState) => {
+    const activeTourType = getActiveTourType(state) as TourType;
+    return typeof tourType === "string"
+      ? activeTourType === tourType
+      : tourType.indexOf(activeTourType) !== -1;
+  });
   const tourStepsConfig = TourStepsByType[tourType as TourType];
   const tourStepConfig = tourStepsConfig[tourIndex];
   const isOpen = isCurrentStepActive && isCurrentTourActive;
