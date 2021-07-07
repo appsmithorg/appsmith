@@ -76,6 +76,7 @@ function PostBodyData(props: Props) {
                 placeholder={
                   '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
                 }
+                showLightningMenu={false}
                 showLineNumbers
                 size={EditorSize.EXTENDED}
                 tabBehaviour={TabBehaviour.INDENT}

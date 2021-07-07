@@ -76,7 +76,9 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
       buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
-        return <DynamicTextControl {...controlProps} />;
+        return (
+          <DynamicTextControl {...controlProps} showLightningMenu={false} />
+        );
       },
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_INPUT_TEXT", {
