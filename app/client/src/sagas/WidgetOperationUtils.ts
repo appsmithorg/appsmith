@@ -13,10 +13,11 @@ import {
 import { select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
+import { getCopiedWidgets } from "utils/storage";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getWidgetMetaProps } from "./selectors";
+import { getSelectedWidget, getWidgetMetaProps, getWidgets } from "./selectors";
 
-interface CopiedWidgetGroup {
+export interface CopiedWidgetGroup {
   widgetId: string;
   parentId: string;
   list: WidgetProps[];
@@ -359,7 +360,7 @@ export function groupWidgetsIntoContainer(
 
   const boundary = {
     top: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
-    left: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
+    left: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.leftColumn),
     bottom: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.bottomRow),
     right: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.rightColumn),
   };
@@ -414,3 +415,45 @@ export function groupWidgetsIntoContainer(
     },
   ];
 }
+
+/**
+ * selects the selectedWidget.
+ * In case of LIST_WIDGET, it selects the list widget instead of selecting the
+ * container inside the list widget
+ *
+ * @param canvasWidgets
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const getSelectedWidgetForPasting = function*() {
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+
+  let selectedWidget: FlattenedWidgetProps | undefined = yield select(
+    getSelectedWidget,
+  );
+
+  selectedWidget = checkIfPastingIntoListWidget(
+    canvasWidgets,
+    selectedWidget,
+    copiedWidgetGroups,
+  );
+
+  return selectedWidget;
+};
+
+/**
+ * returns the top row of the topmost widget from the array
+ * of selected widgets
+ *
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const getTopMostSelectedWidget = function(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  const sortedWidgetList = copiedWidgetGroups.sort(
+    (a, b) => a.list[0].topRow - b.list[0].topRow,
+  );
+  return sortedWidgetList[0].list[0];
+};

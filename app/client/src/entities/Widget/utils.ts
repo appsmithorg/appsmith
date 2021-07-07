@@ -144,6 +144,13 @@ export const getAllPathsFromPropertyConfig = (
   return { bindingPaths, triggerPaths, validationPaths };
 };
 
+/**
+ * this function get the next available row for pasting widgets
+ *
+ * @param parentContainerId
+ * @param canvasWidgets
+ * @returns
+ */
 export const nextAvailableRowInContainer = (
   parentContainerId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
