@@ -85,7 +85,7 @@ function CommentThreadContainer({
     if (isVisible && !commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
-  }, [isVisible]);
+  }, [isVisible, commentThread.isViewed]);
 
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates
