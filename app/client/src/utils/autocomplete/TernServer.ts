@@ -7,6 +7,7 @@ import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
+import forge from "constants/defs/forge.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
@@ -15,12 +16,12 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 
-const DEFS = [ecma, lodash, base64, moment, xmlJs];
+const DEFS = [ecma, lodash, base64, moment, xmlJs, forge];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-type Completion = Hint & {
+export type Completion = Hint & {
   origin: string;
   type: DataType;
   data: {
@@ -28,6 +29,11 @@ type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
+};
+
+export type CommandsCompletion = Completion & {
+  action?: () => void;
+  shortcut: string;
 };
 
 type TernDocs = Record<string, TernDoc>;

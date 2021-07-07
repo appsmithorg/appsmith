@@ -9,6 +9,7 @@ import { Datasource } from "entities/Datasource";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -30,7 +31,7 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  //margin-top: 16px;
 `;
 
 export const SaveButtonContainer = styled.div`
@@ -49,7 +50,6 @@ export const ActionButton = styled(BaseButton)`
 
 const DBForm = styled.div`
   padding: 20px;
-  margin-left: 10px;
   margin-right: 0px;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: auto;
@@ -203,7 +203,12 @@ export class JSONtoForm<
   };
 
   renderForm = (content: any) => {
-    return <DBForm>{content}</DBForm>;
+    return (
+      <div>
+        <CloseEditor />
+        <DBForm>{content}</DBForm>
+      </div>
+    );
   };
 
   renderMainSection = (section: any, index: number) => {
