@@ -21,8 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -48,6 +46,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -58,11 +57,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository) {
+                                  CommentThreadRepository commentThreadRepository, SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -79,20 +79,19 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .zipWith(ReactiveSecurityContextHolder.getContext())
+                .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(objects -> {
                     Application application = objects.getT1();
-                    Authentication auth = objects.getT2().getAuthentication();
-                    return setUnreadCommentCount(application, auth);
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
                 });
     }
 
-    private Mono<Application> setUnreadCommentCount(Application application, Authentication auth) {
-        User user = (User) auth.getPrincipal();
+    private Mono<Application> setUnreadCommentCount(Application application, User user) {
         if(!user.isAnonymous()) {
             return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
                     .map(aLong -> {
-                        application.setUnreadComments(aLong);
+                        application.setUnreadCommentThreads(aLong);
                         return application;
                     });
         } else {
@@ -204,11 +203,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setViewMode(true);
                     return application;
                 })
-                .zipWith(ReactiveSecurityContextHolder.getContext())
+                .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(objects -> {
                     Application application = objects.getT1();
-                    Authentication auth = objects.getT2().getAuthentication();
-                    return setUnreadCommentCount(application, auth);
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
                 });
     }
 
