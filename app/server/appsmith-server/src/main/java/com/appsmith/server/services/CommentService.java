@@ -23,4 +23,6 @@ public interface CommentService extends CrudService<Comment, String> {
     Mono<Boolean> createReaction(String commentId, Comment.Reaction reaction);
 
     Mono<Boolean> deleteReaction(String commentId, Comment.Reaction reaction);
+
+    Mono<Long> getUnreadCount(String applicationId);
 }

@@ -688,6 +688,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
+          selectAllRow={this.handleAllRowSelect}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
               ? -1
@@ -699,6 +700,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
+          unSelectAllRow={this.resetSelectedRowIndex}
           updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
@@ -789,6 +791,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+  };
+
+  handleAllRowSelect = (pageData: Record<string, unknown>[]) => {
+    if (this.props.multiRowSelection) {
+      const selectedRowIndices = pageData.map(
+        (row: Record<string, unknown>) => row.index,
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
