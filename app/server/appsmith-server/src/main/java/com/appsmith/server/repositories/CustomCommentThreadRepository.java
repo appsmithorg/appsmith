@@ -12,4 +12,5 @@ public interface CustomCommentThreadRepository extends AppsmithRepository<Commen
     Flux<CommentThread> findByApplicationId(String applicationId, AclPermission permission);
     Mono<UpdateResult> addToSubscribers(String threadId, Set<String> usernames);
     Mono<Long> countUnreadThreads(String applicationId, String userEmail);
+    Mono<CommentThread> findPrivateThread(String applicationId);
 }

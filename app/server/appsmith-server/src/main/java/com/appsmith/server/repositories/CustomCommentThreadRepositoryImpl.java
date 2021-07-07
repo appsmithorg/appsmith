@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -54,5 +55,13 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
             where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId)
         );
         return count(criteriaList, AclPermission.READ_THREAD);
+    }
+
+    public Mono<CommentThread> findPrivateThread(String applicationId) {
+        List<Criteria> criteria = List.of(
+                where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
+                where(fieldName(QCommentThread.commentThread.isPrivate)).is(TRUE)
+        );
+        return queryOne(criteria, AclPermission.READ_THREAD);
     }
 }
