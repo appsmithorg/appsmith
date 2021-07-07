@@ -398,11 +398,16 @@ class FilePickerWidget extends BaseWidget<
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
+          callback: this.handleActionComplete,
         },
       });
 
       this.setState({ isLoading: true });
     }
+  };
+
+  handleActionComplete = () => {
+    this.setState({ isLoading: false });
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {

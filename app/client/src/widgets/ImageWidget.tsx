@@ -105,7 +105,12 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["contain", "cover", "auto"],
+              },
+            },
           },
         ],
       },

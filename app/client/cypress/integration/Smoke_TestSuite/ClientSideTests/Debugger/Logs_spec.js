@@ -15,7 +15,6 @@ describe("Debugger logs", function() {
   });
 
   it("Reset debugger state", function() {
-    cy.openPropertyPane("buttonwidget");
     cy.get(".t--property-control-visible")
       .find(".t--js-toggle")
       .click();

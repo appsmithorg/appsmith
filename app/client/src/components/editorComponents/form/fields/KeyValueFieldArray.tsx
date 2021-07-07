@@ -154,6 +154,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
                       hoverInteraction
+                      mutedHinting
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
                       theme={props.theme}
@@ -172,7 +173,8 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
-                      expected={expected}
+                      expected={FIELD_VALUES.API_ACTION.params}
+                      mutedHinting
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder

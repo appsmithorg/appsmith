@@ -56,8 +56,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "textColor",
             label: "Text Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "fontSize",

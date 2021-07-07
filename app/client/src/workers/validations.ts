@@ -5,7 +5,8 @@ import {
   ValidationResponse,
   Validator,
 } from "../constants/WidgetValidation";
-import { isObject, isPlainObject, isString, rest, toString } from "lodash";
+import _, { isPlainObject, isString, startsWith, toString } from "lodash";
+import { WidgetProps } from "../widgets/BaseWidget";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
@@ -154,6 +155,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
+    if (config.params?.regex && !config.params?.regex.test(parsed as string)) {
+      return {
+        parsed: config.params?.default || "",
+        message: `Value does not match expected regex: ${config.params?.regex.source}`,
+        isValid: false,
+      };
+    }
+
     return {
       isValid: true,
       parsed,
@@ -245,6 +254,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: `Maximum allowed value: ${config.params.max}`,
         };
       }
+    }
+    if (config.params?.natural && (parsed < 0 || !Number.isInteger(parsed))) {
+      return {
+        isValid: false,
+        parsed,
+        message: `Value should be a positive integer`,
+      };
     }
 
     return {
@@ -507,5 +523,21 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
     return invalidResponse;
+  },
+  [VALIDATION_TYPES.COLOR_PICKER_TEXT]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    // check value should be string
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](value, props);
+    // check value should not html tag or unparsed js
+    if (startsWith(parsed, "{{") || startsWith(parsed, "<")) {
+      return {
+        isValid: false,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    return { isValid, parsed };
   },
 };

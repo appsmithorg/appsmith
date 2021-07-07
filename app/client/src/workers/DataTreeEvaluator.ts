@@ -580,13 +580,12 @@ export default class DataTreeEvaluator {
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
     if (returnTriggers) {
-      const result = this.evaluateDynamicBoundValue(
+      return this.evaluateDynamicBoundValue(
         jsSnippets[0],
         data,
         callBackData,
+        returnTriggers,
       );
-      // TODO return errors here as well
-      return result.triggers;
     }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
@@ -625,9 +624,10 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     callbackData?: Array<any>,
+    isTriggerBased = false,
   ): EvalResult {
     try {
-      return evaluate(js, data, callbackData);
+      return evaluate(js, data, callbackData, isTriggerBased);
     } catch (e) {
       return {
         result: undefined,
@@ -925,6 +925,13 @@ export default class DataTreeEvaluator {
                     }
                   }
                 }
+              }
+              // If the whole binding was removed then the value
+              // at this path would be "".
+              // In this case if the path exists in the dependency map
+              // remove it.
+              else if (fullPropertyPath in this.dependencyMap) {
+                delete this.dependencyMap[fullPropertyPath];
               }
             }
             break;

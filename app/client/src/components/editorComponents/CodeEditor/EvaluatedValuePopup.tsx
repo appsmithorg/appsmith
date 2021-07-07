@@ -18,6 +18,8 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 
 const modifiers = {
   offset: {
@@ -186,6 +188,13 @@ export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
   const { parameters, value } = props.evaluatedValue;
+  if (!value) {
+    Sentry.captureException("Prepared Statement got no value", {
+      level: Severity.Debug,
+      extra: { props },
+    });
+    return <div />;
+  }
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (

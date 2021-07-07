@@ -12,7 +12,6 @@ export enum ValidationTypes {
   OBJECT_ARRAY = "OBJECT_ARRAY",
   DATE_ISO_STRING = "DATE_ISO_STRING",
   IMAGE_URL = "IMAGE_URL",
-  // DATE_STRING = "DATE_STRING",
   FUNCTION = "FUNCTION",
 }
 

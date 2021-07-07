@@ -57,22 +57,24 @@ export type PropertyPaneControlConfig = {
 };
 
 type ValidationConfigParams = {
-  min?: number;
-  max?: number;
-  default?: unknown;
-  unique?: boolean;
-  required?: boolean;
-  regex?: RegExp;
+  min?: number; // min allowed for a number
+  max?: number; // max allowed for a number
+  natural?: boolean; // is a positive integer
+  default?: unknown; // default for any type
+  unique?: boolean; // unique in an array
+  required?: boolean; // required type
+  regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
+    // Allowed keys in an object type
     name: string;
     type: ValidationTypes;
     params?: ValidationConfigParams;
   }>;
-  allowedValues?: unknown[];
-  children?: ValidationConfig;
-  fn?: (value: unknown, props: any) => ValidationResponse;
-  fnString?: string;
-  expected?: { type: string; example: any };
+  allowedValues?: unknown[]; // Allowed values in a string and array type
+  children?: ValidationConfig; // Children configurations in an ARRAY or OBJECT_ARRAY type
+  fn?: (value: unknown, props: any) => ValidationResponse; // Function in a FUNCTION type
+  fnString?: string; // AUTO GENERATED, SHOULD NOT BE SET BY WIDGET DEVELOPER
+  expected?: { type: string; example: any }; // FUNCTION type expected type and example
 };
 
 export type ValidationConfig = {

@@ -7,6 +7,8 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -118,7 +120,13 @@ ctx.addEventListener(
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
-        const triggers = dataTreeEvaluator.getDynamicValue(
+        const {
+          errors: evalErrors,
+          triggers,
+        }: {
+          errors: EvaluationError[];
+          triggers: Array<any>;
+        } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
           EvaluationSubstitutionType.TEMPLATE,
@@ -128,16 +136,15 @@ ctx.addEventListener(
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
-        const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_PROPERTY_ERROR) {
-            return {
-              ...error,
-              type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-            };
-          }
-          return error;
-        });
-        dataTreeEvaluator.clearErrors();
+        const errors = evalErrors
+          .filter(
+            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
+          )
+          .map((error) => ({
+            ...error,
+            message: error.errorMessage,
+            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
+          }));
         return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
