@@ -681,6 +681,8 @@ export default [
         isTriggerProperty: false,
       },
       {
+        helpText:
+          "Bind the Table.pageSize property in your API. Without page size configured in your API, this functionality will not work as it uses page size to calculate total pages and whether next page button is disabled.",
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
