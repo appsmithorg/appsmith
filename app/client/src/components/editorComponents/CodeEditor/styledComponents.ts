@@ -4,7 +4,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Skin, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey, Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 export const HintStyles = createGlobalStyle<{
@@ -18,7 +18,6 @@ export const HintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-size: 90%;
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
@@ -50,6 +49,58 @@ export const HintStyles = createGlobalStyle<{
       }
     }
   }
+
+  .CodeMirror-command-header {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+    color: #716e6e;
+    pointer-events: none !important;
+    font-family: ${(props) => props.theme.fonts.text};
+    ${(props) => getTypographyByKey(props, "p3")}
+  }
+
+  .CodeMirror-commands {
+    color: #4b4848;
+    position: relative;
+    padding: 0 ${(props) => props.theme.spaces[3]}px !important;
+    height: 25px;
+    font-family: ${(props) => props.theme.fonts.text};
+    ${(props) => getTypographyByKey(props, "p3")}
+    &:hover, &.CodeMirror-hint-active {
+      svg {
+        path {
+          fill: #ffffff;
+        }
+      }
+      .shortcut {
+        color: #ffffff;
+      }
+    }
+    .command-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+    }
+    .command {
+      display: flex;
+      align-items: center;
+      img {
+        height: 12px;
+        width: 12px;
+        margin-right: 7px;
+      }
+      svg {
+        margin-right: 7px;
+      }
+    }
+    .shortcut {
+      font-style: italic;
+      font-size: 10px;
+      color: #a9a7a7;
+      margin-left: auto;
+    }
+  }
+
 
   .CodeMirror-hint-header {
     padding-left: 8px;
@@ -468,9 +519,28 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
+    .slash-commands {
+      display: flex;
+    }
   }
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
+  }
+  .commands-button {
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    color: #f86a2b;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    font-style: italic;
+    padding: 0 0 3px;
+    &:hover {
+      background: #f86a2b;
+      color: white;
+    }
   }
 `;

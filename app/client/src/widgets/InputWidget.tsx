@@ -113,10 +113,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "0",
-                value: 0,
-              },
-              {
                 label: "1",
                 value: 1,
               },

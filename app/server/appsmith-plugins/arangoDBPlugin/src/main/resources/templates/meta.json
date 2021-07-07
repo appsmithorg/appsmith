@@ -1,0 +1,16 @@
+{
+  "templates": [
+    {
+      "file": "CREATE.aql"
+    },
+    {
+      "file": "SELECT.aql"
+    },
+    {
+      "file": "UPDATE.aql"
+    },
+    {
+      "file": "DELETE.aql"
+    }
+  ]
+}

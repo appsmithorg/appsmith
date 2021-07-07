@@ -155,12 +155,16 @@ class InputComponent extends React.Component<
       const locale = navigator.languages?.[0] || "en-US";
       if (!valueAsString.endsWith(".")) {
         const value = parseFloat(valueAsString.split(",").join(""));
-        const formatter = new Intl.NumberFormat(locale, {
-          style: "decimal",
-          maximumFractionDigits: fractionDigits,
-        });
-        const formattedValue = formatter.format(value);
-        this.props.onValueChange(formattedValue);
+        if (value) {
+          const formatter = new Intl.NumberFormat(locale, {
+            style: "decimal",
+            maximumFractionDigits: fractionDigits,
+          });
+          const formattedValue = formatter.format(value);
+          this.props.onValueChange(formattedValue);
+        } else {
+          this.props.onValueChange("");
+        }
       } else {
         this.props.onValueChange(valueAsString);
       }
