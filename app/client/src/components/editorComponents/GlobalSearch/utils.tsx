@@ -79,7 +79,6 @@ export const getItemPage = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.widget:
     case SEARCH_ITEM_TYPES.page:
       return item?.pageId;
-    // return item?.pageName;
     default:
       return "";
   }
