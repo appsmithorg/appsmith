@@ -169,6 +169,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={FIELD_VALUES.API_ACTION.params}
+                      mutedHinting
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder
