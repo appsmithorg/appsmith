@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -47,6 +48,7 @@ public class IndexController {
         return reactiveTemplate.convertAndSend(topic.getTopic(), "This is a test message");
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping(Url.PUBLIC_COMMENT_URL + "/threads/{threadId}/unsubscribe/{userId}")
     public Mono<ResponseDTO<Boolean>> unsubscribeThread(@PathVariable String userId, @PathVariable String threadId) {
         log.debug("Going to unsubscribe {} from thread {}", userId, threadId);
