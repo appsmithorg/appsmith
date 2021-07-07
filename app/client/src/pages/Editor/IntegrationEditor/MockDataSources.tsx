@@ -8,7 +8,6 @@ import { addMockDatasourceToOrg } from "actions/datasourceActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const MockDataSourceWrapper = styled.div`
-  padding: 5px;
   overflow: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
