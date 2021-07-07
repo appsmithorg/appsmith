@@ -9,8 +9,6 @@ public class MockDataSet {
 
     String pluginType;
 
-    String packageName;
-
     String pluginName;
 
     String description;
