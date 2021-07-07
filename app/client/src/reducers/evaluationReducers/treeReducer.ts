@@ -1,9 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { original } from "immer";
-import { get, set } from "lodash";
 import { createImmerReducer } from "utils/AppsmithUtils";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -14,27 +12,26 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<{ dataTree: DataTree; evaluationOrder: [string] }>,
   ) => {
-    const { dataTree, evaluationOrder } = action.payload;
+    // const { dataTree, evaluationOrder } = action.payload;
+    const { dataTree } = action.payload;
 
+    const originalState = original(state) as any;
     // If its the first time, return the full data tree.
-    if (original(state) === initialState) {
+    if (originalState === initialState) {
       return dataTree;
     }
 
-    // Selectively update the widgets to prevent all the widgets from
-    // re-rendering
-    const updatedEntities: Set<string> = new Set();
-
-    // Make a list of updated entities
-    evaluationOrder.forEach((path) => {
-      const { entityName } = getEntityNameAndPropertyPath(path);
-      updatedEntities.add(entityName);
-    });
-
-    // Update the changed entities
-    updatedEntities.forEach((path) => {
-      set(state, path, get(dataTree, path));
-    });
+    // If the values are the same, put the current ones back in datatree and return.
+    // We are doing this to make the tree in the store refer to a new object, so that
+    // getDataTree will return new value??
+    for (const key in originalState) {
+      if (
+        JSON.stringify(originalState[key]) === JSON.stringify(dataTree[key])
+      ) {
+        dataTree[key] = originalState[key];
+      }
+    }
+    return dataTree;
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
 });
