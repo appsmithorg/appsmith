@@ -7,12 +7,15 @@ import { createNewQueryName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
-import { QueryAction } from "entities/Action";
+import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { Toaster } from "../../../components/ads/Toast";
+import { Variant } from "../../../components/ads/common";
+import { DEFAULT_API_ACTION_CONFIG } from "../../../constants/ApiEditorConstants";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -53,7 +56,7 @@ type ActiveDataSourceProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
+  createAction: (data: Partial<Action> & { eventData: any }) => void;
   actions: ActionDataState;
   isCreating: boolean;
   location: {
@@ -67,10 +70,29 @@ type ActiveDataSourceProps = {
 };
 
 class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
-  handleCreateNewQuery = (dataSource: Datasource) => {
+  handleCreateNewQuery = (dataSource: Datasource, pluginType: PluginType) => {
     const { actions, pageId } = this.props;
+
+    if (
+      pluginType === "API" &&
+      (!dataSource ||
+        !dataSource.datasourceConfiguration ||
+        !dataSource.datasourceConfiguration.url)
+    ) {
+      Toaster.show({
+        text: "Unable to create API. Try adding a url to the datasource",
+        variant: Variant.danger,
+      });
+      return;
+    }
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
+
+      const headers = dataSource?.datasourceConfiguration?.headers ?? [];
+      const defaultApiActionConfig: ApiActionConfig = {
+        ...DEFAULT_API_ACTION_CONFIG,
+        headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+      };
 
       this.props.createAction({
         name: newQueryName,
@@ -84,7 +106,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
           dataSource: dataSource.name,
         },
         pluginId: dataSource.pluginId,
-        actionConfiguration: {},
+        actionConfiguration: pluginType === "API" ? defaultApiActionConfig : {},
       });
     }
   };
@@ -138,7 +160,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
+  createAction: (data: Partial<Action> & { eventData: any }) => {
     dispatch(createActionRequest(data));
   },
 });
