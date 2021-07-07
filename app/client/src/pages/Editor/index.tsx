@@ -30,12 +30,16 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 
 import history from "utils/history";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
+  currentApplicationName?: string;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
@@ -46,7 +50,7 @@ type EditorProps = {
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  handlePathUpdated: (pathName: string) => void;
+  handlePathUpdated: (location: typeof window.location) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -66,12 +70,13 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-    this.props.handlePathUpdated(window.location.pathname);
+    this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
+      nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
@@ -92,7 +97,7 @@ class Editor extends Component<Props> {
   }
 
   handleHistoryChange = (location: any) => {
-    this.props.handlePathUpdated(location.pathname);
+    this.props.handlePathUpdated(location);
   };
 
   public render() {
@@ -118,10 +123,15 @@ class Editor extends Component<Props> {
           <div>
             <Helmet>
               <meta charSet="utf-8" />
-              <title>Editor | Appsmith</title>
+              <title>
+                {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              </title>
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
+              <AppComments />
+              <AddCommentTourComponent />
+              <CommentShowCaseCarousel />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -142,6 +152,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
+  currentApplicationName: state.ui.applications.currentApplication?.name,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -149,8 +160,8 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    handlePathUpdated: (pathName: string) =>
-      dispatch(handlePathUpdated(pathName)),
+    handlePathUpdated: (location: typeof window.location) =>
+      dispatch(handlePathUpdated(location)),
   };
 };
 

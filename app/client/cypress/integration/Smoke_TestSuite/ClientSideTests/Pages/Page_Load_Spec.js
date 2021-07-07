@@ -1,5 +1,7 @@
 const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const pages = require("../../../../locators/Pages.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Page Load tests", () => {
   before(() => {
@@ -59,6 +61,29 @@ describe("Page Load tests", () => {
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
       "This is Page 1",
+    );
+  });
+  it("Hide Page and validate published app", () => {
+    cy.get(publish.backToEditor).click();
+    cy.GlobalSearchEntity("Page1");
+    cy.xpath(pages.popover)
+      .last()
+      .click({ force: true });
+    cy.get(pages.hidePage).click({ force: true });
+    cy.ClearSearch();
+    cy.PublishtheApp();
+    // Assert active page DSL
+    cy.get(commonlocators.headingTextStyle).should(
+      "have.text",
+      "This is Page 1",
+    );
+    cy.get(publish.backToEditor).click();
+    cy.SearchEntityandOpen("Page2");
+    cy.PublishtheApp();
+    // Assert active page DSL
+    cy.get(commonlocators.headingTextStyle).should(
+      "have.text",
+      "This is Page 2",
     );
   });
 });

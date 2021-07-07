@@ -1,7 +1,10 @@
 package com.appsmith.server.acl;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
@@ -17,6 +20,7 @@ public enum AclPermission {
      */
 
     // These are generic permissions created to make the transition to the new ACL format easy. They must be removed
+    // TODO: These have a potential to throw NPEs in the `getPermissionByValue` method.
     CREATE("create", null),
     READ("read", null),
     UPDATE("update", null),
@@ -40,6 +44,7 @@ public enum AclPermission {
     ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Organization.class),
     ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Organization.class),
     ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Organization.class),
+    ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Organization.class),
 
     // Invitation related permissions
     ORGANIZATION_INVITE_USERS("inviteUsers:organization", Organization.class),
@@ -47,9 +52,13 @@ public enum AclPermission {
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
+    EXPORT_APPLICATIONS("export:applications", Application.class),
 
     // Making an application public permission at Organization level
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
+
+    // Can the user create a comment thread on a given application?
+    COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
     READ_PAGES("read:pages", Page.class),
@@ -60,17 +69,26 @@ public enum AclPermission {
 
     MANAGE_DATASOURCES("manage:datasources", Datasource.class),
     READ_DATASOURCES("read:datasources", Datasource.class),
-    EXECUTE_DATASOURCES("execute:datasources", Datasource.class);
+    EXECUTE_DATASOURCES("execute:datasources", Datasource.class),
 
-    private String value;
-    private Class entity;
+    COMMENT_ON_THREAD("canComment:commentThreads", CommentThread.class),
+    READ_THREAD("read:commentThreads", CommentThread.class),
+    MANAGE_THREAD("manage:commentThreads", CommentThread.class),
 
-    AclPermission(String value, Class entity) {
+    READ_COMMENT("read:comments", Comment.class),
+    MANAGE_COMMENT("manage:comments", Comment.class),
+
+    ;
+
+    private final String value;
+    private final Class<? extends BaseDomain> entity;
+
+    AclPermission(String value, Class<? extends BaseDomain> entity) {
         this.value = value;
         this.entity = entity;
     }
 
-    public static final AclPermission getPermissionByValue(String value, Class entity) {
+    public static AclPermission getPermissionByValue(String value, Class<? extends BaseDomain> entity) {
         for (AclPermission permission : values()) {
             if (permission.getValue().equals(value) && permission.getEntity().equals(entity)) {
                 return permission;

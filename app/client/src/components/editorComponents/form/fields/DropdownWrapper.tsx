@@ -10,7 +10,7 @@ type DropdownWrapperProps = {
   options: Array<{ id: string; value: string; label: string }>;
 };
 
-const DropdownWrapper = (props: DropdownWrapperProps) => {
+function DropdownWrapper(props: DropdownWrapperProps) {
   const [selectedOption, setSelectedOption] = useState({
     value: props.placeholder,
   });
@@ -28,11 +28,11 @@ const DropdownWrapper = (props: DropdownWrapperProps) => {
 
   return (
     <Dropdown
+      onSelect={onSelectHandler}
       options={props.options}
       selected={selectedOption}
-      onSelect={onSelectHandler}
     />
   );
-};
+}
 
 export default DropdownWrapper;

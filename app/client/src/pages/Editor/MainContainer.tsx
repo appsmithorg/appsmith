@@ -20,19 +20,19 @@ const EditorContainer = styled.div`
   width: calc(100vw - ${(props) => props.theme.sidebarWidth});
 `;
 
-const MainContainer = () => {
+function MainContainer() {
   return (
     <Container>
       <Sidebar />
       <EditorContainer>
         <Switch>
-          <SentryRoute exact path={BUILDER_URL} component={WidgetsEditor} />
+          <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
           <SentryRoute component={EditorsRouter} />
         </Switch>
       </EditorContainer>
     </Container>
   );
-};
+}
 
 MainContainer.displayName = "MainContainer";
 

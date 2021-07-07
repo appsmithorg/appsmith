@@ -63,15 +63,15 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       return null;
     return (
       <ExplorerPageEntity
-        key={page.pageId}
-        step={props.step + 1}
-        widgets={pageWidgets}
         actions={pageActions}
         datasources={datasources}
+        key={page.pageId}
+        page={page}
         plugins={props.plugins}
         searchKeyword={props.searchKeyword}
-        page={page}
         showWidgetsSidebar={props.showWidgetsSidebar}
+        step={props.step + 1}
+        widgets={pageWidgets}
       />
     );
   });
@@ -80,14 +80,14 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
-      name="Pages"
       className="group pages"
+      entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded
-      entityId="Pages"
-      step={props.step}
+      name="Pages"
       onCreate={createPageCallback}
       searchKeyword={props.searchKeyword}
+      step={props.step}
     >
       {pageEntities}
     </Entity>

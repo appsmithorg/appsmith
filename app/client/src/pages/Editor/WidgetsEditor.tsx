@@ -10,7 +10,6 @@ import {
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
-import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
@@ -25,6 +24,9 @@ import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { AppState } from "reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import Debugger from "components/editorComponents/Debugger";
+import { closePropertyPane } from "actions/widgetActions";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -41,6 +43,7 @@ const CanvasContainer = styled.section`
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  padding-top: 1px;
   &:before {
     position: absolute;
     top: 0;
@@ -52,8 +55,8 @@ const CanvasContainer = styled.section`
 `;
 
 /* eslint-disable react/display-name */
-const WidgetsEditor = () => {
-  const { focusWidget, selectWidget } = useWidgetSelection();
+function WidgetsEditor() {
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
 
@@ -112,8 +115,9 @@ const WidgetsEditor = () => {
 
   const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
-    selectWidget && selectWidget();
-  }, [focusWidget, selectWidget]);
+    deselectAll && deselectAll();
+    dispatch(closePropertyPane());
+  }, [focusWidget, deselectAll]);
 
   const pageLoading = (
     <Centered>
@@ -135,12 +139,13 @@ const WidgetsEditor = () => {
   return (
     <EditorWrapper onClick={handleWrapperClick}>
       <MainContainerLayoutControl />
-      <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+      <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
         {node}
       </CanvasContainer>
+      <Debugger />
     </EditorWrapper>
   );
-};
+}
 
 WidgetsEditor.whyDidYouRender = {
   logOnDifferentValues: false,

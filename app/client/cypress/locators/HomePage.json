@@ -8,6 +8,10 @@
     "homePageID": "//div[@id='root']",
     "appMoreIcon": ".bp3-popover-wrapper.more .bp3-popover-target",
     "duplicateApp": "[data-cy=t--duplicate]",
+    "forkAppFromMenu": "[data-cy=t--fork-app]",
+    "exportAppFromMenu": "[data-cy=t--export-app]",
+    "forkAppOrgList": ".radio-group",
+    "forkAppOrgButton": "[data-cy=t--fork-app-to-org-button]",
     "selectAction": "#Base",
     "deleteApp": "[data-cy=t--delete]",
     "deleteAppConfirm": "[data-cy=t--delete-confirm]",
@@ -56,7 +60,13 @@
     "applicationColorSelector": ".t--color-not-selected",
     "applicationBackgroundColor": ".t--application-card-background",
     "orgSettingOption": "[data-cy=t--org-setting]",
+    "orgImportAppOption": "[data-cy=t--org-import-app]",
+    "orgImportAppModal": ".t--import-application-modal",
+    "orgImportAppButton": "[data-cy=t--org-import-app-button]",
+    "leaveOrgConfirmModal": ".t--member-delete-confirmation-modal",
+    "leaveOrgConfirmButton": "[data-cy=t--org-leave-button]",
     "orgNameInput": "[data-cy=t--org-name-input]",
+    "renameOrgInput": "[data-cy=t--org-rename-input]",
     "orgEmailInput": "[data-cy=t--org-email-input]",
     "orgWebsiteInput": "[data-cy=t--org-website-input]",
     "orgHeaderName": ".t--organization-header",
@@ -69,5 +79,7 @@
     "generalTab": "//li//span[text()='General']",
     "membersTab": "//li//span[text()='Members']",
     "cancelBtn": "//span[text()='Cancel']",
-    "submit": "button:contains('Submit')"
+    "submit": "button:contains('Submit')",
+    "orgNamePopover": ".t--org-name",
+    "orgNamePopoverContent": ".bp3-popover-content"
 }

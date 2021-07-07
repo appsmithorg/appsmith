@@ -8,6 +8,7 @@ export interface StyledImageProps {
   imageUrl?: string;
   backgroundColor?: string;
   showHoverPointer?: boolean;
+  objectFit: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
@@ -17,16 +18,16 @@ export const StyledImage = styled.div<
   }
 >`
   position: relative;
-  display: flex;                                                                                                                                                                                                                                                                                                                                                                          
+  display: flex;
   flex-direction: "row";
+  background-size: ${(props) => props.objectFit ?? "cover"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
-  background-image: url("${(props) =>
-    props.imageError ? props.defaultImageUrl : props.imageUrl}");
+  background-image: ${(props) =>
+    `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
   height: 100%;
   width: 100%;
 `;
@@ -74,28 +75,17 @@ class ImageComponent extends React.Component<
       <Wrapper>
         <TransformWrapper
           defaultScale={1}
-          onPanningStart={() => {
-            this.props.disableDrag(true);
+          doubleClick={{
+            disabled: true,
           }}
           onPanning={() => {
             this.isPanning = true;
           }}
+          onPanningStart={() => {
+            this.props.disableDrag(true);
+          }}
           onPanningStop={() => {
             this.props.disableDrag(false);
-          }}
-          options={{
-            maxScale: maxZoomLevel,
-            disabled: !zoomActive,
-            transformEnabled: zoomActive,
-          }}
-          pan={{
-            disabled: !zoomActive,
-          }}
-          wheel={{
-            disabled: !zoomActive,
-          }}
-          doubleClick={{
-            disabled: true,
           }}
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
@@ -119,42 +109,52 @@ class ImageComponent extends React.Component<
               }
             }
           }}
+          options={{
+            maxScale: maxZoomLevel,
+            disabled: !zoomActive,
+            transformEnabled: zoomActive,
+          }}
+          pan={{
+            disabled: !zoomActive,
+          }}
+          wheel={{
+            disabled: !zoomActive,
+          }}
         >
           {({ zoomIn, zoomOut }: any) => (
-            <React.Fragment>
-              <TransformComponent>
-                <StyledImage
-                  className={this.props.isLoading ? "bp3-skeleton" : ""}
-                  imageError={this.state.imageError}
-                  {...this.props}
-                  data-testid="styledImage"
-                  style={{
-                    cursor,
-                  }}
-                  onClick={(event: React.MouseEvent<HTMLElement>) => {
-                    if (!this.isPanning) {
-                      if (isZoomingIn) {
-                        zoomIn(event);
-                      } else {
-                        zoomOut(event);
-                      }
-                      this.props.onClick && this.props.onClick(event);
+            <TransformComponent>
+              <StyledImage
+                className={this.props.isLoading ? "bp3-skeleton" : ""}
+                imageError={this.state.imageError}
+                {...this.props}
+                data-testid="styledImage"
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                  if (!this.isPanning) {
+                    if (isZoomingIn) {
+                      zoomIn(event);
+                    } else {
+                      zoomOut(event);
                     }
-                    this.isPanning = false;
+                    this.props.onClick && this.props.onClick(event);
+                  }
+                  this.isPanning = false;
+                }}
+                style={{
+                  cursor,
+                }}
+              >
+                {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
+                <img
+                  alt={this.props.widgetName}
+                  onError={this.onImageError}
+                  onLoad={this.onImageLoad}
+                  src={this.props.imageUrl}
+                  style={{
+                    display: "none",
                   }}
-                >
-                  <img
-                    style={{
-                      display: "none",
-                    }}
-                    alt={this.props.widgetName}
-                    src={this.props.imageUrl}
-                    onError={this.onImageError}
-                    onLoad={this.onImageLoad}
-                  ></img>
-                </StyledImage>
-              </TransformComponent>
-            </React.Fragment>
+                />
+              </StyledImage>
+            </TransformComponent>
           )}
         </TransformWrapper>
       </Wrapper>
@@ -180,6 +180,7 @@ export interface ImageComponentProps extends ComponentProps {
   isLoading: boolean;
   showHoverPointer?: boolean;
   maxZoomLevel: number;
+  objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }

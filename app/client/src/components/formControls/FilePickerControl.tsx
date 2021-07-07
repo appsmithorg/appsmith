@@ -101,11 +101,11 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
       <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
-          text={"Select"}
           accent="secondary"
           onClick={() => {
             this.openModal();
           }}
+          text={"Select"}
         />
       </div>
     );
@@ -121,15 +121,15 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty, label, isRequired } = this.props;
+    const { configProperty, isRequired, label } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <FormLabel>
           {label} {isRequired && "*"}
         </FormLabel>
-        <Field name={configProperty} component={FieldFileInput} />
-      </React.Fragment>
+        <Field component={FieldFileInput} name={configProperty} />
+      </>
     );
   }
 

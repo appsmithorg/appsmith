@@ -4,7 +4,6 @@ import { Datasource } from "entities/Datasource";
 import _ from "lodash";
 
 const initialState: DatasourcePaneReduxState = {
-  selectedPlugin: "",
   drafts: {},
   actionRouteInfo: {},
   expandDatasourceId: "",
@@ -13,7 +12,6 @@ const initialState: DatasourcePaneReduxState = {
 };
 
 export interface DatasourcePaneReduxState {
-  selectedPlugin: string;
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
@@ -27,14 +25,6 @@ export interface DatasourcePaneReduxState {
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
-  [ReduxActionTypes.SELECT_PLUGIN]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<{ pluginId: string }>,
-  ) => ({
-    ...state,
-    selectedPlugin: action.payload.pluginId,
-  }),
-
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,

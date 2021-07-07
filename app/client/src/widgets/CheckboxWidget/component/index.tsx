@@ -36,19 +36,19 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
       this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
     return (
       <CheckboxContainer
-        isValid={!(this.props.isRequired && !this.props.isChecked)}
         className={checkboxAlignClass}
+        isValid={!(this.props.isRequired && !this.props.isChecked)}
       >
         <Checkbox
-          label={this.props.label}
           alignIndicator={checkboxAlignClass}
+          checked={this.props.isChecked}
           className={
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
           }
-          style={{ borderRadius: 0 }}
-          onChange={this.onCheckChange}
           disabled={this.props.isDisabled}
-          checked={this.props.isChecked}
+          label={this.props.label}
+          onChange={this.onCheckChange}
+          style={{ borderRadius: 0 }}
         />
       </CheckboxContainer>
     );

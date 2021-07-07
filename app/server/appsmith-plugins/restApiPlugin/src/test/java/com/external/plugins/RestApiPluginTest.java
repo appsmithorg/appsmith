@@ -26,8 +26,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -67,34 +64,6 @@ public class RestApiPluginTest {
                     assertEquals(requestBody, data.toString());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
-        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                true);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertEquals(expected_value, encoded_value);
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
-        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                false);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertNotEquals(expected_value, encoded_value);
     }
 
     @Test
@@ -378,7 +347,8 @@ public class RestApiPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 7);
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
@@ -403,4 +373,29 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testMultipartFormData() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://httpbin.org/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "multipart/form-data")));
+
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"key\":\"skdjfh&kjsd\"}";
+        List<Property> formData = List.of(new Property("key", "skdjfh&kjsd"));
+        actionConfig.setBodyFormData(formData);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
+                    assertEquals(requestBody, data.toString());
+                })
+                .verifyComplete();
+    }
+
 }

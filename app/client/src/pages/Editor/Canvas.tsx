@@ -4,6 +4,8 @@ import { RenderModes } from "constants/WidgetConstants";
 import { WidgetSkeleton } from "widgets/BaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
 
 interface CanvasProps {
   dsl: WidgetSkeleton;
@@ -14,15 +16,21 @@ interface CanvasProps {
 const Canvas = memo((props: CanvasProps) => {
   try {
     return (
-      <React.Fragment>
+      <>
         <PropertyPane />
-        <ArtBoard className="t--canvas-artboard" width={props.width}>
+        <ArtBoard
+          className="t--canvas-artboard"
+          data-testid="t--canvas-artboard"
+          id="art-board"
+          width={props.width}
+        >
           {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
         </ArtBoard>
-      </React.Fragment>
+      </>
     );
   } catch (error) {
-    console.log("Error rendering DSL", error);
+    log.error("Error rendering DSL", error);
+    Sentry.captureException(error);
     return null;
   }
 });

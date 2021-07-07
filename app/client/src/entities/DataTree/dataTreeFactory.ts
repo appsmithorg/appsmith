@@ -1,6 +1,6 @@
 import {
-  ActionData,
   ActionDataState,
+  ActionDataWithMeta,
 } from "reducers/entityReducers/actionsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
@@ -9,9 +9,10 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export type ActionDescription<T> = {
   type: string;
@@ -35,7 +36,14 @@ export type RunActionPayload = {
   params: Record<string, any> | string;
 };
 
-export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
+export enum EvaluationSubstitutionType {
+  TEMPLATE = "TEMPLATE",
+  PARAMETER = "PARAMETER",
+  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
+}
+
+export interface DataTreeAction
+  extends Omit<ActionDataWithMeta, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
   config: Partial<ActionConfig>;
@@ -45,14 +53,18 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  dependencyMap: DependencyMap;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeWidget extends WidgetProps {
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
@@ -77,6 +89,7 @@ export type DataTree = {
 type DataTreeSeed = {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;
+  pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
@@ -86,18 +99,21 @@ type DataTreeSeed = {
 export class DataTreeFactory {
   static create({
     actions,
-    widgets,
-    widgetsMeta,
-    pageList,
     appData,
     editorConfigs,
+    pageList,
+    pluginDependencyConfig,
+    widgets,
+    widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
+      const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
       dataTree[action.config.name] = generateDataTreeAction(
         action,
         editorConfig,
+        dependencyConfig,
       );
     });
     Object.values(widgets).forEach((widget) => {

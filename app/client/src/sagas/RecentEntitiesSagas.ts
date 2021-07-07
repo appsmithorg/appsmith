@@ -60,8 +60,12 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
     );
 }
 
-function* handlePathUpdated(action: ReduxAction<{ pathName: string }>) {
-  const { type, id, params } = getRecentEntity(action.payload.pathName);
+function* handlePathUpdated(
+  action: ReduxAction<{ location: typeof window.location }>,
+) {
+  const { id, params, type } = getRecentEntity(
+    action.payload.location.pathname,
+  );
   if (type && id && id.indexOf(":") === -1) {
     yield put(updateRecentEntity({ type, id, params }));
   }
@@ -69,7 +73,7 @@ function* handlePathUpdated(action: ReduxAction<{ pathName: string }>) {
 
 export default function* recentEntitiesSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, handleSelectWidget),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, handleSelectWidget),
     takeLatest(ReduxActionTypes.HANDLE_PATH_UPDATED, handlePathUpdated),
   ]);
 }

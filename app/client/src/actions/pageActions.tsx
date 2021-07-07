@@ -1,15 +1,16 @@
-import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { WidgetOperation } from "widgets/BaseWidget";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -29,11 +30,15 @@ export const fetchPageList = (
   };
 };
 
-export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
+export const fetchPage = (
+  pageId: string,
+  isFirstLoad = false,
+): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
+      isFirstLoad,
     },
   };
 };
@@ -47,17 +52,17 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
 });
 
 export const fetchPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<unknown> => {
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    payload: {},
     postEvalActions,
+    payload: undefined,
   };
 };
 
 export const fetchPublishedPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   postEvalActions,
@@ -107,9 +112,10 @@ export const updateAndSaveLayout = (
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 
@@ -206,6 +212,12 @@ export type WidgetDelete = {
   isShortcut?: boolean;
 };
 
+export type MultipleWidgetDeletePayload = {
+  widgetIds: string[];
+  disallowUndo?: boolean;
+  isShortcut?: boolean;
+};
+
 export type WidgetResize = {
   widgetId: string;
   leftColumn: number;
@@ -230,12 +242,23 @@ export type WidgetAddChildren = {
   }>;
 };
 
+export type WidgetUpdateProperty = {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+  | WidgetAddChild
+  | WidgetMove
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
+  | WidgetUpdateProperty
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

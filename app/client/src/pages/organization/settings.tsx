@@ -56,14 +56,14 @@ export default function Settings() {
   const SettingsRenderer = (
     <div>
       <SentryRoute
-        path={`${path}/general`}
         component={GeneralSettings}
         location={location}
+        path={`${path}/general`}
       />
       <SentryRoute
-        path={`${path}/members`}
         component={MemberSettings}
         location={location}
+        path={`${path}/members`}
       />
     </div>
   );
@@ -87,14 +87,12 @@ export default function Settings() {
   return (
     <SettingsWrapper>
       <LinkToApplications to={"/applications"}>
-        <Icon icon="chevron-left" color="#9F9F9F" />
-        <Text type={TextType.H1} className="t--organization-header">
+        <Icon color="#9F9F9F" icon="chevron-left" />
+        <Text className="t--organization-header" type={TextType.H1}>
           {currentOrg && currentOrg.name}
         </Text>
       </LinkToApplications>
       <TabComponent
-        tabs={tabArr}
-        selectedIndex={isMembersPage ? 1 : 0}
         onSelect={(index: number) => {
           const settingsStartIndex = location.pathname.indexOf("settings");
           const settingsEndIndex = settingsStartIndex + "settings".length;
@@ -110,7 +108,9 @@ export default function Settings() {
           }
           history.push(newUrl);
         }}
-      ></TabComponent>
+        selectedIndex={isMembersPage ? 1 : 0}
+        tabs={tabArr}
+      />
     </SettingsWrapper>
   );
 }

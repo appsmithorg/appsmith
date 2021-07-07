@@ -20,8 +20,11 @@ import { getOrgLoadingStates } from "selectors/organizationSelectors";
 import FilePicker, {
   SetProgress,
   UploadCallback,
+  FileType,
 } from "components/ads/FilePicker";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+
+// trigger tests
 
 const InputLabelWrapper = styled.div`
   width: 150px;
@@ -146,17 +149,15 @@ export function GeneralSettings() {
             </InputLabelWrapper>
           </Col>
           <Col>
-            {isFetchingApplications && (
-              <Loader className={Classes.SKELETON}></Loader>
-            )}
+            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                validator={notEmptyValidator}
-                placeholder="Organization Name"
-                onChange={onWorkspaceNameChange}
-                defaultValue={currentOrg && currentOrg.name}
                 cypressSelector="t--org-name-input"
-              ></TextInput>
+                defaultValue={currentOrg && currentOrg.name}
+                onChange={onWorkspaceNameChange}
+                placeholder="Organization Name"
+                validator={notEmptyValidator}
+              />
             )}
           </Col>
         </Row>
@@ -170,15 +171,14 @@ export function GeneralSettings() {
             </InputLabelWrapper>
           </Col>
           <Col>
-            {isFetchingOrg && (
-              <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
-            )}
+            {isFetchingOrg && <FilePickerLoader className={Classes.SKELETON} />}
             {!isFetchingOrg && (
               <FilePicker
-                url={currentOrg && currentOrg.logoUrl}
+                fileType={FileType.IMAGE}
                 fileUploader={FileUploader}
-                onFileRemoved={DeleteLogo}
                 logoUploadError={logoUploadError.message}
+                onFileRemoved={DeleteLogo}
+                url={currentOrg && currentOrg.logoUrl}
               />
             )}
           </Col>
@@ -193,16 +193,14 @@ export function GeneralSettings() {
             </InputLabelWrapper>
           </Col>
           <Col>
-            {isFetchingApplications && (
-              <Loader className={Classes.SKELETON}></Loader>
-            )}
+            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                placeholder="Your website"
-                onChange={onWebsiteChange}
-                defaultValue={(currentOrg && currentOrg.website) || ""}
                 cypressSelector="t--org-website-input"
-              ></TextInput>
+                defaultValue={(currentOrg && currentOrg.website) || ""}
+                onChange={onWebsiteChange}
+                placeholder="Your website"
+              />
             )}
           </Col>
         </Row>
@@ -216,17 +214,15 @@ export function GeneralSettings() {
             </InputLabelWrapper>
           </Col>
           <Col>
-            {isFetchingApplications && (
-              <Loader className={Classes.SKELETON}></Loader>
-            )}
+            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                validator={emailValidator}
-                placeholder="Email"
-                onChange={onEmailChange}
-                defaultValue={(currentOrg && currentOrg.email) || ""}
                 cypressSelector="t--org-email-input"
-              ></TextInput>
+                defaultValue={(currentOrg && currentOrg.email) || ""}
+                onChange={onEmailChange}
+                placeholder="Email"
+                validator={emailValidator}
+              />
             )}
           </Col>
         </Row>

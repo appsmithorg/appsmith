@@ -6,6 +6,7 @@
       "children": [
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT"
         }

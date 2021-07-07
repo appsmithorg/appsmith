@@ -11,15 +11,12 @@ export type TabProp = {
   count?: number;
   panelComponent: JSX.Element;
   icon?: IconName;
+  iconSize?: IconSize;
 };
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  user-select: none;
   border-radius: 0px;
   height: 100%;
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
   .react-tabs {
     height: 100%;
   }
@@ -31,8 +28,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     margin: 0px;
     display: flex;
     align-items: center;
-    border-bottom: ${(props) => props.theme.spaces[1] - 2}px solid
-      ${(props) => props.theme.colors.tabs.border};
+    border-bottom: none;
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.normal};
@@ -104,9 +100,12 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
 const TabTitleWrapper = styled.div`
   display: flex;
   align-items: center;
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
 `;
 
-const TabTitle = styled.span`
+export const TabTitle = styled.span`
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
@@ -114,7 +113,7 @@ const TabTitle = styled.span`
   margin: 0 5px;
 `;
 
-const TabCount = styled.div`
+export const TabCount = styled.div`
   background-color: ${(props) => props.theme.colors.tabs.countBg};
   border-radius: 8px;
   width: 17px;
@@ -130,24 +129,27 @@ type TabbedViewComponentType = CommonComponentProps & {
   overflow?: boolean;
 };
 
-export const TabComponent = (props: TabbedViewComponentType) => {
+export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
-      shouldOverflow={props.overflow}
       data-cy={props.cypressSelector}
+      shouldOverflow={props.overflow}
     >
       <Tabs
-        selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
         }}
+        selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab) => (
             <Tab key={tab.key}>
               <TabTitleWrapper>
                 {tab.icon ? (
-                  <Icon name={tab.icon} size={IconSize.XXXL} />
+                  <Icon
+                    name={tab.icon}
+                    size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
+                  />
                 ) : null}
                 <TabTitle>{tab.title}</TabTitle>
                 {tab.count && tab.count > 0 ? (
@@ -163,4 +165,4 @@ export const TabComponent = (props: TabbedViewComponentType) => {
       </Tabs>
     </TabsWrapper>
   );
-};
+}

@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Datasource;
@@ -14,7 +13,7 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    Mono<Datasource> findByName(String name, AclPermission permission);
+    Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
@@ -30,7 +29,5 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
-    AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication);
-
-    public Mono<Datasource> populateHintMessages(Datasource datasource);
+    Mono<Datasource> populateHintMessages(Datasource datasource);
 }

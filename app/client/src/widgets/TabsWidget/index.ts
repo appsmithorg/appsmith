@@ -2,39 +2,55 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
+import {
+  BlueprintOperationTypes,
+  GRID_DENSITY_MIGRATION_V1,
+} from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Tabs",
   iconSVG: IconSVG,
   defaults: {
-    rows: 7,
-    columns: 8,
+    rows: 7 * GRID_DENSITY_MIGRATION_V1,
+    columns: 8 * GRID_DENSITY_MIGRATION_V1,
     shouldScrollContents: false,
     widgetName: "Tabs",
-    tabs: [
-      { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-      { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-    ],
+    tabsObj: {
+      tab1: {
+        label: "Tab 1",
+        id: "tab1",
+        widgetId: "",
+        isVisible: true,
+        index: 0,
+      },
+      tab2: {
+        label: "Tab 2",
+        id: "tab2",
+        widgetId: "",
+        isVisible: true,
+        index: 1,
+      },
+    },
     shouldShowTabs: true,
     defaultTab: "Tab 1",
     blueprint: {
       operations: [
         {
-          type: "MODIFY_PROPS",
+          type: BlueprintOperationTypes.MODIFY_PROPS,
           fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-            const tabs = [...widget.tabs];
-
-            const newTabs = tabs.map((tab: any) => {
+            const tabs = Object.values({ ...widget.tabsObj });
+            const tabsObj = tabs.reduce((obj: any, tab: any) => {
               const newTab = { ...tab };
               newTab.widgetId = generateReactKey();
-              return newTab;
-            });
+              obj[newTab.id] = newTab;
+              return obj;
+            }, {});
             const updatePropertyMap = [
               {
                 widgetId: widget.widgetId,
-                propertyName: "tabs",
-                propertyValue: newTabs,
+                propertyName: "tabsObj",
+                propertyValue: tabsObj,
               },
             ];
             return updatePropertyMap;
@@ -42,10 +58,9 @@ export const CONFIG = {
         },
       ],
     },
-    version: 1,
+    version: 3,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

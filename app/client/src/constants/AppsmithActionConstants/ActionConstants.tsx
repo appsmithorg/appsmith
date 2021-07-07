@@ -4,6 +4,8 @@ import { PluginType } from "entities/Action";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
+import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
+import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -18,6 +20,11 @@ export type ExecuteActionPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
+};
+
+// triggerPropertyName was added as a requirement for logging purposes
+export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+  triggerPropertyName?: string;
 };
 
 export type ContentType =
@@ -49,6 +56,7 @@ export enum EventType {
   ON_HOVER = "ON_HOVER",
   ON_TOGGLE = "ON_TOGGLE",
   ON_LOAD = "ON_LOAD",
+  ON_MODAL_CLOSE = "ON_MODAL_CLOSE",
   ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
   ON_SUBMIT = "ON_SUBMIT",
   ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
@@ -64,6 +72,9 @@ export enum EventType {
   ON_VIDEO_END = "ON_VIDEO_END",
   ON_VIDEO_PLAY = "ON_VIDEO_PLAY",
   ON_VIDEO_PAUSE = "ON_VIDEO_PAUSE",
+  ON_RATE_CHANGED = "ON_RATE_CHANGED",
+  ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
+  ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
 }
 
 export type ActionType =
@@ -94,7 +105,7 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;
+export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
@@ -109,9 +120,20 @@ export const Swagger = "Swagger";
 export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
+  [PluginType.SAAS]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
+  [PluginType.SAAS]: [],
+};
+
+export const defaultActionDependenciesConfig: Record<
+  PluginType,
+  Record<string, string[]>
+> = {
+  [PluginType.API]: apiActionDependencyConfig,
+  [PluginType.DB]: {},
+  [PluginType.SAAS]: {},
 };

@@ -3,12 +3,9 @@ import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { RadioOption } from "../constants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -25,6 +22,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Selects a value of the options entered by default",
@@ -34,6 +34,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "isRequired",
@@ -43,6 +44,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -52,6 +54,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -61,6 +64,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -80,17 +84,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.OPTIONS_DATA,
-      selectedOptionValue: VALIDATION_TYPES.TEXT,
-      defaultOptionValue: VALIDATION_TYPES.TEXT,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onSelectionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
   }
   static getDerivedPropertiesMap() {
     return {
@@ -116,20 +109,21 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   render() {
     return (
       <RadioGroupComponent
-        widgetId={this.props.widgetId}
-        onRadioSelectionChange={this.onRadioSelectionChange}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading}
         key={this.props.widgetId}
         label={`${this.props.label}`}
-        selectedOptionValue={this.props.selectedOptionValue}
+        onRadioSelectionChange={this.onRadioSelectionChange}
         options={this.props.options}
-        isLoading={this.props.isLoading}
-        isDisabled={this.props.isDisabled}
+        selectedOptionValue={this.props.selectedOptionValue}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
     this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+      triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,

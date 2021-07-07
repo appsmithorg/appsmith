@@ -31,7 +31,6 @@ describe("aTob and bToa library tests ", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.reload();
   });
 
   it("publish widget and validate the data displayed in input widgets value for aToB and bToa", function() {

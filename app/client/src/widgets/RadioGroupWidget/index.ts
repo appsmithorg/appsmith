@@ -1,24 +1,26 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Radio Group",
   iconSVG: IconSVG,
   defaults: {
-    rows: 2,
-    columns: 3,
+    rows: 2 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     label: "",
     options: [
-      { label: "Male", value: "M" },
-      { label: "Female", value: "F" },
+      { label: "Yes", value: "Y" },
+      { label: "No", value: "N" },
     ],
-    defaultOptionValue: "M",
+    defaultOptionValue: "Y",
     widgetName: "RadioGroup",
     version: 1,
+    isRequired: false,
+    isDisabled: false,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

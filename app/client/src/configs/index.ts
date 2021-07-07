@@ -41,6 +41,9 @@ export type INJECTED_CONFIGS = {
   intercomAppID: string;
   mailEnabled: boolean;
   disableTelemetry: boolean;
+  cloudServicesBaseUrl: string;
+  googleRecaptchaSiteKey: string;
+  onboardingFormEnabled: boolean;
 };
 declare global {
   interface Window {
@@ -93,7 +96,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
         | "debug"
         | "error"
-        | undefined) || "debug",
+        | undefined) || "error",
     google: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
@@ -113,6 +116,10 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
     disableTelemetry: true,
+    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
+    googleRecaptchaSiteKey:
+      process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
+    onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
   };
 };
 
@@ -162,6 +169,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.fusioncharts.licenseKey,
   );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
+
+  const googleRecaptchaSiteKey = getConfig(
+    ENV_CONFIG.googleRecaptchaSiteKey,
+    APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey,
+  );
 
   // As the following shows, the config variables can be set using a combination
   // of env variables and injected configs
@@ -241,6 +253,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: google.enabled,
       apiKey: google.value,
     },
+    googleRecaptchaSiteKey: {
+      enabled: googleRecaptchaSiteKey.enabled,
+      apiKey: googleRecaptchaSiteKey.value,
+    },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
     enableGithubOAuth:
@@ -263,5 +279,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
     disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
+    commentsTestModeEnabled: false,
+    cloudServicesBaseUrl:
+      ENV_CONFIG.cloudServicesBaseUrl ||
+      APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
+    onboardingFormEnabled: ENV_CONFIG.onboardingFormEnabled,
   };
 };

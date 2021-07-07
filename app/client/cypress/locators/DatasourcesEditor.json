@@ -35,5 +35,8 @@
   "grantType": "[data-cy='authentication.grantType']",
   "authorizationURL":"[data-cy='authentication.authorizationUrl'] input",
   "authorisecode": "//div[contains(@class,'option') and text()='Authorization Code']",
-  "saveAndAuthorize": "button:contains('Save and Authorize')"
+  "saveAndAuthorize": "button:contains('Save and Authorize')",
+  "basic": "//div[contains(@class,'option') and text()='Basic']",
+  "basicUsername": "input[name='authentication.username']",
+  "basicPassword": "input[name='authentication.password']"
 }

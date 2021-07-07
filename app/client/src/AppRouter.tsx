@@ -13,6 +13,7 @@ import {
   getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
+  SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
@@ -47,7 +48,8 @@ function changeAppBackground(currentTheme: any) {
   if (
     trimTrailingSlash(window.location.pathname) === "/applications" ||
     window.location.pathname.indexOf("/settings/") !== -1 ||
-    trimTrailingSlash(window.location.pathname) === "/profile"
+    trimTrailingSlash(window.location.pathname) === "/profile" ||
+    trimTrailingSlash(window.location.pathname) === "/signup-success"
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
@@ -90,24 +92,29 @@ class AppRouter extends React.Component<any, any> {
             <>
               <AppHeader />
               <Switch>
-                <SentryRoute exact path={BASE_URL} component={LandingScreen} />
+                <SentryRoute component={LandingScreen} exact path={BASE_URL} />
                 <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
                 <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-                <SentryRoute path={ORG_URL} component={OrganizationLoader} />
-                <SentryRoute exact path={USERS_URL} component={Users} />
-                <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
+                <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+                <SentryRoute component={Users} exact path={USERS_URL} />
+                <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
                 <SentryRoute
+                  component={ApplicationListLoader}
                   exact
                   path={APPLICATIONS_URL}
-                  component={ApplicationListLoader}
                 />
-                <SentryRoute path={BUILDER_URL} component={EditorLoader} />
                 <SentryRoute
-                  path={getApplicationViewerPageURL()}
-                  component={AppViewerLoader}
+                  component={ApplicationListLoader}
+                  exact
+                  path={SIGNUP_SUCCESS_URL}
                 />
-                <SentryRoute exact path={PROFILE} component={UserProfile} />
-                <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
+                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute
+                  component={AppViewerLoader}
+                  path={getApplicationViewerPageURL()}
+                />
+                <SentryRoute component={UserProfile} exact path={PROFILE} />
+                <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>

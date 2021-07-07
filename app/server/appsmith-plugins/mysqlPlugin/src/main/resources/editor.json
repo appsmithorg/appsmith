@@ -6,24 +6,26 @@
       "children": [
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "PARAMETER",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "EQUALS",
-            "value": "false"
+            "value": false
           }
         },
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "EQUALS",
-            "value": "true"
+            "value": true
           }
         }
       ]

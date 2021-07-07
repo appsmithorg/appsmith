@@ -28,16 +28,15 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
-import {
-  deleteSelectedWidget,
-  copyWidget,
-  selectWidget,
-} from "actions/widgetActions";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import { get } from "lodash";
+import { Layers } from "constants/Layers";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -83,38 +82,33 @@ export const PropertyControlsWrapper = styled.div`
   margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
 `;
 
-const PropertyPaneView = (
+function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
     theme: EditorTheme;
   } & IPanelProps,
-) => {
+) {
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const dispatch = useDispatch();
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
+  const handleDelete = useCallback(() => {
+    dispatch(deleteSelectedWidget(false));
+  }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   return (
     <>
       <PropertyPaneTitle
-        key={widgetProperties.widgetId}
-        title={widgetProperties.widgetName}
-        widgetId={widgetProperties.widgetId}
-        widgetType={widgetProperties?.type}
         actions={[
           {
             tooltipContent: "Copy Widget",
             icon: (
               <CopyIcon
                 className="t--copy-widget"
-                width={14}
                 height={14}
                 onClick={handleCopy}
+                width={14}
               />
             ),
           },
@@ -123,9 +117,9 @@ const PropertyPaneView = (
             icon: (
               <DeleteIcon
                 className="t--delete-widget"
-                width={16}
                 height={16}
                 onClick={handleDelete}
+                width={16}
               />
             ),
           },
@@ -137,6 +131,9 @@ const PropertyPaneView = (
             tooltipContent: "Close",
             icon: (
               <Icon
+                className={"t--property-pane-close-btn"}
+                icon="cross"
+                iconSize={16}
                 onClick={(e: any) => {
                   AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
                     widgetType: widgetProperties.widgetType,
@@ -146,25 +143,26 @@ const PropertyPaneView = (
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                iconSize={16}
-                icon="cross"
-                className={"t--property-pane-close-btn"}
               />
             ),
           },
         ]}
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
       />
       <PropertyControlsWrapper>
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
-          type={widgetProperties.type}
           panel={panel}
           theme={theme}
+          type={widgetProperties.type}
         />
       </PropertyControlsWrapper>
     </>
   );
-};
+}
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
@@ -185,6 +183,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   };
 
   render() {
+    if (
+      !get(this.props, "widgetProperties") ||
+      get(this.props, "widgetProperties.disablePropertyPane")
+    ) {
+      return null;
+    }
+
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
@@ -194,15 +199,15 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
       return (
         <Popper
-          themeMode={this.getPopperTheme()}
-          position={this.props?.propPanePreference?.position}
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
-          onPositionChange={this.onPositionChange}
           isDraggable
           isOpen
-          targetNode={el}
-          zIndex={3}
+          onPositionChange={this.onPositionChange}
           placement="right-start"
+          position={this.props?.propPanePreference?.position}
+          targetNode={el}
+          themeMode={this.getPopperTheme()}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>
@@ -214,33 +219,36 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties)
-      return (
-        <PropertyPaneWrapper
-          className={"t--propertypane"}
-          themeMode={this.getTheme()}
-        />
-      );
+
+    if (!widgetProperties) {
+      return null;
+    }
+
+    // if settings control is disabled, don't render anything
+    // for e.g - this will be true for list widget tempalte container widget
+    if (widgetProperties?.disablePropertyPane) return null;
+
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
-        themeMode={this.getTheme()}
-        ref={this.panelWrapperRef}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
+        ref={this.panelWrapperRef}
+        themeMode={this.getTheme()}
       >
         <StyledPanelStack
-          onOpen={() => {
-            const parent = this.panelWrapperRef.current;
-            parent?.scrollTo(0, 0);
-          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
               theme: this.getTheme(),
             },
+          }}
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
           }}
           showPanelHeader={false}
         />
@@ -315,7 +323,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           },
         },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetInitAction(widgetId));
     },
     hidePropertyPane: () =>
       dispatch({

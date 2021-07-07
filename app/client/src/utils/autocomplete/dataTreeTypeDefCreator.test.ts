@@ -1,8 +1,13 @@
 import {
   generateTypeDef,
   dataTreeTypeDefCreator,
+  flattenObjKeys,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
@@ -25,11 +30,12 @@ describe("dataTreeTypeDefCreator", () => {
         isLoading: false,
         version: 1,
         bindingPaths: {
-          defaultText: true,
+          defaultText: EvaluationSubstitutionType.TEMPLATE,
         },
         triggerPaths: {
           onTextChange: true,
         },
+        validationPaths: {},
       },
     };
     const def = dataTreeTypeDefCreator(dataTree);
@@ -37,6 +43,7 @@ describe("dataTreeTypeDefCreator", () => {
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
     expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET);
+    expect(def).toHaveProperty("Input1.isDisabled");
   });
 
   it("creates a correct def for an object", () => {
@@ -63,5 +70,28 @@ describe("dataTreeTypeDefCreator", () => {
 
     const objType = generateTypeDef(obj);
     expect(objType).toStrictEqual(expected);
+  });
+
+  it("flatten object", () => {
+    const options = {
+      someNumber: "number",
+      someString: "string",
+      someBool: "bool",
+      nested: {
+        someExtraNested: "string",
+      },
+    };
+
+    const expected = {
+      "entity1.someNumber": "number",
+      "entity1.someString": "string",
+      "entity1.someBool": "bool",
+      "entity1.nested": {
+        someExtraNested: "string",
+      },
+    };
+
+    const value = flattenObjKeys(options, "entity1");
+    expect(value).toStrictEqual(expected);
   });
 });

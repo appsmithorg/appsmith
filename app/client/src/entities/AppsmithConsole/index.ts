@@ -3,13 +3,19 @@ import { BindingError } from "entities/AppsmithConsole/binding";
 import { ActionError } from "entities/AppsmithConsole/action";
 import { WidgetError } from "entities/AppsmithConsole/widget";
 import { EvalError } from "entities/AppsmithConsole/eval";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import LOG_TYPE from "./logtype";
+
+export enum ENTITY_TYPE {
+  ACTION = "ACTION",
+  DATASOURCE = "DATASOURCE",
+  WIDGET = "WIDGET",
+}
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
-  DEBUG = "debug",
+  // DEBUG = "debug",
   // Something the dev user should probably know about
   INFO = "info",
   // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour
@@ -17,7 +23,7 @@ export enum Severity {
   // Can cause an error in some cases/ single widget, app will work in other cases
   ERROR = "error",
   // Makes the app unusable, can't progress without fixing this.
-  CRITICAL = "critical",
+  // CRITICAL = "critical",
 }
 
 export type UserAction = {
@@ -37,19 +43,32 @@ export interface SourceEntity {
   // Id of the widget or action
   id: string;
   // property path of the child
-  propertyPath: string;
+  propertyPath?: string;
 }
 
-export interface Message {
+export interface LogActionPayload {
+  // What is the log about. Is it a datasource update, widget update, eval error etc.
+  logType?: LOG_TYPE;
+  text: string;
+  // Time taken for the event to complete
+  messages?: Array<{
+    // More contextual message than `text`
+    message: string;
+    // The section of code being referred to
+    // codeSegment?: string;
+  }>;
+
+  timeTaken?: string;
+  // "where" source entity and propertyPsath.
+  source?: SourceEntity;
+  // Snapshot KV pair of scope variables or state associated with this event.
+  state?: Record<string, any>;
+}
+
+export interface Message extends LogActionPayload {
   severity: Severity;
   // "when" did this event happen
-  timestamp: Date;
-  // "what": Human readable description of what happened.
-  text: string;
-  // "where" source entity and propertyPsath.
-  source: SourceEntity;
-  // Snapshot KV pair of scope variables or state associated with this event.
-  state: Record<string, any>;
+  timestamp: string;
 }
 
 /**
@@ -83,7 +102,7 @@ export interface ActionableError extends Message {
   // Error type of the event.
   type: ErrorType;
 
-  severity: Severity.ERROR | Severity.CRITICAL;
+  severity: Severity.ERROR;
 
   // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;

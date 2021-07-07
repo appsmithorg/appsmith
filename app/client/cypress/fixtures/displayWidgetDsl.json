@@ -14,7 +14,6 @@
        "type": "CANVAS_WIDGET",
        "canExtend": true,
        "dynamicBindingPathList": [],
-       "version": 4,
        "minHeight": 1292,
        "parentColumnSpace": 1,
        "leftColumn": 0,

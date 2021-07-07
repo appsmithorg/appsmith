@@ -9,6 +9,7 @@ import {
   PluginFormPayloadWithId,
   PluginFormsPayload,
 } from "actions/pluginActions";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
   list: Plugin[];
@@ -16,6 +17,7 @@ export interface PluginDataState {
   formConfigs: Record<string, any[]>;
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
+  dependencies: Record<string, DependencyMap>;
 }
 
 const initialState: PluginDataState = {
@@ -24,6 +26,7 @@ const initialState: PluginDataState = {
   formConfigs: {},
   editorConfigs: {},
   settingConfigs: {},
+  dependencies: {},
 };
 
 const pluginsReducer = createReducer(initialState, {

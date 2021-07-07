@@ -5,7 +5,7 @@ import PageSectionHeader from "pages/common/PageSectionHeader";
 import Button from "components/editorComponents/Button";
 import PageWrapper from "pages/common/PageWrapper";
 
-export const OrgMembers = () => {
+export function OrgMembers() {
   const history = useHistory();
 
   return (
@@ -13,16 +13,16 @@ export const OrgMembers = () => {
       <PageSectionHeader>
         <h2>Users</h2>
         <Button
-          intent="primary"
-          text="Invite Users"
+          filled
           icon="plus"
           iconAlignment="left"
-          filled
+          intent="primary"
           onClick={() => history.push(ORG_INVITE_USERS_PAGE_URL)}
+          text="Invite Users"
         />
       </PageSectionHeader>
     </PageWrapper>
   );
-};
+}
 
 export default OrgMembers;

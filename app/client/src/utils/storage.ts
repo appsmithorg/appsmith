@@ -10,6 +10,8 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
+  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
+  ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
 };
 
 const store = localforage.createInstance({
@@ -125,10 +127,8 @@ export const setOnboardingWelcomeState = async (onboardingState: boolean) => {
     await store.setItem(STORAGE_KEYS.ONBOARDING_WELCOME_STATE, onboardingState);
     return true;
   } catch (error) {
-    console.log(
-      "An error occurred when setting onboarding welcome state: ",
-      error,
-    );
+    log.error("An error occurred when setting onboarding welcome state: ");
+    log.error(error);
     return false;
   }
 };
@@ -140,10 +140,8 @@ export const getOnboardingWelcomeState = async () => {
     );
     return onboardingState;
   } catch (error) {
-    console.log(
-      "An error occurred when getting onboarding welcome state: ",
-      error,
-    );
+    log.error("An error occurred when getting onboarding welcome state: ");
+    log.error(error);
   }
 };
 
@@ -157,7 +155,8 @@ export const setRecentAppEntities = async (entities: any, appId: string) => {
     recentEntities[appId] = entities;
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
   } catch (error) {
-    console.log("An error occurred while saving recent entities", error);
+    log.error("An error occurred while saving recent entities");
+    log.error(error);
   }
 };
 
@@ -168,7 +167,8 @@ export const fetchRecentAppEntities = async (appId: string) => {
     )) as Record<string, any>;
     return (recentEntities && recentEntities[appId]) || [];
   } catch (error) {
-    console.log("An error occurred while fetching recent entities", error);
+    log.error("An error occurred while fetching recent entities");
+    log.error(error);
   }
 };
 
@@ -184,6 +184,53 @@ export const deleteRecentAppEntities = async (appId: string) => {
     }
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
   } catch (error) {
-    console.log("An error occurred while saving recent entities", error);
+    log.error("An error occurred while saving recent entities");
+    log.error(error);
+  }
+};
+
+export const setCommentsIntroSeen = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.COMMENTS_INTRO_SEEN, flag);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when setting COMMENTS_INTRO_SEEN");
+    log.error(error);
+    return false;
+  }
+};
+
+export const getCommentsIntroSeen = async () => {
+  try {
+    const commentsIntroSeen = (await store.getItem(
+      STORAGE_KEYS.COMMENTS_INTRO_SEEN,
+    )) as boolean;
+    return commentsIntroSeen;
+  } catch (error) {
+    log.error("An error occurred while fetching COMMENTS_INTRO_SEEN");
+    log.error(error);
+  }
+};
+
+export const setOnboardingFormInProgress = async (flag?: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when setting ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
+    return false;
+  }
+};
+
+export const getOnboardingFormInProgress = async () => {
+  try {
+    const onboardingFormInProgress = await store.getItem(
+      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
+    );
+    return onboardingFormInProgress;
+  } catch (error) {
+    log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
   }
 };

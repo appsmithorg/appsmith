@@ -1,6 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import styled from "styled-components";
+import { GRID_DENSITY_MIGRATION_V1 } from "./constants";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -26,12 +27,13 @@ export const CONFIG = {
   iconSVG: "",
   hideCard: true,
   defaults: {
-    rows: 1,
-    columns: 1,
+    isLoading: true,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 1 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Skeleton",
+    version: 1,
   },
   properties: {
-    validations: SkeletonWidget.getPropertyValidationMap(),
     derived: SkeletonWidget.getDerivedPropertiesMap(),
     default: SkeletonWidget.getDefaultPropertiesMap(),
     meta: SkeletonWidget.getMetaPropertiesMap(),

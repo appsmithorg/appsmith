@@ -22,12 +22,14 @@ class PropertyControlFactory {
     preferEditor: boolean,
     customEditor?: string,
     additionalAutoComplete?: Record<string, Record<string, unknown>>,
+    hideEvaluatedValue?: boolean,
   ): JSX.Element {
     let controlBuilder = this.controlMap.get(controlData.controlType);
     if (preferEditor) {
       if (customEditor) controlBuilder = this.controlMap.get(customEditor);
       else controlBuilder = this.controlMap.get("CODE_EDITOR");
     }
+
     if (controlBuilder) {
       const controlProps: ControlProps = {
         ...controlData,
@@ -35,7 +37,9 @@ class PropertyControlFactory {
         key: controlData.id,
         customJSControl: customEditor,
         additionalAutoComplete,
+        hideEvaluatedValue,
       };
+
       const control = controlBuilder.buildPropertyControl(controlProps);
       return control;
     } else {

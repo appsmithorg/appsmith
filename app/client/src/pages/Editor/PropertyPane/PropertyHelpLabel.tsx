@@ -9,17 +9,17 @@ type Props = {
   theme?: EditorTheme;
 };
 
-const PropertyHelpLabel = (props: Props) => {
+function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;
   if (!props.label) {
-    return <></>;
+    return null;
   }
   return (
     <Tooltip
-      disabled={!toolTipDefined}
       content={props.tooltip || ""}
-      position={Position.TOP}
+      disabled={!toolTipDefined}
       hoverOpenDelay={200}
+      position={Position.TOP}
     >
       <div
         style={{
@@ -27,6 +27,7 @@ const PropertyHelpLabel = (props: Props) => {
         }}
       >
         <label
+          className={`t--property-control-label`}
           style={
             toolTipDefined
               ? {
@@ -34,7 +35,6 @@ const PropertyHelpLabel = (props: Props) => {
                 }
               : {}
           }
-          className={`t--property-control-label`}
         >
           {props.label}
         </label>
@@ -55,6 +55,6 @@ const PropertyHelpLabel = (props: Props) => {
       </div>
     </Tooltip>
   );
-};
+}
 
 export default PropertyHelpLabel;

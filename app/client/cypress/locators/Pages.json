@@ -19,5 +19,6 @@
     "clonePage": ".single-select >div:contains('Clone')",
     "deletePage": ".single-select >div:contains('Delete')",
     "hidePage": ".single-select >div:contains('Hide')",
-    "entityQuery": ".t--entity-name:contains('Queries')"
+    "entityQuery": ".t--entity-name:contains('Queries')",
+    "showPage": ".single-select >div:contains('Show')"
   }

@@ -32,6 +32,8 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
+  showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -50,6 +52,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getTheme, getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -89,10 +92,11 @@ const HeaderSection = styled.div`
   top: -1px;
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
     justify-content: center;
@@ -142,20 +146,21 @@ type EditorHeaderProps = {
   publishApplication: (appId: string) => void;
 };
 
-export const EditorHeader = (props: EditorHeaderProps) => {
+export function EditorHeader(props: EditorHeaderProps) {
   const {
-    currentApplication,
-    isSaving,
-    pageSaveError,
-    pageId,
-    orgId,
     applicationId,
-    publishApplication,
+    currentApplication,
     isPublishing,
+    isSaving,
+    orgId,
+    pageId,
+    pageSaveError,
+    publishApplication,
   } = props;
 
   const dispatch = useDispatch();
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
 
@@ -178,19 +183,19 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     if (!pageSaveError) {
       saveStatusIcon = (
         <HeaderIcons.SAVE_SUCCESS
+          className="t--save-status-success"
           color={"#36AB80"}
           height={20}
           width={20}
-          className="t--save-status-success"
         />
       );
     } else {
       saveStatusIcon = (
         <HeaderIcons.SAVE_FAILURE
+          className={"t--save-status-error"}
           color={"#F69D2C"}
           height={20}
           width={20}
-          className={"t--save-status-error"}
         />
       );
     }
@@ -203,39 +208,43 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     dispatch(updateApplication(id, data));
   };
 
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
+          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
             <AppsmithLogoImg
-              src={AppsmithLogo}
               alt="Appsmith logo"
               className="t--appsmith-logo"
+              src={AppsmithLogo}
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            {currentApplication && (
-              <EditableAppName
-                defaultValue={currentApplication.name || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                className="t--application-name editable-application-name"
-                fill={true}
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-              />
-            )}
+            <EditableAppName
+              className="t--application-name editable-application-name"
+              defaultValue={currentApplication?.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+            />
+            <ToggleModeButton />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
@@ -248,59 +257,60 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               {saveStatusIcon}
             </SaveStatusContainer>
             <FormDialogComponent
-              trigger={
-                <Button
-                  text={"Share"}
-                  icon={"share"}
-                  size={Size.small}
-                  className="t--application-share-btn header__application-share-btn"
-                />
-              }
-              canOutsideClickClose={true}
               Form={AppInviteUsersForm}
-              orgId={orgId}
               applicationId={applicationId}
+              canOutsideClickClose
+              isOpen={showAppInviteUsersDialog}
+              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
                   : "Share Application"
               }
+              trigger={
+                <Button
+                  className="t--application-share-btn header__application-share-btn"
+                  icon={"share"}
+                  size={Size.small}
+                  text={"Share"}
+                />
+              }
             />
           </Boxed>
           <Boxed
-            step={OnboardingStep.DEPLOY}
             alternative={<EndOnboardingTour />}
+            step={OnboardingStep.DEPLOY}
           >
             <DeploySection>
               <OnboardingIndicator
-                step={OnboardingStep.DEPLOY}
                 hasButton={false}
+                step={OnboardingStep.DEPLOY}
                 width={75}
               >
                 <StyledDeployButton
-                  fill
-                  onClick={handlePublish}
-                  text={"Deploy"}
-                  isLoading={isPublishing}
-                  size={Size.small}
                   className="t--application-publish-btn"
+                  fill
+                  isLoading={isPublishing}
+                  onClick={handlePublish}
+                  size={Size.small}
+                  text={"Deploy"}
                 />
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
+                link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
                   <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
                 }
-                link={getApplicationViewerPageURL(applicationId, pageId)}
               />
             </DeploySection>
           </Boxed>
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                userName={user?.username || ""}
                 hideThemeSwitch
                 name={user.name}
+                userName={user?.username || ""}
               />
             </ProfileDropdownContainer>
           )}
@@ -310,7 +320,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const theme = getTheme(ThemeMode.DARK);
 

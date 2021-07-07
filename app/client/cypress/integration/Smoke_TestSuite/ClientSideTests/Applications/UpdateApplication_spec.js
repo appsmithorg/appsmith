@@ -92,7 +92,7 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
-    cy.get(homePage.appsContainer).click();
+    cy.get(homePage.appsContainer).click({ force: true });
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -100,12 +100,13 @@ describe("Update Application", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
+    cy.get(homePage.searchInput).type(veryLongAppName);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
       .find(homePage.applicationCardName)
       .trigger("mouseover");
-
     cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
   });
 });

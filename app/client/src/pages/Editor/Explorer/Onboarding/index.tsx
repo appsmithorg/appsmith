@@ -17,7 +17,7 @@ const Wrapper = styled.div`
   overflow-y: auto;
 `;
 
-const OnboardingExplorer = (props: IPanelProps) => {
+function OnboardingExplorer(props: IPanelProps) {
   const wrapperRef = React.createRef<HTMLDivElement>();
 
   let node = <Loading />;
@@ -41,6 +41,6 @@ const OnboardingExplorer = (props: IPanelProps) => {
       <ScrollIndicator containerRef={wrapperRef} mode="DARK" />
     </Wrapper>
   );
-};
+}
 
 export default OnboardingExplorer;

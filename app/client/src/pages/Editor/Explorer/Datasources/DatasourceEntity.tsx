@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { getAction } from "selectors/entitiesSelector";
-import { isStoredDatasource } from "entities/Action";
+import { isStoredDatasource, PluginType } from "entities/Action";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -31,23 +32,30 @@ type ExplorerDatasourceEntityProps = {
   pageId: string;
 };
 
-export const ExplorerDatasourceEntity = (
-  props: ExplorerDatasourceEntityProps,
-) => {
+export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const icon = getPluginIcon(props.plugin);
-  const switchDatasource = useCallback(
-    () =>
+  const switchDatasource = useCallback(() => {
+    if (props.plugin && props.plugin.type === PluginType.SAAS) {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          params.applicationId,
+          params.pageId,
+          props.plugin.packageName,
+          props.datasource.id,
+        ),
+      );
+    } else {
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
           params.applicationId,
           params.pageId,
           props.datasource.id,
         ),
-      ),
-    [params.applicationId, params.pageId, props.datasource.id],
-  );
+      );
+    }
+  }, [params.applicationId, params.pageId, props.datasource.id]);
 
   const queryId = getQueryIdFromURL();
   const queryAction = useSelector((state: AppState) =>
@@ -88,32 +96,32 @@ export const ExplorerDatasourceEntity = (
 
   return (
     <Entity
-      entityId={`${props.datasource.id}-${props.pageId}`}
-      className="datasource"
-      key={props.datasource.id}
-      icon={icon}
-      name={props.datasource.name}
-      active={active}
-      step={props.step}
-      searchKeyword={props.searchKeyword}
-      isDefaultExpanded={isDefaultExpanded}
       action={switchDatasource}
-      updateEntityName={updateDatasourceName}
+      active={active}
+      className="datasource"
       contextMenu={
         <DataSourceContextMenu
-          entityId={`${props.datasource.id}-${props.pageId}`}
-          datasourceId={props.datasource.id}
           className={EntityClassNames.CONTEXT_MENU}
+          datasourceId={props.datasource.id}
+          entityId={`${props.datasource.id}-${props.pageId}`}
         />
       }
+      entityId={`${props.datasource.id}-${props.pageId}`}
+      icon={icon}
+      isDefaultExpanded={isDefaultExpanded}
+      key={props.datasource.id}
+      name={props.datasource.name}
       onToggle={getDatasourceStructure}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={updateDatasourceName}
     >
       <DatasourceStructureContainer
-        datasourceStructure={datasourceStructure}
         datasourceId={props.datasource.id}
+        datasourceStructure={datasourceStructure}
         step={props.step}
       />
     </Entity>
   );
-};
+}
 export default ExplorerDatasourceEntity;

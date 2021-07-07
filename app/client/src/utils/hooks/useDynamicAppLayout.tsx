@@ -20,7 +20,7 @@ import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
-  const { width: screenWidth, height: screenHeight } = useWindowSizeHooks();
+  const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
   const mainContainer = useSelector((state: AppState) =>
     getWidget(state, MAIN_CONTAINER_WIDGET_ID),
   );

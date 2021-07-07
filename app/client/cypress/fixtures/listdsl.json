@@ -1,0 +1,161 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 23,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "enhancements": true,
+        "backgroundColor": "",
+        "gridType": "vertical",
+        "gridGap": 0,
+        "listData": "[\n  {\n    \"id\": 1,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"first_name\": \"Michael\",\n    \"last_name\": \"Lawson\",\n    \"avatar\": \"https://reqres.in/img/faces/7-image.jpg\"\n  },\n  {\n    \"id\": 2,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"first_name\": \"Lindsay\",\n    \"last_name\": \"Ferguson\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  },\n {\n    \"id\": 3,\n    \"email\": \"brock.lesnar@reqres.in\",\n    \"first_name\": \"Brock\",\n    \"last_name\": \"Lesnar\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  }\n]",
+        "widgetName": "List1",
+        "children": [
+          {
+            "isVisible": true,
+            "widgetName": "Canvas1",
+            "containerStyle": "none",
+            "canExtend": false,
+            "detachFromLayout": true,
+            "dropDisabled": true,
+            "children": [
+              {
+                "isVisible": true,
+                "backgroundColor": "white",
+                "widgetName": "Container1",
+                "containerStyle": "card",
+                "children": [
+                  {
+                    "isVisible": true,
+                    "widgetName": "Canvas2",
+                    "containerStyle": "none",
+                    "canExtend": false,
+                    "detachFromLayout": true,
+                    "children": [
+                      {
+                        "isVisible": true,
+                        "text": "Label",
+                        "textStyle": "LABEL",
+                        "textAlign": "LEFT",
+                        "widgetName": "Text1",
+                        "type": "TEXT_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 32,
+                        "parentRowSpace": 40,
+                        "leftColumn": 2,
+                        "rightColumn": 24,
+                        "topRow": 0,
+                        "bottomRow": 16,
+                        "parentId": "dinv2tsatk",
+                        "widgetId": "k6ct7dxg4w"
+                      },
+                      {
+                        "isVisible":true,
+                        "text":"Submit",
+                        "buttonStyle":"PRIMARY_BUTTON",
+                        "widgetName":"Button1",
+                        "isDisabled":false,
+                        "isDefaultClickDisabled":true,
+                        "version":26,
+                        "type":"BUTTON_WIDGET",
+                        "isLoading":false,
+                        "parentColumnSpace":29.25,
+                        "parentRowSpace":40,
+                        "leftColumn":24,
+                        "rightColumn": 32,
+                        "topRow":1,
+                        "bottomRow":8,
+                        "parentId":"dinv2tsatk",
+                        "widgetId":"fuw9p7cuek"
+                     }
+                    ],
+                    "minHeight": null,
+                    "type": "CANVAS_WIDGET",
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "parentRowSpace": 1,
+                    "leftColumn": 0,
+                    "rightColumn": null,
+                    "topRow": 0,
+                    "bottomRow": null,
+                    "parentId": "4ruj7xl5ri",
+                    "widgetId": "dinv2tsatk"
+                  }
+                ],
+                "dragDisabled": true,
+                "isDeletable": false,
+                "disablePropertyPane": true,
+                "type": "CONTAINER_WIDGET",
+                "isLoading": false,
+                "leftColumn": 0,
+                "rightColumn": 64,
+                "topRow": 0,
+                "bottomRow": 16,
+                "parentId": "0pvmmqr77m",
+                "widgetId": "4ruj7xl5ri"
+              }
+            ],
+            "minHeight": 400,
+            "type": "CANVAS_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 400,
+            "parentId": "5bwz8xcvhj",
+            "widgetId": "0pvmmqr77m"
+          }
+        ],
+        "type": "LIST_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 0,
+        "rightColumn": 32,
+        "topRow": 0,
+        "bottomRow": 40,
+        "parentId": "0",
+        "widgetId": "5bwz8xcvhj",
+        "dynamicBindingPathList": [],
+        "template": {
+          "Text1": {
+            "isVisible": true,
+            "text": "Label",
+            "textStyle": "LABEL",
+            "textAlign": "LEFT",
+            "widgetName": "Text1",
+            "type": "TEXT_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 32,
+            "parentRowSpace": 40,
+            "leftColumn": 0,
+            "rightColumn": 4,
+            "topRow": 0,
+            "bottomRow": 1,
+            "parentId": "dinv2tsatk",
+            "widgetId": "k6ct7dxg4w"
+          }
+        }
+      }
+    ]
+  }
+}

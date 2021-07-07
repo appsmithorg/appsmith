@@ -14,7 +14,7 @@ type SelectComponentProps = {
   outline?: boolean;
 };
 
-export const SelectComponent = (props: SelectComponentProps) => {
+export function SelectComponent(props: SelectComponentProps) {
   const dropdownProps: CustomizedDropdownProps = {
     sections: [
       {
@@ -42,6 +42,6 @@ export const SelectComponent = (props: SelectComponentProps) => {
     openDirection: "down",
   };
   return <CustomizedDropdown {...dropdownProps} />;
-};
+}
 
 export default SelectComponent;

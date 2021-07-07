@@ -8,3 +8,9 @@ export const updateWidgetName = (widgetId: string, newName: string) => {
     },
   };
 };
+
+export const hidePropertyPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+  };
+};

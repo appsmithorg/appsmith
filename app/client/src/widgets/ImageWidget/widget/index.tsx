@@ -2,10 +2,7 @@ import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "../component";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
+
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -28,6 +25,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.IMAGE,
           },
           {
             helpText: "Renders the url or Base64 when no image is provided",
@@ -37,6 +35,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -46,6 +45,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the max zoom of the widget",
@@ -77,6 +77,33 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.NUMBER,
+          },
+          {
+            helpText:
+              "Sets how the Image should be resized to fit its container.",
+            propertyName: "objectFit",
+            label: "Object Fit",
+            controlType: "DROP_DOWN",
+            defaultValue: "cover",
+            options: [
+              {
+                label: "Contain",
+                value: "contain",
+              },
+              {
+                label: "Cover",
+                value: "cover",
+              },
+              {
+                label: "Auto",
+                value: "auto",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
         ],
       },
@@ -97,15 +124,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      image: VALIDATION_TYPES.TEXT,
-      imageShape: VALIDATION_TYPES.TEXT,
-      defaultImage: VALIDATION_TYPES.TEXT,
-      maxZoomLevel: VALIDATION_TYPES.NUMBER,
-    };
-  }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
@@ -120,19 +138,20 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   }
 
   render() {
-    const { maxZoomLevel } = this.props;
+    const { maxZoomLevel, objectFit } = this.props;
     return (
       <ImageComponent
+        defaultImageUrl={this.props.defaultImage}
         disableDrag={(disable: boolean) => {
           this.props.disableDrag(disable);
         }}
+        imageUrl={this.props.image}
+        isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
-        widgetId={this.props.widgetId}
-        imageUrl={this.props.image || ""}
+        objectFit={objectFit}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
-        defaultImageUrl={this.props.defaultImage}
-        isLoading={this.props.isLoading}
+        widgetId={this.props.widgetId}
       />
     );
   }
@@ -140,6 +159,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   onImageClick() {
     if (this.props.onClick) {
       this.props.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -160,6 +180,7 @@ export interface ImageWidgetProps extends WidgetProps {
   imageShape: ImageShape;
   defaultImage: string;
   maxZoomLevel: number;
+  objectFit: string;
   onClick?: string;
 }
 

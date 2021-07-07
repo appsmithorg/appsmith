@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { withTheme } from "styled-components";
 import { FixedSizeList } from "react-window";
 import { useTable, useBlockLayout } from "react-table";
 
@@ -12,9 +12,12 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 // We need to decouple the platform stuff from the widget stuff
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   data: Record<string, any>[];
+  tableBodyHeight?: number;
+  theme: Theme;
 }
 
 const TABLE_SIZES = {
@@ -22,6 +25,7 @@ const TABLE_SIZES = {
   TABLE_HEADER_HEIGHT: 42,
   ROW_HEIGHT: 40,
   ROW_FONT_SIZE: 14,
+  SCROLL_SIZE: 20,
 };
 
 export const TableWrapper = styled.div`
@@ -47,13 +51,13 @@ export const TableWrapper = styled.div`
     background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
+    height: 100%;
     .thead,
     .tbody {
       overflow: hidden;
     }
     .tbody {
-      overflow-y: scroll;
-      height: 100%;
+      height: calc(100% - ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px);
       .tr {
         width: 100%;
       }
@@ -188,7 +192,7 @@ const renderCell = (props: any) => {
   );
 };
 
-const Table = (props: TableProps) => {
+function Table(props: TableProps) {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
     if (data.length) {
@@ -204,6 +208,13 @@ const Table = (props: TableProps) => {
     return [];
   }, [data]);
 
+  const tableBodyHeightComputed =
+    (props.tableBodyHeight || window.innerHeight) -
+    TABLE_SIZES.COLUMN_HEADER_HEIGHT -
+    props.theme.tabPanelHeight -
+    TABLE_SIZES.SCROLL_SIZE -
+    2 * props.theme.spaces[5]; //top and bottom padding
+
   const defaultColumn = React.useMemo(
     () => ({
       width: 170,
@@ -212,11 +223,11 @@ const Table = (props: TableProps) => {
   );
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
     totalColumnsWidth,
   } = useTable(
     {
@@ -255,7 +266,8 @@ const Table = (props: TableProps) => {
     [prepareRow, rows],
   );
 
-  if (rows.length === 0 || headerGroups.length === 0) return null;
+  if (rows.length === 0 || headerGroups.length === 0)
+    return <span>No data records to show</span>;
 
   return (
     <ErrorBoundary>
@@ -294,7 +306,7 @@ const Table = (props: TableProps) => {
 
             <div {...getTableBodyProps()} className="tbody">
               <FixedSizeList
-                height={window.innerHeight}
+                height={tableBodyHeightComputed || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
                 width={totalColumnsWidth + scrollBarSize}
@@ -307,6 +319,6 @@ const Table = (props: TableProps) => {
       </TableWrapper>
     </ErrorBoundary>
   );
-};
+}
 
-export default Table;
+export default withTheme(Table);

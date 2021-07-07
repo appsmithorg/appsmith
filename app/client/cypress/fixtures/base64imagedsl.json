@@ -1,0 +1,44 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1280,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 18,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                "imageShape": "RECTANGLE",
+                "maxZoomLevel": 1,
+                "image": "",
+                "widgetName": "Image1",
+                "version": 1,
+                "type": "IMAGE_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 57.875,
+                "parentRowSpace": 40,
+                "leftColumn": 4,
+                "rightColumn": 8,
+                "topRow": 17,
+                "bottomRow": 20,
+                "parentId": "0",
+                "widgetId": "xxkdfmjha1"
+            }
+        ]
+    }
+}

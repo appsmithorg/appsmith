@@ -49,14 +49,14 @@ type TabbedViewComponentType = {
   overflow?: boolean;
 };
 
-export const BaseTabbedView = (props: TabbedViewComponentType) => {
+export function BaseTabbedView(props: TabbedViewComponentType) {
   return (
     <TabsWrapper shouldOverflow={props.overflow}>
       <Tabs
-        selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
           props.setSelectedIndex && props.setSelectedIndex(index);
         }}
+        selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab) => (
@@ -69,4 +69,4 @@ export const BaseTabbedView = (props: TabbedViewComponentType) => {
       </Tabs>
     </TabsWrapper>
   );
-};
+}

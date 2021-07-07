@@ -21,9 +21,7 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
-export const RichtextEditorComponent = (
-  props: RichtextEditorComponentProps,
-) => {
+export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const status = useScript(
     "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.7.0/tinymce.min.js",
   );
@@ -110,9 +108,9 @@ export const RichtextEditorComponent = (
 
   return (
     <StyledRTEditor>
-      <textarea id={`rte-${props.widgetId}`}></textarea>
+      <textarea id={`rte-${props.widgetId}`} />
     </StyledRTEditor>
   );
-};
+}
 
 export default RichtextEditorComponent;

@@ -69,4 +69,13 @@ export type AppsmithUIConfigs = {
   mailEnabled: boolean;
 
   disableTelemetry: boolean;
+  commentsTestModeEnabled: boolean;
+
+  cloudServicesBaseUrl: string;
+
+  googleRecaptchaSiteKey: {
+    enabled: boolean;
+    apiKey: string;
+  };
+  onboardingFormEnabled: boolean;
 };

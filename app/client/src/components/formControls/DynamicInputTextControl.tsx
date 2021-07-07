@@ -7,6 +7,7 @@ import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { connect } from "react-redux";
+import { actionPathFromName } from "components/formControls/utils";
 
 export function InputText(props: {
   label: string;
@@ -15,19 +16,19 @@ export function InputText(props: {
   name: string;
   actionName: string;
 }) {
-  const { actionName, name, placeholder, label, isRequired } = props;
+  const { actionName, isRequired, label, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
-    <div style={{ width: "50vh", height: "55px" }}>
+    <div style={{ width: "50vh", minHeight: "55px" }}>
       <FormLabel>
         {label} {isRequired && "*"}
       </FormLabel>
       <DynamicTextField
+        dataTreePath={dataTreePath}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
-        dataTreePath={dataTreePath}
       />
     </div>
   );
@@ -35,14 +36,14 @@ export function InputText(props: {
 
 class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
   render() {
-    const { label, placeholderText, configProperty, actionName } = this.props;
+    const { actionName, configProperty, label, placeholderText } = this.props;
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        placeholder={placeholderText}
         actionName={actionName}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
       />
     );
   }
@@ -57,17 +58,10 @@ export interface DynamicInputControlProps extends ControlProps {
   actionName: string;
 }
 
-const actionPathFromName = (actionName: string, name: string): string => {
-  const ActionConfigStarts = "actionConfiguration.";
-  let path = name;
-  if (path.startsWith(ActionConfigStarts)) {
-    path = "config." + path.substr(ActionConfigStarts.length);
-  }
-  return `${actionName}.${path}`;
-};
-
-const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, props: DynamicInputControlProps) => {
+  const valueSelector = formValueSelector(
+    props.formName || QUERY_EDITOR_FORM_NAME,
+  );
   const actionName = valueSelector(state, "name");
   return {
     actionName: actionName,

@@ -1,5 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -7,15 +8,14 @@ export const CONFIG = {
   iconSVG: IconSVG,
   hideCard: true,
   defaults: {
-    rows: 1,
-    columns: 3,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "FormButton",
     text: "Submit",
     isDefaultClickDisabled: true,
     version: 1,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

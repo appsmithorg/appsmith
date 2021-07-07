@@ -1,13 +1,14 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Form",
   iconSVG: IconSVG,
   defaults: {
-    rows: 13,
-    columns: 7,
+    rows: 13 * GRID_DENSITY_MIGRATION_V1,
+    columns: 7 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],
@@ -26,18 +27,27 @@ export const CONFIG = {
               view: [
                 {
                   type: "TEXT_WIDGET",
-                  size: { rows: 1, cols: 12 },
-                  position: { top: 0, left: 0 },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                  },
+                  position: { top: 1, left: 1.5 },
                   props: {
                     text: "Form",
-                    textStyle: "HEADING",
+                    fontSize: "HEADING1",
                     version: 1,
                   },
                 },
                 {
                   type: "FORM_BUTTON_WIDGET",
-                  size: { rows: 1, cols: 4 },
-                  position: { top: 11, left: 12 },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                  },
+                  position: {
+                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    left: 11.6 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     text: "Submit",
                     buttonStyle: "PRIMARY_BUTTON",
@@ -48,8 +58,14 @@ export const CONFIG = {
                 },
                 {
                   type: "FORM_BUTTON_WIDGET",
-                  size: { rows: 1, cols: 4 },
-                  position: { top: 11, left: 8 },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                  },
+                  position: {
+                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    left: 7.5 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     text: "Reset",
                     buttonStyle: "SECONDARY_BUTTON",
@@ -66,7 +82,6 @@ export const CONFIG = {
     },
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

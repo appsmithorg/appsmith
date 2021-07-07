@@ -14,6 +14,7 @@ const isVisible = {
 export const entityDefinitions: Record<string, unknown> = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
+    const responseMetaDef = generateTypeDef(entity.responseMeta);
     let data: Record<string, any> = {
       "!doc": "The response of the action",
     };
@@ -22,12 +23,21 @@ export const entityDefinitions: Record<string, unknown> = {
     } else {
       data = { ...data, ...dataDef };
     }
+    let responseMeta: Record<string, any> = {
+      "!doc": "The response meta of the action",
+    };
+    if (_.isString(responseMetaDef)) {
+      responseMeta["!type"] = responseMetaDef;
+    } else {
+      responseMeta = { ...responseMeta, ...responseMetaDef };
+    }
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
       "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
+      responseMeta,
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
     };
   },
@@ -76,7 +86,7 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   DROP_DOWN_WIDGET: {
     "!doc":
-      "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     selectedOptionValue: {
@@ -170,7 +180,6 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   TABS_WIDGET: {
     isVisible: isVisible,
-    tabs: "[tabs]",
     selectedTab: "string",
   },
   MODAL_WIDGET: {
@@ -222,7 +231,34 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     files: "[file]",
     isDisabled: "bool",
-    uploadedFileUrls: "string",
+  },
+  LIST_WIDGET: (widget: any) => ({
+    "!doc":
+      "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+    "!url": "https://docs.appsmith.com/widget-reference/list",
+    backgroundColor: {
+      "!type": "string",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    },
+    isVisible: isVisible,
+    gridGap: "number",
+    selectedItem: generateTypeDef(widget.selectedItem),
+    items: generateTypeDef(widget.items),
+    listData: generateTypeDef(widget.listData),
+  }),
+  RATE_WIDGET: {
+    "!doc": "Rating widget is used to display ratings in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/rate",
+    isVisible: isVisible,
+    value: "number",
+    maxCount: "number",
+  },
+  IFRAME_WIDGET: {
+    "!doc": "Iframe widget is used to display iframes in your app.",
+    "!url": "https://docs.appsmith.com/widget-reference/iframe",
+    isVisible: isVisible,
+    source: "string",
+    title: "string",
   },
 };
 

@@ -15,6 +15,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
+import UserApi from "api/UserApi";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -76,28 +77,33 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
-  const Profile = <ProfileImage userName={props.userName} />;
+  const Profile = (
+    <ProfileImage
+      source={`/api/${UserApi.photoURL}`}
+      userName={props.name || props.userName}
+    />
+  );
 
   return (
-    <Fragment>
+    <>
       <ProfileMenuStyle />
       <Menu
         className="profile-menu t--profile-menu"
+        modifiers={props.modifiers}
         position={Position.BOTTOM}
         target={Profile}
-        modifiers={props.modifiers}
       >
         <UserInformation>
           <div className="user-image">{Profile}</div>
           <UserNameWrapper>
             <div className="user-name t--user-name">
-              <Text type={TextType.P1} highlight>
+              <Text highlight type={TextType.P1}>
                 {props.name}
               </Text>
             </div>
 
             <div className="user-username">
-              <Text type={TextType.P3} highlight>
+              <Text highlight type={TextType.P3}>
                 {props.userName}
               </Text>
             </div>
@@ -111,26 +117,26 @@ export default function ProfileDropdown(props: TagProps) {
           </>
         )}
         <MenuItem
-          icon="edit"
-          text="Edit Profile"
           className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
+          icon="edit"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: PROFILE,
             });
           }}
+          text="Edit Profile"
         />
         <MenuItem
-          icon="logout"
-          text="Sign Out"
           className="t--logout-icon"
+          icon="logout"
           onSelect={() =>
             getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
               type: ReduxActionTypes.LOGOUT_USER_INIT,
             })
           }
+          text="Sign Out"
         />
       </Menu>
-    </Fragment>
+    </>
   );
 }

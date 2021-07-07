@@ -55,7 +55,7 @@ class TemplateMenu extends React.Component<Props> {
   nameInput!: HTMLDivElement | null;
 
   fetchTemplate = (queryType: string) => {
-    const { pluginId, allPluginTemplates } = this.props;
+    const { allPluginTemplates, pluginId } = this.props;
     const pluginTemplates = allPluginTemplates[pluginId];
 
     if (pluginTemplates) {
@@ -64,16 +64,13 @@ class TemplateMenu extends React.Component<Props> {
   };
 
   render() {
-    const { createTemplate, allPluginTemplates, pluginId } = this.props;
+    const { allPluginTemplates, createTemplate, pluginId } = this.props;
     const pluginTemplates = allPluginTemplates[pluginId];
 
     return (
       <Container
         className="t--template-menu"
-        ref={(input) => {
-          this.nameInput = input;
-        }}
-        tabIndex={0}
+        onClick={() => createTemplate("")}
         onKeyPress={(e) => {
           e.preventDefault();
 
@@ -81,7 +78,10 @@ class TemplateMenu extends React.Component<Props> {
             createTemplate("");
           }
         }}
-        onClick={() => createTemplate("")}
+        ref={(input) => {
+          this.nameInput = input;
+        }}
+        tabIndex={0}
       >
         <div style={{ fontSize: 14 }}>
           Click here to start with a blank state or select a template.

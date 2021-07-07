@@ -36,9 +36,13 @@ export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
+  highlight: boolean;
 }>`
   position: relative;
+  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
+  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   font-size: 12px;
+  user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
   background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
@@ -92,10 +96,11 @@ export type EntityProps = {
   className?: string;
   name: string;
   children?: ReactNode;
+  highlight?: boolean;
   icon: ReactNode;
   rightIcon?: ReactNode;
   disabled?: boolean;
-  action?: () => void;
+  action?: (e: any) => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
   onCreate?: () => void;
@@ -128,11 +133,11 @@ export const Entity = forwardRef(
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
-    const toggleChildren = () => {
+    const toggleChildren = (e: any) => {
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
-        props.action && props.action();
+        props.action && props.action(e);
       }
 
       if (props.onToggle) {
@@ -149,9 +154,9 @@ export const Entity = forwardRef(
       [props.entityId, props.updateEntityName],
     );
 
-    const handleClick = () => {
-      if (props.action) props.action();
-      else toggleChildren();
+    const handleClick = (e: any) => {
+      if (props.action) props.action(e);
+      else toggleChildren(e);
     };
 
     const itemRef = useRef<HTMLDivElement | null>(null);
@@ -165,38 +170,42 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
-          step={props.step}
+          className={`${props.highlight ? "highlighted" : ""} ${
+            props.active ? "active" : ""
+          }`}
+          highlight={!!props.highlight}
           spaced={!!props.children}
+          step={props.step}
         >
           <CollapseToggle
+            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
+            disabled={!!props.disabled}
             isOpen={isOpen}
             isVisible={!!props.children}
             onClick={toggleChildren}
-            disabled={!!props.disabled}
-            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
-            entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
-            ref={itemRef}
+            entityId={props.entityId}
+            isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
-            isEditing={!!props.updateEntityName && isEditing}
-            updateEntityName={updateNameCallback}
+            ref={itemRef}
             searchKeyword={props.searchKeyword}
+            updateEntityName={updateNameCallback}
           />
           <IconWrapper className={EntityClassNames.RIGHT_ICON}>
             {props.rightIcon}
           </IconWrapper>
           <AddButton
-            onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}
+            onClick={props.onCreate}
           />
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>
-        <Collapse step={props.step} isOpen={isOpen} active={props.active}>
+        <Collapse active={props.active} isOpen={isOpen} step={props.step}>
           {props.children}
         </Collapse>
       </Wrapper>

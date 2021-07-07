@@ -12,21 +12,21 @@ import FormFooter from "components/editorComponents/form/FormFooter";
 import FormMessage from "components/editorComponents/form/FormMessage";
 
 // TODO(abhinav): abstract onCancel out.
-export const CreateApplicationForm = (
+export function CreateApplicationForm(
   props: InjectedFormProps<
     CreateOrganizationFormValues,
     { onCancel: () => void }
   > & {
     onCancel: () => void;
   },
-) => {
+) {
   const {
     error,
     handleSubmit,
-    pristine,
-    submitting,
     invalid,
     onCancel,
+    pristine,
+    submitting,
   } = props;
   const submitHandler = useCallback(
     async (data, dispatch) => {
@@ -39,33 +39,33 @@ export const CreateApplicationForm = (
 
   return (
     <Form
-      onSubmit={handleSubmit(submitHandler)}
       data-cy="create-organisation-form"
+      onSubmit={handleSubmit(submitHandler)}
     >
       {error && !pristine && <FormMessage intent="danger" message={error} />}
-      <FormGroup intent={error ? "danger" : "none"} helperText={error}>
+      <FormGroup helperText={error} intent={error ? "danger" : "none"}>
         <TextField
+          autoFocus
+          data-cy="create-organisation-form__name"
           name="name"
           placeholder="Name"
           validate={noSpaces}
-          autoFocus
-          data-cy="create-organisation-form__name"
         />
       </FormGroup>
       <FormFooter
-        onCancel={onCancel}
-        divider
-        data-cy="t--create-org-submit"
-        submitOnEnter
         canSubmit={!invalid}
-        submitText="Submit"
+        data-cy="t--create-org-submit"
+        divider
+        onCancel={onCancel}
         onSubmit={handleSubmit(submitHandler)}
         size="small"
+        submitOnEnter
+        submitText="Submit"
         submitting={submitting && !error}
       />
     </Form>
   );
-};
+}
 
 export default reduxForm<
   CreateOrganizationFormValues,

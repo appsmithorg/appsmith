@@ -19,6 +19,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
@@ -94,6 +95,9 @@ public class ShareOrganizationPermissionTests {
 
     @Autowired
     NewPageService newPageService;
+
+    @Autowired
+    LayoutActionService layoutActionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -243,7 +247,7 @@ public class ShareOrganizationPermissionTests {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = newActionService.createAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createAction(action1).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Invite Cancellation Test action2");
@@ -251,7 +255,7 @@ public class ShareOrganizationPermissionTests {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = newActionService.createAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createAction(action2).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Invite Cancellation Test action3");
@@ -259,7 +263,7 @@ public class ShareOrganizationPermissionTests {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = newActionService.createAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createAction(action3).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setOrgId(savedOrganization.getId());

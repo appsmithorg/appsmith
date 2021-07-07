@@ -44,7 +44,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
-const EntityExplorer = (props: IPanelProps) => {
+function EntityExplorer(props: IPanelProps) {
   const { applicationId } = useParams<ExplorerURLParams>();
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
@@ -55,7 +55,7 @@ const EntityExplorer = (props: IPanelProps) => {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
+  const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);
@@ -86,22 +86,22 @@ const EntityExplorer = (props: IPanelProps) => {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search ref={searchInputRef} clear={clearSearch} />
+      <Search clear={clearSearch} isHidden ref={searchInputRef} />
       <ExplorerPageGroup
-        searchKeyword={searchKeyword}
-        step={0}
-        widgets={widgets}
         actions={actions}
         datasources={datasources}
         plugins={plugins}
+        searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
+        step={0}
+        widgets={widgets}
       />
       {noResults && (
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          title="No entities found"
           icon="search"
+          title="No entities found"
         />
       )}
       <StyledDivider />
@@ -109,7 +109,7 @@ const EntityExplorer = (props: IPanelProps) => {
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
-};
+}
 
 EntityExplorer.displayName = "EntityExplorer";
 

@@ -5,7 +5,6 @@ import CanvasWidget, {
 import SkeletonWidget, {
   CONFIG as SKELETON_WIDGET_CONFIG,
 } from "widgets/SkeletonWidget";
-
 import TextWidget, { CONFIG as TEXT_WIDGET_CONFIG } from "widgets/TextWidget";
 import TableWidget, {
   CONFIG as TABLE_WIDGET_CONFIG,
@@ -54,9 +53,17 @@ import DatePickerWidget, {
 import DatePickerWidget2, {
   CONFIG as DATE_PICKER_WIDGET_2_CONFIG,
 } from "widgets/DatePickerWidget2";
+import ListWidget, { CONFIG as LIST_WIDGET_CONFIG } from "widgets/ListWidget";
 import SwitchWidget, {
   CONFIG as SWITCH_WIDGET_CONFIG,
 } from "widgets/SwitchWidget";
+import TabsMigratorWidget, {
+  CONFIG as TABS_MIGRATOR_WIDGET_CONFIG,
+} from "widgets/Tabs/TabsMigrator";
+import RateWidget, { CONFIG as RATE_WIDGET_CONFIG } from "widgets/RateWidget";
+import IframeWidget, {
+  CONFIG as IFRAME_WIDGET_CONFIG,
+} from "widgets/IframeWidget";
 import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
 import FormButtonWidget, {
   CONFIG as FORM_BUTTON_WIDGET_CONFIG,
@@ -89,5 +96,9 @@ export const registerWidgets = () => {
   registerWidget(FormWidget, FORM_WIDGET_CONFIG);
   registerWidget(FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG);
   registerWidget(IconWidget, ICON_WIDGET_CONFIG);
+  registerWidget(ListWidget, LIST_WIDGET_CONFIG);
+  registerWidget(RateWidget, RATE_WIDGET_CONFIG);
+  registerWidget(IframeWidget, IFRAME_WIDGET_CONFIG);
+  registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

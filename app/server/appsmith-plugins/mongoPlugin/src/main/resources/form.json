@@ -4,6 +4,47 @@
       "sectionName": "Connection",
       "children": [
         {
+          "label": "Use Mongo Connection String URI Key",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "Use Mongo Connection String URI",
+          "hidden": true
+        },
+        {
+          "label": "Use Mongo Connection String URI",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "No",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "Yes"
+            },
+            {
+              "label": "No",
+              "value": "No"
+            }
+          ]
+        },
+        {
+          "label": "Connection String URI Key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "Connection String URI",
+          "hidden": true
+        },
+        {
+          "label": "Connection String URI",
+          "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "Yes"
+          }
+        },
+        {
           "label": "Connection Mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "DROP_DOWN",
@@ -17,7 +58,12 @@
               "label": "Read / Write",
               "value": "READ_WRITE"
             }
-          ]
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
         },
         {
           "label": "Connection Type",
@@ -33,7 +79,12 @@
               "label": "Replica set",
               "value": "REPLICA_SET"
             }
-          ]
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
         },
         {
           "sectionName": null,
@@ -44,13 +95,23 @@
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.mongodb.net"
+              "placeholderText": "myapp.abcde.mongodb.net",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[0].value",
+                "comparison": "EQUALS",
+                "value": "Yes"
+              }
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[0].value",
+                "comparison": "EQUALS",
+                "value": "Yes"
+              }
             }
           ]
         },
@@ -58,12 +119,22 @@
           "label": "Default Database Name",
           "placeholderText": "(Optional)",
           "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
-          "controlType": "INPUT_TEXT"
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
         }
       ]
     },
     {
       "sectionName": "Authentication",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
       "children": [
         {
           "label": "Database Name",
@@ -108,13 +179,18 @@
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true
-            }
+              }
           ]
         }
       ]
     },
     {
       "sectionName": "SSL (optional)",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
       "children": [
         {
           "label": "SSL Mode",

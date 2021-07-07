@@ -7,7 +7,7 @@ import produce from "immer";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   selectButton = (value: string) => {
-    const { propertyValue, defaultValue } = this.props;
+    const { defaultValue, propertyValue } = this.props;
     const values: string[] = propertyValue
       ? propertyValue.split(",")
       : defaultValue
@@ -24,7 +24,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
     }
   };
   render() {
-    const { propertyValue, options } = this.props;
+    const { options, propertyValue } = this.props;
     return (
       <ButtonTabComponent
         options={options}

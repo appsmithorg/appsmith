@@ -12,29 +12,19 @@ export const generateDataTreeWidget = (
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
+
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
   const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type);
+
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
-  const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
-    widget,
-    propertyPaneConfigs,
-    Object.fromEntries(
-      Object.keys(derivedPropertyMap).map((key) => [key, true]),
-    ),
-  );
-  Object.keys(defaultMetaProps).forEach((defaultPath) => {
-    bindingPaths[defaultPath] = true;
-  });
   const derivedProps: any = {};
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   dynamicBindingPathList.forEach((dynamicPath) => {
     const propertyPath = dynamicPath.key;
-    // Add any dynamically generated dynamic bindings in the binding paths
-    bindingPaths[propertyPath] = true;
     const propertyValue = _.get(widget, propertyPath);
     if (_.isObject(propertyValue)) {
       // Stringify this because composite controls may have bindings in the sub controls
@@ -50,7 +40,6 @@ export const generateDataTreeWidget = (
     dynamicBindingPathList.push({
       key: propertyName,
     });
-    bindingPaths[propertyName] = true;
   });
   const unInitializedDefaultProps: Record<string, undefined> = {};
   Object.values(defaultProps).forEach((propertyName) => {
@@ -58,15 +47,36 @@ export const generateDataTreeWidget = (
       unInitializedDefaultProps[propertyName] = undefined;
     }
   });
+  const blockedDerivedProps: Record<string, true> = {};
+  Object.keys(derivedProps).forEach((propertyName) => {
+    blockedDerivedProps[propertyName] = true;
+  });
+  const {
+    bindingPaths,
+    triggerPaths,
+    validationPaths,
+  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
+    ...derivedPropertyMap,
+    ...defaultMetaProps,
+    ...unInitializedDefaultProps,
+    ..._.keyBy(dynamicBindingPathList, "key"),
+  });
   return {
     ...widget,
     ...defaultMetaProps,
     ...widgetMetaProps,
     ...derivedProps,
     ...unInitializedDefaultProps,
+    defaultProps,
+    defaultMetaProps: Object.keys(defaultMetaProps),
     dynamicBindingPathList,
+    logBlackList: {
+      ...widget.logBlackList,
+      ...blockedDerivedProps,
+    },
     bindingPaths,
     triggerPaths,
+    validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   };
 };

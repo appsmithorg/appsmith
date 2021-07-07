@@ -58,7 +58,7 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const Connected = () => {
+function Connected() {
   const params = useParams<{ datasourceId: string; applicationId: string }>();
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
@@ -173,12 +173,12 @@ const Connected = () => {
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
           <ActionButton
-            className="t--create-query"
-            icon={"plus"}
-            text={isDBDatasource ? "New Query" : "New API"}
-            filled
             accent="primary"
+            className="t--create-query"
+            filled
+            icon={"plus"}
             onClick={isDBDatasource ? createQueryAction : createApiAction}
+            text={isDBDatasource ? "New Query" : "New API"}
           />
         </OnboardingIndicator>
       </Header>
@@ -189,6 +189,6 @@ const Connected = () => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default Connected;

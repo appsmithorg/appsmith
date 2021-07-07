@@ -3,15 +3,36 @@ import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
 import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
+import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
-import { createMessage, ERROR_FILE_TOO_LARGE } from "constants/messages";
-
+import {
+  createMessage,
+  ERROR_FILE_TOO_LARGE,
+  REMOVE_FILE_TOOL_TIP,
+} from "constants/messages";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import Icon, { IconSize } from "./Icon";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
+
+const FileEndings = {
+  IMAGE: ".jpeg,.png,.svg",
+  JSON: ".json",
+  TEXT: ".txt",
+  ANY: "*",
+};
+
+export enum FileType {
+  IMAGE = "IMAGE",
+  JSON = "JSON",
+  TEXT = "TEXT",
+  ANY = "ANY",
+}
 
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
@@ -19,12 +40,15 @@ type FilePickerProps = {
   fileUploader?: FileUploader;
   url?: string;
   logoUploadError?: string;
+  fileType: FileType;
+  delayedUpload?: boolean;
 };
 
 const ContainerDiv = styled.div<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
+  fileType: FileType;
 }>`
   width: 320px;
   height: 190px;
@@ -41,7 +65,7 @@ const ContainerDiv = styled.div<{
     color: ${(props) => props.theme.colors.filePicker.color};
   }
 
-  .bg-image {
+  .upload-form-container {
     width: 100%;
     height: 100%;
     display: grid;
@@ -51,15 +75,36 @@ const ContainerDiv = styled.div<{
     background-size: contain;
   }
 
+  .centered {
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    .success-container {
+      display: flex;
+      align-items: center;
+      .success-icon {
+        margin-right: ${(props) => props.theme.spaces[4]}px;
+      }
+
+      .success-text {
+        color: #03b365;
+        margin-right: ${(props) => props.theme.spaces[4]}px;
+      }
+    }
+  }
+
   .file-description {
     width: 95%;
-    margin-top: auto;
+    margin: 0 auto;
+    margin-top: ${(props) =>
+      props.fileType === FileType.IMAGE ? "auto" : "0px"};
     margin-bottom: ${(props) => props.theme.spaces[6] + 1}px;
     display: none;
   }
 
   .file-spec {
-    margin-bottom: ${(props) => props.theme.spaces[2]}px;
+    margin-bottom: ${(props) => props.theme.spaces[3]}px;
     span {
       margin-right: ${(props) => props.theme.spaces[4]}px;
     }
@@ -116,6 +161,11 @@ const ContainerDiv = styled.div<{
   }
 `;
 
+const IconWrapper = styled.div`
+  width: ${(props) => props.theme.spaces[9]}px;
+  padding-left: ${(props) => props.theme.spaces[2]}px;
+`;
+
 export type SetProgress = (percentage: number) => void;
 export type UploadCallback = (url: string) => void;
 export type FileUploader = (
@@ -158,8 +208,8 @@ export function CloudinaryUploader(
     });
 }
 
-const FilePickerComponent = (props: FilePickerProps) => {
-  const { logoUploadError } = props;
+function FilePickerComponent(props: FilePickerProps) {
+  const { fileType, logoUploadError } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
     size: 0,
@@ -207,7 +257,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
     }
     if (uploadPercentage === 100) {
       setIsUploaded(true);
-      if (fileDescRef.current && bgRef.current) {
+      if (fileDescRef.current && bgRef.current && fileType === FileType.IMAGE) {
         fileDescRef.current.style.display = "none";
         bgRef.current.style.opacity = "1";
       }
@@ -219,6 +269,35 @@ const FilePickerComponent = (props: FilePickerProps) => {
   }
 
   function handleFileUpload(files: FileList | null) {
+    if (fileType === FileType.IMAGE) {
+      handleImageFileUpload(files);
+    } else {
+      handleOtherFileUpload(files);
+    }
+  }
+
+  function handleOtherFileUpload(files: FileList | null) {
+    const file = files && files[0];
+    let fileSize = 0;
+    if (!file) {
+      return;
+    }
+    fileSize = Math.floor(file.size / 1024);
+    setFileInfo({ name: file.name, size: fileSize });
+    if (props.delayedUpload) {
+      setIsUploaded(true);
+      setProgress(100);
+    }
+    if (fileDescRef.current) {
+      fileDescRef.current.style.display = "flex";
+    }
+    if (fileContainerRef.current) {
+      fileContainerRef.current.style.display = "none";
+    }
+    props.fileUploader && props.fileUploader(file, setProgress, onUpload);
+  }
+
+  function handleImageFileUpload(files: FileList | null) {
     const file = files && files[0];
     let fileSize = 0;
 
@@ -253,10 +332,15 @@ const FilePickerComponent = (props: FilePickerProps) => {
   }
 
   function removeFile() {
-    if (fileContainerRef.current && bgRef.current) {
+    if (fileContainerRef.current) {
       setFileUrl("");
+      if (fileDescRef.current) {
+        fileDescRef.current.style.display = "none";
+      }
       fileContainerRef.current.style.display = "flex";
-      bgRef.current.style.backgroundImage = "url('')";
+      if (bgRef.current) {
+        bgRef.current.style.backgroundImage = "url('')";
+      }
       setIsUploaded(false);
       props.onFileRemoved && props.onFileRemoved();
     }
@@ -275,8 +359,9 @@ const FilePickerComponent = (props: FilePickerProps) => {
     }
   }, [props.url]);
 
+  // Following hook should be used only if file type is image.
   useEffect(() => {
-    if (fileUrl && !isUploaded) {
+    if (fileUrl && !isUploaded && fileType === FileType.IMAGE) {
       setIsUploaded(true);
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${fileUrl})`;
@@ -291,66 +376,110 @@ const FilePickerComponent = (props: FilePickerProps) => {
     }
   }, [fileUrl, logoUploadError]);
 
-  return (
-    <ContainerDiv
-      isActive={isActive}
-      canDrop={canDrop}
-      isUploaded={isUploaded}
-      ref={drop}
-    >
-      <div ref={bgRef} className="bg-image">
-        <div className="button-wrapper" ref={fileContainerRef}>
-          <UploadIcon />
-          <Text type={TextType.P2} className="drag-drop-text">
-            Drag & Drop files to upload or
-          </Text>
-          <form>
-            <input
-              type="file"
-              id="fileInput"
-              multiple={false}
-              ref={inputRef}
-              accept=".jpeg,.png,.svg"
-              value={""}
-              onChange={(el) => handleFileUpload(el.target.files)}
-            />
-            <Button
-              text="Browse"
-              category={Category.tertiary}
-              size={Size.medium}
-              onClick={(el) => ButtonClick(el)}
-            />
-          </form>
-        </div>
-        <div className="file-description" ref={fileDescRef} id="fileDesc">
-          <div className="file-spec">
-            <Text type={TextType.H6}>{fileInfo.name}</Text>
-            <Text type={TextType.H6}>{fileInfo.size}KB</Text>
-          </div>
+  // <UploadSuccessIcon />
+
+  const uploadFileForm = (
+    <div className="button-wrapper" ref={fileContainerRef}>
+      <UploadIcon />
+      <Text className="drag-drop-text" type={TextType.P2}>
+        Drag & Drop files to upload or
+      </Text>
+      <form>
+        <input
+          accept={FileEndings[fileType]}
+          id="fileInput"
+          multiple={false}
+          onChange={(el) => handleFileUpload(el.target.files)}
+          ref={inputRef}
+          type="file"
+          value={""}
+        />
+        <Button
+          category={Category.tertiary}
+          onClick={(el) => ButtonClick(el)}
+          size={Size.medium}
+          text="Browse"
+        />
+      </form>
+    </div>
+  );
+
+  const uploadStatus = (
+    <div className="file-spec">
+      <Text type={TextType.H6}>{fileInfo.name}</Text>
+      <Text type={TextType.H6}>{fileInfo.size}KB</Text>
+    </div>
+  );
+
+  const imageUploadComponent = (
+    <>
+      <div className="upload-form-container" ref={bgRef}>
+        {uploadFileForm}
+        <div className="file-description" id="fileDesc" ref={fileDescRef}>
+          {uploadStatus}
           <div className="progress-container">
-            <div className="progress-inner" ref={progressRef}></div>
+            <div className="progress-inner" ref={progressRef} />
           </div>
         </div>
       </div>
       <div className="remove-button">
         <Button
-          text="remove"
-          icon="delete"
-          size={Size.medium}
           category={Category.tertiary}
+          icon="delete"
           onClick={() => removeFile()}
+          size={Size.medium}
+          text="remove"
         />
       </div>
+    </>
+  );
+
+  const uploadComponent = (
+    <div className="upload-form-container">
+      {uploadFileForm}
+      <div
+        className="file-description centered"
+        id="fileDesc"
+        ref={fileDescRef}
+      >
+        {uploadStatus}
+        <div className="success-container">
+          <UploadSuccessIcon className="success-icon" />
+          <Text className="success-text" type={TextType.H4}>
+            Successfully Uploaded!
+          </Text>
+          <TooltipComponent
+            content={REMOVE_FILE_TOOL_TIP()}
+            position={Position.TOP}
+          >
+            <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
+              <Icon name="close" size={IconSize.XL} />
+            </IconWrapper>
+          </TooltipComponent>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <ContainerDiv
+      canDrop={canDrop}
+      fileType={fileType}
+      isActive={isActive}
+      isUploaded={isUploaded}
+      ref={drop}
+    >
+      {fileType === FileType.IMAGE ? imageUploadComponent : uploadComponent}
     </ContainerDiv>
   );
-};
+}
 
-const FilePicker = (props: FilePickerProps) => {
+function FilePicker(props: FilePickerProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <FilePickerComponent {...props} />
     </DndProvider>
   );
-};
+}
 
 export default FilePicker;

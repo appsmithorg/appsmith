@@ -18,6 +18,7 @@ let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import { initLocalstorage } from "./commands";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
@@ -31,11 +32,13 @@ Cypress.on("fail", (error, runnable) => {
 });
 
 before(function() {
+  initLocalstorage();
   cy.startServerAndRoutes();
   // Clear indexedDB
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
+
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
@@ -58,6 +61,7 @@ before(function() {
 });
 
 beforeEach(function() {
+  initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
 });

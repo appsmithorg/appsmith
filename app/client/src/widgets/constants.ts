@@ -1,0 +1,7 @@
+export const GRID_DENSITY_MIGRATION_V1 = 4;
+
+export enum BlueprintOperationTypes {
+  MODIFY_PROPS = "MODIFY_PROPS",
+  ADD_ACTION = "ADD_ACTION",
+  CHILD_OPERATIONS = "CHILD_OPERATIONS",
+}

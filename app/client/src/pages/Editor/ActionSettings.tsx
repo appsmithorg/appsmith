@@ -15,7 +15,7 @@ const FormRow = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[10] + 1}px;
 `;
 
-const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
+function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <>
       {props.actionSettingsConfig.map((section: any) =>
@@ -23,7 +23,7 @@ const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
       )}
     </>
   );
-};
+}
 
 const renderEachConfig = (section: any, formName: string): any => {
   return section.children.map((formControlOrSection: ControlProps) => {

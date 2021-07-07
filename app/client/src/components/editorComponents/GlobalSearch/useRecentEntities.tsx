@@ -10,8 +10,7 @@ const recentEntitiesSelector = (state: AppState) =>
 
 const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
-  let recentEntities = useSelector(recentEntitiesSelector);
-  recentEntities = recentEntities.slice(1);
+  const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
@@ -21,7 +20,7 @@ const useResentEntities = () => {
 
   const populatedRecentEntities = recentEntities
     .map((entity) => {
-      const { type, id, params } = entity;
+      const { id, params, type } = entity;
       if (type === "page") {
         const result = pages.find((page) => page.pageId === id);
         if (result) {

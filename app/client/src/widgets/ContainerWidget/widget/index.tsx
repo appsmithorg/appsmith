@@ -3,14 +3,19 @@ import { map, sortBy, compact } from "lodash";
 
 import ContainerComponent, { ContainerStyle } from "../component";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import {
+  GridDefaults,
+  CONTAINER_GRID_PADDING,
+  WIDGET_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
+
 import { getSnapSpaces, getWidgetDimensions } from "widgets/WidgetUtils";
 import produce from "immer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -31,9 +36,10 @@ class ContainerWidget extends BaseWidget<
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
             label: "Background Color",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -43,6 +49,7 @@ class ContainerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "shouldScrollContents",
@@ -56,9 +63,6 @@ class ContainerWidget extends BaseWidget<
     ];
   }
 
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return BASE_WIDGET_VALIDATION;
-  }
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
@@ -68,6 +72,30 @@ class ContainerWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
+  getSnapSpaces = () => {
+    const { componentWidth } = getWidgetDimensions(this.props);
+    // For all widgets inside a container, we remove both container padding as well as widget padding from component width
+    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    if (
+      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+      this.props.type === "CONTAINER_WIDGET"
+    ) {
+      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+      padding = CONTAINER_GRID_PADDING * 2;
+    }
+    if (this.props.noPad) {
+      // Widgets like ListWidget choose to have no container padding so will only have widget padding
+      padding = WIDGET_PADDING * 2;
+    }
+    let width = componentWidth;
+    width -= padding;
+    return {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace: componentWidth
+        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
+        : 0,
+    };
+  };
 
   renderChildWidget(props: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
@@ -76,7 +104,7 @@ class ContainerWidget extends BaseWidget<
     }
 
     const snapSpaces = getSnapSpaces(this.props);
-    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
+    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
 
     const childWidgetProps = produce(props, (childWidgetData) => {
       if (childWidgetData.type !== "CANVAS_WIDGET") {
@@ -112,10 +140,30 @@ class ContainerWidget extends BaseWidget<
     );
   };
 
+  /*const { componentHeight, componentWidth } = this.getComponentDimensions();
+
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
+
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+  }*/
+
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
       <ContainerComponent {...props}>
-        {this.renderChildren()}
+        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
+          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        )}
+        {/* without the wrapping div onClick events are triggered twice */}
+        <>{this.renderChildren()}</>
       </ContainerComponent>
     );
   }
@@ -134,6 +182,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   children?: T[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
+  noPad?: boolean;
 }
 
 export default ContainerWidget;

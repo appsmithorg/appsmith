@@ -9,13 +9,13 @@ import java.text.MessageFormat;
 public enum AppsmithPluginError {
 
     PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error"),
-    PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "Failed to get database structure with error: {0}",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Failed to get datasource structure"),
+    PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "{0}", AppsmithErrorAction.DEFAULT, "Failed to get datasource " +
+            "structure"),
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
             "Please increase timeout. This can be found in Settings tab of {0}.", AppsmithErrorAction.DEFAULT, "Timed" +
             " out on query execution"),
-    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "Plugin timed out when fetching structure.",
-            AppsmithErrorAction.DEFAULT, "Timed out when fetching datasource structure"),
+    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Timed out when fetching" +
+            " datasource structure"),
     PLUGIN_DATASOURCE_ARGUMENT_ERROR(500, 5004, "{0}", AppsmithErrorAction.DEFAULT, "Datasource configuration is " +
             "invalid"),
     PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT, "Query configuration is invalid"),

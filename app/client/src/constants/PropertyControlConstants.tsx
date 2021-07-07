@@ -1,4 +1,6 @@
 import { getPropertyControlTypes } from "components/propertyControls";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -42,10 +44,12 @@ export type PropertyPaneControlConfig = {
   hidden?: (props: any, propertyPath: string) => boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
+  validation?: VALIDATION_TYPES;
   useValidationMessage?: boolean;
   additionalAutoComplete?: (
     props: any,
   ) => Record<string, Record<string, unknown>>;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
 };
 
 export type PropertyPaneConfig =

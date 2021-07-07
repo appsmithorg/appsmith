@@ -71,7 +71,7 @@ export const MenuIcons: {
   ),
   DOCS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <Icon icon="help"></Icon>
+      <Icon icon="help" />
     </IconWrapper>
   ),
   WIDGETS_COLORED_ICON: (props: IconProps) => (

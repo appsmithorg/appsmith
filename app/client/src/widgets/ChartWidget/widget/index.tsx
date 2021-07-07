@@ -1,17 +1,15 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import propertyConfig from "./propertyConfig";
 import {
-  ChartData,
   ChartDataPoint,
   ChartType,
   CustomFusionChartConfig,
+  AllChartData,
 } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
@@ -24,18 +22,7 @@ const ChartComponent = lazy(() =>
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      xAxisName: VALIDATION_TYPES.TEXT,
-      yAxisName: VALIDATION_TYPES.TEXT,
-      chartName: VALIDATION_TYPES.TEXT,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-      chartData: VALIDATION_TYPES.CHART_DATA,
-      customFusionChartConfig: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
-    };
-  }
-
-  static getMetaPropertiesMap(): Record<string, undefined> {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDataPoint: undefined,
     };
@@ -58,6 +45,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       "selectedDataPoint",
       selectedDataPoint,
       {
+        triggerPropertyName: "onDataPointClick",
         dynamicString: this.props.onDataPointClick,
         event: {
           type: EventType.ON_DATA_POINT_CLICK,
@@ -70,17 +58,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
-          key={this.props.widgetId}
-          isVisible={this.props.isVisible}
+          allowHorizontalScroll={this.props.allowHorizontalScroll}
+          chartData={this.props.chartData}
+          chartName={this.props.chartName}
           chartType={this.props.chartType}
+          customFusionChartConfig={this.props.customFusionChartConfig}
+          isVisible={this.props.isVisible}
+          key={this.props.widgetId}
+          onDataPointClick={this.onDataPointClick}
+          widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
           yAxisName={this.props.yAxisName}
-          chartName={this.props.chartName}
-          chartData={this.props.chartData}
-          customFusionChartConfig={this.props.customFusionChartConfig}
-          widgetId={this.props.widgetId}
-          onDataPointClick={this.onDataPointClick}
-          allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
       </Suspense>
     );
@@ -93,8 +81,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
-  chartData: ChartData[];
-  customFusionChartConfig: { config: CustomFusionChartConfig };
+  chartData: AllChartData;
+  customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;

@@ -19,16 +19,13 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.helpers.BufferingFilter;
+import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonSyntaxException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
@@ -38,12 +35,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -52,7 +49,6 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -90,6 +86,7 @@ public class RestApiPlugin extends BasePlugin {
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
 
         private final SharedConfig sharedConfig;
+        private final DataUtils dataUtils;
 
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
@@ -97,6 +94,7 @@ public class RestApiPlugin extends BasePlugin {
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
+            this.dataUtils = DataUtils.getInstance();
             this.EXCHANGE_STRATEGIES = ExchangeStrategies
                     .builder()
                     .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
@@ -126,18 +124,21 @@ public class RestApiPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
-                /**
-                 * TODO :
-                 * In case the smart json substitution configuration is missing, default to true once smart json
-                 * substitution is no longer in beta.
-                 */
-                smartJsonSubstitution = false;
+                // In case the smart json substitution configuration is missing, default to true
+                smartJsonSubstitution = true;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
-                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = true;
+                }
             } else {
-                smartJsonSubstitution = false;
+                smartJsonSubstitution = true;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
@@ -170,12 +171,11 @@ public class RestApiPlugin extends BasePlugin {
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
-            if (actionConfiguration != null &&
-                    actionConfiguration.getPaginationType() != null &&
+            if (actionConfiguration.getPaginationType() != null &&
                     PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
                     executeActionDTO.getPaginationField() != null) {
-                datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
-                actionConfiguration = updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
             }
             // Filter out any empty headers
             if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
@@ -259,18 +259,18 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            String requestBodyAsString = "";
+            // We initialize this object to an empty string because body can never be empty
+            // Based on the content-type, this Object may be of type MultiValueMap or String
+            Object requestBodyObj = "";
 
             // Add request body only for non GET calls.
             if (!HttpMethod.GET.equals(httpMethod)) {
                 // Adding request body
-                requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
                 if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                         || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                    requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
-                            reqContentType,
-                            encodeParamsToggle);
+                    requestBodyObj = actionConfiguration.getBodyFormData();
                 }
             }
 
@@ -300,12 +300,16 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder
-                    .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .filter(logRequest()).build();
+            requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
+
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                webClientBuilder.filter(new BufferingFilter());
+            }
+
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
-            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
+            return httpCall(client, httpMethod, uri, requestBodyObj, 0, reqContentType)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
@@ -376,19 +380,11 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
-        }
-
-        private static ExchangeFilterFunction logRequest() {
-            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
-                return Mono.just(clientRequest);
-            });
         }
 
         private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -400,7 +396,7 @@ public class RestApiPlugin extends BasePlugin {
                     if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -419,34 +415,6 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        public String convertPropertyListToReqBody(List<Property> bodyFormData,
-                                                   String reqContentType,
-                                                   Boolean encodeParamsToggle) {
-            if (bodyFormData == null || bodyFormData.isEmpty()) {
-                return "";
-            }
-
-            String reqBody = bodyFormData.stream()
-                    .map(property -> {
-                        String key = property.getKey();
-                        String value = property.getValue();
-
-                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                                && encodeParamsToggle == true) {
-                            try {
-                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-                            } catch (UnsupportedEncodingException e) {
-                                throw new UnsupportedOperationException(e);
-                            }
-                        }
-
-                        return key + "=" + value;
-                    })
-                    .collect(Collectors.joining("&"));
-
-            return reqBody;
-        }
-
         /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
@@ -462,7 +430,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
-                        MediaType.valueOf(header.getValue());
+                        MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
                         return e.getMessage();
                     }
@@ -482,39 +450,13 @@ public class RestApiPlugin extends BasePlugin {
                 ));
             }
 
-            if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
-                try {
-                    if (requestBody instanceof String) {
-                        Object objectFromJson = objectFromJson((String) requestBody);
-                        if (objectFromJson != null) {
-                            requestBody = objectFromJson;
-                        }
-                    }
-                } catch (JsonSyntaxException | ParseException e) {
-                    return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            requestBody,
-                            "Malformed JSON: " + e.getMessage()
-                    ));
-                }
-            }
-
-            if (requestBody == "") {
-                // Setting the requestBody to an empty byte array here
-                // since the an empty string causes issues with a signed request.
-                // If the content of the SignableRequest is null, the query string parameters 
-                // will be encoded and used as the contentSha256 segment of the canonical request string.
-                // This causes a SignatureMatch Error for signed urls like those generated by AWS S3.
-                // More detail here - https://github.com/aws/aws-sdk-java/issues/2205
-                requestBody = new byte[0];
-            }
-
-            Object finalRequestBody = requestBody;
+            assert requestBody instanceof BodyInserter<?, ?>;
+            BodyInserter<?, ?> finalRequestBody = (BodyInserter<?, ?>) requestBody;
 
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBody))
+                    .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
@@ -538,40 +480,6 @@ public class RestApiPlugin extends BasePlugin {
                         }
                         return Mono.just(response);
                     });
-        }
-
-        /**
-         * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
-         * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
-         * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
-         * map / list.
-         *
-         * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
-         * @return An object of type `Map`, `List`, if applicable, or `null`.
-         */
-        private static Object objectFromJson(String jsonString) throws ParseException {
-            Class<?> type;
-            String trimmed = jsonString.trim();
-
-            if (trimmed.startsWith("{")) {
-                type = Map.class;
-            } else if (trimmed.startsWith("[")) {
-                type = List.class;
-            } else {
-                return null;
-            }
-
-            JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-            Object parsedJson = null;
-
-            if (type.equals(List.class)) {
-                parsedJson = (JSONArray) jsonParser.parse(jsonString);
-            } else {
-                parsedJson = (JSONObject) jsonParser.parse(jsonString);
-            }
-
-            return parsedJson;
-
         }
 
         @Override
@@ -609,7 +517,7 @@ public class RestApiPlugin extends BasePlugin {
                     if ("isSendSessionEnabled".equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if ("sessionSignatureKey".equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -647,7 +555,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 String key = header.getKey();
                 if (StringUtils.isNotEmpty(key)) {
-                    String value = header.getValue();
+                    String value = (String) header.getValue();
                     webClientBuilder.defaultHeader(key, value);
 
                     if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
@@ -678,7 +586,7 @@ public class RestApiPlugin extends BasePlugin {
                         if (encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                    URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
+                                    URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8)
                             );
                         } else {
                             uriBuilder.queryParam(
@@ -708,7 +616,7 @@ public class RestApiPlugin extends BasePlugin {
                 MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
 
                 actionConfiguration.getHeaders().stream()
-                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue())));
                 actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
             }
 

@@ -7,6 +7,7 @@ import ContainerWidget, {
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";
 import produce from "immer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class FormWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -19,9 +20,10 @@ class FormWidget extends ContainerWidget {
             label: "Background Color",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -31,6 +33,7 @@ class FormWidget extends ContainerWidget {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "shouldScrollContents",

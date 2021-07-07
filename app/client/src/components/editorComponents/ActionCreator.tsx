@@ -28,6 +28,7 @@ import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
+import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 
@@ -107,7 +108,7 @@ export const modalGetter = (value: string) => {
 };
 
 export const stringToJS = (string: string): string => {
-  const { stringSegments, jsSnippets } = getDynamicBindings(string);
+  const { jsSnippets, stringSegments } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
@@ -214,8 +215,6 @@ const enumTypeGetter = (
 
 type ActionCreatorProps = {
   value: string;
-  isValid: boolean;
-  validationMessage?: string;
   onValueChange: (newValue: string) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
@@ -262,8 +261,6 @@ type SelectorViewProps = ViewProps & {
 
 type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
-  isValid: boolean;
-  validationMessage?: string;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
@@ -271,18 +268,18 @@ const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
     return (
       <FieldWrapper>
-        <ControlWrapper key={props.label} isAction={true}>
+        <ControlWrapper isAction key={props.label}>
           {props.label && <label>{props.label}</label>}
           <TreeDropdown
-            optionTree={props.options}
-            selectedValue={props.get(props.value, false) as string}
             defaultText={props.defaultText}
+            displayValue={props.displayValue}
+            getDefaults={props.getDefaults}
             onSelect={(value, defaultValue?: string) => {
               props.set(value, defaultValue);
             }}
-            getDefaults={props.getDefaults}
+            optionTree={props.options}
             selectedLabelModifier={props.selectedLabelModifier}
-            displayValue={props.displayValue}
+            selectedValue={props.get(props.value, false) as string}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -290,10 +287,10 @@ const views = {
   },
   [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
     return (
-      <ControlWrapper key={props.label} isAction={true}>
+      <ControlWrapper isAction key={props.label}>
         <KeyValueComponent
-          pairs={props.get(props.value, false) as DropdownOption[]}
           addLabel={"Query Params"}
+          pairs={props.get(props.value, false) as DropdownOption[]}
           updatePairs={(pageParams: DropdownOption[]) => props.set(pageParams)}
         />
       </ControlWrapper>
@@ -302,11 +299,13 @@ const views = {
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
     return (
       <FieldWrapper>
-        <ControlWrapper key={props.label} isAction={true}>
+        <ControlWrapper isAction key={props.label}>
           {props.label && <label>{props.label}</label>}
           <InputText
+            additionalAutocomplete={props.additionalAutoComplete}
+            evaluatedValue={props.get(props.value, false) as string}
+            expected={"string"}
             label={props.label}
-            value={props.get(props.value, false) as string}
             onChange={(event: any) => {
               if (event.target) {
                 props.set(event.target.value);
@@ -314,11 +313,7 @@ const views = {
                 props.set(event);
               }
             }}
-            expected={"string"}
-            evaluatedValue={props.get(props.value, false) as string}
-            isValid={props.isValid}
-            errorMessage={props.validationMessage}
-            additionalAutocomplete={props.additionalAutoComplete}
+            value={props.get(props.value, false) as string}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -768,8 +763,6 @@ function renderField(props: {
   value: string;
   field: any;
   label?: string;
-  isValid: boolean;
-  validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
@@ -812,10 +805,10 @@ function renderField(props: {
             ? field.value
             : undefined;
         // eslint-disable-next-line react/display-name
-        selectedLabelModifier = (
+        selectedLabelModifier = function(
           option: TreeDropdownOption,
           displayValue?: string,
-        ) => {
+        ) {
           if (
             option.type === ActionType.api ||
             option.type === ActionType.query
@@ -943,8 +936,6 @@ function renderField(props: {
           props.onValueChange(finalValueToSet);
         },
         value: props.value,
-        isValid: props.isValid,
-        validationMessage: props.validationMessage,
         additionalAutoComplete: props.additionalAutoComplete,
       });
       break;
@@ -960,8 +951,6 @@ function Fields(props: {
   value: string;
   fields: any;
   label?: string;
-  isValid: boolean;
-  validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
@@ -975,7 +964,7 @@ function Fields(props: {
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
     const remainingFields = fields.slice(1);
     return (
-      <React.Fragment>
+      <>
         {renderField({
           field: fields[0],
           ...otherProps,
@@ -990,25 +979,23 @@ function Fields(props: {
               return (
                 <li key={index}>
                   <Fields
-                    value={selectorField.value}
+                    additionalAutoComplete={props.additionalAutoComplete}
+                    apiOptionTree={props.apiOptionTree}
+                    depth={props.depth + 1}
                     fields={field}
                     label={selectorField.label}
-                    isValid={props.isValid}
-                    validationMessage={props.validationMessage}
-                    apiOptionTree={props.apiOptionTree}
-                    widgetOptionTree={props.widgetOptionTree}
-                    queryOptionTree={props.queryOptionTree}
-                    modalDropdownList={props.modalDropdownList}
-                    pageDropdownOptions={props.pageDropdownOptions}
-                    depth={props.depth + 1}
                     maxDepth={props.maxDepth}
+                    modalDropdownList={props.modalDropdownList}
                     onValueChange={(value: any) => {
                       const parentValue = selectorField.getParentValue(
                         value.substring(2, value.length - 2),
                       );
                       props.onValueChange(parentValue);
                     }}
-                    additionalAutoComplete={props.additionalAutoComplete}
+                    pageDropdownOptions={props.pageDropdownOptions}
+                    queryOptionTree={props.queryOptionTree}
+                    value={selectorField.value}
+                    widgetOptionTree={props.widgetOptionTree}
                   />
                 </li>
               );
@@ -1024,7 +1011,7 @@ function Fields(props: {
             }
           })}
         </ul>
-      </React.Fragment>
+      </>
     );
   } else {
     const ui = fields.map((field: any, index: number) => {
@@ -1035,25 +1022,23 @@ function Fields(props: {
         const selectorField = field[0];
         return (
           <Fields
-            key={index}
-            value={selectorField.value}
-            fields={field}
-            label={selectorField.label}
-            isValid={props.isValid}
-            validationMessage={props.validationMessage}
             apiOptionTree={props.apiOptionTree}
-            widgetOptionTree={props.widgetOptionTree}
-            queryOptionTree={props.queryOptionTree}
-            modalDropdownList={props.modalDropdownList}
-            pageDropdownOptions={props.pageDropdownOptions}
             depth={props.depth + 1}
+            fields={field}
+            key={index}
+            label={selectorField.label}
             maxDepth={props.maxDepth}
+            modalDropdownList={props.modalDropdownList}
             onValueChange={(value: any) => {
               const parentValue = selectorField.getParentValue(
                 value.substring(2, value.length - 2),
               );
               props.onValueChange(parentValue);
             }}
+            pageDropdownOptions={props.pageDropdownOptions}
+            queryOptionTree={props.queryOptionTree}
+            value={selectorField.value}
+            widgetOptionTree={props.widgetOptionTree}
           />
         );
       } else {
@@ -1063,7 +1048,7 @@ function Fields(props: {
         });
       }
     });
-    return <>{ui}</>;
+    return ui;
   }
 }
 
@@ -1102,7 +1087,9 @@ function useApiOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const actions = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "API",
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
   );
   let filteredBaseOptions = baseOptions;
 
@@ -1173,7 +1160,7 @@ function useQueryOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "DB",
+    (action) => action.config.pluginType === PluginType.DB,
   );
   const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",
@@ -1205,19 +1192,17 @@ export function ActionCreator(props: ActionCreatorProps) {
   return (
     <TreeStructure>
       <Fields
-        value={props.value}
-        fields={fields}
-        isValid={props.isValid}
-        validationMessage={props.validationMessage}
-        apiOptionTree={apiOptionTree}
-        widgetOptionTree={widgetOptionTree}
-        queryOptionTree={queryOptionTree}
-        modalDropdownList={modalDropdownList}
-        pageDropdownOptions={pageDropdownOptions}
-        onValueChange={props.onValueChange}
-        depth={1}
-        maxDepth={1}
         additionalAutoComplete={props.additionalAutoComplete}
+        apiOptionTree={apiOptionTree}
+        depth={1}
+        fields={fields}
+        maxDepth={1}
+        modalDropdownList={modalDropdownList}
+        onValueChange={props.onValueChange}
+        pageDropdownOptions={pageDropdownOptions}
+        queryOptionTree={queryOptionTree}
+        value={props.value}
+        widgetOptionTree={widgetOptionTree}
       />
     </TreeStructure>
   );

@@ -21,8 +21,8 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -59,9 +59,9 @@ public class ExamplesOrganizationCloner {
     private final UserService userService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
-    private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -78,8 +78,9 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     private Mono<Organization> cloneExamplesOrganization(User user) {
-        if (user.getExamplesOrganizationId() != null) {
-            // This user already has an examples organization, don't have to do anything.
+        if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
+            // Don't create an examples organization if the user already has some organizations, perhaps because they
+            // were invited to some.
             return Mono.empty();
         }
 
@@ -258,7 +259,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(newActionService::createAction)
+                            .flatMap(layoutActionService::createAction)
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })
@@ -369,7 +370,7 @@ public class ExamplesOrganizationCloner {
                 );
     }
 
-    private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
         final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toOrganizationId)
                 .collectList();
 
@@ -400,12 +401,7 @@ public class ExamplesOrganizationCloner {
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
-
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (authentication != null) {
-                                    datasourceContextService.decryptSensitiveFields(authentication);
-                                }
-
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
@@ -458,8 +454,8 @@ public class ExamplesOrganizationCloner {
                     throw error;
                 });
     }
-
-    private void makePristine(BaseDomain domain) {
+    
+    public void makePristine(BaseDomain domain) {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         domain.setId(null);

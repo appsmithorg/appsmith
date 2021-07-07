@@ -3,7 +3,11 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import { QueryEditorRouteParams } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_URL,
+  QueryEditorRouteParams,
+} from "constants/routes";
+import history from "utils/history";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
@@ -80,7 +84,7 @@ class QueryEditor extends React.Component<Props> {
   };
 
   handleRunClick = () => {
-    const { match, dataSources } = this.props;
+    const { dataSources, match } = this.props;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { queryId: this.props.match.params.queryId },
@@ -106,19 +110,19 @@ class QueryEditor extends React.Component<Props> {
   render() {
     const {
       dataSources,
-      isRunning,
+      editorConfig,
+      isCreating,
       isDeleting,
+      isEditorInitialized,
+      isRunning,
       match: {
         params: { queryId },
       },
-      pluginImages,
       pluginIds,
+      pluginImages,
       responses,
-      isCreating,
       runErrorMessage,
-      editorConfig,
       settingConfig,
-      isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -141,35 +145,34 @@ class QueryEditor extends React.Component<Props> {
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
     }));
-    return (
-      <React.Fragment>
-        {queryId ? (
-          <QueryEditorForm
-            location={this.props.location}
-            applicationId={applicationId}
-            pageId={pageId}
-            isRunning={isRunning}
-            isDeleting={isDeleting}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            dataSources={dataSources}
-            editorConfig={editorConfig}
-            settingConfig={settingConfig}
-            DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            executedQueryData={responses[queryId]}
-            runErrorMessage={runErrorMessage[queryId]}
-          />
-        ) : (
-          <QueryHomeScreen
-            dataSources={dataSources}
-            applicationId={applicationId}
-            pageId={pageId}
-            history={this.props.history}
-            location={this.props.location}
-            isCreating={isCreating}
-          />
-        )}
-      </React.Fragment>
+
+    const onCreateDatasourceClick = () => {
+      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    };
+    return queryId ? (
+      <QueryEditorForm
+        DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
+        dataSources={dataSources}
+        editorConfig={editorConfig}
+        executedQueryData={responses[queryId]}
+        isDeleting={isDeleting}
+        isRunning={isRunning}
+        location={this.props.location}
+        onCreateDatasourceClick={onCreateDatasourceClick}
+        onDeleteClick={this.handleDeleteClick}
+        onRunClick={this.handleRunClick}
+        runErrorMessage={runErrorMessage[queryId]}
+        settingConfig={settingConfig}
+      />
+    ) : (
+      <QueryHomeScreen
+        applicationId={applicationId}
+        dataSources={dataSources}
+        history={this.props.history}
+        isCreating={isCreating}
+        location={this.props.location}
+        pageId={pageId}
+      />
     );
   }
 }

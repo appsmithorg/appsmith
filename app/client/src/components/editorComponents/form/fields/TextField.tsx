@@ -15,11 +15,11 @@ class TextField extends React.Component<
   render() {
     return (
       <Field
-        type={this.props.type || "text"}
         component={BaseTextInput}
+        type={this.props.type || "text"}
         {...this.props}
-        noValidate
         disabled={this.props.disabled}
+        noValidate
       />
     );
   }

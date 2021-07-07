@@ -6,7 +6,6 @@ import store from "store";
 import BaseWidget, { WidgetProps, withWidgetAPI } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { WidgetPropertyValidationType } from "./WidgetValidation";
 import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -20,7 +19,6 @@ export interface WidgetConfiguration {
   hideCard?: boolean;
   properties: {
     config: PropertyPaneConfig[];
-    validations: WidgetPropertyValidationType;
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
@@ -43,7 +41,6 @@ export const registerWidget = (
         return <ProfiledWidget {...widgetData} />;
       },
     },
-    config.properties.validations,
     config.properties.derived,
     config.properties.default,
     config.properties.meta,

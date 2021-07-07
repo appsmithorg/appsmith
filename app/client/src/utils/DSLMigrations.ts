@@ -21,7 +21,6 @@ import {
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-
 const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
   if (
     dsl.type === WidgetTypes.CONTAINER_WIDGET ||
@@ -307,6 +306,111 @@ const rteDefaultValueMigration = (
   return currentDSL;
 };
 
+function migrateTabsDataUsingMigrator(
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) {
+  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 1) {
+    try {
+      currentDSL.type = WidgetTypes.TABS_MIGRATOR_WIDGET;
+      currentDSL.version = 1;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration Failed",
+        oldData: currentDSL.tabs,
+      });
+      currentDSL.tabsObj = {};
+      delete currentDSL.tabs;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
+  }
+  return currentDSL;
+}
+
+export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+  if (
+    [WidgetTypes.TABS_WIDGET, WidgetTypes.TABS_MIGRATOR_WIDGET].includes(
+      currentDSL.type as any,
+    ) &&
+    currentDSL.version === 1
+  ) {
+    try {
+      currentDSL.type = WidgetTypes.TABS_WIDGET;
+      const isTabsDataBinded = isString(currentDSL.tabs);
+      currentDSL.dynamicPropertyPathList =
+        currentDSL.dynamicPropertyPathList || [];
+      currentDSL.dynamicBindingPathList =
+        currentDSL.dynamicBindingPathList || [];
+
+      if (isTabsDataBinded) {
+        const tabsString = currentDSL.tabs.replace(
+          DATA_BIND_REGEX_GLOBAL,
+          (word: any) => `"${word}"`,
+        );
+        try {
+          currentDSL.tabs = JSON.parse(tabsString);
+        } catch (error) {
+          return migrateTabsDataUsingMigrator(currentDSL);
+        }
+        const dynamicPropsList = currentDSL.tabs
+          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
+          .map((each: any) => {
+            return { key: `tabsObj.${each.id}.isVisible` };
+          });
+        const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
+          return { key: `tabsObj.${each.id}.isVisible` };
+        });
+        currentDSL.dynamicPropertyPathList = [
+          ...currentDSL.dynamicPropertyPathList,
+          ...dynamicPropsList,
+        ];
+        currentDSL.dynamicBindingPathList = [
+          ...currentDSL.dynamicBindingPathList,
+          ...dynamicBindablePropsList,
+        ];
+      }
+      currentDSL.dynamicPropertyPathList = currentDSL.dynamicPropertyPathList.filter(
+        (each) => {
+          return each.key !== "tabs";
+        },
+      );
+      currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList.filter(
+        (each) => {
+          return each.key !== "tabs";
+        },
+      );
+      currentDSL.tabsObj = currentDSL.tabs.reduce(
+        (obj: any, tab: any, index: number) => {
+          obj = {
+            ...obj,
+            [tab.id]: {
+              ...tab,
+              isVisible: tab.isVisible === undefined ? true : tab.isVisible,
+              index,
+            },
+          };
+          return obj;
+        },
+        {},
+      );
+      currentDSL.version = 2;
+      delete currentDSL.tabs;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration Failed",
+        oldData: currentDSL.tabs,
+      });
+      currentDSL.tabsObj = {};
+      delete currentDSL.tabs;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateTabsData);
+  }
+  return currentDSL;
+}
+
 // A rudimentary transform function which updates the DSL based on its version.
 function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
@@ -328,13 +432,76 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   return currentDSL;
 }
 
+/**
+ * changes chartData which we were using as array. now it will be a object
+ *
+ *
+ * @param currentDSL
+ * @returns
+ */
+export function migrateChartDataFromArrayToObject(
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.CHART_WIDGET) {
+      if (Array.isArray(children.chartData)) {
+        const newChartData = {};
+        const dynamicBindingPathList = children?.dynamicBindingPathList
+          ? children?.dynamicBindingPathList.slice()
+          : [];
+
+        children.chartData.map((datum: any, index: number) => {
+          const generatedKey = generateReactKey();
+          set(newChartData, `${generatedKey}`, datum);
+
+          if (
+            Array.isArray(children.dynamicBindingPathList) &&
+            children.dynamicBindingPathList?.findIndex(
+              (path) => (path.key = `chartData[${index}].data`),
+            ) > -1
+          ) {
+            const foundIndex = children.dynamicBindingPathList.findIndex(
+              (path) => (path.key = `chartData[${index}].data`),
+            );
+
+            dynamicBindingPathList[foundIndex] = {
+              key: `chartData.${generatedKey}.data`,
+            };
+          }
+        });
+
+        children.dynamicBindingPathList = dynamicBindingPathList;
+        children.chartData = newChartData;
+      }
+    } else if (
+      children.type === WidgetTypes.CONTAINER_WIDGET ||
+      children.type === WidgetTypes.FORM_WIDGET ||
+      children.type === WidgetTypes.CANVAS_WIDGET ||
+      children.type === WidgetTypes.TABS_WIDGET
+    ) {
+      children = migrateChartDataFromArrayToObject(children);
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+}
+
+const pixelToNumber = (pixel: string) => {
+  if (pixel.includes("px")) {
+    return parseInt(pixel.split("px").join(""));
+  }
+  return 0;
+};
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = {},
   presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
 ) => {
-  let minmumHeight = presentMinimumHeight;
+  let minimumHeight = presentMinimumHeight;
   const nextAvailableRow = nextAvailableRowInContainer(
     MAIN_CONTAINER_WIDGET_ID,
     canvasWidgets,
@@ -343,19 +510,86 @@ export const calculateDynamicHeight = (
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 2 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 2 * DGRH (approx)
-  // buffer = DGRH, it's not 2 * DGRH coz we already add a buffer on the canvas which is also equal to DGRH.
-  const buffer = gridRowHeight;
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
   if (
     calculatedCanvasHeight < screenHeight &&
     calculatedMinHeight !== presentMinimumHeight
   ) {
-    minmumHeight = calculatedMinHeight;
+    minimumHeight = calculatedMinHeight;
   }
-  return minmumHeight;
+  return minimumHeight;
+};
+
+export const migrateInitialValues = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.INPUT_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        resetOnSubmit: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.DROP_DOWN_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.DATE_PICKER_WIDGET2) {
+      child = {
+        minDate: "2001-01-01 00:00",
+        maxDate: "2041-12-31 23:59",
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.SWITCH_WIDGET) {
+      child = {
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.ICON_WIDGET) {
+      child = {
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.VIDEO_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.CHECKBOX_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.RADIO_GROUP_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.FILE_PICKER_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        allowedFileTypes: [],
+        ...child,
+      };
+    } else if (child.children && child.children.length > 0) {
+      child = migrateInitialValues(child);
+    }
+    return child;
+  });
+  return currentDSL;
 };
 
 // A rudimentary transform function which updates the DSL based on its version.
@@ -370,8 +604,7 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
     currentDSL.snapRows =
-      Math.floor(currentDSL.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) -
-      1;
+      Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
 
     // Force the width of the canvas to 1224 px
     currentDSL.rightColumn = 1224;
@@ -457,5 +690,224 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 16;
   }
 
+  if (currentDSL.version === 16) {
+    currentDSL = migrateChartDataFromArrayToObject(currentDSL);
+    currentDSL.version = 17;
+  }
+
+  if (currentDSL.version === 17) {
+    currentDSL = migrateTabsData(currentDSL);
+    currentDSL.version = 18;
+  }
+
+  if (currentDSL.version === 18) {
+    currentDSL = migrateInitialValues(currentDSL);
+    currentDSL.version = 19;
+  }
+
+  if (currentDSL.version === 19) {
+    currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
+    currentDSL.snapRows = getCanvasSnapRows(
+      currentDSL.bottomRow,
+      currentDSL.detachFromLayout || false,
+    );
+    currentDSL = migrateToNewLayout(currentDSL);
+    currentDSL.version = 20;
+  }
+
+  if (currentDSL.version === 20) {
+    currentDSL = migrateNewlyAddedTabsWidgetsMissingData(currentDSL);
+    currentDSL.version = 21;
+  }
+
+  if (currentDSL.version === 21) {
+    const {
+      entities: { canvasWidgets },
+    } = CanvasWidgetsNormalizer.normalize(currentDSL);
+    currentDSL = migrateWidgetsWithoutLeftRightColumns(
+      currentDSL,
+      canvasWidgets,
+    );
+    currentDSL = migrateOverFlowingTabsWidgets(currentDSL, canvasWidgets);
+    currentDSL.version = 22;
+  }
+
+  if (currentDSL.version === 22) {
+    currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
+    currentDSL.version = 23;
+  }
+
+  if (currentDSL.version === 23) {
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
+  }
+
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = 25;
+  }
+
+  if (currentDSL.version === 25) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
+};
+
+export const migrateObjectFitToImageWidget = (
+  dsl: ContainerWidgetProps<WidgetProps>,
+) => {
+  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+    widgetProps.objectFit = "cover";
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        if (widgetProps.type === "IMAGE_WIDGET") {
+          addObjectFitProperty(eachWidgetProp);
+        }
+      });
+    }
+  };
+  addObjectFitProperty(dsl);
+  return dsl;
+};
+
+const migrateOverFlowingTabsWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  canvasWidgets: any,
+) => {
+  if (
+    currentDSL.type === "TABS_WIDGET" &&
+    currentDSL.version === 3 &&
+    currentDSL.children &&
+    currentDSL.children.length
+  ) {
+    const tabsWidgetHeight =
+      (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
+    const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
+      if (eachTab.children && eachTab.children.length) {
+        return eachTab.children.some((child: WidgetProps) => {
+          if (canvasWidgets[child.widgetId].repositioned) {
+            const tabHeight = child.bottomRow * child.parentRowSpace;
+            return tabsWidgetHeight < tabHeight;
+          }
+          return false;
+        });
+      }
+      return false;
+    });
+    if (widgetHasOverflowingChildren) {
+      currentDSL.shouldScrollContents = true;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((eachChild) =>
+      migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateWidgetsWithoutLeftRightColumns = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  canvasWidgets: any,
+) => {
+  if (
+    currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+    !(
+      currentDSL.hasOwnProperty("leftColumn") &&
+      currentDSL.hasOwnProperty("rightColumn")
+    )
+  ) {
+    try {
+      const nextRow = nextAvailableRowInContainer(
+        currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
+        omit(canvasWidgets, [currentDSL.widgetId]),
+      );
+      canvasWidgets[currentDSL.widgetId].repositioned = true;
+      const leftColumn = 0;
+      const rightColumn = WidgetConfigResponse.config[currentDSL.type].rows;
+      const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
+      const topRow = nextRow;
+      currentDSL = {
+        ...currentDSL,
+        topRow,
+        bottomRow,
+        rightColumn,
+        leftColumn,
+      };
+    } catch (error) {
+      Sentry.captureException({
+        message: "Migrating position of widget on data loss failed",
+        oldData: currentDSL,
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((dsl) =>
+      migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateNewlyAddedTabsWidgetsMissingData = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 2) {
+    try {
+      if (currentDSL.children && currentDSL.children.length) {
+        currentDSL.children = currentDSL.children.map((each) => {
+          if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
+            return each;
+          }
+          return {
+            ...each,
+            leftColumn: 0,
+            rightColumn:
+              (currentDSL.rightColumn - currentDSL.leftColumn) *
+              currentDSL.parentColumnSpace,
+            bottomRow:
+              (currentDSL.bottomRow - currentDSL.topRow) *
+              currentDSL.parentRowSpace,
+          };
+        });
+      }
+      currentDSL.version = 3;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration to add missing fields Failed",
+        oldData: currentDSL.children,
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(
+      migrateNewlyAddedTabsWidgetsMissingData,
+    );
+  }
+  return currentDSL;
+};
+
+export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
+  const scaleWidget = (widgetProps: WidgetProps) => {
+    widgetProps.bottomRow *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        scaleWidget(eachWidgetProp);
+      });
+    }
+  };
+  scaleWidget(dsl);
+  return dsl;
+};
+
+export const checkIfMigrationIsNeeded = (
+  fetchPageResponse?: FetchPageResponse,
+) => {
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
+  return currentDSL.version !== LATEST_PAGE_VERSION;
 };

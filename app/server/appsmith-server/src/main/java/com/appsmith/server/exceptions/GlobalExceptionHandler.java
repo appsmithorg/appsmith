@@ -2,6 +2,7 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.BaseException;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import io.sentry.Sentry;
@@ -32,9 +33,6 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public GlobalExceptionHandler() {
-    }
-
     private void doLog(Throwable error) {
         log.error("", error);
 
@@ -51,6 +49,7 @@ public class GlobalExceptionHandler {
                      * */
                     scope.setExtra("Stack Trace", stringStackTrace);
                     scope.setLevel(SentryLevel.ERROR);
+                    scope.setTag("source", "appsmith-internal-server");
                 }
         );
 

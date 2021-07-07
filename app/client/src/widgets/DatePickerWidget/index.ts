@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import moment from "moment";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,16 +11,15 @@ export const CONFIG = {
   defaults: {
     isDisabled: false,
     datePickerType: "DATE_PICKER",
-    rows: 1,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
     label: "",
-    dateFormat: "DD/MM/YYYY HH:mm",
-    columns: 5,
+    dateFormat: "YYYY-MM-DD HH:mm",
+    columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "DatePicker",
-    defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+    defaultDate: moment().format("YYYY-MM-DD HH:mm"),
     version: 1,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

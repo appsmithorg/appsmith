@@ -3,25 +3,16 @@ import InputTextControl, { InputText } from "./InputTextControl";
 
 class CustomFusionChartControl extends InputTextControl {
   render() {
-    const expected = "{\n  type: string,\n  dataSource: Object\n}";
-    const {
-      propertyValue,
-      isValid,
-      label,
-      placeholderText,
-      dataTreePath,
-      validationMessage,
-    } = this.props;
+    const expected = '{\n  "type": string,\n  "dataSource": Object\n}';
+    const { dataTreePath, label, placeholderText, propertyValue } = this.props;
     return (
       <InputText
-        label={label}
-        value={propertyValue}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        errorMessage={validationMessage}
-        expected={expected}
-        placeholder={placeholderText}
         dataTreePath={dataTreePath}
+        expected={expected}
+        label={label}
+        onChange={this.onTextChange}
+        placeholder={placeholderText}
+        value={propertyValue}
       />
     );
   }

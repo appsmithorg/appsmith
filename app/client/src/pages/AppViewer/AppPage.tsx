@@ -21,7 +21,7 @@ type AppPageProps = {
   width: number;
 };
 
-export const AppPage = (props: AppPageProps) => {
+export function AppPage(props: AppPageProps) {
   useDynamicAppLayout();
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
@@ -36,6 +36,6 @@ export const AppPage = (props: AppPageProps) => {
       {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
     </PageView>
   );
-};
+}
 
 export default AppPage;

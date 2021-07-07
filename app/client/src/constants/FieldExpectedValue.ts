@@ -13,6 +13,7 @@ const FIELD_VALUES: Record<
   CANVAS_WIDGET: {},
   ICON_WIDGET: {},
   SKELETON_WIDGET: {},
+  TABS_MIGRATOR_WIDGET: {},
   CONTAINER_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",
@@ -61,8 +62,6 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs:
-      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },
@@ -136,7 +135,6 @@ const FIELD_VALUES: Record<
     allowedFileTypes: "Array<string>",
     isRequired: "boolean",
     isVisible: "boolean",
-    uploadedFileUrls: "string",
     // onFilesSelected: "Function Call",
   },
   CHECKBOX_WIDGET: {
@@ -165,6 +163,27 @@ const FIELD_VALUES: Record<
     textStyle: "HEADING | LABEL | BODY",
     shouldScroll: "boolean",
     isVisible: "boolean",
+  },
+  LIST_WIDGET: {
+    listData: "Array<Object>",
+    isVisible: "boolean",
+    gridGap: "number",
+  },
+  RATE_WIDGET: {
+    maxCount: "number",
+    defaultRate: "number",
+    activeColor: "string",
+    inactiveColor: "string",
+    size: "RATE_SMALL | RATE_MEDIUM | RATE_LARGE",
+    tooltips: "Array<string>",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+  },
+  IFRAME_WIDGET: {
+    source: "string",
+    title: "string",
+    borderOpacity: "number",
+    borderWidth: "number",
   },
 };
 

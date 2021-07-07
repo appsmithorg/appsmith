@@ -1,6 +1,10 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSizes,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import { getAllTableColumnKeys } from "widgets/TableWidget/component/TableHelpers";
 import {
   ColumnProperties,
@@ -11,7 +15,9 @@ import {
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -205,6 +211,42 @@ export const migrateTablePrimaryColumnsBindings = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTablePrimaryColumnsBindings(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetParentRowSpaceProperty = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (child.parentRowSpace === 40) {
+        child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetParentRowSpaceProperty(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetHeaderVisibilityProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!("isVisibleSearch" in child)) {
+        child.isVisibleSearch = true;
+        child.isVisibleFilters = true;
+        child.isVisibleDownload = true;
+        child.isVisibleCompactMode = true;
+        child.isVisiblePagination = true;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetHeaderVisibilityProperties(child);
     }
     return child;
   });

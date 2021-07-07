@@ -10,6 +10,7 @@ import {
 import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
 import { AppState } from "reducers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type Props = {
   theme: Theme;
@@ -28,14 +29,17 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const openHelpModal = useCallback(() => {
     dispatch(setGlobalSearchQuery(displayName));
     dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "PROPERTY_PANE_HELP_BUTTON",
+    });
   }, [selectedWidgetType]);
 
   return (
     <Icon
-      onClick={openHelpModal}
       color={theme.colors.paneSectionLabel}
       icon="help"
       iconSize={16}
+      onClick={openHelpModal}
     />
   );
 });

@@ -11,12 +11,14 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-export const CustomCheckbox = () => (
-  <StoryWrapper>
-    <Checkbox
-      label={text("label", "Checked")}
-      disabled={boolean("disabled", false)}
-      onCheckChange={action("check-change")}
-    />
-  </StoryWrapper>
-);
+export function CustomCheckbox() {
+  return (
+    <StoryWrapper>
+      <Checkbox
+        disabled={boolean("disabled", false)}
+        label={text("label", "Checked")}
+        onCheckChange={action("check-change")}
+      />
+    </StoryWrapper>
+  );
+}

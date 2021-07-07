@@ -4,10 +4,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/SwitchWidget/constants";
 
@@ -25,6 +21,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "alignWidget",
@@ -53,6 +50,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isRequired",
@@ -62,6 +60,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isVisible",
@@ -71,6 +70,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -80,6 +80,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -99,19 +100,10 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
-      // onCheckChange: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       isChecked: "defaultCheckedState",
-      alignWidget: "LEFT",
     };
   }
 
@@ -131,21 +123,22 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   render() {
     return (
       <CheckboxComponent
-        isRequired={this.props.isRequired}
-        isChecked={!!this.props.isChecked}
         alignWidget={this.props.alignWidget}
-        label={this.props.label}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
+        isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
-        onCheckChange={this.onCheckChange}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
+        key={this.props.widgetId}
+        label={this.props.label}
+        onCheckChange={this.onCheckChange}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onCheckChange = (isChecked: boolean) => {
     this.props.updateWidgetMetaProperty("isChecked", isChecked, {
+      triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECK_CHANGE,

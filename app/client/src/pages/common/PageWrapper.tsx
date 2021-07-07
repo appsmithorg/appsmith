@@ -45,7 +45,7 @@ type PageWrapperProps = {
   displayName?: string;
 };
 
-export const PageWrapper = (props: PageWrapperProps) => {
+export function PageWrapper(props: PageWrapperProps) {
   return (
     <Wrapper>
       <Helmet>
@@ -56,6 +56,6 @@ export const PageWrapper = (props: PageWrapperProps) => {
       <PageBody>{props.children}</PageBody>
     </Wrapper>
   );
-};
+}
 
 export default PageWrapper;

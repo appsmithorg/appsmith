@@ -68,7 +68,10 @@ export const CurrentPageEntityProperties = memo(
       case ENTITY_TYPE.WIDGET:
         const type: Exclude<
           Partial<WidgetType>,
-          "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET"
+          | "CANVAS_WIDGET"
+          | "ICON_WIDGET"
+          | "SKELETON_WIDGET"
+          | "TABS_MIGRATOR_WIDGET"
         > = entity.type;
         config = entityDefinitions[type];
         if (!config) {

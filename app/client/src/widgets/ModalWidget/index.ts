@@ -1,14 +1,18 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { WidgetProps } from "widgets/BaseWidget";
+import {
+  BlueprintOperationTypes,
+  GRID_DENSITY_MIGRATION_V1,
+} from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Modal",
   iconSVG: IconSVG,
   defaults: {
-    rows: 6,
-    columns: 6,
+    rows: 6 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     size: "MODAL_SMALL",
     canEscapeKeyClose: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -36,8 +40,11 @@ export const CONFIG = {
               view: [
                 {
                   type: "ICON_WIDGET",
-                  position: { left: 14, top: 0 },
-                  size: { rows: 1, cols: 2 },
+                  position: { left: 14 * GRID_DENSITY_MIGRATION_V1, top: 1 },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     iconName: "cross",
                     iconSize: 24,
@@ -47,18 +54,27 @@ export const CONFIG = {
                 },
                 {
                   type: "TEXT_WIDGET",
-                  position: { left: 0, top: 0 },
-                  size: { rows: 1, cols: 10 },
+                  position: { left: 1, top: 1 },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 10 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     text: "Modal Title",
-                    textStyle: "HEADING",
+                    fontSize: "HEADING1",
                     version: 1,
                   },
                 },
                 {
                   type: "BUTTON_WIDGET",
-                  position: { left: 9, top: 4 },
-                  size: { rows: 1, cols: 3 },
+                  position: {
+                    left: 9 * GRID_DENSITY_MIGRATION_V1,
+                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                  },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     text: "Cancel",
                     buttonStyle: "SECONDARY_BUTTON",
@@ -67,8 +83,14 @@ export const CONFIG = {
                 },
                 {
                   type: "BUTTON_WIDGET",
-                  position: { left: 12, top: 4 },
-                  size: { rows: 1, cols: 4 },
+                  position: {
+                    left: 12 * GRID_DENSITY_MIGRATION_V1,
+                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                  },
+                  size: {
+                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                  },
                   props: {
                     text: "Confirm",
                     buttonStyle: "PRIMARY_BUTTON",
@@ -78,9 +100,10 @@ export const CONFIG = {
               ],
               operations: [
                 {
-                  type: "MODIFY_PROPS",
+                  type: BlueprintOperationTypes.MODIFY_PROPS,
                   fn: (
                     widget: WidgetProps & { children?: WidgetProps[] },
+                    widgets: { [widgetId: string]: FlattenedWidgetProps },
                     parent?: WidgetProps & { children?: WidgetProps[] },
                   ) => {
                     const iconChild =
@@ -108,7 +131,6 @@ export const CONFIG = {
     },
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

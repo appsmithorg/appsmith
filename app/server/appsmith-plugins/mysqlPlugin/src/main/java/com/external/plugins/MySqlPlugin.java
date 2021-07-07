@@ -15,8 +15,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -57,8 +58,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -159,16 +164,19 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                 // In case the prepared statement configuration is missing, default to true
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = true;
+                }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
@@ -219,6 +227,10 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -228,7 +240,8 @@ public class MySqlPlugin extends BasePlugin {
                                     preparedStatement,
                                     mustacheValuesInOrder,
                                     executeActionDTO,
-                                    requestData);
+                                    requestData,
+                                    psParams);
                         }
                         return Flux.error(new StaleConnectionException());
                     });
@@ -291,6 +304,7 @@ public class MySqlPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -304,7 +318,8 @@ public class MySqlPlugin extends BasePlugin {
                                                                  Boolean preparedStatement,
                                                                  List<String> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
-                                                                 Map<String, Object> requestData) {
+                                                                 Map<String, Object> requestData,
+                                                                 Map psParams) {
 
             Statement connectionStatement = connection.createStatement(query);
             if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
@@ -313,9 +328,7 @@ public class MySqlPlugin extends BasePlugin {
 
             System.out.println("Query : " + query);
 
-            List<Param> params = executeActionDTO.getParams();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
-
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
@@ -323,6 +336,13 @@ public class MySqlPlugin extends BasePlugin {
                         parameters);
 
                 requestData.put("ps-parameters", parameters);
+
+                IntStream.range(0, parameters.size())
+                        .forEachOrdered(i ->
+                                psParams.put(
+                                        getPSParamLabel(i+1),
+                                        new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
+
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
             }
@@ -622,6 +642,7 @@ public class MySqlPlugin extends BasePlugin {
             if (!tablesByName.containsKey(tableName)) {
                 tablesByName.put(tableName, new DatasourceStructure.Table(
                         DatasourceStructure.TableType.TABLE,
+                        null,
                         tableName,
                         new ArrayList<>(),
                         new ArrayList<>(),
@@ -737,15 +758,15 @@ public class MySqlPlugin extends BasePlugin {
 
                 final String tableName = table.getName();
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", null),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
 

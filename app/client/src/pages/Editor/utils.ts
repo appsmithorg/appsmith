@@ -69,7 +69,7 @@ export const draggableElement = (
   };
 
   const calculateNewPosition = () => {
-    const { height, width, top, left } = element.getBoundingClientRect();
+    const { height, left, top, width } = element.getBoundingClientRect();
     const isElementOpen = height && width;
     const {
       left: calculatedLeft,

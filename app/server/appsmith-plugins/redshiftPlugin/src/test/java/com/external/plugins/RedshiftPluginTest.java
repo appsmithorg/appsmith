@@ -1,15 +1,15 @@
 package com.external.plugins;
 
-import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -230,7 +231,7 @@ public class RedshiftPluginTest {
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
         when(mockResultSetMetaData.getColumnCount()).thenReturn(0).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
-        "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
+                "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "username", "password", "email",
                 "spouse_dob", "dob", "time1", "time_tz", "created_on", "created_on_tz");
 
@@ -273,6 +274,15 @@ public class RedshiftPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -405,16 +415,16 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" " +
-                                            "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);"),
+                                            "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
                                             "    \"id\" = 1\n" +
                                             "    \"title\" = ''\n" +
                                             "    \"user_id\" = 1\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             possessionsTable.getTemplates().toArray()
                     );
@@ -441,15 +451,15 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\")\n" +
-                                            "  VALUES ('', '');"),
+                                            "  VALUES ('', '');", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
                                             "    \"username\" = ''\n" +
                                             "    \"password\" = ''\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             usersTable.getTemplates().toArray()
                     );

@@ -11,6 +11,7 @@ public interface Url {
     String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
     String SETTING_URL = BASE_URL + VERSION + "/settings";
     String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
+    String SAAS_URL = BASE_URL + VERSION + "/saas";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
     String USER_URL = BASE_URL + VERSION + "/users";
     String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
@@ -27,4 +28,6 @@ public interface Url {
     String API_TEMPLATE_URL = BASE_URL + VERSION + "/templates";
     String MARKETPLACE_ITEM_URL = BASE_URL + VERSION + "/items";
     String ASSET_URL = BASE_URL + VERSION + "/assets";
+    String COMMENT_URL = BASE_URL + VERSION + "/comments";
+    String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
 }

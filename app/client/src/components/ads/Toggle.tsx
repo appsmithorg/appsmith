@@ -126,21 +126,21 @@ export default function Toggle(props: ToggleProps) {
 
   return (
     <StyledToggle
-      data-cy={props.cypressSelector}
-      isLoading={props.isLoading}
-      disabled={props.disabled}
-      value={value}
       className={props.className}
+      data-cy={props.cypressSelector}
+      disabled={props.disabled}
+      isLoading={props.isLoading}
+      value={value}
     >
       <input
-        type="checkbox"
         checked={value}
         disabled={props.disabled || props.isLoading}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
+        type="checkbox"
       />
-      <span className="slider"></span>
+      <span className="slider" />
       {props.isLoading ? (
         <div className="toggle-spinner">
           <Spinner />

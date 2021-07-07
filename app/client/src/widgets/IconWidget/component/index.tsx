@@ -8,15 +8,15 @@ class IconComponent extends React.Component<IconComponentProps> {
   render() {
     return (
       <Icon
-        style={{
-          cursor:
-            this.props.onClick && !this.props.disabled ? "pointer" : "auto",
-        }}
+        color={this.props.color}
         icon={this.props.iconName as IconName}
         iconSize={this.props.iconSize}
         intent={this.props.intent}
         onClick={this.props.disabled ? noop : this.props.onClick}
-        color={this.props.color}
+        style={{
+          cursor:
+            this.props.onClick && !this.props.disabled ? "pointer" : "auto",
+        }}
       />
     );
   }

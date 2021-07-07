@@ -40,7 +40,7 @@ export const renderDatasourceSection = (
           return renderDatasourceSection(section, datasource);
         } else {
           try {
-            const { label, configProperty, controlType } = section;
+            const { configProperty, controlType, label } = section;
             const reactKey = datasource.id + "_" + label;
             let value = get(datasource, configProperty);
 

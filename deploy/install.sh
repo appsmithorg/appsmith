@@ -29,7 +29,7 @@ check_ports_occupied() {
     if [[ -n $port_check_output ]]; then
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -60,20 +60,22 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
+
     elif [[ $package_manager == zypper ]]; then
         zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
         echo "Installing docker"
         if [[ $os == sles ]]; then
             os_sp="$(cat /etc/*-release | awk -F= '$1 == "VERSION_ID" { gsub(/"/, ""); print $2; exit }')"
             os_arch="$(uname -i)"
-            sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
+            sudo SUSEConnect -p "sle-module-containers/$os_sp/$os_arch" -r ''
         fi
         $zypper_cmd install docker docker-runc containerd
         sudo systemctl enable docker.service
+
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
-        sudo yum-config-manager --add-repo https://download.docker.com/linux/$os/docker-ce.repo
+        sudo yum-config-manager --add-repo "https://download.docker.com/linux/$os/docker-ce.repo"
         echo "Installing docker"
         $yum_cmd install docker-ce docker-ce-cli containerd.io
 
@@ -95,7 +97,7 @@ install_docker_compose() {
     else
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -122,51 +124,55 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
-        os="Mac"
+        os="mac"
         return
     fi
 
-    os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
+    local os_name="$(
+        cat /etc/*-release \
+            | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }' \
+            | tr '[:upper:]' '[:lower:]'
+    )"
 
     case "$os_name" in
-        Ubuntu*)
+        ubuntu*)
             desired_os=1
             os="ubuntu"
             package_manager="apt-get"
             ;;
-        Debian*)
+        debian*)
             desired_os=1
             os="debian"
             package_manager="apt-get"
             ;;
-        Linux\ Mint*)
+        linux\ mint*)
             desired_os=1
             os="linux mint"
             package_manager="apt-get"
             ;;
-        Red\ Hat*)
+        red\ hat*)
             desired_os=1
             os="red hat"
             package_manager="yum"
             ;;
-        CentOS*)
+        centos*)
             desired_os=1
             os="centos"
             package_manager="yum"
             ;;
-        SLES*)
+        sles*)
             desired_os=1
             os="sles"
             package_manager="zypper"
             ;;
-        openSUSE*)
+        opensuse*)
             desired_os=1
             os="opensuse"
             package_manager="zypper"
             ;;
         *)
             desired_os=0
-            os="Not Found"
+            os="Not Found: $os_name"
     esac
 }
 
@@ -370,7 +376,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
 
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Support",
             "data": {
@@ -401,7 +407,7 @@ ask_telemetry() {
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Telemetry",
         "data": {
@@ -427,7 +433,7 @@ trap bye EXIT
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
@@ -442,7 +448,7 @@ if [[ $desired_os -eq 0 ]];then
     echo_contact_support " if you wish to extend this support."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -454,7 +460,7 @@ if [[ $desired_os -eq 0 ]];then
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "OS Check Passed",
       "data": {
@@ -472,7 +478,7 @@ if [[ $EUID -eq 0 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -484,7 +490,7 @@ if [[ $EUID -eq 0 ]]; then
 fi
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Root Check Passed",
   "data": {
@@ -497,7 +503,7 @@ check_ports_occupied
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Port Check Passed",
   "data": {
@@ -506,20 +512,20 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
    }
 }' > /dev/null
 
-read -rp 'Installation Directory [appsmith]: ' install_dir
+read -rp 'Create an Installation Directory: [appsmith]' install_dir
 install_dir="${install_dir:-appsmith}"
 if [[ $install_dir != /* ]]; then
     # If it's not an absolute path, prepend current working directory to it, to make it an absolute path.
     install_dir="$PWD/$install_dir"
 fi
 
-if [[ -e "$install_dir" ]]; then
-    echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
+if [[ -e "$install_dir" && -n "$(ls -A "$install_dir")" ]]; then
+    echo "The path '$install_dir' is already present and is non-empty. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -533,7 +539,7 @@ fi
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Directory Check Passed",
   "data": {
@@ -554,7 +560,7 @@ if ! is_command_present docker; then
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -568,7 +574,7 @@ fi
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Docker Check Passed",
   "data": {
@@ -594,7 +600,7 @@ echo ""
 if confirm y "Is this a fresh installation?"; then
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Fresh Install",
       "data": {
@@ -614,7 +620,7 @@ if confirm y "Is this a fresh installation?"; then
 else
    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Existing Installation"
     }' > /dev/null
@@ -676,7 +682,7 @@ echo ""
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Salt Generation Done",
   "data": {
@@ -688,7 +694,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
@@ -706,7 +712,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     if confirm y '(Your DNS records must be updated for us to proceed)'; then
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
           "userId": "'"$APPSMITH_INSTALLATION_ID"'",
           "event": "SSL Provisioning Start",
           "data": {
@@ -726,7 +732,7 @@ fi
 ask_telemetry
 echo ""
 echo "Downloading the configuration templates..."
-templates_dir="$(mktemp -d)"
+templates_dir="$install_dir/tmp"
 mkdir -p "$templates_dir"
 
 (
@@ -744,25 +750,25 @@ mkdir -p "$install_dir/data/"{nginx,mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
-bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
-bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
-bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
+bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > "$templates_dir/nginx_app.conf"
+bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > "$templates_dir/docker-compose.yml"
+bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > "$templates_dir/mongo-init.js"
+bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > "$templates_dir/docker.env"
 if [[ "$setup_encryption" = "true" ]]; then
-    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
+    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > "$templates_dir/encryption.env"
 fi
 
-overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
-overwrite_file "docker-compose.yml" "docker-compose.yml"
-overwrite_file "data/mongo/init.js" "mongo-init.js"
-overwrite_file "docker.env" "docker.env"
-overwrite_file "encryption.env" "encryption.env"
+overwrite_file "data/nginx/app.conf.template" "$templates_dir/nginx_app.conf"
+overwrite_file "docker-compose.yml"           "$templates_dir/docker-compose.yml"
+overwrite_file "data/mongo/init.js"           "$templates_dir/mongo-init.js"
+overwrite_file "docker.env"                   "$templates_dir/docker.env"
+overwrite_file "encryption.env"               "$templates_dir/encryption.env"
 
 echo ""
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
   --header 'Content-Type: text/plain' \
-  --data-raw '{
+  --data '{
     "userId": "'"$APPSMITH_INSTALLATION_ID"'",
     "event": "Config Files Generated",
     "data": {
@@ -802,7 +808,7 @@ if [[ $status_code -ne 401 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -814,7 +820,7 @@ if [[ $status_code -ne 401 ]]; then
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
@@ -840,7 +846,7 @@ else
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {

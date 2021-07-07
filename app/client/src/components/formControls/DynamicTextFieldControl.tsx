@@ -21,8 +21,11 @@ import {
   convertObjectToQueryParams,
   getQueryParams,
 } from "utils/AppsmithUtils";
+import { actionPathFromName } from "components/formControls/utils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
+  width: 60%;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -57,7 +60,15 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType, label } = this.props;
+    const {
+      actionName,
+      configProperty,
+      evaluationSubstitutionType,
+      label,
+      placeholderText,
+      responseType,
+    } = this.props;
+    const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -78,18 +89,24 @@ class DynamicTextControl extends BaseControl<
                 {
                   showTemplateMenu: false,
                 },
-                () => this.props.createTemplate(templateString),
+                () =>
+                  this.props.createTemplate(
+                    templateString,
+                    this.props.formName,
+                  ),
               );
             }}
             pluginId={this.props.pluginId}
           />
         ) : (
           <DynamicTextField
-            size={EditorSize.EXTENDED}
-            name={this.props.configProperty}
-            dataTreePath={`${this.props.actionName}.config.body`}
             className="dynamic-text-field"
+            dataTreePath={dataTreePath}
+            evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
+            name={this.props.configProperty}
+            placeholder={placeholderText}
+            size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
         )}
@@ -100,13 +117,17 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: (template: any) => any;
+  createTemplate: (template: any, formName: string) => any;
   pluginId: string;
   responseType: string;
+  placeholderText?: string;
+  evaluationSubstitutionType: EvaluationSubstitutionType;
 }
 
-const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
+  const valueSelector = formValueSelector(
+    props.formName || QUERY_EDITOR_FORM_NAME,
+  );
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
@@ -119,7 +140,7 @@ const mapStateToProps = (state: AppState) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createTemplate: (template: any) => {
+  createTemplate: (template: any, formName: string) => {
     const params = getQueryParams();
     if (params.showTemplate) {
       params.showTemplate = "false";
@@ -128,7 +149,9 @@ const mapDispatchToProps = (dispatch: any) => ({
       ...window.location,
       search: convertObjectToQueryParams(params),
     });
-    dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
+    dispatch(
+      change(formName || QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template),
+    );
   },
 });
 

@@ -111,7 +111,28 @@ const datasourceReducer = createReducer(initialState, {
       list: action.payload,
     };
   },
-  [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (state: DatasourceDataState) => {
+  [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{
+      show: boolean;
+      id?: string;
+      messages?: Array<string>;
+      error?: any;
+    }>,
+  ): DatasourceDataState => {
+    if (action.payload.id) {
+      const list = state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, messages: action.payload.messages };
+        }
+        return datasource;
+      });
+      return {
+        ...state,
+        isTesting: false,
+        list: list,
+      };
+    }
     return {
       ...state,
       isTesting: false,
@@ -182,7 +203,26 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.TEST_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
-  ) => {
+    action: ReduxAction<{
+      show: boolean;
+      id?: string;
+      messages?: Array<string>;
+      error?: any;
+    }>,
+  ): DatasourceDataState => {
+    if (action.payload.id) {
+      const list = state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, messages: action.payload.messages };
+        }
+        return datasource;
+      });
+      return {
+        ...state,
+        isTesting: false,
+        list: list,
+      };
+    }
     return {
       ...state,
       isTesting: false,

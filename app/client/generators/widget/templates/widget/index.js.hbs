@@ -2,10 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import {{name}}Component from "../component";
@@ -13,10 +9,6 @@ import {{name}}Component from "../component";
 class {{suffixed name}} extends BaseWidget<{{suffixed name}}Props, WidgetState> {
   static getPropertyPaneConfig() {
     return [];
-  }
-
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return { ...BASE_WIDGET_VALIDATION };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

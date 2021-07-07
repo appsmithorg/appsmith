@@ -43,6 +43,7 @@ export type EditableTextProps = CommonComponentProps & {
   hideEditIcon?: boolean;
   fill?: boolean;
   underline?: boolean;
+  isError?: boolean;
 };
 
 export const EditableTextWrapper = styled.div<{
@@ -152,13 +153,14 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-export const EditableText = (props: EditableTextProps) => {
+export function EditableText(props: EditableTextProps) {
   const {
-    onBlur,
-    onTextChanged,
-    isInvalid: inputValidation,
     defaultValue,
     isEditingDefault,
+    isError,
+    isInvalid: inputValidation,
+    onBlur,
+    onTextChanged,
     valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -169,6 +171,14 @@ export const EditableText = (props: EditableTextProps) => {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+
+  useEffect(() => {
+    if (isError) {
+      // if there is any error occurs while saving appname.
+      // last saved app name will be shown to user.
+      setValue(defaultValue);
+    }
+  }, [isError]);
 
   useEffect(() => {
     setSavingState(props.savingState);
@@ -268,36 +278,36 @@ export const EditableText = (props: EditableTextProps) => {
   return (
     <EditableTextWrapper
       filled={!!props.fill}
-      onMouseEnter={nonEditMode}
-      onDoubleClick={
-        props.editInteractionKind === EditInteractionKind.DOUBLE
-          ? editMode
-          : noop
-      }
       onClick={
         props.editInteractionKind === EditInteractionKind.SINGLE
           ? editMode
           : noop
       }
+      onDoubleClick={
+        props.editInteractionKind === EditInteractionKind.DOUBLE
+          ? editMode
+          : noop
+      }
+      onMouseEnter={nonEditMode}
     >
       <TextContainer
+        bgColor={bgColor}
         className="editable-text-container"
         data-cy={props.cypressSelector}
-        isInvalid={!!isInvalid}
         isEditing={isEditing}
-        bgColor={bgColor}
+        isInvalid={!!isInvalid}
         underline={props.underline}
       >
         <BlueprintEditableText
+          className={props.className}
           disabled={!isEditing}
           isEditing={isEditing}
+          onCancel={onConfirm}
           onChange={onInputchange}
           onConfirm={onConfirm}
-          value={value}
-          selectAllOnFocus
           placeholder={props.placeholder || defaultValue}
-          className={props.className}
-          onCancel={onConfirm}
+          selectAllOnFocus
+          value={value}
         />
 
         {savingState === SavingState.STARTED ? (
@@ -317,6 +327,6 @@ export const EditableText = (props: EditableTextProps) => {
       ) : null}
     </EditableTextWrapper>
   );
-};
+}
 
 export default EditableText;

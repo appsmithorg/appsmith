@@ -120,7 +120,27 @@ export const getPluginIdOfPackageName = (
 };
 
 export const getSelectedWidget = (state: AppState) => {
-  const selectedWidgetId = state.ui.widgetDragResize.selectedWidget;
+  const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
 };
+
+export const getWidgetImmediateChildren = createSelector(
+  getWidget,
+  (widget: WidgetProps) => {
+    const childrenIds: string[] = [];
+    if (widget === undefined) {
+      return [];
+    }
+    const { children = [] } = widget;
+    if (children && children.length) {
+      for (const childIndex in children) {
+        if (children.hasOwnProperty(childIndex)) {
+          const child = children[childIndex];
+          childrenIds.push(child);
+        }
+      }
+    }
+    return childrenIds;
+  },
+);

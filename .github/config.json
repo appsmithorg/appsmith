@@ -170,6 +170,10 @@
       "color": "50ba23",
       "description": ""
     },
+    "Import-Export-App": {
+      "name": "Import-Export-App",
+      "color": "50ba23"
+    },
     "JS": {
       "name": "JS",
       "color": "ffc1c2",
@@ -184,6 +188,11 @@
       "name": "Low",
       "color": "79e53b",
       "description": "An unexpected or annoying bug"
+    },
+    "List Widget": {
+      "name": "List Widget",
+      "color": "79e53b",
+      "description": "Issues Related to the list widget"
     },
     "Map Widget": {
       "name": "Map Widget",
@@ -565,6 +574,11 @@
                 "value": true
               },
               {
+                "label": "List Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Map Widget",
                 "type": "hasLabel",
                 "value": true
@@ -610,6 +624,11 @@
                 "value": true
               },
               {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Widgets",
                 "type": "hasLabel",
                 "value": true
@@ -638,6 +657,11 @@
                 "type": "hasLabel",
                 "label": "UI Building",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Performance",
+                "value": true
               }
             ]
           },
@@ -652,6 +676,11 @@
               {
                 "type": "hasLabel",
                 "label": "Debugger",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Import-Export-App",
                 "value": true
               },
               {

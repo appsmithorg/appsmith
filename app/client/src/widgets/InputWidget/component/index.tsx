@@ -169,39 +169,40 @@ class InputComponent extends React.Component<
 
   private numericInputComponent = () => (
     <NumericInput
-      value={this.props.value}
-      placeholder={this.props.placeholder}
-      min={this.props.minNum}
-      max={this.props.maxNum}
-      maxLength={this.props.maxChars}
+      allowNumericCharactersOnly
+      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
       disabled={this.props.disabled}
       intent={this.props.intent}
-      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-      onValueChange={this.onNumberChange}
       leftIcon={
         this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
       }
-      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-      allowNumericCharactersOnly
-      stepSize={this.props.stepSize}
-      onFocus={() => this.setFocusState(true)}
+      max={this.props.maxNum}
+      maxLength={this.props.maxChars}
+      min={this.props.minNum}
       onBlur={() => this.setFocusState(false)}
+      onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDown}
+      onValueChange={this.onNumberChange}
+      placeholder={this.props.placeholder}
+      stepSize={this.props.stepSize}
+      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+      value={this.props.value}
     />
   );
   private textAreaInputComponent = () => (
     <TextArea
-      value={this.props.value}
-      placeholder={this.props.placeholder}
-      disabled={this.props.disabled}
-      maxLength={this.props.maxChars}
-      intent={this.props.intent}
-      onChange={this.onTextChange}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
+      disabled={this.props.disabled}
       growVertically={false}
-      onFocus={() => this.setFocusState(true)}
+      intent={this.props.intent}
+      maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
+      onChange={this.onTextChange}
+      onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      placeholder={this.props.placeholder}
+      style={{ resize: "none" }}
+      value={this.props.value}
     />
   );
 
@@ -210,13 +211,15 @@ class InputComponent extends React.Component<
       this.textAreaInputComponent()
     ) : (
       <InputGroup
-        value={this.props.value}
-        placeholder={this.props.placeholder}
-        disabled={this.props.disabled}
-        maxLength={this.props.maxChars}
-        intent={this.props.intent}
-        onChange={this.onTextChange}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
+        disabled={this.props.disabled}
+        intent={this.props.intent}
+        maxLength={this.props.maxChars}
+        onBlur={() => this.setFocusState(false)}
+        onChange={this.onTextChange}
+        onFocus={() => this.setFocusState(true)}
+        onKeyDown={this.onKeyDown}
+        placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
             <Button
@@ -230,9 +233,7 @@ class InputComponent extends React.Component<
           )
         }
         type={this.getType(this.props.inputType)}
-        onFocus={() => this.setFocusState(true)}
-        onBlur={() => this.setFocusState(false)}
-        onKeyDown={this.onKeyDown}
+        value={this.props.value}
       />
     );
   private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
@@ -244,9 +245,9 @@ class InputComponent extends React.Component<
     return (
       <InputComponentWrapper
         fill
+        hasError={this.props.isInvalid}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
-        hasError={this.props.isInvalid}
       >
         {this.props.label && (
           <Label

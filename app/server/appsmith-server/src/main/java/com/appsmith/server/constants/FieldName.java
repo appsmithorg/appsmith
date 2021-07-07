@@ -6,6 +6,7 @@ public class FieldName {
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
+    public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
@@ -57,8 +58,10 @@ public class FieldName {
     public static String ANONYMOUS_USER = "anonymousUser";
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
+    public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
+    public static String COMMENT = "comment";
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
@@ -68,4 +71,5 @@ public class FieldName {
     public static String MONGO_ESCAPE_CLASS = "appsmith_mongo_escape_class";
     public static String MONGO_UNESCAPED_ID = "_id";
     public static String MONGO_UNESCAPED_CLASS = "_class";
+    public static String DATASOURCE_STRUCTURE = "datasource structure";
 }

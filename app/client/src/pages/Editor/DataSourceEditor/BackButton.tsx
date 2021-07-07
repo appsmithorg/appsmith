@@ -11,13 +11,13 @@ const Back = styled.span`
   cursor: pointer;
 `;
 
-const BackButton = (props: { onClick: () => void }) => {
+function BackButton(props: { onClick: () => void }) {
   return (
     <Back onClick={props.onClick}>
       <Icon icon="chevron-left" iconSize={16} />
       <BackText>Back</BackText>
     </Back>
   );
-};
+}
 
 export default BackButton;

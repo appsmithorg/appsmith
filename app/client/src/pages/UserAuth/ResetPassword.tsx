@@ -68,16 +68,16 @@ type ResetPasswordProps = InjectedFormProps<
   theme: Theme;
 } & RouteComponentProps<{ email: string; token: string }>;
 
-export const ResetPassword = (props: ResetPasswordProps) => {
+export function ResetPassword(props: ResetPasswordProps) {
   const {
     error,
     handleSubmit,
-    pristine,
-    submitting,
-    submitSucceeded,
-    submitFailed,
     initialValues,
     isTokenValid,
+    pristine,
+    submitFailed,
+    submitSucceeded,
+    submitting,
     validatingToken,
     verifyToken,
   } = props;
@@ -178,31 +178,31 @@ export const ResetPassword = (props: ResetPasswordProps) => {
           label={createMessage(RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
+            disabled={submitSucceeded}
             name="password"
-            type="password"
             placeholder={createMessage(
               RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
             )}
-            disabled={submitSucceeded}
+            type="password"
           />
         </FormGroup>
-        <Field type="hidden" name="email" component="input" />
-        <Field type="hidden" name="token" component="input" />
+        <Field component="input" name="email" type="hidden" />
+        <Field component="input" name="token" type="hidden" />
         <FormActions>
           <Button
-            tag="button"
-            fill
-            size={Size.large}
-            type="submit"
-            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
             disabled={pristine || submitSucceeded}
+            fill
             isLoading={submitting}
+            size={Size.large}
+            tag="button"
+            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+            type="submit"
           />
         </FormActions>
       </StyledForm>
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState, props: ResetPasswordProps) => {

@@ -2,6 +2,7 @@ import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -112,31 +113,47 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     const expected = {
       bindingPaths: {
-        selectedRow: true,
-        selectedRows: true,
-        tableData: true,
-        defaultSearchText: true,
-        defaultSelectedRow: true,
-        isVisible: true,
-        "primaryColumns.name.computedValue": true,
-        "primaryColumns.name.horizontalAlignment": true,
-        "primaryColumns.name.verticalAlignment": true,
-        "primaryColumns.name.textSize": true,
-        "primaryColumns.name.fontStyle": true,
-        "primaryColumns.name.textColor": true,
-        "primaryColumns.name.cellBackground": true,
-        "primaryColumns.createdAt.inputFormat": true,
-        "primaryColumns.createdAt.outputFormat": true,
-        "primaryColumns.createdAt.computedValue": true,
-        "primaryColumns.createdAt.horizontalAlignment": true,
-        "primaryColumns.createdAt.verticalAlignment": true,
-        "primaryColumns.createdAt.textSize": true,
-        "primaryColumns.createdAt.fontStyle": true,
-        "primaryColumns.createdAt.textColor": true,
-        "primaryColumns.createdAt.cellBackground": true,
-        "primaryColumns.status.buttonLabel": true,
-        "primaryColumns.status.buttonStyle": true,
-        "primaryColumns.status.buttonLabelColor": true,
+        selectedRow: EvaluationSubstitutionType.TEMPLATE,
+        selectedRows: EvaluationSubstitutionType.TEMPLATE,
+        tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
+        defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.inputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.outputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textSize":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.fontStyle":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabel":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonStyle":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onRowSelected: true,
@@ -144,6 +161,12 @@ describe("getAllPathsFromPropertyConfig", () => {
         onSearchTextChanged: true,
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
+      },
+      validationPaths: {
+        defaultSearchText: "TEXT",
+        defaultSelectedRow: "DEFAULT_SELECTED_ROW",
+        isVisible: "BOOLEAN",
+        tableData: "TABLE_DATA",
       },
     };
 
@@ -163,12 +186,12 @@ describe("getAllPathsFromPropertyConfig", () => {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        "random-id": {
           seriesName: "",
           data: "{{Api1.data}}",
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
       type: "CHART_WIDGET",
@@ -183,7 +206,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetId: "x1naz9is2b",
       dynamicBindingPathList: [
         {
-          key: "chartData[0].data",
+          key: "chartData.random-id.data",
         },
       ],
     };
@@ -191,16 +214,24 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     const expected = {
       bindingPaths: {
-        chartType: true,
-        chartName: true,
-        "chartData[0].seriesName": true,
-        "chartData[0].data": true,
-        xAxisName: true,
-        yAxisName: true,
-        isVisible: true,
+        chartType: EvaluationSubstitutionType.TEMPLATE,
+        chartName: EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        xAxisName: EvaluationSubstitutionType.TEMPLATE,
+        yAxisName: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,
+      },
+      validationPaths: {
+        "chartData.random-id.data": "CHART_SERIES_DATA",
+        "chartData.random-id.seriesName": "TEXT",
+        chartName: "TEXT",
+        isVisible: "BOOLEAN",
+        xAxisName: "TEXT",
+        yAxisName: "TEXT",
       },
     };
 

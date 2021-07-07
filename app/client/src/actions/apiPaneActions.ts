@@ -4,11 +4,12 @@ import { ApiContentTypes } from "constants/ApiEditorConstants";
 
 export const changeApi = (
   id: string,
+  isSaas: boolean,
   newApi?: boolean,
-): ReduxAction<{ id: string; newApi?: boolean }> => {
+): ReduxAction<{ id: string; isSaas: boolean; newApi?: boolean }> => {
   return {
     type: ReduxActionTypes.API_PANE_CHANGE_API,
-    payload: { id, newApi },
+    payload: { id, isSaas, newApi },
   };
 };
 

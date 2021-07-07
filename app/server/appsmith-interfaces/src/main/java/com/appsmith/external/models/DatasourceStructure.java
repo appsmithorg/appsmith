@@ -1,9 +1,13 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.BaseException;
+import com.appsmith.external.exceptions.ErrorDTO;
+import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Data
@@ -12,6 +16,10 @@ import java.util.List;
 public class DatasourceStructure {
 
     List<Table> tables;
+
+    public DatasourceStructure(List<Table> tables) {
+        this.tables = tables;
+    }
 
     public enum TableType {
         TABLE,
@@ -24,6 +32,7 @@ public class DatasourceStructure {
     @AllArgsConstructor
     public static class Table {
         TableType type;
+        String schema;
         String name;
         List<Column> columns;
         List<Key> keys;
@@ -98,6 +107,35 @@ public class DatasourceStructure {
     public static class Template {
         String title;
         String body;
+        List<Property> pluginSpecifiedTemplates;
     }
 
+    ErrorDTO error;
+
+    public void setErrorInfo(Throwable error) {
+        this.error = new ErrorDTO();
+        this.error.setMessage(error.getMessage());
+
+        if (error instanceof BaseException) {
+            this.error.setCode(((BaseException)error).getAppErrorCode());
+        }
+    }
+    
+    /**
+     * Instance creator is required while de-serialising using Gson as key instance can't be invoked with
+     * no-args constructor
+     */
+    public static class KeyInstanceCreator implements InstanceCreator<Key> {
+        @Override
+        public Key createInstance(Type type) {
+            Key key = new Key() {
+                @Override
+                public String getType() {
+                    return null;
+                }
+            };
+            return key;
+        }
+    }
+    
 }

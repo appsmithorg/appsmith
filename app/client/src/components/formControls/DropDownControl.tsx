@@ -49,7 +49,7 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, options, label, isRequired, subtitle } = this.props;
+    const { configProperty, isRequired, label, options, subtitle } = this.props;
 
     return (
       <div>
@@ -64,10 +64,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         </FormLabel>
         <DropdownSelect data-cy={configProperty}>
           <DropdownField
-            placeholder=""
+            customSelectStyles={customSelectStyles}
             name={configProperty}
             options={options}
-            customSelectStyles={customSelectStyles}
+            placeholder=""
             width={"50vh"}
           />
         </DropdownSelect>
@@ -82,8 +82,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}

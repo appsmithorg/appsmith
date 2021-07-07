@@ -2,6 +2,8 @@ import { get } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "./constants";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -142,6 +144,8 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TABLE_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         helpText: "Columns",
@@ -196,6 +200,24 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "displayText",
+                  label: "Display Text",
+                  controlType: "COMPUTE_VALUE",
+                  customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "url";
+                  },
                   isBindProperty: false,
                   isTriggerProperty: false,
                 },
@@ -302,6 +324,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
@@ -405,6 +428,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
@@ -423,8 +447,6 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (
@@ -637,6 +659,7 @@ export default [
         placeholderText: "Enter default search text",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Selects the default selected row",
@@ -646,6 +669,7 @@ export default [
         placeholderText: "Enter row index",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       },
       {
         helpText:
@@ -664,6 +688,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
       {
         propertyName: "multiRowSelection",
@@ -711,6 +736,51 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the row height",
+        propertyName: "isVisibleCompactMode",
+        label: "Row Height",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },

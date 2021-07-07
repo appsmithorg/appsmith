@@ -5,6 +5,7 @@ import _ from "lodash";
 export enum PluginType {
   API = "API",
   DB = "DB",
+  SAAS = "SAAS",
 }
 
 export enum PaginationType {
@@ -16,6 +17,7 @@ export enum PaginationType {
 export interface ActionConfig {
   timeoutInMillisecond?: number;
   paginationType?: PaginationType;
+  pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
 }
 
 export interface ActionProvider {
@@ -84,6 +86,11 @@ interface BaseApiAction extends BaseAction {
   pluginType: PluginType.API;
   actionConfiguration: ApiActionConfig;
 }
+export interface SaaSAction extends BaseAction {
+  pluginType: PluginType.SAAS;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -118,4 +125,4 @@ export type ActionViewMode = {
   timeoutInMillisecond?: number;
 };
 
-export type Action = ApiAction | QueryAction;
+export type Action = ApiAction | QueryAction | SaaSAction;

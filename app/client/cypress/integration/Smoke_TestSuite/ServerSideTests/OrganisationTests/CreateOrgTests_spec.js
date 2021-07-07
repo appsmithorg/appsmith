@@ -5,6 +5,7 @@ const homePage = require("../../../../locators/HomePage.json");
 describe("Create new org and share with a user", function() {
   let orgid;
   let appid;
+  let newOrganizationName;
 
   it("create org and then share with a user from UI", function() {
     cy.NavigateToHome();
@@ -12,7 +13,11 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
+      });
       cy.CheckShareIcon(orgid, 1);
       cy.inviteUserForOrg(
         orgid,
@@ -51,13 +56,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to developer", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.searchInput).type(appid);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -90,13 +89,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to administrator", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.searchInput).type(appid);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -124,13 +117,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and delete App ", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.searchInput).type(appid);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);

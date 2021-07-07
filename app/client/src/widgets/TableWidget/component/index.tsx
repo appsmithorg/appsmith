@@ -7,6 +7,7 @@ import {
   ReactTableFilter,
 } from "./Constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { isEqual } from "lodash";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -65,13 +66,55 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleSearch?: boolean;
+  isVisibleFilters?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleCompactMode?: boolean;
+  isVisiblePagination?: boolean;
 }
 
-const ReactTableComponent = (props: ReactTableComponentProps) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
+  const {
+    applyFilter,
+    columns,
+    columnSizeMap,
+    compactMode,
+    disableDrag,
+    editMode,
+    filters,
+    handleReorderColumn,
+    handleResizeColumn,
+    height,
+    isLoading,
+    isVisibleCompactMode,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
+    nextPageClick,
+    onRowClick,
+    pageNo,
+    pageSize,
+    prevPageClick,
+    searchKey,
+    searchTableData,
+    selectedRowIndex,
+    selectedRowIndices,
+    serverSidePaginationEnabled,
+    sortTableColumn: _sortTableColumn,
+    tableData,
+    triggerRowSelection,
+    updateCompactMode,
+    updatePageNo,
+    widgetId,
+    widgetName,
+    width,
+  } = props;
+
   const { columnOrder, hiddenColumns } = useMemo(() => {
     const order: string[] = [];
     const hidden: string[] = [];
-    props.columns.forEach((item) => {
+    columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.accessor);
       } else {
@@ -79,12 +122,12 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       }
     });
     return { columnOrder: order, hiddenColumns: hidden };
-  }, [props.columns]);
+  }, [columns]);
 
   useEffect(() => {
     let dragged = -1;
     const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
+      document.querySelectorAll(`#table${widgetId} .draggable-header`),
     );
     headers.forEach((header, i) => {
       header.setAttribute("draggable", true);
@@ -149,7 +192,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           if (movedColumnName && movedColumnName.length === 1) {
             newColumnOrder.splice(i, 0, movedColumnName[0]);
           }
-          props.handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
+          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
         } else {
           dragged = -1;
         }
@@ -159,15 +202,15 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (columnIndex === -1) {
-      props.sortTableColumn("", asc);
+      _sortTableColumn("", asc);
     } else {
-      const column = props.columns[columnIndex];
+      const column = columns[columnIndex];
       const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
       if (
         columnType !== ColumnTypes.IMAGE &&
         columnType !== ColumnTypes.VIDEO
       ) {
-        props.sortTableColumn(column.accessor, asc);
+        _sortTableColumn(column.accessor, asc);
       }
     }
   };
@@ -176,50 +219,90 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     original: Record<string, unknown>;
     index: number;
   }) => {
-    props.onRowClick(row.original, row.index);
+    onRowClick(row.original, row.index);
   };
 
   return (
     <Table
-      isLoading={props.isLoading}
-      width={props.width}
-      height={props.height}
-      pageSize={props.pageSize || 1}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      searchKey={props.searchKey}
-      columns={props.columns}
-      columnSizeMap={props.columnSizeMap}
-      data={props.tableData}
-      editMode={props.editMode}
-      handleResizeColumn={props.handleResizeColumn}
-      sortTableColumn={sortTableColumn}
-      selectTableRow={selectTableRow}
-      pageNo={props.pageNo - 1}
-      updatePageNo={props.updatePageNo}
-      triggerRowSelection={props.triggerRowSelection}
-      nextPageClick={() => {
-        props.nextPageClick();
-      }}
-      prevPageClick={() => {
-        props.prevPageClick();
-      }}
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      selectedRowIndex={props.selectedRowIndex}
-      selectedRowIndices={props.selectedRowIndices}
+      applyFilter={applyFilter}
+      columnSizeMap={columnSizeMap}
+      columns={columns}
+      compactMode={compactMode}
+      data={tableData}
       disableDrag={() => {
-        props.disableDrag(true);
+        disableDrag(true);
       }}
+      editMode={editMode}
       enableDrag={() => {
-        props.disableDrag(false);
+        disableDrag(false);
       }}
-      searchTableData={props.searchTableData}
-      filters={props.filters}
-      applyFilter={props.applyFilter}
-      compactMode={props.compactMode}
-      updateCompactMode={props.updateCompactMode}
+      filters={filters}
+      handleResizeColumn={handleResizeColumn}
+      height={height}
+      isLoading={isLoading}
+      isVisibleCompactMode={isVisibleCompactMode}
+      isVisibleDownload={isVisibleDownload}
+      isVisibleFilters={isVisibleFilters}
+      isVisiblePagination={isVisiblePagination}
+      isVisibleSearch={isVisibleSearch}
+      nextPageClick={nextPageClick}
+      pageNo={pageNo - 1}
+      pageSize={pageSize || 1}
+      prevPageClick={prevPageClick}
+      searchKey={searchKey}
+      searchTableData={searchTableData}
+      selectTableRow={selectTableRow}
+      selectedRowIndex={selectedRowIndex}
+      selectedRowIndices={selectedRowIndices}
+      serverSidePaginationEnabled={serverSidePaginationEnabled}
+      sortTableColumn={sortTableColumn}
+      triggerRowSelection={triggerRowSelection}
+      updateCompactMode={updateCompactMode}
+      updatePageNo={updatePageNo}
+      widgetId={widgetId}
+      widgetName={widgetName}
+      width={width}
     />
   );
-};
+}
 
-export default ReactTableComponent;
+export default React.memo(ReactTableComponent, (prev, next) => {
+  return (
+    prev.applyFilter === next.applyFilter &&
+    prev.compactMode === next.compactMode &&
+    prev.disableDrag === next.disableDrag &&
+    prev.editMode === next.editMode &&
+    prev.filters === next.filters &&
+    prev.handleReorderColumn === next.handleReorderColumn &&
+    prev.handleResizeColumn === next.handleResizeColumn &&
+    prev.height === next.height &&
+    prev.isLoading === next.isLoading &&
+    prev.isVisibleCompactMode === next.isVisibleCompactMode &&
+    prev.isVisibleDownload === next.isVisibleDownload &&
+    prev.isVisibleFilters === next.isVisibleFilters &&
+    prev.isVisiblePagination === next.isVisiblePagination &&
+    prev.isVisibleSearch === next.isVisibleSearch &&
+    prev.nextPageClick === next.nextPageClick &&
+    prev.onRowClick === next.onRowClick &&
+    prev.pageNo === next.pageNo &&
+    prev.pageSize === next.pageSize &&
+    prev.prevPageClick === next.prevPageClick &&
+    prev.searchKey === next.searchKey &&
+    prev.searchTableData === next.searchTableData &&
+    prev.selectedRowIndex === next.selectedRowIndex &&
+    prev.selectedRowIndices === next.selectedRowIndices &&
+    prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
+    prev.sortTableColumn === next.sortTableColumn &&
+    prev.triggerRowSelection === next.triggerRowSelection &&
+    prev.updateCompactMode === next.updateCompactMode &&
+    prev.updatePageNo === next.updatePageNo &&
+    prev.widgetId === next.widgetId &&
+    prev.widgetName === next.widgetName &&
+    prev.width === next.width &&
+    isEqual(prev.columnSizeMap, next.columnSizeMap) &&
+    isEqual(prev.tableData, next.tableData) &&
+    // Using JSON stringify becuase isEqual doesnt work with functions,
+    // and we are not changing the columns manually.
+    JSON.stringify(prev.columns) === JSON.stringify(next.columns)
+  );
+});

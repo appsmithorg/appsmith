@@ -244,14 +244,14 @@ const ContentLoader = styled.div`
   height: 150px;
 `;
 
-export const AppLoader = () => {
+export function AppLoader() {
   return (
     <>
       <LoadingAnimation />
       <Container className="app-box">
-        <ContentLoader className={Classes.SKELETON}></ContentLoader>
-        <AppName className={Classes.SKELETON}></AppName>
+        <ContentLoader className={Classes.SKELETON} />
+        <AppName className={Classes.SKELETON} />
       </Container>
     </>
   );
-};
+}

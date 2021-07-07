@@ -137,6 +137,27 @@
                 "parentId": "qrqizehc5b",
                 "widgetId": "672gf8vm2q",
                 "dynamicBindingPathList": []
+              },
+              {
+                "defaultOptionValue": "",
+                "dynamicBindingPathList": [],
+                "dynamicTriggerPathList": [],
+                "isLoading": false,
+                "isVisible": true,
+                "label": "",
+                "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]",
+                "parentId": "qrqizehc5b",
+                "parentColumnSpace": 71.5,
+                "parentRowSpace": 40,
+                "selectionType": "MULTI_SELECT",
+                "leftColumn": 6,
+                "rightColumn": 16,
+                "topRow": 9,
+                "bottomRow": 10,
+                "type": "DROP_DOWN_WIDGET",
+                "version": 1,
+                "widgetId": "dwh49bulj9",
+                "widgetName": "Dropdown1"
               }
             ],
             "blueprint": {

@@ -8,14 +8,14 @@ const SkeletonRows = styled.div<{ size: number }>`
   margin-top: 12px;
 `;
 
-const Loading = () => {
+function Loading() {
   return (
     <>
-      <SkeletonRows size={90} className={Classes.SKELETON} />
-      <SkeletonRows size={60} className={Classes.SKELETON} />
-      <SkeletonRows size={30} className={Classes.SKELETON} />
+      <SkeletonRows className={Classes.SKELETON} size={90} />
+      <SkeletonRows className={Classes.SKELETON} size={60} />
+      <SkeletonRows className={Classes.SKELETON} size={30} />
     </>
   );
-};
+}
 
 export default Loading;

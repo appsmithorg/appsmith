@@ -11,7 +11,7 @@ export type RadioGroupWrapperProps = {
   rows?: number;
 };
 
-const RadioGroupWrapper = (props: RadioGroupWrapperProps) => {
+function RadioGroupWrapper(props: RadioGroupWrapperProps) {
   const selectedValueHandler = () => {
     if (
       props.input &&
@@ -38,14 +38,14 @@ const RadioGroupWrapper = (props: RadioGroupWrapperProps) => {
 
   return (
     <RadioComponent
-      defaultValue={selectedOption}
-      rows={props.rows}
-      columns={props.columns}
-      options={props.options}
-      onSelect={(value: string) => onSelectHandler(value)}
       className={props.className}
+      columns={props.columns}
+      defaultValue={selectedOption}
+      onSelect={(value: string) => onSelectHandler(value)}
+      options={props.options}
+      rows={props.rows}
     />
   );
-};
+}
 
 export default RadioGroupWrapper;

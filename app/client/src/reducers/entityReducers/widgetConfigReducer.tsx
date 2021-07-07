@@ -19,6 +19,7 @@ export interface WidgetConfigProps {
   columns: number;
   blueprint?: WidgetBlueprint;
   widgetName: string;
+  enhancements?: Record<string, unknown>; // TODO(abhinav): SPECIFY TYPES
 }
 
 export interface WidgetConfig

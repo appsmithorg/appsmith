@@ -54,15 +54,6 @@ div.bp3-popover-arrow {
   background: rgb(3, 179, 101) !important;
 }
 
-#header-root {
-  position: relative;
-  z-index: 11;
-}
-
-.bp3-portal {
-  z-index: 10;
-}
-
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;
@@ -102,4 +93,12 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
+/* making both the Modal layer and the Dropdown layer */
+.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+  z-index: 2 !important;
+}
 
+/* Portals on the Modal widget */
+.bp3-modal-widget .bp3-portal {
+  z-index: 21 !important;
+}

@@ -2,7 +2,6 @@ package com.appsmith.external.helpers;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -46,5 +45,13 @@ public class PluginUtils {
                 .collect(Collectors.toList());
 
         return identicalColumns;
+    }
+
+    public static String getActionConfigurationPropertyPath(int index) {
+        return "actionConfiguration.pluginSpecifiedTemplates[" + index + "].value";
+    }
+
+    public static String getPSParamLabel(int i) {
+        return "$" + i;
     }
 }

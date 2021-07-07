@@ -20,6 +20,7 @@ import ApplicationApi, {
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
+  ImportApplicationRequest,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -55,7 +56,11 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+
 import { deleteRecentAppEntities } from "utils/storage";
+import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -164,7 +169,7 @@ export function* fetchApplicationSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const { mode, applicationId } = action.payload;
+    const { applicationId, mode } = action.payload;
     // Get endpoint based on app mode
     const apiEndpoint =
       mode === APP_MODE.EDIT
@@ -249,13 +254,19 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
+    console.log({ request, isValidResponse });
+    // as the redux store updates the app only on success.
+    // we have to run this
+    if (isValidResponse && request) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: action.payload,
+      });
+    }
     if (isValidResponse && request && request.name) {
       Toaster.show({
         text: createMessage(APPLICATION_NAME_UPDATE),
         variant: Variant.success,
-      });
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -381,7 +392,7 @@ export function* createApplicationSaga(
     reject: any;
   }>,
 ) {
-  const { applicationName, icon, color, orgId, reject } = action.payload;
+  const { applicationName, color, icon, orgId, reject } = action.payload;
   try {
     const userOrgs = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(
@@ -426,6 +437,12 @@ export function* createApplicationSaga(
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
+        // This sets ui.pageWidgets = {} to ensure that
+        // widgets are cleaned up from state before
+        // finishing creating a new application
+        yield put({
+          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+        });
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
@@ -438,6 +455,11 @@ export function* createApplicationSaga(
           application.defaultPageId,
         );
         history.push(pageURL);
+
+        // subscribe to newly created application
+        // users join rooms on connection, so reconnecting
+        // ensures user receives the updates in the app just created
+        yield put(reconnectWebsocketAction());
       }
     }
   } catch (error) {
@@ -490,6 +512,53 @@ export function* forkApplicationSaga(
   }
 }
 
+export function* importApplicationSaga(
+  action: ReduxAction<ImportApplicationRequest>,
+) {
+  try {
+    const response: ApiResponse = yield call(
+      ApplicationApi.importApplicationToOrg,
+      action.payload,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === action.payload.orgId,
+      );
+      if (currentOrg.length > 0) {
+        const {
+          id: appId,
+          pages,
+        }: {
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+        } = response.data;
+        yield put({
+          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+          payload: {
+            importedApplication: appId,
+          },
+        });
+        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        history.push(pageURL);
+        Toaster.show({
+          text: "Application imported successfully",
+          variant: Variant.success,
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -518,5 +587,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
       duplicateApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
   ]);
 }

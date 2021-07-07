@@ -117,10 +117,10 @@ class CurlImportForm extends React.Component<Props> {
   render() {
     const { handleSubmit, history, isImportingCurl } = this.props;
     return (
-      <React.Fragment>
+      <>
         <Header>
           <p className="header">
-            <img src={CurlLogo} className="curlImage" alt="CURL"></img>
+            <img alt="CURL" className="curlImage" src={CurlLogo} />
             Import from CURL
           </p>
           <hr className="divider" />
@@ -128,9 +128,9 @@ class CurlImportForm extends React.Component<Props> {
         <Form onSubmit={handleSubmit(curlImportSubmitHandler)}>
           <CurlImport>
             <Icon
+              className="backBtn"
               icon="chevron-left"
               iconSize={16}
-              className="backBtn"
               onClick={() => history.goBack()}
             />
             <span className="backBtnText" onClick={() => history.goBack()}>
@@ -145,29 +145,29 @@ class CurlImportForm extends React.Component<Props> {
               </CurlLabel>
               <CurlImportFormContainer>
                 <Field
-                  name="curl"
-                  component="textarea"
                   className="textAreaStyles"
+                  component="textarea"
+                  name="curl"
                 />
-                <Field type="hidden" name="pageId" component="input" />
-                <Field type="hidden" name="name" component="input" />
+                <Field component="input" name="pageId" type="hidden" />
+                <Field component="input" name="name" type="hidden" />
               </CurlImportFormContainer>
             </CurlContainer>
           </CurlImport>
           <DividerLine />
           <CurlImportFormContainer>
             <Button
-              text="Import"
+              className="importBtn t--importBtn"
+              filled
+              intent="primary"
               loading={isImportingCurl}
               onClick={handleSubmit(curlImportSubmitHandler)}
-              intent="primary"
-              filled
               size="small"
-              className="importBtn t--importBtn"
+              text="Import"
             />
           </CurlImportFormContainer>
         </Form>
-      </React.Fragment>
+      </>
     );
   }
 }

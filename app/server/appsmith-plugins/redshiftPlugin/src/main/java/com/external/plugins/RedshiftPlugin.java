@@ -11,6 +11,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -45,6 +46,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -219,6 +221,8 @@ public class RedshiftPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null, null));
 
             if (query == null) {
                 return Mono.error(
@@ -316,6 +320,7 @@ public class RedshiftPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -323,12 +328,12 @@ public class RedshiftPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private  Set<String> populateHintMessages(List<String> columnNames) {
+        private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if(!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
                         "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
                         "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
@@ -486,6 +491,7 @@ public class RedshiftPlugin extends BasePlugin {
                 if (!tablesByName.containsKey(fullTableName)) {
                     tablesByName.put(fullTableName, new DatasourceStructure.Table(
                             kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                            schemaName,
                             fullTableName,
                             new ArrayList<>(),
                             new ArrayList<>(),
@@ -597,15 +603,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
         }

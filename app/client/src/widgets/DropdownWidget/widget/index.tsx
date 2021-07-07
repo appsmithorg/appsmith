@@ -4,13 +4,10 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
 import _ from "lodash";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DropdownOption, SelectionType } from "../constants";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -43,9 +40,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Selects the option with value by default",
@@ -53,6 +53,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "Default Option",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
+          },
+          {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
           },
@@ -64,6 +74,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -73,6 +84,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -82,6 +94,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -101,21 +114,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      placeholderText: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.OPTIONS_DATA,
-      selectionType: VALIDATION_TYPES.TEXT,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-      selectedOptionValues: VALIDATION_TYPES.ARRAY,
-      selectedOptionLabels: VALIDATION_TYPES.ARRAY,
-      selectedOptionLabel: VALIDATION_TYPES.TEXT,
-      defaultOptionValue: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
-    };
-  }
 
   static getDerivedPropertiesMap() {
     return {
@@ -125,7 +123,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
       selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
-      selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
+      selectedOptionValues: `{{ this.selectionType === 'MULTI_SELECT' ? this.selectedOptionValueArr : [] }}`,
       selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.map(o => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label; }) : [] }}`,
       selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.selectedOptionValue }); return this.selectionType === "SINGLE_SELECT" ? this.options[index]?.label : ""; })()}}`,
     };
@@ -150,35 +148,38 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       ? this.props.selectedOptionValueArr
       : [];
   }
+  getDropdownPosition = (node: HTMLDivElement | null) => {
+    if (Boolean(node?.closest(".bp3-modal-widget"))) {
+      return document.querySelector(".bp3-modal-widget") as HTMLElement;
+    }
+    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+  };
 
   render() {
-    const options = this.props.options || [];
+    const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = this.getSelectedOptionValueArr()
-      .map((opt: string) =>
-        _.findIndex(this.props.options, {
-          value: opt,
-        }),
-      )
-      .filter((i: number) => i > -1);
-    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
+    const computedSelectedIndexArr = this.props.selectedIndexArr || [];
+
+    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
     return (
       <DropDownComponent
-        onOptionSelected={this.onOptionSelected}
-        onOptionRemoved={this.onOptionRemoved}
-        widgetId={this.props.widgetId}
-        placeholder={this.props.placeholderText}
-        options={options}
+        disabled={this.props.isDisabled}
+        getDropdownPosition={this.getDropdownPosition}
         height={componentHeight}
-        width={componentWidth}
-        selectionType={this.props.selectionType}
+        isFilterable={this.props.isFilterable}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        onOptionRemoved={this.onOptionRemoved}
+        onOptionSelected={this.onOptionSelected}
+        options={options}
+        placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         selectedIndexArr={computedSelectedIndexArr}
-        label={`${this.props.label}`}
-        isLoading={this.props.isLoading}
-        disabled={this.props.isDisabled}
+        selectionType={this.props.selectionType}
+        widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -196,6 +197,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           "selectedOptionValue",
           selectedOption.value,
           {
+            triggerPropertyName: "onOptionChange",
             dynamicString: this.props.onOptionChange,
             event: {
               type: EventType.ON_OPTION_CHANGE,
@@ -221,6 +223,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         "selectedOptionValueArr",
         newSelectedValue,
         {
+          triggerPropertyName: "onOptionChange",
           dynamicString: this.props.onOptionChange,
           event: {
             type: EventType.ON_OPTION_CHANGE,
@@ -239,6 +242,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       "selectedOptionValueArr",
       newSelectedValue,
       {
+        triggerPropertyName: "onOptionChange",
         dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
@@ -263,6 +267,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  isFilterable: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionLabels: string[];

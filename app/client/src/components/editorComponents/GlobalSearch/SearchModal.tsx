@@ -26,23 +26,25 @@ type Props = {
   children: React.ReactNode;
 };
 
-const DocsSearchModal = ({ modalOpen, toggleShow, children }: Props) => (
-  <StyledDocsSearchModal>
-    <Overlay
-      isOpen={modalOpen}
-      onClose={toggleShow}
-      hasBackdrop={true}
-      usePortal={false}
-      onClosing={() => {
-        AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
-      }}
-      transitionDuration={25}
-    >
-      <div className={`${Classes.OVERLAY_CONTENT} t--global-search-modal`}>
-        {children}
-      </div>
-    </Overlay>
-  </StyledDocsSearchModal>
-);
+function DocsSearchModal({ children, modalOpen, toggleShow }: Props) {
+  return (
+    <StyledDocsSearchModal>
+      <Overlay
+        hasBackdrop
+        isOpen={modalOpen}
+        onClose={toggleShow}
+        onClosing={() => {
+          AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
+        }}
+        transitionDuration={25}
+        usePortal={false}
+      >
+        <div className={`${Classes.OVERLAY_CONTENT} t--global-search-modal`}>
+          {children}
+        </div>
+      </Overlay>
+    </StyledDocsSearchModal>
+  );
+}
 
 export default DocsSearchModal;

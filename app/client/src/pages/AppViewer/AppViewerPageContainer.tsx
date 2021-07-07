@@ -26,8 +26,9 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
-  height: 100%;
-  width: 100%;
+  height: max-content;
+  min-height: 100%;
+  margin: 0 auto;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -78,15 +79,15 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     const pageNotFound = (
       <Centered>
         <NonIdealState
+          description={appsmithEditorLink}
           icon={
             <Icon
-              iconSize={theme.fontSizes[9]}
-              icon="page-layout"
               color={theme.colors.primaryOld}
+              icon="page-layout"
+              iconSize={theme.fontSizes[9]}
             />
           }
           title="This page seems to be blank"
-          description={appsmithEditorLink}
         />
       </Centered>
     );
@@ -110,8 +111,8 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       return (
         <Section>
           <AppPage
-            dsl={this.props.widgets}
             appName={this.props.currentAppName}
+            dsl={this.props.widgets}
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
             width={this.props.width}

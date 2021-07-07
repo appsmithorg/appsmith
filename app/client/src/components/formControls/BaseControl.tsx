@@ -51,6 +51,7 @@ export interface ControlData {
   isRequired?: boolean;
   hidden?: HiddenType;
   placeholderText?: string;
+  schema?: any;
 }
 
 export interface ControlFunctions {

@@ -112,8 +112,8 @@
   "currentRowWithIdOutside": "#{{currentRow.email}}",
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
-  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
-  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'",
+  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\".",
+  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\".",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindChartData": "{{Chart1.selectedDataPoint",
   "appUrl": "https://oauth.mocklab.io/userinfo",
@@ -121,5 +121,7 @@
   "clientSecret": "505dac16a21681f277b5fde97445be18",
   "accessTokenUrl": "https://oauth.mocklab.io/oauth/token",
   "oauthResponse": "169444434892406",
-  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize"
+  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
+  "basicURl": "https://envyenksqii9nf3.m.pipedream.net",
+  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'"
 }

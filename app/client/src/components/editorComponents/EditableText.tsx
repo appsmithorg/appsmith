@@ -91,11 +91,26 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   }
 `;
 
-export const EditableText = (props: EditableTextProps) => {
-  const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setStateValue] = useState(props.defaultValue);
+export function EditableText(props: EditableTextProps) {
+  const {
+    beforeUnmount,
+    className,
+    defaultValue,
+    editInteractionKind,
+    forceDefault,
+    hideEditIcon,
+    isEditingDefault,
+    isInvalid,
+    minimal,
+    onBlur,
+    onTextChanged,
+    placeholder,
+    updating,
+    valueTransform,
+  } = props;
+  const [isEditing, setIsEditing] = useState(!!isEditingDefault);
+  const [value, setStateValue] = useState(defaultValue);
   const inputValRef = useRef("");
-  const { beforeUnmount } = props;
 
   const setValue = useCallback((value) => {
     inputValRef.current = value;
@@ -103,16 +118,16 @@ export const EditableText = (props: EditableTextProps) => {
   }, []);
 
   useEffect(() => {
-    setValue(props.defaultValue);
-  }, [props.defaultValue]);
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   useEffect(() => {
-    setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault]);
+    setIsEditing(!!isEditingDefault);
+  }, [defaultValue, isEditingDefault]);
 
   useEffect(() => {
-    if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue]);
+    if (forceDefault === true) setValue(defaultValue);
+  }, [forceDefault, defaultValue]);
 
   // at times onTextChange is not fired
   // for example when the modal is closed on clicking the overlay
@@ -128,62 +143,67 @@ export const EditableText = (props: EditableTextProps) => {
     e.preventDefault();
     e.stopPropagation();
   };
-  const onChange = (_value: string) => {
-    props.onBlur && props.onBlur();
-    const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
-    if (!isInvalid) {
-      props.onTextChanged(_value);
-      setIsEditing(false);
-    } else {
-      Toaster.show({
-        text: "Invalid name",
-        variant: Variant.danger,
-      });
-    }
-  };
+  const onChange = useCallback(
+    (_value: string) => {
+      onBlur && onBlur();
+      const _isInvalid = isInvalid ? isInvalid(_value) : false;
+      if (!_isInvalid) {
+        onTextChanged(_value);
+        setIsEditing(false);
+      } else {
+        Toaster.show({
+          text: "Invalid name",
+          variant: Variant.danger,
+        });
+      }
+    },
+    [isInvalid],
+  );
 
-  const onInputchange = (_value: string) => {
-    let finalVal: string = _value;
-    if (props.valueTransform) {
-      finalVal = props.valueTransform(_value);
-    }
-    setValue(finalVal);
-  };
+  const onInputchange = useCallback(
+    (_value: string) => {
+      let finalVal: string = _value;
+      if (valueTransform) {
+        finalVal = valueTransform(_value);
+      }
+      setValue(finalVal);
+    },
+    [valueTransform],
+  );
 
-  const errorMessage = props.isInvalid && props.isInvalid(value);
+  const errorMessage = isInvalid && isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
   return (
     <EditableTextWrapper
       isEditing={isEditing}
-      onDoubleClick={
-        props.editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
-      }
+      minimal={!!minimal}
       onClick={
-        props.editInteractionKind === EditInteractionKind.SINGLE ? edit : _.noop
+        editInteractionKind === EditInteractionKind.SINGLE ? edit : _.noop
       }
-      minimal={!!props.minimal}
+      onDoubleClick={
+        editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
+      }
     >
       <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
-        <TextContainer isValid={!error} minimal={!!props.minimal}>
+        <TextContainer isValid={!error} minimal={!!minimal}>
           <BlueprintEditableText
+            className={className}
             disabled={!isEditing}
             isEditing={isEditing}
+            onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
+            placeholder={placeholder}
             selectAllOnFocus
             value={value}
-            placeholder={props.placeholder}
-            className={props.className}
-            onCancel={props.onBlur}
           />
-          {!props.minimal &&
-            !props.hideEditIcon &&
-            !props.updating &&
-            !isEditing && <EditPen src={Edit} alt="Edit pen" />}
+          {!minimal && !hideEditIcon && !updating && !isEditing && (
+            <EditPen alt="Edit pen" src={Edit} />
+          )}
         </TextContainer>
       </ErrorTooltip>
     </EditableTextWrapper>
   );
-};
+}
 
 export default EditableText;

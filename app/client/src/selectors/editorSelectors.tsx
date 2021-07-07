@@ -23,8 +23,6 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
-export const getDataSources = (state: AppState) =>
-  state.entities.datasources.list;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
@@ -59,6 +57,9 @@ export const getIsPageSaving = (state: AppState) => {
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
 };
+
+export const getLayoutOnLoadActions = (state: AppState) =>
+  state.ui.editor.pageActions || [];
 
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
@@ -178,14 +179,14 @@ export const getWidgetCards = createSelector(
     return cards
       .map((config) => {
         const {
+          columns,
+          detachFromLayout = false,
+          displayName,
           iconSVG,
           key,
-          type,
           rows,
-          columns,
-          displayName,
-          detachFromLayout = false,
-        }: any = config;
+          type,
+        } = config;
         return {
           key,
           type,
@@ -311,3 +312,35 @@ export const getActionById = createSelector(
     }
   },
 );
+/*const createCanvasWidget = (
+  canvasWidget: FlattenedWidgetProps,
+  evaluatedWidget: DataTreeWidget,
+) => {
+  const widgetStaticProps = _.pick(
+    canvasWidget,
+    Object.keys(WIDGET_STATIC_PROPS),
+  );
+  return {
+    ...evaluatedWidget,
+    ...widgetStaticProps,
+  };
+};
+
+const createLoadingWidget = (
+  canvasWidget: FlattenedWidgetProps,
+): DataTreeWidget => {
+  const widgetStaticProps = _.pick(
+    canvasWidget,
+    Object.keys(WIDGET_STATIC_PROPS),
+  ) as WidgetProps;
+  return {
+    ...widgetStaticProps,
+    type: WidgetTypes.SKELETON_WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    bindingPaths: {},
+    triggerPaths: {},
+    validationPaths: {},
+    logBlackList: {},
+    isLoading: true,
+  };
+};*/

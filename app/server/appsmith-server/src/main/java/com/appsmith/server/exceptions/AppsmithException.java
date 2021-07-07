@@ -1,6 +1,6 @@
 package com.appsmith.server.exceptions;
-import com.appsmith.external.exceptions.AppsmithErrorAction;
 
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.BaseException;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +35,8 @@ public class AppsmithException extends BaseException {
         return this.error.getErrorAction();
     }
 
-    public String getTitle() { return this.error.getTitle(); }
+    public String getTitle() {
+        return this.error.getTitle();
+    }
 
 }

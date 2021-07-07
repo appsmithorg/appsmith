@@ -7,6 +7,8 @@ import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
+import { Colors } from "constants/Colors";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -15,6 +17,7 @@ type ToastProps = ToastOptions &
     duration?: number;
     onUndo?: () => void;
     dispatchableAction?: { type: ReduxActionType; payload: any };
+    showDebugButton?: boolean;
     hideProgressBar?: boolean;
   };
 
@@ -34,16 +37,16 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 4em;
+    top: 8em;
   }
 `;
-export const StyledToastContainer = (props: ToastOptions) => {
+export function StyledToastContainer(props: ToastOptions) {
   return (
     <WrappedToastContainer>
       <ToastContainer {...props} />
     </WrappedToastContainer>
   );
-};
+}
 
 const ToastBody = styled.div<{
   variant?: Variant;
@@ -59,7 +62,7 @@ const ToastBody = styled.div<{
   justify-content: space-between;
   overflow-wrap: anywhere;
 
-  .${Classes.ICON} {
+  div > .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
     margin-top: ${(props) => props.theme.spaces[1] / 2}px;
@@ -94,6 +97,7 @@ const ToastBody = styled.div<{
       color: ${props.theme.colors.toast.undo};
       line-height: 18px;
       font-weight: 600;
+      white-space: nowrap
     }
     `
       : null}
@@ -104,31 +108,39 @@ const FlexContainer = styled.div`
   align-items: flex-start;
 `;
 
-const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
+function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
   return (
     <ToastBody
-      variant={props.variant || Variant.info}
-      isUndo={!!props.onUndo}
-      dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
+      dispatchableAction={props.dispatchableAction}
+      isUndo={!!props.onUndo}
+      variant={props.variant || Variant.info}
     >
       <FlexContainer>
         {props.variant === Variant.success ? (
-          <Icon name="success" size={IconSize.XXL} />
+          <Icon fillColor={Colors.GREEN} name="success" size={IconSize.XXL} />
         ) : props.variant === Variant.warning ? (
           <Icon name="warning" size={IconSize.XXL} />
         ) : null}
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <Text type={TextType.P1}>{props.text}</Text>
+        <div>
+          <Text type={TextType.P1}>{props.text}</Text>
+          {props.variant === Variant.danger && props.showDebugButton ? (
+            <StyledDebugButton source={"TOAST"} />
+          ) : null}
+        </div>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
           <Text
-            type={TextType.H6}
             onClick={() => {
               if (props.dispatchableAction) {
                 dispatch(props.dispatchableAction);
@@ -137,6 +149,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
                 props.undoAction && props.undoAction();
               }
             }}
+            type={TextType.H6}
           >
             UNDO
           </Text>
@@ -144,7 +157,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       </div>
     </ToastBody>
   );
-};
+}
 
 export const Toaster = {
   show: (config: ToastProps) => {

@@ -23,7 +23,7 @@ type PageLoaderProps = {
   value?: number;
 };
 
-export const PageLoader = (props: PageLoaderProps) => {
+export function PageLoader(props: PageLoaderProps) {
   return (
     <PageLoaderWrapper>
       <div>
@@ -32,6 +32,6 @@ export const PageLoader = (props: PageLoaderProps) => {
       </div>
     </PageLoaderWrapper>
   );
-};
+}
 
 export default PageLoader;

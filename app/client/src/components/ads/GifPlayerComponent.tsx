@@ -52,24 +52,20 @@ const Overlay = styled.div`
   transition: 0.5s ease;
 `;
 
-const GifPlayerComponent = (props: GifPlayerProps) => {
+function GifPlayerComponent(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
-  return (
-    <React.Fragment>
-      {!startGif ? (
-        <ThumnailContainer onClick={() => setStartGif(!startGif)}>
-          <Overlay />
-          <img src={props.thumbnail} />
-          <PlayButton>
-            <Icon name="play" size={IconSize.XXXL} />
-            <Text type={TextType.P3}>Click to play</Text>
-          </PlayButton>
-        </ThumnailContainer>
-      ) : (
-        <img src={props.gif} />
-      )}
-    </React.Fragment>
+  return !startGif ? (
+    <ThumnailContainer onClick={() => setStartGif(!startGif)}>
+      <Overlay />
+      <img src={props.thumbnail} />
+      <PlayButton>
+        <Icon name="play" size={IconSize.XXXL} />
+        <Text type={TextType.P3}>Click to play</Text>
+      </PlayButton>
+    </ThumnailContainer>
+  ) : (
+    <img src={props.gif} />
   );
-};
+}
 
 export default GifPlayerComponent;

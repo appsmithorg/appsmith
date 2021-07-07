@@ -10,6 +10,7 @@ import {
   getCurlImportPageURL,
   getProviderTemplatesURL,
 } from "constants/routes";
+import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";
@@ -47,6 +48,8 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { PluginType } from "entities/Action";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -181,6 +184,9 @@ const StyledContainer = styled.div`
   }
   .curlImage {
     width: 55px;
+  }
+  .saasImage.t--saas-google-sheets-plugin-image {
+    width: 40px;
   }
   .createIcon {
     align-items: center;
@@ -363,8 +369,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   componentDidMount() {
     const {
       importedCollections,
-      providersTotal,
       providerCategories,
+      providersTotal,
     } = this.props;
     if (providerCategories.length === 0 && enableRapidAPI) {
       this.props.fetchProviderCategories();
@@ -428,17 +434,17 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   render() {
     const {
       // importedCollections,
-      providers,
-      applicationId,
-      pageId,
-      location,
-      history,
-      // isFetchingProviders,
-      providerCategories,
-      providersTotal,
-      isSwitchingCategory,
       apiOrProviderSearchResults,
+      applicationId,
       fetchProvidersError,
+      history,
+      isSwitchingCategory,
+      // isFetchingProviders,
+      location,
+      pageId,
+      providerCategories,
+      providers,
+      providersTotal,
     } = this.props;
     const { showSearchResults } = this.state;
 
@@ -461,7 +467,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     }));
 
     const ApiHomepageTopSection = (
-      <React.Fragment>
+      <>
         {enableRapidAPI && (
           <SearchContainer>
             <SearchBar
@@ -485,9 +491,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             {showSearchResults && (
               <div className="searchResultsContainer">
                 <Icon
+                  className="searchCloseBtn"
                   icon="cross"
                   iconSize={20}
-                  className="searchCloseBtn"
                   onClick={() => {
                     this.setState({ showSearchResults: false });
                   }}
@@ -513,9 +519,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                           >
                             {providerSearchResult.imageUrl ? (
                               <img
-                                src={providerSearchResult.imageUrl}
-                                className="providerSearchResultImage"
                                 alt="img"
+                                className="providerSearchResultImage"
+                                src={providerSearchResult.imageUrl}
                               />
                             ) : (
                               <div
@@ -561,11 +567,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           <p className="sectionHeadings">{"Import API"}</p>
           <ApiCard>
             <Card
-              interactive={false}
               className="eachCard t--createBlankApiCard"
+              interactive={false}
               onClick={this.handleCreateNew}
             >
-              <Icon icon="plus" iconSize={20} className="createIcon" />
+              <Icon className="createIcon" icon="plus" iconSize={20} />
               <p className="textBtn">Create new</p>
             </Card>
 
@@ -582,15 +588,40 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               }}
               to={curlImportURL}
             >
-              <Card interactive={false} className="eachCard">
+              <Card className="eachCard" interactive={false}>
                 <img
-                  src={CurlLogo}
-                  className="curlImage t--curlImage"
                   alt="CURL"
+                  className="curlImage t--curlImage"
+                  src={CurlLogo}
                 />
                 <p className="textBtn">CURL</p>
               </Card>
             </Link>
+            {/**
+             * Loop over all Saas plugins
+             */}
+            {this.props.plugins
+              .filter((p) => p.type === PluginType.SAAS)
+              .map((p) => (
+                <Link
+                  key={p.id}
+                  to={
+                    SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
+                    location.search
+                  }
+                >
+                  <Card className="eachCard" interactive={false}>
+                    <img
+                      alt={p.name}
+                      className={
+                        "saasImage t--saas-" + p.packageName + "-image"
+                      }
+                      src={p.iconLocation}
+                    />
+                    <p className="textBtn">{p.name}</p>
+                  </Card>
+                </Link>
+              ))}
           </ApiCard>
         </StyledContainer>
         {/* Imported APIs section start */}
@@ -623,143 +654,132 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             </NoCollections>
           )}
         </StyledContainer> */}
-      </React.Fragment>
+      </>
     );
 
     return (
-      <React.Fragment>
-        <ApiHomePage
-          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
-          className="t--apiHomePage"
-        >
-          {isSwitchingCategory || !enableRapidAPI ? (
-            <>
-              {ApiHomepageTopSection}
-              {enableRapidAPI && isSwitchingCategory && (
-                <PageLoadingContainer>
+      <ApiHomePage
+        className="t--apiHomePage"
+        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+      >
+        <CloseEditor />
+        {isSwitchingCategory || !enableRapidAPI ? (
+          <>
+            {ApiHomepageTopSection}
+            {enableRapidAPI && isSwitchingCategory && (
+              <PageLoadingContainer>
+                <Spinner size={30} />
+              </PageLoadingContainer>
+            )}
+          </>
+        ) : (
+          <InfiniteScroll
+            hasMore={providers.length < providersTotal}
+            initialLoad={false}
+            loadMore={this.handleFetchMoreProviders.bind(this)}
+            loader={
+              <LoadingContainer>
+                <Spinner size={30} />
+              </LoadingContainer>
+            }
+            pageStart={0}
+            useWindow={false}
+          >
+            {ApiHomepageTopSection}
+            {/* Marketplace APIs section start */}
+            <StyledContainer>
+              <div>
+                <div style={{ float: "left" }}>
+                  <p className="sectionHeadings">{"Marketplace APIs"}</p>
+                </div>
+                <div>
+                  <DropdownSelect>
+                    <DropdownField
+                      name="category"
+                      options={PROVIDER_CATEGORIES_OPTIONS}
+                      placeholder="All APIs"
+                      width={232}
+                    />
+                  </DropdownSelect>
+                </div>
+              </div>
+
+              <br />
+              <br />
+
+              {isSwitchingCategory ? (
+                <LoadingContainer>
                   <Spinner size={30} />
-                </PageLoadingContainer>
+                </LoadingContainer>
+              ) : fetchProvidersError ? (
+                <div>
+                  <p className="fontSize16">No providers found.</p>
+                </div>
+              ) : (
+                <div>
+                  <ApiCard>
+                    {providers.map((provider, index) => (
+                      <CardList
+                        key={index}
+                        onClick={() => {
+                          AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
+                            providerName: provider.name,
+                          });
+                          history.push(
+                            getProviderTemplatesURL(
+                              applicationId,
+                              pageId,
+                              provider.id + `/?importTo=${destinationPageId}`,
+                            ),
+                          );
+                        }}
+                      >
+                        <Card
+                          className="eachProviderCard t--eachProviderCard"
+                          interactive={false}
+                        >
+                          {provider.imageUrl ? (
+                            <img
+                              alt="Provider"
+                              className="apiImage"
+                              src={provider.imageUrl}
+                            />
+                          ) : (
+                            <div
+                              className="providerInitials"
+                              style={{
+                                backgroundColor: getInitialsAndColorCode(
+                                  provider.name,
+                                  this.props.colorPalette,
+                                )[1],
+                              }}
+                            >
+                              <span>
+                                {
+                                  getInitialsAndColorCode(
+                                    provider.name,
+                                    this.props.colorPalette,
+                                  )[0]
+                                }
+                              </span>
+                            </div>
+                          )}
+                          {provider.name && (
+                            <p className="textBtn" title={provider.name}>
+                              {provider.name}
+                            </p>
+                          )}
+                        </Card>
+                      </CardList>
+                    ))}
+                  </ApiCard>
+                </div>
               )}
-            </>
-          ) : (
-            <>
-              <InfiniteScroll
-                pageStart={0}
-                initialLoad={false}
-                loadMore={this.handleFetchMoreProviders.bind(this)}
-                useWindow={false}
-                hasMore={providers.length < providersTotal}
-                loader={
-                  <LoadingContainer>
-                    <Spinner size={30} />
-                  </LoadingContainer>
-                }
-              >
-                {ApiHomepageTopSection}
-                {/* Marketplace APIs section start */}
-                <StyledContainer>
-                  <div>
-                    <div style={{ float: "left" }}>
-                      <p className="sectionHeadings">{"Marketplace APIs"}</p>
-                    </div>
-                    <div>
-                      <DropdownSelect>
-                        <DropdownField
-                          placeholder="All APIs"
-                          width={232}
-                          name="category"
-                          options={PROVIDER_CATEGORIES_OPTIONS}
-                        />
-                      </DropdownSelect>
-                    </div>
-                  </div>
-
-                  <br />
-                  <br />
-
-                  {isSwitchingCategory ? (
-                    <LoadingContainer>
-                      <Spinner size={30} />
-                    </LoadingContainer>
-                  ) : (
-                    <>
-                      {fetchProvidersError ? (
-                        <div>
-                          <p className="fontSize16">No providers found.</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <ApiCard>
-                            {providers.map((provider, index) => (
-                              <CardList
-                                key={index}
-                                onClick={() => {
-                                  AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
-                                    providerName: provider.name,
-                                  });
-                                  history.push(
-                                    getProviderTemplatesURL(
-                                      applicationId,
-                                      pageId,
-                                      provider.id +
-                                        `/?importTo=${destinationPageId}`,
-                                    ),
-                                  );
-                                }}
-                              >
-                                <Card
-                                  interactive={false}
-                                  className="eachProviderCard t--eachProviderCard"
-                                >
-                                  {provider.imageUrl ? (
-                                    <img
-                                      src={provider.imageUrl}
-                                      className="apiImage"
-                                      alt="Provider"
-                                    />
-                                  ) : (
-                                    <div
-                                      className="providerInitials"
-                                      style={{
-                                        backgroundColor: getInitialsAndColorCode(
-                                          provider.name,
-                                          this.props.colorPalette,
-                                        )[1],
-                                      }}
-                                    >
-                                      <span>
-                                        {
-                                          getInitialsAndColorCode(
-                                            provider.name,
-                                            this.props.colorPalette,
-                                          )[0]
-                                        }
-                                      </span>
-                                    </div>
-                                  )}
-                                  {provider.name && (
-                                    <p
-                                      className="textBtn"
-                                      title={provider.name}
-                                    >
-                                      {provider.name}
-                                    </p>
-                                  )}
-                                </Card>
-                              </CardList>
-                            ))}
-                          </ApiCard>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </StyledContainer>
-                {/* Marketplace APIs section end */}
-              </InfiniteScroll>
-            </>
-          )}
-        </ApiHomePage>
-      </React.Fragment>
+            </StyledContainer>
+            {/* Marketplace APIs section end */}
+          </InfiniteScroll>
+        )}
+      </ApiHomePage>
     );
   }
 }
@@ -767,10 +787,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 const mapStateToProps = (state: AppState) => {
   const { providers } = state.ui;
   const {
-    providersTotal,
-    isSwitchingCategory,
-    fetchProvidersError,
     apiOrProviderSearchResults,
+    fetchProvidersError,
+    isSwitchingCategory,
+    providersTotal,
   } = providers;
   const formData = getFormValues(API_HOME_SCREEN_FORM)(
     state,

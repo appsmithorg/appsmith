@@ -9,6 +9,7 @@ import {
 import { getType, Types } from "utils/TypeHelpers";
 
 let extraDefs: any = {};
+const skipProperties = ["!doc", "!url", "!type"];
 
 export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   const def: any = {
@@ -22,17 +23,32 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
         if (widgetType in entityDefinitions) {
           const definition = _.get(entityDefinitions, widgetType);
           if (_.isFunction(definition)) {
+            const data = definition(entity);
+            const allData = flattenObjKeys(data, entityName);
+            for (const [key, value] of Object.entries(allData)) {
+              def[key] = value;
+            }
             def[entityName] = definition(entity);
           } else {
             def[entityName] = definition;
+            const allFlattenData = flattenObjKeys(definition, entityName);
+            for (const [key, value] of Object.entries(allFlattenData)) {
+              def[key] = value;
+            }
           }
         }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        def[entityName] = (entityDefinitions.ACTION as any)(entity);
+        const actionDefs = (entityDefinitions.ACTION as any)(entity);
+        def[entityName] = actionDefs;
+        const finalData = flattenObjKeys(actionDefs, entityName);
+        for (const [key, value] of Object.entries(finalData)) {
+          def[key] = value;
+        }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
-        def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+        const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+        def.appsmith = options;
       }
     }
   });
@@ -72,3 +88,17 @@ export function generateTypeDef(
       return "?";
   }
 }
+
+export const flattenObjKeys = (
+  options: any,
+  parentKey: string,
+  results: any = {},
+): any => {
+  const r: any = results;
+  for (const [key, value] of Object.entries(options)) {
+    if (!skipProperties.includes(key)) {
+      r[parentKey + "." + key] = value;
+    }
+  }
+  return r;
+};

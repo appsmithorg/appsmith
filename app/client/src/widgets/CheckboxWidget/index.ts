@@ -1,21 +1,23 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,
   defaults: {
-    rows: 1,
-    columns: 3,
+    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     label: "Label",
     defaultCheckedState: true,
     widgetName: "Checkbox",
     version: 1,
     alignWidget: "LEFT",
+    isDisabled: false,
+    isRequired: false,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

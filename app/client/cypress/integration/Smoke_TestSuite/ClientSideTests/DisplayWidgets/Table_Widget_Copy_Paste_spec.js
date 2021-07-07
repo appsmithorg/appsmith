@@ -37,14 +37,14 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       .contains("UNDO")
       .click({ force: true });
     */
-    cy.GlobalSearchEntity("Table2");
+    cy.GlobalSearchEntity("Table1Copy");
     cy.get(".t--entity-collapse-toggle")
       .last()
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(8);
-      expect($lis.eq(0)).to.contain("{{Table2.selectedRow}}");
-      expect($lis.eq(1)).to.contain("{{Table2.selectedRows}}");
+      expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
+      expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });
   });
 });

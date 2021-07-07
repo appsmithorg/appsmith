@@ -1,5 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -7,8 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
-    rows: 5,
-    columns: 8,
+    rows: 5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 8 * GRID_DENSITY_MIGRATION_V1,
     isDisabled: false,
     isVisible: true,
     widgetName: "RichTextEditor",
@@ -17,7 +18,6 @@ export const CONFIG = {
     version: 1,
   },
   properties: {
-    validations: Widget.getPropertyValidationMap(),
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),

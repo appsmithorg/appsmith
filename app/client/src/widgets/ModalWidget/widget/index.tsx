@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import {
@@ -14,11 +15,13 @@ import produce from "immer";
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
     width: 456,
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 6,
+    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
   },
   MODAL_LARGE: {
     width: 532,
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 15,
+    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
   },
 };
 
@@ -62,6 +65,20 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the modal is closed",
+            propertyName: "onClose",
+            label: "onClose",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
   static defaultProps = {
@@ -94,6 +111,18 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return WidgetFactory.createWidget(childWidgetProps);
   };
 
+  onModalClose = () => {
+    if (this.props.onClose) {
+      this.props.executeAction({
+        triggerPropertyName: "onClose",
+        dynamicString: this.props.onClose,
+        event: {
+          type: EventType.ON_MODAL_CLOSE,
+        },
+      });
+    }
+  };
+
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
     // TODO(abhinav): Create a static property with is a map of widget properties
@@ -112,22 +141,19 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   makeModalComponent(content: ReactNode) {
     return (
-      <React.Fragment>
-        <ModalComponent
-          isOpen={!!this.props.isVisible}
-          onClose={this.closeModal}
-          width={this.getModalWidth()}
-          height={MODAL_SIZE[this.props.size].height}
-          className={`t--modal-widget ${generateClassName(
-            this.props.widgetId,
-          )}`}
-          canOutsideClickClose={!!this.props.canOutsideClickClose}
-          canEscapeKeyClose={!!this.props.canEscapeKeyClose}
-          scrollContents={!!this.props.shouldScrollContents}
-        >
-          {content}
-        </ModalComponent>
-      </React.Fragment>
+      <ModalComponent
+        canEscapeKeyClose={!!this.props.canEscapeKeyClose}
+        canOutsideClickClose={!!this.props.canOutsideClickClose}
+        className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
+        height={MODAL_SIZE[this.props.size].height}
+        isOpen={!!this.props.isVisible}
+        onClose={this.closeModal}
+        onModalClose={this.onModalClose}
+        scrollContents={!!this.props.shouldScrollContents}
+        width={this.getModalWidth()}
+      >
+        {content}
+      </ModalComponent>
     );
   }
 
@@ -158,6 +184,7 @@ export interface ModalWidgetProps extends WidgetProps {
   shouldScrollContents?: boolean;
   size: string;
   canvasWidth: number;
+  onClose: string;
 }
 
 export default ModalWidget;

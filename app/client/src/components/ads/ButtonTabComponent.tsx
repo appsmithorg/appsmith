@@ -41,7 +41,7 @@ interface ButtonTabComponentProps {
   selectButton: (value: string) => void;
 }
 
-const ButtonTabComponent = (props: ButtonTabComponentProps) => {
+function ButtonTabComponent(props: ButtonTabComponentProps) {
   return (
     <FlexWrapper>
       {props.options.map((option: ButtonTabOption, index: number) => {
@@ -50,17 +50,17 @@ const ButtonTabComponent = (props: ButtonTabComponentProps) => {
         const isSelected = props.values.includes(option.value);
         return (
           <ItemWrapper
-            key={index}
-            selected={isSelected}
-            onClick={() => props.selectButton(option.value)}
             className={`t--button-tab-${option.value}`}
+            key={index}
+            onClick={() => props.selectButton(option.value)}
+            selected={isSelected}
           >
-            <ControlIcon width={24} height={24} />
+            <ControlIcon height={24} width={24} />
           </ItemWrapper>
         );
       })}
     </FlexWrapper>
   );
-};
+}
 
 export default ButtonTabComponent;

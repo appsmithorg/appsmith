@@ -4,7 +4,6 @@ import {
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { createSelector } from "reselect";
 import { Datasource } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
@@ -62,15 +61,6 @@ export const getPluginNameFromDatasourceId = (
   return plugin.name;
 };
 
-export const getPluginPackageFromId = (state: AppState, pluginId: string) => {
-  const plugin = state.entities.plugins.list.find(
-    (plugin) => plugin.id === pluginId,
-  );
-
-  if (!plugin) return "";
-  return plugin.packageName;
-};
-
 export const getPluginPackageFromDatasourceId = (
   state: AppState,
   datasourceId: string,
@@ -124,9 +114,23 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
+export const getDatasourcesByPluginId = (
+  state: AppState,
+  id: string,
+): Datasource[] => {
+  return state.entities.datasources.list.filter((d) => d.pluginId === id);
+};
+
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export const getPluginByPackageName = (state: AppState, name: string) =>
+  state.entities.plugins.list.find((p) => p.packageName === name);
+
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
+
+export const getPluginDependencyConfig = (state: AppState) =>
+  state.entities.plugins.dependencies;
 
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
@@ -134,6 +138,9 @@ export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
+
+export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
+  state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
 export const getDBDatasources = createSelector(
   getDBPlugins,
@@ -219,7 +226,7 @@ export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
     return actions.filter((action) => {
-      return action.config.pluginType === QUERY_CONSTANT;
+      return action.config.pluginType === PluginType.DB;
     });
   },
 );
@@ -234,7 +241,6 @@ export const getActionResponses = createSelector(getActions, (actions) => {
   actions.forEach((a) => {
     responses[a.config.id] = a.data;
   });
-
   return responses;
 });
 
@@ -293,7 +299,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
-
+export const getCurrentPageWidgets = createSelector(
+  getPageWidgets,
+  getCurrentPageId,
+  (widgetsByPage, currentPageId) =>
+    currentPageId ? widgetsByPage[currentPageId] : {},
+);
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {

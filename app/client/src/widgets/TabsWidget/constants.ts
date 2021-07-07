@@ -14,6 +14,16 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     widgetId: string;
     isVisible?: boolean;
   }>;
+  tabsObj: Record<
+    string,
+    {
+      id: string;
+      label: string;
+      widgetId: string;
+      isVisible?: boolean;
+      index: number;
+    }
+  >;
   shouldShowTabs: boolean;
   children: T[];
   snapColumns?: number;

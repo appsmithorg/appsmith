@@ -21,7 +21,7 @@
           "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",
-          "initialValue": "false"
+          "initialValue": false
         },
         {
           "label": "Query timeout (in milliseconds)",

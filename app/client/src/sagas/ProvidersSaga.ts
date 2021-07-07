@@ -104,7 +104,7 @@ export function* addApiToPageSaga(
       });
 
       const applicationId = yield select(getCurrentApplicationId);
-      yield put(fetchActions(applicationId));
+      yield put(fetchActions(applicationId, []));
     }
   } catch (error) {
     yield put({

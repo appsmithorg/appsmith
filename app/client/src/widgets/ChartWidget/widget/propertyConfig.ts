@@ -1,4 +1,6 @@
 import { ChartWidgetProps } from "widgets/ChartWidget/widget";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export default [
   {
@@ -12,6 +14,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Changes the visualisation of the chart data",
@@ -56,34 +59,37 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
     ],
   },
   {
-    helpText:
-      "Manually configure a FusionChart, see https://www.fusioncharts.com",
-    propertyName: "customFusionChartConfig",
-    placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
-    label: "Custom Fusion Chart Configuration",
-    controlType: "CUSTOM_FUSION_CHARTS_DATA",
-    isBindProperty: true,
-    isTriggerProperty: false,
-    hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
-  },
-  {
     sectionName: "Chart Data",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType === "CUSTOM_FUSION_CHART",
     children: [
+      {
+        helpText:
+          "Manually configure a FusionChart, see https://docs.appsmith.com/widget-reference/chart#custom-chart",
+        placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
+        propertyName: "customFusionChartConfig",
+        label: "Custom Fusion Chart Configuration",
+        controlType: "CUSTOM_FUSION_CHARTS_DATA",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType !== "CUSTOM_FUSION_CHART",
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
-
         isBindProperty: false,
         isTriggerProperty: false,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType === "CUSTOM_FUSION_CHART",
         children: [
           {
             helpText: "Series Name",
@@ -92,6 +98,7 @@ export default [
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Series data",
@@ -100,6 +107,9 @@ export default [
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.CHART_SERIES_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
         ],
       },
@@ -118,6 +128,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Specifies the label of the y-axis",
@@ -127,6 +138,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Enables scrolling inside the chart",

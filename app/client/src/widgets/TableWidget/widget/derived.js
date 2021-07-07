@@ -20,7 +20,9 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
-    const selectedRowIndices = props.selectedRowIndices || [];
+    const selectedRowIndices = Array.isArray(props.selectedRowIndices)
+      ? props.selectedRowIndices
+      : [props.selectedRowIndices];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
@@ -33,27 +35,27 @@ export default {
   getPageSize: (props, moment, _) => {
     const TABLE_SIZES = {
       DEFAULT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
       },
       SHORT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 20,
         ROW_FONT_SIZE: 12,
       },
       TALL: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace;
+      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
     let pageSize = Math.floor(
       (componentHeight -
@@ -195,7 +197,11 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.log("Error parsing column value: ", column.computedValue);
+              console.error(
+                e,
+                "Error parsing column value: ",
+                column.computedValue,
+              );
             }
           } else if (Array.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -285,7 +291,10 @@ export default {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
-      empty: _.isEmpty,
+      empty: (a) => {
+        if (a === null || a === undefined || a === "") return true;
+        return _.isEmpty(a.toString());
+      },
       notEmpty: (a) => {
         return a !== "" && a !== undefined && a !== null;
       },
@@ -317,7 +326,10 @@ export default {
       },
       contains: (a, b) => {
         try {
-          return a.toString().includes(b.toString());
+          return a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
@@ -331,15 +343,20 @@ export default {
       },
       startsWith: (a, b) => {
         try {
-          return a.toString().indexOf(b.toString()) === 0;
+          return (
+            a
+              .toString()
+              .toLowerCase()
+              .indexOf(b.toString().toLowerCase()) === 0
+          );
         } catch (e) {
           return false;
         }
       },
       endsWith: (a, b) => {
         try {
-          const _a = a.toString();
-          const _b = b.toString();
+          const _a = a.toString().toLowerCase();
+          const _b = b.toString().toLowerCase();
 
           return _a.length === _a.indexOf(_b) + _b.length;
         } catch (e) {
@@ -360,7 +377,10 @@ export default {
       },
     };
 
-    const searchKey = props.searchText ? props.searchText.toLowerCase() : "";
+    const searchKey =
+      props.searchText && !props.onSearchTextChanged
+        ? props.searchText.toLowerCase()
+        : "";
 
     const finalTableData = sortedTableData.filter((item) => {
       const searchFound = searchKey
@@ -385,7 +405,7 @@ export default {
             );
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         const filterValue = result;
         if (filterOperator === "AND") {

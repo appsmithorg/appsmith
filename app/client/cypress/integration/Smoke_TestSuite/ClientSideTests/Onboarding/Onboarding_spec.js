@@ -38,6 +38,9 @@ describe("Onboarding", function() {
           .should("be.visible")
           .click({ force: true });
 
+        cy.get(".t--create-query").click();
+        cy.wait("@createNewApi");
+
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout
         cy.get(".t--onboarding-cheat-action")
@@ -50,7 +53,7 @@ describe("Onboarding", function() {
 
         // Add widget
         cy.get(".t--add-widget").click();
-        cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
+        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 40 });
 
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting

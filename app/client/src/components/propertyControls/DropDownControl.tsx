@@ -6,9 +6,14 @@ import { DropdownOption } from "components/ads/Dropdown";
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     let defaultSelected: DropdownOption = {
-      label: "No results.",
+      label: "No selection.",
       value: undefined,
     };
+    if (this.props.defaultValue) {
+      defaultSelected = this.props.options.find(
+        (option) => option.value === this.props.defaultValue,
+      );
+    }
 
     const selected: DropdownOption = this.props.options.find(
       (option) => option.value === this.props.propertyValue,
@@ -21,14 +26,14 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer>
         <StyledDropDown
-          options={this.props.options}
-          selected={defaultSelected}
           onSelect={this.onItemSelect}
-          width="231px"
-          showLabelOnly={true}
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "231px"
           }
+          options={this.props.options}
+          selected={defaultSelected}
+          showLabelOnly
+          width="100%"
         />
       </StyledDropDownContainer>
     );
@@ -51,6 +56,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
 export interface DropDownControlProps extends ControlProps {
   options: any[];
+  defaultValue?: string;
   placeholderText: string;
   propertyValue: string;
   optionWidth?: string;

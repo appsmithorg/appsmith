@@ -5,19 +5,25 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.solutions.UserChangedHandler;
+import lombok.AllArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +36,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 
 @Component
+@AllArgsConstructor
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
@@ -37,18 +44,8 @@ public class PolicyUtils {
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
-
-    public PolicyUtils(PolicyGenerator policyGenerator,
-                       ApplicationRepository applicationRepository,
-                       DatasourceRepository datasourceRepository,
-                       NewPageRepository newPageRepository,
-                       NewActionRepository newActionRepository) {
-        this.policyGenerator = policyGenerator;
-        this.applicationRepository = applicationRepository;
-        this.datasourceRepository = datasourceRepository;
-        this.newPageRepository = newPageRepository;
-        this.newActionRepository = newActionRepository;
-    }
+    private final UserChangedHandler userChangedHandler;
+    private final CommentThreadRepository commentThreadRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -222,6 +219,23 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
+    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+
+        return
+                // fetch comment threads with read permissions
+                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+                .switchIfEmpty(Mono.empty())
+                .map(thread -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                    } else {
+                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                    }
+                })
+                .collectList()
+                .flatMapMany(commentThreads -> commentThreadRepository.saveAll(commentThreads));
+    }
+
     /**
      * Instead of fetching actions by pageId, fetch actions by applicationId and then update the action policies
      * using the new ActionPoliciesMap. This ensures the following :
@@ -251,8 +265,8 @@ public class PolicyUtils {
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                           Class sourceEntity,
-                                                                           Class destinationEntity) {
+                                                                           Class<? extends BaseDomain> sourceEntity,
+                                                                           Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
 
         return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
@@ -282,4 +296,18 @@ public class PolicyUtils {
 
         return false;
     }
+
+    public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
+        if (CollectionUtils.isNotEmpty(policies) && permission != null) {
+            final String permissionString = permission.getValue();
+            for (Policy policy : policies) {
+                if (permissionString.equals(policy.getPermission())) {
+                    return policy.getUsers();
+                }
+            }
+        }
+
+        return Collections.emptySet();
+    }
+
 }

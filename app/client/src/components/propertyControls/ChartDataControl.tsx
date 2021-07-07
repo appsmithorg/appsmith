@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import { get, isString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -13,6 +13,8 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "components/ads/Button";
+import { AllChartData, ChartData } from "widgets/ChartWidget";
+import { generateReactKey } from "utils/generators";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -76,16 +78,12 @@ const Box = styled.div`
 `;
 
 type RenderComponentProps = {
-  index: number;
-  item: {
-    seriesName: string;
-    data: Array<{ x: string; y: string }> | string;
-  };
+  index: string;
+  item: ChartData;
   length: number;
-  isValid: boolean;
-  validationMessage: string;
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, key: string, value: string) => void;
+  dataTreePath: string;
+  deleteOption: (index: string) => void;
+  updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
@@ -95,14 +93,15 @@ type RenderComponentProps = {
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
+    dataTreePath,
     deleteOption,
-    updateOption,
-    item,
-    index,
-    length,
-    isValid,
     evaluated,
+    index,
+    item,
+    length,
+    updateOption,
   } = props;
+
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <ActionHolder>
@@ -110,15 +109,17 @@ function DataControlComponent(props: RenderComponentProps) {
         {length > 1 && (
           <StyledDeleteIcon
             height={20}
-            width={20}
             onClick={() => {
               deleteOption(index);
             }}
+            width={20}
           />
         )}
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
+          dataTreePath={`${dataTreePath}.seriesName`}
+          evaluatedValue={evaluated?.seriesName}
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -132,12 +133,11 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated?.seriesName}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -145,6 +145,8 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
+          dataTreePath={`${dataTreePath}.data`}
+          evaluatedValue={evaluated?.data}
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
@@ -158,153 +160,108 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated?.data}
-          meta={{
-            error: isValid ? "" : "There is an error",
-            touched: true,
-          }}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledDynamicInput>
-      <Box></Box>
+      <Box />
     </StyledOptionControlWrapper>
   );
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  getValidations = (message: string, isValid: boolean, len: number) => {
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = [];
-    let index = -1;
-    let validationMessage = "";
-    if (message.indexOf("##") !== -1) {
-      const messages = message.split("##");
-      index = Number(messages[0]);
-      validationMessage = messages[1];
-    }
-    for (let i = 0; i < len; i++) {
-      if (i === index) {
-        validations.push({
-          isValid: false,
-          validationMessage: validationMessage,
-        });
-      } else {
-        validations.push({
-          isValid: true,
-          validationMessage: "",
-        });
-      }
-    }
-    return validations;
-  };
-
-  getEvaluatedValue = () => {
-    if (Array.isArray(this.props.evaluatedValue)) {
-      return this.props.evaluatedValue;
-    }
-    return [];
-  };
-
   render() {
-    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
-      this.props.propertyValue,
-    )
-      ? []
+    const chartData: AllChartData = isString(this.props.propertyValue)
+      ? {}
       : this.props.propertyValue;
-    const dataLength = chartData.length;
-    const { validationMessage, isValid } = this.props;
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = this.getValidations(
-      validationMessage || "",
-      isValid,
-      chartData.length,
-    );
 
-    const evaluatedValue = this.getEvaluatedValue();
+    const dataLength = Object.keys(chartData).length;
+
+    const evaluatedValue = this.props.evaluatedValue;
+    const firstKey = Object.keys(chartData)[0] as string;
+
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
-      const data = chartData.length
-        ? chartData[0]
+      const data = dataLength
+        ? get(chartData, `${firstKey}`)
         : {
             seriesName: "",
-            data: "",
+            data: [],
           };
+
       return (
         <DataControlComponent
-          index={0}
+          dataTreePath={`${this.props.dataTreePath}.${firstKey}`}
+          deleteOption={this.deleteOption}
+          evaluated={get(evaluatedValue, `${firstKey}`)}
+          index={firstKey}
           item={data}
           length={1}
-          deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          isValid={validations[0].isValid}
-          validationMessage={validations[0].validationMessage}
-          evaluated={evaluatedValue[0]}
           theme={this.props.theme}
+          updateOption={this.updateOption}
         />
       );
     }
+
     return (
-      <React.Fragment>
+      <>
         <Wrapper>
-          {chartData.map((data, index) => {
+          {Object.keys(chartData).map((key: string) => {
+            const data = get(chartData, `${key}`);
+
             return (
               <DataControlComponent
-                key={index}
-                index={index}
-                item={data}
-                length={dataLength}
+                dataTreePath={`${this.props.dataTreePath}.${key}`}
                 deleteOption={this.deleteOption}
-                updateOption={this.updateOption}
-                isValid={validations[index].isValid}
-                validationMessage={validations[index].validationMessage}
-                evaluated={evaluatedValue[index]}
+                evaluated={get(evaluatedValue, `${key}`)}
+                index={key}
+                item={data}
+                key={key}
+                length={dataLength}
                 theme={this.props.theme}
+                updateOption={this.updateOption}
               />
             );
           })}
         </Wrapper>
 
         <StyledPropertyPaneButton
+          category={Category.tertiary}
           icon="plus"
-          tag="button"
-          type="button"
-          text="Add Series"
           onClick={this.addOption}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="Add Series"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 
-  deleteOption = (index: number) => {
-    this.deleteProperties([`${this.props.propertyName}[${index}]`]);
+  deleteOption = (index: string) => {
+    this.deleteProperties([`${this.props.propertyName}.${index}`]);
   };
 
   updateOption = (
-    index: number,
+    index: string,
     propertyName: string,
     updatedValue: string,
   ) => {
     this.updateProperty(
-      `${this.props.propertyName}[${index}].${propertyName}`,
+      `${this.props.propertyName}.${index}.${propertyName}`,
       updatedValue,
     );
   };
 
+  /**
+   * it adds new series data object in the chartData
+   */
   addOption = () => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    this.updateProperty(`${this.props.propertyName}[${chartData.length}]`, {
+    const randomString = generateReactKey();
+
+    this.updateProperty(`${this.props.propertyName}.${randomString}`, {
       seriesName: "",
       data: JSON.stringify([{ x: "label", y: 50 }]),
     });

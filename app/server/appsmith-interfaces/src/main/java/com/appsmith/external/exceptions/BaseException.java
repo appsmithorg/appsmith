@@ -1,12 +1,12 @@
 package com.appsmith.external.exceptions;
 
-public abstract class BaseException extends Exception {
+public abstract class BaseException extends RuntimeException {
 
     public BaseException(String message) {
         super(message);
     }
 
-    public abstract  Integer getHttpStatus();
+    public abstract Integer getHttpStatus();
 
     public abstract Integer getAppErrorCode();
 

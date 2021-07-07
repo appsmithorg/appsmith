@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   useTable,
   usePagination,
@@ -6,7 +6,11 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { TableWrapper } from "./TableStyledWrappers";
+import {
+  TableWrapper,
+  TableHeaderWrapper,
+  TableHeaderInnerWrapper,
+} from "./TableStyledWrappers";
 import { ReactTableFilter } from "./TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
@@ -19,8 +23,9 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Scrollbars } from "react-custom-scrollbars";
 
 interface TableProps {
   width: number;
@@ -55,6 +60,11 @@ interface TableProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleCompactMode?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
 }
 
 const defaultColumn = {
@@ -62,9 +72,16 @@ const defaultColumn = {
   width: 150,
 };
 
-export const Table = (props: TableProps) => {
+function ScrollbarVerticalThumb(props: any) {
+  return <div {...props} className="thumb-vertical" />;
+}
+
+function ScrollbarHorizontalThumb(props: any) {
+  return <div {...props} className="thumb-horizontal" />;
+}
+
+export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
-  const tableWrapperRef = React.useRef<HTMLDivElement>(null);
 
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnSizeMap = {
@@ -89,15 +106,22 @@ export const Table = (props: TableProps) => {
     columnSizeMap: props.columnSizeMap,
   });
   const columns = React.useMemo(() => props.columns, [columnString]);
+  const tableHeadercolumns = React.useMemo(
+    () =>
+      props.columns.filter((column: ReactTableColumnProps) => {
+        return column.accessor !== "actions";
+      }),
+    [columnString],
+  );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    prepareRow,
     page,
     pageOptions,
+    prepareRow,
     state,
   } = useTable(
     {
@@ -139,136 +163,189 @@ export const Table = (props: TableProps) => {
   const selectedRowIndex = props.selectedRowIndex;
   const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
-  /* Subtracting 9px to handling widget padding */
+  const tableWrapperRef = useRef<HTMLDivElement | null>(null);
+  const tableBodyRef = useRef<HTMLDivElement | null>(null);
+  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const isHeaderVisible =
+    props.isVisibleSearch ||
+    props.isVisibleFilters ||
+    props.isVisibleDownload ||
+    props.isVisibleCompactMode ||
+    props.isVisiblePagination;
+
   return (
     <TableWrapper
-      width={props.width}
-      height={props.height}
-      tableSizes={tableSizes}
-      id={`table${props.widgetId}`}
-      triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
-      ref={tableWrapperRef}
+      height={props.height}
+      id={`table${props.widgetId}`}
+      isHeaderVisible={isHeaderVisible}
+      tableSizes={tableSizes}
+      triggerRowSelection={props.triggerRowSelection}
+      width={props.width}
     >
-      <TableHeader
-        width={props.width}
-        tableData={props.data}
-        tableColumns={props.columns}
-        searchTableData={props.searchTableData}
-        searchKey={props.searchKey}
-        updatePageNo={props.updatePageNo}
-        nextPageClick={props.nextPageClick}
-        prevPageClick={props.prevPageClick}
-        pageNo={props.pageNo}
-        pageCount={pageCount}
-        currentPageIndex={currentPageIndex}
-        pageOptions={pageOptions}
-        widgetName={props.widgetName}
-        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-        columns={props.columns.filter((column: ReactTableColumnProps) => {
-          return column.accessor !== "actions";
-        })}
-        filters={props.filters}
-        applyFilter={props.applyFilter}
-        editMode={props.editMode}
-        compactMode={props.compactMode}
-        updateCompactMode={props.updateCompactMode}
-        tableSizes={tableSizes}
-      />
-      <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
-        <div {...getTableProps()} className="table">
-          <div
-            onMouseOver={props.disableDrag}
-            onMouseLeave={props.enableDrag}
-            className="thead"
+      {isHeaderVisible && (
+        <TableHeaderWrapper
+          backgroundColor={Colors.WHITE}
+          ref={tableHeaderWrapperRef}
+          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+          tableSizes={tableSizes}
+          width={props.width}
+        >
+          <Scrollbars
+            renderThumbHorizontal={ScrollbarHorizontalThumb}
+            renderThumbVertical={ScrollbarVerticalThumb}
+            style={{ width: props.width, height: 38 }}
           >
-            {headerGroups.map((headerGroup: any, index: number) => (
-              <div
-                {...headerGroup.getHeaderGroupProps()}
-                className="tr"
-                key={index}
-              >
-                {headerGroup.headers.map((column: any, columnIndex: number) => {
-                  return (
-                    <TableHeaderCell
-                      key={columnIndex}
-                      column={column}
-                      columnName={column.Header}
-                      columnIndex={columnIndex}
-                      isHidden={column.isHidden}
-                      sortTableColumn={props.sortTableColumn}
-                      isAscOrder={column.isAscOrder}
-                      isResizingColumn={isResizingColumn.current}
-                    />
-                  );
-                })}
-              </div>
-            ))}
-            {headerGroups.length === 0 &&
-              renderEmptyRows(
-                1,
-                props.columns,
-                props.width,
-                subPage,
-                prepareRow,
-              )}
-          </div>
-          <div
-            {...getTableBodyProps()}
-            className={`tbody ${
-              props.pageSize > subPage.length ? "no-scroll" : ""
-            }`}
-          >
-            {subPage.map((row, rowIndex) => {
-              prepareRow(row);
-              return (
+            <TableHeaderInnerWrapper
+              backgroundColor={Colors.WHITE}
+              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+              tableSizes={tableSizes}
+              width={props.width}
+            >
+              <TableHeader
+                applyFilter={props.applyFilter}
+                columns={tableHeadercolumns}
+                compactMode={props.compactMode}
+                currentPageIndex={currentPageIndex}
+                editMode={props.editMode}
+                filters={props.filters}
+                isVisibleCompactMode={props.isVisibleCompactMode}
+                isVisibleDownload={props.isVisibleDownload}
+                isVisibleFilters={props.isVisibleFilters}
+                isVisiblePagination={props.isVisiblePagination}
+                isVisibleSearch={props.isVisibleSearch}
+                nextPageClick={props.nextPageClick}
+                pageCount={pageCount}
+                pageNo={props.pageNo}
+                pageOptions={pageOptions}
+                prevPageClick={props.prevPageClick}
+                searchKey={props.searchKey}
+                searchTableData={props.searchTableData}
+                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+                tableColumns={columns}
+                tableData={props.data}
+                tableSizes={tableSizes}
+                updateCompactMode={props.updateCompactMode}
+                updatePageNo={props.updatePageNo}
+                widgetName={props.widgetName}
+              />
+            </TableHeaderInnerWrapper>
+          </Scrollbars>
+        </TableHeaderWrapper>
+      )}
+      <div
+        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
+        ref={tableWrapperRef}
+      >
+        <Scrollbars
+          renderThumbHorizontal={ScrollbarHorizontalThumb}
+          style={{
+            width: props.width,
+            height: isHeaderVisible ? props.height - 48 : props.height,
+          }}
+        >
+          <div {...getTableProps()} className="table">
+            <div
+              className="thead"
+              onMouseLeave={props.enableDrag}
+              onMouseOver={props.disableDrag}
+            >
+              {headerGroups.map((headerGroup: any, index: number) => (
                 <div
-                  {...row.getRowProps()}
-                  className={
-                    "tr" +
-                    `${
-                      row.index === selectedRowIndex ||
-                      selectedRowIndices.includes(row.index)
-                        ? " selected-row"
-                        : ""
-                    }`
-                  }
-                  onClick={() => {
-                    row.toggleRowSelected();
-                    props.selectTableRow(row);
-                  }}
-                  key={rowIndex}
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr"
+                  key={index}
                 >
-                  {row.cells.map((cell, cellIndex) => {
-                    return (
-                      <div
-                        {...cell.getCellProps()}
-                        className="td"
-                        key={cellIndex}
-                        data-rowindex={rowIndex}
-                        data-colindex={cellIndex}
-                      >
-                        {cell.render("Cell")}
-                      </div>
-                    );
-                  })}
+                  {headerGroup.headers.map(
+                    (column: any, columnIndex: number) => {
+                      return (
+                        <TableHeaderCell
+                          column={column}
+                          columnIndex={columnIndex}
+                          columnName={column.Header}
+                          isAscOrder={column.isAscOrder}
+                          isHidden={column.isHidden}
+                          isResizingColumn={isResizingColumn.current}
+                          key={columnIndex}
+                          sortTableColumn={props.sortTableColumn}
+                        />
+                      );
+                    },
+                  )}
                 </div>
-              );
-            })}
-            {props.pageSize > subPage.length &&
-              renderEmptyRows(
-                props.pageSize - subPage.length,
-                props.columns,
-                props.width,
-                subPage,
-                prepareRow,
-              )}
+              ))}
+              {headerGroups.length === 0 &&
+                renderEmptyRows(
+                  1,
+                  props.columns,
+                  props.width,
+                  subPage,
+                  prepareRow,
+                )}
+            </div>
+            <div
+              {...getTableBodyProps()}
+              className={`tbody ${
+                props.pageSize > subPage.length ? "no-scroll" : ""
+              }`}
+              ref={tableBodyRef}
+            >
+              {subPage.map((row, rowIndex) => {
+                prepareRow(row);
+                return (
+                  <div
+                    {...row.getRowProps()}
+                    className={
+                      "tr" +
+                      `${
+                        row.index === selectedRowIndex ||
+                        selectedRowIndices.includes(row.index)
+                          ? " selected-row"
+                          : ""
+                      }`
+                    }
+                    key={rowIndex}
+                    onClick={(e) => {
+                      row.toggleRowSelected();
+                      props.selectTableRow(row);
+                      e.stopPropagation();
+                    }}
+                  >
+                    {row.cells.map((cell, cellIndex) => {
+                      return (
+                        <div
+                          {...cell.getCellProps()}
+                          className="td"
+                          data-colindex={cellIndex}
+                          data-rowindex={rowIndex}
+                          key={cellIndex}
+                        >
+                          {cell.render("Cell")}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+              {props.pageSize > subPage.length &&
+                renderEmptyRows(
+                  props.pageSize - subPage.length,
+                  props.columns,
+                  props.width,
+                  subPage,
+                  prepareRow,
+                )}
+            </div>
           </div>
-        </div>
+        </Scrollbars>
       </div>
-      <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" />
+      <ScrollIndicator
+        containerRef={tableBodyRef}
+        mode="LIGHT"
+        top={props.editMode ? "70px" : "73px"}
+      />
     </TableWrapper>
   );
-};
+}
 
 export default Table;

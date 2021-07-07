@@ -1,5 +1,6 @@
 package com.appsmith.server.exceptions;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;

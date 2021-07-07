@@ -9,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
-import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.util.SafeEncoder;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +36,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+
 public class RedisPlugin extends BasePlugin {
-    private static final Integer DEFAULT_PORT = 6379;
+    private static final Long DEFAULT_PORT = 6379L;
+    private static final int CONNECTION_TIMEOUT = 60;
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -41,17 +48,20 @@ public class RedisPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RedisPluginExecutor implements PluginExecutor<Jedis> {
+    public static class RedisPluginExecutor implements PluginExecutor<JedisPool> {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
-        public Mono<ActionExecutionResult> execute(Jedis jedis,
+        public Mono<ActionExecutionResult> execute(JedisPool jedisPool,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null, null));
 
+            Jedis jedis = jedisPool.getResource();
             return Mono.fromCallable(() -> {
                 if (StringUtils.isNullOrEmpty(query)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -87,6 +97,7 @@ public class RedisPlugin extends BasePlugin {
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
                     .onErrorResume(error  -> {
+                        error.printStackTrace();
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(error);
@@ -96,9 +107,20 @@ public class RedisPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
+                    })
+                    .doFinally(signalType -> {
+                        /**
+                         * - Return resource back to the pool.
+                         * - https://stackoverflow.com/questions/54902337/is-it-necessary-to-use-jedis-close
+                         * - https://www.baeldung.com/jedis-java-redis-client-library:
+                         */
+                        if (jedis != null) {
+                            jedis.close();
+                        }
                     })
                     .subscribeOn(scheduler);
         }
@@ -119,10 +141,31 @@ public class RedisPlugin extends BasePlugin {
             }
         }
 
-        @Override
-        public Mono<Jedis> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
-            return (Mono<Jedis>) Mono.fromCallable(() -> {
+        /**
+         * - Config taken from https://www.baeldung.com/jedis-java-redis-client-library
+         * - To understand what these config mean:
+         * https://www.infoworld.com/article/2071834/pool-resources-using-apache-s-commons-pool-framework.html
+         */
+        private JedisPoolConfig buildPoolConfig() {
+            final JedisPoolConfig poolConfig = new JedisPoolConfig();
+            poolConfig.setMaxTotal(5);
+            poolConfig.setMaxIdle(5);
+            poolConfig.setMinIdle(0);
+            poolConfig.setTestOnBorrow(true);
+            poolConfig.setTestOnReturn(true);
+            poolConfig.setTestWhileIdle(true);
+            poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(60).toMillis());
+            poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(30).toMillis());
+            poolConfig.setNumTestsPerEvictionRun(3);
+            poolConfig.setBlockWhenExhausted(true);
+            return poolConfig;
+        }
+
+        @Override
+        public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+
+            return (Mono<JedisPool>) Mono.fromCallable(() -> {
                 if (datasourceConfiguration.getEndpoints().isEmpty()) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "No endpoint(s) " +
                             "configured"));
@@ -130,29 +173,40 @@ public class RedisPlugin extends BasePlugin {
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
-                Jedis jedis = new Jedis(endpoint.getHost(), port);
-
+                final JedisPoolConfig poolConfig = buildPoolConfig();
                 DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
-                    jedis.auth(auth.getUsername(), auth.getPassword());
+                int timeout = (int)Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
+                JedisPool jedisPool;
+                if (auth != null && StringUtils.isNotNullOrEmpty(auth.getPassword())) {
+                    if (StringUtils.isNullOrEmpty(auth.getUsername())) {
+                        // If username is empty, then authenticate with password only.
+                         jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout, auth.getPassword());
+                    }
+                    else {
+                        jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout,
+                                auth.getUsername(), auth.getPassword());
+                    }
+                }
+                else {
+                    jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port);
                 }
 
-                return Mono.just(jedis);
+                return Mono.just(jedisPool);
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }
 
         @Override
-        public void datasourceDestroy(Jedis jedis) {
+        public void datasourceDestroy(JedisPool jedisPool) {
             // Schedule on elastic thread pool and subscribe immediately.
             Mono.fromSupplier(() -> {
                 try {
-                    if (jedis != null) {
-                        jedis.close();
+                    if (jedisPool != null) {
+                        jedisPool.destroy();
                     }
-                } catch (JedisConnectionException exc) {
-                    System.out.println("Error closing Redis connection");
+                } catch (JedisException e) {
+                    System.out.println("Error destroying Jedis pool.");
                 }
 
                 return Mono.empty();
@@ -171,9 +225,6 @@ public class RedisPlugin extends BasePlugin {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
                     invalids.add("Missing host for endpoint");
-                }
-                if (endpoint.getPort() == null) {
-                    invalids.add("Missing port for endpoint");
                 }
             }
 
@@ -212,9 +263,10 @@ public class RedisPlugin extends BasePlugin {
 
             return Mono.fromCallable(() ->
                     datasourceCreate(datasourceConfiguration)
-                    .map(jedis -> {
+                    .map(jedisPool -> {
+                        Jedis jedis = jedisPool.getResource();
                         verifyPing(jedis).block();
-                        datasourceDestroy(jedis);
+                        datasourceDestroy(jedisPool);
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))

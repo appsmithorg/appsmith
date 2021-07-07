@@ -9,8 +9,8 @@ import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getSelectedWidgets } from "selectors/ui";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -31,20 +31,18 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
+  const selectedWidgets = useSelector(getSelectedWidgets);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
       No widgets yet. Please{" "}
       {params.pageId !== props.pageId ? (
-        <React.Fragment>
+        <>
           <StyledLink to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}>
             switch to this page
           </StyledLink>
           ,&nbsp;then&nbsp;
-        </React.Fragment>
+        </>
       ) : (
         "  "
       )}
@@ -53,32 +51,37 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     </EntityPlaceholder>
   );
 
+  const widgetsInStep =
+    props.widgets?.children?.map((child) => child.widgetId) || [];
+
   return (
     <Entity
-      key={props.pageId + "_widgets"}
-      icon={widgetIcon}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
-      step={props.step}
-      name="Widgets"
       disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
+      icon={widgetIcon}
       isDefaultExpanded={
         !!props.searchKeyword ||
-        (params.pageId === props.pageId && !!selectedWidget)
+        (params.pageId === props.pageId &&
+          !!(selectedWidgets && selectedWidgets.length))
       }
+      key={props.pageId + "_widgets"}
+      name="Widgets"
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
+      step={props.step}
     >
       {props.widgets?.children?.map((child) => (
         <WidgetEntity
+          childWidgets={child.children}
+          key={child.widgetId}
+          pageId={props.pageId}
+          searchKeyword={props.searchKeyword}
+          step={props.step + 1}
           widgetId={child.widgetId}
           widgetName={child.widgetName}
           widgetType={child.type}
-          childWidgets={child.children}
-          step={props.step + 1}
-          key={child.widgetId}
-          searchKeyword={props.searchKeyword}
-          pageId={props.pageId}
+          widgetsInStep={widgetsInStep}
         />
       ))}
       {(!props.widgets?.children || props.widgets?.children.length === 0) &&

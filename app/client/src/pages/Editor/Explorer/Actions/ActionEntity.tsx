@@ -27,19 +27,19 @@ type ExplorerActionEntityProps = {
   pageId: string;
 };
 
-const CreateContextMenu = (props: {
+function CreateContextMenu(props: {
   action: { config: { name: string; id: string } };
   pageId: string;
-}) => {
+}) {
   return (
     <ActionEntityContextMenu
+      className={EntityClassNames.CONTEXT_MENU}
       id={props.action.config.id}
       name={props.action.config.name}
-      className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
     />
   );
-};
+}
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
@@ -78,30 +78,30 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   return (
     <Entity
-      key={props.action.config.id}
-      icon={props.icon}
-      name={props.action.config.name}
       action={switchToAction}
       active={props.active}
-      entityId={props.action.config.id}
-      step={props.step}
-      updateEntityName={getUpdateActionNameReduxAction}
-      searchKeyword={props.searchKeyword}
+      className="action"
       contextMenu={
         <CreateContextMenu
           action={contextMenuProps.action}
           pageId={contextMenuProps.pageId}
         />
       }
-      className="action"
+      entityId={props.action.config.id}
+      icon={props.icon}
+      key={props.action.config.id}
+      name={props.action.config.name}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={getUpdateActionNameReduxAction}
     >
       <EntityProperties
+        entity={props.action}
+        entityId={props.action.config.id}
         entityName={props.action.config.name}
         entityType={ENTITY_TYPE.ACTION}
         pageId={props.pageId}
         step={props.step + 1}
-        entity={props.action}
-        entityId={props.action.config.id}
       />
     </Entity>
   );

@@ -16,6 +16,7 @@ import {
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import log from "loglevel";
 
 export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
@@ -45,18 +46,12 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
 
     recentEntities = recentEntities.slice();
 
-    const existingIndex = recentEntities.findIndex(
+    recentEntities = recentEntities.filter(
       (recentEntity: { type: string; id: string }) =>
-        recentEntity.id === entity.id,
+        recentEntity.id !== entity.id,
     );
-
-    if (existingIndex === -1) {
-      recentEntities.unshift(entity);
-      recentEntities = recentEntities.slice(0, 6);
-    } else {
-      recentEntities.splice(existingIndex, 1);
-      recentEntities.unshift(entity);
-    }
+    recentEntities.unshift(entity);
+    recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
     if (entity?.params?.applicationId) {
@@ -67,7 +62,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
       );
     }
   } catch (e) {
-    console.log(e, "error");
+    log.error(e);
   }
 }
 

@@ -12,22 +12,24 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-export const MenuStory = () => (
-  <StoryWrapper>
-    <div style={{ paddingTop: "50px", paddingLeft: "50px", width: "200px" }}>
-      <TooltipComponent
-        position={select("Position", Object.values(Position), Position.RIGHT)}
-        content={
-          <Text type={TextType.P1} highlight>
-            This is a tooltip
+export function MenuStory() {
+  return (
+    <StoryWrapper>
+      <div style={{ paddingTop: "50px", paddingLeft: "50px", width: "200px" }}>
+        <TooltipComponent
+          content={
+            <Text highlight type={TextType.P1}>
+              This is a tooltip
+            </Text>
+          }
+          position={select("Position", Object.values(Position), Position.RIGHT)}
+          variant={select("variant", ["dark", "light"], "dark")}
+        >
+          <Text highlight type={TextType.P1}>
+            Hover to show tooltip
           </Text>
-        }
-        variant={select("variant", ["dark", "light"], "dark")}
-      >
-        <Text type={TextType.P1} highlight>
-          Hover to show tooltip
-        </Text>
-      </TooltipComponent>
-    </div>
-  </StoryWrapper>
-);
+        </TooltipComponent>
+      </div>
+    </StoryWrapper>
+  );
+}

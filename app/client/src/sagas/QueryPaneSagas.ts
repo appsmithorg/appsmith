@@ -8,10 +8,11 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
   APPLICATIONS_URL,
+  DATA_SOURCES_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
 } from "constants/routes";
@@ -24,15 +25,19 @@ import {
   getAction,
   getDatasource,
   getPluginTemplates,
+  getPlugin,
 } from "selectors/entitiesSelector";
-import { Action, PluginType, QueryAction } from "entities/Action";
+import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
+import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { Datasource } from "entities/Datasource";
+import _ from "lodash";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
-import { changeQuery } from "actions/queryPaneActions";
+import get from "lodash/get";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -87,7 +92,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
@@ -110,23 +115,37 @@ function* formValueChangeSaga(
     return;
   }
 
-  yield put(
-    setActionProperty({
-      actionId: values.id,
-      propertyName: field,
-      value: actionPayload.payload,
-    }),
-  );
+  if (
+    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+  ) {
+    const value = get(values, field);
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value,
+      }),
+    );
+  } else {
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value: actionPayload.payload,
+      }),
+    );
+  }
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
-    id,
-    pluginType,
-    pluginId,
     actionConfiguration,
+    id,
+    pluginId,
+    pluginType,
   } = actionPayload.payload;
-  if (pluginType === "DB") {
+  if (pluginType === PluginType.DB) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -145,6 +164,22 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   }
 }
 
+function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  // Only look at db plugins
+  if (plugin.type !== PluginType.DB) return;
+
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+
+  yield put(
+    initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
+  );
+  history.push(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+  );
+}
+
 function* handleNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -160,12 +195,12 @@ function* handleNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
       variant: Variant.danger,
     });
 
     Sentry.captureException(
-      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, "")),
       {
         extra: {
           actionId: actionId,
@@ -173,6 +208,17 @@ function* handleNameChangeSuccessSaga(
       },
     );
     return;
+  }
+  if (actionObj.pluginType === PluginType.DB) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.replace(
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
+    );
   }
 }
 
@@ -182,15 +228,13 @@ function* handleNameChangeFailureSaga(
   yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
-function* updateFormValues(action: ReduxAction<{ data: Action }>) {
-  if (action.payload.data.pluginType === PluginType.DB) {
-    yield call(changeQuerySaga, changeQuery(action.payload.data.id));
-  }
-}
-
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+      handleDatasourceCreatedSaga,
+    ),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleNameChangeSaga),
     takeEvery(
@@ -201,7 +245,6 @@ export default function* root() {
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleNameChangeFailureSaga,
     ),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),

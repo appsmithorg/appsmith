@@ -46,11 +46,11 @@ class DatePickerControl extends BaseControl<
   year = this.now.get("year");
   maxDate: Date = this.now
     .clone()
-    .set({ month: 11, date: 31, year: this.year + 20 })
+    .set({ month: 11, date: 31, year: this.year + 100 })
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 20 })
+    .set({ month: 0, date: 1, year: this.year - 100 })
     .toDate();
 
   constructor(props: DatePickerControlProps) {
@@ -76,18 +76,18 @@ class DatePickerControl extends BaseControl<
           : this.parseDate(this.props.propertyValue)
         : null;
     return (
-      <DatePickerControlWrapper isValid={true}>
+      <DatePickerControlWrapper isValid>
         <DatePickerComponent
+          closeOnSelection
           formatDate={this.formatDate}
-          parseDate={this.parseDate}
           maxDate={this.maxDate}
           minDate={this.minDate}
-          placeholder="DD/MM/YYYY HH:mm"
-          timePrecision={TimePrecision.MINUTE}
-          closeOnSelection={true}
           onChange={this.onDateSelected}
+          parseDate={this.parseDate}
+          placeholder="YYYY-MM-DD HH:mm"
+          showActionsBar
+          timePrecision={TimePrecision.MINUTE}
           value={value}
-          showActionsBar={true}
         />
       </DatePickerControlWrapper>
     );

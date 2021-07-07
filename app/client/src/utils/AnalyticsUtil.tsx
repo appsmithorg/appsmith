@@ -38,10 +38,14 @@ export type EventName =
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
+  | "SAVE_SAAS"
+  | "DELETE_SAAS"
+  | "RUN_SAAS_API"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
   | "RUN_API_CLICK"
+  | "RUN_API_SHORTCUT"
   | "DELETE_API"
   | "DELETE_API_CLICK"
   | "IMPORT_API"
@@ -53,6 +57,7 @@ export type EventName =
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
   | "RUN_QUERY_CLICK"
+  | "RUN_QUERY_SHORTCUT"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
   | "MOVE_API"
@@ -111,7 +116,15 @@ export type EventName =
   | "CLOSE_OMNIBAR"
   | "NAVIGATE_TO_ENTITY_FROM_OMNIBAR"
   | "PAGE_SAVE"
-  | "CORRECT_BAD_BINDING";
+  | "CORRECT_BAD_BINDING"
+  | "OPEN_DEBUGGER"
+  | "DEBUGGER_TAB_SWITCH"
+  | "DEBUGGER_ENTITY_NAVIGATION"
+  | "GSHEET_AUTH_INIT"
+  | "GSHEET_AUTH_COMPLETE"
+  | "CYCLICAL_DEPENDENCY_ERROR"
+  | "DISCORD_LINK_CLICK"
+  | "BINDING_SUCCESS";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -231,6 +244,8 @@ class AnalyticsUtil {
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
+    } else {
+      log.debug("Event fired locally", eventName, finalEventData);
     }
   }
 

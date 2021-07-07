@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 
 export const useWidgets = () => {
   return useSelector((state: AppState) => {
@@ -22,14 +22,18 @@ export const useActions = () => {
     );
   });
   const apis: Action[] = actions
-    .filter((action) => action.config.pluginType === "API")
+    .filter((action) => action.config.pluginType === PluginType.API)
     .map((action) => action.config);
 
   const queries: Action[] = actions
-    .filter((action) => action.config.pluginType === "DB")
+    .filter((action) => action.config.pluginType === PluginType.DB)
     .map((action) => action.config);
 
-  return { apis, queries };
+  const saas: Action[] = actions
+    .filter((action) => action.config.pluginType === PluginType.SAAS)
+    .map((action) => action.config);
+
+  return { apis, queries, saas };
 };
 
 export const usePageId = () => {

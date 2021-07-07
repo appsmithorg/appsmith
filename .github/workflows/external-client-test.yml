@@ -38,7 +38,7 @@ jobs:
       - name: Set up JDK 1.11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.11
+          java-version: "11.0.10"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -294,7 +294,24 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'|| github.event.pull_request.head.ref == 'release'
+        shell: bash
+        run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+            --env APPSMITH_ENCRYPTION_PASSWORD=password \
+            --env APPSMITH_ENCRYPTION_SALT=salt \
+            --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
+
+      - name: Pull release-frozen server docker container and start it locally
+        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -308,10 +325,10 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
 
       - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
+        if: github.ref == 'refs/heads/master'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -322,7 +339,7 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
@@ -394,8 +411,6 @@ jobs:
       run:
         shell: bash
     steps:
-      - run: echo "All ui-test matrices completed"
-
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
         uses: actions/github-script@v1
@@ -408,6 +423,7 @@ jobs:
           job: ${{ github.job }}
           # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
           conclusion: ${{ job.status }}
+          matrix_result: ${{ toJson(needs.ui-test) }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -432,7 +448,7 @@ jobs:
                 head_sha: head_sha,
                 name: process.env.job,
                 status: 'completed',
-                conclusion: process.env.conclusion,
+                conclusion: JSON.parse(process.env.matrix_result).result,
                 output: {
                   title: "Integration tests result for ok to test",
                   summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
@@ -445,7 +461,7 @@ jobs:
               ...context.repo,
               check_run_id: check[0].id,
               status: 'completed',
-              conclusion: process.env.conclusion,
+              conclusion: JSON.parse(process.env.matrix_result).result,
                 output: {
                   title: "Integration tests result for ok to test",
                   summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
@@ -462,45 +478,9 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release-frozen' || github.ref == 'refs/heads/master')
 
     steps:
-      # Check out merge commit
-      - name: Fork based /ok-to-test checkout
-        uses: actions/checkout@v2
-        with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
-
-      - name: Download the react build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: app/client/build
-
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      - name: Get the version to tag the Docker image
-        id: branch_name
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
-
-      # Build release Docker image and push to Docker Hub
-      - name: Push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
-
       # Update check run called "package"
       - name: Mark package job as complete
         uses: actions/github-script@v1

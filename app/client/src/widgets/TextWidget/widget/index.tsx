@@ -3,10 +3,6 @@ import React from "react";
 import { TextSize } from "constants/WidgetConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
@@ -25,6 +21,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Enter text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "shouldScroll",
@@ -42,6 +39,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
+          {
+            propertyName: "renderAsHTML",
+            helpText: "Enables rendering HTML code as content",
+            label: "Render as HTML",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -59,8 +67,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "textColor",
             label: "Text Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.COLOR_PICKER_TEXT,
           },
           {
             propertyName: "fontSize",
@@ -144,28 +154,21 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      textStyle: VALIDATION_TYPES.TEXT,
-      shouldScroll: VALIDATION_TYPES.BOOLEAN,
-    };
-  }
 
   render() {
     return (
       <TextComponent
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        text={this.props.text}
-        fontStyle={this.props.fontStyle}
-        fontSize={this.props.fontSize}
-        textColor={this.props.textColor}
         backgroundColor={this.props.backgroundColor}
-        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+        fontSize={this.props.fontSize}
+        fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
+        key={this.props.widgetId}
+        renderAsHTML={this.props.renderAsHTML}
         shouldScroll={this.props.shouldScroll}
+        text={this.props.text}
+        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+        textColor={this.props.textColor}
+        widgetId={this.props.widgetId}
       />
     );
   }
@@ -193,6 +196,7 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
+  renderAsHTML: boolean;
 }
 
 export default TextWidget;

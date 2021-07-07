@@ -21,6 +21,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
+    public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     public static final String DEFAULT_REDIRECT_ORIGIN = "https://app.appsmith.com";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
     private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
@@ -88,7 +89,7 @@ public class RedirectHelper {
         // First check if the custom redirect header is set
         String redirectUrl = fulfillRedirectUrl(httpHeaders.getFirst(REDIRECT_URL_HEADER), httpHeaders);
 
-        // If the redirect Url is still empty, construct the redirect Url from the Referrer header.
+        // If the redirect Url is still empty, construct the redirect Url from the Referer header.
         if (StringUtils.isEmpty(redirectUrl)) {
             // If the header is still empty
             String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);

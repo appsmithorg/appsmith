@@ -6,10 +6,6 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
 import { ButtonStyle } from "widgets/ButtonWidget/constants";
@@ -44,6 +40,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "buttonStyle",
@@ -85,6 +82,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isVisible",
@@ -94,6 +92,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -103,6 +102,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
         ],
       },
@@ -129,16 +129,6 @@ class FormButtonWidget extends BaseWidget<
     };
   }
 
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
-      buttonStyle: VALIDATION_TYPES.TEXT,
-      buttonType: VALIDATION_TYPES.TEXT,
-    };
-  }
-
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
@@ -154,6 +144,7 @@ class FormButtonWidget extends BaseWidget<
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
@@ -168,6 +159,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading: true,
       });
       this.props.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -198,16 +190,16 @@ class FormButtonWidget extends BaseWidget<
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        text={this.props.text}
-        disabled={disabled}
-        onClick={!disabled ? this.onButtonClickBound : undefined}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
+        disabled={disabled}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        key={this.props.widgetId}
+        onClick={!disabled ? this.onButtonClickBound : undefined}
+        text={this.props.text}
+        type={this.props.buttonType || ButtonType.BUTTON}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }

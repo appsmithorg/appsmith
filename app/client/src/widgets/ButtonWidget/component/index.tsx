@@ -121,9 +121,9 @@ type ButtonStyleProps = {
 };
 
 // To be used in any other part of the app
-export const BaseButton = (props: IButtonProps & ButtonStyleProps) => {
+export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   return <ButtonWrapper {...props} />;
-};
+}
 
 BaseButton.defaultProps = {
   accent: "secondary",
@@ -167,12 +167,12 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
   }
 };
 
-const RecaptchaComponent = (
+function RecaptchaComponent(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
-) => {
+) {
   function handleError(event: React.MouseEvent<HTMLElement>, error: string) {
     Toaster.show({
       text: error,
@@ -180,8 +180,25 @@ const RecaptchaComponent = (
     });
     props.onClick && props.onClick(event);
   }
+
+  // Check if a string is a valid JSON string
+  const checkValidJson = (inputString: string): boolean => {
+    try {
+      JSON.parse(inputString);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  let validGoogleRecaptchaKey = props.googleRecaptchaKey;
+
+  if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
+    validGoogleRecaptchaKey = undefined;
+  }
+
   const status = useScript(
-    `https://www.google.com/recaptcha/api.js?render=${props.googleRecaptchaKey}`,
+    `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
   return (
     <div
@@ -209,41 +226,41 @@ const RecaptchaComponent = (
       {props.children}
     </div>
   );
-};
+}
 
-const BtnWrapper = (
+function BtnWrapper(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
-) => {
+) {
   if (!props.googleRecaptchaKey)
     return <div onClick={props.onClick}>{props.children}</div>;
-  return <RecaptchaComponent {...props}></RecaptchaComponent>;
-};
+  return <RecaptchaComponent {...props} />;
+}
 
 // To be used with the canvas
-const ButtonContainer = (
+function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
-) => {
+) {
   return (
     <BtnWrapper
-      googleRecaptchaKey={props.googleRecaptchaKey}
       clickWithRecaptcha={props.clickWithRecaptcha}
+      googleRecaptchaKey={props.googleRecaptchaKey}
       onClick={props.onClick}
     >
       <BaseButton
-        loading={props.isLoading}
-        icon={props.icon}
-        rightIcon={props.rightIcon}
-        text={props.text}
-        filled={props.buttonStyle !== "SECONDARY_BUTTON"}
         accent={mapButtonStyleToStyleName(props.buttonStyle)}
         disabled={props.disabled}
+        filled={props.buttonStyle !== "SECONDARY_BUTTON"}
+        icon={props.icon}
+        loading={props.isLoading}
+        rightIcon={props.rightIcon}
+        text={props.text}
         type={props.type}
       />
     </BtnWrapper>
   );
-};
+}
 
 export default ButtonContainer;

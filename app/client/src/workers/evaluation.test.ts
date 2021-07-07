@@ -2,32 +2,21 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  EvaluationSubstitutionType,
 } from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   TEXT_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      textStyle: "TEXT",
-      shouldScroll: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {
       value: "{{ this.text }}",
@@ -35,38 +24,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   BUTTON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      buttonStyle: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   INPUT_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      inputType: "TEXT",
-      defaultText: "TEXT",
-      text: "TEXT",
-      regex: "REGEX",
-      errorMessage: "TEXT",
-      placeholderText: "TEXT",
-      maxChars: "NUMBER",
-      minNum: "NUMBER",
-      maxNum: "NUMBER",
-      label: "TEXT",
-      inputValidators: "ARRAY",
-      focusIndex: "NUMBER",
-      isAutoFocusEnabled: "BOOLEAN",
-      isRequired: "BOOLEAN",
-      isValid: "BOOLEAN",
-    },
     defaultProperties: {
       text: "defaultText",
     },
@@ -81,13 +43,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   CHECKBOX_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      defaultCheckedState: "BOOLEAN",
-    },
     defaultProperties: {
       isChecked: "defaultCheckedState",
     },
@@ -97,18 +52,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   DROP_DOWN_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      placeholderText: "TEXT",
-      label: "TEXT",
-      options: "OPTIONS_DATA",
-      selectionType: "TEXT",
-      isRequired: "BOOLEAN",
-      selectedOptionValues: "ARRAY",
-      defaultOptionValue: "DEFAULT_OPTION_VALUE",
-    },
     defaultProperties: {
       selectedOptionValue: "defaultOptionValue",
       selectedOptionValueArr: "defaultOptionValue",
@@ -131,16 +74,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   RADIO_GROUP_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      options: "OPTIONS_DATA",
-      selectedOptionValue: "TEXT",
-      defaultOptionValue: "TEXT",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedOptionValue: "defaultOptionValue",
     },
@@ -153,32 +86,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   IMAGE_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      image: "TEXT",
-      imageShape: "TEXT",
-      defaultImage: "TEXT",
-      maxZoomLevel: "NUMBER",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   TABLE_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      tableData: "TABLE_DATA",
-      nextPageKey: "TEXT",
-      prevPageKey: "TEXT",
-      label: "TEXT",
-      searchText: "TEXT",
-      defaultSearchText: "TEXT",
-      defaultSelectedRow: "DEFAULT_SELECTED_ROW",
-    },
     defaultProperties: {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
@@ -195,12 +107,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   VIDEO_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      url: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {
@@ -208,16 +114,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   FILE_PICKER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      maxNumFiles: "NUMBER",
-      allowedFileTypes: "ARRAY",
-      files: "ARRAY",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {
       isValid: "{{ this.isRequired ? this.files.length > 0 : true }}",
@@ -229,20 +125,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   DATE_PICKER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      defaultDate: "DATE",
-      timezone: "TEXT",
-      enableTimePicker: "BOOLEAN",
-      dateFormat: "TEXT",
-      label: "TEXT",
-      datePickerType: "TEXT",
-      maxDate: "DATE",
-      minDate: "DATE",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedDate: "defaultDate",
     },
@@ -253,20 +135,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   DATE_PICKER_WIDGET2: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      defaultDate: "DATE",
-      timezone: "TEXT",
-      enableTimePicker: "BOOLEAN",
-      dateFormat: "TEXT",
-      label: "TEXT",
-      datePickerType: "TEXT",
-      maxDate: "DATE",
-      minDate: "DATE",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedDate: "defaultDate",
     },
@@ -277,10 +145,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   TABS_WIDGET: {
-    validations: {
-      tabs: "TABS_DATA",
-      defaultTab: "SELECTED_TAB",
-    },
     defaultProperties: {},
     derivedProperties: {
       selectedTab:
@@ -289,23 +153,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   MODAL_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   RICH_TEXT_EDITOR_WIDGET: {
-    validations: {
-      text: "TEXT",
-      placeholder: "TEXT",
-      defaultValue: "TEXT",
-      isDisabled: "BOOLEAN",
-      isVisible: "BOOLEAN",
-    },
     defaultProperties: {
       text: "defaultText",
     },
@@ -315,52 +167,21 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   CHART_WIDGET: {
-    validations: {
-      xAxisName: "TEXT",
-      yAxisName: "TEXT",
-      chartName: "TEXT",
-      isVisible: "BOOLEAN",
-      chartData: "CHART_DATA",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   FORM_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   FORM_BUTTON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      disabledWhenInvalid: "BOOLEAN",
-      buttonStyle: "TEXT",
-      buttonType: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   MAP_WIDGET: {
-    validations: {
-      defaultMarkers: "MARKERS",
-      isDisabled: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      enableSearch: "BOOLEAN",
-      enablePickLocation: "BOOLEAN",
-      allowZoom: "BOOLEAN",
-      zoomLevel: "NUMBER",
-      mapCenter: "OBJECT",
-    },
     defaultProperties: {
       markers: "defaultMarkers",
       center: "mapCenter",
@@ -369,31 +190,16 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   CANVAS_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   ICON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   SKELETON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
@@ -416,6 +222,7 @@ const BASE_WIDGET: DataTreeWidget = {
   version: 1,
   bindingPaths: {},
   triggerPaths: {},
+  validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 };
 
@@ -430,11 +237,13 @@ const BASE_ACTION: DataTreeAction = {
   pluginType: PluginType.API,
   run: {},
   data: {},
+  responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {
-    isLoading: true,
-    data: true,
+    isLoading: EvaluationSubstitutionType.TEMPLATE,
+    data: EvaluationSubstitutionType.TEMPLATE,
   },
+  dependencyMap: {},
 };
 
 describe("DataTreeEvaluator", () => {
@@ -445,7 +254,10 @@ describe("DataTreeEvaluator", () => {
       text: "Label",
       type: "TEXT_WIDGET",
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
     Text2: {
@@ -455,7 +267,10 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: "TEXT_WIDGET",
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
     Text3: {
@@ -465,7 +280,10 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: "TEXT_WIDGET",
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
     Dropdown1: {
@@ -482,18 +300,18 @@ describe("DataTreeEvaluator", () => {
       ],
       type: "DROP_DOWN_WIDGET",
       bindingPaths: {
-        options: true,
-        defaultOptionValue: true,
-        isRequired: true,
-        isVisible: true,
-        isDisabled: true,
-        isValid: true,
-        selectedOption: true,
-        selectedOptionArr: true,
-        selectedIndex: true,
-        selectedIndexArr: true,
-        value: true,
-        selectedOptionValues: true,
+        options: EvaluationSubstitutionType.TEMPLATE,
+        defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+        isRequired: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        isValid: EvaluationSubstitutionType.TEMPLATE,
+        selectedOption: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+        value: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Table1: {
@@ -502,9 +320,12 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "tableData" }],
       type: "TABLE_WIDGET",
       bindingPaths: {
-        tableData: true,
-        selectedRow: true,
-        selectedRows: true,
+        tableData: EvaluationSubstitutionType.TEMPLATE,
+        selectedRow: EvaluationSubstitutionType.TEMPLATE,
+        selectedRows: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        tableData: VALIDATION_TYPES.TABLE_DATA,
       },
     },
     Text4: {
@@ -513,7 +334,10 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: "TEXT_WIDGET",
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
   };
@@ -560,9 +384,9 @@ describe("DataTreeEvaluator", () => {
         text: "Hey there",
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
-    expect(updatedEvalTree).toHaveProperty("Text2.text", "Hey there");
-    expect(updatedEvalTree).toHaveProperty("Text3.text", "Hey there");
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(dataTree).toHaveProperty("Text2.text", "Hey there");
+    expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
 
   it("Evaluates a dependency change in update run", () => {
@@ -573,10 +397,10 @@ describe("DataTreeEvaluator", () => {
         text: "Label 3",
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
     const updatedDependencyMap = evaluator.dependencyMap;
-    expect(updatedEvalTree).toHaveProperty("Text2.text", "Label");
-    expect(updatedEvalTree).toHaveProperty("Text3.text", "Label 3");
+    expect(dataTree).toHaveProperty("Text2.text", "Label");
+    expect(dataTree).toHaveProperty("Text3.text", "Label 3");
     expect(updatedDependencyMap).toStrictEqual({
       Text1: ["Text1.text"],
       Text2: ["Text2.text"],
@@ -613,16 +437,16 @@ describe("DataTreeEvaluator", () => {
         widgetName: "Input1",
         type: "INPUT_WIDGET",
         bindingPaths: {
-          defaultText: true,
-          isValid: true,
-          value: true,
-          text: true,
+          defaultText: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          text: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
 
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
-    expect(updatedEvalTree).toHaveProperty("Input1.text", "Default value");
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(dataTree).toHaveProperty("Input1.text", "Default value");
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
@@ -642,26 +466,23 @@ describe("DataTreeEvaluator", () => {
         ],
         type: "DROP_DOWN_WIDGET",
         bindingPaths: {
-          options: true,
-          defaultOptionValue: true,
-          isRequired: true,
-          isVisible: true,
-          isDisabled: true,
-          isValid: true,
-          selectedOption: true,
-          selectedOptionArr: true,
-          selectedIndex: true,
-          selectedIndexArr: true,
-          value: true,
-          selectedOptionValues: true,
+          options: EvaluationSubstitutionType.TEMPLATE,
+          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+          isRequired: EvaluationSubstitutionType.TEMPLATE,
+          isVisible: EvaluationSubstitutionType.TEMPLATE,
+          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          selectedOption: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
-    expect(updatedEvalTree).toHaveProperty(
-      "Dropdown2.options.0.label",
-      "newValue",
-    );
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
   });
 
   it("Adds an entity with a complicated binding", () => {
@@ -680,9 +501,9 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
     const updatedDependencyMap = evaluator.dependencyMap;
-    expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
+    expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
         raw: "Label",
@@ -744,9 +565,9 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
     const updatedDependencyMap = evaluator.dependencyMap;
-    expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
+    expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
         raw: "Label",
@@ -756,7 +577,7 @@ describe("DataTreeEvaluator", () => {
         raw: "Label",
       },
     ]);
-    expect(updatedEvalTree).toHaveProperty("Text4.text", "Hey");
+    expect(dataTree).toHaveProperty("Text4.text", "Hey");
     expect(updatedDependencyMap).toStrictEqual({
       Api1: ["Api1.data"],
       Text1: ["Text1.text"],
@@ -785,5 +606,88 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndices": [],
       "Text4.text": ["Table1.selectedRow.test"],
     });
+  });
+
+  it("Honors predefined action dependencyMap", () => {
+    const updatedTree1 = {
+      ...unEvalTree,
+      Text1: {
+        ...BASE_WIDGET,
+        text: "Test",
+      },
+      Api2: {
+        ...BASE_ACTION,
+        dependencyMap: {
+          "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+        },
+        bindingPaths: {
+          ...BASE_ACTION.bindingPaths,
+          "config.body": EvaluationSubstitutionType.TEMPLATE,
+        },
+        config: {
+          ...BASE_ACTION.config,
+          body: "",
+          pluginSpecifiedTemplates: [
+            {
+              value: false,
+            },
+          ],
+        },
+      },
+    };
+    evaluator.updateDataTree(updatedTree1);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    const updatedTree2 = {
+      ...updatedTree1,
+      Api2: {
+        ...updatedTree1.Api2,
+        dynamicBindingPathList: [
+          {
+            key: "config.body",
+          },
+        ],
+        config: {
+          ...updatedTree1.Api2.config,
+          body: "{ 'name': {{ Text1.text }} }",
+        },
+      },
+    };
+    const { dataTree } = evaluator.updateDataTree(updatedTree2);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
+    const updatedTree3 = {
+      ...updatedTree2,
+      Api2: {
+        ...updatedTree2.Api2,
+        bindingPaths: {
+          ...updatedTree2.Api2.bindingPaths,
+          "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        },
+        config: {
+          ...updatedTree2.Api2.config,
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+        },
+      },
+    };
+    const evaluatedDataTreeObject = evaluator.updateDataTree(updatedTree3);
+    const dataTree3 = evaluatedDataTreeObject.dataTree;
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
 });

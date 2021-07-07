@@ -26,14 +26,14 @@ const SwitchComponentContainer = styled.div`
   ${BlueprintControlTransform}
 `;
 
-export const SwitchComponent: React.FC<SwitchComponentProps> = ({
-  label,
-  isSwitchedOn,
+export function SwitchComponent({
   alignWidget,
-  onChange,
   isDisabled,
   isLoading,
-}) => {
+  isSwitchedOn,
+  label,
+  onChange,
+}: SwitchComponentProps) {
   const switchAlignClass =
     alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
@@ -41,8 +41,7 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
     <SwitchComponentContainer className={switchAlignClass}>
       <Switch
         alignIndicator={switchAlignClass}
-        label={label}
-        disabled={isDisabled}
+        checked={isSwitchedOn}
         className={
           isLoading
             ? `${Classes.SKELETON} t--switch-widget-loading`
@@ -52,9 +51,10 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
                   : "t--switch-widget-inactive"
               }`
         }
-        checked={isSwitchedOn}
+        disabled={isDisabled}
+        label={label}
         onChange={() => onChange(!isSwitchedOn)}
       />
     </SwitchComponentContainer>
   );
-};
+}

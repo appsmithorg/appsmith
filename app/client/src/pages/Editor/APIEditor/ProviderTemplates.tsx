@@ -266,10 +266,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
 
   render() {
     const {
-      providerTemplates,
       history,
       isFetchingProviderTemplates,
       providerDetails,
+      providerTemplates,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -301,9 +301,9 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
           </SearchContainer> */}
 
           <Icon
+            className="backBtn"
             icon="chevron-left"
             iconSize={16}
-            className="backBtn"
             onClick={() =>
               history.push(
                 API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
@@ -333,10 +333,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
           <ProviderInfo>
             {providerDetails.imageUrl ? (
               <img
-                src={providerDetails.imageUrl}
-                className="providerImage"
                 alt="provider"
-              ></img>
+                className="providerImage"
+                src={providerDetails.imageUrl}
+              />
             ) : (
               <div>
                 {providerDetails.name && (
@@ -378,7 +378,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
               No API templates for this provider yet.
             </p>
           ) : (
-            <React.Fragment>
+            <>
               {providerTemplates.map((template) => (
                 <TemplateCard key={template.templateData.id}>
                   <CardTopContent>
@@ -413,29 +413,29 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                     <TemplateCardRightContent className="t--addToPageButtons">
                       {template.addToPageStatus ? (
                         <Button
-                          text="Added"
-                          intent="none"
-                          filled
-                          size="small"
-                          disabled={true}
                           className="addToPageBtn t--addToPageBtn"
+                          disabled
+                          filled
+                          intent="none"
+                          size="small"
+                          text="Added"
                         />
                       ) : (
                         <Button
-                          text="Add to page"
-                          intent="primary"
-                          filled
-                          size="small"
-                          onClick={() => this.addApiToPage(template)}
-                          disabled={false}
-                          loading={template.addToPageLoading}
                           className="addToPageBtn t--addToPageBtn"
+                          disabled={false}
+                          filled
+                          intent="primary"
+                          loading={template.addToPageLoading}
+                          onClick={() => this.addApiToPage(template)}
+                          size="small"
+                          text="Add to page"
                         />
                       )}
                       <Icon
+                        className="dropIcon"
                         icon="chevron-down"
                         iconSize={20}
-                        className="dropIcon"
                         onClick={() => {
                           AnalyticsUtil.logEvent("EXPAND_API", {
                             apiName: template.templateData.name,
@@ -453,6 +453,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                     transitionDuration={0}
                   >
                     <ReactJson
+                      displayDataTypes={false}
+                      displayObjectSize={false}
+                      enableClipboard={false}
+                      name="Request header"
                       src={template.templateData.actionConfiguration.headers}
                       style={{
                         marginTop: "12px",
@@ -463,15 +467,15 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                         width: "90%",
                         wordWrap: "break-word",
                       }}
-                      name="Request header"
                       theme="grayscale"
-                      displayObjectSize={false}
-                      displayDataTypes={false}
-                      enableClipboard={false}
                     />
                     {template.templateData.apiTemplateConfiguration
                       .sampleResponse ? (
                       <ReactJson
+                        displayDataTypes={false}
+                        displayObjectSize={false}
+                        enableClipboard={false}
+                        name="Response Body"
                         src={
                           template.templateData.apiTemplateConfiguration
                             .sampleResponse
@@ -484,19 +488,15 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                           maxWidth: "90%",
                           wordWrap: "break-word",
                         }}
-                        name="Response Body"
                         theme="grayscale"
-                        displayObjectSize={false}
-                        displayDataTypes={false}
-                        enableClipboard={false}
                       />
                     ) : (
-                      <p></p>
+                      <p />
                     )}
                   </Collapse>
                 </TemplateCard>
               ))}
-            </React.Fragment>
+            </>
           )}
         </TemplatesCardsContainer>
       </TemplateDetailPage>

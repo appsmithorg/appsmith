@@ -13,15 +13,15 @@ const Wrapper = styled.div<{ step: number }>`
   align-items: center;
 `;
 
-export const EntityPlaceholder = (props: {
+export function EntityPlaceholder(props: {
   step: number;
   children: ReactNode;
-}) => {
+}) {
   return (
     <Wrapper step={props.step}>
       <p>{props.children}</p>
     </Wrapper>
   );
-};
+}
 
 export default EntityPlaceholder;

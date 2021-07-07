@@ -18,11 +18,11 @@ check_k8s_setup() {
         echo "Please install kubectl on your machine"
         exit 1
     else
-        
+
         if ! is_command_present jq; then
             install_jq
         fi
-        clusters=`kubectl config view -o json | jq -r '."current-context"'` 
+        clusters=`kubectl config view -o json | jq -r '."current-context"'`
         if [[ ! -n $clusters ]]; then
             echo "Please setup a k8s cluster & config kubectl to connect to it"
             exit 1
@@ -56,36 +56,40 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
-        os="Mac"
+        os="mac"
         return
     fi
 
-    os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
+    local os_name="$(
+        cat /etc/*-release \
+            | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }' \
+            | tr '[:upper:]' '[:lower:]'
+    )"
 
     case "$os_name" in
-        Ubuntu*)
+        ubuntu*)
             desired_os=1
             os="ubuntu"
             package_manager="apt-get"
             ;;
-        Debian*)
+        debian*)
             desired_os=1
             os="debian"
             package_manager="apt-get"
             ;;
-        Red\ Hat*)
+        red\ hat*)
             desired_os=1
             os="red hat"
             package_manager="yum"
             ;;
-        CentOS*)
+        centos*)
             desired_os=1
             os="centos"
             package_manager="yum"
             ;;
         *)
             desired_os=0
-            os="Not Found"
+            os="Not Found: $os_name"
     esac
 }
 
@@ -97,12 +101,12 @@ overwrite_file() {
 
     if [[ -f $full_path ]] && ! confirm y "File $relative_path already exists. Would you like to replace it?"; then
         rm -f "$template_file"
-    else 
+    else
         mv -f "$template_file" "$full_path"
     fi
 }
 
-# This function prompts the user for an input for a non-empty Mongo root password. 
+# This function prompts the user for an input for a non-empty Mongo root password.
 read_mongo_password() {
     read -srp 'Set the mongo password: ' mongo_root_password
     while [[ -z $mongo_root_password ]]; do
@@ -113,10 +117,10 @@ read_mongo_password() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -srp 'Set the mongo password: ' mongo_root_password
-    done 
+    done
 }
 
-# This function prompts the user for an input for a non-empty Mongo username. 
+# This function prompts the user for an input for a non-empty Mongo username.
 read_mongo_username() {
     read -rp 'Set the mongo root user: ' mongo_root_user
     while [[ -z $mongo_root_user ]]; do
@@ -147,8 +151,13 @@ urlencode() {
 }
 
 generate_password() {
-    # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    local gen_string="$(/usr/bin/python -c 'import random, string; print("".join(random.choice(string.ascii_letters + string.digits) for _ in range(13)))' 2>/dev/null)"
+    if [[ -n $gen_string ]]; then
+        echo "$gen_string"
+    else
+        # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+        LC_ALL=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    fi
 }
 
 confirm() {
@@ -222,7 +231,7 @@ download_template_file() {
         cd "$install_dir"
         curl --remote-name-all --silent --show-error -o backend-template.yaml \
             "$template_endpoint/deploy/k8s/templates/backend-template.yaml"
-        
+
         curl --remote-name-all --silent --show-error -o frontend-template.yaml \
             "$template_endpoint/deploy/k8s/templates/frontend-template.yaml"
         if [[ "$fresh_installation" == "true" ]]; then
@@ -250,7 +259,7 @@ install_certmanager() {
         # cert-manager installation document: https://cert-manager.io/docs/installation/kubernetes/
         kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.3/cert-manager.yaml
         sleep 30; # Wait 30s for cert-manger ready
-    else 
+    else
         echo "Cert-manager already install"
     fi
 }
@@ -478,7 +487,7 @@ download_template_file
 echo ""
 echo "Generating the configuration files from the templates"
 
-cd "$templates_dir" 
+cd "$templates_dir"
 
 
 mkdir -p "$install_dir/config-template"

@@ -6,10 +6,9 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 
 import { AppState } from "reducers";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
-import { getDataSources } from "selectors/editorSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
@@ -30,15 +29,14 @@ interface ComponentProps {
 
 type FormTitleProps = ComponentProps;
 
-const FormTitle = (props: FormTitleProps) => {
+function FormTitle(props: FormTitleProps) {
   const params = useParams<{ datasourceId: string }>();
   const currentDatasource:
     | Datasource
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
-
-  const datasources: Datasource[] = useSelector(getDataSources);
+  const datasources: Datasource[] = useSelector(getDatasources);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {
@@ -109,20 +107,20 @@ const FormTitle = (props: FormTitleProps) => {
     <Wrapper>
       <EditableText
         className="t--edit-datasource-name"
-        type="text"
-        hideEditIcon={hideEditIcon}
-        forceDefault={forceUpdate}
         defaultValue={currentDatasource ? currentDatasource.name : ""}
+        editInteractionKind={EditInteractionKind.SINGLE}
+        forceDefault={forceUpdate}
+        hideEditIcon={hideEditIcon}
+        isEditingDefault={props.focusOnMount && !hideEditIcon}
         isInvalid={isInvalidDatasourceName}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
-        editInteractionKind={EditInteractionKind.SINGLE}
-        isEditingDefault={props.focusOnMount && !hideEditIcon}
+        type="text"
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>
   );
-};
+}
 
 export default FormTitle;

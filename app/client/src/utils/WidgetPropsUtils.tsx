@@ -7,13 +7,21 @@ import {
   WidgetOperations,
   WidgetProps,
 } from "widgets/BaseWidget";
-import { GridDefaults, RenderMode } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
+import {
+  GridDefaults,
+  LATEST_PAGE_VERSION,
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderMode,
+} from "constants/WidgetConstants";
+import { renameKeyInObject, snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
-import { WidgetType } from "./WidgetFactory";
+import WidgetFactory, { WidgetType } from "./WidgetFactory";
+import { get, isString, set } from "lodash";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -52,7 +60,7 @@ export const getDropZoneOffsets = (
   );
 };
 
-const areIntersecting = (r1: Rect, r2: Rect) => {
+export const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(
     r2.left >= r1.right ||
     r2.right <= r1.left ||
@@ -188,6 +196,7 @@ export const widgetOperationParams = (
     columns: widget.columns,
     rows: widget.rows,
   };
+
   return {
     operation: WidgetOperations.ADD_CHILD,
     widgetId: parentWidgetId,
@@ -286,4 +295,100 @@ export const generateWidgetProps = (
       throw Error("Failed to create widget: Parent's size cannot be calculate");
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
+};
+
+/**
+ * adds logBlackList key for all list widget children
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addLogBlackListToAllListWidgetChildren = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.LIST_WIDGET) {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      widgets.map((widget: any, index: number) => {
+        const logBlackList: { [key: string]: boolean } = {};
+
+        Object.keys(widget).map((key) => {
+          logBlackList[key] = true;
+        });
+        if (!widget.logBlackList) {
+          set(
+            children,
+            `children.0.children.0.children.0.children.${index}.logBlackList`,
+            logBlackList,
+          );
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+      (path: { key: string }) => {
+        if (path.key === "items") {
+          return { key: "listData" };
+        }
+
+        return path;
+      },
+    );
+
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key, "").replace("items", "listData"),
+        );
+      }
+    });
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length > 0) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
+  return currentDSL;
 };

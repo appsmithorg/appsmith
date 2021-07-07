@@ -7,6 +7,7 @@ import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { Indices } from "constants/Layers";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
@@ -17,7 +18,7 @@ const SubHeaderWrapper = styled.div`
   background: ${(props) => props.theme.colors.homepageBackground};
   top: ${(props) => props.theme.homePage.header}px;
   left: 369px;
-  z-index: 10;
+  z-index: ${Indices.Layer3};
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -49,14 +50,14 @@ type SubHeaderProps = {
   };
 };
 
-export const ApplicationsSubHeader = (props: SubHeaderProps) => {
+export function ApplicationsSubHeader(props: SubHeaderProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const query =
     props.search &&
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
   const createTrigger = props.add && (
-    <Button text={props.add.title} size={Size.medium} />
+    <Button size={Size.medium} text={props.add.title} />
   );
 
   return (
@@ -66,10 +67,10 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
           <ControlGroup>
             <SearchInput
               cypressSelector={"t--application-search-input"}
+              disabled={isFetchingApplications}
+              onChange={query || noop}
               placeholder={props.search.placeholder}
               variant={SearchVariant.SEAMLESS}
-              onChange={query || noop}
-              disabled={isFetchingApplications}
             />
           </ControlGroup>
         )}
@@ -77,13 +78,13 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
 
       {props.add && (
         <FormDialogComponent
-          trigger={createTrigger}
           Form={props.add.form}
           title={props.add.title}
+          trigger={createTrigger}
         />
       )}
     </SubHeaderWrapper>
   );
-};
+}
 
 export default ApplicationsSubHeader;

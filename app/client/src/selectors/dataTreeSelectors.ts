@@ -2,6 +2,7 @@ import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
   getAppData,
+  getPluginDependencyConfig,
   getPluginEditorConfigs,
 } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -18,7 +19,16 @@ export const getUnevaluatedDataTree = createSelector(
   getPageList,
   getAppData,
   getPluginEditorConfigs,
-  (actions, widgets, widgetsMeta, pageListPayload, appData, editorConfigs) => {
+  getPluginDependencyConfig,
+  (
+    actions,
+    widgets,
+    widgetsMeta,
+    pageListPayload,
+    appData,
+    editorConfigs,
+    pluginDependencyConfig,
+  ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
       actions,
@@ -27,6 +37,7 @@ export const getUnevaluatedDataTree = createSelector(
       pageList,
       appData,
       editorConfigs,
+      pluginDependencyConfig,
     });
   },
 );

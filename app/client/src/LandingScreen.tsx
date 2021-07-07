@@ -13,7 +13,7 @@ type Props = {
   authError: string;
 };
 
-const LandingScreen = (props: Props) => {
+function LandingScreen(props: Props) {
   if (props.user && window.location.pathname === BASE_URL) {
     if (props.user.email === ANONYMOUS_USERNAME) {
       return <Redirect to={AUTH_LOGIN_URL} />;
@@ -25,7 +25,7 @@ const LandingScreen = (props: Props) => {
     return <ServerUnavailable />;
   }
   return <PageLoadingBar />;
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

@@ -1,12 +1,15 @@
-import { createSelector } from "reselect";
+import { find, get } from "lodash";
 import { AppState } from "reducers";
+import { createSelector } from "reselect";
+
+import { WidgetProps } from "widgets/BaseWidget";
+import { getCanvasWidgets } from "./entitiesSelector";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { find } from "lodash";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getCanvasWidgets } from "./entitiesSelector";
+import { getSelectedWidget, getSelectedWidgets } from "./ui";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -23,7 +26,7 @@ export const getCurrentWidgetProperties = createSelector(
     widgets: CanvasWidgetsReduxState,
     pane: PropertyPaneReduxState,
   ): WidgetProps | undefined => {
-    return pane.widgetId && widgets ? widgets[pane.widgetId] : undefined;
+    return get(widgets, `${pane.widgetId}`);
   },
 );
 
@@ -39,23 +42,38 @@ export const getWidgetPropsForPropertyPane = createSelector(
       widgetId: widget.widgetId,
     }) as DataTreeWidget;
     const widgetProperties = { ...widget };
+
     if (evaluatedWidget) {
-      if (evaluatedWidget.evaluatedValues) {
-        widgetProperties.evaluatedValues = {
-          ...evaluatedWidget.evaluatedValues,
-        };
-      }
-      if (evaluatedWidget.invalidProps) {
-        const { invalidProps, validationMessages } = evaluatedWidget;
-        widgetProperties.invalidProps = invalidProps;
-        widgetProperties.validationMessages = validationMessages;
-      }
+      widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
     }
     return widgetProperties;
   },
 );
 
+const isResizingorDragging = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
-  (pane: PropertyPaneReduxState) => !!(pane.isVisible && pane.widgetId),
+  isResizingorDragging,
+  getSelectedWidget,
+  getSelectedWidgets,
+  (
+    pane: PropertyPaneReduxState,
+    isResizingorDragging: boolean,
+    lastSelectedWidget,
+    widgets,
+  ) => {
+    const isWidgetSelected = pane.widgetId
+      ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
+      : false;
+    const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
+    return !!(
+      isWidgetSelected &&
+      !multipleWidgetsSelected &&
+      !isResizingorDragging &&
+      pane.isVisible &&
+      pane.widgetId
+    );
+  },
 );

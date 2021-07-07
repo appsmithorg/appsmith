@@ -67,13 +67,13 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   return (
     <SectionWrapper>
       <SectionTitle
-        onClick={() => open(!isOpen)}
         className={`t--property-pane-section-collapse-${className}`}
+        onClick={() => open(!isOpen)}
       >
         <span>{props.name}</span>
         <Icon
-          icon={IconNames.CHEVRON_RIGHT}
           className={isOpen ? "open-collapse" : ""}
+          icon={IconNames.CHEVRON_RIGHT}
         />
       </SectionTitle>
       {props.children && (

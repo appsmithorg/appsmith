@@ -41,10 +41,14 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
+import ForkApplicationModal from "./ForkApplicationModal";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -219,6 +223,7 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
+  enableImportExport?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -241,10 +246,11 @@ const ContextDropdownWrapper = styled.div`
   }
 `;
 
-export const ApplicationCard = (props: ApplicationCardProps) => {
+export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -255,6 +261,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
+    false,
+  );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -284,6 +293,23 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         cypressSelector: "t--duplicate",
       });
     }
+    // add fork app option to menu
+    if (hasEditPermission) {
+      moreActionItems.push({
+        onSelect: forkApplicationInitiate,
+        text: "Fork",
+        icon: "fork",
+        cypressSelector: "t--fork-app",
+      });
+    }
+    if (!!props.enableImportExport && hasExportPermission) {
+      moreActionItems.push({
+        onSelect: exportApplicationAsJSONFile,
+        text: "Export",
+        icon: "download",
+        cypressSelector: "t--export-app",
+      });
+    }
     setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -298,6 +324,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const hasReadPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
+  );
+  const hasExportPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
   );
   const updateColor = (color: string) => {
     setSelectedColor(color);
@@ -317,6 +347,30 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const shareApp = () => {
     props.share && props.share(props.application.id);
+  };
+  const exportApplicationAsJSONFile = () => {
+    // export api response comes with content-disposition header.
+    // there is no straightforward way to handle it with axios/fetch
+    const id = `t--export-app-link`;
+    const existingLink = document.getElementById(id);
+    existingLink && existingLink.remove();
+    const link = document.createElement("a");
+    link.href = `/api/v1/applications/export/${props.application.id}`;
+    link.target = "_blank";
+    link.id = id;
+    document.body.appendChild(link);
+    link.click();
+    setIsMenuOpen(false);
+    Toaster.show({
+      text: `Successfully exported ${props.application.name}`,
+      variant: Variant.success,
+    });
+    link.remove();
+  };
+  const forkApplicationInitiate = () => {
+    // open fork application modal
+    // on click on an organisation, create app and take to app
+    setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
     setShowOverlay(false);
@@ -361,7 +415,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.defaultPageId,
   );
   const appNameText = (
-    <Text type={TextType.H3} cypressSelector="t--app-card-name">
+    <Text cypressSelector="t--app-card-name" type={TextType.H3}>
       {props.application.name}
     </Text>
   );
@@ -369,16 +423,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
-        position={Position.RIGHT_TOP}
-        target={
-          <MoreOptionsContainer>
-            <Icon name="context-menu" size={IconSize.XXXL} />
-          </MoreOptionsContainer>
-        }
         className="more"
-        onOpening={() => {
-          setIsMenuOpen(true);
-        }}
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
@@ -390,16 +435,24 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               });
           }
         }}
+        onOpening={() => {
+          setIsMenuOpen(true);
+        }}
+        position={Position.RIGHT_TOP}
+        target={
+          <MoreOptionsContainer>
+            <Icon name="context-menu" size={IconSize.XXXL} />
+          </MoreOptionsContainer>
+        }
       >
         {hasEditPermission && (
           <EditableText
+            className="t--application-name"
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
-            onTextChanged={(value: string) => {
-              setLastUpdatedValue(value);
-            }}
-            placeholder={"Edit text input"}
+            fill
             hideEditIcon={false}
+            isError={isErroredSavingName}
             isInvalid={(value: string) => {
               if (!value) {
                 return "Name cannot be empty";
@@ -407,26 +460,28 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 return false;
               }
             }}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            fill
             onBlur={(value: string) => {
               props.update &&
                 props.update(props.application.id, {
                   name: value,
                 });
             }}
-            className="t--application-name"
+            onTextChanged={(value: string) => {
+              setLastUpdatedValue(value);
+            }}
+            placeholder={"Edit text input"}
+            savingState={
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
             underline
           />
         )}
         {hasEditPermission && (
           <>
             <ColorSelector
-              defaultValue={selectedColor}
               colorPalette={theme.colors.appCardColors}
-              fill={true}
+              defaultValue={selectedColor}
+              fill
               onSelect={updateColor}
             />
             <MenuDivider />
@@ -435,10 +490,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {hasEditPermission && (
           <>
             <IconSelector
-              fill={true}
-              selectedIcon={appIcon}
-              selectedColor={selectedColor}
+              fill
               onSelect={updateIcon}
+              selectedColor={selectedColor}
+              selectedIcon={appIcon}
             />
             <MenuDivider />
           </>
@@ -446,14 +501,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
+        <ForkApplicationModal
+          applicationId={props.application.id}
+          isModalOpen={isForkApplicationModalopen}
+          setModalClose={setForkApplicationModalOpen}
+        />
       </Menu>
     </ContextDropdownWrapper>
   );
 
   return (
     <NameWrapper
+      className="t--application-card"
+      hasReadPermission={hasReadPermission}
       isMenuOpen={isMenuOpen}
-      showOverlay={showOverlay}
       onMouseEnter={() => {
         !isFetchingApplications && setShowOverlay(true);
       }}
@@ -462,21 +523,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         // Set overlay false on outside click.
         !isMenuOpen && setShowOverlay(false);
       }}
-      hasReadPermission={hasReadPermission}
-      className="t--application-card"
+      showOverlay={showOverlay}
     >
       <>
         <Wrapper
+          backgroundColor={selectedColor}
           className={
             isFetchingApplications
               ? Classes.SKELETON
               : "t--application-card-background"
           }
-          key={props.application.id}
           hasReadPermission={hasReadPermission}
-          backgroundColor={selectedColor}
+          key={props.application.id}
         >
-          <AppIcon size={Size.large} name={appIcon} />
+          <AppIcon name={appIcon} size={Size.large} />
           {/* <Initials>{initials}</Initials> */}
           {showOverlay && (
             <div className="overlay">
@@ -499,23 +559,23 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
                   {hasEditPermission && !isMenuOpen && (
                     <EditButton
-                      text="Edit"
-                      size={Size.medium}
-                      icon={"edit"}
                       className="t--application-edit-link"
                       fill
                       href={editApplicationURL}
+                      icon={"edit"}
+                      size={Size.medium}
+                      text="Edit"
                     />
                   )}
                   {!isMenuOpen && (
                     <Button
-                      text="LAUNCH"
-                      size={Size.medium}
                       category={Category.tertiary}
                       className="t--application-view-link"
-                      icon={"rocket"}
-                      href={viewApplicationURL}
                       fill
+                      href={viewApplicationURL}
+                      icon={"rocket"}
+                      size={Size.medium}
+                      text="LAUNCH"
                     />
                   )}
                 </Control>
@@ -524,12 +584,12 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           )}
         </Wrapper>
         <AppNameWrapper
-          ref={appNameWrapperRef}
-          isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
+          isFetching={isFetchingApplications}
+          ref={appNameWrapperRef}
         >
           {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent maxWidth="400px" content={props.application.name}>
+            <TooltipComponent content={props.application.name} maxWidth="400px">
               {appNameText}
             </TooltipComponent>
           ) : (
@@ -539,6 +599,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       </>
     </NameWrapper>
   );
-};
+}
 
 export default ApplicationCard;

@@ -1,9 +1,4 @@
-import { RenderMode } from "constants/WidgetConstants";
-import { WidgetBuilder, WidgetProps, WidgetSkeleton } from "widgets/BaseWidget";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "./WidgetValidation";
+import { WidgetSkeleton, WidgetBuilder, WidgetProps } from "widgets/BaseWidget";
 import React from "react";
 import {
   PropertyPaneConfig,
@@ -46,10 +41,6 @@ export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetSkeleton>> = new Map();
-  static widgetPropValidationMap: Map<
-    WidgetType,
-    WidgetPropertyValidationType
-  > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
     WidgetDerivedPropertyType
@@ -76,7 +67,6 @@ class WidgetFactory {
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetSkeleton>,
-    widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
@@ -87,7 +77,6 @@ class WidgetFactory {
     } else {
       this.widgetTypes[widgetType] = widgetType;
       this.widgetMap.set(widgetType, widgetBuilder);
-      this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
       this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
@@ -127,17 +116,6 @@ class WidgetFactory {
     return Array.from(this.widgetMap.keys());
   }
 
-  static getWidgetPropertyValidationMap(
-    widgetType: WidgetType,
-  ): WidgetPropertyValidationType {
-    const map = this.widgetPropValidationMap.get(widgetType);
-    if (!map) {
-      console.error("Widget type validation is not defined");
-      return BASE_WIDGET_VALIDATION;
-    }
-    return map;
-  }
-
   static getWidgetDerivedPropertiesMap(
     widgetType: WidgetType,
   ): DerivedPropertiesMap {
@@ -162,7 +140,7 @@ class WidgetFactory {
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): Record<string, any> {
+  ): Record<string, string> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
@@ -186,7 +164,6 @@ class WidgetFactory {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
-        validations: WidgetFactory.getWidgetPropertyValidationMap(type),
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
         metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
@@ -199,10 +176,9 @@ class WidgetFactory {
 export type WidgetTypeConfigMap = Record<
   string,
   {
-    validations: WidgetPropertyValidationType;
-    derivedProperties: WidgetDerivedPropertyType;
     defaultProperties: Record<string, string>;
     metaProperties: Record<string, any>;
+    derivedProperties: WidgetDerivedPropertyType;
   }
 >;
 

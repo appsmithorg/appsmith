@@ -100,25 +100,25 @@ interface DatePickerComponentProps {
   parseDate?: (dateStr: string) => Date;
 }
 
-const DatePickerComponent = (props: DatePickerComponentProps) => {
+function DatePickerComponent(props: DatePickerComponentProps) {
   return (
     <StyledDateInput
+      className={Classes.DATE_PICKER_OVARLAY}
+      closeOnSelection={props.closeOnSelection}
+      formatDate={props.formatDate}
+      highlightCurrentDay={props.highlightCurrentDay}
       maxDate={props.maxDate}
       minDate={props.minDate}
+      onChange={props.onChange}
+      parseDate={props.parseDate}
       placeholder={props.placeholder}
+      popoverProps={{ usePortal: true }}
       showActionsBar={props.showActionsBar}
       timePrecision={props.timePrecision}
-      closeOnSelection={props.closeOnSelection}
       value={props.value}
-      highlightCurrentDay={props.highlightCurrentDay}
-      onChange={props.onChange}
-      formatDate={props.formatDate}
-      parseDate={props.parseDate}
-      className={Classes.DATE_PICKER_OVARLAY}
-      popoverProps={{ usePortal: true }}
     />
   );
-};
+}
 
 DatePickerComponent.defaultProps = {
   highlightCurrentDay: true,

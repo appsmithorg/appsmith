@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TabsComponentProps extends ComponentProps {
@@ -34,14 +33,13 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: 0px 0px 0px 1px #e7e7e7;
   border-radius: 0;
-  box-shadow: none;
   overflow: hidden;
 `;
 
 const ChildrenWrapper = styled.div`
-  height: 100%;
+  height: calc(100% - 40px);
   width: 100%;
   position: relative;
   background: ${(props) => props.theme.colors.builderBodyBG};
@@ -109,7 +107,7 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
-const TabsComponent = (props: TabsComponentProps) => {
+function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
@@ -129,12 +127,12 @@ const TabsComponent = (props: TabsComponentProps) => {
           {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
+              key={index}
               onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                 onTabChange(tab.widgetId);
                 event.stopPropagation();
               }}
               selected={props.selectedTabWidgetId === tab.widgetId}
-              key={index}
             >
               {tab.label}
             </StyledText>
@@ -157,6 +155,6 @@ const TabsComponent = (props: TabsComponentProps) => {
       </ChildrenWrapper>
     </TabsContainerWrapper>
   );
-};
+}
 
 export default TabsComponent;

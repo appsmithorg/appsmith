@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/ModalDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Modal Widget Functionality", function() {
@@ -9,7 +8,7 @@ describe("Modal Widget Functionality", function() {
 
   it("Add new Modal", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: -300 });
+    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
     cy.get(".t--modal-widget").should("exist");
   });
 

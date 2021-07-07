@@ -17,18 +17,20 @@ const callValidator1 = () => {
   };
 };
 
-export const TextInputStory = () => (
-  <StoryWrapper>
-    <TextInput
-      placeholder={text("placeholder", "Your name")}
-      disabled={boolean("disabled", false)}
-      fill={boolean("fill", true)}
-      defaultValue={text("defaultValue", "This is valid")}
-      onChange={action("input value changed")}
-      validator={() => callValidator1()}
-    ></TextInput>
-  </StoryWrapper>
-);
+export function TextInputStory() {
+  return (
+    <StoryWrapper>
+      <TextInput
+        defaultValue={text("defaultValue", "This is valid")}
+        disabled={boolean("disabled", false)}
+        fill={boolean("fill", true)}
+        onChange={action("input value changed")}
+        placeholder={text("placeholder", "Your name")}
+        validator={() => callValidator1()}
+      />
+    </StoryWrapper>
+  );
+}
 
 const callValidator2 = () => {
   return {
@@ -37,15 +39,17 @@ const callValidator2 = () => {
   };
 };
 
-export const ErrorTextInputStory = () => (
-  <StoryWrapper>
-    <TextInput
-      placeholder={text("placeholder", "Your name")}
-      disabled={boolean("disabled", false)}
-      fill={boolean("fill", true)}
-      onChange={(value) => console.log(value)}
-      defaultValue={text("defaultValue", "This is wrong")}
-      validator={() => callValidator2()}
-    ></TextInput>
-  </StoryWrapper>
-);
+export function ErrorTextInputStory() {
+  return (
+    <StoryWrapper>
+      <TextInput
+        defaultValue={text("defaultValue", "This is wrong")}
+        disabled={boolean("disabled", false)}
+        fill={boolean("fill", true)}
+        onChange={(value) => console.log(value)}
+        placeholder={text("placeholder", "Your name")}
+        validator={() => callValidator2()}
+      />
+    </StoryWrapper>
+  );
+}

@@ -1,32 +1,144 @@
-## Appsmith Office Hours 👩🏽‍💻 👋🏼
+## Appsmith Events 👩🏽‍💻 👋🏼
 
-[Sign Up For Office Hours](https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e)
+[Sign Up For Events](https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e)
   
 -----------------
   
-Appsmith office hours are a dedicated time slot in which our team will be available to help our users real time. It also gives us an opportunity to interact with the community, understand your concerns and communicate our thinking to you. Office hours are conducted by the appsmith team every week for 1 hour at 10am CET on Tuesday and 10am PST on Fridays.
+Appsmith Events are a dedicated time slot every Thursday at 10am PT in which our team will spend time with our users in the form of a community discussion, Live Demo or webinar. It gives us an opportunity to interact with the community, understand your concerns and communicate our thinking to you.
 
 The office hours broadly covers the following topics:
 
-<ul>
-    <li>Answering questions on how to get things done on appsmith.</li>
-    <li>Bug fixes and releases from our team over the past week. </li>
-    <li>Community discussions about requested features to help us prioritize product roadmap initiatives. </li>
-    <li>Community discussions about bugs and potential enhancements to the product. </li>
-</ul>
 
-▶️
-Multiple appsmith team members will be on the call, and will step-in to help wherever relevant. The office hours are recorded and will be put up in our [youtube channel](https://www.youtube.com/watch?v=Uqk9jy5CXxY&list=PLE_KXGiWfqwiUzo4-wG1WzU_wtul1Syin&index=4) and website (coming soon!) also.
+The events are recorded and will be put up in our [youtube channel](https://www.youtube.com/watch?v=Uqk9jy5CXxY&list=PLE_KXGiWfqwiUzo4-wG1WzU_wtul1Syin&index=4) and website (coming soon!) also.
 
 🙋🏽‍♀️
-You can <a href = "https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">pre-register</a> for the office hours here to get an invite to your email inbox, or just sign up to get alerts from the office hours and reminders with the link to the sessions here. You can also join us on <a href="https://discord.gg/rBTTVJp">discord</a> where we send out periodic reminders for the office hours and have a dedicated support channel. 
+You can <a href = "https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">pre-register</a> and search for events here to get an invite to your email inbox, or just sign up to get alerts to the sessions here. You can also join us on <a href="https://discord.gg/rBTTVJp">discord</a> where we send out periodic reminders for the office hours and have a dedicated support channel. 
 
-You can find the archives of the calls below with a brief summary of each session. The video descriptions in youtube have more detailed explanations. If you have any feedback or requests regarding the office hours program, please write to akshay@appsmith.com
+You can find the archives of the calls below with a brief summary of each event. The video descriptions in youtube have more detailed explanations. If you have any feedback or requests regarding the office hours program, please write to akshay@appsmith.com
 
 
 -----------------
 
 ## Archives
+
+<strong>Appsmith Live Demo #5: Building a Tweetdeck Clone With n8n and Appsmith</strong>
+
+<a href = "https://youtu.be/mWZGn8kuIBo">Video Link</a>
+
+#### Summary
+
+We had our friend from n8n join us in this Live Demo session to build a Tweetdeck clone in 20 minutes. Confidence from Appsmith built the demo app
+using Appsmith for the frontend and building the workflow automation with n8n.
+
+------------------
+
+<strong>Community Call Jun 24, 2021: All about Integrations</strong>
+
+<a href = "https://youtu.be/hQScncyEUds">Video Link</a>
+
+#### Summary
+
+This week's community session was all about Integrations. Arpit discusses how we develop integrations at Appsmith, and shows the community how they can contribute new ones.
+
+------------------
+
+<strong>Community Call Jun 10, 2021: New Upcoming Widgets and Latest Releases</strong>
+
+<a href = "https://youtu.be/B6T6L6GYARM">Video Link</a>
+
+#### Summary
+
+Somangshu and Abhishek talked about the latest releases from the past two weeks. Somangshu also demoed a few of our upcoming widgets and share designs for those that are in the works.
+
+------------------
+
+<strong>Appsmith Live Demo #4, 3rd Jun 2021:  Building a CMS with the Notion API</strong>
+
+<a href = "https://youtu.be/O8GyCI-nRLI">Video Link</a>
+
+#### Summary
+
+Akshay and Confidence show the community how we internally used the recently released Notion API to build a CMS with features not available natively in notion. This demo also shows how to work with APIs having complex responses.
+
+------------------
+
+<strong>Appsmith Live Demo #3, 29th May 2021:  Stitching APIs together to automate workflows</strong>
+
+<a href = "https://youtu.be/_8qLbyWwXeA">Video Link</a>
+
+#### Summary
+
+Confidence shows the community how we internally use APIs from multiple services to build apps that simplifies our workflow within Appsmith. Top questions from members of our community was also discussed.
+
+------------------
+
+<strong>Office Hours May 13th, 2021: Product roadmap discussion</strong>
+
+<a href = "https://youtu.be/1sw84i_M4_Y">Video Link</a>
+
+#### Summary
+
+Abhishek shows the community our current product road map and explains how members can contribute to it. Abhishek also hosted an interactive section where members of the community voted for the top features they want to see on Appsmith. 
+
+Some of the most requested features are: 
+1. Generate form from DB schema
+2. Custom NPM packages
+3. Custom theming
+4. Keyboard first navigation
+
+You can vote for your favorite features [here](https://miro.com/app/board/o9J_lE-dkdM=/)
+
+------------------
+
+<strong>Appsmith Live Demo #2, 6th May 2021: Building a support helpdesk using Gmail and Postgres</strong>
+
+<a href = "https://youtu.be/X_x_nRZf418">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a ticket support dashboard to assign emails to various org members using the Gmail API and Postgres. Questions from members of our community was also discussed.
+
+------------------
+
+<strong>29th April 2021: List widget, Release roadmap and more</strong>
+
+<a href = "https://youtu.be/Ccbj3Aob5Rc">Video Link</a>
+
+#### Summary
+
+The List widget is finally here, yay! Pawan shows the community how to use the List widget. Also, Nikhil talks about our release roadmap and Sumit talks about issues and fixes that were resolved within the past week.
+
+------------------
+
+<strong>Appsmith Live Demo #1, 22nd April 2021: Build CRUD apps Google Sheets </strong>
+
+<a href = "https://youtu.be/j6B2T-c-zOc">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a CRM dashboard on top of Google Sheets using the new Google Sheet integration on Appsmith. Questions from members of our community was also discussed.
+
+------------------
+
+<strong>15th April 2021: Bug fixes, Fusion charts demo</strong>
+
+<a href = "https://youtu.be/99qQzen8D9w">Video Link</a>
+
+#### Summary
+
+Nidhi from Appsmith talks about the issues that were discovered on the table widget and how they have been fixed. She also demos the new Fusion chart API that lets developers build custom charts using the chart widget.
+
+------------------
+
+<strong>8th April 2021: Thanks for the 4k Github stars, Sticky property pane, Custom charts</strong>
+
+<a href = "https://youtu.be/m0d9A7Yc2N0">Video Link</a>
+
+#### Summary
+
+Abhinav shows a handful of the cool new Appsmith features, some of which are sticky property pane, custom charts, tables in rich-text-editor, text widget styling, and auto data format detection in Datepicker widget. Also, Sumit from Appsmith talks about bug fixes and community feedback.
+
+------------------
 
 <strong>25th Mar 2021: Intelligent JSON substitution, Generic S3 integration, Url table column type and new datepicker formats</strong>
 

@@ -38,20 +38,17 @@ const Wrapper = styled.div<{ iconCount: number }>`
   align-items: center;
   height: ${(props) => props.theme.propertyPane.titleHeight}px;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
-
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     height: auto;
     padding: 0;
     width: 100%;
   }
-
   &&&
     .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
     &&&
@@ -59,7 +56,6 @@ const Wrapper = styled.div<{ iconCount: number }>`
     color: ${(props) => props.theme.colors.propertyPane.title};
     font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
-
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.label};
   }
@@ -71,7 +67,6 @@ const NameWrapper = styled.div<{ isPanelTitle?: boolean }>`
   min-width: 100%;
   padding-right: 25px;
   max-width: 134px;
-
   &&&&&&& > * {
     overflow: hidden;
   }
@@ -121,7 +116,11 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
-      if (value && value.trim().length > 0 && value.trim() !== title.trim()) {
+      if (
+        value &&
+        value.trim().length > 0 &&
+        value.trim() !== (title && title.trim())
+      ) {
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
@@ -160,26 +159,28 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           <>
             {props.isPanelTitle && (
               <StyledBackIcon
-                onClick={props.onBackClick}
                 className="t--property-pane-back-btn"
+                onClick={props.onBackClick}
               />
             )}
 
             <EditableText
-              valueTransform={removeSpecialChars}
+              className="t--propery-page-title"
               defaultValue={name}
-              placeholder={props.title}
               editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              hideEditIcon
               isEditingDefault={!props.isPanelTitle ? isNew : undefined}
               onBlur={!props.isPanelTitle ? updateTitle : undefined}
               onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              hideEditIcon
-              className="t--propery-page-title"
+              placeholder={props.title}
               savingState={
                 updating ? SavingState.STARTED : SavingState.NOT_STARTED
               }
-              fill
               underline
+              valueTransform={
+                !props.isPanelTitle ? removeSpecialChars : undefined
+              }
             />
           </>
         </NameWrapper>

@@ -161,27 +161,23 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.URL]: "Url",
 };
 
-const RenderOption = (props: {
-  type: string;
-  title: string;
-  active: boolean;
-}) => {
+function RenderOption(props: { type: string; title: string; active: boolean }) {
   return (
     <RenderOptionWrapper selected={props.active}>
       <div className="title">{props.title}</div>
       <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
     </RenderOptionWrapper>
   );
-};
+}
 
-const RenderOptions = (props: {
+function RenderOptions(props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
   showType?: boolean;
   className?: string;
-}) => {
+}) {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
     sections: [
@@ -191,9 +187,9 @@ const RenderOptions = (props: {
           return {
             content: props.showType ? (
               <RenderOption
+                active={isActive}
                 title={column.label}
                 type={column.type}
-                active={isActive}
               />
             ) : (
               column.label
@@ -215,7 +211,7 @@ const RenderOptions = (props: {
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
+          <Icon color={Colors.SLATE_GRAY} icon="chevron-down" iconSize={16} />
         </DropdownTrigger>
       ),
     },
@@ -236,13 +232,13 @@ const RenderOptions = (props: {
     }
   }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;
-};
+}
 
-const RenderInput = (props: {
+function RenderInput(props: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-}) => {
+}) {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,14 +251,14 @@ const RenderInput = (props: {
   }, [props.value]);
   return (
     <StyledInputGroup
-      placeholder="Enter value"
-      onChange={onChange}
-      type="text"
-      defaultValue={value}
       className={props.className}
+      defaultValue={value}
+      onChange={onChange}
+      placeholder="Enter value"
+      type="text"
     />
   );
-};
+}
 
 type CascadeFieldProps = {
   columns: DropdownOption[];
@@ -421,15 +417,15 @@ function CaseCaseFieldReducer(
   }
 }
 
-const CascadeField = (props: CascadeFieldProps) => {
+function CascadeField(props: CascadeFieldProps) {
   const memoizedState = React.useMemo(() => calculateInitialState(props), [
     props,
   ]);
   return <Fields state={memoizedState} {...props} />;
-};
+}
 
-const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
-  const { index, removeFilter, applyFilter, hasAnyFilters } = props;
+function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
+  const { applyFilter, hasAnyFilters, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -466,16 +462,16 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
   };
 
   const {
-    operator,
     column,
     condition,
-    showConditions,
-    value,
-    showInput,
-    showDateInput,
     conditions,
     isDeleted,
     isUpdate,
+    operator,
+    showConditions,
+    showDateInput,
+    showInput,
+    value,
   } = state;
   useEffect(() => {
     if (!isDeleted && isUpdate) {
@@ -505,22 +501,22 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
   return (
     <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
-        onClick={handleRemoveFilter}
-        height={16}
-        width={16}
-        color={Colors.RIVER_BED}
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
+        color={Colors.RIVER_BED}
+        height={16}
+        onClick={handleRemoveFilter}
+        width={16}
       />
       {index === 1 ? (
         <DropdownWrapper width={95}>
           <RenderOptions
+            className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
+            placeholder="or"
             selectItem={selectOperator}
             value={operator}
-            placeholder="or"
-            className="t--table-filter-operators-dropdown"
           />
         </DropdownWrapper>
       ) : (
@@ -530,22 +526,22 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
-          columns={props.columns}
-          selectItem={selectColumn}
-          value={column}
-          showType
-          placeholder="Attribute"
           className="t--table-filter-columns-dropdown"
+          columns={props.columns}
+          placeholder="Attribute"
+          selectItem={selectColumn}
+          showType
+          value={column}
         />
       </DropdownWrapper>
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
+            className="t--table-filter-conditions-dropdown"
             columns={conditions}
+            placeholder=""
             selectItem={selectCondition}
             value={condition}
-            placeholder=""
-            className="t--table-filter-conditions-dropdown"
           />
         </DropdownWrapper>
       ) : null}
@@ -559,20 +555,20 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
-            label=""
-            dateFormat="DD/MM/YYYY"
+            dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
-            onDateSelected={onDateSelected}
-            selectedDate={value}
+            enableTimePicker={false}
             isDisabled={false}
             isLoading={false}
-            enableTimePicker={false}
+            label=""
+            onDateSelected={onDateSelected}
+            selectedDate={value}
             widgetId=""
           />
         </DatePickerWrapper>
       ) : null}
     </FieldWrapper>
   );
-};
+}
 
 export default CascadeField;

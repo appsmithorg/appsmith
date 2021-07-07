@@ -24,7 +24,7 @@ const propertyPaneReducer = createReducer(initialState, {
     ) {
       return state;
     }
-    const { widgetId, callForDragOrResize } = action.payload;
+    const { callForDragOrResize, widgetId } = action.payload;
     // If callForDragOrResize is true, an action has started or ended.
     // If the action has started, isVisibleBeforeAction should be undefined
     // If the action has ended, isVisibleBeforeAction should be the visible state

@@ -9,12 +9,13 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Blob;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -33,7 +34,6 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +42,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -75,7 +78,8 @@ public class FirestorePluginTest {
                 .build()
                 .getService();
 
-        firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false)).get();
+        firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false,
+                "category", "test")).get();
         final Map<String, Object> twoData = new HashMap<>(Map.of(
                 "value", 2,
                 "name", "two",
@@ -83,7 +87,8 @@ public class FirestorePluginTest {
                 "geo", new GeoPoint(-90, 90),
                 "dt", FieldValue.serverTimestamp(),
                 "ref", firestoreConnection.document("initial/one"),
-                "bytes", Blob.fromBytes("abc def".getBytes(StandardCharsets.UTF_8))
+                "bytes", Blob.fromBytes("abc def".getBytes(StandardCharsets.UTF_8)),
+                "category", "test"
         ));
         twoData.put("null-ref", null);
         firestoreConnection.document("initial/two").set(twoData).get();
@@ -144,7 +149,19 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -171,6 +188,7 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) doc.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(doc.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("_ref"));
+                    assertEquals("test", doc.remove("category"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -227,6 +245,7 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
 
                     final Map<String, Object> second = results.stream().filter(d -> "two".equals(d.get("name"))).findFirst().orElse(null);
@@ -240,6 +259,7 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(second.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
+                    assertEquals("test", second.remove("category"));
                     assertEquals(Collections.emptyMap(), second);
 
                     final Map<String, Object> third = results.stream().filter(d -> "third".equals(d.get("name"))).findFirst().orElse(null);
@@ -277,6 +297,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "SET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -298,6 +331,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "CREATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -348,6 +394,17 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "DELETE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -371,6 +428,19 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "ADD_TO_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -557,6 +627,25 @@ public class FirestorePluginTest {
                             names
                     );
 
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1),
+                            "[\"firm\", \"name\"]", null, null, null)); // Order by
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "{}", null,
+                            null, null)); // Start after
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(7), "{}", null,
+                            null, null)); // End before
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
+                            null, null)); // Limit
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+
                 })
                 .verifyComplete();
     }
@@ -603,6 +692,86 @@ public class FirestorePluginTest {
                             names
                     );
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testWhereConditional() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("initial");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
+        pluginSpecifiedTemplates.add(new Property("order", null));
+        pluginSpecifiedTemplates.add(new Property("limit", null));
+        Property whereProperty = new Property("where", null);
+        whereProperty.setValue(new ArrayList<>());
+        /*
+         * - get all documents where category == test.
+         * - this returns 2 documents.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "{{Input1.text}}");
+            put("operator", "EQ");
+            put("value", "{{Input2.text}}");
+        }});
+
+        /*
+         * - get all documents where name == two.
+         * - Of the two documents returned by above condition, this will narrow it down to one.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "{{Input3.text}}");
+            put("operator", "EQ");
+            put("value", "{{Input4.text}}");
+        }});
+
+        pluginSpecifiedTemplates.add(whereProperty);
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("test");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("name");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input4.text");
+        param.setValue("two");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+
+                    final Map<String, Object> second = results.stream().findFirst().orElse(null);
+                    assertNotNull(second);
+                    assertEquals("two", second.remove("name"));
+                    assertTrue((Boolean) second.remove("isPlural"));
+                    assertEquals(2L, second.remove("value"));
+                    assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
+                    assertEquals(new GeoPoint(-90, 90), second.remove("geo"));
+                    assertNotNull(second.remove("dt"));
+                    assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
+                    assertNull(second.remove("null-ref"));
+                    assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
+                    assertEquals("test", second.remove("category"));
+                    assertEquals(Collections.emptyMap(), second);
                 })
                 .verifyComplete();
     }
@@ -688,6 +857,21 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "UPDATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(9),
+                            "[\"value\"]", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
 
@@ -848,5 +1032,58 @@ public class FirestorePluginTest {
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testDynamicBindingSubstitutionInActionConfiguration() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("{{Input1.text}}");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
+        pluginSpecifiedTemplates.add(new Property("order", null));
+        pluginSpecifiedTemplates.add(new Property("limit", null));
+        Property whereProperty = new Property("where", null);
+        whereProperty.setValue(new ArrayList<>());
+        /*
+         * - get all documents where category == test.
+         * - this returns 2 documents.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "{{Input2.text}}");
+            put("operator", "EQ");
+            put("value", "{{Input3.text}}");
+        }});
+
+        pluginSpecifiedTemplates.add(whereProperty);
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("initial");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("test");
+        params.add(param);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        // Substitute dynamic binding values
+        pluginExecutor
+                .prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, null);
+
+        // check if dynamic binding values have been substituted correctly
+        assertEquals("initial", actionConfiguration.getPath());
+        assertEquals("category",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "path"));
+        assertEquals("test",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "value"));
     }
 }

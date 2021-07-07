@@ -1,21 +1,20 @@
-import React, { useRef, useEffect } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { createPortal } from "react-dom";
-import PopperJS, { Placement, PopperOptions } from "popper.js";
-import { noop } from "utils/AppsmithUtils";
-import { draggableElement } from "./utils";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { Colors } from "constants/Colors";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import PopperJS, { Placement, PopperOptions } from "popper.js";
+import React, { useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AppState } from "reducers";
-import { useSelector } from "react-redux";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import styled, { ThemeProvider } from "styled-components";
+import { noop } from "utils/AppsmithUtils";
+import { draggableElement } from "./utils";
 
 export type PopperProps = {
   zIndex: number;
   isOpen: boolean;
   themeMode?: ThemeMode;
   targetNode?: Element;
-  children: JSX.Element;
+  children: JSX.Element | null;
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
@@ -42,13 +41,13 @@ const DragHandleBlock = styled.div`
   clip-path: inset(-2px 0px -2px -2px);
 `;
 
-export const PopperDragHandle: React.FC<any> = () => {
+export function PopperDragHandle() {
   return (
     <DragHandleBlock>
       <DragHandleIcon />
     </DragHandleBlock>
   );
-};
+}
 
 /* eslint-disable react/display-name */
 function Popper(props: PopperProps) {
@@ -60,9 +59,13 @@ function Popper(props: PopperProps) {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
-  const popperTheme = useSelector((state: AppState) =>
-    getThemeDetails(state, themeMode),
+  // Meomoizing to avoid rerender of draggable icon.
+  // What is the cost of memoizing?
+  const popperTheme = useMemo(
+    () => getThemeDetails({} as AppState, themeMode),
+    [themeMode],
   );
+
   useEffect(() => {
     const parentElement = props.targetNode && props.targetNode.parentElement;
     if (
@@ -120,7 +123,7 @@ function Popper(props: PopperProps) {
           position,
           () => (
             <ThemeProvider theme={popperTheme}>
-              <PopperDragHandle {...props} />
+              <PopperDragHandle />
             </ThemeProvider>
           ),
         );
@@ -134,7 +137,7 @@ function Popper(props: PopperProps) {
   }, [
     props.targetNode,
     props.isOpen,
-    props.modifiers,
+    JSON.stringify(props.modifiers),
     props.placement,
     disablePopperEvents,
   ]);
