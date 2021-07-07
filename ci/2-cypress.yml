@@ -16,7 +16,7 @@ phases:
     commands:
       - source ci/common/extra-env.sh
       - mkdir -pv ci/logs
-      - source ci/2-scripts/1-install.sh 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
+      - source ci/2-scripts/1-install.sh
     finally:
       - source ci/common/upload-logs.sh
 
