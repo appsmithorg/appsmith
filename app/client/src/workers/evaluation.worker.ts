@@ -182,7 +182,7 @@ ctx.addEventListener(
                 } else {
                   variables.push({
                     name: key,
-                    initialValue: parsed[key],
+                    value: parsed[key],
                   });
                 }
               }

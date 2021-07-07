@@ -1,5 +1,5 @@
 import { DynamicPath } from "../../utils/DynamicBindingUtils";
-
+import { BaseAction } from "../Action";
 export enum PluginType {
   JS = "JS",
 }
@@ -10,38 +10,24 @@ export enum PaginationType {
   URL = "URL",
 }
 
-interface BaseAction {
-  id: string;
-  name: string;
-  organizationId: string;
-  pageId: string;
-  collectionId?: string;
-  pluginId: string;
-  applicationId: string;
-  pluginType: PluginType.JS;
-  executeOnLoad?: boolean;
-  dynamicBindingPathList?: DynamicPath[];
-  isValid?: boolean;
-  invalids?: string[];
-  cacheResponse?: string;
-  confirmBeforeExecute?: boolean;
-  eventData?: any;
-}
-
 export type variable = {
   name: string;
-  initialValue: any;
+  value: any;
 };
 export interface JSAction extends BaseAction {
   body: string;
+  pluginType: PluginType.JS;
+  applicationId: string;
   variables: Array<variable>;
   actions: Array<JSSubAction>;
 }
 export interface JSSubAction {
-  actionId: string;
+  id: string;
   name: string;
   collectionId: string;
   executeOnLoad: boolean;
+  organizationId: string;
+  pageId: string;
   actionConfiguration: {
     body: string;
     isAsync: boolean;

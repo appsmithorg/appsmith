@@ -4,6 +4,7 @@ import {
   put,
   takeEvery,
   takeLatest,
+  debounce,
   call,
 } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -74,17 +75,16 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   if (jsActionId) {
     const jsAction: JSAction = yield select(getJSAction, jsActionId);
     const data = getDifferenceInJSAction(parsedBody, jsAction);
+    data.body = body;
     return data;
   }
 }
 
-function* handleSaveJSAction(actionPayload: ReduxAction<{ body: string }>) {
+function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
   const { body } = actionPayload.payload;
   const data = yield call(handleParseUpdateJSAction, { body: body });
-  // const response: GenericApiResponse<JSAction> = yield JSActionAPI.updateJSAction(
-  //   data,
-  // );
-  yield put(updateJSActionSuccess({ data: data }));
+  const response = yield JSActionAPI.updateJSAction(data);
+  yield put(updateJSActionSuccess({ data: response }));
 }
 
 export default function* root() {
@@ -97,6 +97,10 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSActionCreatedSaga,
     ),
-    takeLatest(ReduxActionTypes.UPDATE_JS_ACTION_INIT, handleSaveJSAction),
+    debounce(
+      1000,
+      ReduxActionTypes.UPDATE_JS_ACTION_INIT,
+      handleUpdateJSAction,
+    ),
   ]);
 }

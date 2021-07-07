@@ -539,7 +539,7 @@ export function getParams(func: any) {
     if (element.length > 0 && element[0].length > 0) {
       const result = {
         name: element[0],
-        initalValue: element[1] ? JSON.parse(element[1]) : null,
+        value: element[1] ? JSON.parse(element[1]) : null,
       };
       params.push(result);
     }

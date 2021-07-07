@@ -14,7 +14,7 @@ export const generateDataTreeJSAction = (
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
-      result[variable.name] = variable.initialValue;
+      result[variable.name] = variable.value;
     }
   }
   const actions = js?.config?.actions;
@@ -31,7 +31,7 @@ export const generateDataTreeJSAction = (
   }
   result = {
     ...result,
-    actionId: js.config.id,
+    id: js.config.id,
     name: js.config.name,
     pluginType: js.config.pluginType,
     data: data ? data : {},
