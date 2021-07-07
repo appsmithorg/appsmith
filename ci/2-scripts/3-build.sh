@@ -30,6 +30,8 @@ du -sh client-dist server-dist
 
 echo Building server code
 cd "$CODEBUILD_SRC_DIR/server-dist"
+export APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith"
+export APPSMITH_REDIS_URL="redis://localhost:6379"
 APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish \
 	APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot \
 	APPSMITH_CLOUD_SERVICES_BASE_URL='' \
