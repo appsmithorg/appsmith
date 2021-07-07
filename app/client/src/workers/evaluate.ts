@@ -27,9 +27,7 @@ const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `return (
-    ${script}
-  )`,
+  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
     `const userFunction = ${script}
     return userFunction.apply(self, ARGUMENTS)`,
