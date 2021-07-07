@@ -41,6 +41,7 @@ import {
 } from "transformers/RestAPIDatasourceFormTransformer";
 import {
   ApiDatasourceForm,
+  ApiKeyAuthType,
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
@@ -433,6 +434,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
+              {
+                label: "API Key",
+                value: AuthType.apiKey,
+              },
+              {
+                label: "Bearer Token",
+                value: AuthType.bearerToken,
+              },
             ]}
             placeholderText=""
             propertyValue=""
@@ -451,6 +460,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       content = this.renderOauth2();
     } else if (authType === AuthType.basic) {
       content = this.renderBasic();
+    } else if (authType === AuthType.apiKey) {
+      content = this.renderApiKey();
+    } else if (authType === AuthType.bearerToken) {
+      content = this.renderBearerToken();
     }
     if (content) {
       return (
@@ -459,6 +472,61 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </Collapsible>
       );
     }
+  };
+
+  renderApiKey = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.label"
+            label="Key"
+            placeholderText="api_key"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.value"
+            label="Value"
+            placeholderText="value"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.addTo"
+            label="Add To"
+            options={[
+              {
+                label: "Query Params",
+                value: ApiKeyAuthType.QueryParams,
+              },
+              {
+                label: "Header",
+                value: ApiKeyAuthType.Header,
+              },
+            ]}
+            placeholderText=""
+            propertyValue=""
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
+  renderBearerToken = () => {
+    return (
+      <FormInputContainer>
+        <InputTextControl
+          {...COMMON_INPUT_PROPS}
+          configProperty="authentication.bearerToken"
+          label="Bearer Token"
+          placeholderText="Bearer Token"
+        />
+      </FormInputContainer>
+    );
   };
 
   renderBasic = () => {
