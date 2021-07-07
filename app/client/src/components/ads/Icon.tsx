@@ -68,6 +68,11 @@ import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
+import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
+import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
+import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
+import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
+import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -197,6 +202,11 @@ export const IconCollection = [
   "unpin",
   "reaction",
   "reaction-2",
+  "arrow-forward",
+  "cap-solid",
+  "cap-dot",
+  "line-dotted",
+  "line-dashed",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -497,6 +507,26 @@ const Icon = forwardRef(
 
       case "download":
         returnIcon = <Download />;
+        break;
+
+      case "arrow-forward":
+        returnIcon = <ArrowForwardIcon />;
+        break;
+
+      case "cap-solid":
+        returnIcon = <CapSolidIcon />;
+        break;
+
+      case "cap-dot":
+        returnIcon = <CapDotIcon />;
+        break;
+
+      case "line-dotted":
+        returnIcon = <LineDottedIcon />;
+        break;
+
+      case "line-dashed":
+        returnIcon = <LineDashedIcon />;
         break;
 
       default:
