@@ -1,16 +1,18 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { Middleware, Dispatch, Action, MiddlewareAPI } from "redux";
+
 import { AppState } from "reducers";
-import { Middleware, AnyAction } from "redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 /**
  * this middleware intercepts each action and fire analytics
  * @param store
  * @returns
  */
-export const analyticsMiddleware: Middleware<{}, AppState> = () => (next) => (
-  action,
-) => {
-  track(action);
+export const analyticsMiddleware: Middleware = ({
+  getState,
+}: MiddlewareAPI) => (next: Dispatch) => (action) => {
+  track(action, getState());
+
   return next(action);
 };
 
@@ -19,10 +21,10 @@ export const analyticsMiddleware: Middleware<{}, AppState> = () => (next) => (
  *
  * @param action
  */
-function track(action: AnyAction): void {
+function track(action: Action, store: AppState): void {
   switch (action.type) {
     case ReduxActionTypes.PASTE_COPIED_WIDGET_INIT:
-      console.log("logging from middleware");
+      // TODO: add analytics logic here
       break;
   }
 }
