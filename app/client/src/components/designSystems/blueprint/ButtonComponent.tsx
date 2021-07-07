@@ -169,32 +169,15 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
   }
 };
 
-function RecaptchaComponent(
+function RecaptchaV2Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
     recaptchaV2?: boolean;
+    handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
-  function handleError(event: React.MouseEvent<HTMLElement>, error: string) {
-    Toaster.show({
-      text: error,
-      variant: Variant.danger,
-    });
-    props.onClick && props.onClick(event);
-  }
-
-  // Check if a string is a valid JSON string
-  const checkValidJson = (inputString: string): boolean => {
-    try {
-      JSON.parse(inputString);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
     try {
       const token = await recaptchaRef?.current?.executeAsync();
@@ -202,11 +185,40 @@ function RecaptchaComponent(
         props.clickWithRecaptcha(token);
       } else {
         // Handle incorrent google recaptcha site key
-        handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+        props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
       }
     } catch (err) {
       // Handle error due to google recaptcha key of different domain
-      handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
+      props.handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
+    }
+  };
+  return (
+    <div onClick={handleBtnClick}>
+      {props.children}
+      <ReCAPTCHA
+        ref={recaptchaRef}
+        sitekey={props.googleRecaptchaKey || ""}
+        size="invisible"
+      />
+    </div>
+  );
+}
+
+function RecaptchaV3Component(
+  props: {
+    children: any;
+    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+    recaptchaV2?: boolean;
+    handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
+  } & RecaptchaProps,
+) {
+  // Check if a string is a valid JSON string
+  const checkValidJson = (inputString: string): boolean => {
+    try {
+      JSON.parse(inputString);
+      return true;
+    } catch (err) {
+      return false;
     }
   };
 
@@ -219,53 +231,40 @@ function RecaptchaComponent(
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
-  if (!props.recaptchaV2) {
-    return (
-      <div
-        onClick={(event: React.MouseEvent<HTMLElement>) => {
-          if (status === ScriptStatus.READY) {
-            (window as any).grecaptcha.ready(() => {
-              try {
-                (window as any).grecaptcha
-                  .execute(props.googleRecaptchaKey, {
-                    action: "submit",
-                  })
-                  .then((token: any) => {
-                    props.clickWithRecaptcha(token);
-                  })
-                  .catch(() => {
-                    // Handle incorrent google recaptcha site key
-                    handleError(
-                      event,
-                      createMessage(GOOGLE_RECAPTCHA_KEY_ERROR),
-                    );
-                  });
-              } catch (err) {
-                // Handle error due to google recaptcha key of different domain
-                handleError(
-                  event,
-                  createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR),
-                );
-              }
-            });
-          }
-        }}
-      >
-        {props.children}
-      </div>
-    );
-  } else {
-    return (
-      <div onClick={handleBtnClick}>
-        {props.children}
-        <ReCAPTCHA
-          ref={recaptchaRef}
-          sitekey={props.googleRecaptchaKey || ""}
-          size="invisible"
-        />
-      </div>
-    );
-  }
+  return (
+    <div
+      onClick={(event: React.MouseEvent<HTMLElement>) => {
+        if (status === ScriptStatus.READY) {
+          (window as any).grecaptcha.ready(() => {
+            try {
+              (window as any).grecaptcha
+                .execute(props.googleRecaptchaKey, {
+                  action: "submit",
+                })
+                .then((token: any) => {
+                  props.clickWithRecaptcha(token);
+                })
+                .catch(() => {
+                  // Handle incorrent google recaptcha site key
+                  props.handleError(
+                    event,
+                    createMessage(GOOGLE_RECAPTCHA_KEY_ERROR),
+                  );
+                });
+            } catch (err) {
+              // Handle error due to google recaptcha key of different domain
+              props.handleError(
+                event,
+                createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR),
+              );
+            }
+          });
+        }
+      }}
+    >
+      {props.children}
+    </div>
+  );
 }
 
 function BtnWrapper(
@@ -276,7 +275,23 @@ function BtnWrapper(
 ) {
   if (!props.googleRecaptchaKey)
     return <div onClick={props.onClick}>{props.children}</div>;
-  return <RecaptchaComponent {...props} />;
+  else {
+    const handleError = (
+      event: React.MouseEvent<HTMLElement>,
+      error: string,
+    ) => {
+      Toaster.show({
+        text: error,
+        variant: Variant.danger,
+      });
+      props.onClick && props.onClick(event);
+    };
+    if (props.recaptchaV2) {
+      return <RecaptchaV2Component {...props} handleError={handleError} />;
+    } else {
+      return <RecaptchaV3Component {...props} handleError={handleError} />;
+    }
+  }
 }
 
 // To be used with the canvas
