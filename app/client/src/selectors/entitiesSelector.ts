@@ -288,6 +288,17 @@ export function getCurrentPageNameByActionId(
   return getPageNameByPageId(state, pageId);
 }
 
+export function getCurrentPageNameByJSActionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.jsActions.find((action) => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
 export function getPageNameByPageId(state: AppState, pageId: string): string {
   const page = state.entities.pageList.pages.find(
     (page) => page.pageId === pageId,

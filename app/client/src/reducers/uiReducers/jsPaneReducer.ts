@@ -1,5 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { JSAction } from "entities/JSAction";
 export interface JsPaneReduxState {
   isCreating: boolean; // RR
@@ -22,6 +26,20 @@ const initialState: JsPaneReduxState = {
 };
 
 const jsPaneReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_JS_ACTIONS_INIT]: (state: JsPaneReduxState) => ({
+    ...state,
+    isFetching: true,
+  }),
+  [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (state: JsPaneReduxState) => ({
+    ...state,
+    isFetching: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR]: (
+    state: JsPaneReduxState,
+  ) => ({
+    ...state,
+    isFetching: false,
+  }),
   [ReduxActionTypes.CREATE_JS_ACTION_INIT]: (
     state: JsPaneReduxState,
   ): JsPaneReduxState => ({
@@ -29,6 +47,12 @@ const jsPaneReducer = createReducer(initialState, {
     isCreating: true,
   }),
   [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
+    state: JsPaneReduxState,
+  ): JsPaneReduxState => ({
+    ...state,
+    isCreating: false,
+  }),
+  [ReduxActionErrorTypes.CREATE_JS_ACTION_ERROR]: (
     state: JsPaneReduxState,
   ): JsPaneReduxState => ({
     ...state,
@@ -46,6 +70,16 @@ const jsPaneReducer = createReducer(initialState, {
     isDirty: {
       ...state.isDirty,
       [action.payload.data.id]: false,
+    },
+  }),
+  [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    isDeleting: {
+      ...state.isDeleting,
+      [action.payload.id]: false,
     },
   }),
 });

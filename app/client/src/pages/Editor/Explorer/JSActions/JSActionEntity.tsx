@@ -71,6 +71,6 @@ export const ExplorerJSActionEntity = memo(
   },
 );
 
-ExplorerJSActionEntity.displayName = "ExplorerActionEntity";
+ExplorerJSActionEntity.displayName = "ExplorerJSActionEntity";
 
 export default ExplorerJSActionEntity;

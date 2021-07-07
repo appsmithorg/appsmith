@@ -84,4 +84,6 @@ export const deleteJSActionSuccess = (payload: { id: string }) => {
 
 export default {
   fetchJSActions,
+  deleteJSAction,
+  deleteJSActionSuccess,
 };

@@ -298,6 +298,9 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
+  ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+  ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

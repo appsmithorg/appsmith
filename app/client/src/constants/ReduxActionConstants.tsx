@@ -552,6 +552,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   PASTE_COPIED_WIDGET_ERROR: "PASTE_COPIED_WIDGET_ERROR",
   WIDGET_ADD_CHILDREN_ERROR: "WIDGET_ADD_CHILDREN_ERROR",
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
+  CREATE_JS_ACTION_ERROR: "CREATE_JS_ACTION_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

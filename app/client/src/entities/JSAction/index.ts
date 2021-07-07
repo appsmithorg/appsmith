@@ -17,6 +17,7 @@ interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
+  applicationId: string;
   pluginType: PluginType.JS;
   executeOnLoad?: boolean;
   dynamicBindingPathList?: DynamicPath[];
@@ -25,7 +26,6 @@ interface BaseAction {
   cacheResponse?: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
-  body: string;
 }
 
 export type variable = {
@@ -33,6 +33,7 @@ export type variable = {
   initialValue: any;
 };
 export interface JSAction extends BaseAction {
+  body: string;
   variables: Array<variable>;
   actions: Array<JSSubAction>;
 }

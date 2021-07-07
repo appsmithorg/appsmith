@@ -26,7 +26,7 @@ export interface JSActionResponse {
 }
 
 class JSActionAPI extends API {
-  static url = "v1/jsactions";
+  static url = "v1/collections/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;
   static queryUpdateCancelTokenSource: CancelTokenSource;
 
@@ -47,6 +47,10 @@ class JSActionAPI extends API {
   ): AxiosPromise<JSActionCreateUpdateResponse> {
     const jsAction = Object.assign({}, apiConfig);
     return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
+  }
+
+  static deleteJSAction(id: string) {
+    return API.delete(`${JSActionAPI.url}/${id}`);
   }
 }
 

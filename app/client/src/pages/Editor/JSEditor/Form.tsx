@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { JS_EDITOR_FORM } from "constants/forms";
 import { JSAction } from "entities/JSAction";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import MoreJSActionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -28,7 +28,10 @@ import {
 } from "../QueryEditor/EditorJSONtoForm";
 import JSActionNameEditor from "./JSActionNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../Explorer/helpers";
 
 const Form = styled.form`
   display: flex;
@@ -126,10 +129,19 @@ function JSEditorForm(props: Props) {
 
     setSelectedIndex(index);
   };
+  const params = useParams<{ functionId: string }>();
+
+  const jsActions: JSAction[] = useSelector((state: AppState) =>
+    state.entities.jsActions.map((js) => js.config),
+  );
+  const currentJSAction: JSAction | undefined = jsActions.find(
+    (js) => js.id === params.functionId,
+  );
 
   const handleOnChange = (event: string) => {
     dispatch(updateJSAction(event));
   };
+  const { pageId } = useParams<ExplorerURLParams>();
 
   return (
     <Form>
@@ -139,11 +151,11 @@ function JSEditorForm(props: Props) {
           <JSActionNameEditor />
         </NameWrapper>
         <ActionButtons className="t--formActionButtons">
-          <MoreActionsMenu
+          <MoreJSActionsMenu
             className="t--more-action-menu"
-            id={""}
-            name={""}
-            pageId={""}
+            id={currentJSAction ? currentJSAction.id : ""}
+            name={currentJSAction ? currentJSAction.name : ""}
+            pageId={pageId}
           />
           <Button
             className="t--apiFormRunBtn"

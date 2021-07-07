@@ -1,9 +1,7 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 
 import { AppState } from "reducers";
-import ContextMenuTrigger from "../ContextMenuTrigger";
 
 import {
   moveJSActionRequest,
@@ -11,10 +9,12 @@ import {
   deleteJSAction,
 } from "actions/jsActionActions";
 
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
+import TreeDropdown from "components/ads/TreeDropdown";
 import { useNewJSActionName } from "./helpers";
+import styled from "styled-components";
+import Icon, { IconSize } from "components/ads/Icon";
 
 type EntityContextMenuProps = {
   id: string;
@@ -22,7 +22,46 @@ type EntityContextMenuProps = {
   className?: string;
   pageId: string;
 };
-export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
+
+export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
+  width: 34px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+
+  &&&& span {
+    width: auto;
+  }
+
+  &&&& svg > path {
+    fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.normal};
+  }
+
+  ${(props) =>
+    props.isOpen
+      ? `
+		background-color: ${props.theme.colors.treeDropdown.targetBg};
+
+    &&&& svg > path {
+      fill: ${props.theme.colors.treeDropdown.targetIcon.hover};
+    }
+	`
+      : null}
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
+
+    &&&& svg > path {
+      fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.hover};
+    }
+  }
+`;
+
+export function MoreJSActionsMenu(props: EntityContextMenuProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewJSActionName();
 
   const dispatch = useDispatch();
@@ -32,7 +71,7 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
         copyJSActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(actionName, pageId, true),
+          name: nextEntityName(`${actionName}Copy`, pageId),
         }),
       ),
     [dispatch, nextEntityName],
@@ -63,19 +102,16 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
     }));
   });
 
-  const editActionName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(props.id)),
-    [dispatch, props.id],
-  );
-
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
+      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
       optionTree={[
         {
+          icon: "duplicate",
           value: "copy",
           onSelect: noop,
           label: "Copy to page",
@@ -87,6 +123,7 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
           }),
         },
         {
+          icon: "swap-horizontal",
           value: "move",
           onSelect: noop,
           label: "Move to page",
@@ -104,16 +141,25 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
+          icon: "trash",
           value: "delete",
           onSelect: () => deleteJSActionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
+          className: "t--apiFormDeleteBtn",
         },
       ]}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={
+        <MoreActionablesContainer
+          className={props.className}
+          isOpen={isMenuOpen}
+        >
+          <Icon name="context-menu" size={IconSize.XXXL} />
+        </MoreActionablesContainer>
+      }
     />
   );
 }
 
-export default JSActionEntityContextMenu;
+export default MoreJSActionsMenu;

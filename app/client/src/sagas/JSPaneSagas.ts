@@ -24,12 +24,20 @@ import { getDifferenceInJSAction } from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
 import { GenericApiResponse } from "../api/ApiResponses";
 import { updateJSActionSuccess } from "../actions/jsPaneActions";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getPluginIdOfPackageName } from "sagas/selectors";
+
+export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
-  // const organizationId = yield select(getCurrentOrgId);
-  // const applicationId = yield select(getCurrentApplicationId);
+  const organizationId: string = yield select(getCurrentOrgId);
+  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
-  if (pageId) {
+  const pluginId: string = yield select(
+    getPluginIdOfPackageName,
+    JS_PLUGIN_PACKAGE_NAME,
+  );
+  if (pageId && pluginId) {
     const jsactions = yield select(getJSActions);
     const pageJSActions = jsactions.filter(
       (a: JSActionData) => a.config.pageId === pageId,
@@ -39,7 +47,13 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
       createJSActionRequest({
         name: newJSActionName,
         pageId,
-      } as JSAction),
+        organizationId,
+        pluginId,
+        body: "",
+        variables: [],
+        actions: [],
+        applicationId,
+      }),
     );
   }
 }
@@ -60,7 +74,6 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   if (jsActionId) {
     const jsAction: JSAction = yield select(getJSAction, jsActionId);
     const data = getDifferenceInJSAction(parsedBody, jsAction);
-    console.log("**data", data);
     return data;
   }
 }
@@ -71,7 +84,6 @@ function* handleSaveJSAction(actionPayload: ReduxAction<{ body: string }>) {
   // const response: GenericApiResponse<JSAction> = yield JSActionAPI.updateJSAction(
   //   data,
   // );
-  console.log("***", data);
   yield put(updateJSActionSuccess({ data: data }));
 }
 

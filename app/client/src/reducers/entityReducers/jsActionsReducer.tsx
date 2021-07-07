@@ -23,7 +23,7 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
     state: JSActionDataState,
     action: ReduxAction<JSAction[]>,
-  ): any => {
+  ): JSActionDataState => {
     return action.payload.map((action) => {
       const foundAction = state.find((currentAction) => {
         return currentAction.config.id === action.id;
@@ -59,6 +59,15 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
+  [ReduxActionErrorTypes.CREATE_JS_ACTION_ERROR]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction>,
+  ): JSActionDataState =>
+    state.filter(
+      (a) =>
+        a.config.name !== action.payload.name &&
+        a.config.id !== action.payload.name,
+    ),
   [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
     state: JSActionDataState,
     action: ReduxAction<{ data: JSAction }>,
