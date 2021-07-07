@@ -37,6 +37,10 @@ const handleNewCommentThreadEvent = (
 
   const showUnreadIndicator = !state.isCommentMode;
 
+  if (thread.isPrivate) {
+    state.visibleCommentThreadId = thread._id;
+  }
+
   return {
     ...state,
     showUnreadIndicator,
