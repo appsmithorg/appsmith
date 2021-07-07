@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o xtrace
 
+{
+
 echo "$BASH_VERSION"
 node --version
 
@@ -20,3 +22,5 @@ REACT_APP_SHOW_ONBOARDING_FORM=true \
 mv -v build client-dist
 tar -caf client-dist.tgz client-dist
 aws s3 cp --no-progress client-dist.tgz "$S3_BUILDS_PREFIX/$BATCH_ID/client-dist.tgz"
+
+} 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"

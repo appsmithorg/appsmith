@@ -17,6 +17,8 @@ curl-fail() {
 	echo
 }
 
+{
+
 echo "$BASH_VERSION"
 java -version
 node --version
@@ -161,3 +163,5 @@ fi
 
 # At end of this script, CodeBuild does some cleanup and without the below line, it throws an error.
 unset -f curl-fail
+
+} 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"

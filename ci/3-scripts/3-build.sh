@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o xtrace
 
+{
+
 aws --version
 java -version
 node --version
@@ -43,3 +45,5 @@ docker build --tag "${image_prefix}appsmith-server:$DOCKER_TAG_NAME" .
 
 docker push "${image_prefix}appsmith-editor:$DOCKER_TAG_NAME"
 docker push "${image_prefix}appsmith-server:$DOCKER_TAG_NAME"
+
+} 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"

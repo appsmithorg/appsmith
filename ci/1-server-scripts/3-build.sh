@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o xtrace
 
+{
+
 echo "BASH_VERSION: '$BASH_VERSION'"
 java -version
 
@@ -33,3 +35,5 @@ rsync -av --exclude "original-*.jar" appsmith-plugins/*/target/*.jar dist/plugin
 mv -v dist server-dist
 tar -caf server-dist.tgz server-dist
 aws s3 cp --no-progress server-dist.tgz "$S3_BUILDS_PREFIX/$BATCH_ID/server-dist.tgz"
+
+} 2>&1 | tee -a "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log"
