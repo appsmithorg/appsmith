@@ -112,6 +112,14 @@ function getLatestEvalPropertyErrors(
           message: e.errorMessage,
         }));
 
+        if (!(debuggerKey in updatedDebuggerErrors)) {
+          AnalyticsUtil.logEvent("DEBUGGER_NEW_ERROR", {
+            entityType,
+            propertyPath,
+            errorMessages,
+          });
+        }
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
@@ -132,6 +140,11 @@ function getLatestEvalPropertyErrors(
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: updatedDebuggerErrors[debuggerKey].source?.type,
+          propertyPath: updatedDebuggerErrors[debuggerKey].source?.propertyPath,
+          errorMessages: updatedDebuggerErrors[debuggerKey].messages,
+        });
         // Remove
         delete updatedDebuggerErrors[debuggerKey];
       }

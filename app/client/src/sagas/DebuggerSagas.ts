@@ -35,6 +35,7 @@ import {
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -141,6 +142,9 @@ function* logDependentEntityProperties(payload: Message) {
 
 function* debuggerLogSaga(action: ReduxAction<Message>) {
   const { payload } = action;
+  const debuggerErrors: Record<string, Message> = yield select(
+    getDebuggerErrors,
+  );
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
@@ -166,6 +170,13 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         const res = yield call(formatActionRequestSaga, payload, payload.state);
         const log = { ...payload };
         res && set(log, "state.headers", res);
+        if (!((payload.source?.id as string) in debuggerErrors)) {
+          AnalyticsUtil.logEvent("DEBUGGER_NEW_ERROR", {
+            entityType: ENTITY_TYPE.ACTION,
+            errorMessages: payload.messages,
+          });
+        }
+
         yield put(errorLog(log));
         yield put(debuggerLog(log));
       }
@@ -178,6 +189,12 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
           payload.state?.request ?? {},
         );
 
+        if ((payload.source?.id as string) in debuggerErrors) {
+          AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+            entityType: ENTITY_TYPE.ACTION,
+            errorMessages: debuggerErrors[payload.source?.id ?? ""].messages,
+          });
+        }
         yield put(
           updateErrorLog({
             ...payload,
