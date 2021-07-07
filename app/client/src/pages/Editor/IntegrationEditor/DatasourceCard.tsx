@@ -36,8 +36,11 @@ const ActionButton = styled(Button)`
   padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 120px;
+    //max-width: 120px;
     width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -172,6 +175,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
           <ActionButton
             className="t--create-query"
+            icon="plus"
             onClick={() => props.onCreateQuery(datasource)}
             text="New Query"
           />
