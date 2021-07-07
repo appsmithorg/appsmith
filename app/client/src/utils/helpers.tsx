@@ -51,28 +51,9 @@ export const Directions: { [id: string]: string } = {
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];
-const SCROLL_THESHOLD = 2.5;
+const SCROLL_THRESHOLD = 2.5;
 
 export const getScrollByPixels = function(
-  elem: Element,
-  scrollParent: Element,
-): number {
-  const bounding = elem.getBoundingClientRect();
-  const scrollParentBounds = scrollParent.getBoundingClientRect();
-  const scrollAmount =
-    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  if (
-    bounding.top > 0 &&
-    bounding.top - scrollParentBounds.top < SCROLL_THESHOLD
-  )
-    return -scrollAmount;
-  if (scrollParentBounds.bottom - bounding.bottom < SCROLL_THESHOLD)
-    return scrollAmount;
-  return 0;
-};
-
-export const getScrollByPixels2 = function(
   elem: {
     top: number;
     height: number;
@@ -90,39 +71,21 @@ export const getScrollByPixels2 = function(
     elem.top + scrollChildBounds.top > 0 &&
     elem.top +
       scrollChildBounds.top -
-      SCROLL_THESHOLD -
+      SCROLL_THRESHOLD -
       scrollParentBounds.top <
-      SCROLL_THESHOLD
+      SCROLL_THRESHOLD
   )
     return -scrollAmount;
   if (
     scrollParentBounds.bottom -
-      (elem.top + elem.height + scrollChildBounds.top + SCROLL_THESHOLD) <
-    SCROLL_THESHOLD
+      (elem.top + elem.height + scrollChildBounds.top + SCROLL_THRESHOLD) <
+    SCROLL_THRESHOLD
   )
     return scrollAmount;
   return 0;
 };
 
 export const scrollElementIntoParentCanvasView = (
-  el: Element | null,
-  parent: Element | null,
-) => {
-  if (el) {
-    const scrollParent = parent;
-    if (scrollParent) {
-      const scrollBy: number = getScrollByPixels(el, scrollParent);
-      if (scrollBy < 0 && scrollParent.scrollTop > 0) {
-        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
-      }
-      if (scrollBy > 0) {
-        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
-      }
-    }
-  }
-};
-
-export const scrollElementIntoParentCanvasView2 = (
   el: {
     top: number;
     height: number;
@@ -133,7 +96,7 @@ export const scrollElementIntoParentCanvasView2 = (
   if (el) {
     const scrollParent = parent;
     if (scrollParent && child) {
-      const scrollBy: number = getScrollByPixels2(el, scrollParent, child);
+      const scrollBy: number = getScrollByPixels(el, scrollParent, child);
       if (scrollBy < 0 && scrollParent.scrollTop > 0) {
         scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
       }

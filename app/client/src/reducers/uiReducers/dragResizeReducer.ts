@@ -13,6 +13,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
+  startPoints: undefined,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -28,11 +29,13 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       isDragging: boolean;
       dragGroupActualParent: string;
       draggingGroupCenter: string;
+      startPoints: any;
     }>,
   ) => {
     state.dragGroupActualParent = action.payload.dragGroupActualParent;
     state.isDragging = action.payload.isDragging;
     state.draggingGroupCenter = action.payload.draggingGroupCenter;
+    state.startPoints = action.payload.startPoints;
   },
   [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
@@ -136,6 +139,7 @@ export type WidgetDragResizeState = {
   selectedWidgetAncestory: string[];
   selectedWidgets: string[];
   newWidget: any;
+  startPoints: any;
 };
 
 export default widgetDraggingReducer;

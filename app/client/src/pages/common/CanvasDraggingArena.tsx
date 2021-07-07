@@ -14,13 +14,12 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { XYCoord } from "react-dnd";
 import {
   getDropZoneOffsets,
-  isDropZoneOccupied,
-  isWidgetOverflowingParentBounds,
+  noCollision,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { getSnappedXY } from "components/editorComponents/Dropzone";
 import { getNearestParentCanvas } from "utils/generators";
-import { scrollElementIntoParentCanvasView2 } from "utils/helpers";
+import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -52,54 +51,13 @@ export interface SelectedArenaDimensions {
   height: number;
 }
 
-const noCollision = (
-  clientOffset: XYCoord,
-  colWidth: number,
-  rowHeight: number,
-  dropTargetOffset: XYCoord,
-  widgetWidth: number,
-  widgetHeight: number,
-  widgetId: string,
-  occupiedSpaces?: OccupiedSpace[],
-  rows?: number,
-  cols?: number,
-): boolean => {
-  if (clientOffset && dropTargetOffset) {
-    // if (widget.detachFromLayout) {
-    //   return true;
-    // }
-    const [left, top] = getDropZoneOffsets(
-      colWidth,
-      rowHeight,
-      clientOffset as XYCoord,
-      dropTargetOffset,
-    );
-    if (left < 0 || top < 0) {
-      return false;
-    }
-    const currentOffset = {
-      left,
-      right: left + widgetWidth,
-      top,
-      bottom: top + widgetHeight,
-    };
-    return (
-      !isDropZoneOccupied(currentOffset, widgetId, occupiedSpaces) &&
-      !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
-    );
-  }
-  return false;
-};
-
 export function CanvasDraggingArena({
-  // childWidgets,
   noPad,
   snapColumnSpace,
   snapRows,
   snapRowSpace,
   widgetId,
 }: {
-  // childWidgets: string[];
   noPad?: boolean;
   snapColumnSpace: number;
   snapRows: number;
@@ -118,6 +76,9 @@ export function CanvasDraggingArena({
     occupiedSpaces[dragParent] || [];
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const dragStartPoints = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.startPoints,
   );
   const newWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.newWidget,
@@ -199,14 +160,13 @@ export function CanvasDraggingArena({
         };
       }
 
-      // const el = canvasRef?.current;
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
       );
       if (canvasRef.current) {
         // if (el && props.canDropTargetExtend) {
         if (groupBlock) {
-          scrollElementIntoParentCanvasView2(
+          scrollElementIntoParentCanvasView(
             groupBlock,
             scrollParent,
             canvasRef.current,
@@ -350,45 +310,6 @@ export function CanvasDraggingArena({
         let canvasCtx: any = canvasRef.current.getContext("2d");
         canvasCtx.globalCompositeOperation = "destination-over";
         canvasCtx.scale(scale, scale);
-        // const drawDragLayer = debounce(
-        //   (rows) => {
-        //     if (canvasRef.current && canvasDragLayerRef.current) {
-        //       const { height, width } = canvasRef.current.getBoundingClientRect();
-        //       canvasDragLayerRef.current.width = width * scale;
-        //       canvasDragLayerRef.current.height = height * scale;
-        //       const canvasCtx: any = canvasDragLayerRef.current.getContext("2d");
-        //       canvasCtx.clearRect(0, 0, width, height);
-        //       canvasCtx.beginPath(); // clear path if it has been used previously
-        //       // modify method to add to path instead
-        //       const draw = (x: any, y: any, width: any, height: any) => {
-        //         canvasCtx.fillStyle = `${"rgb(0, 0, 0, 1)"}`;
-        //         canvasCtx.strokeStyle = `${"rgb(0, 0, 0, 1)"}`;
-        //         canvasCtx.rect(x, y, width, height);
-        //       };
-        //       for (
-        //         let x = noPad ? 0 : CONTAINER_GRID_PADDING;
-        //         x < width;
-        //         x += snapColumnSpace
-        //       ) {
-        //         for (
-        //           let y = noPad ? 0 : CONTAINER_GRID_PADDING;
-        //           y < rows * snapRowSpace + (widgetId === "0" ? 200 : 0);
-        //           y += snapRowSpace
-        //         ) {
-        //           draw(x, y, 1, 1);
-        //         }
-        //       }
-
-        //       // when done, fill once
-        //       canvasCtx.fill();
-        //     }
-        //   },
-        //   0,
-        //   {
-        //     leading: true,
-        //     trailing: true,
-        //   },
-        // );
 
         const startPoints = {
           left: 20,
@@ -408,30 +329,29 @@ export function CanvasDraggingArena({
           }
         };
 
-        const onMouseDown = (e: any) => {
+        const onMouseDown = () => {
           if (
             !isResizing &&
             isDragging &&
             !canvasIsDragging &&
             canvasRef.current
           ) {
-            canvasIsDragging = true;
-            if (
-              dragParent === widgetId &&
-              startPoints.left === 20 &&
-              startPoints.top === 20
-            ) {
-              startPoints.left = e.offsetX;
-              startPoints.top = e.offsetY;
+            if (dragCenterSpace) {
+              startPoints.left =
+                ((dragParent === widgetId ? dragCenterSpace.left : 0) +
+                  dragStartPoints.left) *
+                snapColumnSpace;
+              startPoints.top =
+                ((dragParent === widgetId ? dragCenterSpace.top : 0) +
+                  dragStartPoints.top) *
+                snapRowSpace;
             }
+            canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
-            // drawDragLayer(rows);
           }
         };
         const onMouseMove = (e: any) => {
-          if (canvasIsDragging && canvasRef.current) {
-            // console.log(startPoints, e.offsetX, draggingCanvas.offsetLeft);
-
+          if (isDragging && canvasIsDragging && canvasRef.current) {
             const diff = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -479,27 +399,16 @@ export function CanvasDraggingArena({
                 drawRectangle(each);
               });
             }
-            // if (rowDiff) {
-            //   newRectanglesToDraw = newRectanglesToDraw.map((each) => {
-            //     return {
-            //       ...each,
-            //       top: each.top - (rows - snapRows) * snapRowSpace,
-            //     };
-            //   });
-            //   console.log({ rowDiff, rectanglesToDraw, newRectanglesToDraw });
-            // }
 
             scrollToKeepUp(newRectanglesToDraw);
           } else {
-            onMouseDown(e);
+            onMouseDown();
           }
         };
-        console.log("I am initiated again");
         let notDoneYet = false;
         const drawInit = throttle(
           debounce(
             (rowDiff, diff) => {
-              console.count("drawInit");
               notDoneYet = true;
               if (canvasRef.current) {
                 newRectanglesToDraw = rectanglesToDraw.map((each) => {
@@ -541,29 +450,6 @@ export function CanvasDraggingArena({
           },
         );
 
-        // const drawInit = debounce(
-        //   (rowDiff, diff, occSpaces) => {
-        //     // // if (rowDiff) {
-        //     // drawDragLayer();
-        //     // // }
-        //     if (rowDiff) {
-        //       // startPoints.top = startPoints.top + rowDiff * snapRowSpace;
-        //       newRectanglesToDraw = rectanglesToDraw.map((each) => {
-        //         return {
-        //           ...each,
-        //           top: each.top + rowDiff * snapRowSpace
-        //         };
-        //       });
-        //     }
-
-        //     scrollToKeepUp(newRectanglesToDraw);
-        //   },
-        //   100,
-        //   {
-        //     leading: true,
-        //     trailing: true,
-        //   },
-        // );
         const drawRectangle = (selectionDimensions: {
           top: number;
           left: number;

@@ -114,6 +114,7 @@ export const useWidgetDragResize = () => {
         isDragging: boolean,
         dragGroupActualParent = "",
         draggingGroupCenter = "",
+        startPoints?: any,
       ) => {
         if (isDragging) {
           document.body.classList.add("dragging");
@@ -122,7 +123,12 @@ export const useWidgetDragResize = () => {
         }
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
-          payload: { isDragging, dragGroupActualParent, draggingGroupCenter },
+          payload: {
+            isDragging,
+            dragGroupActualParent,
+            draggingGroupCenter,
+            startPoints,
+          },
         });
       },
       [dispatch],

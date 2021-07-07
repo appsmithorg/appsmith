@@ -137,8 +137,18 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (updateDropTargetRows) {
       updated = !!updateDropTargetRows(props.widgetId, bottom);
       const el = resizableRef.current;
-      const scrollParent = getNearestParentCanvas(resizableRef.current);
-      scrollElementIntoParentCanvasView(el, scrollParent);
+      if (el) {
+        const { height } = el?.getBoundingClientRect();
+        const scrollParent = getNearestParentCanvas(resizableRef.current);
+        scrollElementIntoParentCanvasView(
+          {
+            top: 40,
+            height,
+          },
+          scrollParent,
+          el,
+        );
+      }
     }
 
     const delta: UIElementSize = {
