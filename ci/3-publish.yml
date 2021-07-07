@@ -14,7 +14,7 @@ phases:
       - set -o pipefail
       - source ci/common/extra-env.sh
       - mkdir -pv ci/logs
-      - source ci/3-scripts/3-build.sh > "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+      - source ci/3-scripts/3-build.sh
     finally:
       - source ci/common/upload-logs.sh
 
@@ -23,6 +23,6 @@ phases:
       - set -o pipefail
       - source ci/common/extra-env.sh
       - mkdir -pv ci/logs
-      - source ci/cleanup.sh > "ci/logs/$CODEBUILD_BATCH_BUILD_IDENTIFIER.log" 2>&1
+      - source ci/cleanup.sh
     finally:
       - source ci/common/upload-logs.sh
