@@ -57,6 +57,8 @@ import {
 } from "constants/messages";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import store from "store";
+import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -113,11 +115,16 @@ function getLatestEvalPropertyErrors(
         }));
 
         if (!(debuggerKey in updatedDebuggerErrors)) {
-          AnalyticsUtil.logEvent("DEBUGGER_NEW_ERROR", {
-            entityType,
-            propertyPath,
-            errorMessages,
-          });
+          store.dispatch(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR",
+              entityId: idField,
+              entityName: nameField,
+              entityType,
+              propertyPath,
+              errorMessages,
+            }),
+          );
         }
 
         // Add or update
@@ -140,11 +147,17 @@ function getLatestEvalPropertyErrors(
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
-        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
-          entityType: updatedDebuggerErrors[debuggerKey].source?.type,
-          propertyPath: updatedDebuggerErrors[debuggerKey].source?.propertyPath,
-          errorMessages: updatedDebuggerErrors[debuggerKey].messages,
-        });
+        store.dispatch(
+          logDebuggerErrorAnalytics({
+            eventName: "DEBUGGER_RESOLVED_ERROR",
+            entityId: idField,
+            entityName: nameField,
+            entityType,
+            propertyPath:
+              updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
+            errorMessages: updatedDebuggerErrors[debuggerKey].messages ?? [],
+          }),
+        );
         // Remove
         delete updatedDebuggerErrors[debuggerKey];
       }

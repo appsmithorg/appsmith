@@ -1,4 +1,10 @@
-import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
+import {
+  debuggerLog,
+  errorLog,
+  logDebuggerErrorAnalytics,
+  LogDebuggerErrorAnalyticsPayload,
+  updateErrorLog,
+} from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   ENTITY_TYPE,
@@ -16,7 +22,7 @@ import {
 } from "redux-saga/effects";
 import { get, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -36,6 +42,10 @@ import {
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Plugin } from "api/PluginApi";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getWidget } from "./selectors";
+import { WidgetProps } from "widgets/BaseWidget";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -171,10 +181,16 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         const log = { ...payload };
         res && set(log, "state.headers", res);
         if (!((payload.source?.id as string) in debuggerErrors)) {
-          AnalyticsUtil.logEvent("DEBUGGER_NEW_ERROR", {
-            entityType: ENTITY_TYPE.ACTION,
-            errorMessages: payload.messages,
-          });
+          yield put(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR",
+              errorMessages: payload.messages ?? [],
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+            }),
+          );
         }
 
         yield put(errorLog(log));
@@ -190,10 +206,17 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         );
 
         if ((payload.source?.id as string) in debuggerErrors) {
-          AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
-            entityType: ENTITY_TYPE.ACTION,
-            errorMessages: debuggerErrors[payload.source?.id ?? ""].messages,
-          });
+          yield put(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_RESOLVED_ERROR",
+              errorMessages:
+                debuggerErrors[payload.source?.id ?? ""].messages ?? [],
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+            }),
+          );
         }
         yield put(
           updateErrorLog({
@@ -215,6 +238,51 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
+// This saga is intended for analytics only
+function* logDebuggerErrorAnalyticsSaga(
+  action: ReduxAction<LogDebuggerErrorAnalyticsPayload>,
+) {
+  const { payload } = action;
+  const currentPageId = yield select(getCurrentPageId);
+
+  if (payload.entityType === ENTITY_TYPE.WIDGET) {
+    const widget: WidgetProps = yield select(getWidget, payload.entityId);
+    const widgetType = widget.type;
+    const propertyPath = `${widgetType}.${payload.propertyPath}`;
+
+    // Sending widget type for widgets
+    AnalyticsUtil.logEvent(payload.eventName, {
+      entityType: widgetType,
+      propertyPath,
+      errorMessages: payload.errorMessages,
+      pageId: currentPageId,
+    });
+  } else if (payload.entityType === ENTITY_TYPE.ACTION) {
+    const action: Action = yield select(getAction, payload.entityId);
+    const plugin: Plugin = yield select(getPlugin, action.pluginId);
+    const pluginName = plugin.name.replace(/ /g, "");
+    let propertyPath = `${pluginName}`;
+
+    if (payload.propertyPath) {
+      propertyPath += `.${payload.propertyPath}`;
+    }
+
+    // Sending plugin name for actions
+    AnalyticsUtil.logEvent(payload.eventName, {
+      entityType: pluginName,
+      propertyPath,
+      errorMessages: payload.errorMessages,
+      pageId: currentPageId,
+    });
+  }
+}
+
 export default function* debuggerSagasListeners() {
-  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
+  yield all([
+    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
+    takeEvery(
+      ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+      logDebuggerErrorAnalyticsSaga,
+    ),
+  ]);
 }
