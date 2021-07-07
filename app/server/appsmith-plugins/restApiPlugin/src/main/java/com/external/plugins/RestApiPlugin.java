@@ -199,6 +199,9 @@ public class RestApiPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
             errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
 
+            // Set of hint messages that can be returned to the user.
+            Set<String> hintMessages = new HashSet();
+
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
@@ -361,6 +364,13 @@ public class RestApiPlugin extends BasePlugin {
                                     System.out.println("Unable to parse response JSON. Setting response body as string.");
                                     String bodyString = new String(body);
                                     result.setBody(bodyString.trim());
+
+                                    // Warn user that the API response is not a valid JSON.
+                                    hintMessages.add("The response returned by this API is not a valid JSON. Please " +
+                                            "be careful when using the API response anywhere a valid JSON is required" +
+                                            ". You may resolve this issue either by modifying the MIME type to " +
+                                            "indicate a non-JSON response or by modifying the API response to return " +
+                                            "a valid JSON.");
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -374,6 +384,7 @@ public class RestApiPlugin extends BasePlugin {
                             }
                         }
 
+                        result.setMessages(hintMessages);
                         return result;
                     })
                     .onErrorResume(error -> {
