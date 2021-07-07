@@ -241,40 +241,7 @@ export function CanvasDraggingArena({
       } as XYCoord,
       { x: 0, y: 0 },
     );
-    // const snappedXY = getSnappedXY(
-    //   snapColumnSpace,
-    //   snapRowSpace,
-    //   {
-    //     x: bottomMostBlock.left,
-    //     y: bottomMostBlock.top + bottomMostBlock.height,
-    //   },
-    //   {
-    //     x: currentOffset?.x || 0,
-    //     y: currentOffset?.y || 0,
-    //   },
-    // );
-    // const canvasTopBound = canvasRef?.current?.getBoundingClientRect().top || 0;
-
-    // const row = currentDropRow(
-    //   snapRowSpace,
-    //   snappedXY.Y,
-    //   currentOffset?.y || 0,
-    //   widget,
-    // );
-    // const bottomMostRow = bottomMostBlock.top + bottomMostBlock.height;
-    console.log({ drawingBlocks, bottomMostBlock, top });
-    // const newRows = calculateDropTargetRows(
-    //   widgetId,
-    //   top,
-    //   minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-    //   occupiedSpaces[widgetId],
-    // );
-
-    // if (snapRows < newRows) {
-    //   // setRows(newRows);
-    //   return newRows;
-    // }
-    if (top > rows) {
+    if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
       return updateDropTargetRows && updateDropTargetRows(widgetId, top);
     }
   };

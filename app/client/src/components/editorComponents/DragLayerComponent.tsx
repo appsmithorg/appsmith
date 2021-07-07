@@ -32,8 +32,7 @@ const WrappedDragLayer = styled.div<{
   );
   background-size: ${(props) =>
       props.columnWidth - GRID_POINT_SIZE / GridDefaults.DEFAULT_GRID_COLUMNS}px
-    ${(props) =>
-      props.rowHeight - GRID_POINT_SIZE / GridDefaults.DEFAULT_GRID_COLUMNS}px;
+    ${(props) => props.rowHeight}px;
 `;
 
 type DragLayerProps = {
