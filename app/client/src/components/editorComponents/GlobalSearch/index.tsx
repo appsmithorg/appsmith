@@ -213,9 +213,15 @@ function GlobalSearch() {
   }, [modalOpen]);
 
   useEffect(() => {
-    !query && recentEntities.length > 1
-      ? setActiveItemIndex(2)
-      : setActiveItemIndex(1);
+    if (query) {
+      setActiveItemIndex(0);
+    } else {
+      if (recentEntities.length > 1) {
+        setActiveItemIndex(2);
+      } else {
+        setActiveItemIndex(1);
+      }
+    }
   }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
