@@ -283,14 +283,19 @@ class InputComponent extends React.Component<
         numeric={this.isNumberInputType(this.props.inputType)}
       >
         {showLabelHeader && (
-          <TextLableWrapper compactMode={this.props.compactMode}>
+          <TextLableWrapper
+            className="t--input-label-wrapper"
+            compactMode={this.props.compactMode}
+          >
             {this.props.label && (
               <Label
-                className={
-                  this.props.isLoading
-                    ? Classes.SKELETON
-                    : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }
+                className={`
+                  t--input-widget-label ${
+                    this.props.isLoading
+                      ? Classes.SKELETON
+                      : Classes.TEXT_OVERFLOW_ELLIPSIS
+                  }
+                `}
               >
                 {this.props.label}
               </Label>
@@ -306,7 +311,7 @@ class InputComponent extends React.Component<
                   height={14}
                   width={14}
                 >
-                  <HelpIcon />
+                  <HelpIcon className="t--input-widget-tooltip" />
                 </ToolTipIcon>
               </Tooltip>
             )}
