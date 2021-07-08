@@ -116,6 +116,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "DIVIDER_WIDGET",
+    widgetCardName: "Divider",
+    key: generateReactKey(),
+  },
+  {
     type: "ICON_BUTTON_WIDGET",
     widgetCardName: "Icon Button",
     key: generateReactKey(),

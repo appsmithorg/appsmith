@@ -123,6 +123,10 @@ export const HelpMap = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
   ICON_BUTTON_WIDGET: {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",

@@ -260,6 +260,17 @@ export const entityDefinitions = {
     source: "string",
     title: "string",
   },
+  DIVIDER_WIDGET: {
+    "!doc": "Divider is a simple UI widget used as a separator",
+    "!url": "https://docs.appsmith.com/widget-reference/divider",
+    isVisible: isVisible,
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    strokeStyle: "string",
+    dividerColor: "string",
+    thickness: "number",
+  },
   ICON_BUTTON_WIDGET: {
     "!doc":
       "Icon button widget is just an icon, along with all other button properties.",

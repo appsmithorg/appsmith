@@ -185,6 +185,15 @@ const FIELD_VALUES: Record<
     borderOpacity: "number",
     borderWidth: "number",
   },
+  DIVIDER_WIDGET: {
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    isVisible: "boolean",
+    strokeStyle: "solid | dashed | dotted",
+    dividerColor: "string",
+    thickness: "number",
+  },
   ICON_BUTTON_WIDGET: {
     iconName: "string",
     isVisible: "boolean",

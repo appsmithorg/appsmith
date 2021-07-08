@@ -6,7 +6,8 @@ import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
-import { getActions } from "../selectors/entitiesSelector";
+import { getActions, getPlugins } from "../selectors/entitiesSelector";
+import { Plugin } from "api/PluginApi";
 
 export const getWidgets = (
   state: AppState,
@@ -82,6 +83,15 @@ export const getExistingActionNames = createSelector(
   },
 );
 
+export const getPluginIdToImageLocation = createSelector(
+  getPlugins,
+  (plugins) =>
+    plugins.reduce((acc: any, p: Plugin) => {
+      acc[p.id] = p.iconLocation;
+      return acc;
+    }, {}),
+);
+
 /**
  * returns a objects of existing page name in data tree
  *
@@ -126,6 +136,12 @@ export const getSelectedWidget = (state: AppState) => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
+};
+
+export const getFocusedWidget = (state: AppState) => {
+  const focusedWidgetId = state.ui.widgetDragResize.focusedWidget;
+  if (!focusedWidgetId) return;
+  return state.entities.canvasWidgets[focusedWidgetId];
 };
 
 export const getWidgetImmediateChildren = createSelector(
