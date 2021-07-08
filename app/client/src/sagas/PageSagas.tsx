@@ -21,6 +21,7 @@ import {
   updateWidgetNameSuccess,
   updateAndSaveLayout,
   saveLayout,
+  setLastUpdatedTime,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -183,15 +184,17 @@ function* handleFetchedPage({
   fetchPageResponse,
   isFirstLoad = false,
   pageId,
-  stopPerfTracker = false,
+  onFinishCallback = () => null,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
-  stopPerfTracker?: boolean;
+  onFinishCallback?: () => void;
   isFirstLoad?: boolean;
 }) {
-  const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
+  const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+  const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
+
   if (isValidResponse) {
     // Clear any existing caches
     yield call(clearEvalCache);
@@ -210,6 +213,8 @@ function* handleFetchedPage({
         isFirstLoad ? [] : [executePageLoadActions()],
       ),
     );
+    // Sets last updated time
+    yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
     yield put({
       type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -219,13 +224,13 @@ function* handleFetchedPage({
     if (willPageBeMigrated) {
       yield put(saveLayout());
     }
-    if (stopPerfTracker) {
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
+    if (onFinishCallback) {
+      onFinishCallback();
     }
   }
 }
+const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+  pageResponse.data.lastUpdatedTime;
 
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
@@ -242,8 +247,12 @@ export function* fetchPageSaga(
     yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
-      stopPerfTracker: true,
       isFirstLoad,
+      onFinishCallback: () => {
+        PerformanceTracker.stopAsyncTracking(
+          PerformanceTransactionName.FETCH_PAGE_API,
+        );
+      },
     });
   } catch (error) {
     log.error(error);
@@ -379,6 +388,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       if (actionUpdates && actionUpdates.length > 0) {
         yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
+      yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,

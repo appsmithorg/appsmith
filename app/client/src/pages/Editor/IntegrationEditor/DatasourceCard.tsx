@@ -1,8 +1,8 @@
 import { Datasource } from "entities/Datasource";
-import { isStoredDatasource } from "entities/Action";
+import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React from "react";
-import { isNil } from "lodash";
+import React, { useCallback, useMemo, useState } from "react";
+import { isNil, keyBy } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
@@ -21,6 +21,7 @@ import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
 import { getGenerateTemplateFormURL } from "../../../constants/routes";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -38,8 +39,11 @@ const ActionButton = styled(Button)`
   padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 120px;
+    //max-width: 120px;
     width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -103,16 +107,19 @@ const ButtonsWrapper = styled.div`
 
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource) => void;
+  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
+  isCreating?: boolean;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
+  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource } = props;
+  const { datasource, isCreating } = props;
   const supportTemplateGeneration =
     VALID_PLUGINS_FOR_TEMPLATE[datasource.pluginId];
+
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -126,17 +133,46 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-  const editDatasource = () => {
-    dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
-    history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
-        params.pageId,
-        datasource.id,
-        getQueryParams(),
-      ),
-    );
-  };
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const editDatasource = useCallback(() => {
+    const plugin = pluginGroups[datasource.pluginId];
+    if (plugin && plugin.type === PluginType.SAAS) {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          params.applicationId,
+          params.pageId,
+          plugin.packageName,
+          datasource.id,
+          {
+            from: "datasources",
+            ...getQueryParams(),
+          },
+        ),
+      );
+    } else {
+      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
+      history.push(
+        DATA_SOURCES_EDITOR_ID_URL(
+          params.applicationId,
+          params.pageId,
+          datasource.id,
+          {
+            from: "datasources",
+            ...getQueryParams(),
+          },
+        ),
+      );
+    }
+  }, [datasource.id, params]);
+
+  const onCreateNewQuery = useCallback(() => {
+    setIsSelected(true);
+    const plugin = pluginGroups[datasource.pluginId];
+    props.onCreateQuery(datasource, plugin.type);
+  }, []);
 
   const routeToGeneratePage = () => {
     history.push(
@@ -183,7 +219,9 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
           <ActionButton
             className="t--create-query"
-            onClick={() => props.onCreateQuery(datasource)}
+            icon="plus"
+            isLoading={isCreating && isSelected}
+            onClick={onCreateNewQuery}
             text="New Query"
           />
         </ButtonsWrapper>

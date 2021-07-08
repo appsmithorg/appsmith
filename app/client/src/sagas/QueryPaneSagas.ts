@@ -162,6 +162,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
         showTemplate,
+        from: "datasources",
       }),
     );
   }
@@ -183,7 +184,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       applicationId,
       pageId,
       actionPayload.payload.id,
-      getQueryParams(),
+      { from: "datasources", ...getQueryParams() },
     ),
   );
 }

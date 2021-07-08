@@ -81,6 +81,9 @@ export const Colors: Record<string, string> = {
   SEA_SHELL: "#F1F1F1",
   DANUBE: "#6A86CE",
   FAIR_PINK: "#FFE9E9",
+  OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
+  RATE_ACTIVE: "#FFCB45",
+  RATE_INACTIVE: "#F2F2F2",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

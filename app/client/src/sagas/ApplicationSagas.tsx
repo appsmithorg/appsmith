@@ -12,7 +12,6 @@ import ApplicationApi, {
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DuplicateApplicationRequest,
-  FetchApplicationsResponse,
   FetchUsersApplicationsOrgsResponse,
   ForkApplicationRequest,
   OrganizationApplicationObject,
@@ -21,6 +20,7 @@ import ApplicationApi, {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   ImportApplicationRequest,
+  FetchApplicationResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -39,6 +39,7 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
 } from "actions/applicationActions";
+import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   APPLICATION_NAME_UPDATE,
@@ -177,7 +178,7 @@ export function* fetchApplicationSaga(
         ? ApplicationApi.fetchApplication
         : ApplicationApi.fetchApplicationForViewMode;
 
-    const response: FetchApplicationsResponse = yield call(
+    const response: FetchApplicationResponse = yield call(
       apiEndpoint,
       applicationId,
     );
@@ -186,6 +187,10 @@ export function* fetchApplicationSaga(
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: response.data,
     });
+
+    yield put(
+      fetchUnreadCommentThreadsCountSuccess(response.data.unreadCommentThreads),
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,

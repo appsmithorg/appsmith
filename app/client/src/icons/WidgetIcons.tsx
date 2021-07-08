@@ -22,7 +22,9 @@ import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
 import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
 import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
+import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
+import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -143,9 +145,19 @@ export const WidgetIcons: {
       <ListIcon />
     </IconWrapper>
   ),
+  RATE_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RatingIcon />
+    </IconWrapper>
+  ),
   IFRAME_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <EmbedIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerIcon />
     </IconWrapper>
   ),
 };

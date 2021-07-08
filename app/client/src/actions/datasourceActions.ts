@@ -147,18 +147,26 @@ export const fetchMockDatasources = () => {
 };
 
 export interface addMockRequest
-  extends ReduxAction<{ orgId: string; id: string; initiator?: string }> {
+  extends ReduxAction<{
+    name: string;
+    organizationId: string;
+    pluginId: string;
+    packageName: string;
+    initiator?: string;
+  }> {
   extraParams?: any;
 }
 
 export const addMockDatasourceToOrg = (
-  datasourceId: string,
-  orgId: string,
+  name: string,
+  organizationId: string,
+  pluginId: string,
+  packageName: string,
   initiator?: string,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { id: datasourceId, orgId },
+    payload: { name, packageName, pluginId, organizationId },
     extraParams: { initiator },
   };
 };

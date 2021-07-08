@@ -28,6 +28,7 @@ import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
@@ -118,6 +119,20 @@ function* syncApiParamsSaga(
     );
   }
   PerformanceTracker.stopTracking();
+}
+
+function* redirectToNewIntegrations(
+  action: ReduxAction<{ applicationId: string; pageId: string; params?: any }>,
+) {
+  history.push(
+    INTEGRATION_EDITOR_URL(
+      action.payload.applicationId,
+      action.payload.pageId,
+      INTEGRATION_TABS.ACTIVE,
+      INTEGRATION_EDITOR_MODES.AUTO,
+      action.payload.params,
+    ),
+  );
 }
 
 function* handleUpdateBodyContentType(
@@ -369,6 +384,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }
@@ -387,7 +403,10 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       applicationId,
       pageId,
       actionPayload.payload.id,
-      getQueryParams(),
+      {
+        from: "datasources",
+        ...getQueryParams(),
+      },
     ),
   );
 }
@@ -561,6 +580,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+      redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

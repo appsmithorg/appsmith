@@ -34,6 +34,16 @@ type RenderOption = ({
   option,
   optionClickHandler,
 }: RenderDropdownOptionType) => ReactElement<any, any>;
+export interface DefaultDropDownValueNodeProps {
+  selected: DropdownOption;
+  showLabelOnly?: boolean;
+  isOpen?: boolean;
+}
+
+export interface RenderDropdownOptionType {
+  option: DropdownOption;
+  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+}
 
 export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
@@ -45,6 +55,7 @@ export type DropdownProps = CommonComponentProps & {
   optionWrapperHeight?: string;
   optionWidth?: string;
   showDropIcon?: boolean;
+  headerLabel?: string;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
   renderOption?: RenderOption;
   bgColor?: string;
@@ -207,6 +218,12 @@ const StyledSubText = styled(Text)`
   }
 `;
 
+const HeaderWrapper = styled.div`
+  color: #6d6d6d;
+  font-size: 10px;
+  padding: 0px 7px 7px 7px;
+`;
+
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
@@ -355,6 +372,9 @@ export default function Dropdown(props: DropdownProps) {
           maxHeight={props.optionWrapperHeight || "auto"}
           width={props.optionWidth || "260px"}
         >
+          {props.headerLabel && (
+            <HeaderWrapper>{props.headerLabel}</HeaderWrapper>
+          )}
           {props.options.map((option: DropdownOption, index: number) => {
             if (renderOption) {
               return renderOption({
