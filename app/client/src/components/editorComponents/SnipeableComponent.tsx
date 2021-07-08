@@ -5,7 +5,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -35,9 +34,6 @@ const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
 type SnipeableComponentProps = WidgetProps;
 
 function SnipeableComponent(props: SnipeableComponentProps) {
-  // Dispatch hook handy to toggle property pane
-  const showPropertyPane = useShowPropertyPane();
-
   const { focusWidget } = useWidgetSelection();
 
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -53,15 +49,6 @@ function SnipeableComponent(props: SnipeableComponentProps) {
       focusedWidget !== props.widgetId &&
       focusWidget(props.widgetId);
     e.stopPropagation();
-    e.preventDefault();
-  };
-
-  const handleOnSnipe = (e: any) => {
-    e.preventDefault();
-    showPropertyPane &&
-      props.widgetId &&
-      focusedWidget === props.widgetId &&
-      showPropertyPane(props.widgetId);
   };
 
   const classNameForTesting = `t--snipeable-${props.type
@@ -75,7 +62,6 @@ function SnipeableComponent(props: SnipeableComponentProps) {
     <SnipeableWrapper
       className={className}
       isFocused={focusedWidget === props.widgetId}
-      onClick={handleOnSnipe}
       onMouseOver={handleMouseOver}
     >
       {props.children}
