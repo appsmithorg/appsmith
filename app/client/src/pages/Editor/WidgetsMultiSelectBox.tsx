@@ -1,5 +1,5 @@
-import styled from "styled-components";
 import React, { useMemo } from "react";
+import styled from "styled-components";
 import { get, minBy, maxBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -16,10 +16,12 @@ import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
+
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -32,11 +34,11 @@ const StyledActionsContainer = styled.div`
 `;
 
 const StyledActions = styled.div`
-  margin-left: calc(100% + 4px);
+  left: calc(100% - 38px);
   padding: 5px 0;
   width: max-content;
   z-index: ${Layers.contextMenu};
-  position: relative;
+  position: absolute;
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
 
@@ -153,7 +155,10 @@ interface OffsetBox {
   height: number;
 }
 
-function WidgetsMultiSelectBox(props: { widgetId: string }): any {
+function WidgetsMultiSelectBox(props: {
+  widgetId: string;
+  widgetType: string;
+}): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
   const selectedWidgetIDs = useSelector(getSelectedWidgets);
@@ -177,9 +182,10 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
     const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
 
     return (
+      props.widgetType === WidgetTypes.CANVAS_WIDGET &&
       isMultipleWidgetsSelected &&
       hasCommonParent &&
-      props.widgetId === get(selectedWidgets, "0.parentId")
+      get(selectedWidgets, "0.parentId") === props.widgetId
     );
   }, [selectedWidgets]);
 
@@ -277,6 +283,7 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
   return (
     <StyledSelectionBox
       className="t--multi-selection-box"
+      key={`selection-box-${props.widgetId}`}
       onMouseMove={() => focusWidget()}
       onMouseOver={() => focusWidget()}
       style={{

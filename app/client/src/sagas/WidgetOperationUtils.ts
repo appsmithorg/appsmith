@@ -25,7 +25,12 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets } from "utils/storage";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getSelectedWidget, getWidgetMetaProps, getWidgets } from "./selectors";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -395,9 +400,13 @@ export const getSelectedWidgetWhenPasting = function*() {
     getSelectedWidget,
   );
 
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
+
   selectedWidget = checkIfPastingIntoListWidget(
     canvasWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 
@@ -476,7 +485,7 @@ export function groupWidgetsIntoContainer(
             ...listitem,
             topRow: listitem.topRow - topMostWidget.topRow,
             bottomRow: listitem.bottomRow - topMostWidget.topRow,
-            parentId: newContainerWidget.widgetId,
+            parentId: newCanvasWidget.widgetId,
           };
         }
 

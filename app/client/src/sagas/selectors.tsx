@@ -128,6 +128,12 @@ export const getSelectedWidget = (state: AppState) => {
   return state.entities.canvasWidgets[selectedWidgetId];
 };
 
+export const getFocusedWidget = (state: AppState) => {
+  const focusedWidgetId = state.ui.widgetDragResize.focusedWidget;
+  if (!focusedWidgetId) return;
+  return state.entities.canvasWidgets[focusedWidgetId];
+};
+
 export const getWidgetImmediateChildren = createSelector(
   getWidget,
   (widget: WidgetProps) => {
