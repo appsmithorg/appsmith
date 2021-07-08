@@ -136,6 +136,12 @@ type ApiHomeScreenProps = {
 
 type Props = ApiHomeScreenProps;
 
+const API_ACTION = {
+  IMPORT_CURL: "IMPORT_CURL",
+  CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
+};
+
 function NewApiScreen(props: Props) {
   const {
     applicationId,
@@ -152,15 +158,35 @@ function NewApiScreen(props: Props) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
-  const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) + location.search;
+
+  const handleOnClick = (actionType: string, params?: any) => {
+    switch (actionType) {
+      case API_ACTION.CREATE_NEW_API:
+        handleCreateNew();
+        break;
+      case API_ACTION.IMPORT_CURL: {
+        AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+          importSource: CURL,
+        });
+        const curlImportURL =
+          getCurlImportPageURL(applicationId, pageId) + location.search;
+        history.push(curlImportURL);
+        break;
+      }
+      case API_ACTION.CREATE_DATASOURCE_FORM: {
+        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        break;
+      }
+      default:
+    }
+  };
 
   return (
     <StyledContainer>
       <ApiCardsContainer>
         <ApiCard
           className="t--createBlankApiCard create-new-api"
-          onClick={handleCreateNew}
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -172,12 +198,7 @@ function NewApiScreen(props: Props) {
         </ApiCard>
         <ApiCard
           className="t--createBlankCurlCard"
-          onClick={() => {
-            AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-              importSource: CURL,
-            });
-            history.push(curlImportURL);
-          }}
+          onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -196,7 +217,11 @@ function NewApiScreen(props: Props) {
             <ApiCard
               className={`t--createBlankApi-${p.packageName}`}
               key={p.id}
-              onClick={() => props.createDatasourceFromForm({ pluginId: p.id })}
+              onClick={() =>
+                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                  pluginId: p.id,
+                })
+              }
             >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">
