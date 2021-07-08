@@ -13,6 +13,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -131,6 +132,7 @@ type ApiHomeScreenProps = {
   plugins: Plugin[];
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  showUnsupportedPluginDialog: (callback: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
@@ -159,6 +161,18 @@ function NewApiScreen(props: Props) {
   };
 
   const handleOnClick = (actionType: string, params?: any) => {
+    const isGeneratePageInitiator = true;
+    if (
+      isGeneratePageInitiator &&
+      !params?.skipValidPluginCheck &&
+      !VALID_PLUGINS_FOR_TEMPLATE[params?.pluginId]
+    ) {
+      // show modal informing user that this will break the generate flow.
+      props?.showUnsupportedPluginDialog(() =>
+        handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
+      );
+      return;
+    }
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
         handleCreateNew();

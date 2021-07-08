@@ -12,6 +12,7 @@ import {
   INTEGRATION_TABS,
 } from "../../constants/routes";
 import { useSelector } from "react-redux";
+import { getQueryParams } from "../../utils/AppsmithUtils";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -32,18 +33,32 @@ function CloseEditor() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const params: string = location.search;
-  const redirectTo = new URLSearchParams(params).get("from");
+
+  const searchParamsInstance = new URLSearchParams(params);
+  const redirectTo = searchParamsInstance.get("from");
+  const initiator = searchParamsInstance.get("initiator");
+  const isGeneratePageInitiator = initiator === "generate-page";
+  let integrationTab = INTEGRATION_TABS.ACTIVE;
+  if (isGeneratePageInitiator) {
+    integrationTab = INTEGRATION_TABS.NEW;
+  }
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.push(
+    const URL =
       redirectTo === "datasources"
-        ? INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE)
-        : BUILDER_PAGE_URL(applicationId, pageId),
-    );
+        ? INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            integrationTab,
+            "",
+            getQueryParams(),
+          )
+        : BUILDER_PAGE_URL(applicationId, pageId);
+    history.push(URL);
   };
 
   return (

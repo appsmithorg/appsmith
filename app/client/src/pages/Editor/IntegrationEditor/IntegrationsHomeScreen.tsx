@@ -23,6 +23,8 @@ import {
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
+import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -100,6 +102,7 @@ type IntegrationsHomeScreenState = {
   page: number;
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
+  unsupportedPluginDialogVisible: boolean;
 };
 
 type Props = IntegrationsHomeScreenProps &
@@ -210,6 +213,7 @@ function CreateNewAPI({
   history,
   isCreating,
   pageId,
+  showUnsupportedPluginDialog,
 }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -235,6 +239,7 @@ function CreateNewAPI({
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
   );
@@ -246,6 +251,7 @@ function CreateNewDatasource({
   history,
   isCreating,
   pageId,
+  showUnsupportedPluginDialog,
 }: any) {
   const newDatasourceRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -267,6 +273,7 @@ function CreateNewDatasource({
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
   );
@@ -276,15 +283,18 @@ class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
 > {
+  onContinueAction: () => void;
+
   constructor(props: Props) {
     super(props);
-
+    this.onContinueAction = () => null;
     this.state = {
       page: 1,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: getSecondaryMenuIds(
         props.mockDatasources.length > 0,
       ).API,
+      unsupportedPluginDialogVisible: false,
     };
   }
 
@@ -376,6 +386,13 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({ activeSecondaryMenuId });
   };
 
+  showUnsupportedPluginDialog = (callback: () => void) => {
+    this.setState({
+      unsupportedPluginDialogVisible: true,
+    });
+    this.onContinueAction = callback;
+  };
+
   render() {
     const {
       applicationId,
@@ -385,9 +402,14 @@ class IntegrationsHomeScreen extends React.Component<
       location,
       pageId,
     } = this.props;
-
+    const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
+    const queryParams = getQueryParams();
+    let MOD_PRIMARY_MENU = PRIMARY_MENU;
+    if (queryParams.initiator === "generate-page") {
+      MOD_PRIMARY_MENU = PRIMARY_MENU.filter((tab) => tab.key !== "ACTIVE");
+    }
 
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
@@ -417,6 +439,7 @@ class IntegrationsHomeScreen extends React.Component<
             isCreating={isCreating}
             location={location}
             pageId={pageId}
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           <CreateNewDatasource
             active={
@@ -428,6 +451,7 @@ class IntegrationsHomeScreen extends React.Component<
             isCreating={isCreating}
             location={location}
             pageId={pageId}
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           {dataSources.length > 0 &&
             this.props.mockDatasources.length > 0 &&
@@ -452,6 +476,13 @@ class IntegrationsHomeScreen extends React.Component<
     return (
       <>
         <BackButton />
+        <UnsupportedPluginDialog
+          isModalOpen={unsupportedPluginDialogVisible}
+          onClose={() =>
+            this.setState({ unsupportedPluginDialogVisible: false })
+          }
+          onContinue={this.onContinueAction}
+        />
         <ApiHomePage
           className="t--integrationsHomePage"
           style={{ overflow: "auto" }}
@@ -464,7 +495,7 @@ class IntegrationsHomeScreen extends React.Component<
               <TabComponent
                 onSelect={this.onSelectPrimaryMenu}
                 selectedIndex={this.state.activePrimaryMenuId}
-                tabs={PRIMARY_MENU}
+                tabs={MOD_PRIMARY_MENU}
               />
             </MainTabsContainer>
             <div />

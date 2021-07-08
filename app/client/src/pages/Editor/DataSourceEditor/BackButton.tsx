@@ -8,7 +8,10 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "../../../selectors/editorSelectors";
-import { BUILDER_PAGE_URL } from "../../../constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  getGenerateTemplateFormURL,
+} from "../../../constants/routes";
 
 const Back = styled.span`
   //width: 100%;
@@ -25,7 +28,14 @@ function BackButton() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    const params: string = location.search;
+    const searchParamsInstance = new URLSearchParams(params);
+    const initiator = searchParamsInstance.get("initiator");
+    const isGeneratePageInitiator = initiator === "generate-page";
+    const redirectURL = isGeneratePageInitiator
+      ? getGenerateTemplateFormURL(applicationId, pageId)
+      : BUILDER_PAGE_URL(applicationId, pageId);
+    history.push(redirectURL);
   };
   return (
     <Back onClick={goBack}>

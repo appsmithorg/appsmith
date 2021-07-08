@@ -884,10 +884,6 @@ export function* generateTemplatePageSaga(
     }
   } catch (error) {
     yield put(generateTemplateError());
-    Toaster.show({
-      text: "Failed Generating template",
-      variant: Variant.danger,
-    });
   }
 }
 

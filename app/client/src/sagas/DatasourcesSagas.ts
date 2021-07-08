@@ -209,7 +209,7 @@ export function* deleteDatasourceSaga(
 
       if (
         window.location.pathname ===
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id, getQueryParams())
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
       ) {
         history.push(
           INTEGRATION_EDITOR_URL(
@@ -217,6 +217,7 @@ export function* deleteDatasourceSaga(
             pageId,
             INTEGRATION_TABS.NEW,
             INTEGRATION_EDITOR_MODES.AUTO,
+            getQueryParams(),
           ),
         );
       }

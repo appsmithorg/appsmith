@@ -371,7 +371,7 @@ function GeneratePageForm() {
         applicationId: currentApplicationId || "",
         pageId:
           currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
-        // columns: [],
+        columns: [],
         searchColumn: selectedColumn.value,
         tableName: selectedTable.value || "",
         datasourceId: selectedDatasource.id || "",

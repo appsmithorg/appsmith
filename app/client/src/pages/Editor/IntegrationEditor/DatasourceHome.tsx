@@ -99,6 +99,7 @@ interface DatasourceHomeScreenProps {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showUnsupportedPluginDialog: (callback: any) => void;
 }
 
 interface ReduxDispatchProps {
@@ -116,8 +117,12 @@ interface ReduxStateProps {
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
 
 class DatasourceHomeScreen extends React.Component<Props> {
-  goToCreateDatasource = (pluginId: string, pluginName: string) => {
-    const { currentApplication } = this.props;
+  goToCreateDatasource = (
+    pluginId: string,
+    pluginName: string,
+    params?: any,
+  ) => {
+    const { currentApplication, showUnsupportedPluginDialog } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       appName: currentApplication?.name,
@@ -126,9 +131,19 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     const queryParams = getQueryParams();
     const { initiator } = queryParams;
-    if (initiator && initiator === "generate-page") {
+    if (
+      !params?.skipValidPluginCheck &&
+      initiator &&
+      initiator === "generate-page"
+    ) {
       if (!VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
         // show modal informing user that this will break the generate flow.
+        showUnsupportedPluginDialog(() => {
+          this.goToCreateDatasource(pluginId, pluginName, {
+            skipValidPluginCheck: true,
+          });
+        });
+        return;
       }
     }
 
