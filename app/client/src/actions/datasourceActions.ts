@@ -147,16 +147,16 @@ export const addMockDatasourceToOrg = (
   name: string,
   organizationId: string,
   pluginId: string,
-  pluginName: string,
+  packageName: string,
 ): ReduxAction<{
   name: string;
   organizationId: string;
   pluginId: string;
-  pluginName: string;
+  packageName: string;
 }> => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, pluginName, pluginId, organizationId },
+    payload: { name, packageName, pluginId, organizationId },
   };
 };
 
