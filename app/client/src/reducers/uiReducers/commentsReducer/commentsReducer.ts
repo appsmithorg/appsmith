@@ -31,7 +31,7 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
-  showUnreadIndicator: false,
+  unreadCommentThreadsCount: 0,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   areCommentsEnabled: false,
@@ -267,10 +267,10 @@ const commentsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<number>,
   ) => ({
     ...state,
-    showUnreadIndicator: action.payload,
+    unreadCommentThreadsCount: action.payload || 0,
   }),
 });
 
