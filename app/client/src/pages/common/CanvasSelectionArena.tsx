@@ -239,7 +239,14 @@ export const CanvasSelectionArena = memo(
           selectionCanvas.removeEventListener("click", onClick);
         };
       }
-    }, [appLayout, currentPageId, mainContainer, isDragging]);
+    }, [
+      appLayout,
+      currentPageId,
+      mainContainer,
+      isDragging,
+      mainContainer.bottomRow,
+      mainContainer.minHeight,
+    ]);
 
     return appMode === APP_MODE.EDIT && !isDragging ? (
       <StyledSelectionCanvas

@@ -168,7 +168,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     <DraggableWrapper
       className={className}
       draggable={allowDrag}
-      onDragStartCapture={onDragStart}
+      onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={style}
