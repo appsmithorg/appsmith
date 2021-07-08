@@ -21,6 +21,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { AppState } from "reducers";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -164,7 +165,9 @@ function WidgetsMultiSelectBox(props: {
     (widgetID) => canvasWidgets[widgetID],
   );
   const { focusWidget } = useWidgetSelection();
-
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -173,6 +176,9 @@ function WidgetsMultiSelectBox(props: {
    * 3. multiple widgets are selected
    */
   const shouldRender = useMemo(() => {
+    if (isDragging) {
+      return false;
+    }
     const parentIDs = selectedWidgets
       .filter(Boolean)
       .map((widget) => widget.parentId);
@@ -185,7 +191,7 @@ function WidgetsMultiSelectBox(props: {
       hasCommonParent &&
       get(selectedWidgets, "0.parentId") === props.widgetId
     );
-  }, [selectedWidgets]);
+  }, [selectedWidgets, isDragging]);
 
   /**
    * calculate bounding box
