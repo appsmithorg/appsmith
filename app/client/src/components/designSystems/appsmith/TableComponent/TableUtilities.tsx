@@ -429,7 +429,9 @@ export function getDefaultColumnProperties(
     isVisible: true,
     isDerived: !!isDerived,
     label: accessor,
-    computedValue: isDerived ? "" : getCurrentRowBinding(widgetName, accessor),
+    computedValue: isDerived
+      ? ""
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
   };
 
   return columnProps;

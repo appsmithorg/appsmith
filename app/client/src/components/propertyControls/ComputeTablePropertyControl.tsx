@@ -133,7 +133,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return getCurrentRowBinding(tableId, stringToEvaluate);
+    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

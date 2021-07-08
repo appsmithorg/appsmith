@@ -186,7 +186,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "step",
-          computedValue: getCurrentRowBinding("Table1", "currentRow.step"),
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
         },
         task: {
           index: 1,
@@ -201,7 +202,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "task",
-          computedValue: getCurrentRowBinding("Table1", "currentRow.task"),
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
         },
         status: {
           index: 2,
@@ -216,7 +218,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isVisible: true,
           isDerived: false,
           label: "status",
-          computedValue: getCurrentRowBinding("Table1", "currentRow.status"),
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
         },
         action: {
           index: 3,
@@ -233,7 +236,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           label: "action",
           onClick:
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
-          computedValue: getCurrentRowBinding("Table1", "currentRow.action"),
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
         },
       },
       derivedColumns: {},
@@ -273,7 +277,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 set(
                   primaryColumns,
                   `${columnId}.computedValue`,
-                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
                 );
               });
               const updatePropertyMap = [
