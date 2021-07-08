@@ -50,7 +50,12 @@ const StyledDiv = styled.div`
 `;
 
 // Widgets where we do not want to show the CTA
-export const excludeList = [WidgetTypes.CONTAINER_WIDGET];
+export const excludeList = [
+  WidgetTypes.CONTAINER_WIDGET,
+  WidgetTypes.TABS_WIDGET,
+  WidgetTypes.FORM_WIDGET,
+  WidgetTypes.MODAL_WIDGET,
+];
 
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
