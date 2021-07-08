@@ -74,13 +74,13 @@ class DatasourcesApi extends API {
     name: string,
     organizationId: string,
     pluginId: string,
-    pluginName: string,
+    packageName: string,
   ): Promise<any> {
     return API.post(DatasourcesApi.url + `/mocks`, {
       name,
       organizationId,
       pluginId,
-      pluginName,
+      packageName,
     });
   }
 }
