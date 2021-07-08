@@ -79,6 +79,13 @@ export interface Datasource extends BaseDatasource {
   messages?: string[];
 }
 
+export interface MockDatasource {
+  id: string;
+  name: string;
+  description: string;
+  pluginId: string;
+}
+
 export const DEFAULT_DATASOURCE = (
   pluginId: string,
   organizationId: string,

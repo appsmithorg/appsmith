@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { ReactNode, useState, useEffect, useCallback } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export type DropdownOption = {
   label?: string;
@@ -16,6 +17,22 @@ export type DropdownOption = {
   onSelect?: (value?: string) => void;
 };
 
+export interface DefaultDropDownValueNodeProps {
+  selected: DropdownOption;
+  showLabelOnly?: boolean;
+  isOpen?: boolean;
+}
+
+export interface RenderDropdownOptionType {
+  option: DropdownOption;
+  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+}
+
+type RenderOption = ({
+  option,
+  optionClickHandler,
+}: RenderDropdownOptionType) => ReactNode;
+
 export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
@@ -25,7 +42,10 @@ export type DropdownProps = CommonComponentProps & {
   showLabelOnly?: boolean;
   optionWidth?: string;
   showDropIcon?: boolean;
+  headerLabel?: string;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
+  bgColor?: string;
+  renderOption?: RenderOption;
 };
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
@@ -38,12 +58,15 @@ const Selected = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
   height: string;
+  bgColor?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
   background: ${(props) =>
     props.disabled
       ? props.theme.colors.dropdown.header.disabledBg
+      : !!props.bgColor
+      ? props.bgColor
       : props.theme.colors.dropdown.header.bg};
   display: flex;
   align-items: center;
@@ -53,21 +76,31 @@ const Selected = styled.div<{
   cursor: pointer;
   ${(props) =>
     props.isOpen
-      ? `border: 1px solid ${props.theme.colors.info.main}`
+      ? `border: 1px solid ${
+          !!props.bgColor ? props.bgColor : props.theme.colors.info.main
+        }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
+      : `border: 1px solid ${
+          !!props.bgColor
+            ? props.bgColor
+            : props.theme.colors.dropdown.header.bg
+        }`};
   ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
   ${(props) =>
-    props.isOpen && !props.disabled
+    props.isOpen && !props.disabled && !props.bgColor
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
-        : `color: ${props.theme.colors.dropdown.header.text}`};
+        : `color: ${
+            !!props.bgColor
+              ? Colors.WHITE
+              : props.theme.colors.dropdown.header.text
+          }`};
   }
 `;
 
@@ -159,6 +192,12 @@ const StyledSubText = styled(Text)`
   }
 `;
 
+const HeaderWrapper = styled.div`
+  color: #6d6d6d;
+  font-size: 10px;
+  padding: 0px 7px 7px 7px;
+`;
+
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
@@ -185,17 +224,17 @@ const SelectedIcon = styled(Icon)`
   }
 `;
 
-function DefaultDropDownValueNode({
+export function DefaultDropDownValueNode({
   selected,
   showLabelOnly,
-}: {
-  selected: DropdownOption;
-  showLabelOnly?: boolean;
-}) {
+}: DefaultDropDownValueNodeProps) {
   return (
     <SelectedDropDownHolder>
       {selected.icon ? (
-        <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+        <SelectedIcon
+          name={selected.icon}
+          size={selected.iconSize || IconSize.XXS}
+        />
       ) : null}
       <Text type={TextType.P1}>
         {showLabelOnly ? selected.label : selected.value}
@@ -209,6 +248,7 @@ export default function Dropdown(props: DropdownProps) {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
+    renderOption,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -242,6 +282,7 @@ export default function Dropdown(props: DropdownProps) {
         position={Position.BOTTOM_LEFT}
       >
         <Selected
+          bgColor={props.bgColor}
           className={props.className}
           disabled={props.disabled}
           height={props.height || "38px"}
@@ -249,13 +290,23 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           <SelectedValueNode
+            isOpen={isOpen}
             selected={selected}
             showLabelOnly={props.showLabelOnly}
           />
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
         </Selected>
         <DropdownWrapper width={props.optionWidth || "260px"}>
+          {props.headerLabel && (
+            <HeaderWrapper>{props.headerLabel}</HeaderWrapper>
+          )}
           {props.options.map((option: DropdownOption, index: number) => {
+            if (renderOption) {
+              return renderOption({
+                option,
+                optionClickHandler,
+              });
+            }
             return (
               <OptionWrapper
                 className="t--dropdown-option"

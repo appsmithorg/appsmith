@@ -49,9 +49,6 @@ export const TableWrapper = styled.div<{
     display: table;
     width: 100%;
     ${hideScrollbar};
-    .tr {
-      width: 100%;
-    }
     .thead,
     .tbody {
       overflow: hidden;
@@ -62,22 +59,15 @@ export const TableWrapper = styled.div<{
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
-      .tr {
-        width: 100%;
-      }
     }
     .tr {
-      width: calc(100% - 8px);
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        & > .td > div {
-          background: ${Colors.POLAR}!important;
-        }
-        background: ${Colors.POLAR}!important;
+        background: ${Colors.OPAQ_BLUE}!important;
         &:hover {
-          background: ${Colors.POLAR};
+          background: ${Colors.OPAQ_BLUE};
         }
       }
       &:hover {
@@ -426,6 +416,46 @@ export const CellWrapper = styled.div<{
     .hidden-icon {
       display: inline;
     }
+  }
+`;
+
+export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
+  justify-content: center;
+  width: 40px;
+  background: ${Colors.WHITE};
+  & > div {
+    background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
+  }
+
+  ${(props) =>
+    props.isChecked
+      ? `
+    background: #FAFAFA;
+    &:hover {
+      background: ${Colors.OPAQ_BLUE};
+    }
+    `
+      : `
+    &:hover {
+      & > div {
+        background: ${Colors.Gallery};
+      }
+    }
+  `}
+`;
+
+export const CellCheckbox = styled.div`
+  height: 15px;
+  width: 15px;
+  border: 0.5px solid ${Colors.GEYSER_LIGHT};
+  position: relative;
+  .th-svg {
+    display: block;
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    height: 15px;
+    width: 15px;
   }
 `;
 

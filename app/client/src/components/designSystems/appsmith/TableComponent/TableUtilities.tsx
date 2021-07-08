@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
+  CellCheckboxWrapper,
+  CellCheckbox,
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
@@ -49,13 +51,18 @@ export const renderCell = (
           </CellWrapper>
         );
       }
-      const imageSplitRegex = /[^(base64)],/;
+      // better regex: /(?<!base64),/g ; can't use due to safari incompatibility
+      const imageSplitRegex = /[^(base64)],/g;
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
         <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
+            // imageSplitRegex matched "," and char before it, so add space before ","
+            .replace(imageSplitRegex, (match) =>
+              match.length > 1 ? `${match.charAt(0)} ,` : " ,",
+            )
             .split(imageSplitRegex)
             .map((item: string, index: number) => {
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
@@ -75,7 +82,7 @@ export const renderCell = (
                   </a>
                 );
               } else {
-                return <div>Invalid Image</div>;
+                return <div key={index}>Invalid Image</div>;
               }
             })}
         </CellWrapper>
@@ -191,20 +198,86 @@ function TableAction(props: {
   );
 }
 
+function CheckBoxLineIcon() {
+  return (
+    <svg
+      className="th-svg t--table-multiselect-header-half-check-svg"
+      fill="none"
+      height="15"
+      width="15"
+    >
+      <path
+        d="M11.183673404886235,7.5 H3.81632661819458 "
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+function CheckBoxCheckIcon() {
+  return (
+    <svg className="th-svg" fill="none" height="15" width="15">
+      <path
+        d="M3.523326302644791,8.068102895600848 L5.7957131234862,10.340476082148596 L11.476673358442884,4.659524027768102 "
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+export const renderCheckBoxCell = (isChecked: boolean) => (
+  <CellCheckboxWrapper
+    className="td t--table-multiselect"
+    isChecked={isChecked}
+  >
+    <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
+  </CellCheckboxWrapper>
+);
+
+export const renderCheckBoxHeaderCell = (
+  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
+  checkState: number | null,
+) => (
+  <CellCheckboxWrapper
+    className="th header-reorder t--table-multiselect-header"
+    isChecked={!!checkState}
+    onClick={onClick}
+    role="columnheader"
+    style={{ padding: "0px", justifyContent: "center" }}
+  >
+    <CellCheckbox>
+      {checkState === 1 && <CheckBoxCheckIcon />}
+      {checkState === 2 && <CheckBoxLineIcon />}
+    </CellCheckbox>
+  </CellCheckboxWrapper>
+);
+
 export const renderEmptyRows = (
   rowCount: number,
   columns: any,
   tableWidth: number,
   page: any,
   prepareRow: any,
+  multiRowSelection = false,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
     const row = page[0];
     return rows.map((item: string, index: number) => {
       prepareRow(row);
+      const rowProps = {
+        ...row.getRowProps(),
+        style: { display: "flex" },
+      };
       return (
-        <div {...row.getRowProps()} className="tr" key={index}>
+        <div {...rowProps} className="tr" key={index}>
+          {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
               <div {...cell.getCellProps()} className="td" key={cellIndex} />
