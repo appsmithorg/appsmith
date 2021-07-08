@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "widgets/BaseWidget";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -87,6 +86,7 @@ const Info = styled.div`
 
 function WidgetSidebar(props: IPanelProps) {
   const cards = useSelector(getWidgetCards);
+  console.log("Cards", { cards });
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -94,7 +94,7 @@ function WidgetSidebar(props: IPanelProps) {
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, (draft) => {
         cards.forEach((card, index) => {
-          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
             delete draft[index];
           }
         });
@@ -164,7 +164,7 @@ function WidgetSidebar(props: IPanelProps) {
           />
         </Header>
         <CardsWrapper>
-          {filteredCards.map((card: WidgetCardProps) => (
+          {filteredCards.map((card) => (
             <Boxed
               key={card.key}
               show={

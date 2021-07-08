@@ -1,5 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+
 import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,

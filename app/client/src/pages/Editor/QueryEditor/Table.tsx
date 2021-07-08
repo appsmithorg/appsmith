@@ -7,8 +7,11 @@ import { Colors } from "constants/Colors";
 import { scrollbarWidth } from "utils/helpers";
 import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
+
+// TODO(abhinav): The following two imports are from the table widget's component
+// We need to decouple the platform stuff from the widget stuff
+import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
+import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {

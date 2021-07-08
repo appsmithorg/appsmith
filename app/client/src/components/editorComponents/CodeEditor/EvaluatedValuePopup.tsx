@@ -137,6 +137,13 @@ interface PopoverContentProps {
   preparedStatementViewer: boolean;
 }
 
+const EvaluatedValuePopupModifiers = {
+  offset: {
+    enabled: true,
+    offset: "0, 15",
+  },
+};
+
 const PreparedStatementViewerContainer = styled.span`
   .${Classes.POPOVER_TARGET} {
     display: inline-block;
@@ -352,12 +359,7 @@ function EvaluatedValuePopup(props: Props) {
       {(props.isOpen || contentHovered) && (
         <Popper
           isOpen
-          modifiers={{
-            offset: {
-              enabled: true,
-              offset: "0, 15",
-            },
-          }}
+          modifiers={EvaluatedValuePopupModifiers}
           placement={placement}
           targetNode={wrapperRef.current || undefined}
           zIndex={5}

@@ -1,4 +1,4 @@
-export const HelpMap = {
+export const HelpMap: Record<string, { path: string; searchKey: string }> = {
   CONTAINER_WIDGET: {
     path: "/widget-reference/container",
     searchKey: "Container",

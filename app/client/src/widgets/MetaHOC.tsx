@@ -1,8 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
+import { fromPairs, isEqual, debounce } from "lodash";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -33,7 +33,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
 
-    debouncedHandleUpdateWidgetMetaProperty = _.debounce(
+    debouncedHandleUpdateWidgetMetaProperty = debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
       {
@@ -45,7 +45,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     constructor(props: any) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.state = _.fromPairs(
+      this.state = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
@@ -68,8 +68,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           widget) to the current value that is outside (controlled by platform)
         */
         if (
-          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
-          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
+          !isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          isEqual(this.props[defaultProperty], this.props[metaProperty])
         ) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }

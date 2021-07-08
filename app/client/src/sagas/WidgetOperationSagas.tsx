@@ -49,8 +49,8 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, flattenDeep, isString, set, remove } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import _, { cloneDeep, isString, omit, set, flattenDeep, remove } from "lodash";
+import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintOperations,
@@ -62,8 +62,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WIDGET_DELETE_UNDO_TIMEOUT,
-  WidgetType,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
@@ -101,7 +99,7 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
@@ -118,6 +116,11 @@ import {
   WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
+import produce from "immer";
+
+// Todo(abhinav): abstraction leak
+const WidgetTypes = WidgetFactory.widgetTypes;
+
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -139,13 +142,12 @@ function* getChildWidgetProps(
   const { leftColumn, newWidgetId, props, topRow, type } = params;
   let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
   let minHeight = undefined;
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const { blueprint = undefined, ...restDefaultConfig } = {
-    ...(WidgetConfigResponse as any).config[type],
-  };
+  const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
+    "blueprint",
+  ]);
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
+    const entityNames: string[] = yield call(getEntityNames);
 
     widgetName = getNextEntityName(restDefaultConfig.widgetName, [
       ...widgetNames,
@@ -159,7 +161,14 @@ function* getChildWidgetProps(
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
     minHeight = rows;
-    if (props) props.children = [];
+
+    if (props) {
+      props = produce((draft: WidgetProps) => {
+        if (!draft.children || !Array.isArray(draft.children)) {
+          draft.children = [];
+        }
+      });
+    }
   }
 
   const widgetProps = {
@@ -168,6 +177,8 @@ function* getChildWidgetProps(
     columns,
     rows,
     minHeight,
+    widgetId: newWidgetId,
+    renderMode: RenderModes.CANVAS,
   };
   const widget = generateWidgetProps(
     parent,
@@ -202,15 +213,12 @@ function* generateChildWidgets(
   widgets[widget.widgetId] = widget;
 
   // Get the default config for the widget from WidgetConfigResponse
-  const defaultConfig = {
-    ...(WidgetConfigResponse as any).config[widget.type],
-  };
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widget.type);
 
   // If blueprint is provided in the params, use that
   // else use the blueprint available in WidgetConfigResponse
   // else there is no blueprint for this widget
-  const blueprint =
-    propsBlueprint || { ...defaultConfig.blueprint } || undefined;
+  const blueprint = propsBlueprint || defaultConfig?.blueprint || undefined;
 
   // If there is a blueprint.view
   // We need to generate the children based on the view
@@ -377,7 +385,9 @@ export function* addChildrenSaga(
     children.forEach((child) => {
       // Create only if it doesn't already exist
       if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetConfigResponse.config[child.type];
+        const defaultConfig: any = WidgetFactory.widgetConfigMap.get(
+          child.type,
+        );
         const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
           ...widgetNames,
           ...entityNames,
@@ -568,9 +578,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { parentId, widgetId } = deleteAction.payload;
     const { disallowUndo, isShortcut } = deleteAction.payload;
-
     if (!widgetId) {
-      const selectedWidget = yield select(getSelectedWidget);
+      const selectedWidget: FlattenedWidgetProps = yield select(
+        getSelectedWidget,
+      );
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't don anything
@@ -581,9 +592,13 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     }
 
     if (widgetId && parentId) {
-      const stateWidgets = yield select(getWidgets);
+      console.log("delete", { widgetId }, { isShortcut }, { parentId });
+      const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
       const widgets = { ...stateWidgets };
-      const stateWidget = yield select(getWidget, widgetId);
+      const stateWidget: FlattenedWidgetProps = yield select(
+        getWidget,
+        widgetId,
+      );
       const widget = { ...stateWidget };
 
       const stateParent: FlattenedWidgetProps = yield select(
@@ -668,10 +683,12 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       // Note: mutates finalWidgets
       resizeCanvasToLowestWidget(finalWidgets, parentId);
+      console.log("delete", { finalWidgets });
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
   } catch (error) {
+    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
@@ -1172,6 +1189,7 @@ function* batchUpdateWidgetPropertySaga(
 ) {
   const start = performance.now();
   const { updates, widgetId } = action.payload;
+  console.log("Register", { updates });
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -1210,16 +1228,15 @@ function* batchUpdateWidgetPropertySaga(
     widget = yield removeWidgetProperties(widget, remove);
   }
 
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
     "ms",
   );
-
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  // yield put(updateAndSaveLayout(widgets));
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -1461,7 +1478,7 @@ function getNextWidgetName(
   options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
-  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const defaultConfig: any = WidgetFactory.widgetConfigMap.get(type);
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
   let prefix = defaultConfig.widgetName;

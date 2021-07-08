@@ -1,5 +1,5 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { migrateTextStyleFromTextWidget } from "utils/migrations/TextWidgetReplaceTextStyle";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 

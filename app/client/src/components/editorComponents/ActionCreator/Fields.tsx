@@ -1,5 +1,5 @@
 import React from "react";
-import { DropdownOption } from "widgets/DropdownWidget";
+
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
@@ -11,6 +11,7 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
+import { DropdownOption } from "components/constants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */

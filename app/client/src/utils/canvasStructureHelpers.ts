@@ -1,8 +1,10 @@
-import { WidgetTypes } from "constants/WidgetConstants";
 import {
   CanvasStructure,
   DSL,
 } from "reducers/uiReducers/pageCanvasStructureReducer";
+
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,
@@ -18,6 +20,7 @@ export const compareAndGenerateImmutableCanvasStructure = (
 const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
   let children = dsl.children;
   let structureChildren: CanvasStructure[] | undefined = undefined;
+  // Todo(abhinav): abstraction leak
   if (dsl.type === WidgetTypes.TABS_WIDGET) {
     if (children && children.length > 0) {
       structureChildren = children.map((childTab) => ({

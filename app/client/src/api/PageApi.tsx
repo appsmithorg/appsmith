@@ -1,5 +1,5 @@
 import Api from "api/Api";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";

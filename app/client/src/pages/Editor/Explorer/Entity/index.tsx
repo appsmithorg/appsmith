@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
+  useCallback,
 } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -144,11 +145,14 @@ export const Entity = forwardRef(
       }
     };
 
-    const updateNameCallback = (name: string) => {
-      return (
-        props.updateEntityName && props.updateEntityName(props.entityId, name)
-      );
-    };
+    const updateNameCallback = useCallback(
+      (name: string) => {
+        return (
+          props.updateEntityName && props.updateEntityName(props.entityId, name)
+        );
+      },
+      [props.entityId, props.updateEntityName],
+    );
 
     const handleClick = (e: any) => {
       if (props.action) props.action(e);
@@ -210,5 +214,8 @@ export const Entity = forwardRef(
 );
 
 Entity.displayName = "Entity";
+(Entity as any).whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default Entity;

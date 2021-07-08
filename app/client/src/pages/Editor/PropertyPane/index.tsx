@@ -195,6 +195,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return ThemeMode.LIGHT;
   }
 
+  onPositionChange = (position: any) => {
+    this.props.setPropPanePoistion(
+      position,
+      this.props.widgetProperties?.widgetId,
+    );
+  };
+
   render() {
     if (
       !get(this.props, "widgetProperties") ||
@@ -215,12 +222,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
-          onPositionChange={(position: any) =>
-            this.props.setPropPanePoistion(
-              position,
-              this.props.widgetProperties?.widgetId,
-            )
-          }
+          onPositionChange={this.onPositionChange}
           placement="right-start"
           position={this.props?.propPanePreference?.position}
           targetNode={el}

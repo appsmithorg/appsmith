@@ -3,7 +3,7 @@ import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
-import IconComponent from "components/designSystems/appsmith/IconComponent";
+import { Icon } from "@blueprintjs/core";
 import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
@@ -40,10 +40,7 @@ function UserProfile() {
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
         <LinkToApplications className="t--back" to={"/applications"}>
-          <IconComponent
-            color={Colors.SILVER_CHALICE}
-            iconName="chevron-left"
-          />
+          <Icon color={Colors.SILVER_CHALICE} icon="chevron-left" />
           <Text type={TextType.H1}>Profile</Text>
         </LinkToApplications>
         <TabComponent tabs={tabs} />

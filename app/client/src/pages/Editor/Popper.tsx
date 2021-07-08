@@ -73,7 +73,7 @@ export function PopperDragHandle() {
 }
 
 /* eslint-disable react/display-name */
-export default (props: PopperProps) => {
+function Popper(props: PopperProps) {
   const contentRef = useRef(null);
   const {
     isDraggable = false,
@@ -152,9 +152,10 @@ export default (props: PopperProps) => {
         );
       }
 
-      return () => {
-        _popper.destroy();
-      };
+      // return () => {
+      //   console.log("Popper", "destroying");
+      //   _popper.destroy();
+      // };
     }
   }, [
     props.targetNode,
@@ -169,4 +170,10 @@ export default (props: PopperProps) => {
     </PopperWrapper>,
     document.body,
   );
+}
+
+Popper.whyDidYouRender = {
+  logOnDifferentValues: false,
 };
+
+export default Popper;

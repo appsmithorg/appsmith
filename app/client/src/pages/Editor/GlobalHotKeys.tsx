@@ -8,6 +8,7 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  focusWidget,
   pasteWidget,
 } from "actions/widgetActions";
 import {
@@ -33,6 +34,8 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
+  unfocusWidgets: () => void;
+  closePropertyPane: () => void;
   resetCommentMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -171,6 +174,17 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
+          combo="Esc"
+          global
+          group="Canvas"
+          label="Un-select widgets"
+          onKeyDown={() => {
+            this.props.deselectAllWidgets();
+            this.props.closePropertyPane();
+            this.props.unfocusWidgets();
+          }}
+        />
+        <Hotkey
           combo="mod + a"
           global
           group="Canvas"
@@ -235,6 +249,8 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    closePropertyPane: () => dispatch(closePropertyPane()),
+    unfocusWidgets: () => dispatch(focusWidget()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),

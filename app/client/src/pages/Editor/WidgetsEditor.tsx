@@ -9,7 +9,6 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
@@ -23,6 +22,8 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import { AppState } from "reducers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -64,6 +65,20 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  const canvasWidth = useSelector(
+    (state: AppState) =>
+      state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
+  );
+  console.log(
+    "Widgets",
+    "CanvasWidgets",
+    { widgets },
+    { currentApp },
+    { currentPageName },
+    { currentPageId },
+    { isFetchingPage },
+    { params },
+  );
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -115,22 +130,25 @@ function WidgetsEditor() {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+    node = <Canvas dsl={widgets} width={canvasWidth} />;
   }
 
   log.debug("Canvas rendered");
+
   PerformanceTracker.stopTracking();
   return (
-    <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
-        <MainContainerLayoutControl />
-        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
-          {node}
-        </CanvasContainer>
-        <Debugger />
-      </EditorWrapper>
-    </EditorContextProvider>
+    <EditorWrapper onClick={handleWrapperClick}>
+      <MainContainerLayoutControl />
+      <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+        {node}
+      </CanvasContainer>
+      <Debugger />
+    </EditorWrapper>
   );
 }
+
+WidgetsEditor.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default WidgetsEditor;

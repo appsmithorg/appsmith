@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";

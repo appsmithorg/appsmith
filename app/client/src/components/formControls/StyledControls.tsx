@@ -8,7 +8,7 @@ import {
   Popover,
   MenuItem,
 } from "@blueprintjs/core";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { TimezonePicker } from "@blueprintjs/timezone";

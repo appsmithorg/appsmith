@@ -1,0 +1,22 @@
+import Widget from "./widget";
+import IconSVG from "./icon.svg";
+
+export const CONFIG = {
+  type: Widget.getWidgetType(),
+  name: "{{name}}",
+  iconSVG: IconSVG,
+  defaults: {
+    widgetName: "{{name}}",
+    rows: 1,
+    columns: 3,
+    version: 1,
+  },
+  properties: {
+    derived: Widget.getDerivedPropertiesMap(),
+    default: Widget.getDefaultPropertiesMap(),
+    meta: Widget.getMetaPropertiesMap(),
+    config: Widget.getPropertyPaneConfig(),
+  },
+};
+
+export default Widget;

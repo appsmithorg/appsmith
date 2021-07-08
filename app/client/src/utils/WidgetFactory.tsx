@@ -1,16 +1,11 @@
-import { WidgetType, RenderMode } from "constants/WidgetConstants";
-import {
-  WidgetBuilder,
-  WidgetProps,
-  WidgetDataProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import { WidgetSkeleton, WidgetBuilder, WidgetProps } from "widgets/BaseWidget";
 import React from "react";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -40,11 +35,12 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
     return sectionOrControlConfig;
   });
 };
+
+export type WidgetType = typeof WidgetFactory.widgetTypes[number];
+
 class WidgetFactory {
-  static widgetMap: Map<
-    WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
-  > = new Map();
+  static widgetTypes: Record<string, string> = {};
+  static widgetMap: Map<WidgetType, WidgetBuilder<WidgetSkeleton>> = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
     WidgetDerivedPropertyType
@@ -63,40 +59,48 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
 
+  static widgetConfigMap: Map<
+    WidgetType,
+    Partial<WidgetProps> & WidgetConfigProps & { type: string }
+  > = new Map();
+
   static registerWidgetBuilder(
-    widgetType: WidgetType,
-    widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
+    widgetType: string,
+    widgetBuilder: WidgetBuilder<WidgetSkeleton>,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
-    this.widgetMap.set(widgetType, widgetBuilder);
-    this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
-    this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+    if (!!this.widgetTypes[widgetType]) {
+      console.error(`Widget ${widgetType} is already registered`);
+    } else {
+      this.widgetTypes[widgetType] = widgetType;
+      this.widgetMap.set(widgetType, widgetBuilder);
+      this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
+      this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
+      this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
-      this.propertyPaneConfigsMap.set(
-        widgetType,
-        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
-      );
+      propertyPaneConfig &&
+        this.propertyPaneConfigsMap.set(
+          widgetType,
+          Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
+        );
+    }
   }
 
-  static createWidget(
-    widgetData: WidgetDataProps,
-    renderMode: RenderMode,
-  ): React.ReactNode {
-    const widgetProps: WidgetProps = {
-      key: widgetData.widgetId,
-      isVisible: true,
-      ...widgetData,
-      renderMode: renderMode,
-    };
+  static storeWidgetConfig(
+    widgetType: string,
+    config: Partial<WidgetProps> & WidgetConfigProps & { type: string },
+  ) {
+    this.widgetConfigMap.set(widgetType, Object.freeze(config));
+  }
+
+  static createWidget(widgetData: WidgetSkeleton): React.ReactNode {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-      const widget = widgetBuilder.buildWidget(widgetProps);
+      const widget = widgetBuilder.buildWidget(widgetData);
       return widget;
     } else {
       const ex: WidgetCreationException = {

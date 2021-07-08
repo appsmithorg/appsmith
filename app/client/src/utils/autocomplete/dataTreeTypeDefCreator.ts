@@ -39,7 +39,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
         }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        const actionDefs = entityDefinitions.ACTION(entity);
+        const actionDefs = (entityDefinitions.ACTION as any)(entity);
         def[entityName] = actionDefs;
         const finalData = flattenObjKeys(actionDefs, entityName);
         for (const [key, value] of Object.entries(finalData)) {

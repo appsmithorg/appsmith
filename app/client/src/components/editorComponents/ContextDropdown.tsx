@@ -8,12 +8,12 @@ import {
   PopoverPosition,
   PopoverInteractionKind,
 } from "@blueprintjs/core";
-import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlIconName, ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
 import { Intent } from "constants/DefaultTheme";
 import { IconProps } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { DropdownOption } from "components/constants";
 
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;

@@ -1,29 +1,30 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
-  WidgetTypes,
   FontStyleTypes,
   TextSizes,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import { getAllTableColumnKeys } from "widgets/TableWidget/component/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
-} from "components/designSystems/appsmith/TableComponent/Constants";
+} from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
     // If the current child is a TABLE_WIDGET
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
       const columnNameMap = child.columnNameMap;
       const columnSizeMap = child.columnSizeMap;
@@ -179,7 +180,7 @@ export const migrateTablePrimaryColumnsBindings = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0

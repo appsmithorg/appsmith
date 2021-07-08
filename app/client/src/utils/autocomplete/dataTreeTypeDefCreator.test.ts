@@ -9,7 +9,6 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetTypes } from "../../constants/WidgetConstants";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
@@ -20,7 +19,7 @@ describe("dataTreeTypeDefCreator", () => {
         parentId: "123",
         renderMode: "CANVAS",
         text: "yo",
-        type: WidgetTypes.INPUT_WIDGET,
+        type: "INPUT_WIDGET",
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
         parentColumnSpace: 1,
         parentRowSpace: 2,

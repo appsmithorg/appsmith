@@ -1,15 +1,14 @@
 import React from "react";
-import TabsComponent from "components/designSystems/appsmith/TabsComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
+import TabsComponent from "../component";
+import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
-import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
-import withMeta, { WithMeta } from "../MetaHOC";
+import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 class TabsWidget extends BaseWidget<
@@ -147,7 +146,7 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
+  render() {
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
@@ -171,7 +170,7 @@ class TabsWidget extends BaseWidget<
     }
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -180,10 +179,10 @@ class TabsWidget extends BaseWidget<
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
-  getWidgetType(): WidgetType {
+  static getWidgetType(): string {
     return "TABS_WIDGET";
   }
 
@@ -204,7 +203,8 @@ class TabsWidget extends BaseWidget<
             GRID_DENSITY_MIGRATION_V1) *
           this.props.parentRowSpace;
         const config = {
-          type: WidgetTypes.CANVAS_WIDGET,
+          // Todo(abhinav): abstraction leaks
+          type: "CANVAS_WIDGET",
           columns: columns,
           rows: rows,
           topRow: 1,
@@ -226,7 +226,7 @@ class TabsWidget extends BaseWidget<
             children: [],
           },
         };
-        this.updateWidget(
+        this.props.updateWidget(
           WidgetOperations.ADD_CHILD,
           this.props.widgetId,
           config,
@@ -249,7 +249,7 @@ class TabsWidget extends BaseWidget<
 
   removeTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((widgetIdToRemove: string) => {
-      this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
+      this.props.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
         parentId: this.props.widgetId,
       });
     });
@@ -297,7 +297,7 @@ class TabsWidget extends BaseWidget<
             index: 0,
           },
         };
-        this.updateWidgetProperty("tabsObj", tabs);
+        this.props.updateWidgetProperty("tabsObj", tabs);
       }
     }
     const visibleTabs = this.getVisibleTabs();
@@ -359,7 +359,7 @@ class TabsWidget extends BaseWidget<
     }
 
     const tabContainers = tabsToCreate.map((tab) => ({
-      type: WidgetTypes.CANVAS_WIDGET,
+      type: "CANVAS_WIDGET",
       tabId: tab.id,
       tabName: tab.label,
       widgetId: tab.widgetId,
@@ -377,7 +377,7 @@ class TabsWidget extends BaseWidget<
         (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
       isLoading: false,
     }));
-    this.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
+    this.props.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
       children: tabContainers,
     });
   };
@@ -434,39 +434,4 @@ class TabsWidget extends BaseWidget<
   }
 }
 
-export interface TabContainerWidgetProps extends WidgetProps {
-  tabId: string;
-}
-
-export interface TabsWidgetProps<T extends TabContainerWidgetProps>
-  extends WidgetProps,
-    WithMeta {
-  isVisible?: boolean;
-  shouldScrollContents: boolean;
-  tabs: Array<{
-    id: string;
-    label: string;
-    widgetId: string;
-    isVisible?: boolean;
-  }>;
-  tabsObj: Record<
-    string,
-    {
-      id: string;
-      label: string;
-      widgetId: string;
-      isVisible?: boolean;
-      index: number;
-    }
-  >;
-  shouldShowTabs: boolean;
-  children: T[];
-  snapColumns?: number;
-  onTabSelected?: string;
-  snapRows?: number;
-  defaultTab: string;
-  selectedTabWidgetId: string;
-}
-
 export default TabsWidget;
-export const ProfiledTabsWidget = Sentry.withProfiler(withMeta(TabsWidget));

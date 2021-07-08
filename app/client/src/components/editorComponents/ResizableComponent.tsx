@@ -62,14 +62,17 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  const isSelected = useSelector(
+    (state: AppState) =>
+      state.ui.widgetDragResize.lastSelectedWidget === props.widgetId,
   );
+
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+  const isFocused = useSelector(
+    (state: AppState) =>
+      state.ui.widgetDragResize.focusedWidget === props.widgetId,
   );
 
   const isDragging = useSelector(
@@ -86,9 +89,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
-    focusedWidget === props.widgetId ||
-    selectedWidget === props.widgetId ||
-    selectedWidgets.includes(props.widgetId);
+    isFocused || isSelected || selectedWidgets.includes(props.widgetId);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -233,9 +234,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     }, 0);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
-    selectWidget &&
-      selectedWidget !== props.widgetId &&
-      selectWidget(props.widgetId);
+    selectWidget && selectWidget(props.widgetId);
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
@@ -253,9 +252,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
-    selectWidget &&
-      selectedWidget !== props.widgetId &&
-      selectWidget(props.widgetId);
+    selectWidget && selectWidget(props.widgetId);
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,

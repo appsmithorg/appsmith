@@ -80,11 +80,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
-  // This state tels us which widget is focused
-  // The value is the widgetId of the focused widget.
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -153,10 +148,7 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
-    focusWidget &&
-      !isResizingOrDragging &&
-      focusedWidget !== props.widgetId &&
-      focusWidget(props.widgetId);
+    focusWidget && !isResizingOrDragging && focusWidget(props.widgetId);
     e.stopPropagation();
   };
   const shouldRenderComponent = !(

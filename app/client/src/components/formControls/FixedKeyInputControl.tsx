@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { InputType } from "widgets/InputWidget";
+import { InputType } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormLabel from "components/editorComponents/FormLabel";

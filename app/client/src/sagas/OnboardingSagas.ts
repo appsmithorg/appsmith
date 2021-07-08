@@ -81,7 +81,7 @@ import { QueryAction } from "entities/Action";
 import history from "utils/history";
 import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 // import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
@@ -91,6 +91,8 @@ import {
 } from "actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import {
   EVAL_ERROR_PATH,

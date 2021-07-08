@@ -3,8 +3,9 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
+  UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps, WidgetSkeleton } from "widgets/BaseWidget";
 import { compareAndGenerateImmutableCanvasStructure } from "utils/canvasStructureHelpers";
 import { WidgetType } from "constants/WidgetConstants";
 

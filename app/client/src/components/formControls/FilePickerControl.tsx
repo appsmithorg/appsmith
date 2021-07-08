@@ -7,10 +7,10 @@ import { Field } from "redux-form";
 import styled from "styled-components";
 import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const StyledDiv = styled.div`
   flex: 1;

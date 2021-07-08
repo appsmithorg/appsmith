@@ -8,7 +8,6 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import FormLabel from "components/editorComponents/FormLabel";
-import { InputType } from "widgets/InputWidget";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { Colors } from "constants/Colors";
 
@@ -183,7 +182,7 @@ const getFieldName = (configProperty: string) => {
   return configProperty.split("[*].");
 };
 
-const getType = (dataType: InputType | undefined) => {
+const getType = (dataType: string | undefined) => {
   switch (dataType) {
     case "PASSWORD":
       return "password";

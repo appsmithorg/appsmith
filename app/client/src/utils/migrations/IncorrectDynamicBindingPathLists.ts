@@ -1,4 +1,4 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";

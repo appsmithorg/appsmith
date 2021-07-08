@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { useSelector } from "react-redux";
@@ -16,6 +15,9 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
+
+import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 

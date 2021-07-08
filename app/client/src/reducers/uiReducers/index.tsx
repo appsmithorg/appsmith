@@ -4,7 +4,6 @@ import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
 import applicationsReducer from "./applicationsReducer";
-import { widgetSidebarReducer } from "./widgetSidebarReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
@@ -34,7 +33,6 @@ import notificationsReducer from "./notificationsReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 
 const uiReducer = combineReducers({
-  widgetSidebar: widgetSidebarReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,

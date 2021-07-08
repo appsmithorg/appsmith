@@ -1,6 +1,6 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
-import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
+import { RenderModes } from "../../constants/WidgetConstants";
+import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
@@ -26,7 +26,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       isVisible: true,
       label: "Data",
       searchKey: "",
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
       horizontalAlignment: "LEFT",
@@ -194,7 +194,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
-      type: WidgetTypes.CHART_WIDGET,
+      type: "CHART_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,

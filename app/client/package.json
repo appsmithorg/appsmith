@@ -168,6 +168,7 @@
     "test:jest": "$(npm bin)/jest --watch",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
+    "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package"
   },
   "resolution": {
@@ -223,6 +224,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
     "craco-babel-loader": "^0.1.4",
+    "craco-raw-loader": "^1.0.1",
     "cypress": "6.2.1",
     "cypress-file-upload": "^4.1.1",
     "cypress-multi-reporters": "^1.2.4",
@@ -243,6 +245,7 @@
     "mochawesome": "^5.0.0",
     "mochawesome-report-generator": "^4.1.0",
     "msw": "^0.28.0",
+    "plop": "^2.7.4",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",

@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { ControlType } from "constants/PropertyControlConstants";
-import { InputType } from "widgets/InputWidget";
+import { InputType } from "components/constants";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
