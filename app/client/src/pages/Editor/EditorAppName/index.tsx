@@ -77,7 +77,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     padding: 8px 5px;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
-    padding: 8px 25px 8px 5px;
+    margin-right: 20px;
   }
 `;
 
