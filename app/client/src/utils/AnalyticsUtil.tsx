@@ -126,7 +126,9 @@ export type EventName =
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
   | "BINDING_SUCCESS"
-  | "SLASH_COMMAND";
+  | "SLASH_COMMAND"
+  | "DEBUGGER_NEW_ERROR"
+  | "DEBUGGER_RESOLVED_ERROR";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

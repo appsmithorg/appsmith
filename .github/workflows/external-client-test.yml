@@ -199,7 +199,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -443,7 +443,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -512,7 +512,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
