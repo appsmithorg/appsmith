@@ -88,9 +88,15 @@ export function CanvasDraggingArena({
   const dragCenter = useSelector(
     (state: AppState) => state.ui.widgetDragResize.draggingGroupCenter,
   );
-  const dragCenterSpace = childrenOccupiedSpaces.find(
-    (each) => each.id === dragCenter,
-  );
+
+  const dragCenterSpace: any =
+    dragCenter && dragCenter.widgetId
+      ? childrenOccupiedSpaces.find(
+          (each) => each.id === dragCenter.widgetId,
+        ) || {}
+      : dragCenter && !!dragCenter.top && dragCenter.left
+      ? dragCenter
+      : {};
   const rectanglesToDraw = !newWidget
     ? childrenOccupiedSpaces
         .filter((each) => selectedWidgets.includes(each.id))
