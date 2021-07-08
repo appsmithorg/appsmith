@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { get, minBy, maxBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,6 +22,7 @@ import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { AppState } from "reducers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -192,6 +193,38 @@ function WidgetsMultiSelectBox(props: {
       get(selectedWidgets, "0.parentId") === props.widgetId
     );
   }, [selectedWidgets, isDragging]);
+  const draggableRef = useRef<HTMLDivElement>(null);
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggableRef.current) {
+      const bounds = draggableRef.current.getBoundingClientRect();
+      const parentRowSpace = get(selectedWidgets, "0.parentRowSpace");
+      const parentColumnSpace = get(selectedWidgets, "0.parentColumnSpace");
+      const parentId = get(selectedWidgets, "0.parentId");
+      const startPoints = {
+        top: (e.clientY - bounds.top) / parentRowSpace,
+        left: (e.clientX - bounds.left) / parentColumnSpace,
+      };
+      const top = selectedWidgets.sort((a1, a2) => a1.topRow - a2.topRow)[0]
+        .topRow;
+      const left = selectedWidgets.sort(
+        (a1, a2) => a1.leftColumn - a2.leftColumn,
+      )[0].leftColumn;
+
+      setDraggingState(
+        true,
+        parentId || "",
+        {
+          top,
+          left,
+        },
+        startPoints,
+      );
+    }
+  };
 
   /**
    * calculate bounding box
@@ -273,9 +306,12 @@ function WidgetsMultiSelectBox(props: {
   return (
     <StyledSelectionBox
       className="t--multi-selection-box"
+      draggable
       key={`selection-box-${props.widgetId}`}
+      onDragStart={onDragStart}
       onMouseMove={() => focusWidget()}
       onMouseOver={() => focusWidget()}
+      ref={draggableRef}
       style={{
         left: left?.left,
         top: top?.top,

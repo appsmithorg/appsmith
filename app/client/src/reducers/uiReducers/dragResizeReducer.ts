@@ -7,7 +7,7 @@ const initialState: WidgetDragResizeState = {
   isDragging: false,
   isResizing: false,
   dragGroupActualParent: "",
-  draggingGroupCenter: "",
+  draggingGroupCenter: {},
   newWidget: undefined,
   lastSelectedWidget: undefined,
   selectedWidgets: [],
@@ -28,7 +28,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{
       isDragging: boolean;
       dragGroupActualParent: string;
-      draggingGroupCenter: string;
+      draggingGroupCenter: DraggingGroupCenter;
       startPoints: any;
     }>,
   ) => {
@@ -128,11 +128,17 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
 });
 
+type DraggingGroupCenter = {
+  widgetId?: string;
+  top?: number;
+  left?: number;
+};
+
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   dragGroupActualParent: string;
-  draggingGroupCenter: string;
+  draggingGroupCenter: DraggingGroupCenter;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;

@@ -160,7 +160,12 @@ function DraggableComponent(props: DraggableComponentProps) {
         top: (e.clientY - bounds.top) / props.parentRowSpace,
         left: (e.clientX - bounds.left) / props.parentColumnSpace,
       };
-      setDraggingState(true, props.parentId || "", props.widgetId, startPoints);
+      setDraggingState(
+        true,
+        props.parentId || "",
+        { widgetId: props.widgetId },
+        startPoints,
+      );
     }
   };
 

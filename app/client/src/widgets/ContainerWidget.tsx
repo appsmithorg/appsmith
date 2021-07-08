@@ -135,11 +135,11 @@ class ContainerWidget extends BaseWidget<
             widgetId={props.widgetId}
           />
         )}
+        <CanvasSelectionArena widgetId={props.widgetId} />
         <WidgetsMultiSelectBox
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
-        <CanvasSelectionArena widgetId={props.widgetId} />
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

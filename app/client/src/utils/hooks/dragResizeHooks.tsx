@@ -113,7 +113,7 @@ export const useWidgetDragResize = () => {
       (
         isDragging: boolean,
         dragGroupActualParent = "",
-        draggingGroupCenter = "",
+        draggingGroupCenter = {},
         startPoints?: any,
       ) => {
         if (isDragging) {
