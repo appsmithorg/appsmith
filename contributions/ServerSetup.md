@@ -3,7 +3,7 @@
 The server codebase is written in Java and is powered by Spring + WebFlux. This document explains how you can setup a development environment to make changes and test your changes.
 
 
-[![How to Setup Appsmith for Server Side Development](../static/images/server-yt-video-thumbnail.png)](https://www.youtube.com/watch?v=W2qbuUYGrQs)
+[![How to Setup Appsmith for Server Side Development](../static/images/server-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=W2qbuUYGrQs)
 
 
 # Setup with Docker 
