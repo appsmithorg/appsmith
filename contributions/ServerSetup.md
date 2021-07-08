@@ -1,8 +1,45 @@
-## Running Server Codebase
+# Running Server Codebase
 
 The server codebase is written in Java and is powered by Spring + WebFlux. This document explains how you can setup a development environment to make changes and test your changes.
 
->For details on setting up with `Docker`, please refer to the [Setup Guide](../app/server/README.md#run-locally-with-docker)
+
+# Setup with Docker 
+
+You can run the server codebase in a docker container. This is the easiest way to get the server up and running if you are more interested in contributing to the client codebase.
+
+## What's in the box
+
+* Appsmith server
+* MongoDB database
+* Redis instance
+
+## Pre-requisites
+
+* [Docker](https://docs.docker.com/get-docker/)
+
+## Steps for setup
+
+1. Clone the Appsmith repository and `cd` into it
+```
+git clone https://github.com/appsmithorg/appsmith.git
+cd appsmith
+```
+2. Change your directory to `app/server`
+```
+cd app/server
+```
+3. Create a copy of the `envs/docker.env.example`
+```
+cp envs/docker.env.example envs/docker.env
+```
+4. Start up the containers
+```
+docker-compose up -d
+``` 
+5. Have fun!
+
+
+# Local Setup
 
 ## Pre-requisites
 
