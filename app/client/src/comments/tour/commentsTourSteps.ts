@@ -1,3 +1,5 @@
+import { Position } from "@blueprintjs/core";
+
 export const commentsTourStepsEditMode = [
   {
     id: "ENTER_COMMENTS_MODE",
@@ -9,7 +11,10 @@ export const commentsTourStepsEditMode = [
   },
   {
     id: "SAY_HELLO",
-    data: { message: "Say hello to team appsmith" },
+    data: {
+      message: "Say hello to team appsmith",
+      tooltipProps: { position: Position.TOP },
+    },
   },
   {
     id: "RESOLVE",
@@ -31,6 +36,7 @@ export const commentsTourStepsPublishedMode = [
     data: {
       message:
         "Tag your teammate and leave them \n some suggestions for the application!",
+      tooltipProps: { position: Position.TOP },
     },
   },
 ];
