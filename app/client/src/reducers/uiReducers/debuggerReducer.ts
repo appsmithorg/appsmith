@@ -107,7 +107,7 @@ const debuggerReducer = createReducer(initialState, {
       errors: { ...action.payload },
     };
   },
-  [ReduxActionTypes.RESET_DEBUGGER_STATE]: () => {
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
     return {
       ...initialState,
     };

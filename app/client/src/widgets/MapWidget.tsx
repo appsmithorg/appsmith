@@ -10,6 +10,7 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const { google } = getAppsmithConfigs();
 
@@ -63,6 +64,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.MARKERS,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             propertyName: "enableSearch",
@@ -133,14 +136,14 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     ];
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, any> {
     return {
       markers: "defaultMarkers",
       center: "mapCenter",
     };
   }
 
-  static getMetaPropertiesMap(): Record<string, undefined> {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {
       center: undefined,
       markers: undefined,

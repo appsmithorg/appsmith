@@ -119,5 +119,6 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
+    cy.NavigateToHome();
   });
 });

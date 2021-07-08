@@ -17,6 +17,7 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
   isSavingAppName: false,
+  isErrorSavingAppName: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -26,6 +27,8 @@ const initialState: ApplicationsReduxState = {
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
+  importingApplication: false,
+  importedApplication: null,
   showAppInviteUsersDialog: false,
 };
 
@@ -214,6 +217,28 @@ const applicationsReducer = createReducer(initialState, {
       forkingApplication: false,
     };
   },
+  [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, importingApplication: true }),
+  [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ importedApplication: any }>,
+  ) => {
+    const { importedApplication } = action.payload;
+    return {
+      ...state,
+      importingApplication: false,
+      importedApplication,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      importingApplication: false,
+    };
+  },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -290,6 +315,18 @@ const applicationsReducer = createReducer(initialState, {
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    return {
+      ...state,
+      isSavingAppName: isSavingAppName,
+      isErrorSavingAppName: false,
+    };
+  },
+  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<UpdateApplicationRequest>,
+  ) => {
+    // userOrgs data has to be saved to localStorage only if the action is successful
+    // It introduces bug if we prematurely save it during init action.
     const { id, ...rest } = action.payload;
     const _organizations = state.userOrgs.map((org: Organization) => {
       const appIndex = org.applications.findIndex((app) => app.id === id);
@@ -303,22 +340,17 @@ const applicationsReducer = createReducer(initialState, {
 
       return org;
     });
-
     return {
       ...state,
       userOrgs: _organizations,
-      isSavingAppName: isSavingAppName,
+      isSavingAppName: false,
+      isErrorSavingAppName: false,
     };
-  },
-  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, isSavingAppName: false };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: false };
+    return { ...state, isSavingAppName: false, isErrorSavingAppName: true };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
@@ -339,6 +371,7 @@ export interface ApplicationsReduxState {
   searchKeyword?: string;
   isFetchingApplications: boolean;
   isSavingAppName: boolean;
+  isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
@@ -349,6 +382,8 @@ export interface ApplicationsReduxState {
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
+  importingApplication: boolean;
+  importedApplication: any;
   showAppInviteUsersDialog: boolean;
 }
 

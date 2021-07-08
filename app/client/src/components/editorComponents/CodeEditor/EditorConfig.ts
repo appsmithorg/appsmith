@@ -46,7 +46,12 @@ export type HintHelper = (
   additionalData?: Record<string, Record<string, unknown>>,
 ) => Hinter;
 export type Hinter = {
-  showHint: (editor: CodeMirror.Editor) => void;
+  showHint: (
+    editor: CodeMirror.Editor,
+    expected: string,
+    entityName: string,
+    additionalData?: any,
+  ) => any;
   update?: (data: DataTree) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };

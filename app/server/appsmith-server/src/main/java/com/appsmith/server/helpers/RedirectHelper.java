@@ -21,6 +21,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
+    public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     public static final String DEFAULT_REDIRECT_ORIGIN = "https://app.appsmith.com";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
     private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";

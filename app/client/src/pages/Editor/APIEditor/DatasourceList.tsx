@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
@@ -39,6 +39,7 @@ const DataSourceListWrapper = styled.div`
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
   transition: width 2s;
+  background: white;
   &.show {
     width: 280px;
   }
@@ -54,26 +55,55 @@ const DatasourceCard = styled.div`
   border: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   cursor: pointer;
   transition: 0.3s all ease;
+  .cs-icon {
+    opacity: 0;
+    transition: 0.3s all ease;
+  }
   &:hover {
     box-shadow: 0 0 5px #c7c7c7;
+    .cs-icon {
+      opacity: 1;
+    }
   }
 `;
 
 const DatasourceURL = styled.span`
   margin: 8px 0;
-  padding: 5px;
   font-size: 12px;
-  border: 1px solid #69b5ff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: max-content;
-  background: #e7f3ff;
+  color: #457ae6;
+  width: fit-content;
+  max-width: 100%;
+  font-weight: 500;
 `;
 
 const PadTop = styled.div`
   padding-top: 5px;
   border: none;
+`;
+
+const DataSourceNameContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  .cs-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cs-icon {
+    flex-shrink: 0;
+    svg {
+      path {
+        fill: #4b4848;
+      }
+    }
+    &:hover {
+      background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+    }
+  }
 `;
 
 export const getDatasourceInfo = (datasource: any): string => {
@@ -109,33 +139,51 @@ export default function DataSourceList(props: any) {
                   <DataSourceListWrapper
                     className={selectedIndex === 0 ? "show" : ""}
                   >
-                    {(props.datasources || []).map((d: any, idx: number) => (
-                      <DatasourceCard
-                        key={idx}
-                        onClick={() =>
-                          history.push(
-                            DATA_SOURCES_EDITOR_ID_URL(
-                              props.applicationId,
-                              props.currentPageId,
-                              d.id,
-                            ),
-                          )
-                        }
-                      >
-                        <Text type={TextType.H5} weight={FontWeight.BOLD}>
-                          {d.name}
-                        </Text>
-                        <DatasourceURL>
-                          {d.datasourceConfiguration.url}
-                        </DatasourceURL>
-                        <StyledSeparator />
-                        <PadTop>
-                          <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                            {getDatasourceInfo(d)}
-                          </Text>
-                        </PadTop>
-                      </DatasourceCard>
-                    ))}
+                    {(props.datasources || []).map((d: any, idx: number) => {
+                      const dataSourceInfo: string = getDatasourceInfo(d);
+                      return (
+                        <DatasourceCard
+                          key={idx}
+                          onClick={() => props.onClick(d)}
+                        >
+                          <DataSourceNameContainer>
+                            <Text type={TextType.H5} weight={FontWeight.BOLD}>
+                              {d.name}
+                            </Text>
+                            <Icon
+                              name="edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                history.push(
+                                  DATA_SOURCES_EDITOR_ID_URL(
+                                    props.applicationId,
+                                    props.currentPageId,
+                                    d.id,
+                                  ),
+                                );
+                              }}
+                              size={IconSize.LARGE}
+                            />
+                          </DataSourceNameContainer>
+                          <DatasourceURL>
+                            {d.datasourceConfiguration.url}
+                          </DatasourceURL>
+                          {dataSourceInfo && (
+                            <>
+                              <StyledSeparator />
+                              <PadTop>
+                                <Text
+                                  type={TextType.P3}
+                                  weight={FontWeight.NORMAL}
+                                >
+                                  {dataSourceInfo}
+                                </Text>
+                              </PadTop>
+                            </>
+                          )}
+                        </DatasourceCard>
+                      );
+                    })}
                   </DataSourceListWrapper>
                 ) : (
                   <EmptyDatasourceContainer>

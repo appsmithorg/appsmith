@@ -110,7 +110,9 @@
                 "topRow": 3,
                 "bottomRow": 4,
                 "parentId": "4lvpg75cy5",
-                "widgetId": "vwe9oyg9x1"
+                "widgetId": "vwe9oyg9x1",
+                "defaultText": "{{Input1.text}}",
+                "dynamicBindingPathList": [{"key": "defaultText"}]
               }
             ],
             "blueprint": {

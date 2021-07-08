@@ -45,5 +45,6 @@ export const generateDataTreeAction = (
     isLoading: action.isLoading,
     bindingPaths: getBindingPathsOfAction(action.config, editorConfig),
     dependencyMap,
+    logBlackList: {},
   };
 };

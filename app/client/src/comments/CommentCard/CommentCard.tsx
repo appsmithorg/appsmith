@@ -29,7 +29,11 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
-import UserApi from "api/UserApi";
+import { getAppMode } from "selectors/applicationSelectors";
+
+import { USER_PHOTO_URL } from "constants/userConstants";
+
+import { getCommentThreadURL } from "../utils";
 
 import {
   deleteCommentRequest,
@@ -47,6 +51,7 @@ import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -198,16 +203,25 @@ const reduceReactions = (
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
           const { byUsername, emoji } = reaction;
+          const sameAsCurrent = byUsername === username;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
+            if (!sameAsCurrent) {
+              res[reaction.emoji].users = [
+                ...(res[reaction.emoji].users || []),
+                byUsername,
+              ];
+            }
           } else {
+            const users = !sameAsCurrent ? [byUsername] : [];
             res[emoji] = {
               count: 1,
               reactionEmoji: emoji,
+              users,
             } as ComponentReaction;
           }
 
-          if (byUsername === username) {
+          if (sameAsCurrent) {
             res[reaction.emoji].active = true;
           }
 
@@ -264,30 +278,29 @@ function CommentCard({
   const pinnedByUsername = commentThread.pinnedState?.authorUsername;
   let pinnedBy = commentThread.pinnedState?.authorName;
 
+  const appMode = useSelector(getAppMode);
+
   if (currentUserUsername === pinnedByUsername) {
     pinnedBy = "You";
   }
 
-  const getCommentURL = () => {
-    const url = new URL(window.location.href);
-    // we only link the comment thread currently
-    // url.searchParams.set("commentId", commentId);
-    url.searchParams.set("commentThreadId", commentThreadId);
-    url.searchParams.set("isCommentMode", "true");
-    if (commentThread.resolvedState?.active) {
-      url.searchParams.set("isResolved", "true");
-    }
-    return url;
-  };
+  const applicationId = useSelector(getCurrentApplicationId);
 
-  const copyCommentLink = useCallback(() => {
-    const url = getCommentURL();
-    copy(url.toString());
+  const commentThreadURL = getCommentThreadURL({
+    applicationId,
+    commentThreadId,
+    isResolved: !!commentThread?.resolvedState?.active,
+    pageId: commentThread?.pageId,
+    mode: appMode,
+  });
+
+  const copyCommentLink = () => {
+    copy(commentThreadURL.toString());
     Toaster.show({
       text: createMessage(LINK_COPIED_SUCCESSFULLY),
       variant: Variant.success,
     });
-  }, []);
+  };
 
   const pin = useCallback(() => {
     dispatch(
@@ -330,8 +343,9 @@ function CommentCard({
   // Dont make inline cards clickable
   const handleCardClick = () => {
     if (inline) return;
-    const url = getCommentURL();
-    history.push(`${url.pathname}${url.search}${url.hash}`);
+    history.push(
+      `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
+    );
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
@@ -390,7 +404,7 @@ function CommentCard({
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>

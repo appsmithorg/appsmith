@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import {
   ApplicationPayload,
@@ -32,6 +32,7 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
@@ -52,6 +53,8 @@ import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import TooltipComponent from "components/ads/Tooltip";
+import moment from "moment/moment";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -91,10 +94,11 @@ const HeaderSection = styled.div`
   top: -1px;
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
     justify-content: center;
@@ -143,6 +147,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   darkTheme: any;
+  lastUpdatedTime?: number;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -151,6 +156,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     currentApplication,
     isPublishing,
     isSaving,
+    lastUpdatedTime,
     orgId,
     pageId,
     pageSaveError,
@@ -159,8 +165,31 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   const dispatch = useDispatch();
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
+  const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
+    "",
+  );
+
+  const findLastUpdatedTimeMessage = () => {
+    setLastUpdatedTimeMessage(
+      lastUpdatedTime
+        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
+        : "",
+    );
+  };
+
+  useEffect(() => {
+    findLastUpdatedTimeMessage();
+    const interval = setInterval(
+      findLastUpdatedTimeMessage,
+      (moment.relativeTimeThreshold("ss") as number) * 1000,
+    );
+    return () => {
+      clearInterval(interval);
+    };
+  }, [lastUpdatedTime]);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -180,12 +209,14 @@ export function EditorHeader(props: EditorHeaderProps) {
   } else {
     if (!pageSaveError) {
       saveStatusIcon = (
-        <HeaderIcons.SAVE_SUCCESS
-          className="t--save-status-success"
-          color={"#36AB80"}
-          height={20}
-          width={20}
-        />
+        <TooltipComponent content={lastUpdatedTimeMessage} hoverOpenDelay={200}>
+          <HeaderIcons.SAVE_SUCCESS
+            className="t--save-status-success"
+            color={"#36AB80"}
+            height={20}
+            width={20}
+          />
+        </TooltipComponent>
       );
     } else {
       saveStatusIcon = (
@@ -222,27 +253,26 @@ export function EditorHeader(props: EditorHeaderProps) {
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            {currentApplication && (
-              <EditableAppName
-                className="t--application-name editable-application-name"
-                defaultValue={currentApplication.name || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                fill
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-              />
-            )}
+            <EditableAppName
+              className="t--application-name editable-application-name"
+              defaultValue={currentApplication?.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+            />
             <ToggleModeButton />
           </Boxed>
         </HeaderSection>
@@ -288,7 +318,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  fill
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}
@@ -322,6 +351,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 }
 
 const mapStateToProps = (state: AppState) => ({
+  lastUpdatedTime: state.ui.editor.lastUpdatedTime,
   pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
   pageSaveError: getPageSavingError(state),

@@ -41,7 +41,7 @@ describe("<ListWidget />", () => {
       topRow: 1,
       bottomRow: 3,
       isLoading: false,
-      items: [],
+      listData: [],
       version: 16,
       disablePropertyPane: false,
       ...props,

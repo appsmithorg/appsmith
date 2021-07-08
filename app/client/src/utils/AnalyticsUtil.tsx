@@ -11,7 +11,8 @@ export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
   | "QUERY_PANE"
-  | "QUERY_TEMPLATE";
+  | "QUERY_TEMPLATE"
+  | "QUICK_COMMANDS";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -45,6 +46,7 @@ export type EventName =
   | "SAVE_API_CLICK"
   | "RUN_API"
   | "RUN_API_CLICK"
+  | "RUN_API_SHORTCUT"
   | "DELETE_API"
   | "DELETE_API_CLICK"
   | "IMPORT_API"
@@ -56,13 +58,14 @@ export type EventName =
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
   | "RUN_QUERY_CLICK"
+  | "RUN_QUERY_SHORTCUT"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
   | "MOVE_API"
   | "3P_PROVIDER_CLICK"
   | "API_SELECT"
   | "CREATE_API_CLICK"
-  | "AUTO_COMPELTE_SHOW"
+  | "AUTO_COMPLETE_SHOW"
   | "AUTO_COMPLETE_SELECT"
   | "CREATE_APP_CLICK"
   | "CREATE_APP"
@@ -120,7 +123,12 @@ export type EventName =
   | "DEBUGGER_ENTITY_NAVIGATION"
   | "GSHEET_AUTH_INIT"
   | "GSHEET_AUTH_COMPLETE"
-  | "CYCLICAL_DEPENDENCY_ERROR";
+  | "CYCLICAL_DEPENDENCY_ERROR"
+  | "DISCORD_LINK_CLICK"
+  | "BINDING_SUCCESS"
+  | "SLASH_COMMAND"
+  | "DEBUGGER_NEW_ERROR"
+  | "DEBUGGER_RESOLVED_ERROR";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

@@ -3,6 +3,7 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
+import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
@@ -39,6 +40,7 @@ import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.s
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
 import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
@@ -64,6 +66,13 @@ import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
+import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as Download } from "assets/icons/ads/download.svg";
+import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
+import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
+import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
+import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
+import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -117,11 +126,14 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "upload",
+  "download",
   "book",
   "bug",
   "cancel",
   "cross",
   "delete",
+  "expand-more",
   "open",
   "user",
   "general",
@@ -158,6 +170,7 @@ export const IconCollection = [
   "lightning",
   "add-more",
   "right-arrow",
+  "trending-flat",
   "datasource",
   "play",
   "desktop",
@@ -189,6 +202,11 @@ export const IconCollection = [
   "unpin",
   "reaction",
   "reaction-2",
+  "arrow-forward",
+  "cap-solid",
+  "cap-dot",
+  "line-dotted",
+  "line-dashed",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -269,6 +287,9 @@ const Icon = forwardRef(
         break;
       case "delete":
         returnIcon = <DeleteIcon />;
+        break;
+      case "expand-more":
+        returnIcon = <ExpandMore />;
         break;
       case "open":
         returnIcon = <OpenIcon />;
@@ -382,6 +403,9 @@ const Icon = forwardRef(
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
         break;
+      case "trending-flat":
+        returnIcon = <TrendingFlat />;
+        break;
       case "datasource":
         returnIcon = <DatasourceIcon />;
         break;
@@ -475,6 +499,34 @@ const Icon = forwardRef(
 
       case "reaction-2":
         returnIcon = <Reaction2 />;
+        break;
+
+      case "upload":
+        returnIcon = <Upload />;
+        break;
+
+      case "download":
+        returnIcon = <Download />;
+        break;
+
+      case "arrow-forward":
+        returnIcon = <ArrowForwardIcon />;
+        break;
+
+      case "cap-solid":
+        returnIcon = <CapSolidIcon />;
+        break;
+
+      case "cap-dot":
+        returnIcon = <CapDotIcon />;
+        break;
+
+      case "line-dotted":
+        returnIcon = <LineDottedIcon />;
+        break;
+
+      case "line-dashed":
+        returnIcon = <LineDashedIcon />;
         break;
 
       default:

@@ -5,10 +5,14 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
+import com.appsmith.server.dtos.MockDataSet;
+import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
+import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -32,14 +37,21 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
+    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final MockDataService mockDataService;
+
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService) {
+                                AuthenticationService authenticationService,
+                                ExamplesOrganizationCloner examplesOrganizationCloner,
+                                MockDataService datasourceService) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
+        this.examplesOrganizationCloner = examplesOrganizationCloner;
+        this.mockDataService = datasourceService;
     }
 
     @PostMapping("/test")
@@ -79,5 +91,16 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                 });
     }
 
+    @GetMapping("/mocks")
+    public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
+        return mockDataService.getMockDataSet()
+                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getMockdbs(), null));
+    }
+
+    @PostMapping("/mocks")
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
+        return mockDataService.createMockDataSet(mockDataSource)
+                .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+    }
 
 }

@@ -50,6 +50,34 @@ export const hideScrollbar = css`
   }
 `;
 
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${Colors.PORCELAIN};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.PORCELAIN};
+  }
+`;
+
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -289,6 +317,7 @@ type PropertyPaneTheme = {
   height: number;
   dividerColor: Color;
   titleHeight: number;
+  connectionsHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -316,9 +345,11 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -361,6 +392,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -530,6 +562,7 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
   };
@@ -867,6 +900,7 @@ type ColorType = {
     separator: string;
     searchItemHighlight: string;
     searchItemText: string;
+    searchItemSubText: string;
     highlightedTextUnderline: string;
     documentationCtaBackground: string;
     documentationCtaText: string;
@@ -934,6 +968,8 @@ type ColorType = {
     cardHoverBackground: string;
     introTitle: string;
     introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -980,6 +1016,9 @@ type ColorType = {
     dropdownSelectBg: ShadeColor;
     multiDropdownBoxHoverBg: ShadeColor;
     iconColor: ShadeColor;
+    ctaTextColor: string;
+    ctaBackgroundColor: string;
+    ctaLearnMoreTextColor: string;
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -990,6 +1029,9 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    inspectElement: {
+      color: string;
+    };
     floatingButton: {
       background: string;
       color: string;
@@ -1022,6 +1064,21 @@ type ColorType = {
   mentionsInput: Record<string, string>;
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
+  notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
+};
+
+const notifications = {
+  time: "#858282",
+  listHeaderTitle: "#090707",
+  markAllAsReadButtonBackground: "#f0f0f0",
+  markAllAsReadButtonText: "#716E6E",
+  unreadIndicator: "#F86A2B",
+  bellIndicator: "#E22C2C",
+  label: "#858282",
 };
 
 const displayImageUpload = {
@@ -1095,6 +1152,8 @@ const comments = {
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
   cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -1138,6 +1197,7 @@ const globalSearch = {
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemSubText: "rgba(255, 255, 255, 0.4)",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
@@ -1161,9 +1221,12 @@ const mentionsInput = {
   focusedItemBackground: "#cee4e5",
   itemBorderBottom: "#cee4e5",
   mentionBackground: "#cee4e5",
+  mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
@@ -1575,6 +1638,9 @@ export const dark: ColorType = {
     dropdownSelectBg: darkShades[2],
     multiDropdownBoxHoverBg: darkShades[0],
     iconColor: darkShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -1594,6 +1660,9 @@ export const dark: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#D4D4D4",
+    },
     blankState: {
       color: "#D4D4D4",
       shortcut: "#D4D4D4",
@@ -1610,9 +1679,15 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
@@ -1620,7 +1695,14 @@ export const light: ColorType = {
   mentionsInput,
   helpModal,
   globalSearch,
-  comments,
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2025,6 +2107,9 @@ export const light: ColorType = {
     dropdownSelectBg: lightShades[14],
     multiDropdownBoxHoverBg: lightShades[11],
     iconColor: lightShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -2044,8 +2129,11 @@ export const light: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#090707",
+    },
     blankState: {
-      color: "#716e6e",
+      color: "#090707",
       shortcut: "black",
     },
     info: {
@@ -2059,6 +2147,10 @@ export const light: ColorType = {
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
+  },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
   },
 };
 
@@ -2190,6 +2282,7 @@ export const theme: Theme = {
   propertyPane: {
     width: 270,
     titleHeight: 40,
+    connectionsHeight: 30,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -2309,7 +2402,9 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
+  canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2363,6 +2458,7 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

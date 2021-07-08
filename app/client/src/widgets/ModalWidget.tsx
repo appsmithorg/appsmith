@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import { connect } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import {
@@ -70,6 +71,20 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the modal is closed",
+            propertyName: "onClose",
+            label: "onClose",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
   static defaultProps = {
@@ -99,6 +114,18 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
+  onModalClose = () => {
+    if (this.props.onClose) {
+      super.executeAction({
+        triggerPropertyName: "onClose",
+        dynamicString: this.props.onClose,
+        event: {
+          type: EventType.ON_MODAL_CLOSE,
+        },
+      });
+    }
+  };
+
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
     // TODO(abhinav): Create a static property with is a map of widget properties
@@ -124,6 +151,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={MODAL_SIZE[this.props.size].height}
         isOpen={!!this.props.isVisible}
         onClose={this.closeModal}
+        onModalClose={this.onModalClose}
         scrollContents={!!this.props.shouldScrollContents}
         width={this.getModalWidth()}
       >
@@ -159,6 +187,7 @@ export interface ModalWidgetProps extends WidgetProps, WithMeta {
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
+  onClose: string;
   mainContainer: WidgetProps;
 }
 

@@ -20,7 +20,9 @@ export default {
   },
   //
   getSelectedRows: (props, moment, _) => {
-    const selectedRowIndices = props.selectedRowIndices || [];
+    const selectedRowIndices = Array.isArray(props.selectedRowIndices)
+      ? props.selectedRowIndices
+      : [props.selectedRowIndices];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
@@ -195,7 +197,11 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.log("Error parsing column value: ", column.computedValue);
+              console.error(
+                e,
+                "Error parsing column value: ",
+                column.computedValue,
+              );
             }
           } else if (Array.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -285,7 +291,10 @@ export default {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
-      empty: _.isEmpty,
+      empty: (a) => {
+        if (a === null || a === undefined || a === "") return true;
+        return _.isEmpty(a.toString());
+      },
       notEmpty: (a) => {
         return a !== "" && a !== undefined && a !== null;
       },
@@ -396,7 +405,7 @@ export default {
             );
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         const filterValue = result;
         if (filterOperator === "AND") {

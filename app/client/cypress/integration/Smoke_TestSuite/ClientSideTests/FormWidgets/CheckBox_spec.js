@@ -81,7 +81,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.checkboxWidget).click();
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
-      .should("have.attr", "disabled");
+      .should("have.class", "bp3-disabled");
 
     cy.get(publish.checkboxWidget).click();
     cy.get(widgetsPage.formButtonWidget)

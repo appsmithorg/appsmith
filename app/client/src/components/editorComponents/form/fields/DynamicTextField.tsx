@@ -20,6 +20,7 @@ class DynamicTextField extends React.Component<
       theme?: EditorTheme;
       hoverInteraction?: boolean;
       border?: CodeEditorBorder;
+      showLightningMenu?: boolean;
     }
 > {
   render() {

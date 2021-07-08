@@ -120,6 +120,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
+      displayText: this.getPropertyValue(
+        columnProperties.displayText,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -132,11 +137,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
-    for (const i in columnSizeMap) {
-      totalColumnSizes += columnSizeMap[i];
-    }
-
     const allColumnProperties = this.props.tableColumns || [];
+
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
@@ -213,6 +215,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {
+        totalColumnSizes += columnData.width;
         columns.push(columnData);
       }
     }
@@ -613,10 +616,24 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { pageSize, filteredTableData = [] } = this.props;
+    const {
+      pageSize,
+      filteredTableData = [],
+      isVisibleCompactMode,
+      isVisibleDownload,
+      isVisibleFilters,
+      isVisiblePagination,
+      isVisibleSearch,
+    } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const isVisibleHeaderOptions =
+      isVisibleCompactMode ||
+      isVisibleDownload ||
+      isVisibleFilters ||
+      isVisiblePagination ||
+      isVisibleSearch;
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -632,15 +649,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isVisibleCompactMode={isVisibleCompactMode}
+          isVisibleDownload={isVisibleDownload}
+          isVisibleFilters={isVisibleFilters}
+          isVisiblePagination={isVisiblePagination}
+          isVisibleSearch={isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
           onCommandClick={this.onCommandClick}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={Math.max(1, pageSize)}
+          pageSize={
+            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
+          }
           prevPageClick={this.handlePrevPageClick}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
+          selectAllRow={this.handleAllRowSelect}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
               ? -1
@@ -651,6 +676,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
           triggerRowSelection={this.props.triggerRowSelection}
+          unSelectAllRow={this.resetSelectedRowIndex}
           updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
@@ -741,6 +767,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+  };
+
+  handleAllRowSelect = (pageData: Record<string, unknown>[]) => {
+    if (this.props.multiRowSelection) {
+      const selectedRowIndices = pageData.map(
+        (row: Record<string, unknown>) => row.index,
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {

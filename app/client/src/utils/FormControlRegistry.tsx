@@ -31,6 +31,9 @@ import DynamicInputTextControl, {
   DynamicInputControlProps,
 } from "components/formControls/DynamicInputTextControl";
 import InputNumberControl from "components/formControls/InputNumberControl";
+import FieldArrayControl, {
+  FieldArrayControlProps,
+} from "components/formControls/FieldArrayControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -73,7 +76,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
       buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
-        return <DynamicTextControl {...controlProps} />;
+        return <DynamicTextControl {...controlProps} mutedHinting />;
       },
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_INPUT_TEXT", {
@@ -91,6 +94,11 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputNumberControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("ARRAY_FIELD", {
+      buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
+        return <FieldArrayControl {...controlProps} />;
       },
     });
   }

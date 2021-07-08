@@ -30,7 +30,7 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
-  showUnreadIndicator: false,
+  unreadCommentThreadsCount: 0,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   areCommentsEnabled: false,
@@ -41,14 +41,6 @@ const initialState: CommentsReduxState = {
  * They are handled separately
  */
 const commentsReducer = createReducer(initialState, {
-  // todo: remove (for dev)
-  [ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<any>,
-  ) => ({
-    ...state,
-    ...action.payload,
-  }),
   // Only one unpublished comment threads exists at a time
   [ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -81,7 +73,6 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommentMode: action.payload,
-    showUnreadIndicator: false,
     isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
@@ -124,9 +115,7 @@ const commentsReducer = createReducer(initialState, {
       ),
     };
 
-    const showUnreadIndicator = !state.isCommentMode;
-
-    return { ...state, showUnreadIndicator };
+    return { ...state };
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -235,6 +224,12 @@ const commentsReducer = createReducer(initialState, {
 
     delete state.commentThreadsMap[commentThreadId];
 
+    state.commentThreadsMap = { ...state.commentThreadsMap };
+
+    state.applicationCommentThreadsByRef[appId as string] = {
+      ...state.applicationCommentThreadsByRef[appId as string],
+    };
+
     return { ...state };
   },
   [ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL]: (
@@ -262,6 +257,13 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentEvent(state, action);
   },
+  [ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<number>,
+  ) => ({
+    ...state,
+    unreadCommentThreadsCount: action.payload || 0,
+  }),
 });
 
 export default commentsReducer;

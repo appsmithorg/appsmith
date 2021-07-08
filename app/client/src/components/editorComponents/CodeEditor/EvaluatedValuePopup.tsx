@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -11,6 +11,12 @@ import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes } from "@blueprintjs/core";
+import {
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 
 const Wrapper = styled.div`
   position: relative;
@@ -112,17 +118,16 @@ interface Props {
   expected?: string;
   evaluatedValue?: any;
   children: JSX.Element;
-  error?: string;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  jsError?: string;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
   expected?: string;
-  error?: string;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
   evaluatedValue: any;
   theme: EditorTheme;
@@ -130,7 +135,6 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
-  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -153,6 +157,13 @@ export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
   const { parameters, value } = props.evaluatedValue;
+  if (!value) {
+    Sentry.captureException("Prepared Statement got no value", {
+      level: Severity.Debug,
+      extra: { props },
+    });
+    return <div />;
+  }
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
@@ -220,7 +231,7 @@ export const CurrentValueViewer = memo(
             collapseStringsAfterLength: 20,
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
-              return index >= 2 ? true : false;
+              return index >= 2;
             },
           };
           content = (
@@ -267,22 +278,34 @@ export const CurrentValueViewer = memo(
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
+  const {
+    errors,
+    expected,
+    hasError,
+    onMouseEnter,
+    onMouseLeave,
+    theme,
+    useValidationMessage,
+  } = props;
+  let error;
+  if (hasError) {
+    error = errors[0];
+  }
 
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue"
-      colorTheme={props.theme}
-      onMouseEnter={props.onMouseEnter}
-      onMouseLeave={props.onMouseLeave}
+      colorTheme={theme}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      {props.hasError && (
+      {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.jsError && props.jsError.length
-              ? props.jsError
-              : props.useValidationMessage && props.error
-              ? props.error
-              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+            {error.errorType === PropertyEvaluationErrorType.VALIDATION &&
+            !useValidationMessage
+              ? `This value does not evaluate to type "${expected}".`
+              : error.errorMessage}
           </span>
           <StyledDebugButton
             className="evaluated-value"
@@ -290,7 +313,7 @@ function PopoverContent(props: PopoverContentProps) {
           />
         </ErrorText>
       )}
-      {!props.hasError && props.expected && (
+      {!hasError && props.expected && (
         <>
           <StyledTitle>Expected Data Type</StyledTitle>
           <TypeText colorTheme={props.theme} ref={typeTextRef}>
@@ -314,13 +337,15 @@ function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -338,12 +363,11 @@ function EvaluatedValuePopup(props: Props) {
           zIndex={5}
         >
           <PopoverContent
-            error={props.error}
+            errors={props.errors}
             evaluatedValue={props.evaluatedValue}
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
-            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}

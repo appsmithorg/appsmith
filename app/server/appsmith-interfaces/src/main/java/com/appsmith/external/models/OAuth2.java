@@ -60,6 +60,10 @@ public class OAuth2 extends AuthenticationDTO {
 
     Set<Property> customTokenParameters;
 
+    String audience;
+
+    String resource;
+
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;

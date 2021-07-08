@@ -105,6 +105,21 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Modal",
     key: generateReactKey(),
   },
+  {
+    type: "RATE_WIDGET",
+    widgetCardName: "Rating",
+    key: generateReactKey(),
+  },
+  {
+    type: "IFRAME_WIDGET",
+    widgetCardName: "Iframe",
+    key: generateReactKey(),
+  },
+  {
+    type: "DIVIDER_WIDGET",
+    widgetCardName: "Divider",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
