@@ -277,7 +277,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (config.params && config.params.required) {
         return {
           isValid: false,
-          parsed: config.params?.default || false,
+          parsed: !!config.params?.default,
           message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
         };
       }
