@@ -93,6 +93,7 @@ export type EditorStyleProps = {
   disabled?: boolean;
   link?: string;
   showLightningMenu?: boolean;
+  mutedHinting?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
@@ -382,7 +383,7 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
     const expected = this.props.expected ? this.props.expected : "";
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
@@ -390,6 +391,7 @@ class CodeEditor extends Component<Props, State> {
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+        mutedHinting: force ? !force : this.props.mutedHinting,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         updatePropertyValue: this.updatePropertyValue.bind(this),
@@ -443,7 +445,7 @@ class CodeEditor extends Component<Props, State> {
     });
     this.setState({ isFocused: true }, () => {
       if (preventAutoComplete) return;
-      this.handleAutocompleteVisibility(this.editor);
+      this.handleAutocompleteVisibility(this.editor, true);
     });
   }
 

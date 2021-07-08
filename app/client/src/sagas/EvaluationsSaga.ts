@@ -59,6 +59,8 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import store from "store";
+import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -114,6 +116,19 @@ function getLatestEvalPropertyErrors(
           message: e.errorMessage,
         }));
 
+        if (!(debuggerKey in updatedDebuggerErrors)) {
+          store.dispatch(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR",
+              entityId: idField,
+              entityName: nameField,
+              entityType,
+              propertyPath,
+              errorMessages,
+            }),
+          );
+        }
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
@@ -134,6 +149,17 @@ function getLatestEvalPropertyErrors(
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
+        store.dispatch(
+          logDebuggerErrorAnalytics({
+            eventName: "DEBUGGER_RESOLVED_ERROR",
+            entityId: idField,
+            entityName: nameField,
+            entityType,
+            propertyPath:
+              updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
+            errorMessages: updatedDebuggerErrors[debuggerKey].messages ?? [],
+          }),
+        );
         // Remove
         delete updatedDebuggerErrors[debuggerKey];
       }
