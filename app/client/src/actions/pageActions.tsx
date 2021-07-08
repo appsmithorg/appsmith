@@ -321,6 +321,7 @@ export const generateTemplateToUpdatePage = ({
   datasourceId,
   mode,
   pageId,
+  searchColumn,
   tableName,
 }: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
   return {
@@ -331,6 +332,7 @@ export const generateTemplateToUpdatePage = ({
       datasourceId,
       applicationId,
       columns,
+      searchColumn,
     },
     extraParams: {
       mode,

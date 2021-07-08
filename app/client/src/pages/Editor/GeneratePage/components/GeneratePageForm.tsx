@@ -180,7 +180,7 @@ function GeneratePageForm() {
     getDatasourcesStructure,
   );
 
-  const IsFetchingDatasourceStructure: boolean = useSelector(
+  const isFetchingDatasourceStructure: boolean = useSelector(
     getIsFetchingDatasourceStructure,
   );
 
@@ -372,7 +372,7 @@ function GeneratePageForm() {
         pageId:
           currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
         // columns: [],
-        columnName: selectedColumn.value,
+        searchColumn: selectedColumn.value,
         tableName: selectedTable.value || "",
         datasourceId: selectedDatasource.id || "",
         mode: currentMode,
@@ -412,6 +412,7 @@ function GeneratePageForm() {
               <DataSourceOption
                 extraProps={{ routeToCreateNewDatasource }}
                 isSelectedNode={isSelectedNode}
+                key={option.id}
                 option={option}
                 optionClickHandler={optionClickHandler}
               />
@@ -428,7 +429,7 @@ function GeneratePageForm() {
             </Label>
             <Dropdown
               height={DROPDOWN_DIMENSION.HEIGHT}
-              isLoading={IsFetchingDatasourceStructure}
+              isLoading={isFetchingDatasourceStructure}
               onSelect={onSelectTable}
               optionWidth={DROPDOWN_DIMENSION.WIDTH}
               optionWrapperHeight={"300px"}

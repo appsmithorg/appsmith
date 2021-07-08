@@ -113,7 +113,7 @@ export interface GenerateTemplatePageRequest {
   datasourceId: string;
   applicationId: string;
   columns?: string[];
-  columnName?: string;
+  searchColumn?: string;
   mode?: string;
 }
 

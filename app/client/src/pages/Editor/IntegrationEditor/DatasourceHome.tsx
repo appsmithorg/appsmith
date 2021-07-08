@@ -11,6 +11,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
 
 const DatasourceHomePage = styled.div`
   max-height: 95vh;
@@ -121,6 +123,14 @@ class DatasourceHomeScreen extends React.Component<Props> {
       appName: currentApplication?.name,
       plugin: pluginName,
     });
+
+    const queryParams = getQueryParams();
+    const { initiator } = queryParams;
+    if (initiator && initiator === "generate-page") {
+      if (!VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
+        // show modal informing user that this will break the generate flow.
+      }
+    }
 
     this.props.createDatasource({
       pluginId,
