@@ -124,7 +124,10 @@ export type EventName =
   | "GSHEET_AUTH_COMPLETE"
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
-  | "BINDING_SUCCESS";
+  | "BINDING_SUCCESS"
+  | "SLASH_COMMAND"
+  | "DEBUGGER_NEW_ERROR"
+  | "DEBUGGER_RESOLVED_ERROR";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
