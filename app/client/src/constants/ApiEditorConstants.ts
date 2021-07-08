@@ -37,7 +37,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   pluginSpecifiedTemplates: [
     {
       // JSON smart substitution
-      value: false,
+      value: true,
     },
   ],
 };
