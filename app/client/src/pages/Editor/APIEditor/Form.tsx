@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import {
+  change,
   formValueSelector,
   InjectedFormProps,
   reduxForm,
-  change,
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -13,15 +13,19 @@ import {
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { PaginationField } from "api/ActionAPI";
+import { ActionResponse, PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
-import ApiResponseView from "components/editorComponents/ApiResponseView";
+import ApiResponseView, {
+  EMPTY_RESPONSE,
+} from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
@@ -30,7 +34,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent, TabTitle } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -43,10 +47,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
-import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
+import { getActionResponses } from "../../../selectors/entitiesSelector";
+import _ from "lodash";
+import { bindDataOnCanvas } from "../../../actions/actionActions";
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -206,6 +213,7 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   updateDatasource: (datasource: Datasource) => void;
+  responses: Record<string, ActionResponse | undefined>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -445,6 +453,7 @@ function ApiEditorForm(props: Props) {
   const {
     actionConfigurationHeaders,
     actionName,
+    apiId,
     handleSubmit,
     headersCount,
     hintMessages,
@@ -453,9 +462,16 @@ function ApiEditorForm(props: Props) {
     onRunClick,
     paramsCount,
     pluginId,
+    responses,
     settingsConfig,
     updateDatasource,
   } = props;
+  let response: ActionResponse = EMPTY_RESPONSE;
+  let hasFailed = false;
+  if (apiId && apiId in responses) {
+    response = responses[apiId] || EMPTY_RESPONSE;
+    hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
+  }
   const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -468,7 +484,7 @@ function ApiEditorForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
@@ -476,6 +492,15 @@ function ApiEditorForm(props: Props) {
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  };
+  const handleBindData = () => {
+    dispatch(
+      bindDataOnCanvas({
+        queryId: apiId,
+        applicationId,
+        pageId,
+      }),
+    );
   };
   return (
     <>
@@ -487,6 +512,16 @@ function ApiEditorForm(props: Props) {
               <ActionNameEditor page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
+              {!_.isEmpty(response.statusCode) && !hasFailed && (
+                <Button
+                  onClick={handleBindData}
+                  size={Size.medium}
+                  tag="button"
+                  text="Bind Data In Canvas"
+                  type="button"
+                  variant={Variant.success}
+                />
+              )}
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
@@ -717,6 +752,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const hintMessages = selector(state, "datasource.messages");
 
   return {
+    responses: getActionResponses(state),
     actionName,
     apiId,
     httpMethodFromForm,
