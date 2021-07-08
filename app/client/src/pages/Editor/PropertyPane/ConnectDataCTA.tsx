@@ -19,6 +19,7 @@ import {
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -47,6 +48,9 @@ const StyledDiv = styled.div`
     }
   }
 `;
+
+// Widgets where we do not want to show the CTA
+export const excludeList = [WidgetTypes.CONTAINER_WIDGET];
 
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
