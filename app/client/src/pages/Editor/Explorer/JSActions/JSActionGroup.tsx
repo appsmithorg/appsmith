@@ -46,7 +46,7 @@ export const ExplorerJSActionGroup = memo(
         icon={jsIcon}
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
-        name="JS Functions"
+        name="JS Collections"
         onCreate={() => dispatch(createNewJSAction(props.pageId))}
         searchKeyword={props.searchKeyword}
         step={props.step}

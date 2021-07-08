@@ -1,5 +1,5 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { JSAction } from "entities/JSAction";
+import { JSAction, JSSubAction } from "entities/JSAction";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -46,6 +46,64 @@ const jsActionsReducer = createReducer(initialState, {
         isLoading: false,
       },
     ]),
+  [ReduxActionTypes.ADD_JS_ACTION_TO_COLLECTION]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      jsAction: JSAction;
+      subActions: Array<JSSubAction>;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.jsAction.id) {
+        for (let i = 0; i < action.payload.subActions.length; i++) {
+          a.config.actions.push({
+            ...action.payload.subActions[i],
+          });
+        }
+      }
+      return a;
+    }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_TO_COLLECTION]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      jsAction: JSAction;
+      subActions: Array<JSSubAction>;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.jsAction.id) {
+        for (let i = 0; i < action.payload.subActions.length; i++) {
+          const subActions = action.payload.subActions;
+          a.config.actions.map((action) => {
+            if (action.id === subActions[i].id) {
+              return subActions[i];
+            }
+            return action;
+          });
+        }
+      }
+      return a;
+    }),
+  [ReduxActionTypes.DELETE_JS_ACTION_FROM_COLLECTION]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      jsAction: JSAction;
+      subActions: Array<JSSubAction>;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.jsAction.id) {
+        for (let i = 0; i < action.payload.subActions.length; i++) {
+          const subActions = action.payload.subActions;
+          a.config.actions.map((action) => {
+            if (action.id !== subActions[i].id) {
+              return action;
+            }
+          });
+        }
+      }
+      return a;
+    }),
   [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (
     state: JSActionDataState,
     action: ReduxAction<JSAction>,

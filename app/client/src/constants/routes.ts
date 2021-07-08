@@ -84,7 +84,7 @@ export const QUERIES_EDITOR_URL = (
 export const JS_FUNCTION_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsFunctions`;
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsCollections`;
 
 export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
@@ -185,17 +185,6 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     applicationId,
     pageId,
   )}/queries?importTo=${selectedPageId}`;
-};
-
-export const JS_FUNCTION_URL_WITH_SELECTED_PAGE_ID = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  selectedPageId = ":importTo",
-): string => {
-  return `${BUILDER_PAGE_URL(
-    applicationId,
-    pageId,
-  )}/jsFunctions?importTo=${selectedPageId}`;
 };
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;

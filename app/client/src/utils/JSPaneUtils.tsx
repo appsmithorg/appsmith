@@ -5,39 +5,46 @@ export const getDifferenceInJSAction = (
   parsedBody: any,
   jsAction: JSAction,
 ) => {
-  jsAction.variables = parsedBody.variables;
   const newActions: any = [];
-  const archivedActions = [];
+  const toBearchivedActions = [];
+  const toBeupdatedActions: any = [];
+  const toBeAddedActions: any = [];
   //check if body is changed and update if exists or
   // add to new array so it can be added to main collection
-  if (parsedBody && parsedBody.actions && parsedBody.actions.length > 0) {
+  if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        preExisted.actionConfiguration.body = action.body;
-        preExisted.actionConfiguration.jsArguments = action.arguments;
+        toBeupdatedActions.push({
+          ...preExisted,
+          actionConfiguration: {
+            ...preExisted.actionConfiguration,
+            body: action.body,
+            jsArguments: action.arguments,
+          },
+        });
       } else {
         newActions.push(action);
       }
     }
   }
   //create deleted action list
-  if (jsAction && jsAction.actions && jsAction.actions.length > 0) {
+  if (jsAction.actions && jsAction.actions.length > 0) {
     for (let i = 0; i < jsAction.actions.length; i++) {
       const preAction = jsAction.actions[i];
       const existed = parsedBody.actions.find(
         (js: any) => js.name === preAction.name,
       );
       if (!existed) {
-        archivedActions.push(preAction);
+        toBearchivedActions.push(preAction);
       }
     }
   }
   //check if new is name changed from deleted actions
-  if (archivedActions.length && newActions.length) {
+  if (toBearchivedActions.length && newActions.length) {
     for (let i = 0; i < newActions.length; i++) {
-      const nameChange = archivedActions.find(
+      const nameChange = toBearchivedActions.find(
         (js) => js.actionConfiguration.body === newActions[i].body,
       );
       if (nameChange) {
@@ -45,12 +52,15 @@ export const getDifferenceInJSAction = (
           (js) => js.id === nameChange.id,
         );
         if (updateExisting) {
-          const indexOfArchived = archivedActions.findIndex((js) => {
+          const indexOfArchived = toBearchivedActions.findIndex((js) => {
             js.id === updateExisting.id;
           });
-          updateExisting.name = newActions[i].name;
+          toBeupdatedActions.push({
+            ...updateExisting,
+            name: newActions[i].name,
+          });
           newActions.splice(i, 1);
-          archivedActions.splice(indexOfArchived, 1);
+          toBearchivedActions.splice(indexOfArchived, 1);
         }
       }
     }
@@ -62,7 +72,6 @@ export const getDifferenceInJSAction = (
       const obj = {
         name: action.name,
         collectionId: jsAction.id,
-        id: action.name,
         executeOnLoad: false,
         pageId: jsAction.pageId,
         organizationId: jsAction.organizationId,
@@ -73,17 +82,21 @@ export const getDifferenceInJSAction = (
           jsArguments: [],
         },
       };
-      jsAction.actions.push(obj);
+      toBeAddedActions.push(obj);
     }
   }
-  if (archivedActions.length > 0) {
-    for (let i = 0; i < archivedActions.length; i++) {
-      const action = archivedActions[i];
+  if (toBearchivedActions.length > 0) {
+    for (let i = 0; i < toBearchivedActions.length; i++) {
+      const action = toBearchivedActions[i];
       const deleteArchived = jsAction.actions.findIndex((js) => {
         action.id === js.id;
       });
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
-  return jsAction;
+  return {
+    newActions: toBeAddedActions,
+    updateActions: toBeupdatedActions,
+    deletedActions: toBearchivedActions,
+  };
 };

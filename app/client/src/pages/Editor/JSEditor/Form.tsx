@@ -198,11 +198,11 @@ function JSEditorForm(props: Props) {
                 title: "Settings",
                 panelComponent: (
                   <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={props.settingsConfig}
+                    {/* <ActionSettings
+                      actionSettingsConfig={{}}
                       formName={JS_EDITOR_FORM}
                       theme={theme}
-                    />
+                    /> */}
                   </SettingsWrapper>
                 ),
               },
