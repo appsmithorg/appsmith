@@ -1,7 +1,7 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { isNil, keyBy } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -94,14 +94,16 @@ const ButtonsWrapper = styled.div`
 
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource) => void;
+  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
+  isCreating?: boolean;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
+  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource } = props;
+  const { datasource, isCreating } = props;
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -119,7 +121,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const editDatasource = () => {
+  const editDatasource = useCallback(() => {
     const plugin = pluginGroups[datasource.pluginId];
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
@@ -146,7 +148,13 @@ function DatasourceCard(props: DatasourceCardProps) {
         ),
       );
     }
-  };
+  }, [datasource.id, params]);
+
+  const onCreateNewQuery = useCallback(() => {
+    setIsSelected(true);
+    const plugin = pluginGroups[datasource.pluginId];
+    props.onCreateQuery(datasource, plugin.type);
+  }, []);
 
   return (
     <Wrapper className="t--datasource">
@@ -176,7 +184,8 @@ function DatasourceCard(props: DatasourceCardProps) {
           <ActionButton
             className="t--create-query"
             icon="plus"
-            onClick={() => props.onCreateQuery(datasource)}
+            isLoading={isCreating && isSelected}
+            onClick={onCreateNewQuery}
             text="New Query"
           />
         </ButtonsWrapper>

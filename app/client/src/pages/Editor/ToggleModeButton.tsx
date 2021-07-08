@@ -261,7 +261,6 @@ function CommentModeBtn({
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
-  const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
   const appMode = useSelector(getAppMode);
   const initShowCommentButtonDiscoveryTooltip =
@@ -277,6 +276,10 @@ function ToggleCommentModeButton() {
       initShowCommentButtonDiscoveryTooltip,
     );
   }, [appMode]);
+
+  const showUnreadIndicator =
+    useSelector(showUnreadIndicatorSelector) ||
+    showCommentButtonDiscoveryTooltip;
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
