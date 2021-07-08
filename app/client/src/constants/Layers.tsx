@@ -11,6 +11,7 @@ export enum Indices {
   Layer7,
   Layer8,
   Layer9,
+  Layer10,
   Layer21 = 21,
   LayerMax = 99999,
 }
@@ -48,6 +49,7 @@ export const Layers = {
   portals: Indices.Layer8,
   header: Indices.Layer9,
   appComments: Indices.Layer9,
+  snipeableZone: Indices.Layer10,
   max: Indices.LayerMax,
 };
 

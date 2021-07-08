@@ -11,7 +11,10 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import {
+  commentModeSelector,
+  snipingModeSelector,
+} from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const DraggableWrapper = styled.div`
@@ -52,9 +55,14 @@ export const canDrag = (
   isDraggingDisabled: boolean,
   props: any,
   isCommentMode: boolean,
+  isSnipingMode: boolean,
 ) => {
   return (
-    !isResizing && !isDraggingDisabled && !props?.dragDisabled && !isCommentMode
+    !isResizing &&
+    !isDraggingDisabled &&
+    !props?.dragDisabled &&
+    !isCommentMode &&
+    !isSnipingMode
   );
 };
 
@@ -66,6 +74,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const { focusWidget, selectWidget } = useWidgetSelection();
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -144,7 +153,13 @@ function DraggableComponent(props: DraggableComponentProps) {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return canDrag(isResizing, isDraggingDisabled, props, isCommentMode);
+      return canDrag(
+        isResizing,
+        isDraggingDisabled,
+        props,
+        isCommentMode,
+        isSnipingMode,
+      );
     },
   });
 
