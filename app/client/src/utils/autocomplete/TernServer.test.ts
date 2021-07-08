@@ -3,8 +3,6 @@ import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMo
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
-    const ternServer = new TernServer({});
-
     const testCases = [
       {
         input: {
@@ -42,13 +40,12 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
-      const value = ternServer.getFocusedDynamicValue(testCase.input);
+      const value = TernServer.getFocusedDynamicValue(testCase.input);
       expect(value).toBe(testCase.expectedOutput);
     });
   });
 
   it("Check whether the correct position is sent for querying autocomplete", () => {
-    const ternServer = new TernServer({});
     const testCases = [
       {
         input: {
@@ -89,7 +86,7 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
-      const request = ternServer.buildRequest(testCase.input, {});
+      const request = TernServer.buildRequest(testCase.input, {});
 
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
@@ -97,8 +94,6 @@ describe("Tern server", () => {
 
   it(`Check whether the position is evaluated correctly for placing the selected
       autocomplete value`, () => {
-    const ternServer = new TernServer({});
-
     const testCases = [
       {
         input: {
@@ -151,7 +146,7 @@ describe("Tern server", () => {
         testCase.input.codeEditor.doc,
       );
 
-      const value: any = ternServer.requestCallback(
+      const value: any = TernServer.requestCallback(
         null,
         testCase.input.requestCallbackData,
         (MockCodemirrorEditor as unknown) as CodeMirror.Editor,

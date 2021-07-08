@@ -19,7 +19,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createNewApiName } from "utils/AppsmithUtils";
+import { createNewQueryName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
@@ -38,7 +38,7 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { PluginType, SaaSAction } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
@@ -58,7 +58,7 @@ interface DispatchFunctions {
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
-  createAction: (data: Partial<SaaSAction>) => void;
+  createAction: (data: Partial<Action>) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -87,6 +87,18 @@ const EditDatasourceButton = styled(AdsButton)`
     max-width: 160px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
+  }
+`;
+
+const NewQueryBtn = styled(AdsButton)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    //max-width: 120px;
+    width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -122,33 +134,38 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
-  createApiAction = () => {
-    const {
-      actions,
-      formData,
-      match: {
-        params: { pageId },
-      },
-    } = this.props;
-    const newApiName = createNewApiName(actions, pageId || "");
-
-    this.save(
-      createActionRequest({
-        name: newApiName,
-        pageId: pageId,
-        pluginId: formData.pluginId,
-        datasource: {
-          id: formData.id,
-        },
-      }),
-    );
-  };
-
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
+
+  createQueryAction = () => {
+    const {
+      actions,
+      datasource,
+      match: {
+        params: { pageId },
+      },
+    } = this.props;
+    const newQueryName = createNewQueryName(actions, pageId || "");
+
+    const payload = {
+      name: newQueryName,
+      pageId: pageId,
+      pluginId: datasource?.pluginId,
+      datasource: {
+        id: datasource?.id,
+      },
+      actionConfiguration: {},
+      eventData: {
+        actionType: "Query",
+        from: "datasource-pane",
+      },
+    } as Partial<Action>;
+
+    this.props.createAction(payload);
+  };
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
@@ -173,7 +190,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && (
+          {viewMode ? (
             <EditDatasourceButton
               category={Category.tertiary}
               className="t--edit-datasource"
@@ -191,6 +208,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 );
               }}
               text="EDIT"
+            />
+          ) : (
+            <NewQueryBtn
+              className="t--create-query"
+              icon="plus"
+              onClick={this.createQueryAction}
+              text={"New Query"}
             />
           )}
         </Header>
@@ -277,7 +301,7 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
       dispatch(updateDatasource(formData, onSuccess)),
     getOAuthAccessToken: (datasourceId: string) =>
       dispatch(getOAuthAccessToken(datasourceId)),
-    createAction: (data: Partial<SaaSAction>) => {
+    createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
     },
   };
