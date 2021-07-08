@@ -28,6 +28,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       isVisible: true,
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     TEXT_WIDGET: {
@@ -657,6 +658,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     FORM_WIDGET: {
@@ -706,6 +708,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
@@ -724,6 +727,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "SECONDARY_BUTTON",
                       disabledWhenInvalid: false,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
