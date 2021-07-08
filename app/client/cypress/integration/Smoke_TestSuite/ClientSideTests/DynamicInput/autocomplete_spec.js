@@ -49,14 +49,9 @@ describe("Dynamic input autocomplete", () => {
             );
           });
       });
+    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
   });
   it("opens current value popup", () => {
-    // Test on widgets pane
-    cy.openPropertyPane("buttonwidget");
-    cy.get(dynamicInputLocators.input)
-      .first()
-      .click({ force: true });
-    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
     // Test on api pane
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });
