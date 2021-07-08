@@ -65,9 +65,9 @@ class DynamicTextControl extends BaseControl<
       configProperty,
       evaluationSubstitutionType,
       label,
+      mutedHinting,
       placeholderText,
       responseType,
-      showLightningMenu,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
@@ -105,9 +105,9 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={dataTreePath}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
+            mutedHinting={mutedHinting}
             name={this.props.configProperty}
             placeholder={placeholderText}
-            showLightningMenu={showLightningMenu}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
@@ -124,7 +124,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   responseType: string;
   placeholderText?: string;
   evaluationSubstitutionType: EvaluationSubstitutionType;
-  showLightningMenu?: boolean;
+  mutedHinting?: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {

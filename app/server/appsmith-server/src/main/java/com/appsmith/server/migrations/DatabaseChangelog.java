@@ -2764,4 +2764,39 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
+    public void setSvgLogoToPluginIcons(MongockTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/postgresql.svg");
+            } else if ("dynamo-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-dynamodb.svg");
+            } else if ("firestore-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/firestore.svg");
+            } else if ("redshift-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-redshift.svg");
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mongodb.svg");
+            } else if ("redis-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/redis.svg");
+            } else if ("amazons3-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-s3.svg");
+            } else if ("mssql-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mssql.svg");
+            } else if ("snowflake-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/snowflake.svg");
+            } else if ("elasticsearch-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/elastic.svg");
+            } else if ("mysql-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mysql.svg");
+            } else if ("arangodb-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/arangodb.svg");
+            } else {
+                continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
 }
