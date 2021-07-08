@@ -1506,12 +1506,8 @@ function* pasteWidgetSaga() {
   );
 
   selectedWidget = yield checkIfPastingIntoListWidget(
-    selectedWidget || focusedWidget,
-  );
-
-  selectedWidget = yield checkIfPastingIntoListWidget(
     stateWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 
