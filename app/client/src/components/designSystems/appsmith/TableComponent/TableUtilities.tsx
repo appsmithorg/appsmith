@@ -30,7 +30,6 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
-import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 
 export const renderCell = (
   value: any,

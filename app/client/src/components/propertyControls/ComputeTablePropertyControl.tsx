@@ -15,7 +15,6 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
-import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 
 const PromptMessage = styled.span`
   line-height: 17px;

@@ -9,7 +9,6 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
-import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 /*
  ********************************{Grid Density Migration}*********************************
  */

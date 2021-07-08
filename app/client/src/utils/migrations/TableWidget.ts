@@ -16,7 +16,6 @@ import {
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import { getCurrentRowBinding } from "widgets/TableWidget/TableWidgetConstants";
 
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
