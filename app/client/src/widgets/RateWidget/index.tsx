@@ -77,7 +77,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
               type: ValidationTypes.FUNCTION,
               params: {
                 fn: validateDefaultRate,
-                expected: { type: Number, example: 5 },
+                expected: { type: "number", example: 5 },
               },
             },
           },

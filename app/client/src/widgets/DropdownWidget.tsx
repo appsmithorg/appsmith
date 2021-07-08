@@ -19,7 +19,8 @@ function defaultOptionValueValidation(
   props: DropdownWidgetProps,
 ): ValidationResponse {
   if (props.selectionType === "SINGLE_SELECT") {
-    if (typeof value === "string") return { isValid: true, parsed: value };
+    if (typeof value === "string")
+      return { isValid: true, parsed: value.trim() };
     if (value === undefined || value === null)
       return {
         isValid: false,

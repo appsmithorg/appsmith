@@ -173,7 +173,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
-                      expected={FIELD_VALUES.API_ACTION.params}
+                      expected={expected}
                       mutedHinting
                       name={`${field}.value`}
                       placeholder={
