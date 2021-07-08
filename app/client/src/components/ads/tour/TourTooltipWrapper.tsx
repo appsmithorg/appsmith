@@ -68,12 +68,6 @@ function TourTooltipWrapper(props: Props) {
   const isOpen = isCurrentStepActive && matchingActiveTourType;
   const dotRef = useRef<HTMLDivElement>(null);
 
-  console.log({
-    tourType,
-    tourStepsConfig,
-    tourIndex,
-  });
-
   useEffect(() => {
     const anim = lottie.loadAnimation({
       animationData: pulsatingDot,
@@ -93,9 +87,6 @@ function TourTooltipWrapper(props: Props) {
       {/* A crude overlay which won't work with containers having overflow hidden */}
       {isOpen && props.hasOverlay && <Overlay />}
       <Container onClick={props.onClick ? props.onClick : noop}>
-        {isOpen && props.showPulse && (
-          <PulseDot ref={dotRef} style={props.pulseStyles} />
-        )}
         <TooltipComponent
           boundary={"viewport"}
           content={
@@ -114,9 +105,13 @@ function TourTooltipWrapper(props: Props) {
           isOpen={!!isOpen}
           modifiers={props.modifiers}
           position={Position.BOTTOM}
+          {...tourStepConfig?.data.tooltipProps}
         >
           {children}
         </TooltipComponent>
+        {isOpen && props.showPulse && (
+          <PulseDot ref={dotRef} style={props.pulseStyles} />
+        )}
       </Container>
     </>
   );

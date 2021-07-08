@@ -23,13 +23,18 @@ import { updateUserDetails } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
-import { getAppMode } from "selectors/entitiesSelector";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
+import useOrg from "utils/hooks/useOrg";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
-const introStepsEditMode = [
+const introStepsEditor = [
   {
     title: "Introducing Live Comments",
     content:
@@ -45,7 +50,7 @@ const introStepsEditMode = [
   },
 ];
 
-const introStepsViewMode = [
+const introStepsViewer = [
   {
     title: "Introducing Live Comments",
     content:
@@ -109,10 +114,9 @@ const getSteps = (
   startTutorial: () => void,
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
-  appMode?: APP_MODE,
+  showEditorSteps: boolean,
 ) => {
-  const introSteps =
-    appMode === APP_MODE.EDIT ? introStepsEditMode : introStepsViewMode;
+  const introSteps = showEditorSteps ? introStepsEditor : introStepsViewer;
 
   return [
     ...introSteps.map((stepConfig: any) => ({
@@ -136,6 +140,15 @@ const getSteps = (
   ];
 };
 
+const getCanManage = (currentOrg: Org) => {
+  const userOrgPermissions = currentOrg.userPermissions || [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
+  return canManage;
+};
+
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
   const isIntroCarouselVisible = useSelector(isIntroCarouselVisibleSelector);
@@ -148,21 +161,23 @@ export default function CommentsShowcaseCarousel() {
 
   const initialProfileFormValues = { emailAddress: email, displayName: name };
   const onSubmitProfileForm = () => {
-    const { displayName: name, emailAddress: email } = profileFormValues as {
-      displayName: string;
-      emailAddress: string;
-    };
+    const { displayName: name, emailAddress: email } =
+      (profileFormValues as {
+        displayName: string;
+        emailAddress: string;
+      }) || {};
     dispatch(updateUserDetails({ name, email }));
   };
 
-  const appMode = useSelector(getAppMode);
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanManage(currentOrg);
 
-  const tourType =
-    appMode === APP_MODE.EDIT
+  const startTutorial = () => {
+    const tourType = canManage
       ? TourType.COMMENTS_TOUR_EDIT_MODE
       : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
 
-  const startTutorial = () => {
     dispatch(setActiveTour(tourType));
     dispatch(hideCommentsIntroCarousel());
     setCommentsIntroSeen(true);
@@ -174,10 +189,10 @@ export default function CommentsShowcaseCarousel() {
     startTutorial,
     initialProfileFormValues,
     !!email,
-    appMode,
+    canManage,
   );
 
-  if (!isIntroCarouselVisible) return null;
+  if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>

@@ -24,19 +24,27 @@ import { useLocation } from "react-router";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
-import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import useProceedToNextTourStep, {
+  useIsTourStepActive,
+} from "utils/hooks/useProceedToNextTourStep";
 import { getCommentsIntroSeen } from "utils/storage";
-import { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 
-import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import {
+  AUTH_LOGIN_URL,
+  matchBuilderPath,
+  matchViewerPath,
+} from "constants/routes";
 
 import { createMessage, UNREAD_MESSAGE } from "constants/messages";
 
 import localStorage from "utils/localStorage";
 
 import { getAppMode } from "selectors/applicationSelectors";
+
+import { noop } from "lodash";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -112,10 +120,24 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   );
 
   const handleLocationUpdate = async () => {
+    if (!currentUser) return;
+
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
     const isCommentsIntroSeen = await getCommentsIntroSeen();
     const updatedIsCommentMode = isCommentMode === "true" ? true : false;
+
+    const notLoggedId = currentUser?.username === ANONYMOUS_USERNAME;
+
+    if (notLoggedId && updatedIsCommentMode) {
+      const currentUrl = window.location.href;
+      const path = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+        currentUrl,
+      )}`;
+      history.push(path);
+
+      return;
+    }
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
@@ -129,7 +151,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     if (window.location.href) {
       handleLocationUpdate();
     }
-  }, [location]);
+  }, [location, !!currentUser]);
 
   // fetch applications comments when comment mode is turned on
   useEffect(() => {
@@ -258,13 +280,14 @@ function CommentModeBtn({
   );
 }
 
-function ToggleCommentModeButton() {
-  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
-  const isCommentMode = useSelector(commentModeSelector);
+const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
   const currentUser = useSelector(getCurrentUser);
   const appMode = useSelector(getAppMode);
+
   const initShowCommentButtonDiscoveryTooltip =
-    getShowCommentsButtonToolTip() && appMode === APP_MODE.PUBLISHED;
+    getShowCommentsButtonToolTip() &&
+    appMode === APP_MODE.PUBLISHED &&
+    currentUser?.username !== ANONYMOUS_USERNAME;
 
   const [
     showCommentButtonDiscoveryTooltip,
@@ -275,14 +298,48 @@ function ToggleCommentModeButton() {
     setShowCommentButtonDiscoveryTooltipInState(
       initShowCommentButtonDiscoveryTooltip,
     );
-  }, [appMode]);
+  }, [appMode, currentUser]);
+
+  return [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ];
+};
+
+const useShouldHide = () => {
+  const [shouldHide, setShouldHide] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    const pathName = window.location.pathname;
+    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
+    setShouldHide(!shouldShow);
+  }, [location]);
+
+  return shouldHide;
+};
+
+function ToggleCommentModeButton() {
+  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
+  const isCommentMode = useSelector(commentModeSelector);
+  const currentUser = useSelector(getCurrentUser);
+
+  const [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ] = useShowCommentDiscoveryTooltip();
 
   const showUnreadIndicator =
     useSelector(showUnreadIndicatorSelector) ||
     showCommentButtonDiscoveryTooltip;
 
   useUpdateCommentMode(currentUser);
+
   const proceedToNextTourStep = useProceedToNextTourStep(
+    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
+    0,
+  );
+
+  const isTourStepActive = useIsTourStepActive(
     [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
     0,
   );
@@ -297,16 +354,9 @@ function ToggleCommentModeButton() {
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
   // Show comment mode button only on the canvas editor and viewer
-  const [shouldHide, setShouldHide] = useState(false);
-  const location = useLocation();
-  useEffect(() => {
-    const pathName = window.location.pathname;
-    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
-    setShouldHide(!shouldShow);
-  }, [location]);
-  if (shouldHide) return null;
+  const shouldHide = useShouldHide();
 
-  if (!commentsEnabled) return null;
+  if (!commentsEnabled || shouldHide) return null;
 
   return (
     <Container>
@@ -326,7 +376,7 @@ function ToggleCommentModeButton() {
             <CommentModeBtn
               {...{
                 handleSetCommentModeButton,
-                isCommentMode,
+                isCommentMode: isCommentMode || isTourStepActive, // Highlight the button during the tour
                 showUnreadIndicator,
               }}
             />
