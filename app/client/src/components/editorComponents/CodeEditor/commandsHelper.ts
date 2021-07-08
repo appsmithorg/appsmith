@@ -19,10 +19,12 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       {
         datasources,
         executeCommand,
+        mutedHinting,
         pluginIdToImageLocation,
         recentEntities,
         updatePropertyValue,
       }: {
+        mutedHinting?: boolean;
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
@@ -43,7 +45,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding = !value || slashIndex > -1;
+      const shouldShowBinding = (!value && !mutedHinting) || slashIndex > -1;
       if (!cursorBetweenBinding && shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(

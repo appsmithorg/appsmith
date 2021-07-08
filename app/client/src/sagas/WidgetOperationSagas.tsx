@@ -1583,7 +1583,16 @@ function* pasteWidgetSaga() {
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
             const oldWidgetName = widget.widgetName;
-
+            // Generate a new unique widget name
+            const newWidgetName = getNextWidgetName(
+              widgets,
+              widget.type,
+              evalTree,
+              {
+                prefix: oldWidgetName,
+                startWithoutIndex: true,
+              },
+            );
             // Update the children widgetIds if it has children
             if (widget.children && widget.children.length > 0) {
               widget.children.forEach(
@@ -1614,12 +1623,6 @@ function* pasteWidgetSaga() {
             // Update the table widget column properties
             if (widget.type === WidgetTypes.TABLE_WIDGET) {
               try {
-                const oldWidgetName = widget.widgetName;
-                const newWidgetName = getNextWidgetName(
-                  widgets,
-                  widget.type,
-                  evalTree,
-                );
                 // If the primaryColumns of the table exist
                 if (widget.primaryColumns) {
                   // For each column
@@ -1711,16 +1714,7 @@ function* pasteWidgetSaga() {
               )?.widgetId;
               if (newParentId) widget.parentId = newParentId;
             }
-            // Generate a new unique widget name
-            widget.widgetName = getNextWidgetName(
-              widgets,
-              widget.type,
-              evalTree,
-              {
-                prefix: oldWidgetName,
-                startWithoutIndex: true,
-              },
-            );
+            widget.widgetName = newWidgetName;
             widgetNameMap[oldWidgetName] = widget.widgetName;
             // Add the new widget to the canvas widgets
             widgets[widget.widgetId] = widget;

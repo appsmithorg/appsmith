@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -43,6 +44,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
+    private final CommentThreadRepository commentThreadRepository;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -52,10 +55,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService) {
+                                  ConfigService configService,
+                                  CommentThreadRepository commentThreadRepository, SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
+        this.commentThreadRepository = commentThreadRepository;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -71,7 +77,25 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
+                });
+    }
+
+    private Mono<Application> setUnreadCommentCount(Application application, User user) {
+        if(!user.isAnonymous()) {
+            return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
+                    .map(aLong -> {
+                        application.setUnreadCommentThreads(aLong);
+                        return application;
+                    });
+        } else {
+            return Mono.just(application);
+        }
     }
 
     @Override
@@ -188,6 +212,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
+                })
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
                 });
     }
 

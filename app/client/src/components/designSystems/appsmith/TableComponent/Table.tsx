@@ -1,17 +1,24 @@
 import React, { useRef } from "react";
+import { reduce } from "lodash";
 import {
   useTable,
   usePagination,
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
+  Row,
 } from "react-table";
 import {
   TableWrapper,
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
+import {
+  TableHeaderCell,
+  renderEmptyRows,
+  renderCheckBoxCell,
+  renderCheckBoxHeaderCell,
+} from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
@@ -47,6 +54,7 @@ interface TableProps {
   }) => void;
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
+  multiRowSelection?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -54,6 +62,10 @@ interface TableProps {
   selectedRowIndices: number[];
   disableDrag: () => void;
   enableDrag: () => void;
+  toggleAllRowSelect: (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => void;
   triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -166,6 +178,29 @@ export function Table(props: TableProps) {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const rowSelectionState = React.useMemo(() => {
+    // return : 0; no row selected | 1; all row selected | 2: some rows selected
+    if (!props.multiRowSelection) return null;
+    const selectedRowCount = reduce(
+      subPage,
+      (count, row) => {
+        return selectedRowIndices.includes(row.index) ? count + 1 : count;
+      },
+      0,
+    );
+    const result =
+      selectedRowCount === 0 ? 0 : selectedRowCount === subPage.length ? 1 : 2;
+    return result;
+  }, [selectedRowIndices, subPage]);
+  const handleAllRowSelectClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    // if all / some rows are selected we remove selection on click
+    // else select all rows
+    props.toggleAllRowSelect(!Boolean(rowSelectionState), subPage);
+    // loop over subPage rows and toggleRowSelected if required
+    e.stopPropagation();
+  };
   const isHeaderVisible =
     props.isVisibleSearch ||
     props.isVisibleFilters ||
@@ -250,30 +285,37 @@ export function Table(props: TableProps) {
               onMouseLeave={props.enableDrag}
               onMouseOver={props.disableDrag}
             >
-              {headerGroups.map((headerGroup: any, index: number) => (
-                <div
-                  {...headerGroup.getHeaderGroupProps()}
-                  className="tr"
-                  key={index}
-                >
-                  {headerGroup.headers.map(
-                    (column: any, columnIndex: number) => {
-                      return (
-                        <TableHeaderCell
-                          column={column}
-                          columnIndex={columnIndex}
-                          columnName={column.Header}
-                          isAscOrder={column.isAscOrder}
-                          isHidden={column.isHidden}
-                          isResizingColumn={isResizingColumn.current}
-                          key={columnIndex}
-                          sortTableColumn={props.sortTableColumn}
-                        />
-                      );
-                    },
-                  )}
-                </div>
-              ))}
+              {headerGroups.map((headerGroup: any, index: number) => {
+                const headerRowProps = {
+                  ...headerGroup.getHeaderGroupProps(),
+                  style: { display: "flex" },
+                };
+                return (
+                  <div {...headerRowProps} className="tr" key={index}>
+                    {props.multiRowSelection &&
+                      renderCheckBoxHeaderCell(
+                        handleAllRowSelectClick,
+                        rowSelectionState,
+                      )}
+                    {headerGroup.headers.map(
+                      (column: any, columnIndex: number) => {
+                        return (
+                          <TableHeaderCell
+                            column={column}
+                            columnIndex={columnIndex}
+                            columnName={column.Header}
+                            isAscOrder={column.isAscOrder}
+                            isHidden={column.isHidden}
+                            isResizingColumn={isResizingColumn.current}
+                            key={columnIndex}
+                            sortTableColumn={props.sortTableColumn}
+                          />
+                        );
+                      },
+                    )}
+                  </div>
+                );
+              })}
               {headerGroups.length === 0 &&
                 renderEmptyRows(
                   1,
@@ -281,6 +323,7 @@ export function Table(props: TableProps) {
                   props.width,
                   subPage,
                   prepareRow,
+                  props.multiRowSelection,
                 )}
             </div>
             <div
@@ -292,18 +335,17 @@ export function Table(props: TableProps) {
             >
               {subPage.map((row, rowIndex) => {
                 prepareRow(row);
+                const rowProps = {
+                  ...row.getRowProps(),
+                  style: { display: "flex" },
+                };
+                const isRowSelected =
+                  row.index === selectedRowIndex ||
+                  selectedRowIndices.includes(row.index);
                 return (
                   <div
-                    {...row.getRowProps()}
-                    className={
-                      "tr" +
-                      `${
-                        row.index === selectedRowIndex ||
-                        selectedRowIndices.includes(row.index)
-                          ? " selected-row"
-                          : ""
-                      }`
-                    }
+                    {...rowProps}
+                    className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
                     key={rowIndex}
                     onClick={(e) => {
                       row.toggleRowSelected();
@@ -311,6 +353,8 @@ export function Table(props: TableProps) {
                       e.stopPropagation();
                     }}
                   >
+                    {props.multiRowSelection &&
+                      renderCheckBoxCell(isRowSelected)}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -334,6 +378,7 @@ export function Table(props: TableProps) {
                   props.width,
                   subPage,
                   prepareRow,
+                  props.multiRowSelection,
                 )}
             </div>
           </div>

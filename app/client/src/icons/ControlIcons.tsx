@@ -41,6 +41,9 @@ import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading
 import { ReactComponent as ParagraphIcon } from "assets/icons/control/paragraph.svg";
 import { ReactComponent as ParagraphTwoIcon } from "assets/icons/control/paragraph_2.svg";
 import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg";
+import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
+import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
+import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -260,6 +263,21 @@ export const ControlIcons: {
   BULLETS: (props: IconProps) => (
     <IconWrapper {...props}>
       <BulletsIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapRightIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapLeftIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_ALL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapAllIcon />
     </IconWrapper>
   ),
 };

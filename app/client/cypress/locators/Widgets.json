@@ -105,5 +105,6 @@
     "switchWidgetActive": ".t--switch-widget-active",
     "switchWidgetInactive": ".t--switch-widget-inactive",
     "switchWidgetLoading": ".t--switch-widget-loading",
-    "chartPlotGroup": "g.raphael-group-63-plot-group"
+    "chartPlotGroup": "g.raphael-group-63-plot-group",
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
 }
