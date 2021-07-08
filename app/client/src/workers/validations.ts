@@ -404,7 +404,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       value === null ||
       (!isString(value) && !Array.isArray(value))
     ) {
-      return invalidResponse;
+      if (config.params?.required) return invalidResponse;
+      return { isValid: true, parsed: value };
     }
 
     let parsed = value;
@@ -418,6 +419,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(parsed)) {
+      if (parsed.length === 0) return invalidResponse;
       parsed.forEach((entry, index) => {
         if (!isPlainObject(entry)) {
           return {
@@ -446,6 +448,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       !isString(value) ||
       (isString(value) && !moment(value).isValid())
     ) {
+      if (!config.params?.required) {
+        return {
+          isValid: true,
+          parsed: value,
+        };
+      }
       return invalidResponse;
     }
     if (isString(value) && moment(value).isValid()) {

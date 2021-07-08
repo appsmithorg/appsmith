@@ -2,6 +2,7 @@ import { validate, WIDGET_TYPE_VALIDATION_ERROR } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import moment from "moment";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -292,6 +293,207 @@ describe("Validate Validators", () => {
         message: `Value of key: key2 is invalid: Value is not allowed`,
       },
     ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array", () => {
+    const inputs = [
+      ["a", "b", "c"],
+      ["m", "n", "b"],
+      ["p", "r", "q"],
+      [],
+      {},
+      undefined,
+      null,
+      "ABC",
+      `["a", "b", "c"]`,
+      '{ "key": "value" }',
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        children: {
+          type: ValidationTypes.TEXT,
+          params: {
+            required: true,
+            allowedValues: ["a", "b", "c", "n", "m", "p", "r"],
+          },
+        },
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: ["a", "b", "c"],
+        message: "",
+      },
+      {
+        isValid: true,
+        parsed: ["m", "n", "b"],
+        message: "",
+      },
+      {
+        isValid: false,
+        parsed: ["p", "r", "q"],
+        message: "Invalid entry at index: 2. Value is not allowed",
+      },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message: "This value does not evaluate to type Array",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "This property is required for the widget to function correctly",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "This property is required for the widget to function correctly",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message: "This value does not evaluate to type Array",
+      },
+      {
+        isValid: true,
+        parsed: ["a", "b", "c"],
+        message: "",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message: "This value does not evaluate to type Array",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates date iso string", () => {
+    const defaultLocalDate = moment().toISOString(true);
+    const defaultDate = moment().toISOString();
+    const inputs = [
+      defaultDate,
+      defaultLocalDate,
+      "2021-08-08",
+      undefined,
+      null,
+    ];
+
+    const config = {
+      type: ValidationTypes.DATE_ISO_STRING,
+      params: {
+        required: true,
+        default: defaultDate,
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: defaultDate,
+      },
+      {
+        isValid: true,
+        parsed: defaultLocalDate,
+      },
+      {
+        isValid: true,
+        parsed: moment("2021-08-08").toISOString(),
+      },
+      {
+        isValid: false,
+        parsed: defaultDate,
+        message:
+          "This value does not evaluate to type: Full ISO 8601 date string",
+      },
+      {
+        isValid: false,
+        parsed: defaultDate,
+        message:
+          "This value does not evaluate to type: Full ISO 8601 date string",
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates object array", () => {
+    const inputs = [
+      [
+        { apple: 1 },
+        { orange: 2, mango: "fruit", watermelon: false },
+        { banana: 3 },
+      ],
+      `[{ "apple": 1, "orange": 2, "mango": "fruit", "watermelon": false }]`,
+      {},
+      undefined,
+      null,
+      [],
+    ];
+
+    const config = {
+      type: ValidationTypes.OBJECT_ARRAY,
+      params: {
+        required: true,
+        default: [{ id: 1, name: "alpha" }],
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: [
+          { apple: 1 },
+          { orange: 2, mango: "fruit", watermelon: false },
+          { banana: 3 },
+        ],
+      },
+      {
+        isValid: true,
+        parsed: [{ apple: 1, orange: 2, mango: "fruit", watermelon: false }],
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+    ];
+
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
