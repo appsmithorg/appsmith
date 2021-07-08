@@ -11,7 +11,6 @@ import {
   deleteJSAction,
 } from "actions/jsActionActions";
 
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { useNewJSActionName } from "./helpers";
@@ -62,11 +61,6 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
       value: page.pageName,
     }));
   });
-
-  const editActionName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(props.id)),
-    [dispatch, props.id],
-  );
 
   return (
     <TreeDropdown

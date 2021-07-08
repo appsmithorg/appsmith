@@ -3,7 +3,6 @@ import {
   select,
   put,
   takeEvery,
-  takeLatest,
   debounce,
   call,
 } from "redux-saga/effects";
@@ -16,17 +15,13 @@ import { getJSAction, getJSActions } from "selectors/entitiesSelector";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { JSAction } from "entities/JSAction";
-import {
-  createJSActionRequest,
-  deleteJSActionSuccess,
-} from "actions/jsActionActions";
+import { createJSActionRequest } from "actions/jsActionActions";
 import { JS_FUNCTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { parseJSAction } from "./EvaluationsSaga";
 import { getJSActionIdFromURL } from "../pages/Editor/Explorer/helpers";
 import { getDifferenceInJSAction } from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
-import { GenericApiResponse } from "../api/ApiResponses";
 import {
   updateJSActionSuccess,
   addJSCollectionAction,
@@ -135,7 +130,6 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
 function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
   const { body } = actionPayload.payload;
   const data = yield call(handleParseUpdateJSAction, { body: body });
-  const jsActionId = getJSActionIdFromURL();
   if (data) {
     const response = yield JSActionAPI.updateJSAction(data);
     yield put(updateJSActionSuccess({ data: response }));

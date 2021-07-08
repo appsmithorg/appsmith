@@ -1,4 +1,3 @@
-import { DynamicPath } from "../../utils/DynamicBindingUtils";
 import { BaseAction } from "../Action";
 export enum PluginType {
   JS = "JS",

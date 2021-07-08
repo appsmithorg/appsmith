@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -56,7 +56,6 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
-  const dispatch = useDispatch();
   if (!params.functionId) {
     log.error("No API id or Query id found in the url.");
   }
@@ -150,7 +149,8 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
         defaultValue={currentJSActionConfig ? currentJSActionConfig.name : ""}
         editInteractionKind={EditInteractionKind.SINGLE}
         forceDefault={forceUpdate}
-        isEditingDefault={isNew}
+        hideEditIcon
+        isEditingDefault={isNew && !hideEditIcon}
         isInvalid={isInvalidJSActionName}
         onTextChanged={handleJSFunctionNameChange}
         placeholder="Name of the function in camelCase"

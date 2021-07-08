@@ -1,8 +1,4 @@
-import {
-  DataTree,
-  DataTreeJSAction,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import {
@@ -11,7 +7,6 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
-import { JSAction } from "entities/JSAction";
 
 let extraDefs: any = {};
 const skipProperties = ["!doc", "!url", "!type"];

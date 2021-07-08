@@ -7,16 +7,11 @@ import {
 import { all, put, takeEvery, takeLatest, select } from "redux-saga/effects";
 import { FetchActionsPayload } from "actions/actionActions";
 import { JSAction } from "entities/JSAction";
-import { jsData } from "../pages/Editor/JSEditor/dummyData";
 import {
   createJSActionSuccess,
   deleteJSActionSuccess,
 } from "actions/jsActionActions";
-import {
-  getJSAction,
-  getCurrentPageNameByJSActionId,
-  getJSActions,
-} from "selectors/entitiesSelector";
+import { getJSAction, getJSActions } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
   getCurrentApplicationId,
@@ -37,7 +32,6 @@ export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
-  const resultData = jsData;
   try {
     const response = yield JSActionAPI.fetchJSActions(applicationId);
     yield put({
@@ -73,10 +67,10 @@ export function* createJSActionSaga(
         variant: Variant.success,
       });
 
-      const pageName = yield select(
-        getCurrentPageNameByJSActionId,
-        response.data.id,
-      );
+      // const pageName = yield select(
+      //   getCurrentPageNameByJSActionId,
+      //   response.data.id,
+      // );
 
       const newAction = response.data;
       yield put(createJSActionSuccess(newAction));
@@ -91,7 +85,7 @@ export function* createJSActionSaga(
 function* copyJSActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  //this is copy js saga
+  console.log("copy", action);
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -109,6 +103,7 @@ function* moveJSActionSaga(
     name: string;
   }>,
 ) {
+  console.log("move", action);
   //move js action
 }
 
@@ -117,7 +112,6 @@ export function* deleteJSActionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const name = actionPayload.payload.name;
     const jsActions = yield select(getJSActions);
 
     const response = yield JSActionAPI.deleteJSAction(id);

@@ -15,7 +15,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { reduxForm } from "redux-form";
-import ActionSettings from "pages/Editor/ActionSettings";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
