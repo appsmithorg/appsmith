@@ -222,6 +222,35 @@ function RecaptchaV3Component(
     }
   };
 
+  const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (status === ScriptStatus.READY) {
+      (window as any).grecaptcha.ready(() => {
+        try {
+          (window as any).grecaptcha
+            .execute(props.googleRecaptchaKey, {
+              action: "submit",
+            })
+            .then((token: any) => {
+              props.clickWithRecaptcha(token);
+            })
+            .catch(() => {
+              // Handle incorrent google recaptcha site key
+              props.handleError(
+                event,
+                createMessage(GOOGLE_RECAPTCHA_KEY_ERROR),
+              );
+            });
+        } catch (err) {
+          // Handle error due to google recaptcha key of different domain
+          props.handleError(
+            event,
+            createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR),
+          );
+        }
+      });
+    }
+  };
+
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
 
   if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
@@ -231,40 +260,7 @@ function RecaptchaV3Component(
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
-  return (
-    <div
-      onClick={(event: React.MouseEvent<HTMLElement>) => {
-        if (status === ScriptStatus.READY) {
-          (window as any).grecaptcha.ready(() => {
-            try {
-              (window as any).grecaptcha
-                .execute(props.googleRecaptchaKey, {
-                  action: "submit",
-                })
-                .then((token: any) => {
-                  props.clickWithRecaptcha(token);
-                })
-                .catch(() => {
-                  // Handle incorrent google recaptcha site key
-                  props.handleError(
-                    event,
-                    createMessage(GOOGLE_RECAPTCHA_KEY_ERROR),
-                  );
-                });
-            } catch (err) {
-              // Handle error due to google recaptcha key of different domain
-              props.handleError(
-                event,
-                createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR),
-              );
-            }
-          });
-        }
-      }}
-    >
-      {props.children}
-    </div>
-  );
+  return <div onClick={handleBtnClick}>{props.children}</div>;
 }
 
 function BtnWrapper(
