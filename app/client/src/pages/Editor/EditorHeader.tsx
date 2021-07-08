@@ -225,28 +225,26 @@ export function EditorHeader(props: EditorHeaderProps) {
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            {currentApplication && (
-              <EditableAppName
-                className="t--application-name editable-application-name"
-                defaultValue={currentApplication.name || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                fill
-                isError={isErroredSavingName}
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-              />
-            )}
+            <EditableAppName
+              className="t--application-name editable-application-name"
+              defaultValue={currentApplication?.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+            />
             <ToggleModeButton />
           </Boxed>
         </HeaderSection>
@@ -292,7 +290,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  fill
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}

@@ -930,6 +930,13 @@ export default class DataTreeEvaluator {
                   }
                 }
               }
+              // If the whole binding was removed then the value
+              // at this path would be "".
+              // In this case if the path exists in the dependency map
+              // remove it.
+              else if (fullPropertyPath in this.dependencyMap) {
+                delete this.dependencyMap[fullPropertyPath];
+              }
             }
             break;
           }

@@ -1,4 +1,4 @@
-import React, { Component, lazy, Suspense } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
@@ -42,7 +42,6 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import ScrollIndicator from "components/ads/ScrollIndicator";
@@ -50,18 +49,19 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-
-const LightningMenu = lazy(() =>
-  retryPromise(() => import("components/editorComponents/LightningMenu")),
-);
+import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { commandsHelper } from "./commandsHelper";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import Button from "components/ads/Button";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+import { getPluginIdToImageLocation } from "sagas/selectors";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -73,6 +73,13 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  datasources: any;
+  pluginIdToImageLocation: Record<string, string>;
+  recentEntities: string[];
+}
+
+interface ReduxDispatchProps {
+  executeCommand: (payload: any) => void;
 }
 
 export type EditorStyleProps = {
@@ -106,7 +113,9 @@ export type EditorProps = EditorStyleProps &
     hideEvaluatedValue?: boolean;
   };
 
-type Props = ReduxStateProps & EditorProps;
+type Props = ReduxStateProps &
+  EditorProps &
+  ReduxDispatchProps & { dispatch?: () => void };
 
 type State = {
   isFocused: boolean;
@@ -114,10 +123,23 @@ type State = {
   autoCompleteVisible: boolean;
 };
 
+const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
+  position: absolute;
+  right: 1px;
+  height: 33px;
+  width: 33px;
+  top: 1px;
+  display: none;
+  transition: 0.3s all ease;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
+  z-index: 2;
+`;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
-    hinting: [bindingHint],
+    hinting: [bindingHint, commandsHelper],
   };
 
   codeEditorTarget = React.createRef<HTMLDivElement>();
@@ -216,6 +238,7 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
+          this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
       };
@@ -253,15 +276,24 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  componentWillUnmount() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    this.editor.closeHint();
+  }
+
   static startAutocomplete(
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
-    return hinting.map((helper) => {
-      return helper(editor, dynamicData, additionalDynamicData);
-    });
+    return (showLightningMenu !== false ? hinting : [bindingHint]).map(
+      (helper) => {
+        return helper(editor, dynamicData, additionalDynamicData);
+      },
+    );
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
@@ -293,7 +325,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
-    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     if (this.props.size === EditorSize.COMPACT) {
       const inputValue = this.props.input.value;
@@ -301,11 +332,14 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(inputValue);
       this.editor.setCursor(inputValue.length);
     }
+    if (this.editor.getValue().length === 0)
+      this.handleAutocompleteVisibility(this.editor);
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
-    if (!cm.state.completionActive) this.setState({ isFocused: false });
+    // on blur closing the binding prompt for an editor regardless.
+    this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -353,7 +387,25 @@ class CodeEditor extends Component<Props, State> {
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
     );
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
+    let hinterOpen = false;
+    for (let i = 0; i < this.hinters.length; i++) {
+      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+        datasources: this.props.datasources.list,
+        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+        updatePropertyValue: this.updatePropertyValue.bind(this),
+        recentEntities: this.props.recentEntities,
+        executeCommand: (payload: any) => {
+          this.props.executeCommand({
+            ...payload,
+            callback: (binding: string) => {
+              const value = this.editor.getValue() + binding;
+              this.updatePropertyValue(value);
+            },
+          });
+        },
+      });
+      if (hinterOpen) break;
+    }
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -369,7 +421,11 @@ class CodeEditor extends Component<Props, State> {
     marking.forEach((helper) => helper(editor));
   };
 
-  updatePropertyValue(value: string, cursor?: number) {
+  updatePropertyValue(
+    value: string,
+    cursor?: number,
+    preventAutoComplete = false,
+  ) {
     if (value) {
       this.editor.setValue(value);
     }
@@ -386,6 +442,7 @@ class CodeEditor extends Component<Props, State> {
       ch: cursor,
     });
     this.setState({ isFocused: true }, () => {
+      if (preventAutoComplete) return;
       this.handleAutocompleteVisibility(this.editor);
     });
   }
@@ -468,22 +525,23 @@ class CodeEditor extends Component<Props, State> {
         theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
-          <Suspense fallback={<div />}>
-            <LightningMenu
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
+          <CommandBtnContainer
+            className="slash-commands"
+            isFocused={this.state.isFocused}
+          >
+            <Button
+              className="commands-button"
+              onClick={() => {
+                const newValue =
+                  typeof this.props.input.value === "string"
+                    ? this.props.input.value + "/"
+                    : "/";
+                this.updatePropertyValue(newValue, newValue.length);
               }}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              skin={
-                this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
-              }
-              updateDynamicInputValue={this.updatePropertyValue}
+              tag="button"
+              text="/"
             />
-          </Suspense>
+          </CommandBtnContainer>
         )}
         <EvaluatedValuePopup
           errors={errors}
@@ -540,6 +598,7 @@ class CodeEditor extends Component<Props, State> {
               editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
+              showLightningMenu={this.props.showLightningMenu}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
@@ -551,6 +610,15 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
+  datasources: state.entities.datasources,
+  pluginIdToImageLocation: getPluginIdToImageLocation(state),
+  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
 });
 
-export default Sentry.withProfiler(connect(mapStateToProps)(CodeEditor));
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
+});
+
+export default Sentry.withProfiler(
+  connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
+);

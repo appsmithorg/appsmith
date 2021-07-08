@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Theme } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -43,6 +43,57 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       &:after {
         color: #fff;
       }
+    }
+  }
+
+  .CodeMirror-command-header {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+    color: #716e6e;
+    pointer-events: none !important;
+    font-family: ${(props) => props.theme.fonts.text};
+    ${(props) => getTypographyByKey(props, "p3")}
+  }
+
+  .CodeMirror-commands {
+    color: #4b4848;
+    position: relative;
+    padding: 0 ${(props) => props.theme.spaces[3]}px !important;
+    height: 25px;
+    font-family: ${(props) => props.theme.fonts.text};
+    ${(props) => getTypographyByKey(props, "p3")}
+    &:hover, &.CodeMirror-hint-active {
+      svg {
+        path {
+          fill: #ffffff;
+        }
+      }
+      .shortcut {
+        color: #ffffff;
+      }
+    }
+    .command-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+    }
+    .command {
+      display: flex;
+      align-items: center;
+      img {
+        height: 12px;
+        width: 12px;
+        margin-right: 7px;
+      }
+      svg {
+        margin-right: 7px;
+      }
+    }
+    .shortcut {
+      font-style: italic;
+      font-size: 10px;
+      color: #a9a7a7;
+      margin-left: auto;
     }
   }
 

@@ -285,9 +285,28 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
+    .slash-commands {
+      display: flex;
+    }
   }
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
+  }
+  .commands-button {
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    color: #f86a2b;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    font-style: italic;
+    padding: 0 0 3px;
+    &:hover {
+      background: #f86a2b;
+      color: white;
+    }
   }
 `;
