@@ -5,6 +5,11 @@
     "inputPropsDataType": ".t--property-control-datatype",
     "inputdatatypeplaceholder": ".t--property-control-placeholder",
     "buttonWidget": ".t--draggable-buttonwidget",
+    "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
+    "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
+    "copyWidget": ".t--copy-widget svg",
+    "removeWidget": ".t--delete-widget svg",
+    "propertypaneText": ".t--propertypane .bp3-panel-stack-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
@@ -90,5 +95,7 @@
     "selectToday": ".DayPicker-Day--today",
     "switchWidgetActive": ".t--switch-widget-active",
     "switchWidgetInactive": ".t--switch-widget-inactive",
-    "switchWidgetLoading": ".t--switch-widget-loading"
+    "switchWidgetLoading": ".t--switch-widget-loading",
+    "chartPlotGroup": "g.raphael-group-63-plot-group",
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
 }

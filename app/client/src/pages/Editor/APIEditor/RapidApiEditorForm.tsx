@@ -183,16 +183,16 @@ function RapidApiEditorForm(props: Props) {
           <DynamicTextField
             disabled
             leftImage={providerImage}
+            mutedHinting
             name="provider.name"
             placeholder="Provider name"
-            showLightningMenu={false}
           />
           <DynamicTextField
             disabled
             leftIcon={FormIcons.SLASH_ICON}
+            mutedHinting
             name="actionConfiguration.path"
             placeholder="v1/method"
-            showLightningMenu={false}
           />
         </FormRow>
         {/* Display How to get Credentials info if it is present */}
@@ -261,7 +261,7 @@ function RapidApiEditorForm(props: Props) {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView apiName={props.apiName} />
+        <ApiResponseView apiName={props.apiName} onRunClick={onRunClick} />
       </SecondaryWrapper>
     </Form>
   );
