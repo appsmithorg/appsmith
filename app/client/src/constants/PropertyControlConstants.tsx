@@ -73,7 +73,12 @@ type ValidationConfigParams = {
   }>;
   allowedValues?: unknown[]; // Allowed values in a string and array type
   children?: ValidationConfig; // Children configurations in an ARRAY or OBJECT_ARRAY type
-  fn?: (value: unknown, props: any) => ValidationResponse; // Function in a FUNCTION type
+  fn?: (
+    value: unknown,
+    props: any,
+    _?: any,
+    moment?: any,
+  ) => ValidationResponse; // Function in a FUNCTION type
   fnString?: string; // AUTO GENERATED, SHOULD NOT BE SET BY WIDGET DEVELOPER
   expected?: { type: string; example: ExpectedValueExample }; // FUNCTION type expected type and example
 };

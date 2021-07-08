@@ -87,14 +87,14 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   margin: 0px 0px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
-  font-size: 14px;
+  font-size: 12px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
   word-break: break-all;
 `;
 
-const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
-  padding: ${(props) => props.theme.spaces[3]}px;
+const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
+  padding: ${(props) => (props.padded ? "8px" : 0)};
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 12px;
@@ -368,7 +368,7 @@ function PopoverContent(props: PopoverContentProps) {
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
-            <TypeText colorTheme={props.theme} ref={typeTextRef}>
+            <TypeText colorTheme={props.theme} padded ref={typeTextRef}>
               {props.expected.type}
             </TypeText>
           </Collapse>
@@ -404,6 +404,7 @@ function PopoverContent(props: PopoverContentProps) {
 
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
+  const [timeoutId, setTimeoutId] = useState(0);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -418,9 +419,9 @@ function EvaluatedValuePopup(props: Props) {
 
   return (
     <Wrapper ref={wrapperRef}>
-      {(props.isOpen || contentHovered) && (
+      {
         <Popper
-          isOpen
+          isOpen={props.isOpen || contentHovered}
           modifiers={modifiers}
           placement={placement}
           targetNode={wrapperRef.current || undefined}
@@ -433,10 +434,12 @@ function EvaluatedValuePopup(props: Props) {
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
             onMouseEnter={() => {
+              clearTimeout(timeoutId);
               setContentHovered(true);
             }}
             onMouseLeave={() => {
-              setContentHovered(false);
+              const timeoutId = setTimeout(() => setContentHovered(false), 500);
+              setTimeoutId(timeoutId);
             }}
             preparedStatementViewer={
               props.evaluationSubstitutionType
@@ -448,7 +451,7 @@ function EvaluatedValuePopup(props: Props) {
             useValidationMessage={props.useValidationMessage}
           />
         </Popper>
-      )}
+      }
       {props.children}
     </Wrapper>
   );

@@ -67,6 +67,10 @@ class FilePickerWidget extends BaseWidget<
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 5, required: true },
+            },
           },
           {
             propertyName: "allowedFileTypes",

@@ -93,7 +93,7 @@ type RenderComponentProps = {
 
 const expectedSeriesName = { type: "string", example: "series1" };
 const expectedSeriesData = {
-  type: "Array<{ x: string, y: string | number }",
+  type: "Array<{ x: string, y: string | number }>",
   example: [
     {
       x: "Mon",

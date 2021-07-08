@@ -5,16 +5,18 @@ import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-import _ from "lodash";
-
-function defaultSelectedRowValidation(value: unknown, props: TableWidgetProps) {
+function defaultSelectedRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+) {
   if (props) {
     if (props.multiRowSelection) {
       if (props && !props.multiRowSelection)
         return { isValid: true, parsed: undefined };
 
       if (_.isString(value)) {
-        const trimmed = value.trim();
+        const trimmed = (value as string).trim();
         try {
           const parsedArray = JSON.parse(trimmed);
           if (Array.isArray(parsedArray)) {
@@ -32,7 +34,7 @@ function defaultSelectedRowValidation(value: unknown, props: TableWidgetProps) {
           // If cannot be parsed as an array
           const arrayEntries = trimmed.split(",");
           const result: number[] = [];
-          arrayEntries.forEach((entry) => {
+          arrayEntries.forEach((entry: string) => {
             if (
               Number.isInteger(parseInt(entry, 10)) &&
               parseInt(entry, 10) > -1

@@ -486,7 +486,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, [value, props]);
+        const { result } = evaluate(config.params.fnString, {}, [
+          value,
+          props,
+          _,
+          moment,
+        ]);
         return result;
       } catch (e) {
         console.error("Validation function error: ", { e });

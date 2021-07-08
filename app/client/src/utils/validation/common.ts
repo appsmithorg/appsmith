@@ -35,11 +35,18 @@ export function getExpectedValue(
         example: config.params?.expected?.example || "No Example available",
       };
     case ValidationTypes.TEXT:
-      const result = { type: "string", example: "abc" };
+      const result: { type: string; example: ExpectedValueExample } = {
+        type: "string",
+        example: "abc",
+      };
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result.type = result.type + ` ( ${allowed} )`;
       }
+      if (config.params?.expected?.type)
+        result.type = config.params?.expected.type;
+      if (config.params?.expected?.example)
+        result.example = config.params?.expected.example;
       return result;
     case ValidationTypes.REGEX:
       return { type: "regExp", example: "^d+$" };

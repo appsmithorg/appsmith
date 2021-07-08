@@ -16,6 +16,8 @@ import moment from "moment";
 function defaultDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === null) {
@@ -48,6 +50,8 @@ function defaultDateValidation(
 function minDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
@@ -95,6 +99,8 @@ function minDateValidation(
 function maxDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
   if (value === undefined) {
