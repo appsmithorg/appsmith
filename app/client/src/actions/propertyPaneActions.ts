@@ -14,3 +14,14 @@ export const hidePropertyPane = () => {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
   };
 };
+
+export const bindDataWithWidget = (payload: {
+  widgetId: string;
+  applicationId: string;
+  pageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_WITH_WIDGET,
+    payload,
+  };
+};

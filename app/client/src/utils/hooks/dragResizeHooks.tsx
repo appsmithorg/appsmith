@@ -1,16 +1,36 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import {
+  commentModeSelector,
+  snipingModeSelector,
+} from "selectors/commentsSelectors";
+import { bindDataWithWidget } from "../../actions/propertyPaneActions";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../../pages/Editor/Explorer/helpers";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
       if (isCommentMode) return;
+      // If user is in sniping mode,
+      // dedicated saga will open the property pane && make data binding
+      if (isSnipingMode && widgetId) {
+        dispatch(
+          bindDataWithWidget({
+            widgetId,
+            applicationId,
+            pageId,
+          }),
+        );
+        return;
+      }
 
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
@@ -27,7 +47,7 @@ export const useShowPropertyPane = () => {
         },
       );
     },
-    [dispatch, isCommentMode],
+    [dispatch, isCommentMode, isSnipingMode, applicationId, pageId],
   );
 };
 

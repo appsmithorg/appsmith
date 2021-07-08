@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  BIND_DATA_WITH_WIDGET: "BIND_DATA_WITH_WIDGET",
   BIND_DATA_ON_CANVAS: "BIND_DATA_ON_CANVAS",
   INCREMENT_COMMENT_THREAD_UNREAD_COUNT:
     "INCREMENT_COMMENT_THREAD_UNREAD_COUNT",
