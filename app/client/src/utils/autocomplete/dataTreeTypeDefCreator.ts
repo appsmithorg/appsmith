@@ -1,4 +1,8 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeJSAction,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import {
@@ -7,6 +11,7 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
+import { JSAction } from "entities/JSAction";
 
 let extraDefs: any = {};
 const skipProperties = ["!doc", "!url", "!type"];
@@ -83,10 +88,6 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   return { ...def, ...GLOBAL_FUNCTIONS };
 };
 
-export function getIfFunction(key: any, dataObj: any) {
-  return dataObj[key];
-}
-
 export function generateTypeDef(
   obj: any,
 ): string | Record<string, string | Record<string, unknown>> {
@@ -131,6 +132,26 @@ export const flattenObjKeys = (
         flattenObjKeys(value, parentKey + "." + key, r);
       }
       r[parentKey + "." + key] = value;
+    }
+  }
+  return r;
+};
+
+const skipJSProps = ["ENTITY_TYPE", "name"];
+export const getPropsForJsAction = (
+  options: any,
+  parentKey: any = "",
+  results: any = {},
+): any => {
+  const r: any = results;
+  for (const [key, value] of Object.entries(options)) {
+    if (!skipJSProps.includes(key)) {
+      const keyToPass = parentKey ? parentKey + "." + key : key;
+      if (!_.isObject(value) || Array.isArray(value)) {
+        r[keyToPass] = value;
+      } else {
+        getPropsForJsAction(value, keyToPass, r);
+      }
     }
   }
   return r;
