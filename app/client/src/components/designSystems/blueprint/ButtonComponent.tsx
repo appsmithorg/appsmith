@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   IButtonProps,
   MaybeElement,
@@ -36,6 +36,14 @@ const ButtonColorStyles = css<ButtonStyleProps>`
     fill: ${getButtonColorStyles};
   }
 `;
+
+const RecaptchaWrapper = styled.div`
+  position: relative;
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
+`;
+
 const AccentColorMap: Record<ButtonStyleName, string> = {
   primary: "primaryOld",
   secondary: "secondaryOld",
@@ -178,29 +186,36 @@ function RecaptchaV2Component(
   } & RecaptchaProps,
 ) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [isInValidKey, setInvalidKey] = useState(false);
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
-    try {
-      const token = await recaptchaRef?.current?.executeAsync();
-      if (token) {
-        props.clickWithRecaptcha(token);
-      } else {
-        // Handle incorrent google recaptcha site key
-        props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+    if (isInValidKey) {
+      // Handle incorrent google recaptcha site key
+      props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+    } else {
+      try {
+        const token = await recaptchaRef?.current?.executeAsync();
+        if (token) {
+          props.clickWithRecaptcha(token);
+        } else {
+          // Handle incorrent google recaptcha site key
+          props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+        }
+      } catch (err) {
+        // Handle error due to google recaptcha key of different domain
+        props.handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
       }
-    } catch (err) {
-      // Handle error due to google recaptcha key of different domain
-      props.handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
     }
   };
   return (
-    <div onClick={handleBtnClick}>
+    <RecaptchaWrapper onClick={handleBtnClick}>
       {props.children}
       <ReCAPTCHA
+        onErrored={() => setInvalidKey(true)}
         ref={recaptchaRef}
         sitekey={props.googleRecaptchaKey || ""}
         size="invisible"
       />
-    </div>
+    </RecaptchaWrapper>
   );
 }
 
