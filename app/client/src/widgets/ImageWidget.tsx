@@ -120,7 +120,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls if the image is allowed to download",
@@ -130,7 +130,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

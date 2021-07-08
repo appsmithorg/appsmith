@@ -379,7 +379,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           return result;
         }
       } catch (e) {
-        console.log("Error when validating: ", { e });
         return invalidResponse;
       }
     }
@@ -482,8 +481,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         const { result } = evaluate(config.params.fnString, {}, [value, props]);
         return result;
       } catch (e) {
-        console.log({ config }, { value }, { props });
-        console.log("Validation function error: --", { e });
+        console.error("Validation function error: ", { e });
       }
     }
     return invalidResponse;

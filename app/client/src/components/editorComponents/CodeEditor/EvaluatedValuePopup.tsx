@@ -12,7 +12,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import { UNDEFINED_VALIDATION } from "utils/validation/common";
+import {
+  ExpectedValueExample,
+  UNDEFINED_VALIDATION,
+} from "utils/validation/common";
 
 import {
   EvaluationError,
@@ -146,7 +149,7 @@ interface Props {
   theme: EditorTheme;
   isOpen: boolean;
   hasError: boolean;
-  expected?: { type: string; example: any };
+  expected?: { type: string; example: ExpectedValueExample };
   evaluatedValue?: any;
   children: JSX.Element;
   errors: EvaluationError[];
@@ -157,7 +160,7 @@ interface Props {
 
 interface PopoverContentProps {
   hasError: boolean;
-  expected?: { type: string; example: any };
+  expected?: { type: string; example: ExpectedValueExample };
   errors: EvaluationError[];
   useValidationMessage?: boolean;
   evaluatedValue: any;

@@ -305,7 +305,7 @@ export function validateWidgetProperty(
   props: Record<string, unknown>,
 ) {
   if (!config) {
-    console.log("Trying to validate property without existing validation:", {
+    console.error("Trying to validate property without existing validation:", {
       value,
     });
     return {

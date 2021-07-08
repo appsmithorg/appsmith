@@ -11,9 +11,16 @@ export const required = (value: any) => {
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
+export type ExpectedValueExample =
+  | string
+  | number
+  | boolean
+  | Record<string, unknown>
+  | Array<unknown>;
+
 type ExpectedValue = {
   type: string;
-  example: string | number | boolean | Record<string, unknown> | Array<unknown>;
+  example: ExpectedValueExample;
 };
 
 export function getExpectedValue(
@@ -70,8 +77,6 @@ export function getExpectedValue(
           _exampleObj[allowedKeyConfig.name] = _expected?.example;
         });
         type = `${type.substring(0, type.length - 1)} }`;
-        // console.log(unescape(type));
-        // console.log(JSON.parse(unescape(type)));
         return {
           type,
           example: _exampleObj,

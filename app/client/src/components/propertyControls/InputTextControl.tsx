@@ -9,13 +9,14 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ExpectedValueExample } from "utils/validation/common";
 
 export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   evaluatedValue?: any;
-  expected?: { type: string; example: any };
+  expected?: { type: string; example: ExpectedValueExample };
   placeholder?: string;
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;

@@ -6,6 +6,7 @@ import { Component } from "react";
 import _ from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import { ExpectedValueExample } from "utils/validation/common";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
@@ -35,7 +36,7 @@ export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
   propertyValue?: any;
   errorMessage?: string;
-  expected?: { type: string; example: any };
+  expected?: { type: string; example: ExpectedValueExample };
   evaluatedValue: any;
   widgetProperties: any;
   useValidationMessage?: boolean;
