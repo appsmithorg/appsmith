@@ -58,6 +58,7 @@ export const DropTargetContext: Context<{
     widgetBottomRow: number,
   ) => number | false;
   persistDropTargetRows?: (widgetId: string, row: number) => void;
+  rows?: number;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
@@ -153,6 +154,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       value={{
         updateDropTargetRows,
         persistDropTargetRows,
+        rows,
       }}
     >
       <StyledDropTarget

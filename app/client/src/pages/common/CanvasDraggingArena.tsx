@@ -120,9 +120,11 @@ export function CanvasDraggingArena({
   const { setDraggingNewWidget, setDraggingState } = useWidgetDragResize();
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const {
+    persistDropTargetRows,
+    rows = snapRows,
+    updateDropTargetRows,
+  } = useContext(DropTargetContext);
 
   const scrollToKeepUp = (
     drawingBlocks: {
@@ -137,7 +139,7 @@ export function CanvasDraggingArena({
   ) => {
     if (isDragging) {
       let groupBlock;
-      if (drawingBlocks.length > 1) {
+      if (drawingBlocks.length) {
         const sortedByTopBlocks = drawingBlocks.sort(
           (each2, each1) => each2.top - each1.top,
         );
@@ -188,7 +190,7 @@ export function CanvasDraggingArena({
     }[],
     rows: number,
   ) => {
-    if (drawingBlocks.length > 1) {
+    if (drawingBlocks.length) {
       const sortedByTopBlocks = drawingBlocks.sort(
         (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
       );
@@ -275,8 +277,6 @@ export function CanvasDraggingArena({
         }
       };
       if (isDragging) {
-        let rows = snapRows;
-
         // draggingCanvas.style.padding = `${noPad ? 0 : CONTAINER_GRID_PADDING}px`;
         const { height, width } = canvasRef.current.getBoundingClientRect();
         canvasRef.current.width = width * scale;
@@ -375,7 +375,6 @@ export function CanvasDraggingArena({
             }));
             const newRows = updateRows(drawingBlocks, rows);
             const rowDiff = newRows ? newRows - rows : 0;
-            rows = newRows && newRows !== rows ? newRows : rows;
             newRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding: noCollision(
@@ -547,7 +546,4 @@ export function CanvasDraggingArena({
     />
   ) : null;
 }
-CanvasDraggingArena.whyDidYouRender = {
-  logOnDifferentValues: true,
-};
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
