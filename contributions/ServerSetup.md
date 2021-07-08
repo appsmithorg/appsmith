@@ -2,6 +2,7 @@
 
 The server codebase is written in Java and is powered by Spring + WebFlux. This document explains how you can setup a development environment to make changes and test your changes.
 
+https://youtu.be/W2qbuUYGrQs
 
 # Setup with Docker 
 
