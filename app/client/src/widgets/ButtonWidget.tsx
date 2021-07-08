@@ -88,6 +88,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
           },
+          {
+            propertyName: "recaptchaV2",
+            label: "Google reCAPTCHA v2",
+            controlType: "SWITCH",
+            helpText: "Use reCAPTCHA v2",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {
@@ -163,6 +173,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
@@ -188,6 +199,7 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
 }
