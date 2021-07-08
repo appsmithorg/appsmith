@@ -88,11 +88,12 @@ export const useClickOpenPropPane = () => {
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
         focusWidget(parentWidgetToOpen.widgetId);
-        showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
+        !isMultiSelect &&
+          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
-        showPropertyPane(focusedWidgetId, undefined, true);
+        !isMultiSelect && showPropertyPane(focusedWidgetId, undefined, true);
       }
 
       if (isMultiSelect) {

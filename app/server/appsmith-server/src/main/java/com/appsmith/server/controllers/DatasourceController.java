@@ -5,11 +5,13 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
+import com.appsmith.server.dtos.MockDataSet;
+import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -25,9 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import net.minidev.json.JSONObject;
-
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,20 +37,21 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
-    private final ConfigService configService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final MockDataService mockDataService;
 
-    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-mockdb";
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService, ConfigService configService, ExamplesOrganizationCloner examplesOrganizationCloner) {
+                                AuthenticationService authenticationService,
+                                ExamplesOrganizationCloner examplesOrganizationCloner,
+                                MockDataService datasourceService) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
-        this.configService = configService;
         this.examplesOrganizationCloner = examplesOrganizationCloner;
+        this.mockDataService = datasourceService;
     }
 
     @PostMapping("/test")
@@ -90,14 +92,14 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     }
 
     @GetMapping("/mocks")
-    public Mono<ResponseDTO<JSONObject>> getMockDataSets() {
-        return configService.getByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getConfig(), null));
+    public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
+        return mockDataService.getMockDataSet()
+                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getMockdbs(), null));
     }
 
     @PostMapping("/mocks")
-    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestParam String datasourceId, @RequestParam String organizationId) {
-        return examplesOrganizationCloner.cloneDatasource(datasourceId, organizationId)
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
+        return mockDataService.createMockDataSet(mockDataSource)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 

@@ -144,12 +144,19 @@ export const fetchMockDatasources = () => {
 };
 
 export const addMockDatasourceToOrg = (
-  datasourceId: string,
-  orgId: string,
-): ReduxAction<{ orgId: string; id: string }> => {
+  name: string,
+  organizationId: string,
+  pluginId: string,
+  pluginName: string,
+): ReduxAction<{
+  name: string;
+  organizationId: string;
+  pluginId: string;
+  pluginName: string;
+}> => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { id: datasourceId, orgId },
+    payload: { name, pluginName, pluginId, organizationId },
   };
 };
 

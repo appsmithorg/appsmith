@@ -80,10 +80,11 @@ export interface Datasource extends BaseDatasource {
 }
 
 export interface MockDatasource {
-  id: string;
   name: string;
   description: string;
-  pluginId: string;
+  packageName: string;
+  pluginType: string;
+  pluginName?: string;
 }
 
 export const DEFAULT_DATASOURCE = (
