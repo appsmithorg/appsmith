@@ -1,14 +1,17 @@
 import CodeMirror from "codemirror";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-//TODO : add currentRow to data ?? currentRow: Object of columns ie first row
-export const bindingHint: HintHelper = (editor, data, additionalData) => {
-  const ternServer = new TernServer(data, additionalData);
+import { customTreeTypeDefCreator } from "../../../utils/autocomplete/customTreeTypeDefCreator";
+
+export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
+  if (additionalData) {
+    const customTreeDef = customTreeTypeDefCreator(additionalData);
+    TernServer.updateDef("customDataTree", customTreeDef);
+  }
+
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
@@ -17,19 +20,15 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
       cm: CodeMirror.Editor,
       expected: string,
       entity: string,
-    ) => ternServer.complete(cm, expected, entity),
+    ) => TernServer.complete(cm, expected, entity),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
-      ternServer.showType(cm);
+      TernServer.showType(cm);
     },
     [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: CodeMirror.Editor) => {
-      ternServer.showDocs(cm);
+      TernServer.showDocs(cm);
     },
   });
   return {
-    update: (data: DataTree) => {
-      const dataTreeDef = dataTreeTypeDefCreator(data);
-      ternServer.updateDef("dataTree", dataTreeDef);
-    },
     showHint: (
       editor: CodeMirror.Editor,
       expected: string,
@@ -38,7 +37,7 @@ export const bindingHint: HintHelper = (editor, data, additionalData) => {
       const shouldShow = checkIfCursorInsideBinding(editor);
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
-        ternServer.complete(editor, expected, entityName);
+        TernServer.complete(editor, expected, entityName);
         return true;
       }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
