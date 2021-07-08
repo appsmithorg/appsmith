@@ -24,6 +24,7 @@ import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
 import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
 import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
+import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -152,6 +153,11 @@ export const WidgetIcons: {
   IFRAME_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <EmbedIcon />
+    </IconWrapper>
+  ),
+  ICON_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IconButtonIcon />
     </IconWrapper>
   ),
 };

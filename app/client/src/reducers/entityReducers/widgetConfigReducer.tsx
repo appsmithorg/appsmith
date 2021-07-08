@@ -31,6 +31,7 @@ import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
 import { RateWidgetProps } from "../../widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
+import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -86,6 +87,7 @@ export interface WidgetConfigReducerState {
     LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
     RATE_WIDGET: Partial<RateWidgetProps> & WidgetConfigProps;
     IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
+    ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

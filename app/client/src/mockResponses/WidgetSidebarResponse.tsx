@@ -115,6 +115,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Iframe",
     key: generateReactKey(),
   },
+  {
+    type: "ICON_BUTTON_WIDGET",
+    widgetCardName: "Icon Button",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

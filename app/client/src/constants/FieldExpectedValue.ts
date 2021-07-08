@@ -185,6 +185,10 @@ const FIELD_VALUES: Record<
     borderOpacity: "number",
     borderWidth: "number",
   },
+  ICON_BUTTON_WIDGET: {
+    iconName: "string",
+    isVisible: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

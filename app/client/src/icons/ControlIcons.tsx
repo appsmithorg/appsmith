@@ -39,6 +39,15 @@ import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading
 import { ReactComponent as ParagraphIcon } from "assets/icons/control/paragraph.svg";
 import { ReactComponent as ParagraphTwoIcon } from "assets/icons/control/paragraph_2.svg";
 import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg";
+import { ReactComponent as BorderRadiusSharpIcon } from "assets/icons/control/border-radius-sharp.svg";
+import { ReactComponent as BorderRadiusRoundedIcon } from "assets/icons/control/border-radius-rounded.svg";
+import { ReactComponent as BorderRadiusCircleIcon } from "assets/icons/control/border-radius-circle.svg";
+import { ReactComponent as BoxShadowNoneIcon } from "assets/icons/control/box-shadow-none.svg";
+import { ReactComponent as BoxShadowVariant1Icon } from "assets/icons/control/box-shadow-variant1.svg";
+import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/box-shadow-variant2.svg";
+import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
+import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
+import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -248,6 +257,51 @@ export const ControlIcons: {
   BULLETS: (props: IconProps) => (
     <IconWrapper {...props}>
       <BulletsIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_SHARP: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusSharpIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_ROUNDED: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusRoundedIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_CIRCLE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusCircleIcon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_NONE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowNoneIcon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT1: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant1Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT2: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant2Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT3: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant3Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT4: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant4Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT5: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant5Icon />
     </IconWrapper>
   ),
 };

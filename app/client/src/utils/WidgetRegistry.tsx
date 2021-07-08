@@ -111,6 +111,10 @@ import IframeWidget, {
   IframeWidgetProps,
   ProfiledIframeWidget,
 } from "widgets/IframeWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -488,6 +492,19 @@ export default class WidgetBuilderRegistry {
       IframeWidget.getDefaultPropertiesMap(),
       IframeWidget.getMetaPropertiesMap(),
       IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

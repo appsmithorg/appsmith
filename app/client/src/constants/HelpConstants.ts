@@ -123,6 +123,10 @@ export const HelpMap = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
