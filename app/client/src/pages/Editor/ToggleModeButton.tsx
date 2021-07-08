@@ -32,9 +32,11 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
-import { createMessage, ONE_UNREAD_MESSAGE } from "constants/messages";
+import { createMessage, UNREAD_MESSAGE } from "constants/messages";
 
 import localStorage from "utils/localStorage";
+
+import { getAppMode } from "selectors/applicationSelectors";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -261,10 +263,20 @@ function ToggleCommentModeButton() {
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
+  const appMode = useSelector(getAppMode);
+  const initShowCommentButtonDiscoveryTooltip =
+    getShowCommentsButtonToolTip() && appMode === APP_MODE.PUBLISHED;
+
   const [
     showCommentButtonDiscoveryTooltip,
     setShowCommentButtonDiscoveryTooltipInState,
-  ] = useState(getShowCommentsButtonToolTip());
+  ] = useState(initShowCommentButtonDiscoveryTooltip);
+
+  useEffect(() => {
+    setShowCommentButtonDiscoveryTooltipInState(
+      initShowCommentButtonDiscoveryTooltip,
+    );
+  }, [appMode]);
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
@@ -305,7 +317,7 @@ function ToggleCommentModeButton() {
             <ViewOrEditMode mode={mode} />
           </ModeButton>
           <TooltipComponent
-            content={createMessage(ONE_UNREAD_MESSAGE)}
+            content={createMessage(UNREAD_MESSAGE)}
             isOpen={showCommentButtonDiscoveryTooltip}
           >
             <CommentModeBtn
