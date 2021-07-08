@@ -70,7 +70,7 @@ const defaultProps = {
   size: Size.small,
   isLoading: false,
   disabled: false,
-  fill: false,
+  fill: undefined,
   tag: "a",
 };
 

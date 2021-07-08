@@ -6,7 +6,8 @@ import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
-import { getActions } from "../selectors/entitiesSelector";
+import { getActions, getPlugins } from "../selectors/entitiesSelector";
+import { Plugin } from "api/PluginApi";
 
 export const getWidgets = (
   state: AppState,
@@ -80,6 +81,15 @@ export const getExistingActionNames = createSelector(
       }),
     );
   },
+);
+
+export const getPluginIdToImageLocation = createSelector(
+  getPlugins,
+  (plugins) =>
+    plugins.reduce((acc: any, p: Plugin) => {
+      acc[p.id] = p.iconLocation;
+      return acc;
+    }, {}),
 );
 
 /**
