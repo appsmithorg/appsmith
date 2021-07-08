@@ -105,5 +105,4 @@ public class CommentController extends BaseController<CommentService, Comment, S
         return service.deleteReaction(commentId, reaction)
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
-
 }

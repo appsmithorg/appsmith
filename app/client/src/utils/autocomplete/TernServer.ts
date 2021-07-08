@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
 import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
+import forge from "constants/defs/forge.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   extraLibraries,
@@ -16,13 +14,27 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
+import {
+  GLOBAL_DEFS,
+  GLOBAL_FUNCTIONS,
+} from "utils/autocomplete/EntityDefinitions";
 
-const DEFS = [ecma, lodash, base64, moment, xmlJs];
+const DEFS: Def[] = [
+  GLOBAL_FUNCTIONS,
+  GLOBAL_DEFS,
+  // @ts-ignore
+  ecma,
+  lodash,
+  base64,
+  moment,
+  xmlJs,
+  forge,
+];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-type Completion = Hint & {
+export type Completion = Hint & {
   origin: string;
   type: DataType;
   data: {
@@ -30,6 +42,11 @@ type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
+};
+
+export type CommandsCompletion = Completion & {
+  action?: () => void;
+  shortcut: string;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -65,20 +82,10 @@ class TernServer {
   expected?: string;
   entityName?: string;
 
-  constructor(
-    dataTree: DataTree,
-    additionalDataTree?: Record<string, Record<string, unknown>>,
-  ) {
-    const dataTreeDef = dataTreeTypeDefCreator(dataTree);
-    let customDataTreeDef = undefined;
-    if (additionalDataTree) {
-      customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
-    }
+  constructor() {
     this.server = new tern.Server({
       async: true,
-      defs: customDataTreeDef
-        ? [...DEFS, dataTreeDef, customDataTreeDef]
-        : [...DEFS, dataTreeDef],
+      defs: DEFS,
     });
   }
 
@@ -121,6 +128,10 @@ class TernServer {
     this.server.deleteDefs(name);
     // @ts-ignore: No types available
     this.server.addDefs(def, true);
+  }
+
+  removeDef(name: string) {
+    this.server.deleteDefs(name);
   }
 
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
@@ -255,7 +266,7 @@ class TernServer {
       OTHER: [],
     };
     completions.forEach((completion) => {
-      if (completion.origin === "dataTree") {
+      if (completion.origin && completion.origin.startsWith("DATA_TREE_")) {
         completionType.DATA_TREE.push(completion);
         return;
       }
@@ -754,4 +765,4 @@ class TernServer {
   }
 }
 
-export default TernServer;
+export default new TernServer();

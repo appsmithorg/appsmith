@@ -37,6 +37,10 @@ import log from "loglevel";
 import { AppState } from "../reducers";
 import { getAppMode } from "../selectors/applicationSelectors";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
+import { dataTreeTypeDefCreator } from "../utils/autocomplete/dataTreeTypeDefCreator";
+import TernServer from "utils/autocomplete/TernServer";
+import { logDebuggerErrorAnalytics } from "../actions/debuggerActions";
+import store from "../store";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -88,6 +92,19 @@ function getLatestEvalPropertyErrors(
           message: e.errorMessage,
         }));
 
+        if (!(debuggerKey in updatedDebuggerErrors)) {
+          store.dispatch(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR",
+              entityId: idField,
+              entityName: nameField,
+              entityType,
+              propertyPath,
+              errorMessages,
+            }),
+          );
+        }
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
@@ -108,6 +125,17 @@ function getLatestEvalPropertyErrors(
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
+        store.dispatch(
+          logDebuggerErrorAnalytics({
+            eventName: "DEBUGGER_RESOLVED_ERROR",
+            entityId: idField,
+            entityName: nameField,
+            entityType,
+            propertyPath:
+              updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
+            errorMessages: updatedDebuggerErrors[debuggerKey].messages ?? [],
+          }),
+        );
         // Remove
         delete updatedDebuggerErrors[debuggerKey];
       }
@@ -252,4 +280,40 @@ export function* postEvalActionDispatcher(
   for (const action of actions) {
     yield put(action);
   }
+}
+
+// Update only the changed entities on tern. We will pick up the updated
+// entities from the evaluation order and create a new def from them.
+// When there is a top level entity removed in removedPaths,
+// we will remove its def
+export function* updateTernDefinitions(
+  dataTree: DataTree,
+  evaluationOrder: string[],
+  removedPaths: string[],
+  isFirstEvaluation: boolean,
+) {
+  const updatedEntities: Set<string> = new Set();
+  // If it is the first evaluation, we want to add everything in the data tree
+  if (isFirstEvaluation) {
+    Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
+  } else {
+    evaluationOrder.forEach((path) => {
+      const { entityName } = getEntityNameAndPropertyPath(path);
+      updatedEntities.add(entityName);
+    });
+  }
+
+  updatedEntities.forEach((entityName) => {
+    const entity = dataTree[entityName];
+    if (entity) {
+      const { def, name } = dataTreeTypeDefCreator(entity, entityName);
+      TernServer.updateDef(name, def);
+    }
+  });
+  removedPaths.forEach((path) => {
+    // No '.' means that the path is an entity name
+    if (path.split(".").length === 1) {
+      TernServer.removeDef(path);
+    }
+  });
 }

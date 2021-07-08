@@ -23,7 +23,6 @@ describe("Image Widget Functionality", function() {
     );
     cy.get(viewWidgetsPage.defaultImage)
       .click({ force: true })
-      .type(this.data.command)
       .type(this.data.defaultimage);
     /**
      * @param{URL} ImageUrl
