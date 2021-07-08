@@ -115,6 +115,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Iframe",
     key: generateReactKey(),
   },
+  {
+    type: "DIVIDER_WIDGET",
+    widgetCardName: "Divider",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

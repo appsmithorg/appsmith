@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -143,20 +144,34 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Query query = new Query();
-                    criterias.stream()
-                            .forEach(criteria -> query.addCriteria(criteria));
-                    if (aclPermission == null) {
-                        query.addCriteria(new Criteria().andOperator(notDeleted()));
-                    } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
-                    }
-
                     return mongoOperations.query(this.genericDomain)
-                            .matching(query)
+                            .matching(createQueryWithPermission(criterias, auth,aclPermission))
                             .one()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
+    }
+
+    private Query createQueryWithPermission(List<Criteria> criterias, Authentication auth, AclPermission aclPermission) {
+        User user = (User) auth.getPrincipal();
+        Query query = new Query();
+        criterias.stream()
+                .forEach(criteria -> query.addCriteria(criteria));
+        if (aclPermission == null) {
+            query.addCriteria(new Criteria().andOperator(notDeleted()));
+        } else {
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+        }
+        return query;
+    }
+
+    protected Mono<Long> count(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth ->
+                    mongoOperations.count(
+                            createQueryWithPermission(criterias, auth, aclPermission), this.genericDomain
+                    )
+                );
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
@@ -168,14 +183,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Query query = new Query();
-                    criterias.stream()
-                            .forEach(criteria -> query.addCriteria(criteria));
-                    if (aclPermission == null) {
-                        query.addCriteria(new Criteria().andOperator(notDeleted()));
-                    } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
-                    }
+                    Query query = createQueryWithPermission(criterias, auth, aclPermission);
                     if (sort != null) {
                         query.with(sort);
                     }

@@ -21,6 +21,7 @@ import {
   updateWidgetNameSuccess,
   updateAndSaveLayout,
   saveLayout,
+  setLastUpdatedTime,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -173,6 +174,9 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
+const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+  pageResponse.data.lastUpdatedTime;
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
@@ -187,6 +191,7 @@ export function* fetchPageSaga(
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+    const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -206,6 +211,8 @@ export function* fetchPageSaga(
           isFirstLoad ? [] : [executePageLoadActions()],
         ),
       );
+      // Sets last updated time
+      yield put(setLastUpdatedTime(lastUpdatedTime));
       const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -354,6 +361,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       if (actionUpdates && actionUpdates.length > 0) {
         yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
+      yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,

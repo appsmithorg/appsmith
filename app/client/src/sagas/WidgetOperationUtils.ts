@@ -12,10 +12,8 @@ import {
   set,
   minBy,
   maxBy,
-  flatten,
   flattenDeep,
 } from "lodash";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -25,7 +23,12 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets } from "utils/storage";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getSelectedWidget, getWidgetMetaProps, getWidgets } from "./selectors";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -395,9 +398,13 @@ export const getSelectedWidgetWhenPasting = function*() {
     getSelectedWidget,
   );
 
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
+
   selectedWidget = checkIfPastingIntoListWidget(
     canvasWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 
