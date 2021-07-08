@@ -186,9 +186,9 @@ function RecaptchaV2Component(
   } & RecaptchaProps,
 ) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
-  const [isInValidKey, setInvalidKey] = useState(false);
+  const [isInvalidKey, setInvalidKey] = useState(false);
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
-    if (isInValidKey) {
+    if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
     } else {
