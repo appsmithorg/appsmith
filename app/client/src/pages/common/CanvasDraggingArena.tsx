@@ -23,7 +23,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { debounce, throttle } from "lodash";
+import { debounce, isEmpty, throttle } from "lodash";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -291,14 +291,14 @@ export function CanvasDraggingArena({
         const differentParent = dragParent !== widgetId;
         const parentDiff = {
           top:
-            differentParent && dragCenterSpace
+            differentParent && !isEmpty(dragCenterSpace)
               ? dragCenterSpace.top * snapRowSpace +
                 (noPad ? 0 : CONTAINER_GRID_PADDING)
               : noPad
               ? 0
               : CONTAINER_GRID_PADDING,
           left:
-            differentParent && dragCenterSpace
+            differentParent && !isEmpty(dragCenterSpace)
               ? dragCenterSpace.left * snapColumnSpace +
                 (noPad ? 0 : CONTAINER_GRID_PADDING)
               : noPad
@@ -344,7 +344,7 @@ export function CanvasDraggingArena({
             !canvasIsDragging &&
             canvasRef.current
           ) {
-            if (dragCenterSpace) {
+            if (!isEmpty(dragCenterSpace)) {
               startPoints.left =
                 ((dragParent === widgetId ? dragCenterSpace.left : 0) +
                   dragStartPoints.left) *

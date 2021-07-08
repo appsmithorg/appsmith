@@ -128,14 +128,20 @@ class ContainerWidget extends BaseWidget<
     return (
       <ContainerComponent {...props}>
         {props.type === "CANVAS_WIDGET" && (
-          <CanvasDraggingArena
-            {...this.getSnapSpaces()}
-            noPad={this.props.noPad}
-            snapRows={snapRows}
-            widgetId={props.widgetId}
-          />
+          <>
+            <CanvasDraggingArena
+              {...this.getSnapSpaces()}
+              noPad={this.props.noPad}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+            <CanvasSelectionArena
+              {...this.getSnapSpaces()}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+          </>
         )}
-        <CanvasSelectionArena widgetId={props.widgetId} />
         <WidgetsMultiSelectBox
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
