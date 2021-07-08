@@ -11,6 +11,7 @@ import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
+import debounce from "lodash/debounce";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -26,15 +27,21 @@ export interface MultiSelectProps
   mode?: "multiple" | "tags";
   value: string[];
   onChange: (value: DefaultValueType) => void;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
+
+const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
   disabled,
   dropdownStyle,
   loading,
   onChange,
+  onFilterChange,
   options,
   placeholder,
+  serverSideFiltering,
   value,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -96,6 +103,15 @@ function MultiSelectComponent({
       option?.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0,
     [],
   );
+
+  const serverSideSearch = React.useMemo(() => {
+    const updateFilter = (value: string) => {
+      onFilterChange(value);
+    };
+
+    return debounce(updateFilter, DEBOUNCE_TIMEOUT);
+  }, []);
+
   return (
     <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
       <DropdownStyles />
@@ -109,7 +125,7 @@ function MultiSelectComponent({
         dropdownClassName="multi-select-dropdown"
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
-        filterOption={filterOption}
+        filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={() => getDropdownPosition(_menu.current)}
         inputIcon={inputIcon}
         loading={loading}
@@ -119,6 +135,7 @@ function MultiSelectComponent({
         mode="multiple"
         notFoundContent="No item Found"
         onChange={onChange}
+        onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
         showArrow
