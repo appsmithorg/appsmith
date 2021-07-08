@@ -88,7 +88,7 @@ public class MockDataServiceTest {
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("movies");
         mockDataSource.setOrganizationId(orgId);
-        mockDataSource.setPluginName("mongo-plugin");
+        mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
         StepVerifier
@@ -127,7 +127,7 @@ public class MockDataServiceTest {
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("users");
         mockDataSource.setOrganizationId(orgId);
-        mockDataSource.setPluginName("postgres-plugin");
+        mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
         StepVerifier
