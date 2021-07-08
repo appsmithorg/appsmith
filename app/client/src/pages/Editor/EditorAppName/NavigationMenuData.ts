@@ -98,7 +98,7 @@ export const GetNavigationMenuData = ({
           isOpensNewWindow: true,
         },
         {
-          text: "Current Deploy Version",
+          text: "Current Deployed Version",
           onClick: () => openExternalLink(currentDeployLink),
           type: MenuTypes.MENU,
           isVisible: true,
