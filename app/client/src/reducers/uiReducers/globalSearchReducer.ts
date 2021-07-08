@@ -22,7 +22,7 @@ const globalSearchReducer = createReducer(initialState, {
     action: ReduxAction<Array<RecentEntity>>,
   ) => ({
     ...state,
-    recentEntities: action.payload || [],
+    recentEntities: (action.payload || []).filter((a: RecentEntity) => a),
   }),
   [ReduxActionTypes.RESET_RECENT_ENTITIES]: (
     state: GlobalSearchReduxState,
