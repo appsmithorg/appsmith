@@ -58,7 +58,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
-      objectFit: "cover",
+      objectFit: "contain",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,

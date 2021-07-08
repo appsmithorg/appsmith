@@ -20,7 +20,7 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;
   flex-direction: "row";
-  background-size: ${(props) => props.objectFit ?? "cover"};
+  background-size: ${(props) => props.objectFit ?? "contain"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
