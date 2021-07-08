@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { Classes } from "@blueprintjs/core";
+import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -107,7 +107,7 @@ const HeaderSection = styled.div`
   :nth-child(3) {
     justify-content: flex-end;
   }
-  > .${Classes.POPOVER_WRAPPER} {
+  > .${Popover2Classes.POPOVER2_TARGET} {
     max-width: calc(100% - 50px);
     min-width: 100px;
   }

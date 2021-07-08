@@ -4,6 +4,7 @@ import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { ThemeProp } from "components/ads/common";
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
@@ -13,7 +14,7 @@ import { APPLICATIONS_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 
-type NavigationMenuDataProps = {
+type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
   editMode: typeof noop;
   deploy: typeof noop;
@@ -25,6 +26,7 @@ export const GetNavigationMenuData = ({
   currentDeployLink,
   deploy,
   editMode,
+  theme,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndApp);
@@ -152,7 +154,7 @@ export const GetNavigationMenuData = ({
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
       isVisible: isApplicationIdPresent,
-      style: { color: "#F22B2B" },
+      style: { color: theme.colors.navigationMenu.warning },
     },
   ];
 };

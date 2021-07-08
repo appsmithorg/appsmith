@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from "react";
 
-import styled from "styled-components";
-import { Classes, Menu, Popover, Position } from "@blueprintjs/core";
+import styled, { withTheme } from "styled-components";
+import { Classes, Menu, Position } from "@blueprintjs/core";
+import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
@@ -9,31 +10,32 @@ import { Toaster } from "components/ads/Toast";
 import Icon, { IconSize } from "components/ads/Icon";
 import { SavingState } from "components/ads/EditableTextSubComponent";
 import { EditInteractionKind } from "components/ads/EditableText";
-import { CommonComponentProps } from "components/ads/common";
+import { CommonComponentProps, ThemeProp } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 
-type EditorAppNameProps = CommonComponentProps & {
-  applicationId: string | undefined;
-  defaultValue: string;
-  placeholder?: string;
-  editInteractionKind: EditInteractionKind;
-  defaultSavingState: SavingState;
-  deploy: typeof noop;
-  onBlur?: (value: string) => void;
-  isEditingDefault?: boolean;
-  inputValidation?: (value: string) => string | boolean;
-  hideEditIcon?: boolean;
-  fill?: boolean;
-  isError?: boolean;
-  isNewApp: boolean;
-  currentDeployLink: string;
-  isPopoverOpen: boolean;
-  setIsPopoverOpen: typeof noop;
-};
+type EditorAppNameProps = CommonComponentProps &
+  ThemeProp & {
+    applicationId: string | undefined;
+    defaultValue: string;
+    placeholder?: string;
+    editInteractionKind: EditInteractionKind;
+    defaultSavingState: SavingState;
+    deploy: typeof noop;
+    onBlur?: (value: string) => void;
+    isEditingDefault?: boolean;
+    inputValidation?: (value: string) => string | boolean;
+    hideEditIcon?: boolean;
+    fill?: boolean;
+    isError?: boolean;
+    isNewApp: boolean;
+    currentDeployLink: string;
+    isPopoverOpen: boolean;
+    setIsPopoverOpen: typeof noop;
+  };
 
 const Container = styled.div<{ isPopoverOpen: boolean }>`
   display: flex;
@@ -58,7 +60,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     height: ${(props) => props.theme.smallHeaderHeight};
   }
 
-  & .${Classes.POPOVER_TARGET} {
+  & .${Popover2Classes.POPOVER2_TARGET} {
     height: 100%;
   }
   & .${Classes.EDITABLE_TEXT} {
@@ -92,11 +94,10 @@ const StyledIcon = styled(Icon)`
 `;
 
 const StyledMenu = styled(Menu)`
-  margin-top: -8px;
   background: ${(props) =>
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-  font-size: 14px;
+  ${(props) => getTypographyByKey(props, "p1")};
   border-radius: 0;
   padding: 0;
 
@@ -127,7 +128,7 @@ const StyledMenu = styled(Menu)`
   }
 `;
 
-export default function EditorAppName(props: EditorAppNameProps) {
+export function EditorAppName(props: EditorAppNameProps) {
   const {
     applicationId,
     currentDeployLink,
@@ -137,6 +138,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
     isNewApp,
     isPopoverOpen,
     setIsPopoverOpen,
+    theme,
   } = props;
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
@@ -191,6 +193,7 @@ export default function EditorAppName(props: EditorAppNameProps) {
     currentDeployLink,
     editMode,
     deploy,
+    theme,
   });
 
   const NavigationMenuItems = (
@@ -203,12 +206,13 @@ export default function EditorAppName(props: EditorAppNameProps) {
   );
 
   return defaultValue !== "" ? (
-    <Popover
+    <Popover2
       autoFocus={false}
       content={NavigationMenuItems}
       isOpen={isPopoverOpen}
       minimal
       onInteraction={handleOnInteraction}
+      portalClassName="t--editor-appname-menu-portal"
       position={Position.BOTTOM_RIGHT}
     >
       <Container isPopoverOpen={isPopoverOpen} onClick={handleAppNameClick}>
@@ -233,12 +237,14 @@ export default function EditorAppName(props: EditorAppNameProps) {
         />
         {!isEditing && (
           <StyledIcon
-            fillColor="#858282"
+            fillColor={theme.colors.navigationMenu.contentInactive}
             name="downArrow"
             size={IconSize.XXS}
           />
         )}
       </Container>
-    </Popover>
+    </Popover2>
   ) : null;
 }
+
+export default withTheme(EditorAppName);

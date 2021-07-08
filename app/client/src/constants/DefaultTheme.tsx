@@ -350,6 +350,7 @@ export type Theme = {
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
+  navbarMenuHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -2412,6 +2413,7 @@ export const theme: Theme = {
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,

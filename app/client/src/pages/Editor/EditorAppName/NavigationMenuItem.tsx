@@ -32,6 +32,7 @@ const StyledMenuItem = styled(MenuItem)`
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
   border-radius: 0;
+  height: ${(props) => props.theme.navbarMenuHeight};
 
   &&&:hover {
     color: ${(props) => props.theme.colors.navigationMenu.contentActive};
