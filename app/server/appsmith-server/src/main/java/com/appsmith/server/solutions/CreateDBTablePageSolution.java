@@ -295,12 +295,18 @@ public class CreateDBTablePageSolution {
 
 
     /**
-     * @param applicationId
-     * @param pageId
-     * @param tableName
+     * @param applicationId application from which the page should be fetched
+     * @param pageId ref to page which is going to be fetched
+     * @param tableName if page is not present then name of the page name should include tableName
      * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
      */
     private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName) {
+
+        /*
+            1. Check if the page is already available
+            2. If present return the same page
+            3. If page is not present create new page and return
+        */
 
         log.debug("Fetching page from application {}", applicationId);
         if(pageId != null) {
@@ -336,7 +342,16 @@ public class CreateDBTablePageSolution {
             .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), AclPermission.MANAGE_PAGES));
     }
 
+    /**
+     * @param datasource resource from which table has to be filtered
+     * @param tableName to filter the avaialable tables in the datasource
+     * @return Table from the provided datasource if structure is present
+     */
     private Mono<Table> getTable(Datasource datasource, String tableName) {
+        /*
+            1. Get structure from datasource
+            2. Filter by tableName
+        */
         DatasourceStructure datasourceStructure = datasource.getStructure();
         if (datasourceStructure != null) {
             return Mono.justOrEmpty(getTable(datasourceStructure, tableName))
@@ -357,11 +372,16 @@ public class CreateDBTablePageSolution {
 
     /**
      * @param filePath template application path
-     * @return application resource
+     * @return template application resource from which
      * @throws IOException
      */
     private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
 
+        /*
+            1. Fetch the content from the template json file
+            2. De-Serialise data from the file
+            3. Store the data in the application resource format
+         */
         log.debug("Going to fetch template application");
         final String jsonContent = StreamUtils.copyToString(
             new DefaultResourceLoader().getResource(filePath).getInputStream(),
@@ -392,6 +412,12 @@ public class CreateDBTablePageSolution {
                                                                 Map<String, String> mappedColumns,
                                                                 Set<String> deletedWidgetNames
     ) {
+        /*
+            1. Clone actions from the template pages
+            2. Update actionConfiguration to replace the template table fields with users datasource fields
+            stored in mapped columns
+            3. Create new action
+         */
         log.debug("Cloning actions from template application for pageId {}", pageId);
         return Flux.fromIterable(templateActionList)
             .flatMap(templateAction -> {
@@ -408,7 +434,7 @@ public class CreateDBTablePageSolution {
                 ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
 
                 List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
-                // SQL
+                // For SQL datasources
                 if (actionBody != null) {
                     String body = actionBody.replaceFirst(TEMPLATE_TABLE_NAME, tableName);
                     final Matcher matcher = fieldNamePattern.matcher(body);
@@ -447,7 +473,7 @@ public class CreateDBTablePageSolution {
 
         /*
             1. Fetch and map primary keys for source and destination columns if available
-            2. Map remaining column names
+            2. Map remaining column names between the sourceTable(key) and destinationTable(value)
          */
         log.debug("Mapping column names with template application for table {}", destTable.getName());
         Map<String, String> mappedTableColumns = new HashMap<>();
@@ -489,10 +515,21 @@ public class CreateDBTablePageSolution {
         }
         return mappedTableColumns;
     }
-    
+
+    /**
+     * This function maps the pKey for sourceTable column names with destinationTable column names
+     * @param sourceTable Template table whose pKey will act as key for the MAP
+     * @param destTable Table from the users datasource whose keys will act as values for the MAP
+     * @return Map of <sourceKeyColumnName, destinationKeyColumnName>
+     */
+
     private Map<String, String> mapKeys(Table sourceTable, Table destTable) {
+
+        /*
+            1. Get pKey for source table and destination table
+            2. Map column names from source pKey to destination pKey
+        */
         Map<String, String> primaryKeyNameMap = new HashMap<>();
-        //keyType vs keyName
         List<String> sourceKeys = new ArrayList<>();
         List<String> destKeys = new ArrayList<>();
         
@@ -517,9 +554,10 @@ public class CreateDBTablePageSolution {
     }
 
     /**
+     * This function updates the dsl of current node and recursively iterate over it's children
      * @param dsl
-     * @param mappedColumnsAndTableNames map to replace column names
-     * @param deletedWidgets return the widgets those are deleted from the dsl
+     * @param mappedColumnsAndTableNames map to replace column names and update dsl
+     * @param deletedWidgets store the widgets those are deleted from the dsl
      * @return updated dsl for the widget
      */
     private JSONObject extractAndUpdateAllWidgetFromDSL(JSONObject dsl,
@@ -527,8 +565,10 @@ public class CreateDBTablePageSolution {
                                                         Set<String> deletedWidgets) {
 
         /*
-            1. Fetch the children of the current node in the DSL and recursively iterate over them
-            2. Delete unwanted children and update dsl
+            1. Update dsl : Replace names of template columns with the user connected datasource columns
+            2. Fetch the children of the current node in the DSL and recursively iterate over them
+            3. Delete unwanted children
+            4. Save and return updated dsl
          */
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isn't a valid widget configuration. No need to traverse this.
@@ -578,6 +618,11 @@ public class CreateDBTablePageSolution {
      */
     private JSONObject updateTemplateWidgets(JSONObject widgetDsl, Map<String, String> mappedColumnsAndTableNames) {
 
+        /*
+            1. Check the keys in widget dsl if needs to be changed
+            2. Replace the template column names with the user connected datasource column names
+            using mappedColumnsAndTableNames
+        */
         List<String> keys = widgetDsl.keySet().stream().filter(WIDGET_FIELDS::contains).collect(Collectors.toList());
         for (String key : keys) {
             if (FieldName.PRIMARY_COLUMNS.equals(key)) {
@@ -611,13 +656,22 @@ public class CreateDBTablePageSolution {
     }
 
     /**
-     * This will delete widget names from body when template datasource have more number of columns
-     * @param actionConfiguration
-     * @param deletedWidgetNames widgets for which references to be removed from the actions
+     * This will delete widget names from body when template datasource have more number of columns than the user
+     * connected datasource. Also it will replace the template column names with the user connected datasource column names
+     * @param actionConfiguration resource which needs to be updated
+     * @param deletedWidgetNames widgets for which references to be removed from the actionConfiguration
      * @return updated ActionConfiguration with deleteWidgets ref removed
      */
-    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(ActionConfiguration actionConfiguration, Set<String> deletedWidgetNames) {
+    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(
+                                                                        ActionConfiguration actionConfiguration,
+                                                                        Set<String> deletedWidgetNames) {
 
+
+        /*
+            1. Check for any delete widget reference within actionConfiguration
+            2. Remove the fields related to delete widget from actionBody and pluginSpecifiedTemplates
+            3. Return updated actionConfiguration
+         */
         // We need to check this for insertQuery for SQL
         if (StringUtils.containsIgnoreCase(actionConfiguration.getBody(), "VALUES")) {
 
