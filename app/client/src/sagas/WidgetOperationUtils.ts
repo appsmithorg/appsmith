@@ -483,7 +483,7 @@ export function groupWidgetsIntoContainer(
             ...listitem,
             topRow: listitem.topRow - topMostWidget.topRow,
             bottomRow: listitem.bottomRow - topMostWidget.topRow,
-            parentId: newContainerWidget.widgetId,
+            parentId: newCanvasWidget.widgetId,
           };
         }
 

@@ -4,7 +4,8 @@ import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 /**
- * this middleware intercepts each action and fire analytics
+ * this middleware intercepts each action and fire analytics events
+ *
  * @param store
  * @returns
  */
