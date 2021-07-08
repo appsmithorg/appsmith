@@ -285,7 +285,7 @@ function SnipingModeBtn({
     <ModeButton
       active={isSnipingMode}
       onClick={handleSetSnipingModeButton}
-      type="stroke"
+      type="fill"
     >
       <TooltipComponent
         content={
