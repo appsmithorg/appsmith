@@ -2,7 +2,9 @@
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor
 
-https://youtu.be/FwJlVWVx0X0
+
+[![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.png)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
+
 
 ### Pre-requisites:
 
