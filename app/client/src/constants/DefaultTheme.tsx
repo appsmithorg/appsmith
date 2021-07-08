@@ -50,6 +50,34 @@ export const hideScrollbar = css`
   }
 `;
 
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${Colors.PORCELAIN};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.PORCELAIN};
+  }
+`;
+
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -289,6 +317,7 @@ type PropertyPaneTheme = {
   height: number;
   dividerColor: Color;
   titleHeight: number;
+  connectionsHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -316,6 +345,8 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
@@ -993,6 +1024,9 @@ type ColorType = {
     dropdownSelectBg: ShadeColor;
     multiDropdownBoxHoverBg: ShadeColor;
     iconColor: ShadeColor;
+    ctaTextColor: string;
+    ctaBackgroundColor: string;
+    ctaLearnMoreTextColor: string;
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -1618,6 +1652,9 @@ export const dark: ColorType = {
     dropdownSelectBg: darkShades[2],
     multiDropdownBoxHoverBg: darkShades[0],
     iconColor: darkShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -2081,6 +2118,9 @@ export const light: ColorType = {
     dropdownSelectBg: lightShades[14],
     multiDropdownBoxHoverBg: lightShades[11],
     iconColor: lightShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -2249,6 +2289,7 @@ export const theme: Theme = {
   propertyPane: {
     width: 270,
     titleHeight: 40,
+    connectionsHeight: 30,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -2368,6 +2409,8 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
   canvasBottomPadding: 200,
   sideNav: {
     maxWidth: 220,

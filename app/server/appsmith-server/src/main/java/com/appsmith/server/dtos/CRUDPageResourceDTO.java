@@ -21,5 +21,7 @@ public class CRUDPageResourceDTO {
 
     String tableName;
 
-    Set<String> columnNames;
+    String searchColumn;
+
+    Set<String> columns;
 }

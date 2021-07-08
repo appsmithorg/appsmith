@@ -11,7 +11,8 @@ export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
   | "QUERY_PANE"
-  | "QUERY_TEMPLATE";
+  | "QUERY_TEMPLATE"
+  | "QUICK_COMMANDS";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -64,7 +65,7 @@ export type EventName =
   | "3P_PROVIDER_CLICK"
   | "API_SELECT"
   | "CREATE_API_CLICK"
-  | "AUTO_COMPELTE_SHOW"
+  | "AUTO_COMPLETE_SHOW"
   | "AUTO_COMPLETE_SELECT"
   | "CREATE_APP_CLICK"
   | "CREATE_APP"
@@ -125,7 +126,8 @@ export type EventName =
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
   | "BINDING_SUCCESS"
-  | "APP_MENU_OPTION_CLICK";
+  | "APP_MENU_OPTION_CLICK"
+  | "SLASH_COMMAND";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

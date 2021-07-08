@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import {
@@ -54,6 +54,8 @@ import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import TooltipComponent from "components/ads/Tooltip";
+import moment from "moment/moment";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -150,6 +152,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   darkTheme: any;
+  lastUpdatedTime?: number;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -158,6 +161,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     currentApplication,
     isPublishing,
     isSaving,
+    lastUpdatedTime,
     orgId,
     pageId,
     pageSaveError,
@@ -169,6 +173,28 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
+  const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
+    "",
+  );
+
+  const findLastUpdatedTimeMessage = () => {
+    setLastUpdatedTimeMessage(
+      lastUpdatedTime
+        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
+        : "",
+    );
+  };
+
+  useEffect(() => {
+    findLastUpdatedTimeMessage();
+    const interval = setInterval(
+      findLastUpdatedTimeMessage,
+      (moment.relativeTimeThreshold("ss") as number) * 1000,
+    );
+    return () => {
+      clearInterval(interval);
+    };
+  }, [lastUpdatedTime]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -190,12 +216,14 @@ export function EditorHeader(props: EditorHeaderProps) {
   } else {
     if (!pageSaveError) {
       saveStatusIcon = (
-        <HeaderIcons.SAVE_SUCCESS
-          className="t--save-status-success"
-          color={"#36AB80"}
-          height={20}
-          width={20}
-        />
+        <TooltipComponent content={lastUpdatedTimeMessage} hoverOpenDelay={200}>
+          <HeaderIcons.SAVE_SUCCESS
+            className="t--save-status-success"
+            color={"#36AB80"}
+            height={20}
+            width={20}
+          />
+        </TooltipComponent>
       );
     } else {
       saveStatusIcon = (
@@ -305,7 +333,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  fill
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}
@@ -339,6 +366,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 }
 
 const mapStateToProps = (state: AppState) => ({
+  lastUpdatedTime: state.ui.editor.lastUpdatedTime,
   pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
   pageSaveError: getPageSavingError(state),

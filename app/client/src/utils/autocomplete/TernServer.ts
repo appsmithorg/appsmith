@@ -21,7 +21,7 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-type Completion = Hint & {
+export type Completion = Hint & {
   origin: string;
   type: DataType;
   data: {
@@ -29,6 +29,11 @@ type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
+};
+
+export type CommandsCompletion = Completion & {
+  action?: () => void;
+  shortcut: string;
 };
 
 type TernDocs = Record<string, TernDoc>;
