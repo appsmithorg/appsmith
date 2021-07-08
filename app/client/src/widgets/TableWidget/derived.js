@@ -197,7 +197,11 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.log("Error parsing column value: ", column.computedValue);
+              console.error(
+                e,
+                "Error parsing column value: ",
+                column.computedValue,
+              );
             }
           } else if (Array.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -401,7 +405,7 @@ export default {
             );
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         const filterValue = result;
         if (filterOperator === "AND") {
