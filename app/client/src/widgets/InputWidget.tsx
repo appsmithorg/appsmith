@@ -349,7 +349,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   onISDCodeChange = (code?: string) => {
     const countryCode = code || "+91";
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetMetaProperty("selectedCountryCode", countryCode);
+      super.updateWidgetProperty("countryCode", countryCode);
     } else {
       this.props.updateWidgetMetaProperty("selectedCountryCode", countryCode);
     }
@@ -396,6 +396,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode =
       this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
+    const countryCode =
+      this.props.selectedCountryCode ?? this.props.countryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -407,7 +409,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
-        countryCode={this.props.countryCode}
+        countryCode={countryCode}
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}

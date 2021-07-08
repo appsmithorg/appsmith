@@ -167,12 +167,14 @@ describe("Input Widget Functionality", function() {
 
   it("Input Functionality To check phone number input type", function() {
     // cy.openPropertyPane("inputwidget");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
     cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
-    cy.selectDropdownValue(commonlocators.phoneNumberCodeType, "India (+91)");
     cy.get(commonlocators.inputCountryCodeChangeType)
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("🇮🇳+91");
+        expect(text).to.equal("🇺🇸+1");
       });
   });
 });
