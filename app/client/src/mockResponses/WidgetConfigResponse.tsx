@@ -54,10 +54,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage:
-        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+      defaultImage: "https://source.unsplash.com/random/1500x600",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
+      enableRotation: false,
+      enableDownload: false,
       objectFit: "cover",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
@@ -893,7 +894,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                        "https://source.unsplash.com/random/1500x600",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
