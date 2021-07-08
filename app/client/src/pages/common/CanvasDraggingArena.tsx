@@ -318,6 +318,9 @@ export function CanvasDraggingArena({
           top: 20,
         };
         const onMouseUp = () => {
+          if (isDragging && canvasIsDragging) {
+            onDrop(newRectanglesToDraw);
+          }
           startPoints.left = 20;
           startPoints.top = 20;
           if (newWidget) {
@@ -326,9 +329,6 @@ export function CanvasDraggingArena({
             setDraggingState(false);
           }
           onMouseOut();
-          if (isDragging && canvasIsDragging) {
-            onDrop(newRectanglesToDraw);
-          }
         };
 
         const onMouseDown = (e: any) => {
