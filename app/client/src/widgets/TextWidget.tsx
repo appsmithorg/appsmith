@@ -140,7 +140,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            helpText: "Enter value for padding (px)",
+            helpText: "Controls clean space between text and widget boundary",
             propertyName: "padding",
             label: "Padding",
             placeholderText: "Enter value for padding (px)",
