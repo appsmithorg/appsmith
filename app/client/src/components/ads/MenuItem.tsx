@@ -111,7 +111,13 @@ const MenuItemContent = forwardRef(
         type={props.type}
       >
         <IconContainer className={props.className}>
-          {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
+          {props.icon ? (
+            <Icon
+              isLoading={props.isLoading}
+              name={props.icon}
+              size={IconSize.LARGE}
+            />
+          ) : null}
           {props.text ? (
             <Text type={TextType.H5} weight={FontWeight.NORMAL}>
               {props.ellipsize

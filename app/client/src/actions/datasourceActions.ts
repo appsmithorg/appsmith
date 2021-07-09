@@ -115,12 +115,14 @@ export const deleteDatasource = (
   payload: Partial<Datasource>,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
+  onSuccessCallback?: () => void,
 ): ReduxActionWithCallbacks<Partial<Datasource>, unknown, unknown> => {
   return {
     type: ReduxActionTypes.DELETE_DATASOURCE_INIT,
     payload,
     onSuccess,
     onError,
+    onSuccessCallback,
   };
 };
 

@@ -626,6 +626,8 @@ export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
 export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
   onSuccess?: ReduxAction<S>;
   onError?: ReduxAction<E>;
+  onSuccessCallback?: (response: S) => void;
+  onErrorCallback?: (error: E) => void;
 }
 
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {

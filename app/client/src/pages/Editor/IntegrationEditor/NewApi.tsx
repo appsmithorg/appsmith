@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
+import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -14,6 +14,7 @@ import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -149,7 +150,6 @@ function NewApiScreen(props: Props) {
     createNewApiAction,
     history,
     isCreating,
-    location,
     pageId,
     plugins,
   } = props;
@@ -161,7 +161,8 @@ function NewApiScreen(props: Props) {
   };
 
   const handleOnClick = (actionType: string, params?: any) => {
-    const isGeneratePageInitiator = true;
+    const queryParams = getQueryParams();
+    const isGeneratePageInitiator = queryParams.initiator === "generate-page";
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
@@ -181,10 +182,12 @@ function NewApiScreen(props: Props) {
         AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
           importSource: CURL,
         });
+
+        delete queryParams.initiator;
         const curlImportURL =
           getCurlImportPageURL(applicationId, pageId) +
-          "?from=datasources" +
-          location.search;
+          convertToQueryParams({ from: "datasources", ...queryParams });
+
         history.push(curlImportURL);
         break;
       }

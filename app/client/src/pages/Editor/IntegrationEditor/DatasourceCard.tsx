@@ -14,6 +14,7 @@ import {
 import styled from "styled-components";
 import { AppState } from "reducers";
 import history from "utils/history";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
@@ -22,6 +23,12 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
 import { getGenerateTemplateFormURL } from "../../../constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
+import Menu from "components/ads/Menu";
+import { IconSize } from "../../../components/ads/Icon";
+import Icon from "components/ads/Icon";
+import MenuItem from "components/ads/MenuItem";
+import { deleteDatasource } from "../../../actions/datasourceActions";
+import { getIsDeletingDatasource } from "../../../selectors/entitiesSelector";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -33,6 +40,18 @@ const Wrapper = styled.div`
       background: ${Colors.Gallery};
     }
   }
+`;
+
+const DatasourceCardMainBody = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  width: 100%;
+`;
+
+const MenuWrapper = styled(Menu)`
+  flex: 0;
+  margin: 8px 8px;
 `;
 
 const ActionButton = styled(Button)`
@@ -62,16 +81,6 @@ const GenerateTemplateButton = styled(Button)`
   }
 `;
 
-const EditDatasourceButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
-`;
-
 const DatasourceName = styled.span`
   margin-left: 10px;
   font-size: 16px;
@@ -79,8 +88,10 @@ const DatasourceName = styled.span`
 `;
 
 const DatasourceCardHeader = styled.div`
+  flex: 1;
   justify-content: space-between;
   display: flex;
+  cursor: pointer;
 `;
 
 const DatasourceNameWrapper = styled.div`
@@ -103,6 +114,14 @@ const Queries = styled.div`
 const ButtonsWrapper = styled.div`
   display: flex;
   gap: 10px;
+`;
+
+const MoreOptionsContainer = styled.div`
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 type DatasourceCardProps = {
@@ -129,6 +148,8 @@ function DatasourceCard(props: DatasourceCardProps) {
       isStoredDatasource(action.config.datasource) &&
       action.config.datasource.id === datasource.id,
   ).length;
+
+  const isDeletingDatasource = useSelector(getIsDeletingDatasource);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
@@ -168,13 +189,15 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
   }, [datasource.id, params]);
 
-  const onCreateNewQuery = useCallback(() => {
+  const onCreateNewQuery = useCallback((e) => {
+    e?.stopPropagation();
     setIsSelected(true);
     const plugin = pluginGroups[datasource.pluginId];
     props.onCreateQuery(datasource, plugin.type);
   }, []);
 
-  const routeToGeneratePage = () => {
+  const routeToGeneratePage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     history.push(
       `${getGenerateTemplateFormURL(
         params.applicationId,
@@ -183,49 +206,72 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
+  const deleteAction = () => {
+    dispatch(deleteDatasource({ id: datasource.id }));
+  };
+
   return (
     <Wrapper className="t--datasource" key={datasource.id}>
-      <DatasourceCardHeader className="t--datasource-name">
-        <div style={{ flex: 1 }}>
-          <DatasourceNameWrapper>
-            <DatasourceImage
-              alt="Datasource"
-              className="dataSourceImage"
-              src={pluginImages[datasource.pluginId]}
+      <DatasourceCardMainBody>
+        <DatasourceCardHeader
+          className="t--datasource-name"
+          onClick={editDatasource}
+        >
+          <div style={{ flex: 1 }}>
+            <DatasourceNameWrapper>
+              <DatasourceImage
+                alt="Datasource"
+                className="dataSourceImage"
+                src={pluginImages[datasource.pluginId]}
+              />
+              <DatasourceName>{datasource.name}</DatasourceName>
+            </DatasourceNameWrapper>
+            <Queries>
+              {queriesWithThisDatasource
+                ? `${queriesWithThisDatasource} ${QUERY} on this page`
+                : "No query is using this datasource"}
+            </Queries>
+          </div>
+          <ButtonsWrapper className="action-wrapper">
+            {supportTemplateGeneration ? (
+              <GenerateTemplateButton
+                category={Category.tertiary}
+                className="t--generate-template"
+                onClick={routeToGeneratePage}
+                text="GENERATE PAGE"
+              />
+            ) : null}
+            <ActionButton
+              className="t--create-query"
+              icon="plus"
+              isLoading={isCreating && isSelected}
+              onClick={onCreateNewQuery}
+              text="New Query"
             />
-            <DatasourceName>{datasource.name}</DatasourceName>
-          </DatasourceNameWrapper>
-          <Queries>
-            {queriesWithThisDatasource
-              ? `${queriesWithThisDatasource} ${QUERY} on this page`
-              : "No query is using this datasource"}
-          </Queries>
-        </div>
-        <ButtonsWrapper className="action-wrapper">
-          {supportTemplateGeneration ? (
-            <GenerateTemplateButton
-              category={Category.tertiary}
-              className="t--generate-template"
-              onClick={routeToGeneratePage}
-              text="Generate Template"
-            />
-          ) : null}
-
-          <EditDatasourceButton
-            category={Category.tertiary}
-            className="t--edit-datasource"
-            onClick={editDatasource}
-            text="Edit"
+          </ButtonsWrapper>
+        </DatasourceCardHeader>
+        <MenuWrapper
+          menuItemWrapperWidth={160}
+          position={Position.RIGHT_BOTTOM}
+          target={
+            <MoreOptionsContainer>
+              <Icon
+                fillColor="#939090"
+                name="comment-context-menu"
+                size={IconSize.XXXL}
+              />
+            </MoreOptionsContainer>
+          }
+        >
+          <MenuItem
+            icon="delete"
+            isLoading={isDeletingDatasource}
+            onSelect={deleteAction}
+            text="Delete"
           />
-          <ActionButton
-            className="t--create-query"
-            icon="plus"
-            isLoading={isCreating && isSelected}
-            onClick={onCreateNewQuery}
-            text="New Query"
-          />
-        </ButtonsWrapper>
-      </DatasourceCardHeader>
+          <MenuItem icon="edit" onSelect={editDatasource} text="Edit" />
+        </MenuWrapper>
+      </DatasourceCardMainBody>
       {!isNil(currentFormConfig) && (
         <CollapseComponent title="Show More">
           <DatasourceInfo>

@@ -544,7 +544,9 @@ const Icon = forwardRef(
         {returnIcon}
       </IconWrapper>
     ) : props.isLoading ? (
-      <Spinner size={props.size} />
+      <IconWrapper className={Classes.ICON} {...props}>
+        <Spinner size={props.size} />
+      </IconWrapper>
     ) : null;
   },
 );
