@@ -6,14 +6,11 @@ import {
   snipingModeSelector,
 } from "selectors/commentsSelectors";
 import { bindDataWithWidget } from "../../actions/propertyPaneActions";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../../pages/Editor/Explorer/helpers";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
@@ -25,8 +22,6 @@ export const useShowPropertyPane = () => {
         dispatch(
           bindDataWithWidget({
             widgetId,
-            applicationId,
-            pageId,
           }),
         );
         return;
@@ -47,7 +42,7 @@ export const useShowPropertyPane = () => {
         },
       );
     },
-    [dispatch, isCommentMode, isSnipingMode, applicationId, pageId],
+    [dispatch, isCommentMode, isSnipingMode],
   );
 };
 

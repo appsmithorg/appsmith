@@ -1,16 +1,19 @@
-import { takeLeading, all, put } from "redux-saga/effects";
+import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
 import { BUILDER_PAGE_URL } from "../constants/routes";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../selectors/editorSelectors";
 
 export function* bindDataWithWidgetSaga(
   action: ReduxAction<{
     widgetId: string;
-    applicationId: string;
-    pageId: string;
   }>,
 ) {
-  const { applicationId, pageId } = action.payload;
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   yield put({
     type: ReduxActionTypes.SHOW_PROPERTY_PANE,

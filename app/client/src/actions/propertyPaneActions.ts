@@ -15,11 +15,7 @@ export const hidePropertyPane = () => {
   };
 };
 
-export const bindDataWithWidget = (payload: {
-  widgetId: string;
-  applicationId: string;
-  pageId: string;
-}) => {
+export const bindDataWithWidget = (payload: { widgetId: string }) => {
   return {
     type: ReduxActionTypes.BIND_DATA_WITH_WIDGET,
     payload,
