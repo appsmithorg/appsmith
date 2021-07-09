@@ -106,5 +106,13 @@
     "switchWidgetInactive": ".t--switch-widget-inactive",
     "switchWidgetLoading": ".t--switch-widget-loading",
     "chartPlotGroup": "g.raphael-group-63-plot-group",
-    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator",
+    "searchField": "[type=search]",
+    "defaultSelectedRowField":".t--property-control-defaultselectedrow .CodeMirror-line",
+    "selectedRow":".selected-row",
+    "removeTableWidget": ".t--delete-widget",
+    "selectedRowMessageField": ".t--property-control-onrowselected .CodeMirror-line",
+    "pageSizeChangeMessageField": ".t--property-control-onpagesizechange .CodeMirror-line",
+    "pageChangeMessageField":".t--property-control-onpagechange .CodeMirror-line",
+    "nextPageButton": ".t--table-widget-next-page"
 }

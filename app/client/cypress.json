@@ -1,16 +1,23 @@
 {
-  "baseUrl": "https://dev.appsmith.com/",
+  "baseUrl": "https://release.app.appsmith.com/",
   "defaultCommandTimeout": 20000,
   "requestTimeout": 21000,
   "pageLoadTimeout": 20000,
   "video": true,
-  "videoUploadOnPasses": false,
   "reporter": "mochawesome",
   "reporterOptions": {
     "reportDir": "results",
     "overwrite": false,
     "html": true,
     "json": false
+  },
+  "env": {
+    "USERNAME": "arslan@appsmith.com",
+    "PASSWORD": "password4appsmith",
+    "TESTUSERNAME1": "viewerappsmith@mailinator.com",
+    "TESTPASSWORD1": "Test@123",
+    "TESTUSERNAME2": "developerappsmith@mailinator.com",
+    "TESTPASSWORD2": "Test@123"
   },
   "chromeWebSecurity": false,
   "viewportHeight": 900,
