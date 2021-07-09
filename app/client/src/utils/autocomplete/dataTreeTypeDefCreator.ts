@@ -132,7 +132,7 @@ export const flattenObjKeys = (
   return r;
 };
 
-const skipJSProps = ["ENTITY_TYPE", "name"];
+const skipJSProps = ["ENTITY_TYPE", "name", "meta", "body"];
 export const getPropsForJsAction = (
   options: any,
   parentKey: any = "",

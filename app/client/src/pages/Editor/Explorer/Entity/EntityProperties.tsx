@@ -53,12 +53,22 @@ export const EntityProperties = memo(
         const jsAction = entity.config;
         const properties = getPropsForJsAction(dataTree[jsAction.name]);
         if (properties) {
+          const jsEntity = dataTree[jsAction.name];
+          let funcData: any;
+          if ("data" in jsEntity) {
+            funcData = jsEntity && jsEntity.data;
+          }
           entityProperties = Object.keys(properties).map(
             (actionProperty: string) => {
+              let value = properties[actionProperty];
+              if (actionProperty in funcData) {
+                actionProperty = actionProperty + "()";
+                value = "Function";
+              }
               return {
                 propertyName: actionProperty,
                 entityName: jsAction.name,
-                value: properties[actionProperty],
+                value: value,
                 step: props.step,
               };
             },
