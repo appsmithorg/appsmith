@@ -20,18 +20,16 @@ describe("Input Widget Functionality", function() {
   it("Input label renders if label prop is not empty", () => {
     cy.openPropertyPane("inputwidget");
     // enter label in property pan
-    cy.get(".t--property-control-labeltext .CodeMirror-code ").type("Label1");
-
+    cy.get(widgetsPage.inputLabelControl).type("Label1");
+    // test if label shows up with correct text
     cy.get(".t--input-widget-label").contains("Label1");
   });
 
   it("Input tooltip renders if tooltip prop is not empty", () => {
     cy.openPropertyPane("inputwidget");
     // enter tooltip in property pan
-    cy.get(".t--property-control-tooltip .CodeMirror-code ").type(
-      "Helpfull text for input",
-    );
-
+    cy.get(widgetsPage.inputTooltipControl).type("Helpfull text for input");
+    // tooltip help icon shows
     cy.get(".t--input-widget-tooltip").should("be.visible");
   });
 });
