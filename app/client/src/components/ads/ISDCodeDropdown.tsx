@@ -43,10 +43,10 @@ const getISDCodeOptions = (): Array<DropdownOption> => {
 
 export const ISDCodeDropdownOptions = getISDCodeOptions();
 
-export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
-  let selectedCountry: ISDCodeProps | undefined = dialCode
+export const getSelectedISDCode = (code?: string): DropdownOption => {
+  let selectedCountry: ISDCodeProps | undefined = code
     ? ISDCodeOptions.find((item: ISDCodeProps) => {
-        return item.dial_code === dialCode;
+        return item.code === code;
       })
     : undefined;
   if (!selectedCountry) {
@@ -69,10 +69,16 @@ interface ISDCodeDropdownProps {
   options: Array<DropdownOption>;
   selected: DropdownOption;
   allowCountryCodeChange?: boolean;
+  disabled: boolean;
 }
 
 export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   const selectedCountry = getSelectedISDCode(props.selected.value);
+  if (props.disabled) {
+    return (
+      <DropdownTriggerIconWrapper>{selectedCountry}</DropdownTriggerIconWrapper>
+    );
+  }
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper className="t--input-country-code-change">
       <div className="icon-dropdown">

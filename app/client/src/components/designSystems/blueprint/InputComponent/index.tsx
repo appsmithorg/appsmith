@@ -173,11 +173,14 @@ class InputComponent extends React.Component<
     }
   };
 
-  getLeftIcon = (inputType: InputType) => {
-    if (inputType === "PHONE_NUMBER") {
-      const selectedISDCode = getSelectedISDCode(this.props.countryCode);
+  getLeftIcon = (inputType: InputType, disabled: boolean) => {
+    if (inputType === InputTypes.PHONE_NUMBER) {
+      const selectedISDCode = getSelectedISDCode(
+        this.props.phoneNumberCountryCode,
+      );
       return (
         <ISDCodeDropdown
+          disabled={disabled}
           onISDCodeChange={this.props.onISDCodeChange}
           options={ISDCodeDropdownOptions}
           selected={selectedISDCode}
@@ -189,7 +192,7 @@ class InputComponent extends React.Component<
       );
       return (
         <CurrencyTypeDropdown
-          allowCurrencyChange={this.props.allowCurrencyChange}
+          allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
           selected={selectedCurrencyCountryCode}
@@ -210,8 +213,6 @@ class InputComponent extends React.Component<
 
   getIcon(inputType: InputType) {
     switch (inputType) {
-      case "PHONE_NUMBER":
-        return "phone";
       case "SEARCH":
         return "search";
       case "EMAIL":
@@ -250,7 +251,10 @@ class InputComponent extends React.Component<
   };
 
   private numericInputComponent = () => {
-    const leftIcon = this.getLeftIcon(this.props.inputType);
+    const leftIcon = this.getLeftIcon(
+      this.props.inputType,
+      !!this.props.disabled,
+    );
     return (
       <NumericInput
         allowNumericCharactersOnly
@@ -260,7 +264,11 @@ class InputComponent extends React.Component<
         leftIcon={leftIcon}
         max={this.props.maxNum}
         maxLength={this.props.maxChars}
-        min={this.props.minNum}
+        min={
+          this.props.inputType === InputTypes.PHONE_NUMBER
+            ? 0
+            : this.props.minNum
+        }
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
@@ -374,7 +382,7 @@ export interface InputComponentProps extends ComponentProps {
   defaultValue?: string;
   currencyCountryCode?: string;
   noOfDecimals?: number;
-  countryCode?: string;
+  phoneNumberCountryCode?: string;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;

@@ -78,7 +78,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText: "Changes the country code",
-            propertyName: "defaultCountryCode",
+            propertyName: "phoneNumberCountryCode",
             label: "Default Country Code",
             enableSearch: true,
             dropdownHeight: "195px",
@@ -300,8 +300,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         }()
       }}`,
       value: `{{this.text}}`,
-      countryCode: "{{this.selectedCountryCode ?? this.defaultCountryCode}}",
-      currencyType: "{{this.selectedCurrencyType ?? this.defaultCurrencyType}}",
     };
   }
 
@@ -347,11 +345,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onISDCodeChange = (code?: string) => {
-    const countryCode = code || "+91";
+    const countryCode = code;
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("countryCode", countryCode);
+      super.updateWidgetProperty("phoneNumberCountryCode", countryCode);
     } else {
-      this.props.updateWidgetMetaProperty("selectedCountryCode", countryCode);
+      this.props.updateWidgetMetaProperty(
+        "selectedPhoneNumberCountryCode",
+        countryCode,
+      );
     }
   };
 
@@ -394,10 +395,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const currencyCountryCode =
-      this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
-    const countryCode =
-      this.props.selectedCountryCode ?? this.props.countryCode;
+    const currencyCountryCode = this.props.selectedCurrencyCountryCode
+      ? this.props.selectedCurrencyCountryCode
+      : this.props.currencyCountryCode;
+    const phoneNumberCountryCode = this.props.selectedPhoneNumberCountryCode
+      ? this.props.selectedPhoneNumberCountryCode
+      : this.props.phoneNumberCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -409,7 +412,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
-        countryCode={countryCode}
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
@@ -430,6 +432,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
+        phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
@@ -467,7 +470,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   currencyCountryCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
-  countryCode?: string;
+  phoneNumberCountryCode?: string;
   decimalsInCurrency?: number;
   defaultText?: string;
   isDisabled?: boolean;
