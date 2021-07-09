@@ -80,7 +80,7 @@ jobs:
         id: yarn-dep-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      # Retrieve npm dependenes from cache. After a successful run, these dependencies are cached again
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
         id: yarn-dep-cache
         uses: actions/cache@v2
