@@ -10,6 +10,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
+import _ from "lodash";
 
 export const EntityProperties = memo(
   (props: {
@@ -62,8 +63,14 @@ export const EntityProperties = memo(
                 actionProperty = actionProperty + "()";
               }
               if (actionProperty === "data") {
-                value =
-                  entity.data?.body === undefined ? "{}" : entity.data?.body;
+                if (
+                  _.isEmpty(entity.data) ||
+                  !entity.data.hasOwnProperty("body")
+                ) {
+                  value = "{}";
+                } else {
+                  value = entity.data.body;
+                }
               }
               return {
                 propertyName: actionProperty,
