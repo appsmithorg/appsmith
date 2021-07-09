@@ -29,6 +29,7 @@ import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelec
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
+// import { IconName } from "components/ads/Icon";
 
 // Temporary hardcoded valid plugins which support generate template
 // Record<pluginId, pluginName>
@@ -55,18 +56,18 @@ export const PluginFormInputFieldMap: Record<
 > = {
   "5e687c18fb01e64e6a3f873f": {
     DATASOURCE: "MongoDB",
-    TABLE: "Collection",
-    COLUMN: "Field",
+    TABLE: "collection",
+    COLUMN: "field",
   },
   "6023b4a070eb652de19476d3": {
     DATASOURCE: "S3",
-    TABLE: "Bucket",
-    COLUMN: "Keys",
+    TABLE: "bucket",
+    COLUMN: "keys",
   },
   DEFAULT: {
     DATASOURCE: "SQL Based",
-    TABLE: "Table",
-    COLUMN: "Column",
+    TABLE: "table",
+    COLUMN: "column",
   },
 };
 
@@ -301,12 +302,14 @@ function GeneratePageForm() {
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id];
 
+      // const datasourceIcon: IconName = "datasource";
       const tables = selectedDatasourceStructure?.tables;
       if (tables?.length) {
         const newTables = tables.map(({ columns, name }) => ({
           id: name,
           label: name,
           value: name,
+          // icon: datasourceIcon,
           data: {
             columns,
           },
@@ -390,15 +393,18 @@ function GeneratePageForm() {
   const showSubmitButton = selectedTable.value;
   const submitButtonDisable = !selectedTable.value;
   // const showTableDropdown =
-  const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginID;
+  const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   const pluginField: {
     TABLE: string;
     COLUMN: string;
-  } = selectedDatasourcePluginId
-    ? PluginFormInputFieldMap[selectedDatasourcePluginId]
-    : PluginFormInputFieldMap.DEFAULT;
+  } =
+    selectedDatasourcePluginId &&
+    PluginFormInputFieldMap[selectedDatasourcePluginId]
+      ? PluginFormInputFieldMap[selectedDatasourcePluginId]
+      : PluginFormInputFieldMap.DEFAULT;
   const tableLabel = pluginField.TABLE;
   const columnLabel = pluginField.COLUMN;
+
   return (
     <div>
       <Wrapper>

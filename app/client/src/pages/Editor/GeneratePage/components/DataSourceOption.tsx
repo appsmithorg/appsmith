@@ -23,7 +23,7 @@ export const CONNECT_NEW_DATASOURCE_OPTION_ID = getUniqueId();
 const OptionWrapper = styled.div<{ clickable?: boolean; selected?: boolean }>`
   padding: ${(props) =>
     props.selected
-      ? `${props.theme.spaces[1]}px ${props.theme.spaces[5]}px`
+      ? `${props.theme.spaces[1]}px 0px`
       : `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
   ${(props) => (props.clickable ? "cursor: pointer" : "")};
   display: flex;
@@ -96,7 +96,6 @@ function DataSourceOption({
   const pluginImages = useSelector(getPluginImages);
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
-  // const isNotDatasourceOption = isConnectNewDataSourceBtn || isSelectedNode;
   return (
     <OptionWrapper
       className="t--dropdown-option"
@@ -119,7 +118,7 @@ function DataSourceOption({
             width={20}
           />
         </CreateIconWrapper>
-      ) : (
+      ) : pluginImages[dropdownOption.data.pluginId] ? (
         <ImageWrapper>
           <DatasourceImage
             alt=""
@@ -127,7 +126,7 @@ function DataSourceOption({
             src={pluginImages[dropdownOption.data.pluginId]}
           />
         </ImageWrapper>
-      )}
+      ) : null}
 
       <Text type={TextType.P1}>{label}</Text>
     </OptionWrapper>
