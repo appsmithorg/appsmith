@@ -13,6 +13,6 @@ public class MockDataSource {
 
     String pluginId;
 
-    String pluginName;
+    String packageName;
 
 }

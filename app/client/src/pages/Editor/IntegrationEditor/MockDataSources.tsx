@@ -102,13 +102,14 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   if (!currentPlugin) {
     return null;
   }
+
   const addMockDataSource = () =>
     dispatch(
       addMockDatasourceToOrg(
         datasource.name,
         orgId,
         currentPlugin.id,
-        currentPlugin.name,
+        currentPlugin.packageName,
       ),
     );
   return (

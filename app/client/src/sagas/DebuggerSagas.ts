@@ -242,38 +242,42 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 function* logDebuggerErrorAnalyticsSaga(
   action: ReduxAction<LogDebuggerErrorAnalyticsPayload>,
 ) {
-  const { payload } = action;
-  const currentPageId = yield select(getCurrentPageId);
+  try {
+    const { payload } = action;
+    const currentPageId = yield select(getCurrentPageId);
 
-  if (payload.entityType === ENTITY_TYPE.WIDGET) {
-    const widget: WidgetProps = yield select(getWidget, payload.entityId);
-    const widgetType = widget.type;
-    const propertyPath = `${widgetType}.${payload.propertyPath}`;
+    if (payload.entityType === ENTITY_TYPE.WIDGET) {
+      const widget: WidgetProps = yield select(getWidget, payload.entityId);
+      const widgetType = widget.type;
+      const propertyPath = `${widgetType}.${payload.propertyPath}`;
 
-    // Sending widget type for widgets
-    AnalyticsUtil.logEvent(payload.eventName, {
-      entityType: widgetType,
-      propertyPath,
-      errorMessages: payload.errorMessages,
-      pageId: currentPageId,
-    });
-  } else if (payload.entityType === ENTITY_TYPE.ACTION) {
-    const action: Action = yield select(getAction, payload.entityId);
-    const plugin: Plugin = yield select(getPlugin, action.pluginId);
-    const pluginName = plugin.name.replace(/ /g, "");
-    let propertyPath = `${pluginName}`;
+      // Sending widget type for widgets
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: widgetType,
+        propertyPath,
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
+      });
+    } else if (payload.entityType === ENTITY_TYPE.ACTION) {
+      const action: Action = yield select(getAction, payload.entityId);
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      const pluginName = plugin.name.replace(/ /g, "");
+      let propertyPath = `${pluginName}`;
 
-    if (payload.propertyPath) {
-      propertyPath += `.${payload.propertyPath}`;
+      if (payload.propertyPath) {
+        propertyPath += `.${payload.propertyPath}`;
+      }
+
+      // Sending plugin name for actions
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: pluginName,
+        propertyPath,
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
+      });
     }
-
-    // Sending plugin name for actions
-    AnalyticsUtil.logEvent(payload.eventName, {
-      entityType: pluginName,
-      propertyPath,
-      errorMessages: payload.errorMessages,
-      pageId: currentPageId,
-    });
+  } catch (e) {
+    console.error(e);
   }
 }
 
