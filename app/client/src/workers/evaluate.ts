@@ -103,25 +103,36 @@ export default function evaluate(
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = addFunctions(data);
-    ///// Adding Data tree
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-    ///// Fixing action paths and capturing their execution response
-    if (dataTreeWithFunctions.actionPaths) {
-      GLOBAL_DATA.triggers = [];
-      const pusher = function(this: DataTree, action: any, ...payload: any[]) {
-        const actionPayload = action(...payload);
-        GLOBAL_DATA.triggers.push(actionPayload);
-      };
-      GLOBAL_DATA.actionPaths.forEach((path: string) => {
-        const action = _.get(GLOBAL_DATA, path);
-        const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
-        if (action) {
-          _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
-        }
+    if (isTriggerBased) {
+      //// Add internal functions to dataTree;
+      const dataTreeWithFunctions = addFunctions(data);
+      ///// Adding Data tree with functions
+      Object.keys(dataTreeWithFunctions).forEach((datum) => {
+        GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+      });
+      ///// Fixing action paths and capturing their execution response
+      if (dataTreeWithFunctions.actionPaths) {
+        GLOBAL_DATA.triggers = [];
+        const pusher = function(
+          this: DataTree,
+          action: any,
+          ...payload: any[]
+        ) {
+          const actionPayload = action(...payload);
+          GLOBAL_DATA.triggers.push(actionPayload);
+        };
+        GLOBAL_DATA.actionPaths.forEach((path: string) => {
+          const action = _.get(GLOBAL_DATA, path);
+          const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
+          if (action) {
+            _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
+          }
+        });
+      }
+    } else {
+      ///// Adding Data tree
+      Object.keys(data).forEach((datum) => {
+        GLOBAL_DATA[datum] = data[datum];
       });
     }
 
@@ -150,9 +161,11 @@ export default function evaluate(
     });
     try {
       result = Function(script)();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      triggers = [...self.triggers];
+      if (isTriggerBased) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        triggers = [...self.triggers];
+      }
     } catch (e) {
       errors.push({
         errorMessage: `${e.stack.split(`\n`)[0]}`,
