@@ -32,6 +32,11 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       200,
     );
     cy.get(commonlocators.toastAction).should("be.visible");
+
+    //Check after copying new table widget should not have any warnings
+    cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
+      "not.exist",
+    );
     /*
     cy.get(commonlocators.toastAction)
       .contains("UNDO")

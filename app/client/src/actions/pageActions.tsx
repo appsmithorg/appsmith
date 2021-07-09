@@ -83,6 +83,11 @@ export const initCanvasLayout = (
   };
 };
 
+export const setLastUpdatedTime = (payload: number): ReduxAction<number> => ({
+  type: ReduxActionTypes.SET_LAST_UPDATED_TIME,
+  payload,
+});
+
 export const savePageSuccess = (payload: SavePageResponse) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_SUCCESS,

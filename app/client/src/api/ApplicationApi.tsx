@@ -31,11 +31,12 @@ export interface ApplicationResponsePayload {
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
+  unreadCommentThreads?: number;
 }
 
-// export interface FetchApplicationResponse extends ApiResponse {
-//   data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-// }
+export interface FetchApplicationResponse extends ApiResponse {
+  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+}
 
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
@@ -154,13 +155,13 @@ class ApplicationApi extends Api {
 
   static fetchApplication(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 
