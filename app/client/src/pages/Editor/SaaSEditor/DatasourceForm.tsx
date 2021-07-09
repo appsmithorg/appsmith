@@ -42,6 +42,7 @@ import { Action, PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
+import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -59,6 +60,7 @@ interface DispatchFunctions {
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
   createAction: (data: Partial<Action>) => void;
+  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -228,7 +230,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
-                onClick={() => deleteDatasource(datasourceId)}
+                onClick={() =>
+                  deleteDatasource(
+                    datasourceId,
+                    this.props.redirectToNewIntegrations(
+                      applicationId,
+                      pageId,
+                    ) as any,
+                  )
+                }
                 text="Delete"
               />
               <StyledButton
@@ -303,6 +313,9 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
       dispatch(getOAuthAccessToken(datasourceId)),
     createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
+    },
+    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
+      dispatch(redirectToNewIntegrations(applicationId, pageId));
     },
   };
 };
