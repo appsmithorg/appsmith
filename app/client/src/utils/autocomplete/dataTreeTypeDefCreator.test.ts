@@ -1,7 +1,7 @@
 import {
   generateTypeDef,
   dataTreeTypeDefCreator,
-  flattenObjKeys,
+  flattenDef,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
   DataTreeWidget,
@@ -73,7 +73,7 @@ describe("dataTreeTypeDefCreator", () => {
   });
 
   it("flatten object", () => {
-    const options = {
+    const def = {
       someNumber: "number",
       someString: "string",
       someBool: "bool",
@@ -91,7 +91,7 @@ describe("dataTreeTypeDefCreator", () => {
       },
     };
 
-    const value = flattenObjKeys(options, "entity1");
+    const value = flattenDef(def, "entity1");
     expect(value).toStrictEqual(expected);
   });
 });

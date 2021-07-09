@@ -185,8 +185,14 @@ class TernServer {
         });
       }
     }
-    completions = this.sortCompletions(completions, isEmpty);
-    const indexToBeSelected = completions[0].isHeader ? 1 : 0;
+    const expectedDataType = this.getExpectedDataType();
+    completions = TernServer.sortCompletions(
+      completions,
+      isEmpty,
+      expectedDataType,
+    );
+    const indexToBeSelected =
+      completions.length && completions[0].isHeader ? 1 : 0;
     const obj = {
       from: from,
       to: to,
@@ -249,7 +255,11 @@ class TernServer {
     });
   }
 
-  sortCompletions(completions: Completion[], findBestMatch: boolean) {
+  static sortCompletions(
+    completions: Completion[],
+    findBestMatch: boolean,
+    expectedDataType?: string,
+  ) {
     type CompletionType =
       | "DATA_TREE"
       | "MATCHING_TYPE"
@@ -266,14 +276,32 @@ class TernServer {
       OTHER: [],
     };
     completions.forEach((completion) => {
-      if (completion.origin && completion.origin.startsWith("DATA_TREE_")) {
-        completionType.DATA_TREE.push(completion);
+      if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
+        if (
+          completion.text.includes(".") &&
+          completion.type === expectedDataType
+        ) {
+          // nested paths (with ".") should only be used for best match
+          completionType.MATCHING_TYPE.push(completion);
+        } else if (
+          completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
+          completion.type === expectedDataType
+        ) {
+          // Global functions should be in best match as well as DataTree
+          completionType.MATCHING_TYPE.push(completion);
+          completionType.DATA_TREE.push(completion);
+        } else {
+          // All top level entities are set in data tree
+          completionType.DATA_TREE.push(completion);
+        }
         return;
       }
       if (
         completion.origin === "[doc]" ||
         completion.origin === "customDataTree"
       ) {
+        // [doc] are variables defined in the current context
+        // customDataTree are implicit context defined by platform
         completionType.CONTEXT.push(completion);
         return;
       }
@@ -292,25 +320,23 @@ class TernServer {
         completionType.LIBRARY.push(completion);
         return;
       }
+      // Generally keywords or other unCategorised completions
       completionType.OTHER.push(completion);
     });
-    const expectedDataType = this.getExpectedDataType();
-    if (findBestMatch && expectedDataType) {
-      completionType.MATCHING_TYPE = completionType.DATA_TREE.filter(
-        (c) => c.type === expectedDataType,
-      );
-
-      if (completionType.MATCHING_TYPE.length) {
-        completionType.MATCHING_TYPE.unshift({
-          text: "Best Match",
-          displayText: "Best Match",
-          className: "CodeMirror-hint-header",
-          data: { doc: "" },
-          origin: "",
-          type: "UNKNOWN",
-          isHeader: true,
-        });
-      }
+    debugger;
+    if (findBestMatch && completionType.MATCHING_TYPE.length) {
+      completionType.MATCHING_TYPE.unshift({
+        text: "Best Match",
+        displayText: "Best Match",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      });
+    } else {
+      // Clear any matching type because we dont want to find best match
+      completionType.MATCHING_TYPE = [];
     }
 
     completionType.DATA_TREE = completionType.DATA_TREE.sort(
@@ -323,7 +349,7 @@ class TernServer {
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       },
     );
-    if (completionType.DATA_TREE.length) {
+    if (completionType.DATA_TREE.length && findBestMatch) {
       completionType.DATA_TREE.unshift({
         text: "Search results",
         displayText: "Search results",
@@ -357,18 +383,20 @@ class TernServer {
 
   getExpectedDataType() {
     const type = this.expected;
+    if (type === undefined) return;
     if (
       type === "Array<Object>" ||
       type === "Array" ||
       type === "Array<{ label: string, value: string }>" ||
       type === "Array<x:string, y:number>"
-    )
+    ) {
       return "ARRAY";
+    }
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";
     if (type === "object" || type === "JSON") return "OBJECT";
-    if (type === undefined) return "UNKNOWN";
+    if (type === "Function Call") return "FUNCTION";
     return undefined;
   }
 
