@@ -17,7 +17,6 @@ const EmptyDatasourceContainer = styled.div`
   padding: 50px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
-  width: 265px;
 `;
 
 const DatasourceContainer = styled.div`
@@ -29,6 +28,7 @@ const DatasourceContainer = styled.div`
       margin-right: 0;
     }
   }
+  width: 265px;
 `;
 
 const DataSourceListWrapper = styled.div`
@@ -38,7 +38,6 @@ const DataSourceListWrapper = styled.div`
   padding: 10px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
-  width: 265px;
 `;
 
 const DatasourceCard = styled.div`
