@@ -753,16 +753,14 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
+      .type(hValue, { parseSpecialCharSequences: true });
     cy.WaitAutoSave();
   },
 );
@@ -855,22 +853,20 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithQueryParam",
   (baseUrl, v1method, hKey, hValue, qKey, qValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
-    cy.xpath(apiwidget.queryKey)
+      .type(hValue, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.queryKey)
       .first()
       .click({ force: true })
       .type(qKey, { force: true })
       .should("have.value", qKey);
-    cy.xpath(apiwidget.queryValue)
+    cy.get(apiwidget.queryValue)
       .first()
       .click({ force: true })
       .type(qValue, { force: true })
@@ -2544,10 +2540,16 @@ Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
     .should("be.visible")
     .click({ force: true });
-  cy.xpath(apiwidget.paramKey)
-    .first()
-    .contains(param.key);
-  cy.xpath(apiwidget.paramValue)
-    .first()
-    .contains(param.value);
+
+  cy.validateCodeEditorContent(apiwidget.paramKey, param.key);
+  cy.validateCodeEditorContent(apiwidget.paramValue, param.value);
 });
+
+Cypress.Commands.add(
+  "validateCodeEditorContent",
+  (selector, contentToValidate) => {
+    cy.get(selector).within(() => {
+      cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+    });
+  },
+);
