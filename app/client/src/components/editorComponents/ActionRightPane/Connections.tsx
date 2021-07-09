@@ -18,7 +18,7 @@ const ConnectionType = styled.span`
 `;
 
 const ConnectionWrapper = styled.span`
-  padding: 2px 2px;
+  margin: 2px 0px;
 `;
 
 const NoConnections = styled.div`
@@ -49,8 +49,8 @@ const ConnectionsContainer = styled.span`
   flex-wrap: wrap;
   padding: 9.5px 4px;
   .connection {
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 2px 4px;
     font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
