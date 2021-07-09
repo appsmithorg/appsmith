@@ -19,6 +19,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.helpers.BufferingFilter;
 import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -301,6 +302,10 @@ public class RestApiPlugin extends BasePlugin {
 
             requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
 
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                webClientBuilder.filter(new BufferingFilter());
+            }
+
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
@@ -353,13 +358,9 @@ public class RestApiPlugin extends BasePlugin {
                                     String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    new String(body),
-                                                    e.getMessage()
-                                            )
-                                    );
+                                    System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                    String bodyString = new String(body);
+                                    result.setBody(bodyString.trim());
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||

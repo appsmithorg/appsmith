@@ -6,8 +6,8 @@ import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
   BUILDER_PAGE_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
@@ -108,9 +108,12 @@ export function getDependencyChain(
 
   const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
 
-  dependents.map((e: any) => {
+  dependents.map((e) => {
     if (!e.includes(dependentInfo.entityName)) {
       currentChain.push(e);
+    }
+
+    if (e !== dependentInfo.entityName) {
       currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
     }
   });
