@@ -570,7 +570,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    const numberOfItemsInGrid = this.props.listData.length;
+    const numberOfItemsInGrid = this.props.listData?.length ?? 0;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
@@ -608,6 +608,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   shouldPaginate = () => {
     let { gridGap } = this.props;
     const { children, listData } = this.props;
+    if (!listData?.length) {
+      return { shouldPaginate: false, perPage: 0 };
+    }
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight =

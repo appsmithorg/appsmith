@@ -2447,6 +2447,10 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .find("span")
+    .click();
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
