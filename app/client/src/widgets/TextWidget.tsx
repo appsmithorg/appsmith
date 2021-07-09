@@ -140,14 +140,14 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            helpText: "Enter value for margin",
-            propertyName: "margin",
-            label: "Margin",
-            placeholderText: "Enter value in px",
+            helpText: "Enter value for padding (px)",
+            propertyName: "padding",
+            label: "Padding",
+            placeholderText: "Enter value for padding (px)",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: VALIDATION_TYPES.NUMBER,
           },
         ],
       },
@@ -162,7 +162,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
         key={this.props.widgetId}
-        margin={this.props.margin}
+        padding={this.props.padding}
         shouldScroll={this.props.shouldScroll}
         text={this.props.text}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
@@ -191,7 +191,7 @@ export interface TextStyles {
   fontStyle?: string;
   fontSize?: TextSize;
   textAlign?: TextAlign;
-  margin?: string;
+  padding?: string;
 }
 
 export interface TextWidgetProps extends WidgetProps, TextStyles {
