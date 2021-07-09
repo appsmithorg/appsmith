@@ -11,6 +11,7 @@ type MenuProps = CommonComponentProps & {
   position?: Position;
   onOpening?: (node: HTMLElement) => void;
   onClosing?: (node: HTMLElement) => void;
+  onInteraction?: (nextOpenState: boolean, e: any) => void;
   modifiers?: PopperModifiers;
   isOpen?: boolean;
   onClose?: () => void;
@@ -42,7 +43,9 @@ function Menu(props: MenuProps) {
       onClose={props.onClose}
       onClosing={props.onClosing}
       onInteraction={(nextOpenState, e) => {
-        e?.stopPropagation();
+        if (props.onInteraction) {
+          props.onInteraction(nextOpenState, e);
+        }
       }}
       onOpening={props.onOpening}
       portalClassName={props.className}

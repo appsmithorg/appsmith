@@ -858,7 +858,7 @@ export function* generateTemplatePageSaga(
 ) {
   try {
     const request: GenerateTemplatePageRequest = action.payload;
-
+    // if pageId is available in request, it will just update that page else it will generate new page.
     const response: ApiResponse = yield call(
       PageApi.generateTemplatePage,
       request,
@@ -877,7 +877,14 @@ export function* generateTemplatePageSaga(
         fetchPageResponse: response,
         pageId,
       });
-      yield put(generateTemplateSuccess());
+      yield put(
+        generateTemplateSuccess({
+          pageId: response.data.id,
+          pageName: response.data.name,
+          layoutId: response.data.layouts[0].id,
+          isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
+        }),
+      );
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
 
       history.replace(BUILDER_PAGE_URL(applicationId, pageId));

@@ -111,8 +111,27 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
+    action: ReduxAction<{
+      pageName: string;
+      pageId: string;
+      layoutId: string;
+      isDefault: boolean;
+      isNewPage: boolean;
+    }>,
   ) => {
-    return { ...state, isGeneratingTemplatePage: false };
+    const _state = state;
+    if (action.payload.isNewPage) {
+      _state.pages = state.pages.map((page) => ({ ...page, latest: false }));
+      const newPage = {
+        pageName: action.payload.pageName,
+        pageId: action.payload.pageId,
+        layoutId: action.payload.layoutId,
+        isDefault: action.payload.isDefault,
+      };
+      _state.pages.push({ ...newPage, latest: true });
+    }
+
+    return { ..._state, isGeneratingTemplatePage: false };
   },
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
     state: PageListReduxState,

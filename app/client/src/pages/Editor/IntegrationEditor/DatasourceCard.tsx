@@ -252,6 +252,9 @@ function DatasourceCard(props: DatasourceCardProps) {
         </DatasourceCardHeader>
         <MenuWrapper
           menuItemWrapperWidth={160}
+          onInteraction={(nextState, e) => {
+            e?.stopPropagation();
+          }}
           position={Position.RIGHT_BOTTOM}
           target={
             <MoreOptionsContainer>
