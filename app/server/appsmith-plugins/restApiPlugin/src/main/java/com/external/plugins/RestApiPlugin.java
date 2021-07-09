@@ -368,9 +368,9 @@ public class RestApiPlugin extends BasePlugin {
                                     // Warn user that the API response is not a valid JSON.
                                     hintMessages.add("The response returned by this API is not a valid JSON. Please " +
                                             "be careful when using the API response anywhere a valid JSON is required" +
-                                            ". You may resolve this issue either by modifying the MIME type to " +
-                                            "indicate a non-JSON response or by modifying the API response to return " +
-                                            "a valid JSON.");
+                                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                                            "Header to indicate a non-JSON response or by modifying the API response " +
+                                            "to return a valid JSON.");
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||

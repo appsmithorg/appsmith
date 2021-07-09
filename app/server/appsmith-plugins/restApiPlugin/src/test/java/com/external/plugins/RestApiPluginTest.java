@@ -428,9 +428,9 @@ public class RestApiPluginTest {
                     assertEquals(1, result.getMessages().size());
                     String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
                             "be careful when using the API response anywhere a valid JSON is required" +
-                            ". You may resolve this issue either by modifying the MIME type to " +
-                            "indicate a non-JSON response or by modifying the API response to return " +
-                            "a valid JSON.";
+                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                            "Header to indicate a non-JSON response or by modifying the API response " +
+                            "to return a valid JSON.";
                     assertEquals(expectedMessage, result.getMessages().toArray()[0]);
                 })
                 .verifyComplete();
