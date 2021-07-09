@@ -91,7 +91,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
     .first()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -374,12 +374,12 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser").should(
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-
   initLocalstorage();
 });
 
