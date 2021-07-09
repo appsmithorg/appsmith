@@ -460,7 +460,7 @@ function GeneratePageForm() {
         ) : null}
         {showSubmitButton ? (
           <FormSubmitButton
-            category={Category.secondary}
+            category={Category.tertiary}
             data-cy="generate-page-form-submit"
             disabled={submitButtonDisable}
             isLoading={isGeneratingTemplatePage}

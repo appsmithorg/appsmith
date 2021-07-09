@@ -1,11 +1,13 @@
 import React from "react";
-import Button from "components/editorComponents/Button";
 import Text, { TextType } from "../../../components/ads/Text";
 import { HelpIcons } from "icons/HelpIcons";
 import { withTheme } from "styled-components";
 import styled from "styled-components";
 import { Color } from "../../../constants/Colors";
 import Dialog from "components/ads/DialogComponent";
+import Icon, { IconSize } from "components/ads/Icon";
+import { IconProps } from "../../../constants/IconConstants";
+import Button, { Category, Size } from "components/ads/Button";
 
 type Props = {
   isModalOpen: boolean;
@@ -44,11 +46,47 @@ const CloseIconContainer = styled.div`
   }
 `;
 
+const ActionButtonWrapper = styled.div`
+  display: flex;
+  margin: 30px 0px 0px;
+`;
+
 export const StyledSeparator = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.modal.separator};
   opacity: 0.6;
   height: 1px;
+`;
+
+const StyledIcon = styled(Icon)<IconProps>`
+  margin: 0px 8px;
+  .default_cursor {
+    cursor: default;
+  }
+  svg {
+    .triangle {
+      fill: #efa903;
+    }
+    .symbol {
+      fill: #ffffff;
+    }
+  }
+  &:hover {
+    .triangle {
+      fill: #efa903;
+    }
+    .symbol {
+      fill: #ffffff;
+    }
+  }
+`;
+
+const ActionButton = styled(Button)`
+  margin-right: 16px;
+`;
+
+const Content = styled.div`
+  margin: 8px 0px;
 `;
 
 const CloseIcon = HelpIcons.CLOSE_ICON;
@@ -57,7 +95,14 @@ const Header = withTheme(
   ({ onClose, theme }: { onClose: () => void; theme: any }) => (
     <>
       <HeaderContents>
-        <Heading>⚠️ Heads Up</Heading>
+        <Heading>
+          <StyledIcon
+            className="default_cursor"
+            name="warning-triangle"
+            size={IconSize.XL}
+          />{" "}
+          Heads Up
+        </Heading>
         <HeaderRight>
           <CloseIconContainer
             data-cy="t--product-updates-close-btn"
@@ -90,37 +135,39 @@ function UnsupportedPluginDialog(props: Props) {
       canOutsideClickClose
       getHeader={() => <Header onClose={props.onClose} />}
       isOpen={isModalOpen}
+      setModalClose={handleClose}
     >
-      <div>
-        <Text type={TextType.H4}>
+      <Content>
+        <Text type={TextType.H5}>
           This Datasource is not currently supported to generate template page
         </Text>
+        <br />
         <br />
         <Text type={TextType.P1}>
           Select another datasource to generate CRUD interface or continue to
           manually build the application
         </Text>
-      </div>
-      <div>
-        <div>
-          <Button
-            filled
-            onClick={() => {
-              handleClose();
-            }}
-            text="SELECT OTHER DATASOURCE"
-          />
-          <Button
-            filled
-            intent="primary"
-            onClick={() => {
-              handleClose();
-              onContinue();
-            }}
-            text="CONTINUE"
-          />
-        </div>
-      </div>
+      </Content>
+
+      <ActionButtonWrapper>
+        <ActionButton
+          category={Category.tertiary}
+          onClick={() => {
+            handleClose();
+          }}
+          size={Size.medium}
+          text="SELECT OTHER DATASOURCE"
+        />
+        <ActionButton
+          category={Category.primary}
+          onClick={() => {
+            handleClose();
+            onContinue();
+          }}
+          size={Size.medium}
+          text="CONTINUE"
+        />
+      </ActionButtonWrapper>
     </Dialog>
   );
 }
