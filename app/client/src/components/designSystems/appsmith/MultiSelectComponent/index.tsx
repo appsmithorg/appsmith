@@ -105,8 +105,8 @@ function MultiSelectComponent({
   );
 
   const serverSideSearch = React.useMemo(() => {
-    const updateFilter = (value: string) => {
-      onFilterChange(value);
+    const updateFilter = (filterValue: string) => {
+      onFilterChange(filterValue);
     };
 
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);

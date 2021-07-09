@@ -146,7 +146,7 @@ class MultiSelectWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptionValueArr: undefined,
-      filterText: undefined,
+      filterText: "",
     };
   }
 
@@ -162,7 +162,7 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
-
+    console.log(values, "valuesvaluevaluess");
     return (
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}
@@ -181,6 +181,8 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
+    console.log(value, "Selected");
+
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -188,6 +190,9 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+
+    // Empty filter after Selection
+    this.onFilterChange("");
   };
 
   onFilterChange = (value: string) => {
