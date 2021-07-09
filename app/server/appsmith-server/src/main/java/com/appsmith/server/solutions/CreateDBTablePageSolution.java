@@ -87,12 +87,20 @@ public class CreateDBTablePageSolution {
     // uniformity across different datasources
     private final String DEFAULT_SEARCH_COLUMN = "col3";
 
+    private final String TEMPLATE_S3_BUCKET = "assets-test.appsmith.com";
+
     private final long MIN_TABLE_COLUMNS = 2;
 
     // These fields contain the widget fields those need to be mapped between template DB table and DB table in
     // current context
     private final Set<String> WIDGET_FIELDS = Set.of(
         "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible"
+    );
+
+    // These contain the plugin specified template fields those need to be mapped between template actions and request
+    // body fileds like sheetUrl, S3 bucket url, tableHeaderIndex etc.
+    private final Set<String> PLUGIN_SPECIFIC_PARAMS = Set.of(
+        "sheetUrl", "tableHeaderIndex", "sheetName", "spreadsheetName"
     );
 
     // Map to select page from the template application for specific datasource
@@ -146,6 +154,7 @@ public class CreateDBTablePageSolution {
         final String applicationId = pageResourceDTO.getApplicationId();
         final String searchColumn = pageResourceDTO.getSearchColumn();
         final Set<String> columns = pageResourceDTO.getColumns();
+        final Map<String, String> pluginSpecificParams = pageResourceDTO.getPluginSpecificParams();
 
         //Mapped columns along with table name between template and concerned DB table
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
@@ -163,32 +172,18 @@ public class CreateDBTablePageSolution {
                     .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                     )
-                    .filter(datasource -> datasource.getStructure() != null
-                        && !CollectionUtils.isEmpty(datasource.getStructure().getTables()))
-                    .filter(datasource -> datasource.getStructure().getTables().stream()
-                        .anyMatch(table -> StringUtils.equals(table.getName(), tableName)))
-                    .switchIfEmpty(Mono.error(
-                        new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND,
-                            FieldName.DATASOURCE_STRUCTURE,
-                            "containing table with name " + tableName
-                        ))
-                    )
             );
 
-        
         return datasourceMono
             .zipWhen(datasource -> Mono.zip(
-                    getTable(datasource, tableName),
                     pageMono,
                     pluginService.findById(datasource.getPluginId())
                 )
             )
             .flatMap(tuple -> {
                 Datasource datasource = tuple.getT1();
-                Table table = tuple.getT2().getT1();
-                NewPage page = tuple.getT2().getT2();
-                Plugin plugin = tuple.getT2().getT3();
+                NewPage page = tuple.getT2().getT1();
+                Plugin plugin = tuple.getT2().getT2();
                 String layoutId = page.getUnpublishedPage().getLayouts().get(0).getId();
 
                 ApplicationJson applicationJson = new ApplicationJson();
@@ -226,7 +221,7 @@ public class CreateDBTablePageSolution {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE));
                 }
                 layout.setId(null);
-                // onLoadActions will be set after it's stored in DB
+                // onLoadActions will be set after actions are stored in DB
                 layout.setLayoutOnLoadActions(null);
 
                 final String templateTableRef =  TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
@@ -244,16 +239,26 @@ public class CreateDBTablePageSolution {
                 }
 
                 DatasourceStructure templateStructure = templateDatasource.getStructure();
-                Table templateTable = templateStructure.getTables()
-                    .stream()
-                    .filter(table1 -> StringUtils.contains(table1.getName(), templateTableRef))
-                    .findAny()
-                    .orElse(null);
+                if (templateStructure != null && !CollectionUtils.isEmpty(templateStructure.getTables())) {
+                    Table templateTable = templateStructure.getTables()
+                        .stream()
+                        .filter(table1 -> StringUtils.contains(table1.getName(), templateTableRef))
+                        .findAny()
+                        .orElse(null);
 
-                mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
+                    // TODO remove this block statement
+                    Table table = getTable(datasource, tableName).block();
+                    mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
+                }
+
+                // Map table names : public.templateTable => <"templateTable","userTable">
                 mappedColumnsAndTableName.put(
                     templateTableRef,
                     tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName);
+
+                // Map plugin specific parameters like sheetUrl for GSheet, bucket url for S3
+
+
 
                 Set<String> deletedWidgets = new HashSet<>();
                 layout.setDsl(
@@ -354,12 +359,17 @@ public class CreateDBTablePageSolution {
         */
         DatasourceStructure datasourceStructure = datasource.getStructure();
         if (datasourceStructure != null) {
-            return Mono.justOrEmpty(getTable(datasourceStructure, tableName))
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)));
+            return Mono.justOrEmpty(getTable(datasourceStructure, tableName));
         }
         return datasourceStructureSolution.getStructure(datasource.getId(), true)
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)))
-            .map(datasourceStructure1 -> getTable(datasourceStructure1, tableName));
+            .switchIfEmpty(Mono.empty())
+            .map(datasourceStructure1 -> {
+                if (CollectionUtils.isEmpty(datasourceStructure1.getTables())) {
+                    return null;
+                }
+                return getTable(datasourceStructure1, tableName);
+            })
+            .switchIfEmpty(Mono.empty());
     }
     
     private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
@@ -412,6 +422,8 @@ public class CreateDBTablePageSolution {
                                                                 Map<String, String> mappedColumns,
                                                                 Set<String> deletedWidgetNames
     ) {
+        //,
+        //Map<String, String> pluginSpecificTemplateParams
         /*
             1. Clone actions from the template pages
             2. Update actionConfiguration to replace the template table fields with users datasource fields
@@ -446,10 +458,14 @@ public class CreateDBTablePageSolution {
                 if ( pluginSpecifiedTemplates != null) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
-                            final Matcher matcher = wordPattern.matcher(property.getValue().toString());
-                            property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                            );
+                            if (StringUtils.equals(property.getValue().toString(), TEMPLATE_S3_BUCKET)) {
+                                property.setValue(tableName);
+                            } else {
+                                final Matcher matcher = wordPattern.matcher(property.getValue().toString());
+                                property.setValue(matcher.replaceAll(key ->
+                                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
+                                );
+                            }
                         }
                     });
                 }
@@ -713,4 +729,21 @@ public class CreateDBTablePageSolution {
         }
         return actionConfiguration;
     }
+
+//    ActionConfiguration updateActionConfigFromPluginSpecificParams(NewAction newAction,
+//                                                                   Map<String, String> pluginSpecificParams) {
+//        log.debug("Going to map plugin specific params");
+//
+//        if (newAction.getUnpublishedAction() != null
+//            && newAction.getUnpublishedAction().getActionConfiguration() != null) {
+//
+//            newAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates()
+//            .forEach(property -> {
+//                if (property.getValue() != null && property.getValue() instanceof String) {
+//
+//                }
+//            });
+//        }
+//        return newAction.getUnpublishedAction().getActionConfiguration();
+//    }
 }
