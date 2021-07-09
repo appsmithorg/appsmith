@@ -92,6 +92,7 @@ function getWidgetProps(
         type: widgetType,
         props: {
           [fieldName]: `{{${actionName}.data}}`,
+          dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
         },
       };
   }
