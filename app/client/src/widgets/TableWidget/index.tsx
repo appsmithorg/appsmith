@@ -546,6 +546,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (this.props.pageNo > maxAllowedPageNumber) {
         this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
       }
+    } else if (
+      this.props.serverSidePaginationEnabled !==
+      prevProps.serverSidePaginationEnabled
+    ) {
+      //reset pageNo when serverSidePaginationEnabled is toggled
+      this.props.updateWidgetMetaProperty("pageNo", 1);
     }
 
     // If the user has switched the mutiple row selection feature
@@ -573,6 +579,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
+      //reset current page number when page size changes
+      this.props.updateWidgetMetaProperty("pageNo", 1);
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",

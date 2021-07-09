@@ -186,10 +186,7 @@ function TableHeader(props: TableHeaderProps) {
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
-            {props.totalRecordsCount
-              ? props.totalRecordsCount
-              : props.tableData?.length}{" "}
-            Records
+            {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
