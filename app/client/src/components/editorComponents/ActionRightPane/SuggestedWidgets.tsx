@@ -59,38 +59,66 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   },
 };
 
+function getWidgetProps(
+  widgetType: WidgetType,
+  widgetInfo: WidgetBindingInfo,
+  actionName: string,
+) {
+  const fieldName = widgetInfo.propertyName;
+  switch (widgetType) {
+    case WidgetTypes.TABLE_WIDGET:
+      return {
+        type: WidgetTypes.TABLE_WIDGET,
+        props: {
+          [fieldName]: `{{${actionName}.data}}`,
+          dynamicBindingPathList: [{ key: "tableData" }],
+        },
+        parentRowSpace: 10,
+      };
+    case WidgetTypes.CHART_WIDGET:
+      return {
+        type: widgetType,
+        props: {
+          [fieldName]: {
+            [generateReactKey()]: {
+              seriesName: "Sales",
+              data: `{{${actionName}.data}}`,
+            },
+          },
+        },
+      };
+    default:
+      return {
+        type: widgetType,
+        props: {
+          [fieldName]: `{{${actionName}.data}}`,
+        },
+      };
+  }
+}
+
 type SuggestedWidgetProps = {
   actionName: string;
-  suggestedWidget?: WidgetType;
+  suggestedWidget: WidgetType;
 };
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
   const widgetInfo: WidgetBindingInfo | undefined =
-    WIDGET_DATA_FIELD_MAP[props?.suggestedWidget ?? ""];
+    WIDGET_DATA_FIELD_MAP[props.suggestedWidget];
+
+  if (!widgetInfo) return null;
 
   const addWidget = () => {
-    const fieldName = widgetInfo.propertyName;
-    const payload =
-      props.suggestedWidget === WidgetTypes.CHART_WIDGET
-        ? {
-            [fieldName]: {
-              [generateReactKey()]: {
-                seriesName: "Sales",
-                data: `{{${props.actionName}.data}}`,
-              },
-            },
-          }
-        : {
-            [fieldName]: `{{${props.actionName}.data}}`,
-          };
+    const payload = getWidgetProps(
+      props.suggestedWidget,
+      widgetInfo,
+      props.actionName,
+    );
 
     dispatch({
       type: "ADD_WIDGET",
-      payload: {
-        type: props.suggestedWidget,
-        props: payload,
-      },
+      payload,
     });
   };
 

@@ -105,7 +105,7 @@ function ActionSidebar({
   return (
     <SideBar>
       <Connections actionName={actionName} expand={!hasResponse} />
-      {hasResponse && (
+      {hasResponse && suggestedWidget && (
         <SuggestedWidgets
           actionName={actionName}
           suggestedWidget={suggestedWidget}
