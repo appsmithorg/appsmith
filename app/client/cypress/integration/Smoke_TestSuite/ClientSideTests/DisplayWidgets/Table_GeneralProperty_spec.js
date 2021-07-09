@@ -93,7 +93,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget change text size and validate", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
-    // cy.openPropertyPane("tablewidget");
+    cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextAlign)
       .first()
