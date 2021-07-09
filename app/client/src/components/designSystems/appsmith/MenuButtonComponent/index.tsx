@@ -30,21 +30,27 @@ const BaseButton = styled(Button)<BaseStyleProps>`
   border-radius: 0;
   box-shadow: none !important;
   background-image: none !important;
-  background-color: ${({ backgroundColor }) =>
-    backgroundColor ? backgroundColor : "#ffffff"} !important;
-  &:hover {
-    background-color: ${({ backgroundColor }) =>
-      backgroundColor ? backgroundColor : "#ffffff"} !important;
-  }
-  &:active {
-    background-color: ${({ backgroundColor }) =>
-      backgroundColor ? backgroundColor : "#ffffff"} !important;
-  }
   ${({ textColor }) =>
     textColor &&
     `
       color: ${textColor} !important;
   `}
+
+  &:enabled {
+    background-color: ${({ backgroundColor }) =>
+      backgroundColor ? backgroundColor : "#ffffff"} !important;
+  }
+
+  &:hover:enabled,
+  &:active:enabled {
+    background-color: ${({ backgroundColor }) =>
+      backgroundColor ? backgroundColor : "#ffffff"} !important;
+  }
+
+  &:disabled {
+    background-color: #a9a7a7 !important;
+    color: #ffffff !important;
+  }
 `;
 
 const BaseMenuItem = styled(MenuItem)<BaseStyleProps>`
@@ -155,6 +161,7 @@ function ButtonNormal(props: PopoverTargetButtonProps) {
     iconAlign,
     iconColor,
     iconName,
+    isDisabled,
     label,
     textColor,
   } = props;
@@ -164,6 +171,7 @@ function ButtonNormal(props: PopoverTargetButtonProps) {
       <BaseButton
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
         backgroundColor={backgroundColor}
+        disabled={isDisabled}
         fill
         rightIcon={<Icon color={iconColor} icon={iconName} />}
         text={label}
@@ -176,6 +184,7 @@ function ButtonNormal(props: PopoverTargetButtonProps) {
     <BaseButton
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
       backgroundColor={backgroundColor}
+      disabled={isDisabled}
       fill
       icon={<Icon color={iconColor} icon={iconName} />}
       text={label}
@@ -191,6 +200,7 @@ export interface PopoverTargetButtonProps {
   iconName?: IconName;
   iconColor?: string;
   iconAlign?: Alignment;
+  isDisabled?: boolean;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -199,6 +209,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     iconAlign,
     iconColor,
     iconName,
+    isDisabled,
     label,
     textColor,
   } = props;
@@ -209,6 +220,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       iconAlign={iconAlign}
       iconColor={iconColor}
       iconName={iconName}
+      isDisabled={isDisabled}
       label={label}
       textColor={textColor}
     />
@@ -245,7 +257,18 @@ export interface MenuButtonComponentProps extends ComponentProps {
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
-  const { isCompact, isDisabled, menuItems, onItemClicked } = props;
+  const {
+    backgroundColor,
+    iconAlign,
+    iconColor,
+    iconName,
+    isCompact,
+    isDisabled,
+    label,
+    menuItems,
+    onItemClicked,
+    textColor,
+  } = props;
 
   return (
     <MenuButtonContainer>
@@ -262,7 +285,15 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         minimal
         placement="bottom-end"
       >
-        <PopoverTargetButton {...props} />
+        <PopoverTargetButton
+          backgroundColor={backgroundColor}
+          iconAlign={iconAlign}
+          iconColor={iconColor}
+          iconName={iconName}
+          isDisabled={isDisabled}
+          label={label}
+          textColor={textColor}
+        />
       </Popover2>
     </MenuButtonContainer>
   );
