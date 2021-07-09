@@ -519,6 +519,8 @@ export function CanvasDraggingArena({
           canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
           canvasRef.current?.addEventListener("mouseleave", onMouseOut, false);
           document.body.addEventListener("mouseup", onMouseUp, false);
+          window.addEventListener("mouseup", onMouseUp, false);
+
           if (canvasIsDragging) {
             // fix_dpi();
             // drawDragLayer(rows);
@@ -538,6 +540,7 @@ export function CanvasDraggingArena({
           canvasRef.current?.removeEventListener("mouseout", onMouseOut);
           canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
           document.body.removeEventListener("mouseup", onMouseUp);
+          window.removeEventListener("mouseup", onMouseUp, false);
         };
       } else {
         onMouseOut();
