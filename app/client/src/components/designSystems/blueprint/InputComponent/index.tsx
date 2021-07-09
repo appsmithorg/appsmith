@@ -128,6 +128,15 @@ const InputComponentWrapper = styled((props) => (
     }
   }
 `;
+
+export const isNumberInputType = (inputType: InputType) => {
+  return (
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
+  );
+};
 class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
@@ -201,15 +210,6 @@ class InputComponent extends React.Component<
     }
     return this.props.leftIcon;
   };
-
-  isNumberInputType(inputType: InputType) {
-    return (
-      inputType === "INTEGER" ||
-      inputType === "NUMBER" ||
-      inputType === "CURRENCY" ||
-      inputType === "PHONE_NUMBER"
-    );
-  }
 
   getIcon(inputType: InputType) {
     switch (inputType) {
@@ -328,7 +328,7 @@ class InputComponent extends React.Component<
       />
     );
   private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
-    this.isNumberInputType(inputType)
+    isNumberInputType(inputType)
       ? this.numericInputComponent()
       : this.textInputComponent(isTextArea);
 
@@ -340,7 +340,7 @@ class InputComponent extends React.Component<
         hasError={this.props.isInvalid}
         inputType={this.props.inputType}
         multiline={this.props.multiline.toString()}
-        numeric={this.isNumberInputType(this.props.inputType)}
+        numeric={isNumberInputType(this.props.inputType)}
       >
         {this.props.label && (
           <Label
