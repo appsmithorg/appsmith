@@ -21,7 +21,9 @@ import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
-import ApiResponseView from "components/editorComponents/ApiResponseView";
+import ApiResponseView, {
+  EMPTY_RESPONSE,
+} from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
@@ -46,6 +48,9 @@ import { Icon as ButtonIcon } from "@blueprintjs/core";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
+import { getActionResponses } from "selectors/entitiesSelector";
+import { isEmpty } from "lodash";
+import { WidgetType } from "constants/WidgetConstants";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -204,6 +209,8 @@ interface APIFormProps {
   datasources?: any;
   currentPageId?: string;
   applicationId?: string;
+  hasResponse: boolean;
+  suggestedWidget?: WidgetType;
   updateDatasource: (datasource: Datasource) => void;
 }
 
@@ -604,7 +611,9 @@ function ApiEditorForm(props: Props) {
             applicationId={props.applicationId}
             currentPageId={props.currentPageId}
             datasources={props.datasources}
+            hasResponse={props.hasResponse}
             onClick={updateDatasource}
+            suggestedWidget={props.suggestedWidget}
           />
         </Wrapper>
       </Form>
@@ -664,6 +673,15 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   }
   const hintMessages = selector(state, "datasource.messages");
 
+  const responses = getActionResponses(state);
+  let hasResponse = false;
+  let suggestedWidget;
+  if (apiId && apiId in responses) {
+    const response = responses[apiId] || EMPTY_RESPONSE;
+    hasResponse = !isEmpty(response.statusCode);
+    suggestedWidget = response.suggestedWidget;
+  }
+
   return {
     actionName,
     apiId,
@@ -678,6 +696,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    suggestedWidget,
+    hasResponse,
   };
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({

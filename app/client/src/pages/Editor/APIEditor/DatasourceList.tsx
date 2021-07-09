@@ -201,7 +201,11 @@ export default function DataSourceList(props: any) {
               title: "Connections",
               panelComponent: (
                 <SomeWrapper>
-                  <ActionRightPane actionName={props.actionName} />
+                  <ActionRightPane
+                    actionName={props.actionName}
+                    hasResponse={props.hasResponse}
+                    suggestedWidget={props.suggestedWidget}
+                  />
                 </SomeWrapper>
               ),
             },

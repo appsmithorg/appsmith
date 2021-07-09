@@ -1,5 +1,5 @@
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -25,7 +25,13 @@ const WidgetList = styled.div`
   }
 `;
 
-export const WIDGET_DATA_FIELD_MAP: Record<string, Record<string, string>> = {
+type WidgetBindingInfo = {
+  label: string;
+  propertyName: string;
+  widgetName: string;
+};
+
+export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   [WidgetTypes.LIST_WIDGET]: {
     label: "items",
     propertyName: "listData",
@@ -53,13 +59,20 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, Record<string, string>> = {
   },
 };
 
-function SuggestedWidgets(props: any) {
-  const dispatch = useDispatch();
+type SuggestedWidgetProps = {
+  actionName: string;
+  suggestedWidget?: WidgetType;
+};
 
-  const onClick = (type: string) => {
-    const fieldName = WIDGET_DATA_FIELD_MAP[type].propertyName;
+function SuggestedWidgets(props: SuggestedWidgetProps) {
+  const dispatch = useDispatch();
+  const widgetInfo: WidgetBindingInfo | undefined =
+    WIDGET_DATA_FIELD_MAP[props?.suggestedWidget ?? ""];
+
+  const addWidget = () => {
+    const fieldName = widgetInfo.propertyName;
     const payload =
-      type === WidgetTypes.CHART_WIDGET
+      props.suggestedWidget === WidgetTypes.CHART_WIDGET
         ? {
             [fieldName]: {
               [generateReactKey()]: {
@@ -75,7 +88,7 @@ function SuggestedWidgets(props: any) {
     dispatch({
       type: "ADD_WIDGET",
       payload: {
-        type: type,
+        type: props.suggestedWidget,
         props: payload,
       },
     });
@@ -88,18 +101,10 @@ function SuggestedWidgets(props: any) {
       </div>
 
       <WidgetList>
-        {Object.entries(WIDGET_DATA_FIELD_MAP).map((value) => {
-          return (
-            <div
-              className="widget"
-              key={value[0]}
-              onClick={() => onClick(value[0])}
-            >
-              <div>{value[1].widgetName} Widget</div>
-              <div className="image" />
-            </div>
-          );
-        })}
+        <div className="widget" onClick={addWidget}>
+          <div>{widgetInfo.widgetName} Widget</div>
+          <div className="image" />
+        </div>
       </WidgetList>
     </Collapsible>
   );

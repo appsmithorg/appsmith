@@ -7,6 +7,9 @@ import { useState } from "react";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
+import { WidgetType } from "constants/WidgetConstants";
+import { ReactNode } from "react";
+import { useEffect } from "react";
 
 const SideBar = styled.div`
   padding: 0px 8px 10px;
@@ -60,27 +63,54 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-export function Collapsible(props: any) {
-  const [expand, setExpand] = useState(true);
+type CollapsibleProps = {
+  expand?: boolean;
+  children: ReactNode;
+  label: string;
+};
+
+export function Collapsible({
+  children,
+  expand = true,
+  label,
+}: CollapsibleProps) {
+  const [isOpen, setIsOpen] = useState(!!expand);
+
+  useEffect(() => {
+    setIsOpen(expand);
+  }, [expand]);
 
   return (
-    <CollapsibleWrapper isOpen={expand}>
-      <Label className="icon-text" onClick={() => setExpand(!expand)}>
+    <CollapsibleWrapper isOpen={isOpen}>
+      <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
         <Icon name="downArrow" size={IconSize.XXS} />
-        <span className="label">{props.label}</span>
+        <span className="label">{label}</span>
       </Label>
-      <Collapse isOpen={expand} keepChildrenMounted>
-        {props.children}
+      <Collapse isOpen={isOpen} keepChildrenMounted>
+        {children}
       </Collapse>
     </CollapsibleWrapper>
   );
 }
 
-function ActionSidebar(props: any) {
+function ActionSidebar({
+  actionName,
+  hasResponse,
+  suggestedWidget,
+}: {
+  actionName: string;
+  hasResponse: boolean;
+  suggestedWidget?: WidgetType;
+}) {
   return (
     <SideBar>
-      <Connections actionName={props.actionName} />
-      {props.hasResponse && <SuggestedWidgets actionName={props.actionName} />}
+      <Connections actionName={actionName} expand={!hasResponse} />
+      {hasResponse && (
+        <SuggestedWidgets
+          actionName={actionName}
+          suggestedWidget={suggestedWidget}
+        />
+      )}
     </SideBar>
   );
 }

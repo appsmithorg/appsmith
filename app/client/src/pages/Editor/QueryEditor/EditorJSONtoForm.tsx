@@ -60,6 +60,7 @@ import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import { WidgetType } from "constants/WidgetConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -376,6 +377,7 @@ type QueryFormProps = {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
+    suggestedWidget?: WidgetType;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -781,7 +783,11 @@ export function EditorJSONtoForm(props: Props) {
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper>
-            <ActionRightPane actionName={actionName} hasResponse={!!output} />
+            <ActionRightPane
+              actionName={actionName}
+              hasResponse={!!output}
+              suggestedWidget={executedQueryData?.suggestedWidget}
+            />
           </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>

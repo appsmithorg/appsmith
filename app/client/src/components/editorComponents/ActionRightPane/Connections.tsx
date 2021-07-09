@@ -86,7 +86,12 @@ function Dependencies(props: any) {
   );
 }
 
-function Connections(props: any) {
+type ConnectionsProps = {
+  actionName: string;
+  expand: boolean;
+};
+
+function Connections(props: ConnectionsProps) {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const entityDependencies = getDependenciesFromInverseDependencies(
     deps.inverseDependencyMap,
@@ -94,7 +99,7 @@ function Connections(props: any) {
   );
 
   return (
-    <Collapsible label="Relationship">
+    <Collapsible expand={props.expand} label="Relationship">
       <span className="description">See all entities connected</span>
       <ConnectionType className="icon-text">
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
