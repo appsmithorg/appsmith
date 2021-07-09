@@ -425,13 +425,6 @@ jobs:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
-      # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
-
   ui-test-result:
     needs: ui-test
     # Only run if the ui-test with matrices step is successful
