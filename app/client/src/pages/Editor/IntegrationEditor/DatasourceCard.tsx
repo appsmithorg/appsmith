@@ -238,7 +238,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 category={Category.tertiary}
                 className="t--generate-template"
                 onClick={routeToGeneratePage}
-                text="GENERATE PAGE"
+                text="GENERATE NEW PAGE"
               />
             ) : null}
             <ActionButton

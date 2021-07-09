@@ -16,7 +16,7 @@ import {
 } from "entities/Datasource";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
+import { fetchPage, generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
@@ -25,6 +25,7 @@ import {
 } from "../../../../constants/routes";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelectors";
+
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
@@ -354,6 +355,12 @@ function GeneratePageForm() {
       }
     }
   }, [newDatasourceId]);
+
+  useEffect(() => {
+    if (currentPageId) {
+      dispatch(fetchPage(currentPageId));
+    }
+  }, [currentPageId]);
 
   const routeToCreateNewDatasource = useCallback(() => {
     history.push(
