@@ -82,6 +82,7 @@ function PageNumberInput(props: {
         } else {
           setPageNumber(value);
         }
+        if (!isNaN(value)) props.updatePageNo(value, EventType.ON_NEXT_PAGE);
       }}
       value={pageNumber}
     />
