@@ -1,6 +1,7 @@
 import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
+import log from "loglevel";
 
 /**
  * @param {String} HTML representing a single element
@@ -211,7 +212,7 @@ const parseDocumentationContent = (item: any): string | undefined => {
     const content = strip(documentObj.body.innerHTML).trim();
     return content;
   } catch (e) {
-    console.log(e, "err");
+    log.error(e);
     return;
   }
 };

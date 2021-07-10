@@ -7,6 +7,8 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -48,18 +50,20 @@ ctx.addEventListener(
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
         let dataTreeObject: any = {};
-        let evaluationOrder: Array<string> = [];
+        let evaluationOrder: string[] = [];
+        let removedPaths: string[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTreeObject = dataTreeEvaluator.createFirstTree(unevalTree);
             dataTree = dataTreeObject.dataTree;
             evaluationOrder = dataTreeObject.evaluationOrder;
-            // dataTreeEvaluator.sortedDepedencies
+            removedPaths = dataTreeObject.removedPaths;
           } else {
             dataTreeObject = dataTreeEvaluator.updateDataTree(unevalTree);
             dataTree = dataTreeObject.dataTree;
             evaluationOrder = dataTreeObject.evaluationOrder;
+            removedPaths = dataTreeObject.removedPaths;
           }
 
           // We need to clean it to remove any possible functions inside the tree.
@@ -92,6 +96,7 @@ ctx.addEventListener(
           errors,
           evaluationOrder,
           logs,
+          removedPaths,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -118,7 +123,13 @@ ctx.addEventListener(
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
-        const triggers = dataTreeEvaluator.getDynamicValue(
+        const {
+          errors: evalErrors,
+          triggers,
+        }: {
+          errors: EvaluationError[];
+          triggers: Array<any>;
+        } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
           EvaluationSubstitutionType.TEMPLATE,
@@ -128,16 +139,15 @@ ctx.addEventListener(
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
-        const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_PROPERTY_ERROR) {
-            return {
-              ...error,
-              type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-            };
-          }
-          return error;
-        });
-        dataTreeEvaluator.clearErrors();
+        const errors = evalErrors
+          .filter(
+            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
+          )
+          .map((error) => ({
+            ...error,
+            message: error.errorMessage,
+            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
+          }));
         return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {

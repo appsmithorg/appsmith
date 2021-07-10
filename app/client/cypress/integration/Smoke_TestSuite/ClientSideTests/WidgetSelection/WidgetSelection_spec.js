@@ -23,5 +23,7 @@ describe("Widget Selection", function() {
     cy.get(`.t--widget-propertypane-toggle`)
       .not(`[style *= "background: rgb(255, 224, 210);"]`) // Excluding focused widgets.
       .should("have.length", 2);
+
+    cy.get(`.t--multi-selection-box`).should("have.length", 1);
   });
 });

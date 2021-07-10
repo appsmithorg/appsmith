@@ -21,6 +21,27 @@ You can find the archives of the calls below with a brief summary of each event.
 
 ## Archives
 
+<strong>Appsmith Live Demo #5: Building a Tweetdeck Clone With n8n and Appsmith</strong>
+
+<a href = "https://youtu.be/mWZGn8kuIBo">Video Link</a>
+
+#### Summary
+
+We had our friend from n8n join us in this Live Demo session to build a Tweetdeck clone in 20 minutes. Confidence from Appsmith built the demo app
+using Appsmith for the frontend and building the workflow automation with n8n.
+
+------------------
+
+<strong>Community Call Jun 24, 2021: All about Integrations</strong>
+
+<a href = "https://youtu.be/hQScncyEUds">Video Link</a>
+
+#### Summary
+
+This week's community session was all about Integrations. Arpit discusses how we develop integrations at Appsmith, and shows the community how they can contribute new ones.
+
+------------------
+
 <strong>Community Call Jun 10, 2021: New Upcoming Widgets and Latest Releases</strong>
 
 <a href = "https://youtu.be/B6T6L6GYARM">Video Link</a>

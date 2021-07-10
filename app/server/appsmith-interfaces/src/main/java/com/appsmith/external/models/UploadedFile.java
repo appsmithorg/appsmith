@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import reactor.core.publisher.Mono;
 
 import java.util.Base64;
 
@@ -20,14 +19,24 @@ import java.util.Base64;
 @AllArgsConstructor
 public class UploadedFile {
 
+    private static final String BASE64_DELIMITER = ";base64,";
+
     String name;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String base64Content;
 
     @JsonIgnore
-    public Mono<String> getDecodedContent() {
-        return Mono.just(new String(Base64.getDecoder().decode(base64Content)));
+    public byte[] getDecodedContent() {
+        if (base64Content == null) {
+            return null;
+        }
+
+        if (base64Content.contains(BASE64_DELIMITER)) {
+            return Base64.getDecoder().decode(base64Content.split(BASE64_DELIMITER)[1]);
+        }
+
+        return Base64.getDecoder().decode(base64Content);
     }
 
 }

@@ -1,5 +1,5 @@
 {
-  "input": ".CodeMirror textarea",
+  "input": ".CodeEditorTarget",
   "hints": "ul.CodeMirror-hints",
   "evaluatedValue": ".t--CodeEditor-evaluatedValue",
   "bindingPrompt": ".t--no-binding-prompt"

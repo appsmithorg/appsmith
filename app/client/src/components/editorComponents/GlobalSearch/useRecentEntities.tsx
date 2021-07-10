@@ -18,7 +18,7 @@ const useResentEntities = () => {
 
   const pages = useSelector(getPageList) || [];
 
-  const populatedRecentEntities = recentEntities
+  const populatedRecentEntities = (recentEntities || [])
     .map((entity) => {
       const { id, params, type } = entity;
       if (type === "page") {

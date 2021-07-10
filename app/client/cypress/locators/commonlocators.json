@@ -13,9 +13,9 @@
   "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror-code",
   "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
   "optionchangetextCheckbox": ".t--property-control-oncheckchange .CodeMirror-code",
-  "optionchangetextSwitch": ".t--property-control-onchange .CodeMirror-code",
+  "optionchangetextSwitch": ".t--property-control-onchange .CodeMirror textarea",
   "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
-  "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror-code",
+  "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror textarea",
   "optionalignment": ".t--property-control-alignment .bp3-popover-target",
   "onMarkerclick": ".t--property-control-onmarkerclick .CodeMirror-code",
   "success": "div[type='success'] span",
@@ -109,6 +109,5 @@
   "paginationButton": ".rc-pagination-item",
   "switchWidgetActive": ".t--switch-widget-active",
   "switchWidgetInActive": ".t--switch-widget-inactive",
-  "switchWidgetLoading": ".t--switch-widget-loading",
-  "tablePageSizeChangeAction": ".t--property-control-onpagesizechange .t--open-dropdown-Select-Action"
+  "switchWidgetLoading": ".t--switch-widget-loading"
 }
