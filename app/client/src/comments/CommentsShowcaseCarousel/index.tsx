@@ -41,12 +41,14 @@ const introStepsEditor = [
       "You can now collaborate with your users to build apps faster. Invite your team to comment on your apps, exchange thoughts & ship your ideas.",
     banner: getBanner(1),
     hideBackBtn: true,
+    bannerProps: { style: { height: 284 } },
   },
   {
     title: "Give Contextual Feedback",
     content:
       "Drop a comment on a widget to suggest an improvement. Comments are tagged to the widget and move along with it. Update the widget and iterate your way to shipping your ideas!",
     banner: getBanner(2),
+    bannerProps: { style: { height: 284 } },
   },
 ];
 
@@ -57,12 +59,14 @@ const introStepsViewer = [
       "You can now collaborate with your developers to build apps faster. Exchange thoughts, leave feedback & ship your ideas.",
     banner: getBanner(1),
     hideBackBtn: true,
+    bannerProps: { style: { height: 284 } },
   },
   {
     title: "Give Contextual Feedback",
     content:
       "Drop a comment on a widget to suggest an improvement or report an issue. Comments are tagged to the widget, resolve them once the updates are live!",
     banner: getBanner(2),
+    bannerProps: { style: { height: 284 } },
   },
 ];
 
@@ -80,10 +84,11 @@ function IntroStep(props: {
   content: string;
   banner: string;
   theme: Theme;
+  bannerProps: any;
 }) {
   return (
     <>
-      <StyledImg alt="" src={props.banner} />
+      <StyledImg alt="" src={props.banner} {...props.bannerProps} />
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text

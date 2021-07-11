@@ -4,14 +4,16 @@ import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
-import commentIcon from "assets/icons/comments/commentCursor.png";
+import commentIcon from "assets/icons/comments/commentCursor.svg";
 import { getOffsetPos } from "comments/utils";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { TourType } from "entities/Tour";
+import { WidgetType } from "constants/WidgetConstants";
 
 type Props = {
   children: React.ReactNode;
   refId: string;
+  widgetType: WidgetType;
 };
 
 const Container = styled.div`
@@ -25,7 +27,7 @@ const Container = styled.div`
  * 1. Renders inline comment threads down the tree
  * 2. Calculates pin offset while creating a new comment
  */
-function OverlayCommentsWrapper({ children, refId }: Props) {
+function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
@@ -45,6 +47,7 @@ function OverlayCommentsWrapper({ children, refId }: Props) {
       dispatch(
         createUnpublishedCommentThreadRequest({
           refId,
+          widgetType,
           position,
         }),
       );
