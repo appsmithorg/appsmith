@@ -196,6 +196,20 @@ function* deleteComment(
   }
 }
 
+function* unsubscribeCommentThread(action: ReduxAction<string>) {
+  try {
+    const threadId = action.payload;
+    const response = yield CommentsApi.unsubscribeCommentThread(threadId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
+        payload: null,
+      });
+    }
+  } catch (error) {}
+}
+
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
@@ -343,6 +357,10 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
+    takeLatest(
+      ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_REQUEST,
+      unsubscribeCommentThread,
+    ),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),

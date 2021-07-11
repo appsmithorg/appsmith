@@ -121,7 +121,7 @@ public class EmailEventHandler {
     }
 
     private String getUnsubscribeThreadLink(String threadId, UserRole userRole, String originHeader) {
-        return String.format("%s/unsubscribe-email.html?t=%s&u=%s", originHeader, threadId, userRole.getUserId());
+        return String.format("%s/unsubscribe/discussion/%s", originHeader, threadId);
     }
 
     private Mono<Boolean> getResolveThreadEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,

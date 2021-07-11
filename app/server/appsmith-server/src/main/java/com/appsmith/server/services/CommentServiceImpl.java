@@ -587,12 +587,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<Boolean> unsubscribeThread(String threadId, String userId) {
-        return userService
-                .getById(userId)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, userId))
-                )
+    public Mono<Boolean> unsubscribeThread(String threadId) {
+        return sessionUserService
+                .getCurrentUser()
                 .flatMap(
                         user -> threadRepository.removeSubscriber(threadId, user.getUsername())
                 )
