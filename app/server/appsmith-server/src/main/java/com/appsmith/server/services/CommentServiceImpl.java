@@ -536,42 +536,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return repository.save(comment);
     }
 
-    /**
-     * This method is used to trigger a BotEvent for the provided user.
-     * If this event is already handled i.e. present in UserData.commentBotEvents, it'll be ignored.
-     * Otherwise, it'll do the required actions e.g. create a bot thread or comment.
-     * It'll also update the UserData.commentBotEvents after the action.
-     *
-     * @param user        User for whom this event is triggered
-     * @param userComment
-     * @return A Void Mono
-     */
-    private Mono<Void> triggerCommentEvent(User user, Comment userComment) {
-        final CommentBotEvent event;
-        if (CommentUtils.isAnyoneMentioned(userComment)) {
-            event = CommentBotEvent.TAGGED;
-        } else {
-            event = CommentBotEvent.COMMENTED;
-        }
-
-        return userDataRepository.findByUserId(user.getId()).flatMap(userData -> {
-//            if(userData.getLatestCommentEvent() == null
-//                    || userData.getLatestCommentEvent().getOrder() < event.getOrder()) {
-//                // no event stored yet or current event is with higher order -> trigger this event
-//                userData.setLatestCommentEvent(event);
-//
-//                return threadRepository.findPrivateThread(userComment.getApplicationId())
-//                        .switchIfEmpty(updateBotThread(userComment.getApplicationId(), userComment.getPageId(), user))
-//                        .flatMap(savedBotThread ->
-//                            createBotComment(savedBotThread, user, event).map(savedBotComment -> {
-//                                savedBotThread.setComments(List.of(savedBotComment));
-//                                return savedBotComment;
-//                            }).thenReturn(savedBotThread)
-//                ).then(userDataRepository.save(userData)).then();
-//            }
-            return Mono.empty();
-        });
-    }
     @Override
     public Mono<Long> getUnreadCount(String applicationId) {
         return sessionUserService.getCurrentUser()
