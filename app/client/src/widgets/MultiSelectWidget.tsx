@@ -21,30 +21,6 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Controls the Remote Data/ Server Side Filtering",
-            propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
-          },
-          {
-            helpText: "Filter options using filterText",
-            hidden: (props: MultiSelectWidgetProps) =>
-              !props.serverSideFiltering,
-            propertyName: "onFilterUpdate",
-            label: "onFilterUpdate",
-            controlType: "INPUT_TEXT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
-          },
-          {
             helpText:
               "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
@@ -108,6 +84,16 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
           },
+          {
+            helpText: "Controls the Remote Data/ Server Side Filtering",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {
@@ -121,6 +107,20 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+          {
+            helpText: "Filter options using filterText",
+            hidden: (props: MultiSelectWidgetProps) =>
+              !props.serverSideFiltering,
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
         ],
       },
@@ -162,7 +162,6 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
-    console.log(values, "valuesvaluevaluess");
     return (
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}

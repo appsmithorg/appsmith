@@ -104,6 +104,8 @@ function MultiSelectComponent({
     [],
   );
 
+  const onClose = useCallback((open) => !open && onFilterChange(""), []);
+
   const serverSideSearch = React.useMemo(() => {
     const updateFilter = (filterValue: string) => {
       onFilterChange(filterValue);
@@ -135,6 +137,7 @@ function MultiSelectComponent({
         mode="multiple"
         notFoundContent="No item Found"
         onChange={onChange}
+        onDropdownVisibleChange={onClose}
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
