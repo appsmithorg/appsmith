@@ -15,7 +15,6 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,6 @@ public class PolicyUtils {
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
-    private final UserChangedHandler userChangedHandler;
     private final CommentThreadRepository commentThreadRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
@@ -219,21 +217,25 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
-    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(
+            String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
 
         return
                 // fetch comment threads with read permissions
                 commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
-                    if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
-                    } else {
-                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                    if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
+                        if (addPolicyToObject) {
+                            return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                        } else {
+                            return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                        }
                     }
+                    return thread;
                 })
                 .collectList()
-                .flatMapMany(commentThreads -> commentThreadRepository.saveAll(commentThreads));
+                .flatMapMany(commentThreadRepository::saveAll);
     }
 
     /**

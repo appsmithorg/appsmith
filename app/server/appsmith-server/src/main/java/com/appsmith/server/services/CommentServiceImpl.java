@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.CommentBotEvent;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
@@ -13,8 +14,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommentUtils;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TemplateUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,13 +27,16 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,11 +45,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.constants.Appsmith.APPSMITH_BOT_NAME;
+import static com.appsmith.server.constants.Appsmith.APPSMITH_BOT_USERNAME;
+
 @Slf4j
 @Service
 public class CommentServiceImpl extends BaseService<CommentRepository, Comment, String> implements CommentService {
 
+    private static final String HOW_TO_TAG_USER_COMMENT = "bot/howToTagUser.html";
+    private static final String HOW_TO_TAG_BOT_COMMENT = "bot/howToTagBot.html";
+
     private final CommentThreadRepository threadRepository;
+    private final UserDataRepository userDataRepository;
 
     private final UserService userService;
     private final SessionUserService sessionUserService;
@@ -68,7 +81,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             NotificationService notificationService,
             PolicyGenerator policyGenerator,
             PolicyUtils policyUtils,
-            EmailEventHandler emailEventHandler) {
+            EmailEventHandler emailEventHandler,
+            UserDataRepository userDataRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.userService = userService;
@@ -78,6 +92,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
         this.emailEventHandler = emailEventHandler;
+        this.userDataRepository = userDataRepository;
     }
 
     @Override
@@ -91,18 +106,15 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
-        final Mono<User> userMono = sessionUserService.getCurrentUser()
-                .flatMap(user -> {
-                    if (user.getId() == null) {
-                        return userService.findByEmail(user.getEmail());
-                    } else {
-                        return Mono.just(user);
-                    }
-                });
+        final Mono<User> userMono = sessionUserService.getCurrentUser().flatMap(user -> {
+            if (user.getId() == null) {
+                return userService.findByEmail(user.getEmail());
+            } else {
+                return Mono.just(user);
+            }
+        });
 
-        final Mono<CommentThread> threadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD);
-
-        return Mono.zip(userMono, threadMono)
+        return userMono.zipWith(threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
@@ -128,27 +140,30 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
                     comment.setAuthorUsername(user.getUsername());
                     comment.setAuthorName(authorName);
-                    Set<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
 
-                    // add them to current thread so that we don't need to query again
-                    if(thread.getSubscribers() != null) {
-                        thread.getSubscribers().addAll(subscribersFromThisComment);
-                    } else {
-                        thread.setSubscribers(subscribersFromThisComment);
+                    if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
+                        Mono<Void> eventTriggerMono = triggerCommentEvent(user, comment);
+
+                        Set<String> subscribersFromThisComment = CommentUtils.getSubscriberUsernames(comment);
+                        // add them to current thread so that we don't need to query again
+                        if(thread.getSubscribers() != null) {
+                            thread.getSubscribers().addAll(subscribersFromThisComment);
+                        } else {
+                            thread.setSubscribers(subscribersFromThisComment);
+                        }
+                        return threadRepository.addToSubscribers(threadId, subscribersFromThisComment)
+                                .then(eventTriggerMono)
+                                .then(Mono.zip(Mono.just(user),Mono.just(thread),repository.save(comment)));
                     }
-
-                    return Mono.zip(
-                            Mono.just(user),
-                            Mono.just(thread),
-                            repository.save(comment),
-                            threadRepository.addToSubscribers(threadId, subscribersFromThisComment)
-                    );
+                    return Mono.zip(Mono.just(user),Mono.just(thread),repository.save(comment));
                 })
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     CommentThread commentThread = tuple.getT2();
                     final Comment savedComment = tuple.getT3();
-                    Mono<Boolean> publishEmailMono = emailEventHandler.publish(
+                    boolean isPrivateThread = Boolean.TRUE.equals(commentThread.getIsPrivate());
+
+                    Mono<Boolean> publishEmail = emailEventHandler.publish(
                             comment.getAuthorUsername(),
                             commentThread.getApplicationId(),
                             comment,
@@ -156,20 +171,20 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             commentThread.getSubscribers()
                     );
 
-                    if (shouldCreateNotification) {
+                    if (shouldCreateNotification && !isPrivateThread) {
                         final Set<String> usernames = commentThread.getSubscribers();
                         List<Mono<Notification>> notificationMonos = new ArrayList<>();
                         for (String username : usernames) {
-                            if (!username.equals(user.getUsername())) {
+                            if (!username.equals(user.getUsername()) && !username.equals(APPSMITH_BOT_USERNAME)) {
                                 Mono<Notification> notificationMono = notificationService.createNotification(
                                         savedComment, username
                                 );
                                 notificationMonos.add(notificationMono);
                             }
                         }
-                        return Flux.concat(notificationMonos).then(publishEmailMono).thenReturn(savedComment);
+                        return publishEmail.then(Flux.merge(notificationMonos).then(Mono.just(savedComment)));
                     } else {
-                        return publishEmailMono.thenReturn(savedComment);
+                        return publishEmail.thenReturn(savedComment);
                     }
                 });
     }
@@ -191,7 +206,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
         //TODO : Use sequenceDB for optimised results here
         Query query = new Query();
-        query.addCriteria(Criteria.where("applicationId").is(applicationId));
+        query.addCriteria(Criteria.where("applicationId").is(applicationId).and("isPrivate").ne(Boolean.TRUE));
         return mongoTemplate
                 .count(query, CommentThread.class)
                 .flatMap(count -> {
@@ -414,6 +429,114 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 });
     }
 
+    private Mono<CommentThread> createBotThread(String applicationId, String pageId, User user) {
+        CommentThread commentThread = new CommentThread();
+        commentThread.setIsPrivate(true);
+        CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
+        initState.setActive(false);
+        initState.setAuthorName("");
+        initState.setAuthorUsername("");
+        commentThread.setPinnedState(initState);
+        commentThread.setResolvedState(initState);
+        CommentThread.Position position = new CommentThread.Position();
+        position.setTop(5.96899223327637f);
+        position.setLeft(67.2629699707031f);
+        commentThread.setPosition(position);
+        commentThread.setApplicationId(applicationId);
+        commentThread.setPageId(pageId);
+        commentThread.setRefId("0");
+        commentThread.setAuthorUsername(APPSMITH_BOT_USERNAME);
+        commentThread.setAuthorName(APPSMITH_BOT_NAME);
+        commentThread.setSequenceId("#0");
+
+        final Set<Policy> policies = new HashSet<>();
+        Collection<Policy> policyCollection = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD),
+                user
+        ).values();
+        policies.addAll(policyCollection);
+        commentThread.setPolicies(policies);
+
+        return threadRepository.save(commentThread);
+    }
+
+    private Mono<Comment> createBotComment(CommentThread commentThread, User user, CommentBotEvent commentBotEvent) {
+        final Comment comment = new Comment();
+        comment.setThreadId(commentThread.getId());
+        comment.setAuthorName(commentThread.getAuthorName());
+        comment.setAuthorUsername(commentThread.getAuthorUsername());
+        comment.setApplicationId(commentThread.getApplicationId());
+
+        final Set<Policy> policies = policyGenerator.getAllChildPolicies(
+                commentThread.getPolicies(),
+                CommentThread.class,
+                Comment.class
+        );
+        policies.add(policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.MANAGE_COMMENT),
+                user
+        ).get(AclPermission.MANAGE_COMMENT.getValue()));
+        comment.setPolicies(policies);
+
+        Comment.Block block = new Comment.Block();
+        Comment.Body body = new Comment.Body();
+        body.setBlocks(List.of(block));
+        comment.setBody(body);
+
+        block.setKey("key1");
+        Map<String, String> botCommentParams = new HashMap<>();
+        botCommentParams.put("AppsmithBotName", APPSMITH_BOT_NAME);
+        botCommentParams.put("AppsmithBotUserName", APPSMITH_BOT_USERNAME);
+        try {
+            if(commentBotEvent == CommentBotEvent.COMMENTED) {
+                block.setText(TemplateUtils.parseTemplate(HOW_TO_TAG_BOT_COMMENT, botCommentParams));
+            } else {
+                block.setText(TemplateUtils.parseTemplate(HOW_TO_TAG_USER_COMMENT, botCommentParams));
+            }
+        } catch (IOException e) {
+            throw Exceptions.propagate(e);
+        }
+        block.setType("unstyled");
+        block.setDepth(0);
+        body.setEntityMap(new HashMap<>());
+        return repository.save(comment);
+    }
+
+    /**
+     * This method is used to trigger a BotEvent for the provided user.
+     * If this event is already handled i.e. present in UserData.commentBotEvents, it'll be ignored.
+     * Otherwise, it'll do the required actions e.g. create a bot thread or comment.
+     * It'll also update the UserData.commentBotEvents after the action.
+     * @param user User for whom this event is triggered
+     * @param userComment
+     * @return A Void Mono
+     */
+    private Mono<Void> triggerCommentEvent(User user, Comment userComment) {
+        final CommentBotEvent event;
+        if(CommentUtils.isAnyoneMentioned(userComment)) {
+            event = CommentBotEvent.TAGGED;
+        } else {
+            event = CommentBotEvent.COMMENTED;
+        }
+
+        return userDataRepository.findByUserId(user.getId()).flatMap(userData -> {
+            if(userData.getLatestCommentEvent() == null
+                    || userData.getLatestCommentEvent().getOrder() < event.getOrder()) {
+                // no event stored yet or current event is with higher order -> trigger this event
+                userData.setLatestCommentEvent(event);
+
+                return threadRepository.findPrivateThread(userComment.getApplicationId())
+                        .switchIfEmpty(createBotThread(userComment.getApplicationId(), userComment.getPageId(), user))
+                        .flatMap(savedBotThread ->
+                            createBotComment(savedBotThread, user, event).map(savedBotComment -> {
+                                savedBotThread.setComments(List.of(savedBotComment));
+                                return savedBotComment;
+                            }).thenReturn(savedBotThread)
+                ).then(userDataRepository.save(userData)).then();
+            }
+            return Mono.empty();
+        });
+    }
     @Override
     public Mono<Long> getUnreadCount(String applicationId) {
         return sessionUserService.getCurrentUser()

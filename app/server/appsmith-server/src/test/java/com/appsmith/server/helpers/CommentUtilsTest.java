@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Comment;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -86,10 +87,10 @@ class CommentUtilsTest {
         Comment comment = new Comment();
         comment.setBody(body);
 
-        Assert.assertTrue(CommentUtils.isUserMentioned(comment, "1"));
-        Assert.assertTrue(CommentUtils.isUserMentioned(comment, "2"));
-        Assert.assertTrue(CommentUtils.isUserMentioned(comment, "3"));
-        Assert.assertFalse(CommentUtils.isUserMentioned(comment, "4"));
+        assertThat(CommentUtils.isUserMentioned(comment, "1")).isTrue();
+        assertThat(CommentUtils.isUserMentioned(comment, "2")).isTrue();
+        assertThat(CommentUtils.isUserMentioned(comment, "3")).isTrue();
+        assertThat(CommentUtils.isUserMentioned(comment, "4")).isFalse();
     }
 
     @Test
@@ -119,5 +120,35 @@ class CommentUtilsTest {
         assertThat(subscriberUsernames).contains("1");
         assertThat(subscriberUsernames).contains("2");
         assertThat(subscriberUsernames).contains("3");
+    }
+
+    @Test
+    void isAnyoneMentioned() {
+        // when comment has no body, expect false
+        Comment comment = new Comment();
+        assertThat(CommentUtils.isAnyoneMentioned(comment)).isFalse();
+
+        // when comment has body but no mention, expect false
+        Map<String, Comment.Entity> entityMap = createEntityMapForUsers(List.of());
+        Comment.Body body = new Comment.Body();
+        body.setEntityMap(entityMap);
+        comment.setBody(body);
+        assertThat(CommentUtils.isAnyoneMentioned(comment)).isFalse();
+
+        // when comment has body, but only bot is mentioed
+        Map<String, Comment.Entity> entityMap2 = createEntityMapForUsers(List.of(Appsmith.APPSMITH_BOT_USERNAME));
+        Comment.Body body2 = new Comment.Body();
+        body2.setEntityMap(entityMap2);
+        comment.setBody(body2);
+        assertThat(CommentUtils.isAnyoneMentioned(comment)).isFalse();
+
+        // when comment has body with bot and other user mentioned
+        Map<String, Comment.Entity> entityMap3 = createEntityMapForUsers(
+                List.of(Appsmith.APPSMITH_BOT_USERNAME, "2")
+        );
+        Comment.Body body3 = new Comment.Body();
+        body3.setEntityMap(entityMap3);
+        comment.setBody(body3);
+        assertThat(CommentUtils.isAnyoneMentioned(comment)).isTrue();
     }
 }
