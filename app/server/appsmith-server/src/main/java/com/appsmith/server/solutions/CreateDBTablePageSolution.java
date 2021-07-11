@@ -228,7 +228,10 @@ public class CreateDBTablePageSolution {
                 Datasource templateDatasource = applicationJson
                     .getDatasourceList()
                     .stream()
-                    .filter(datasource1 -> StringUtils.equals(datasource1.getPluginId(), plugin.getPackageName()))
+                    .filter(datasource1 -> StringUtils.equals(
+                        templatePluginPackageToPageNamesMap.get(datasource1.getPluginId()),
+                        templatePluginPackageToPageNamesMap.get(plugin.getPackageName()))
+                    )
                     .findAny()
                     .orElse(null);
 
@@ -249,15 +252,20 @@ public class CreateDBTablePageSolution {
                     // TODO remove this block statement
                     Table table = getTable(datasource, tableName).block();
                     mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
+                } else {
+                    int colCount = 1;
+                    // If the structure and tables not present in the template datasource then map the columns as in
+                    // template application we are following the nomenclature of col1, col2, ...
+                    for (String column : columns) {
+                        mappedColumnsAndTableName.put("col" + colCount, column);
+                        colCount++;
+                    }
                 }
 
                 // Map table names : public.templateTable => <"templateTable","userTable">
                 mappedColumnsAndTableName.put(
                     templateTableRef,
                     tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName);
-
-                // Map plugin specific parameters like sheetUrl for GSheet, bucket url for S3
-
 
 
                 Set<String> deletedWidgets = new HashSet<>();
@@ -288,8 +296,14 @@ public class CreateDBTablePageSolution {
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
                 log.debug("Going to clone actions from template application");
-                return cloneActionsFromTemplateApplication(
-                    datasource, tableName, savedPageId.get(), templateActionList, mappedColumnsAndTableName, deletedWidgets)
+                return cloneActionsFromTemplateApplication(datasource,
+                                                            tableName,
+                                                            savedPageId.get(),
+                                                            templateActionList,
+                                                            mappedColumnsAndTableName,
+                                                            deletedWidgets,
+                                                            pluginSpecificParams)
+
                     .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY)
                         || StringUtils.equals(actionDTO.getName(), FIND_QUERY) ?
                             layoutActionService.setExecuteOnLoad(actionDTO.getId(), true)
@@ -420,10 +434,9 @@ public class CreateDBTablePageSolution {
                                                                 String pageId,
                                                                 List<NewAction> templateActionList,
                                                                 Map<String, String> mappedColumns,
-                                                                Set<String> deletedWidgetNames
+                                                                Set<String> deletedWidgetNames,
+                                                                Map<String, String> pluginSpecificTemplateParams
     ) {
-        //,
-        //Map<String, String> pluginSpecificTemplateParams
         /*
             1. Clone actions from the template pages
             2. Update actionConfiguration to replace the template table fields with users datasource fields
@@ -460,6 +473,9 @@ public class CreateDBTablePageSolution {
                         if (property != null && property.getValue() instanceof String) {
                             if (StringUtils.equals(property.getValue().toString(), TEMPLATE_S3_BUCKET)) {
                                 property.setValue(tableName);
+                            } else if (property.getKey() != null
+                                && pluginSpecificTemplateParams.get(property.getKey()) != null){
+                                property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
                             } else {
                                 final Matcher matcher = wordPattern.matcher(property.getValue().toString());
                                 property.setValue(matcher.replaceAll(key ->
