@@ -59,11 +59,8 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<UpdateResult> removeSubscriber(String threadId, String username) {
-        return mongoOperations.updateFirst(
-                Query.query(where("id").is(threadId)),
-                new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username),
-                CommentThread.class
-        );
+        Update update = new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username);
+        return this.updateById(threadId, update, AclPermission.READ_THREAD);
     }
 
     @Override

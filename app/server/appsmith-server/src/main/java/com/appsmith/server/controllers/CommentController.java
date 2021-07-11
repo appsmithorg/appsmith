@@ -106,11 +106,10 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PostMapping("/threads/{threadId}/unsubscribe/{userId}")
-    public Mono<ResponseDTO<Boolean>> unsubscribeThread(@PathVariable String userId, @PathVariable String threadId) {
-        log.debug("Going to unsubscribe {} from thread {}", userId, threadId);
-        return service.unsubscribeThread(threadId, userId)
-                .map(updated -> new ResponseDTO<>(HttpStatus.NO_CONTENT.value(), updated, null));
+    @PostMapping("/threads/{threadId}/unsubscribe")
+    public Mono<ResponseDTO<Boolean>> unsubscribeThread(@PathVariable String threadId) {
+        log.debug("Going to unsubscribe user from thread {}", threadId);
+        return service.unsubscribeThread(threadId)
+                .map(updated -> new ResponseDTO<>(HttpStatus.OK.value(), updated, null));
     }
 }
