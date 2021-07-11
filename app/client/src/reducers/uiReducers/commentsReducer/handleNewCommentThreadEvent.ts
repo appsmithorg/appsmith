@@ -37,6 +37,12 @@ const handleNewCommentThreadEvent = (
 
   const showUnreadIndicator = !state.isCommentMode;
 
+  /**
+   * Private threads are a part of the comments onboarding
+   * These are termed bot threads, triggered from the backend based on the onboarding flow
+   * We set these as visible and hide the currently visible thread, following the create event
+   */
+
   if (thread.isPrivate) {
     state.visibleCommentThreadId = thread._id;
   }

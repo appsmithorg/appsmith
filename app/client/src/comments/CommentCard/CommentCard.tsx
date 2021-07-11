@@ -203,18 +203,19 @@ const reduceReactions = (
     (Array.isArray(reactions) &&
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
-          const { byUsername, emoji } = reaction;
+          const { byName, byUsername, emoji } = reaction;
           const sameAsCurrent = byUsername === username;
+          const name = byName || byUsername;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
             if (!sameAsCurrent) {
               res[reaction.emoji].users = [
                 ...(res[reaction.emoji].users || []),
-                byUsername,
+                name,
               ];
             }
           } else {
-            const users = !sameAsCurrent ? [byUsername] : [];
+            const users = !sameAsCurrent ? [name] : [];
             res[emoji] = {
               count: 1,
               reactionEmoji: emoji,
