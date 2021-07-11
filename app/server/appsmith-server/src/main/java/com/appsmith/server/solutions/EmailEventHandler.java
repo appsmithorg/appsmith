@@ -120,7 +120,7 @@ public class EmailEventHandler {
         );
     }
 
-    private String getUnsubscribeThreadLink(String threadId, UserRole userRole, String originHeader) {
+    private String getUnsubscribeThreadLink(String threadId, String originHeader) {
         return String.format("%s/unsubscribe/discussion/%s", originHeader, threadId);
     }
 
@@ -141,9 +141,7 @@ public class EmailEventHandler {
                 receiverUserRole.getUsername(),
                 originHeader)
         );
-        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(
-                commentThread.getId(), receiverUserRole, originHeader
-        ));
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(commentThread.getId(), originHeader));
         templateParams.put("Resolved", true);
 
         String emailSubject = String.format(
@@ -170,9 +168,7 @@ public class EmailEventHandler {
                 receiverUserRole.getUsername(),
                 originHeader)
         );
-        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(
-                comment.getThreadId(), receiverUserRole, originHeader)
-        );
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(comment.getThreadId(), originHeader));
 
         String emailSubject = String.format(
                 "New comment from %s in %s", comment.getAuthorName(), comment.getApplicationName()
