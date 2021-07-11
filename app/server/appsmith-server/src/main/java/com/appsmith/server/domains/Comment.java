@@ -2,8 +2,10 @@ package com.appsmith.server.domains;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -55,6 +57,8 @@ public class Comment extends AbstractCommentDomain {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Range {
         Integer offset;
         Integer length;
@@ -69,16 +73,22 @@ public class Comment extends AbstractCommentDomain {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class EntityData {
         Mention mention;
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         public static class Mention {
             String name;
             EntityUser user;
         }
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         public static class EntityUser {
             String username;
             String roleName;

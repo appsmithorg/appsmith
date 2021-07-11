@@ -521,9 +521,19 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         Map<String, String> botCommentParams = new HashMap<>();
         botCommentParams.put("AppsmithBotName", APPSMITH_BOT_NAME);
         botCommentParams.put("AppsmithBotUserName", APPSMITH_BOT_USERNAME);
+        Map<String, Comment.Entity> entityMap = new HashMap<>();
+
         try {
             if (commentBotEvent == CommentBotEvent.COMMENTED) {
                 block.setText(TemplateUtils.parseTemplate(HOW_TO_TAG_BOT_COMMENT, botCommentParams));
+                block.setEntityRanges(List.of(new Comment.Range(92, APPSMITH_BOT_USERNAME.length(), 0)));
+
+                Comment.EntityData entityData = new Comment.EntityData();
+                entityData.setMention(new Comment.EntityData.Mention("appsmith", null));
+                Comment.Entity commentEntity = new Comment.Entity();
+                commentEntity.setType("mention");
+                commentEntity.setData(entityData);
+                entityMap.put("0", commentEntity);
             } else {
                 block.setText(TemplateUtils.parseTemplate(HOW_TO_TAG_USER_COMMENT, botCommentParams));
             }
@@ -532,7 +542,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         }
         block.setType("unstyled");
         block.setDepth(0);
-        body.setEntityMap(new HashMap<>());
+        body.setEntityMap(entityMap);
         return repository.save(comment);
     }
 
