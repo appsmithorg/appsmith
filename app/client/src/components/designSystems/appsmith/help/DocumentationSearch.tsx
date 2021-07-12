@@ -320,7 +320,7 @@ type HelpItem = {
   icon: React.ReactNode;
 };
 
-const HELP_MENU_ITEMS: HelpItem[] = [
+let HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: <StyledDocumentIcon color="#181F24" height={14} width={11.2} />,
     label: "Documentation",
@@ -332,23 +332,19 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
-    label: "Chat with us",
-    link: "https://github.com/appsmithorg/appsmith/discussions",
-  },
-  {
     icon: <StyledDiscordIcon height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
-];
-
-if (cloudHosting) {
-  HELP_MENU_ITEMS[2] = {
+  {
     icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
-  };
+  },
+];
+
+if (!cloudHosting) {
+  HELP_MENU_ITEMS = HELP_MENU_ITEMS.slice(0, -1);
 }
 
 class DocumentationSearch extends React.Component<Props, State> {
