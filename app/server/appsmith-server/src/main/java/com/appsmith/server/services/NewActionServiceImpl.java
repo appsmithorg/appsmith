@@ -40,7 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -715,18 +715,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 ArrayNode array = (ArrayNode) data;
                 Integer length = array.size();
                 JsonNode node = (JsonNode)array.get(0);
-                Integer fieldsCount = array.get(0).size();
-                if( (node.has("x") || (node.has("X")) )&&
-                        (node.has("y") || (node.has("Y"))) ) {
-                    return WidgetType.CHART_WIDGET;
+                JsonNodeType nodeType = node.getNodeType();
+
+                if(nodeType.equals(JsonNodeType.STRING)) {
+                    return WidgetType.TEXT_WIDGET;
                 }
-                if(fieldsCount <= 2) {
-                    return WidgetType.DROP_DOWN_WIDGET;
+
+                if(nodeType.equals(JsonNodeType.OBJECT)) {
+                    Integer fieldsCount = array.get(0).size();
+                    if( (node.has("x") || (node.has("X")) )&&
+                            (node.has("y") || (node.has("Y"))) ) {
+                        return WidgetType.CHART_WIDGET;
+                    }
+                    if(fieldsCount <= 2) {
+                        return WidgetType.DROP_DOWN_WIDGET;
+                    }
+                    if(length <= 20 && fieldsCount <= 5) {
+                        return WidgetType.LIST_WIDGET;
+                    }
+                    return WidgetType.TABLE_WIDGET;
                 }
-                if(length <= 20 && fieldsCount <= 5) {
-                    return WidgetType.LIST_WIDGET;
-                }
-                return WidgetType.TABLE_WIDGET;
+
+                return WidgetType.TEXT_WIDGET;
 
             } catch(Exception e) {
                 log.warn("Error while converting data to suggest widget "+ e);
