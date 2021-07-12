@@ -82,7 +82,7 @@ import {
   shouldGroupWidgets,
 } from "utils/storage";
 import { generateReactKey } from "utils/generators";
-import { flashElementById } from "utils/helpers";
+import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
@@ -840,7 +840,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     }
     yield put(updateAndSaveLayout(finalWidgets));
     deletedWidgetIds.forEach((widgetId) => {
-      setTimeout(() => flashElementById(widgetId), 100);
+      setTimeout(() => flashElementsById(widgetId), 100);
     });
     yield put(selectMultipleWidgetsInitAction(deletedWidgetIds));
     if (deletedWidgetIds.length === 1) {
@@ -1758,7 +1758,7 @@ function* pasteWidgetSaga() {
 
   yield put(updateAndSaveLayout(widgets));
 
-  flashElementById(newlyCreatedWidgetIds, 100);
+  flashElementsById(newlyCreatedWidgetIds, 100);
 
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }

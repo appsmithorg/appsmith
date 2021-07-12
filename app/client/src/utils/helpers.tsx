@@ -106,7 +106,7 @@ export const flashElement = (el: HTMLElement) => {
  *
  * @param id
  */
-export const flashElementById = (id: string | string[], timeout = 0) => {
+export const flashElementsById = (id: string | string[], timeout = 0) => {
   let ids: string[] = [];
 
   if (Array.isArray(id)) {

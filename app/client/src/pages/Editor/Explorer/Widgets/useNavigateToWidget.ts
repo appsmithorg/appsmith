@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { flashElementById } from "utils/helpers";
+import { flashElementsById } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   forceOpenPropertyPane,
@@ -23,7 +23,7 @@ export const useNavigateToWidget = () => {
   } = useWidgetSelection();
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
-    flashElementById(widgetId);
+    flashElementsById(widgetId);
     selectWidget(widgetId, true);
   };
 
@@ -41,7 +41,7 @@ export const useNavigateToWidget = () => {
     else dispatch(closeAllModals());
     selectWidget(widgetId, false);
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
-    flashElementById(widgetId);
+    flashElementsById(widgetId);
     dispatch(forceOpenPropertyPane(widgetId));
   };
 
