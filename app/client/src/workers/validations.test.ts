@@ -52,13 +52,13 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: "abc",
-        message: `Value is not allowed`,
+        parsed: "{}",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       },
       {
         isValid: false,
-        parsed: "abc",
-        message: `Value is not allowed`,
+        parsed: "[]",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       },
       {
         isValid: true,
@@ -290,7 +290,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key2 is invalid: Value is not allowed`,
+        message: `Value of key: key2 is invalid: This value does not evaluate to type "string"`,
       },
     ];
     inputs.forEach((input, index) => {
@@ -415,19 +415,17 @@ describe("Validate Validators", () => {
       },
       {
         isValid: true,
-        parsed: moment("2021-08-08").toISOString(),
+        parsed: moment("2021-08-08").toISOString(true),
       },
       {
         isValid: false,
         parsed: defaultDate,
-        message:
-          "This value does not evaluate to type: Full ISO 8601 date string",
+        message: "This value does not evaluate to type: ISO 8601 date string",
       },
       {
         isValid: false,
         parsed: defaultDate,
-        message:
-          "This value does not evaluate to type: Full ISO 8601 date string",
+        message: "This value does not evaluate to type: ISO 8601 date string",
       },
     ];
 

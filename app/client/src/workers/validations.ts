@@ -143,7 +143,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       };
     }
 
@@ -467,6 +467,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     if (isString(value)) {
       if (!moment(value).isValid()) return invalidResponse;
+
       if (
         value === moment(value).toISOString() ||
         value === moment(value).toISOString(true)
@@ -476,6 +477,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           parsed: value,
         };
       }
+      if (moment(value).isValid())
+        return { isValid: true, parsed: moment(value).toISOString(true) };
     }
     return invalidResponse;
   },
