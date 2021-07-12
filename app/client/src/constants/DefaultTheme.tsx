@@ -1074,6 +1074,10 @@ type ColorType = {
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
   notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
 };
 
 const notifications = {
@@ -1694,6 +1698,10 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
 };
 
 export const light: ColorType = {
@@ -2159,6 +2167,10 @@ export const light: ColorType = {
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
+  },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
   },
 };
 

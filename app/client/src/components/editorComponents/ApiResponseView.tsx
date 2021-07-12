@@ -151,6 +151,11 @@ const InlineButton = styled(Button)`
   margin: 0 4px;
 `;
 
+const HelpSection = styled.div`
+  margin-bottom: 5px;
+  margin-top: 10px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -207,12 +212,20 @@ function ApiResponseView(props: Props) {
   }, []);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const messages = response?.messages;
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
+          {messages && (
+            <HelpSection>
+              {messages.map((msg, i) => (
+                <Callout fill key={i} text={msg} variant={Variant.warning} />
+              ))}
+            </HelpSection>
+          )}
           {hasFailed && !isRunning && (
             <StyledCallout
               fill

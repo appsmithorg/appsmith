@@ -19,7 +19,6 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createNewApiName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
@@ -38,10 +37,11 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { PluginType, SaaSAction } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
+import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -58,7 +58,8 @@ interface DispatchFunctions {
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
-  createAction: (data: Partial<SaaSAction>) => void;
+  createAction: (data: Partial<Action>) => void;
+  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -122,28 +123,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
-  createApiAction = () => {
-    const {
-      actions,
-      formData,
-      match: {
-        params: { pageId },
-      },
-    } = this.props;
-    const newApiName = createNewApiName(actions, pageId || "");
-
-    this.save(
-      createActionRequest({
-        name: newApiName,
-        pageId: pageId,
-        pluginId: formData.pluginId,
-        datasource: {
-          id: formData.id,
-        },
-      }),
-    );
-  };
-
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
@@ -204,7 +183,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
-                onClick={() => deleteDatasource(datasourceId)}
+                onClick={() =>
+                  deleteDatasource(
+                    datasourceId,
+                    this.props.redirectToNewIntegrations(
+                      applicationId,
+                      pageId,
+                    ) as any,
+                  )
+                }
                 text="Delete"
               />
               <StyledButton
@@ -277,8 +264,11 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
       dispatch(updateDatasource(formData, onSuccess)),
     getOAuthAccessToken: (datasourceId: string) =>
       dispatch(getOAuthAccessToken(datasourceId)),
-    createAction: (data: Partial<SaaSAction>) => {
+    createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
+    },
+    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
+      dispatch(redirectToNewIntegrations(applicationId, pageId));
     },
   };
 };

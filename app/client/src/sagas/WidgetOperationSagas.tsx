@@ -16,7 +16,12 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidget,
+  getWidgets,
+} from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -1496,10 +1501,13 @@ function* pasteWidgetSaga() {
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
   );
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
 
   selectedWidget = yield checkIfPastingIntoListWidget(
     stateWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 
