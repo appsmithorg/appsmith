@@ -17,6 +17,9 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks";
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { Message } from "entities/AppsmithConsole";
+import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 
 const TopLayer = styled.div`
   display: flex;
@@ -50,12 +53,28 @@ const SelectedNodeWrapper = styled.div<{ entityCount: number }>`
 `;
 
 const OptionWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+
+  .property-pane-connection {
+    height: 28px;
+    margin-top: 0px;
+  }
+`;
+
+const OptionContentWrapper = styled.div<{
+  hasError: boolean;
+  fillIconColor: boolean;
+}>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
   cursor: pointer;
   display: flex;
   align-items: center;
   line-height: 8px;
+  flex: 1;
+  min-width: 0;
 
   span:first-child {
     font-size: 10px;
@@ -66,7 +85,7 @@ const OptionWrapper = styled.div`
     margin-left: 6px;
     letter-spacing: 0px;
     overflow: hidden;
-    white-space: initial;
+    white-space: nowrap;
     text-overflow: ellipsis;
     color: ${(props) => props.theme.colors.propertyPane.label};
   }
@@ -75,16 +94,21 @@ const OptionWrapper = styled.div`
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 
-  &:not(:hover) {
+  ${(props) =>
+    props.fillIconColor &&
+    `&:not(:hover) {
     svg {
       path {
         fill: #6a86ce;
       }
     }
-  }
+  }`}
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
+    background-color: ${(props) =>
+      props.hasError
+        ? "rgba(246,71,71, 0.2)"
+        : props.theme.colors.dropdown.hovered.bg};
 
     &&& svg {
       rect {
@@ -93,7 +117,8 @@ const OptionWrapper = styled.div`
     }
 
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.textOnDarkBG};
+      color: ${(props) =>
+        props.hasError ? "#F22B2B" : props.theme.colors.textOnDarkBG};
     }
   }
 `;
@@ -108,8 +133,20 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
 };
 
+const doesEntityHaveErrors = (
+  entityId: string,
+  debuggerErrors: Record<string, Message>,
+) => {
+  const ids = Object.keys(debuggerErrors);
+
+  return ids.some((e: string) => e.includes(entityId));
+};
+
 const useGetEntityInfo = (name: string) => {
   const dataTree = useSelector(getDataTree);
+  const debuggerErrors: Record<string, Message> = useSelector(
+    getDebuggerErrors,
+  );
 
   const entity = dataTree[name];
   const action = useSelector((state: AppState) =>
@@ -129,16 +166,21 @@ const useGetEntityInfo = (name: string) => {
 
   if (isWidget(entity)) {
     const icon = getWidgetIcon(entity.type);
+    const hasError = doesEntityHaveErrors(entity.widgetId, debuggerErrors);
 
     return {
       name,
       icon,
+      hasError,
     };
   } else if (isAction(entity)) {
+    const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
+
     return {
       name,
       icon,
       datasourceName: datasource?.name ?? "",
+      hasError,
     };
   }
 };
@@ -172,14 +214,26 @@ function OptionNode(props: any) {
   const entityInfo = useGetEntityInfo(props.option.value);
 
   return (
-    <OptionWrapper onClick={props.optionClickHandler}>
-      <span>{entityInfo?.icon}</span>
-      <Text type={TextType.H6}>
-        {props.option.label}{" "}
-        {entityInfo?.datasourceName && (
-          <span>from {entityInfo?.datasourceName}</span>
-        )}
-      </Text>
+    <OptionWrapper>
+      <OptionContentWrapper
+        fillIconColor={!entityInfo?.datasourceName}
+        hasError={!!entityInfo?.hasError}
+        onClick={props.optionClickHandler}
+      >
+        <span>{entityInfo?.icon}</span>
+        <Text type={TextType.H6}>
+          {props.option.label}{" "}
+          {entityInfo?.datasourceName && (
+            <span>from {entityInfo?.datasourceName}</span>
+          )}
+        </Text>
+      </OptionContentWrapper>
+      {!!entityInfo?.hasError && (
+        <DebugButton
+          className="property-pane-connection"
+          onClick={() => null}
+        />
+      )}
     </OptionWrapper>
   );
 }
@@ -207,6 +261,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
     </SelectedNodeWrapper>
   );
 });
+
 TriggerNode.displayName = "TriggerNode";
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
@@ -227,7 +282,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         className="layout-control"
         disabled={!dependencies.dependencyOptions.length}
         headerLabel="Incoming connections"
-        height="28px"
+        height="24px"
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
           return (
@@ -257,7 +312,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         className="layout-control"
         disabled={!dependencies.inverseDependencyOptions.length}
         headerLabel="Outgoing connections"
-        height="28px"
+        height="24px"
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
