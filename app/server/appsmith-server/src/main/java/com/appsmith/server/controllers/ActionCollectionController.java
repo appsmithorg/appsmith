@@ -59,7 +59,7 @@ public class ActionCollectionController {
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> updateAction(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
+    public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
         log.debug("Going to update resource with id: {}", id);
         return actionCollectionService.updateUnpublishedActionCollection(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));

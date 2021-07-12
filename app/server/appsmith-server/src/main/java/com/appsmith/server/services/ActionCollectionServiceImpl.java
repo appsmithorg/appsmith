@@ -128,6 +128,9 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     if (action.getId() == null) {
                         // Make sure that the proper values are used for the new action
                         // Scope the actions' fully qualified names by collection name
+                        action.getDatasource().setOrganizationId(collection.getOrganizationId());
+                        action.getDatasource().setPluginId(collection.getPluginId());
+                        action.getDatasource().setName("UNUSED_DATASOURCE");
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setOrganizationId(collection.getOrganizationId());
                         action.setPageId(collection.getPageId());
@@ -282,10 +285,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             // function call is made which takes care of returning only the essential fields of an action
             return repository
                     .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), viewMode, READ_ACTIONS)
-                    .map(actionCollection ->
-                            Boolean.TRUE.equals(viewMode) ?
-                                    actionCollection.getPublishedCollection()
-                                    : actionCollection.getUnpublishedCollection());
+                    .flatMap(actionCollection ->
+                            generateActionCollectionByViewMode(actionCollection, viewMode));
         }
 
         String name = null;
@@ -405,6 +406,9 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionDTO.setCollectionId(id);
                     actionDTO.setArchivedAt(null);
                     if (actionDTO.getId() == null) {
+                        actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                        actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
+                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
                         // this is a new action, we need to create one
                         return layoutActionService.createAction(actionDTO);
                     } else {
@@ -421,6 +425,9 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionDTO.setCollectionId(id);
                     actionDTO.setArchivedAt(Instant.now());
                     if (actionDTO.getId() == null) {
+                        actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                        actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
+                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
                         // this is a new action, we need to create one
                         return layoutActionService.createAction(actionDTO);
                     } else {
