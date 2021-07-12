@@ -57,7 +57,6 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { EvaluationOrderState } from "../../../reducers/evaluationReducers/evaluationOrderReducer";
 import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
