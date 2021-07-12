@@ -15,8 +15,11 @@ const StyledButtonGroup = styled(ButtonGroup)`
 `;
 
 const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  border: ${(props) => (props.active ? `1px solid #6A86CE` : `none`)};
+  border: ${(props) =>
+    props.active ? `1px solid #6A86CE` : `1px solid #A9A7A7`};
   border-radius: 0;
+  box-shadow: none !important;
+  background-image: none !important;
   background-color: #ffffff !important;
   & > div {
     display: flex;

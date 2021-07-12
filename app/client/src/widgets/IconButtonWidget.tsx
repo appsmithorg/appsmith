@@ -183,7 +183,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
-        onClicked={this.handleClick}
+        onClick={this.handleClick}
         widgetId={widgetId}
       />
     );
