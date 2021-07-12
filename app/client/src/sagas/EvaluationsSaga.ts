@@ -249,6 +249,14 @@ function* evalErrorHandler(
         log.debug(error);
         break;
       }
+      case EvalErrorTypes.MUTATION_ERROR: {
+        console.error(error.context?.propertyPath);
+        Toaster.show({
+          text: "MutationError",
+          variant: Variant.danger,
+        });
+        throw Error("MutationError");
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
