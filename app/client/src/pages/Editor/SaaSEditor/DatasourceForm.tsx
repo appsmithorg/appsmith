@@ -19,7 +19,6 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createNewQueryName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
@@ -42,6 +41,7 @@ import { Action, PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
+import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -59,6 +59,7 @@ interface DispatchFunctions {
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
   createAction: (data: Partial<Action>) => void;
+  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -87,18 +88,6 @@ const EditDatasourceButton = styled(AdsButton)`
     max-width: 160px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
-  }
-`;
-
-const NewQueryBtn = styled(AdsButton)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    //max-width: 120px;
-    width: auto;
-  }
-  span > svg > path {
-    stroke: white;
   }
 `;
 
@@ -140,33 +129,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     return this.renderForm(content);
   }
 
-  createQueryAction = () => {
-    const {
-      actions,
-      datasource,
-      match: {
-        params: { pageId },
-      },
-    } = this.props;
-    const newQueryName = createNewQueryName(actions, pageId || "");
-
-    const payload = {
-      name: newQueryName,
-      pageId: pageId,
-      pluginId: datasource?.pluginId,
-      datasource: {
-        id: datasource?.id,
-      },
-      actionConfiguration: {},
-      eventData: {
-        actionType: "Query",
-        from: "datasource-pane",
-      },
-    } as Partial<Action>;
-
-    this.props.createAction(payload);
-  };
-
   renderDataSourceConfigForm = (sections: any) => {
     const {
       deleteDatasource,
@@ -190,7 +152,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode ? (
+          {viewMode && (
             <EditDatasourceButton
               category={Category.tertiary}
               className="t--edit-datasource"
@@ -209,13 +171,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               }}
               text="EDIT"
             />
-          ) : (
-            <NewQueryBtn
-              className="t--create-query"
-              icon="plus"
-              onClick={this.createQueryAction}
-              text={"New Query"}
-            />
           )}
         </Header>
         {!viewMode ? (
@@ -228,7 +183,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
-                onClick={() => deleteDatasource(datasourceId)}
+                onClick={() =>
+                  deleteDatasource(
+                    datasourceId,
+                    this.props.redirectToNewIntegrations(
+                      applicationId,
+                      pageId,
+                    ) as any,
+                  )
+                }
                 text="Delete"
               />
               <StyledButton
@@ -303,6 +266,9 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
       dispatch(getOAuthAccessToken(datasourceId)),
     createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
+    },
+    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
+      dispatch(redirectToNewIntegrations(applicationId, pageId));
     },
   };
 };
