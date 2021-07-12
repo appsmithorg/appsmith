@@ -2455,7 +2455,7 @@ public class DatabaseChangelog {
                             .users(adminUsernames).build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
-                
+
                 mongoTemplate.save(application);
             }
         }
@@ -2578,12 +2578,10 @@ public class DatabaseChangelog {
         }
     }
 
-    
+
     @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
     public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
-        final List<User> missingCreatedAt = mongoTemplate.find(
-            query(where("createdAt").exists(false)),
-            User.class
+        final List<User> missingCreatedAt = mongoTemplate.find(query(where("createdAt").exists(false)), User.class
         );
 
         for (User user : missingCreatedAt) {
@@ -2591,9 +2589,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(user);
         }
 
-        final List<User> missingUpdatedAt = mongoTemplate.find(
-            query(where("updatedAt").exists(false)),
-            User.class
+        final List<User> missingUpdatedAt = mongoTemplate.find(query(where("updatedAt").exists(false)), User.class
         );
 
         for (User user : missingUpdatedAt) {
@@ -2601,7 +2597,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(user);
         }
     }
-  
+
     /**
      * - Older order file where not present for the pages created within the application because page reordering with in
      * the application was not supported.
@@ -2613,7 +2609,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
     public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
-            //Commenting out thie piece code as we have decided to remove the order field from ApplicationPages
+            //Commenting out this piece code as we have decided to remove the order field from ApplicationPages
             /*if(application.getPages() != null) {
                 int i = 0;
                 for (ApplicationPage page : application.getPages()) {
@@ -2802,7 +2798,15 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "" )
-    public void removePageOrderFieldFromApplicationPages() {
+    public void removePageOrderFieldFromApplicationPages(MongockTemplate mongoTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("pages").exists(TRUE));
 
+        Update update = new Update();
+        update.unset("pages.$[].order");
+        mongoTemplate.updateMulti(query(where("pages").exists(TRUE)), update, Application.class);
+
+        update.unset("publishedPages.$[].order");
+        mongoTemplate.updateMulti(query(where("publishedPages").exists(TRUE)), update, Application.class);
     }
 }
