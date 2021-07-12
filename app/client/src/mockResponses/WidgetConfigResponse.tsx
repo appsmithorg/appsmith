@@ -60,7 +60,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       maxZoomLevel: 1,
       enableRotation: false,
       enableDownload: false,
-      objectFit: "cover",
+      objectFit: "contain",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,

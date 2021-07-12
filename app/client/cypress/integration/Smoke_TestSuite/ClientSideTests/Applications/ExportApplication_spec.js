@@ -33,7 +33,6 @@ describe("Export application as a JSON file", function() {
 
   it("User with admin access,should be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
@@ -56,7 +55,6 @@ describe("Export application as a JSON file", function() {
       cy.LogOut();
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-      cy.NavigateToHome();
       cy.wait(2000);
       cy.log({ appid });
       cy.get(homePage.searchInput).type(appid);
@@ -76,7 +74,6 @@ describe("Export application as a JSON file", function() {
 
   it("User with developer access,should not be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
@@ -99,7 +96,6 @@ describe("Export application as a JSON file", function() {
       cy.LogOut();
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-      cy.NavigateToHome();
       cy.wait(2000);
       cy.log({ appid });
       cy.get(homePage.searchInput).type(appid);
@@ -119,7 +115,6 @@ describe("Export application as a JSON file", function() {
 
   it("User with viewer access,should not be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
@@ -142,7 +137,6 @@ describe("Export application as a JSON file", function() {
       cy.LogOut();
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-      cy.NavigateToHome();
       cy.wait(2000);
       cy.log({ appid });
       cy.get(homePage.searchInput).type(appid);

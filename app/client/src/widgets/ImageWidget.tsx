@@ -87,7 +87,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             propertyName: "objectFit",
             label: "Object Fit",
             controlType: "DROP_DOWN",
-            defaultValue: "cover",
+            defaultValue: "contain",
             options: [
               {
                 label: "Contain",
