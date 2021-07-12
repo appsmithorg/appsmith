@@ -240,6 +240,10 @@
                     <artifactId>spring-webmvc</artifactId>
                     <!-- declare the exclusion here -->
                 </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.servlet</groupId>
+                    <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.togglz/togglz-core -->
