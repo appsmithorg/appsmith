@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
@@ -12,7 +12,7 @@ export const MenuButtonContainer = styled.div`
   height: 100%;
   text-align: center;
 
-  & > .bp3-popover2-target {
+  & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
   }
 `;
