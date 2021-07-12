@@ -1,10 +1,10 @@
-import { ENTITY_TYPE, Message } from "../entities/AppsmithConsole";
-import { DataTree } from "../entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
-} from "../workers/evaluationUtils";
+} from "workers/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,
@@ -13,7 +13,7 @@ import {
   getEvalValuePath,
   PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import _ from "lodash";
 import LOG_TYPE from "../entities/AppsmithConsole/logtype";
 import moment from "moment/moment";
@@ -22,9 +22,9 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "../constants/ReduxActionConstants";
-import { Toaster } from "../components/ads/Toast";
-import { Variant } from "../components/ads/common";
+} from "constants/ReduxActionConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import AppsmithConsole from "../utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
@@ -32,14 +32,14 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
-} from "../constants/messages";
+} from "constants/messages";
 import log from "loglevel";
-import { AppState } from "../reducers";
-import { getAppMode } from "../selectors/applicationSelectors";
-import { APP_MODE } from "../reducers/entityReducers/appReducer";
-import { dataTreeTypeDefCreator } from "../utils/autocomplete/dataTreeTypeDefCreator";
+import { AppState } from "reducers";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import { logDebuggerErrorAnalytics } from "../actions/debuggerActions";
+import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -295,6 +295,7 @@ export function* updateTernDefinitions(
   const updatedEntities: Set<string> = new Set();
   // If it is the first evaluation, we want to add everything in the data tree
   if (isFirstEvaluation) {
+    TernServer.resetServer();
     Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
   } else {
     evaluationOrder.forEach((path) => {

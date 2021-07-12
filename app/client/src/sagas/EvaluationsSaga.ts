@@ -39,6 +39,8 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import TernServer from "utils/autocomplete/TernServer";
+import { AppState } from "reducers";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -49,6 +51,7 @@ function* evaluateTreeSaga(
   isFirstEvaluation = false,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
+  console.log({ unevalTree, isFirstEvaluation });
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -93,6 +96,10 @@ function* evaluateTreeSaga(
   );
   yield put(setDependencyMap(dependencies));
   yield put(setLastEvaluationOrder(evaluationOrder));
+  const recentEvaluations = yield select(
+    (state: AppState) => state.evaluations.recentEvaluations,
+  );
+  TernServer.setRecentEvaluations(recentEvaluations);
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
@@ -232,11 +239,14 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    if (shouldProcessBatchedAction(action)) {
-      yield call(evaluateTreeSaga, action.postEvalActions);
+    if (FIRST_EVAL_REDUX_ACTIONS.includes(action.type)) {
+      yield call(evaluateTreeSaga, initAction.postEvalActions, true);
+    } else {
+      if (shouldProcessBatchedAction(action)) {
+        yield call(evaluateTreeSaga, action.postEvalActions);
+      }
     }
   }
-  // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {

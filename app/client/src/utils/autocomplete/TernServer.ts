@@ -83,6 +83,7 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   entityInformation: HintEntityInformation = {};
+  recentPaths: Set<string> = new Set([]);
 
   constructor() {
     this.server = new tern.Server({
@@ -91,8 +92,13 @@ class TernServer {
     });
   }
 
-  setEntityInformation(entityInformation: HintEntityInformation) {
-    this.entityInformation = entityInformation;
+  resetServer() {
+    this.server = new tern.Server({
+      async: true,
+      defs: DEFS,
+    });
+    this.recentPaths = new Set();
+    this.docs = Object.create(null);
   }
 
   complete(cm: CodeMirror.Editor) {
@@ -191,6 +197,7 @@ class TernServer {
     completions = TernServer.sortCompletions(
       completions,
       isEmpty,
+      this.recentPaths,
       expectedDataType,
       entityName,
       entityType,
@@ -262,6 +269,7 @@ class TernServer {
   static sortCompletions(
     completions: Completion[],
     findBestMatch: boolean,
+    recentPaths: Set<string>,
     expectedDataType?: string,
     entityName?: string,
     entityType?: ENTITY_TYPE,
@@ -333,6 +341,8 @@ class TernServer {
     });
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
       completionType.MATCHING_TYPE.sort((a, b) => {
+        let aRank = 0;
+        let bRank = 0;
         const completionTypeA: ENTITY_TYPE = a.origin.split(
           ".",
         )[1] as ENTITY_TYPE;
@@ -340,12 +350,18 @@ class TernServer {
           ".",
         )[1] as ENTITY_TYPE;
         if (completionTypeA === entityType) {
-          return 1;
+          aRank = aRank + 1;
         }
         if (completionTypeB === entityType) {
-          return -1;
+          bRank = bRank + 1;
         }
-        return 0;
+        if (recentPaths.has(a.text)) {
+          aRank = aRank + 1;
+        }
+        if (recentPaths.has(b.text)) {
+          bRank = bRank + 1;
+        }
+        return aRank - bRank;
       });
       completionType.MATCHING_TYPE = _.take(completionType.MATCHING_TYPE, 3);
       if (completionType.MATCHING_TYPE.length) {
@@ -815,6 +831,14 @@ class TernServer {
 
   fadeOut(tooltip: HTMLElement) {
     this.remove(tooltip);
+  }
+
+  setEntityInformation(entityInformation: HintEntityInformation) {
+    this.entityInformation = entityInformation;
+  }
+
+  setRecentEvaluations(recentEvaluations: string[][]) {
+    this.recentPaths = new Set(_.flatten(recentEvaluations));
   }
 }
 

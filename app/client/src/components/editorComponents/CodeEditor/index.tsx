@@ -79,7 +79,6 @@ interface ReduxStateProps {
   datasources: any;
   pluginIdToImageLocation: Record<string, string>;
   recentEntities: string[];
-  recentEvaluations: EvaluationOrderState;
 }
 
 interface ReduxDispatchProps {
@@ -274,12 +273,7 @@ class CodeEditor extends Component<Props, State> {
         // Update the dynamic bindings for autocomplete
         if (prevProps.dynamicData !== this.props.dynamicData) {
           this.hinters.forEach(
-            (hinter) =>
-              hinter.update &&
-              hinter.update(
-                this.props.dynamicData,
-                this.props.recentEvaluations,
-              ),
+            (hinter) => hinter.update && hinter.update(this.props.dynamicData),
           );
         }
       }
@@ -638,7 +632,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
-  recentEvaluations: state.evaluations.recentEvaluations,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({

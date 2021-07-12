@@ -6,6 +6,7 @@ import {
 import _ from "lodash";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "../utils/DynamicBindingUtils";
+import TernServer from "utils/autocomplete/TernServer";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages

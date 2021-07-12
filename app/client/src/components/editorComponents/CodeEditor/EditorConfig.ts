@@ -57,7 +57,7 @@ export type Hinter = {
     entityInformation: HintEntityInformation,
     additionalData?: any,
   ) => boolean;
-  update?: (data: DataTree, recentEvaluations: string[][]) => void;
+  update?: (data: DataTree) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };
 
