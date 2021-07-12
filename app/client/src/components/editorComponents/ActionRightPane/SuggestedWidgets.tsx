@@ -5,6 +5,11 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
+import Button, { Category, Size } from "../../ads/Button";
+import { Variant } from "../../ads/common";
+import { bindDataOnCanvas } from "../../../actions/actionActions";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../../../pages/Editor/Explorer/helpers";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -108,6 +113,9 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   const widgetInfo: WidgetBindingInfo | undefined =
     WIDGET_DATA_FIELD_MAP[props.suggestedWidget];
 
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
   if (!widgetInfo) return null;
 
   const addWidget = () => {
@@ -123,19 +131,46 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     });
   };
 
-  return (
-    <Collapsible label="Add New Widget">
-      <div className="description">
-        This will add a new widget to the canvas.{" "}
-      </div>
+  const handleBindData = () => {
+    dispatch(
+      bindDataOnCanvas({
+        queryId: (params.apiId || params.queryId) as string,
+        applicationId,
+        pageId,
+      }),
+    );
+  };
 
-      <WidgetList>
-        <div className="widget" onClick={addWidget}>
-          <div>{widgetInfo.widgetName} Widget</div>
-          <div className="image" />
+  return (
+    <>
+      <Collapsible label="Add New Widget">
+        <div className="description">
+          This will add a new widget to the canvas.{" "}
         </div>
-      </WidgetList>
-    </Collapsible>
+
+        <WidgetList>
+          <div className="widget" onClick={addWidget}>
+            <div>{widgetInfo.widgetName} Widget</div>
+            <div className="image" />
+          </div>
+        </WidgetList>
+      </Collapsible>
+      <hr />
+      <Collapsible label="Select Existing Widgets">
+        <div className="description">Go to canvas and select widgets</div>
+        <WidgetList>
+          <Button
+            category={Category.tertiary}
+            onClick={handleBindData}
+            size={Size.medium}
+            tag="button"
+            text="Select In Canvas"
+            type="button"
+            variant={Variant.info}
+          />
+        </WidgetList>
+      </Collapsible>
+    </>
   );
 }
 

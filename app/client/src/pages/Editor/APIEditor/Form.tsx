@@ -13,7 +13,7 @@ import {
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { ActionResponse, PaginationField } from "api/ActionAPI";
+import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
@@ -51,8 +51,6 @@ import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "../../../selectors/entitiesSelector";
-import _ from "lodash";
-import { bindDataOnCanvas } from "../../../actions/actionActions";
 import { isEmpty } from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 
@@ -220,7 +218,6 @@ interface APIFormProps {
   hasResponse: boolean;
   suggestedWidget?: WidgetType;
   updateDatasource: (datasource: Datasource) => void;
-  responses: Record<string, ActionResponse | undefined>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -428,7 +425,6 @@ function ApiEditorForm(props: Props) {
   const {
     actionConfigurationHeaders,
     actionName,
-    apiId,
     handleSubmit,
     headersCount,
     hintMessages,
@@ -437,16 +433,9 @@ function ApiEditorForm(props: Props) {
     onRunClick,
     paramsCount,
     pluginId,
-    responses,
     settingsConfig,
     updateDatasource,
   } = props;
-  let response: ActionResponse = EMPTY_RESPONSE;
-  let hasFailed = false;
-  if (apiId && apiId in responses) {
-    response = responses[apiId] || EMPTY_RESPONSE;
-    hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
-  }
   const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -459,7 +448,7 @@ function ApiEditorForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
 
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
@@ -468,15 +457,7 @@ function ApiEditorForm(props: Props) {
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
-  const handleBindData = () => {
-    dispatch(
-      bindDataOnCanvas({
-        queryId: apiId,
-        applicationId,
-        pageId,
-      }),
-    );
-  };
+
   return (
     <>
       <CloseEditor />
@@ -487,16 +468,6 @@ function ApiEditorForm(props: Props) {
               <ActionNameEditor page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              {!_.isEmpty(response.statusCode) && !hasFailed && (
-                <Button
-                  onClick={handleBindData}
-                  size={Size.medium}
-                  tag="button"
-                  text="Bind Data In Canvas"
-                  type="button"
-                  variant={Variant.success}
-                />
-              )}
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
@@ -720,7 +691,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   }
 
   return {
-    responses: getActionResponses(state),
     actionName,
     apiId,
     httpMethodFromForm,

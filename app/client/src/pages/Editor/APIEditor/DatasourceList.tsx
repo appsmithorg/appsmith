@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
@@ -122,6 +122,9 @@ export const getDatasourceInfo = (datasource: any): string => {
 
 export default function DataSourceList(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  useEffect(() => {
+    if (!!props.hasResponse) setSelectedIndex(1);
+  }, [props.hasResponse]);
   return (
     <DatasourceContainer>
       <TabbedViewContainer>
