@@ -13,4 +13,6 @@ public class PageNameIdDTO {
     Boolean isDefault;
 
     Boolean isHidden;
+
+    Integer order;
 }

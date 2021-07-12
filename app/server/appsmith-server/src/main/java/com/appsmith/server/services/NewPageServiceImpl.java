@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -27,7 +28,10 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -210,12 +214,28 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 })
                 .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
                 .collectList()
-                .zipWith(defaultPageIdMono)
-                .flatMap(tuple -> {
+                .flatMap( pagesFromDb -> Mono.zip(
+                        Mono.just(pagesFromDb),
+                        defaultPageIdMono,
+                        applicationMono
+                )).flatMap(tuple -> {
                     List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
 
                     List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
+                    List<ApplicationPage> pages = tuple.getT3().getPages();
+                    List<ApplicationPage> publishedPages = tuple.getT3().getPublishedPages();
+                    Map<String, Integer> pagesOrder = new HashMap<String, Integer>();
+                    Map<String, Integer> publishedPagesOrder = new HashMap<String, Integer>();
+
+                    for (int i = 0; i < pages.size(); i++)
+                    {
+                        pagesOrder.put(pages.get(i).getId(), i);
+                    }
+                    for (int i = 0; i < publishedPages.size(); i++)
+                    {
+                        publishedPagesOrder.put(publishedPages.get(i).getId(), i);
+                    }
 
                     for (NewPage pageFromDb : pagesFromDb) {
 
@@ -231,9 +251,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
+                            pageNameIdDTO.setOrder(publishedPagesOrder.get(pageFromDb.getId()));
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
+                            pageNameIdDTO.setOrder(pagesOrder.get(pageFromDb.getId()));
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
@@ -244,7 +266,6 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
                         pageNameIdDTOList.add(pageNameIdDTO);
                     }
-
                     return Mono.just(pageNameIdDTOList);
                 });
 

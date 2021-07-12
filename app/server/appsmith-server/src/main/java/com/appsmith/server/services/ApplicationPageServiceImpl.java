@@ -139,8 +139,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        Integer order = application.getPages() != null ? application.getPages().size() : 0;
-        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, order)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -684,9 +683,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     final List<ApplicationPage> pages = application.getPages();
 
                     ApplicationPage foundPage = null;
+                    Integer index = -1;
                     for (final ApplicationPage page : pages) {
+                        index++;
                         if (pageId.equals(page.getId())) {
                             foundPage = page;
+                            pages.remove(index);
                         }
                     }
 
@@ -696,22 +698,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                      * Case 2(isMovingUp == false): p2 to p5, order of p3,p4,p5 decreases by 1.
                      **/
                     if(foundPage != null) {
-                        boolean isMovingUp = order < foundPage.getOrder();
-                        if(isMovingUp) {
-                            for (final ApplicationPage page : pages) {
-                                if (page.getOrder() < foundPage.getOrder() && page.getOrder() >= order) {
-                                    page.setOrder(page.getOrder()+1);
-                                }
-                            }
-                        } else {
-                            for (final ApplicationPage page : pages) {
-                                if (page.getOrder() > foundPage.getOrder() && page.getOrder() <= order) {
-                                    page.setOrder(page.getOrder()-1);
-                                }
-                            }
-                        }
-                        //set the selected page order to the given order
-                        foundPage.setOrder(order);
+                        pages.add(order, foundPage);
                     }
                     return applicationRepository
                             .setPages(applicationId, pages)

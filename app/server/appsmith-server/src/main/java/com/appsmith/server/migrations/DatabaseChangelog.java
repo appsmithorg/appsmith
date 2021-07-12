@@ -2613,7 +2613,8 @@ public class DatabaseChangelog {
     @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
     public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
-            if(application.getPages() != null) {
+            //Commenting out thie piece code as we have decided to remove the order field from ApplicationPages
+            /*if(application.getPages() != null) {
                 int i = 0;
                 for (ApplicationPage page : application.getPages()) {
                     page.setOrder(i);
@@ -2627,7 +2628,7 @@ public class DatabaseChangelog {
                     }
                 }
                 mongoTemplate.save(application);
-            }
+            }*/
         }
     }
 
@@ -2798,5 +2799,10 @@ public class DatabaseChangelog {
 
             mongoTemplate.save(plugin);
         }
+    }
+
+    @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "" )
+    public void removePageOrderFieldFromApplicationPages() {
+
     }
 }
