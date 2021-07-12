@@ -122,16 +122,28 @@ function* fetchMockDatasourcesSaga() {
 
 export function* addMockDbToDatasources(
   actionPayload: ReduxActionWithCallbacks<
-    { id: string; orgId: string },
+    {
+      name: string;
+      organizationId: string;
+      pluginId: string;
+      packageName: string;
+    },
     unknown,
     unknown
   >,
 ) {
   try {
-    const { id, orgId } = actionPayload.payload;
+    const {
+      name,
+      organizationId,
+      packageName,
+      pluginId,
+    } = actionPayload.payload;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
-      id,
-      orgId,
+      name,
+      organizationId,
+      pluginId,
+      packageName,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
