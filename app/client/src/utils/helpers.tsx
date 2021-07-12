@@ -119,7 +119,6 @@ export const flashElementById = (id: string | string[], timeout = 0) => {
     setTimeout(() => {
       const el = document.getElementById(id);
 
-      console.log({ pawan: el });
       el?.scrollIntoView({
         behavior: "smooth",
         block: "center",

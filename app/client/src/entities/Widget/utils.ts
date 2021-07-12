@@ -145,7 +145,7 @@ export const getAllPathsFromPropertyConfig = (
 };
 
 /**
- * this function get the next available row for pasting widgets
+ * this function gets the next available row for pasting widgets
  *
  * @param parentContainerId
  * @param canvasWidgets

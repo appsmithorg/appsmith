@@ -532,7 +532,7 @@ export const groupWidgetsIntoContainer = function*(
     parentRowSpace: 1,
     rightColumn: widthOfCanvas,
     topRow: 0,
-    type: "CANVAS_WIDGET",
+    type: WidgetTypes.CANVAS_WIDGET,
     renderMode: RenderModes.CANVAS,
     version: 1,
     widgetId: generateReactKey(),
