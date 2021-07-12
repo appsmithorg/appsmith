@@ -73,7 +73,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => ({
     ...state,
-    isCommentMode: action.payload,
+    isCommentMode: action.payload && state.areCommentsEnabled,
     isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.SET_SNIPING_MODE]: (
