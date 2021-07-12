@@ -108,13 +108,17 @@ public class PolicyUtils {
      * @return
      */
     public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
+        return generatePolicyFromPermission(permissions, user.getUsername());
+    }
+
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(Set.of(user.getUsername())).build();
+                            .users(Set.of(username)).build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(user.getUsername()), null);
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
                     policiesForUser.add(policyWithCurrentPermission);
                     return policiesForUser;
                 })

@@ -112,13 +112,51 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 return Mono.just(user);
             }
         });
-        return userMono.zipWith(threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD))
+
+        Mono<CommentThread> commentThreadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                .flatMap(commentThread -> {
+                    if (CommentUtils.isAnyoneMentioned(comment) && Boolean.TRUE.equals(commentThread.getIsPrivate())) {
+                        return convertToPublic(commentThread);
+                    }
+                    return Mono.just(commentThread);
+                });
+
+
+        return userMono.zipWith(commentThreadMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final CommentThread thread = tuple.getT2();
                     return create(thread, user, comment, originHeader, true);
                 });
+    }
+
+    /**
+     * Converts a private bot thread to a public thread.
+     * It sets the isPrivate flag to false, changes the sequence and updates the policy
+     * @param commentThread
+     * @return
+     */
+    private Mono<CommentThread> convertToPublic(CommentThread commentThread) {
+        return applicationService.findById(commentThread.getApplicationId())
+                .zipWith(sequenceService.getNext(CommentThread.class, commentThread.getApplicationId()))
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    commentThread.setSequenceId("#" + objects.getT2());
+                    commentThread.setIsPrivate(FALSE);
+                    final Set<Policy> policies = new HashSet<>();
+                    policies.addAll(policyGenerator.getAllChildPolicies(
+                            application.getPolicies(),
+                            Application.class,
+                            CommentThread.class
+                    ));
+                    policies.add(policyUtils.generatePolicyFromPermission(
+                            Set.of(AclPermission.MANAGE_THREAD),
+                            commentThread.getAuthorUsername()
+                    ).get(AclPermission.MANAGE_THREAD.getValue()));
+                    commentThread.setPolicies(policies);
+                    return threadRepository.save(commentThread);
+        });
     }
 
     private Mono<Comment> create(CommentThread commentThread, User user, Comment comment, String originHeader, boolean shouldCreateNotification) {
