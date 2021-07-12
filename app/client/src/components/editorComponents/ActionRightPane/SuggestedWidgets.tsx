@@ -5,15 +5,19 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
+import Tooltip from "components/ads/Tooltip";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
-  .image {
-    width: 100%;
-    height: 40px;
-    background-color: #f0f0f0;
+  img {
+    max-width: 100%;
+  }
+
+  .image-wrapper {
+    position: relative;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   .widget:hover {
@@ -21,10 +25,24 @@ const WidgetList = styled.div`
   }
 `;
 
+const WidgetOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  &:hover {
+    display: block;
+    background: rgba(0, 0, 0, 0.6);
+  }
+`;
+
 type WidgetBindingInfo = {
   label: string;
   propertyName: string;
   widgetName: string;
+  image?: string;
 };
 
 export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
@@ -37,6 +55,8 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table+1.svg",
   },
   [WidgetTypes.CHART_WIDGET]: {
     label: "chart-series-data-control",
@@ -128,7 +148,12 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       <WidgetList>
         <div className="widget" onClick={addWidget}>
           <div>{widgetInfo.widgetName} Widget</div>
-          <div className="image" />
+          <Tooltip content="Add to canvas">
+            <div className="image-wrapper">
+              {widgetInfo.image && <img src={widgetInfo.image} />}
+              <WidgetOverlay />
+            </div>
+          </Tooltip>
         </div>
       </WidgetList>
     </Collapsible>
