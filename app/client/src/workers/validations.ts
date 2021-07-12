@@ -5,7 +5,13 @@ import {
   ValidationResponse,
   Validator,
 } from "../constants/WidgetValidation";
-import _, { isPlainObject, isString, startsWith, toString } from "lodash";
+import _, {
+  isObject,
+  isPlainObject,
+  isString,
+  startsWith,
+  toString,
+} from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 
 import moment from "moment";
@@ -132,6 +138,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
     }
     let parsed = value;
+
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
+      };
+    }
 
     const isValid = isString(parsed);
     if (!isValid) {
@@ -440,14 +454,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || moment().toISOString(true),
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: Full ISO 8601 date string`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ISO 8601 date string`,
     };
-    if (
-      value === undefined ||
-      value === null ||
-      !isString(value) ||
-      (isString(value) && !moment(value).isValid())
-    ) {
+    if (value === undefined || value === null || !isString(value)) {
       if (!config.params?.required) {
         return {
           isValid: true,
@@ -456,7 +465,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
       return invalidResponse;
     }
-    if (isString(value) && moment(value).isValid()) {
+    if (isString(value)) {
+      if (!moment(value).isValid()) return invalidResponse;
       if (
         value === moment(value).toISOString() ||
         value === moment(value).toISOString(true)
@@ -464,11 +474,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: true,
           parsed: value,
-        };
-      } else {
-        return {
-          isValid: true,
-          parsed: moment(value).toISOString(), // attempting to parse.
         };
       }
     }

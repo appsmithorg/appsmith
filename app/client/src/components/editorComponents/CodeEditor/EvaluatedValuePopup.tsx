@@ -227,7 +227,6 @@ export const CurrentValueViewer = memo(
     hideLabel?: boolean;
     preparedStatementViewer?: boolean;
   }) {
-    const currentValueWrapperRef = React.createRef<HTMLDivElement>();
     const codeWrapperRef = React.createRef<HTMLPreElement>();
     const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
     const toggleEvaluatedValue = () => {
@@ -299,10 +298,7 @@ export const CurrentValueViewer = memo(
         )}
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper colorTheme={props.theme}>
-            <>
-              {content}
-              <ScrollIndicator containerRef={currentValueWrapperRef} />
-            </>
+            {content}
           </CurrentValueWrapper>
         </Collapse>
       </>
@@ -404,7 +400,7 @@ function PopoverContent(props: PopoverContentProps) {
 
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
-  const [timeoutId, setTimeoutId] = useState(0);
+  // const [timeoutId, setTimeoutId] = useState(0);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -419,39 +415,38 @@ function EvaluatedValuePopup(props: Props) {
 
   return (
     <Wrapper ref={wrapperRef}>
-      {
-        <Popper
-          isOpen={props.isOpen || contentHovered}
-          modifiers={modifiers}
-          placement={placement}
-          targetNode={wrapperRef.current || undefined}
-          zIndex={5}
-        >
-          <PopoverContent
-            errors={props.errors}
-            evaluatedValue={props.evaluatedValue}
-            expected={props.expected}
-            hasError={props.hasError}
-            hideEvaluatedValue={props.hideEvaluatedValue}
-            onMouseEnter={() => {
-              clearTimeout(timeoutId);
-              setContentHovered(true);
-            }}
-            onMouseLeave={() => {
-              const timeoutId = setTimeout(() => setContentHovered(false), 500);
-              setTimeoutId(timeoutId);
-            }}
-            preparedStatementViewer={
-              props.evaluationSubstitutionType
-                ? props.evaluationSubstitutionType ===
-                  EvaluationSubstitutionType.PARAMETER
-                : false
-            }
-            theme={props.theme}
-            useValidationMessage={props.useValidationMessage}
-          />
-        </Popper>
-      }
+      <Popper
+        isOpen={props.isOpen || contentHovered}
+        modifiers={modifiers}
+        placement={placement}
+        targetNode={wrapperRef.current || undefined}
+        zIndex={5}
+      >
+        <PopoverContent
+          errors={props.errors}
+          evaluatedValue={props.evaluatedValue}
+          expected={props.expected}
+          hasError={props.hasError}
+          hideEvaluatedValue={props.hideEvaluatedValue}
+          onMouseEnter={() => {
+            // clearTimeout(timeoutId);
+            setContentHovered(true);
+          }}
+          onMouseLeave={() => {
+            setContentHovered(false);
+            // setTimeoutId(timeoutId);
+          }}
+          preparedStatementViewer={
+            props.evaluationSubstitutionType
+              ? props.evaluationSubstitutionType ===
+                EvaluationSubstitutionType.PARAMETER
+              : false
+          }
+          theme={props.theme}
+          useValidationMessage={props.useValidationMessage}
+        />
+      </Popper>
+
       {props.children}
     </Wrapper>
   );

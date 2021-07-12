@@ -13,7 +13,6 @@ import {
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
 import { ValidationTypes } from "constants/WidgetValidation";
-import log from "loglevel";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -125,20 +124,13 @@ class WidgetFactory {
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
     if (propertyPaneConfig) {
-      const start = performance.now();
       const validatedPropertyPaneConfig = validatePropertyPaneConfig(
         propertyPaneConfig,
       );
-      const interval = performance.now();
+
       this.propertyPaneConfigsMap.set(
         widgetType,
         Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
-      );
-      log.debug("PropertyPane Config validation took", interval - start, "ms");
-      log.debug(
-        "PropertyPane Config id creation took",
-        performance.now() - interval,
-        "ms",
       );
     }
   }

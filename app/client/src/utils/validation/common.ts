@@ -51,7 +51,10 @@ export function getExpectedValue(
     case ValidationTypes.REGEX:
       return { type: "regExp", example: "^d+$" };
     case ValidationTypes.DATE_ISO_STRING:
-      return { type: "ISO 8601 string", example: moment().toISOString(true) };
+      return {
+        type: "ISO 8601 date string",
+        example: moment().toISOString(true),
+      };
     case ValidationTypes.BOOLEAN:
       return { type: "boolean", example: false };
     case ValidationTypes.NUMBER:
@@ -80,7 +83,7 @@ export function getExpectedValue(
         type = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedValue(allowedKeyConfig);
-          type = `${type}"${allowedKeyConfig.name}" : "${_expected?.type}",`;
+          type = `${type} "${allowedKeyConfig.name}": "${_expected?.type}",`;
           _exampleObj[allowedKeyConfig.name] = _expected?.example;
         });
         type = `${type.substring(0, type.length - 1)} }`;

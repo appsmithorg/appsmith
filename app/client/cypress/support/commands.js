@@ -2453,8 +2453,8 @@ Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
     .click();
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
-    .children("p")
-    .siblings("pre")
+    .find("pre")
+    .first()
     .should("have.text", expectedType);
 });
 
