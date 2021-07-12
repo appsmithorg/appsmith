@@ -1,11 +1,13 @@
-import localforage from "localforage";
-import moment from "moment";
 import log from "loglevel";
+import moment from "moment";
+import { isBoolean } from "lodash";
+import localforage from "localforage";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
+  GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
@@ -37,14 +39,27 @@ export const hasAuthExpired = async () => {
   return false;
 };
 
-export const saveCopiedWidgets = async (widgetJSON: string) => {
+export const saveCopiedWidgets = async (
+  widgetJSON: string,
+  groupWidgets = false,
+) => {
   try {
     await store.setItem(STORAGE_KEYS.COPIED_WIDGET, widgetJSON);
+    await store.setItem(STORAGE_KEYS.GROUP_COPIED_WIDGETS, groupWidgets);
     return true;
   } catch (error) {
     log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
+};
+
+/**
+ * returns the GROUP_COPIED_WIDGETS key from local storage
+ *
+ * @returns
+ */
+export const shouldGroupWidgets = async () => {
+  return (await store.getItem(STORAGE_KEYS.GROUP_COPIED_WIDGETS)) === true;
 };
 
 export const getCopiedWidgets = async () => {

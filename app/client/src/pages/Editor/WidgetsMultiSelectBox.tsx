@@ -147,6 +147,7 @@ const deleteHelpText = (
     Click or <b> Del </b>
   </>
 );
+const groupHelpText = <>Click & {modText()} + V</>;
 
 interface OffsetBox {
   top: number;
@@ -349,7 +350,7 @@ function WidgetsMultiSelectBox(props: {
           {/* group widgets */}
           <Tooltip
             boundary="viewport"
-            content={deleteHelpText}
+            content={groupHelpText}
             maxWidth="400px"
             modifiers={PopoverModifiers}
             position={Position.RIGHT}

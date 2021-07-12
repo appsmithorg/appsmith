@@ -79,6 +79,7 @@ import {
   getDeletedWidgets,
   saveCopiedWidgets,
   saveDeletedWidgets,
+  shouldGroupWidgets,
 } from "utils/storage";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
@@ -122,6 +123,7 @@ import {
   WIDGET_DELETE,
   WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
+  WIDGET_CUT_GROUPING,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -1359,7 +1361,10 @@ function* createWidgetCopy(widget: FlattenedWidgetProps) {
   };
 }
 
-function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
+function* createSelectedWidgetsCopy(
+  selectedWidgets: FlattenedWidgetProps[],
+  groupWidgets = false,
+) {
   if (!selectedWidgets || !selectedWidgets.length) return;
   const widgetListsToStore: {
     widgetId: string;
@@ -1367,7 +1372,10 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
     list: FlattenedWidgetProps[];
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
-  return yield saveCopiedWidgets(JSON.stringify(widgetListsToStore));
+  return yield saveCopiedWidgets(
+    JSON.stringify(widgetListsToStore),
+    groupWidgets,
+  );
 }
 
 /**
@@ -1517,17 +1525,21 @@ function* pasteWidgetSaga() {
     canvasWidgets,
     selectedWidget,
   );
-  const getTopMostWidget = getTopMostSelectedWidget(copiedWidgetGroups);
+  const topMostWidget = getTopMostSelectedWidget(copiedWidgetGroups);
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
   );
 
-  copiedWidgetGroups = groupWidgetsIntoContainer(
-    copiedWidgetGroups,
-    pastingIntoWidgetId,
-    getTopMostWidget,
-  );
+  const shouldGroup: boolean = yield shouldGroupWidgets();
+
+  // if should is true, copied widgets will be goruped into a container
+  if (shouldGroup) {
+    copiedWidgetGroups = yield groupWidgetsIntoContainer(
+      copiedWidgetGroups,
+      pastingIntoWidgetId,
+    );
+  }
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
@@ -1540,8 +1552,8 @@ function* pasteWidgetSaga() {
 
         const copiedWidget = {
           ...unUpdatedCopyOfWidget,
-          topRow: unUpdatedCopyOfWidget.topRow - getTopMostWidget.topRow,
-          bottomRow: unUpdatedCopyOfWidget.bottomRow - getTopMostWidget.topRow,
+          topRow: unUpdatedCopyOfWidget.topRow - topMostWidget.topRow,
+          bottomRow: unUpdatedCopyOfWidget.bottomRow - topMostWidget.topRow,
         };
 
         // Log the paste event.
@@ -1751,7 +1763,7 @@ function* pasteWidgetSaga() {
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
 
-function* cutWidgetSaga() {
+function* cutWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
@@ -1766,7 +1778,10 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+    action.payload.groupWidgets,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
@@ -1776,10 +1791,22 @@ function* cutWidgetSaga() {
     });
   });
 
-  if (saveResult) {
+  if (saveResult && !action.payload.groupWidgets) {
     Toaster.show({
       text: createMessage(
         WIDGET_CUT,
+        selectedWidgetProps.length > 1
+          ? `${selectedWidgetProps.length} Widgets`
+          : selectedWidgetProps[0].widgetName,
+      ),
+      variant: Variant.success,
+    });
+  }
+
+  if (saveResult && action.payload.groupWidgets) {
+    Toaster.show({
+      text: createMessage(
+        WIDGET_CUT_GROUPING,
         selectedWidgetProps.length > 1
           ? `${selectedWidgetProps.length} Widgets`
           : selectedWidgetProps[0].widgetName,
@@ -1884,11 +1911,11 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
  */
 export function* groupWidgetsSaga(action: ReduxAction<{ modalName: string }>) {
   try {
-    // 1. copy widgets
     yield put({
-      type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+      type: ReduxActionTypes.CUT_SELECTED_WIDGET,
       payload: {
         isShortcut: false,
+        groupWidgets: true,
       },
     });
   } catch (error) {

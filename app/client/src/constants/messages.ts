@@ -255,6 +255,8 @@ export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
 export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
   `This selected widget cannot be copied.`;
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
+export const WIDGET_CUT_GROUPING = (widgetName: string) =>
+  `Cut ${widgetName} for grouping`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
