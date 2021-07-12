@@ -6,6 +6,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "../selectors/editorSelectors";
+import { ActionData } from "../reducers/entityReducers/actionsReducer";
 
 export function* bindDataWithWidgetSaga(
   action: ReduxAction<{
@@ -23,11 +24,15 @@ export function* bindDataWithWidgetSaga(
       force: true,
     },
   });
-
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   const queryId = searchParams.get("bindTo");
-  console.log("Need to bind : ", { queryId });
+  const currentAction = yield select((state) =>
+    state.entities.actions.find(
+      (action: ActionData) => action.config.id === queryId,
+    ),
+  );
+  console.log({ currentAction });
   history.replace(BUILDER_PAGE_URL(applicationId, pageId, {}));
 }
 
