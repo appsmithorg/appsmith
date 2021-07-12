@@ -2581,7 +2581,9 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
     public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
-        final List<User> missingCreatedAt = mongoTemplate.find(query(where("createdAt").exists(false)), User.class
+        final List<User> missingCreatedAt = mongoTemplate.find(
+                query(where("createdAt").exists(false)),
+                User.class
         );
 
         for (User user : missingCreatedAt) {
@@ -2589,7 +2591,9 @@ public class DatabaseChangelog {
             mongoTemplate.save(user);
         }
 
-        final List<User> missingUpdatedAt = mongoTemplate.find(query(where("updatedAt").exists(false)), User.class
+        final List<User> missingUpdatedAt = mongoTemplate.find(
+                query(where("updatedAt").exists(false)),
+                User.class
         );
 
         for (User user : missingUpdatedAt) {
