@@ -8,12 +8,7 @@ import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
-export const commandsHelper: HintHelper = (
-  editor,
-  data: DataTree,
-  entityInformation,
-) => {
-  const { entityType } = entityInformation;
+export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
     (entity: any) =>
       entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
@@ -21,6 +16,7 @@ export const commandsHelper: HintHelper = (
   return {
     showHint: (
       editor: CodeMirror.Editor,
+      { entityType },
       {
         datasources,
         executeCommand,

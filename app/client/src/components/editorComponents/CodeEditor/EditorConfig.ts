@@ -49,11 +49,14 @@ export type HintEntityInformation = {
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  entityInformation: HintEntityInformation,
   customDataTree?: Record<string, Record<string, unknown>>,
 ) => Hinter;
 export type Hinter = {
-  showHint: (editor: CodeMirror.Editor, additionalData?: any) => boolean;
+  showHint: (
+    editor: CodeMirror.Editor,
+    entityInformation: HintEntityInformation,
+    additionalData?: any,
+  ) => boolean;
   update?: (data: DataTree, recentEvaluations: string[][]) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };

@@ -19,6 +19,8 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { HintEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -165,7 +167,7 @@ class TernServer {
     ) {
       after = '"]';
     }
-    const bindings = getDynamicBindings(focusedValue);
+    const bindings = getDynamicBindings(cm.getValue());
     const isEmpty =
       bindings.stringSegments.length === 1 &&
       bindings.jsSnippets[0].trim() === "";
@@ -173,25 +175,25 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
-      const entityName = this.entityInformation.entityName;
       if (data.guess) className += " " + cls + "guess";
-      if (!entityName || !completion.name.includes(entityName)) {
-        completions.push({
-          text: completion.name + after,
-          displayText: completion.displayName || completion.name,
-          className: className,
-          data: completion,
-          origin: completion.origin,
-          type: dataType,
-          isHeader: false,
-        });
-      }
+      completions.push({
+        text: completion.name + after,
+        displayText: completion.displayName || completion.name,
+        className: className,
+        data: completion,
+        origin: completion.origin,
+        type: dataType,
+        isHeader: false,
+      });
     }
     const expectedDataType = this.getExpectedDataType();
+    const { entityName, entityType } = this.entityInformation;
     completions = TernServer.sortCompletions(
       completions,
       isEmpty,
       expectedDataType,
+      entityName,
+      entityType,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;
@@ -261,6 +263,8 @@ class TernServer {
     completions: Completion[],
     findBestMatch: boolean,
     expectedDataType?: string,
+    entityName?: string,
+    entityType?: ENTITY_TYPE,
   ) {
     type CompletionType =
       | "DATA_TREE"
@@ -278,13 +282,15 @@ class TernServer {
       OTHER: [],
     };
     completions.forEach((completion) => {
+      if (entityName && completion.text.includes(entityName)) {
+        return;
+      }
       if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
-        if (
-          completion.text.includes(".") &&
-          completion.type === expectedDataType
-        ) {
+        if (completion.text.includes(".")) {
           // nested paths (with ".") should only be used for best match
-          completionType.MATCHING_TYPE.push(completion);
+          if (completion.type === expectedDataType) {
+            completionType.MATCHING_TYPE.push(completion);
+          }
         } else if (
           completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
           completion.type === expectedDataType
@@ -326,15 +332,33 @@ class TernServer {
       completionType.OTHER.push(completion);
     });
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
-      completionType.MATCHING_TYPE.unshift({
-        text: "Best Match",
-        displayText: "Best Match",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
+      completionType.MATCHING_TYPE.sort((a, b) => {
+        const completionTypeA: ENTITY_TYPE = a.origin.split(
+          ".",
+        )[1] as ENTITY_TYPE;
+        const completionTypeB: ENTITY_TYPE = b.origin.split(
+          ".",
+        )[1] as ENTITY_TYPE;
+        if (completionTypeA === entityType) {
+          return 1;
+        }
+        if (completionTypeB === entityType) {
+          return -1;
+        }
+        return 0;
       });
+      completionType.MATCHING_TYPE = _.take(completionType.MATCHING_TYPE, 3);
+      if (completionType.MATCHING_TYPE.length) {
+        completionType.MATCHING_TYPE.unshift({
+          text: "Best Match",
+          displayText: "Best Match",
+          className: "CodeMirror-hint-header",
+          data: { doc: "" },
+          origin: "",
+          type: "UNKNOWN",
+          isHeader: true,
+        });
+      }
     } else {
       // Clear any matching type because we dont want to find best match
       completionType.MATCHING_TYPE = [];

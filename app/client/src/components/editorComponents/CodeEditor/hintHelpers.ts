@@ -6,17 +6,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
-export const bindingHint: HintHelper = (
-  editor,
-  dataTree,
-  entityInformation,
-  customDataTree,
-) => {
+export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
   if (customDataTree) {
     const customTreeDef = customTreeTypeDefCreator(customDataTree);
     TernServer.updateDef("customDataTree", customTreeDef);
   }
-  TernServer.setEntityInformation(entityInformation);
 
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,7 +26,8 @@ export const bindingHint: HintHelper = (
     },
   });
   return {
-    showHint: (editor: CodeMirror.Editor): boolean => {
+    showHint: (editor: CodeMirror.Editor, entityInformation): boolean => {
+      TernServer.setEntityInformation(entityInformation);
       const shouldShow = checkIfCursorInsideBinding(editor);
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});

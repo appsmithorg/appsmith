@@ -243,8 +243,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.dataTreePath,
-          this.props.expected,
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
@@ -298,37 +296,12 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    dataTreePath?: string,
-    expectedType?: string,
     showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
-    const entityInformation: HintEntityInformation = {
-      expectedType,
-    };
-    if (dataTreePath) {
-      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
-      entityInformation.entityName = entityName;
-      const entity = dynamicData[entityName];
-      if ("ENTITY_TYPE" in entity) {
-        const entityType = entity.ENTITY_TYPE;
-        if (
-          entityType === ENTITY_TYPE.WIDGET ||
-          entityType === ENTITY_TYPE.ACTION
-        ) {
-          entityInformation.entityType = entityType;
-        }
-      }
-    }
-
     return (showLightningMenu !== false ? hinting : [bindingHint]).map(
       (helper) => {
-        return helper(
-          editor,
-          dynamicData,
-          entityInformation,
-          additionalDynamicData,
-        );
+        return helper(editor, dynamicData, additionalDynamicData);
       },
     );
   }
@@ -420,9 +393,27 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
+    const { dataTreePath, dynamicData, expected } = this.props;
+    const entityInformation: HintEntityInformation = {
+      expectedType: expected,
+    };
+    if (dataTreePath) {
+      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      entityInformation.entityName = entityName;
+      const entity = dynamicData[entityName];
+      if (entity && "ENTITY_TYPE" in entity) {
+        const entityType = entity.ENTITY_TYPE;
+        if (
+          entityType === ENTITY_TYPE.WIDGET ||
+          entityType === ENTITY_TYPE.ACTION
+        ) {
+          entityInformation.entityType = entityType;
+        }
+      }
+    }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, {
+      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         mutedHinting: force ? !force : this.props.mutedHinting,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
