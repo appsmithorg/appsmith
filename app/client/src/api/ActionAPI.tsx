@@ -85,6 +85,7 @@ export interface ActionResponse {
   size: string;
   isExecutionSuccess?: boolean;
   suggestedWidget?: WidgetType;
+  messages?: Array<string>;
 }
 
 export interface MoveActionRequest {
