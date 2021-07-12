@@ -12,17 +12,18 @@ import { ReactNode } from "react";
 import { useEffect } from "react";
 
 const SideBar = styled.div`
-  padding: 0px 8px 10px;
+  padding: ${(props) => props.theme.spaces[0]}px
+    ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
   overflow: auto;
   height: 100%;
 
   & > div {
-    margin-top: 24px;
+    margin-top: ${(props) => props.theme.spaces[11]}px;
   }
 
   .icon-text {
     display: flex;
-    margin-left: 7px;
+    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
       ${(props) => getTypographyByKey(props, "p1")}
@@ -30,13 +31,13 @@ const SideBar = styled.div`
   }
 
   .icon-text:nth-child(2) {
-    padding-top: 16px;
+    padding-top: ${(props) => props.theme.spaces[7]}px;
   }
 
   .description {
     ${(props) => getTypographyByKey(props, "p1")}
-    margin-left: 7px;
-    padding-bottom: 16px;
+    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
+    padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
 `;
 
@@ -46,11 +47,11 @@ const Label = styled.span`
 
 const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   .${BPClasses.COLLAPSE_BODY} {
-    padding-top: 8px;
+    padding-top: ${(props) => props.theme.spaces[3]}px;
   }
 
   & > .icon-text:first-child {
-    color: #090707;
+    color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
     ${(props) => getTypographyByKey(props, "h4")}
     cursor: pointer;
     .${Classes.ICON} {
@@ -58,7 +59,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
     }
 
     .label {
-      padding-left: 5px;
+      padding-left: ${(props) => props.theme.spaces[1] + 1}px;
     }
   }
 `;

@@ -166,7 +166,7 @@ const DocumentationLink = styled.a`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: calc(100% - 265px);
+  width: calc(100% - ${(props) => props.theme.actionSidePane.width}px);
 `;
 
 const HelpSection = styled.div``;
@@ -361,7 +361,7 @@ const Wrapper = styled.div`
 `;
 
 const SidebarWrapper = styled.div`
-  width: 265px;
+  width: ${(props) => props.theme.actionSidePane.width}px;
   border: 1px solid #e8e8e8;
 `;
 
