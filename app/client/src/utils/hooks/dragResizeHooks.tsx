@@ -5,7 +5,7 @@ import {
   commentModeSelector,
   snipingModeSelector,
 } from "selectors/commentsSelectors";
-import { bindDataWithWidget } from "../../actions/propertyPaneActions";
+import { bindDataToWidget } from "../../actions/propertyPaneActions";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ export const useShowPropertyPane = () => {
       // dedicated saga will open the property pane && make data binding
       if (isSnipingMode && widgetId) {
         dispatch(
-          bindDataWithWidget({
+          bindDataToWidget({
             widgetId,
           }),
         );

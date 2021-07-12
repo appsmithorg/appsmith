@@ -8,7 +8,7 @@ import {
 } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 
-export function* bindDataWithWidgetSaga(
+export function* bindDataToWidgetSaga(
   action: ReduxAction<{
     widgetId: string;
   }>,
@@ -38,6 +38,6 @@ export function* bindDataWithWidgetSaga(
 
 export default function* propertyPaneSagas() {
   yield all([
-    takeLeading(ReduxActionTypes.BIND_DATA_WITH_WIDGET, bindDataWithWidgetSaga),
+    takeLeading(ReduxActionTypes.BIND_DATA_TO_WIDGET, bindDataToWidgetSaga),
   ]);
 }
