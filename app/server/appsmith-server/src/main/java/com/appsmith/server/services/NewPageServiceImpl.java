@@ -70,6 +70,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             if (newPage.getUnpublishedPage() != null) {
                 page = newPage.getUnpublishedPage();
                 page.setName(newPage.getUnpublishedPage().getName());
+                page.setLastUpdatedTime(newPage.getUpdatedAt().getEpochSecond());
             }
         }
 

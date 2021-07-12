@@ -787,12 +787,15 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateItemsToListDataInListWidget(currentDSL);
     currentDSL.version = 26;
   }
-
   if (currentDSL.version === 26) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = 27;
+  }
+
+  if (currentDSL.version === 27) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
-
   return currentDSL;
 };
 
@@ -812,6 +815,27 @@ export const migrateToNewMultiSelect = (
     );
   }
   return currentDSL;
+};
+const addFilterDefaultValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    if (!currentDSL.hasOwnProperty("isFilterable")) {
+      currentDSL.isFilterable = true;
+    }
+  }
+  return currentDSL;
+};
+export const migrateFilterValueForDropDownWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addFilterDefaultValue(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateFilterValueForDropDownWidget(children);
+  });
+
+  return newDSL;
 };
 export const migrateObjectFitToImageWidget = (
   dsl: ContainerWidgetProps<WidgetProps>,

@@ -256,12 +256,15 @@ function CommentModeBtn({
 function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
-  const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
   const [
     showCommentButtonDiscoveryTooltip,
     setShowCommentButtonDiscoveryTooltipInState,
   ] = useState(getShowCommentsButtonToolTip());
+
+  const showUnreadIndicator =
+    useSelector(showUnreadIndicatorSelector) ||
+    showCommentButtonDiscoveryTooltip;
 
   useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
