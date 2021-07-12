@@ -10,7 +10,6 @@ import { rootSaga } from "sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { analyticsMiddleware } from "middlewares/analytics";
 
 const sagaMiddleware = createSagaMiddleware();
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
@@ -30,7 +29,7 @@ export default createStore(
   appReducer,
   composeWithDevTools(
     reduxBatch,
-    applyMiddleware(analyticsMiddleware, sagaMiddleware),
+    applyMiddleware(sagaMiddleware),
     reduxBatch,
     sentryReduxEnhancer,
   ),

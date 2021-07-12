@@ -16,12 +16,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  getFocusedWidget,
-  getSelectedWidget,
-  getWidget,
-  getWidgets,
-} from "./selectors";
+import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -137,7 +132,6 @@ import {
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
   getTopMostSelectedWidget,
-  checkIfPastingIntoListWidget,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";

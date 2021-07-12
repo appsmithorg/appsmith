@@ -14,7 +14,6 @@ import {
   minBy,
   maxBy,
   flattenDeep,
-  round,
 } from "lodash";
 import {
   CanvasWidgetsReduxState,
@@ -29,7 +28,6 @@ import { WidgetProps } from "widgets/BaseWidget";
 import {
   getFocusedWidget,
   getSelectedWidget,
-  getWidget,
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";

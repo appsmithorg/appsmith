@@ -1,6 +1,5 @@
 import log from "loglevel";
 import moment from "moment";
-import { isBoolean } from "lodash";
 import localforage from "localforage";
 
 const STORAGE_KEYS: { [id: string]: string } = {
