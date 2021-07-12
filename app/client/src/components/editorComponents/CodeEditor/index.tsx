@@ -18,6 +18,7 @@ import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
@@ -30,6 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
+  HintEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -56,7 +58,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { EvaluationOrderState } from "../../../reducers/evaluationReducers/evaluationOrderReducer";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
@@ -241,6 +243,8 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
+          this.props.dataTreePath,
+          this.props.expected,
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
@@ -294,12 +298,37 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    dataTreePath?: string,
+    expectedType?: string,
     showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
+    const entityInformation: HintEntityInformation = {
+      expectedType,
+    };
+    if (dataTreePath) {
+      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      entityInformation.entityName = entityName;
+      const entity = dynamicData[entityName];
+      if ("ENTITY_TYPE" in entity) {
+        const entityType = entity.ENTITY_TYPE;
+        if (
+          entityType === ENTITY_TYPE.WIDGET ||
+          entityType === ENTITY_TYPE.ACTION
+        ) {
+          entityInformation.entityType = entityType;
+        }
+      }
+    }
+
     return (showLightningMenu !== false ? hinting : [bindingHint]).map(
       (helper) => {
-        return helper(editor, dynamicData, additionalDynamicData);
+        return helper(
+          editor,
+          dynamicData,
+          entityInformation,
+          additionalDynamicData,
+        );
       },
     );
   }
@@ -391,13 +420,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
-    const expected = this.props.expected ? this.props.expected : "";
-    const { entityName } = getEntityNameAndPropertyPath(
-      this.props.dataTreePath || "",
-    );
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+      hinterOpen = this.hinters[i].showHint(cm, {
         mutedHinting: force ? !force : this.props.mutedHinting,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,

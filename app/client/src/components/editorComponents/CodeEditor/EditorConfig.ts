@@ -1,5 +1,5 @@
 import CodeMirror from "codemirror";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -40,18 +40,20 @@ export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.DARK]: "duotone-dark",
 };
 
+export type HintEntityInformation = {
+  entityName?: string;
+  expectedType?: string;
+  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET;
+};
+
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  additionalData?: Record<string, Record<string, unknown>>,
+  entityInformation: HintEntityInformation,
+  customDataTree?: Record<string, Record<string, unknown>>,
 ) => Hinter;
 export type Hinter = {
-  showHint: (
-    editor: CodeMirror.Editor,
-    expected: string,
-    entityName: string,
-    additionalData?: any,
-  ) => any;
+  showHint: (editor: CodeMirror.Editor, additionalData?: any) => boolean;
   update?: (data: DataTree, recentEvaluations: string[][]) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };

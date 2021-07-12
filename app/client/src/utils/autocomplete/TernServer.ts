@@ -18,6 +18,7 @@ import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
+import { HintEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -79,8 +80,7 @@ class TernServer {
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
   active: any;
-  expected?: string;
-  entityName?: string;
+  entityInformation: HintEntityInformation = {};
 
   constructor() {
     this.server = new tern.Server({
@@ -89,9 +89,11 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
-    this.expected = expected;
-    this.entityName = entityName;
+  setEntityInformation(entityInformation: HintEntityInformation) {
+    this.entityInformation = entityInformation;
+  }
+
+  complete(cm: CodeMirror.Editor) {
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -171,7 +173,7 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
-      const entityName = this.entityName;
+      const entityName = this.entityInformation.entityName;
       if (data.guess) className += " " + cls + "guess";
       if (!entityName || !completion.name.includes(entityName)) {
         completions.push({
@@ -323,7 +325,6 @@ class TernServer {
       // Generally keywords or other unCategorised completions
       completionType.OTHER.push(completion);
     });
-    debugger;
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
       completionType.MATCHING_TYPE.unshift({
         text: "Best Match",
@@ -382,7 +383,7 @@ class TernServer {
   }
 
   getExpectedDataType() {
-    const type = this.expected;
+    const type = this.entityInformation.expectedType;
     if (type === undefined) return;
     if (
       type === "Array<Object>" ||

@@ -1,21 +1,26 @@
 import CodeMirror from "codemirror";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CommandsCompletion } from "utils/autocomplete/TernServer";
-import { checkIfCursorInsideBinding } from "./hintHelpers";
 import { generateQuickCommands } from "./generateQuickCommands";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
-export const commandsHelper: HintHelper = (editor, data: any) => {
+export const commandsHelper: HintHelper = (
+  editor,
+  data: DataTree,
+  entityInformation,
+) => {
+  const { entityType } = entityInformation;
   let entitiesForSuggestions = Object.values(data).filter(
-    (entity: any) => entity.ENTITY_TYPE && entity.ENTITY_TYPE !== "APPSMITH",
+    (entity: any) =>
+      entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
   );
   return {
     showHint: (
       editor: CodeMirror.Editor,
-      _: string,
-      entityName: string,
       {
         datasources,
         executeCommand,
@@ -36,11 +41,11 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         ) => void;
       },
     ): boolean => {
-      const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
+      const currentEntityType = entityType || ENTITY_TYPE.ACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
-        return currentEntityType === "WIDGET"
-          ? entity.ENTITY_TYPE !== "WIDGET"
-          : entity.ENTITY_TYPE !== "ACTION";
+        return currentEntityType === ENTITY_TYPE.WIDGET
+          ? entity.ENTITY_TYPE !== ENTITY_TYPE.WIDGET
+          : entity.ENTITY_TYPE !== ENTITY_TYPE.ACTION;
       });
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
