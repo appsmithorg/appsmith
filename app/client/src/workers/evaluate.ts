@@ -10,9 +10,6 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { diff } from "deep-diff";
-
-export class EvaluationMutationError extends Error {}
 
 export type EvalResult = {
   result: any;
@@ -97,7 +94,6 @@ export default function evaluate(
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
   const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
-  const prevData = _.cloneDeep(data);
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -185,12 +181,6 @@ export default function evaluate(
       // @ts-ignore: No types available
       delete self[key];
     });
-
-    const diffs = diff(prevData, data);
-    if (diffs?.length) {
-      console.error("MUTATION", JSON.stringify(diffs));
-      throw new EvaluationMutationError();
-    }
 
     return { result, triggers, errors };
   })();

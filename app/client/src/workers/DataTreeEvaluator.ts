@@ -46,10 +46,7 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluate, {
-  EvalResult,
-  EvaluationMutationError,
-} from "workers/evaluate";
+import evaluate, { EvalResult } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 
@@ -433,23 +430,13 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
               );
             } catch (e) {
-              if (e instanceof EvaluationMutationError) {
-                this.errors.push({
-                  type: EvalErrorTypes.MUTATION_ERROR,
-                  message: "MUTATION ERROR",
-                  context: {
-                    propertyPath: fullPropertyPath,
-                  },
-                });
-              } else {
-                this.errors.push({
-                  type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-                  message: e.message,
-                  context: {
-                    propertyPath: fullPropertyPath,
-                  },
-                });
-              }
+              this.errors.push({
+                type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
+                message: e.message,
+                context: {
+                  propertyPath: fullPropertyPath,
+                },
+              });
               evalPropertyValue = undefined;
             }
           } else {
@@ -648,9 +635,6 @@ export default class DataTreeEvaluator {
     try {
       return evaluate(js, data, callbackData, isTriggerBased);
     } catch (e) {
-      if (e instanceof EvaluationMutationError) {
-        throw e;
-      }
       return {
         result: undefined,
         triggers: [],
