@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, indexOf, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString, set } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
@@ -28,6 +28,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       isVisible: true,
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     TEXT_WIDGET: {
@@ -47,17 +48,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isDisabled: false,
       isVisible: true,
+      isRequired: false,
       widgetName: "RichTextEditor",
       isDefaultClickDisabled: true,
       inputType: "html",
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage:
-        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+      defaultImage: "https://source.unsplash.com/random/1500x600",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
-      objectFit: "cover",
+      enableRotation: false,
+      enableDownload: false,
+      objectFit: "contain",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -265,6 +268,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         step: 62,
         status: 75,
       },
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const primaryColumns = cloneDeep(widget.primaryColumns);
+              const columnIds = Object.keys(primaryColumns);
+              columnIds.forEach((columnId) => {
+                set(
+                  primaryColumns,
+                  `${columnId}.computedValue`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                );
+              });
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "primaryColumns",
+                  propertyValue: primaryColumns,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
+      },
       isVisibleSearch: true,
       isVisibleFilters: true,
       isVisibleDownload: true,
@@ -285,6 +314,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
+      isFilterable: true,
       isRequired: false,
       isDisabled: false,
     },
@@ -609,6 +639,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     FORM_WIDGET: {
@@ -658,6 +689,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
@@ -676,6 +708,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "SECONDARY_BUTTON",
                       disabledWhenInvalid: false,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
@@ -866,7 +899,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                        "https://source.unsplash.com/random/1500x600",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
@@ -1112,6 +1145,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 8 * GRID_DENSITY_MIGRATION_V1,
       columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Iframe",
+      version: 1,
+    },
+    DIVIDER_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Divider",
+      orientation: "horizontal",
+      capType: "nc",
+      capSide: 0,
+      strokeStyle: "solid",
+      dividerColor: "black",
+      thickness: 2,
+      isVisible: true,
       version: 1,
     },
   },

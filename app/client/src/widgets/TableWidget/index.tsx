@@ -22,7 +22,7 @@ import {
   isBoolean,
 } from "lodash";
 import * as Sentry from "@sentry/react";
-import { retryPromise } from "utils/AppsmithUtils";
+import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import log from "loglevel";
@@ -216,6 +216,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
+          } else if (columnProperties.columnType === "image") {
+            const isSelected = !!props.row.isSelected;
+            const onClick = columnProperties.onClick
+              ? () =>
+                  this.onCommandClick(rowIndex, columnProperties.onClick, noop)
+              : noop;
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              componentWidth,
+              onClick,
+              isSelected,
+            );
           } else {
             return renderCell(
               props.cell.value,
@@ -681,6 +696,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
+          selectAllRow={this.handleAllRowSelect}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
               ? -1
@@ -691,6 +707,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
           triggerRowSelection={this.props.triggerRowSelection}
+          unSelectAllRow={this.resetSelectedRowIndex}
           updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
@@ -781,6 +798,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+  };
+
+  handleAllRowSelect = (pageData: Record<string, unknown>[]) => {
+    if (this.props.multiRowSelection) {
+      const selectedRowIndices = pageData.map(
+        (row: Record<string, unknown>) => row.index,
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {

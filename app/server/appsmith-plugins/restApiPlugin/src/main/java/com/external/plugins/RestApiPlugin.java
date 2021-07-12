@@ -19,6 +19,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.helpers.BufferingFilter;
 import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -198,6 +199,9 @@ public class RestApiPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
             errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
 
+            // Set of hint messages that can be returned to the user.
+            Set<String> hintMessages = new HashSet();
+
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
@@ -301,6 +305,10 @@ public class RestApiPlugin extends BasePlugin {
 
             requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
 
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                webClientBuilder.filter(new BufferingFilter());
+            }
+
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
@@ -353,13 +361,16 @@ public class RestApiPlugin extends BasePlugin {
                                     String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    new String(body),
-                                                    e.getMessage()
-                                            )
-                                    );
+                                    System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                    String bodyString = new String(body);
+                                    result.setBody(bodyString.trim());
+
+                                    // Warn user that the API response is not a valid JSON.
+                                    hintMessages.add("The response returned by this API is not a valid JSON. Please " +
+                                            "be careful when using the API response anywhere a valid JSON is required" +
+                                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                                            "Header to indicate a non-JSON response or by modifying the API response " +
+                                            "to return a valid JSON.");
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -373,6 +384,7 @@ public class RestApiPlugin extends BasePlugin {
                             }
                         }
 
+                        result.setMessages(hintMessages);
                         return result;
                     })
                     .onErrorResume(error -> {

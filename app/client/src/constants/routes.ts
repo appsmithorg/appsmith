@@ -67,19 +67,44 @@ export const PAGE_LIST_EDITOR_URL = (
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources`;
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/datasource`;
 
 export const DATA_SOURCES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
-): string =>
-  `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
+  params?: Record<string, string>,
+): string => {
+  const queryparams = convertToQueryParams(params);
+  return `${DATA_SOURCES_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${datasourceId}${queryparams}`;
+};
 
 export const QUERIES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
+
+export const INTEGRATION_TABS = {
+  ACTIVE: "ACTIVE",
+  NEW: "NEW",
+};
+
+export const INTEGRATION_EDITOR_MODES = {
+  AUTO: "auto",
+  MOCK: "mock",
+};
+export const INTEGRATION_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  selectedTab = ":selectedTab",
+  mode = "",
+): string =>
+  `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources/${selectedTab}${
+    mode ? "?mode=" + mode : ""
+  }`;
 
 export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",

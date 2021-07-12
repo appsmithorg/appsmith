@@ -1,8 +1,48 @@
-## Running Server Codebase
+# Running Server Codebase
 
 This document explains how you can setup a development environment for Appsmith server. As the server codebase is written in Java and is powered by Spring + WebFlux we need Java and Maven installed to build the code. In addition we also need one instance of MongoDB and Redis each to run Appsmith server. Lastly, we will set up IntelliJ IDEA to let you edit the code. Let's get those prerequisites installed on your machine.
 
->If you are not setting up a development environment you can get the Appsmith server up and running quickly with `Docker`. Please refer to the [Setup Guide](../app/server/README.md#run-locally-with-docker) on how to do that.
+
+[![How to Setup Appsmith for Server Side Development](../static/images/server-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=W2qbuUYGrQs)
+
+
+# Setup with Docker 
+
+You can run the server codebase in a docker container. This is the easiest way to get the server up and running if you are more interested in contributing to the client codebase.
+
+## What's in the box
+
+* Appsmith server
+* MongoDB database
+* Redis instance
+
+## Pre-requisites
+
+* [Docker](https://docs.docker.com/get-docker/)
+
+## Steps for setup
+
+1. Clone the Appsmith repository and `cd` into it
+```
+git clone https://github.com/appsmithorg/appsmith.git
+cd appsmith
+```
+2. Change your directory to `app/server`
+```
+cd app/server
+```
+3. Create a copy of the `envs/docker.env.example`
+```
+cp envs/docker.env.example envs/docker.env
+```
+4. Start up the containers
+```
+docker-compose up -d
+``` 
+5. Have fun!
+
+
+# Local Setup
 
 ## Pre-requisites
 

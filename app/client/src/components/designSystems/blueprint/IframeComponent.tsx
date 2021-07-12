@@ -15,6 +15,7 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   iframe {
     width: 100%;
     height: 100%;
+    border-style: solid;
     border-color: ${(props) =>
       hexToRgba(
         props.borderColor || props.theme.colors.border,

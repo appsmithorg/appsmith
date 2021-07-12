@@ -472,13 +472,29 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
+                {
+                  propertyName: "onClick",
+                  label: "onClick",
+                  controlType: "ACTION_SELECTOR",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "image";
+                  },
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                },
               ],
             },
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (

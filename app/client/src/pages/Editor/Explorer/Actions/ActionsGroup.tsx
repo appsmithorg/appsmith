@@ -23,13 +23,16 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
           params.applicationId,
           props.page.pageId,
           action.config.id,
+          action.config.pluginType,
         );
         const actionId = getActionIdFromURL();
         const active = actionId === action.config.id;
 
         const icon = props.config?.getIcon(
           action.config,
-          props.plugins[action.config.datasource.pluginId],
+          props.plugins[
+            action.config.pluginId || action.config.datasource.pluginId
+          ],
         );
         return (
           <ExplorerActionEntity

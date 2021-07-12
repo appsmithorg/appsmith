@@ -60,6 +60,7 @@ function ReactionsBy(props: { reaction: Reaction }) {
   const users = reaction?.users.slice(0, 5);
 
   if (isSliced) users.push("...");
+  if (reaction.active) users.unshift("You");
 
   return <ReactionsByContainer>{users.join(", ")}</ReactionsByContainer>;
 }
@@ -117,6 +118,7 @@ function EmojiReactions({
         };
         if (reactions[emojiData].count === 0) delete reactions[emojiData];
       } else {
+        addOrRemove = ReactionOperation.ADD;
         reactions[emojiData] = {
           active: true,
           reactionEmoji: emojiData,
@@ -138,6 +140,7 @@ function EmojiReactions({
       addOrRemove as ReactionOperation,
     );
   };
+
   return (
     <Container>
       {!hideReactions &&
@@ -145,6 +148,7 @@ function EmojiReactions({
           <TooltipComponent
             boundary={"viewport"}
             content={<ReactionsBy reaction={reaction} />}
+            disabled={!reaction.users || reaction.users.length === 0}
             key={reaction.reactionEmoji}
             modifiers={{ preventOverflow: { enabled: true } }}
           >
