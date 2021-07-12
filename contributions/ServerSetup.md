@@ -117,7 +117,7 @@ Please note when setting **Working directory** option. If the path is not correc
 3. Load your env file by going to the EnvFile Tab in the Run/Debug configuration settings for your server.
 <img width="1067" alt="Screenshot 2021-03-03 at 1 49 17 PM" src="https://user-images.githubusercontent.com/458946/109775238-451c8d80-7c27-11eb-98ad-61fc33082b63.png">
 
-## Conifuration settings for version 2021.1.2 (Community Edition) IntelliJ IDEA
+## Configuration settings for version 2021.1.2 (Community Edition) IntelliJ IDEA
 
 After configuring settings as mentioned above, please also add the following to your IntelliJ IDEA setup.
 
@@ -129,16 +129,8 @@ After configuring settings as mentioned above, please also add the following to 
 
 Happy hacking.
 
-Here is the configuration settings for new intellij versions. After configuring settings as mentioned above, please also add the following to your intellij setup.
-
-1.  As shown in the image below, please enable the **Store as Project** checkbox to run the application from the main class specified. 
-<img width="1070" alt="intellij config_1" src="./images/intellij_config_1.png">
-
-2. Please enable the **Always update snapshots** checkbox so that the most recent build is picked up. 
-<img width="1070" alt="intellij config_2" src="./images/intellij_config_2.png"> 
-
 #### Note
-In case ther server doesn't work with the above config then one may try the following and thrn try running the server locally.
+In case ther server doesn't work with the above config then one may try the following and then try running the server locally.
 * mvn -B clean compile
 * ./build.sh -DskipTests
 
