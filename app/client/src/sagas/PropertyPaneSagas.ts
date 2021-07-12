@@ -7,6 +7,9 @@ import {
   getCurrentPageId,
 } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
+import { getCanvasWidgets } from "../selectors/entitiesSelector";
+import { updateWidgetPropertyRequest } from "../actions/controlActions";
+import { RenderModes } from "../constants/WidgetConstants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -32,7 +35,22 @@ export function* bindDataToWidgetSaga(
       (action: ActionData) => action.config.id === queryId,
     ),
   );
-  console.log({ currentAction });
+  const selectedWidget = (yield select(getCanvasWidgets))[
+    action.payload.widgetId
+  ];
+  console.log({
+    currentAction,
+    selectedWidget,
+  });
+
+  yield put(
+    updateWidgetPropertyRequest(
+      action.payload.widgetId,
+      "tableData",
+      `{{${currentAction.config.name}.data}}`,
+      RenderModes.CANVAS,
+    ),
+  );
   history.replace(BUILDER_PAGE_URL(applicationId, pageId, {}));
 }
 
