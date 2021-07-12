@@ -656,7 +656,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     /*
@@ -683,12 +683,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
-        result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
+        }
 
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
