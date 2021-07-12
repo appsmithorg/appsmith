@@ -129,11 +129,11 @@ export const deleteSelectedWidget = (
   };
 };
 
-export const cutWidget = () => {
+export const cutWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
     payload: {
-      groupWidgets: false,
+      groupWidgets: groupWidgets,
     },
   };
 };
