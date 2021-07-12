@@ -800,7 +800,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return pageMono
                 .flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                    return isNameAllowed(page.getId(), layout.getId(), action.getName());
+                    String name = action.getFullyQualifiedName();
+                    if (name == null) {
+                        name = action.getName();
+                    }
+                    return isNameAllowed(page.getId(), layout.getId(), name);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing
