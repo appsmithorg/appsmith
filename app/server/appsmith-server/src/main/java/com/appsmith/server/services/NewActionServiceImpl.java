@@ -709,21 +709,27 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
-            ArrayNode array = (ArrayNode) data;
-            Integer length = array.size();
-            ObjectNode objectNode = (ObjectNode)array.get(0);
-            Integer fieldsCount = array.get(0).size();
-            if( (objectNode.has("x") || (objectNode.has("X")) )&&
-                    (objectNode.has("y") || (objectNode.has("Y"))) ) {
-                return WidgetType.CHART_WIDGET;
+            try {
+                ArrayNode array = (ArrayNode) data;
+                Integer length = array.size();
+                JsonNode node = (JsonNode)array.get(0);
+                Integer fieldsCount = array.get(0).size();
+                if( (node.has("x") || (node.has("X")) )&&
+                        (node.has("y") || (node.has("Y"))) ) {
+                    return WidgetType.CHART_WIDGET;
+                }
+                if(fieldsCount <= 2) {
+                    return WidgetType.DROP_DOWN_WIDGET;
+                }
+                if(length <= 20 && fieldsCount <= 5) {
+                    return WidgetType.LIST_WIDGET;
+                }
+                return WidgetType.TABLE_WIDGET;
+
+            } catch(Exception e) {
+                log.warn("Error while converting data to suggest widget "+ e);
+                return WidgetType.TEXT_WIDGET;
             }
-            if(fieldsCount <= 2) {
-                return WidgetType.DROP_DOWN_WIDGET;
-            }
-            if(length <= 20 && fieldsCount <= 5) {
-                return WidgetType.LIST_WIDGET;
-            }
-            return WidgetType.TABLE_WIDGET;
         }
         return WidgetType.TEXT_WIDGET;
 
