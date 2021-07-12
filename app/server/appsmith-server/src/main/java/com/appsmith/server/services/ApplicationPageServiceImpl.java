@@ -680,26 +680,20 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.
-                    final List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getPages();
 
                     ApplicationPage foundPage = null;
-                    Integer index = -1;
                     for (final ApplicationPage page : pages) {
-                        index++;
                         if (pageId.equals(page.getId())) {
                             foundPage = page;
-                            pages.remove(index);
                         }
                     }
 
-                    /* there are two cases where page is re-ordered. Lets assume there are five pages 1,2,3,4,5
-                     * Case 1(isMovingUp == true): p5 to p2, order of p2,p3,p4 increases by 1.
-                     *
-                     * Case 2(isMovingUp == false): p2 to p5, order of p3,p4,p5 decreases by 1.
-                     **/
                     if(foundPage != null) {
+                        pages.remove(foundPage);
                         pages.add(order, foundPage);
                     }
+
                     return applicationRepository
                             .setPages(applicationId, pages)
                             .then(applicationService.getById(applicationId));

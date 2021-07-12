@@ -430,20 +430,10 @@ public class PageServiceTest {
                 .assertNext(application -> {
                     final List<ApplicationPage> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
-                    for(ApplicationPage page : pages) {
-                        /*if(pageIds[0].equals(page.getId())) {
-                            assertThat(page).isEqualTo(0);
-                        }
-                        if(pageIds[1].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(2);
-                        }
-                        if(pageIds[2].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(3);
-                        }
-                        if(pageIds[3].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(1);
-                        }*/
-                    }
+                    assertThat(application.getPages().get(0).getId().equals(pageIds[0]));
+                    assertThat(application.getPages().get(1).getId().equals(pageIds[3]));
+                    assertThat(application.getPages().get(2).getId().equals(pageIds[1]));
+                    assertThat(application.getPages().get(3).getId().equals(pageIds[2]));
                 } )
                 .verifyComplete();
     }
@@ -491,20 +481,10 @@ public class PageServiceTest {
                 .assertNext(application -> {
                     final List<ApplicationPage> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
-                    /*for(ApplicationPage page : pages) {
-                        if(pageIds[0].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(3);
-                        }
-                        if(pageIds[1].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(0);
-                        }
-                        if(pageIds[2].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(1);
-                        }
-                        if(pageIds[3].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(2);
-                        }
-                    }*/
+                    assertThat(application.getPages().get(3).getId().equals(pageIds[0]));
+                    assertThat(application.getPages().get(0).getId().equals(pageIds[1]));
+                    assertThat(application.getPages().get(1).getId().equals(pageIds[2]));
+                    assertThat(application.getPages().get(2).getId().equals(pageIds[3]));
                 } )
                 .verifyComplete();
     }
