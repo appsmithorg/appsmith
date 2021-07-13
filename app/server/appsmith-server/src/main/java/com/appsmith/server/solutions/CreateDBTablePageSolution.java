@@ -78,9 +78,9 @@ public class CreateDBTablePageSolution {
 
     private final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
 
-    private final String SELECT_QUERY = "SelectQuery";
+    public final String SELECT_QUERY = "SelectQuery";
 
-    private final String FIND_QUERY = "FindQuery";
+    public final String FIND_QUERY = "FindQuery";
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
