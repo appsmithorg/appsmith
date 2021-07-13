@@ -110,9 +110,12 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = () => {
+export const pasteWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: {
+      groupWidgets: groupWidgets,
+    },
   };
 };
 
@@ -129,12 +132,9 @@ export const deleteSelectedWidget = (
   };
 };
 
-export const cutWidget = (groupWidgets = false) => {
+export const cutWidget = () => {
   return {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
-    payload: {
-      groupWidgets: groupWidgets,
-    },
   };
 };
 

@@ -147,7 +147,11 @@ const deleteHelpText = (
     Click or <b> Del </b>
   </>
 );
-const groupHelpText = <>Click & {modText()} + V</>;
+const groupHelpText = (
+  <>
+    Click or <b>{modText()} + G</b> & {modText()} + V
+  </>
+);
 
 interface OffsetBox {
   top: number;

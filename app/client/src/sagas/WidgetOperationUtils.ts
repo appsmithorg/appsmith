@@ -4,6 +4,7 @@ import {
   RenderModes,
   WidgetTypes,
 } from "constants/WidgetConstants";
+import { all, call } from "redux-saga/effects";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   cloneDeep,
@@ -14,6 +15,7 @@ import {
   minBy,
   maxBy,
   flattenDeep,
+  omit,
 } from "lodash";
 import {
   CanvasWidgetsReduxState,
@@ -21,6 +23,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { getSelectedWidgets } from "selectors/ui";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets } from "utils/storage";
@@ -31,7 +34,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import { getNextWidgetName } from "./WidgetOperationSagas";
+import { getNextWidgetName, createWidgetCopy } from "./WidgetOperationSagas";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -595,4 +598,40 @@ export const groupWidgetsIntoContainer = function*(
       parentId: pastingIntoWidgetId,
     },
   ];
+};
+
+/**
+ * create copiedWidgets objects from selected widgets
+ *
+ * @returns
+ */
+export const createSelectedWidgetsAsCopiedWidgets = function*() {
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
+  const selectedWidgets = selectedWidgetIDs.map((each) => canvasWidgets[each]);
+
+  if (!selectedWidgets || !selectedWidgets.length) return;
+
+  const widgetListsToStore: {
+    widgetId: string;
+    parentId: string;
+    list: FlattenedWidgetProps[];
+  }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
+
+  return widgetListsToStore;
+};
+
+/**
+ * return canvasWidgets without selectedWidgets
+ * @return
+ */
+export const filterOutSelectedWidgets = function*() {
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
+
+  return omit(canvasWidgets, selectedWidgetIDs);
 };
