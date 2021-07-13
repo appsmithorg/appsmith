@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
@@ -24,12 +24,13 @@ import {
   INTEGRATION_TABS,
 } from "../../../../constants/routes";
 import history from "utils/history";
+import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelectors";
-
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
 // import { IconName } from "components/ads/Icon";
+import { convertToQueryParams } from "constants/routes";
 
 // Temporary hardcoded valid plugins which support generate template
 // Record<pluginId, pluginName>
@@ -165,8 +166,6 @@ export const GENERATE_PAGE_MODE = {
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
 
-let currentMode = GENERATE_PAGE_MODE.REPLACE_EMPTY;
-
 function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
@@ -177,6 +176,7 @@ function GeneratePageForm() {
   const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
+  const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
 
   const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
     getDatasourcesStructure,
@@ -257,7 +257,7 @@ function GeneratePageForm() {
               });
             }
           });
-          if (newSelectedTableColumnOptions.length) {
+          if (newSelectedTableColumnOptions) {
             setSelectedTableColumnOptions(newSelectedTableColumnOptions);
           }
         } else {
@@ -278,22 +278,31 @@ function GeneratePageForm() {
   );
 
   useEffect(() => {
-    const newDataSourceOptions = [];
+    const unSupportedDatasourceOptions: Array<DropdownOption> = [];
+    const supportedDatasourceOptions: Array<DropdownOption> = [];
+    let newDataSourceOptions: Array<DropdownOption> = [];
     newDataSourceOptions.push(
       FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
     );
     datasources.forEach(({ id, name, pluginId }) => {
+      const datasourceObject = {
+        id,
+        label: name,
+        value: name,
+        data: {
+          pluginId,
+        },
+      };
       if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
-        newDataSourceOptions.push({
-          id,
-          label: name,
-          value: name,
-          data: {
-            pluginId,
-          },
-        });
+        supportedDatasourceOptions.push(datasourceObject);
+      else {
+        unSupportedDatasourceOptions.push(datasourceObject);
+      }
     });
-
+    newDataSourceOptions = newDataSourceOptions.concat(
+      supportedDatasourceOptions,
+      unSupportedDatasourceOptions,
+    );
     setDataSourceOptions(newDataSourceOptions);
   }, [datasources, setDataSourceOptions]);
 
@@ -315,6 +324,8 @@ function GeneratePageForm() {
           },
         }));
         setSelectedDatasourceTableOptions(newTables);
+      } else {
+        // show Error of No tables
       }
     }
   }, [
@@ -322,19 +333,6 @@ function GeneratePageForm() {
     selectedDatasource,
     setSelectedDatasourceTableOptions,
   ]);
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(querySearch);
-    const datasourceId = queryParams.get("datasourceId");
-    const generateNewPage = queryParams.get("new_page");
-    if (generateNewPage) {
-      currentMode = GENERATE_PAGE_MODE.NEW;
-    }
-    if (datasourceId) {
-      setNewDatasourceId(datasourceId);
-      history.replace(window.location.pathname);
-    }
-  }, [querySearch]);
 
   useEffect(() => {
     if (newDatasourceId) {
@@ -360,6 +358,30 @@ function GeneratePageForm() {
   }, [newDatasourceId]);
 
   useEffect(() => {
+    if (querySearch) {
+      const queryParams = getQueryParams();
+      const datasourceId = queryParams.datasourceId;
+      const generateNewPage = queryParams.new_page;
+      if (datasourceId) {
+        if (generateNewPage) {
+          currentMode.current = GENERATE_PAGE_MODE.NEW;
+        } else {
+          currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
+        }
+        setNewDatasourceId(datasourceId);
+        // TODO: Remove only datasourceId and new_page from search
+        delete queryParams.datasourceId;
+        delete queryParams.new_page;
+        const redirectURL =
+          window.location.pathname + convertToQueryParams(queryParams);
+        history.replace(redirectURL);
+      }
+    }
+  }, [querySearch]);
+
+  useEffect(() => {
+    // On mount if currentPageId is defined then fetch page details and render canvas for it.
+    // Irrespective of it being an empty page.
     if (currentPageId) {
       dispatch(fetchPage(currentPageId));
     }
@@ -380,12 +402,14 @@ function GeneratePageForm() {
       generateTemplateToUpdatePage({
         applicationId: currentApplicationId || "",
         pageId:
-          currentMode === GENERATE_PAGE_MODE.NEW ? "" : currentPageId || "",
+          currentMode.current === GENERATE_PAGE_MODE.NEW
+            ? ""
+            : currentPageId || "",
         columns: [],
         searchColumn: selectedColumn.value,
         tableName: selectedTable.value || "",
         datasourceId: selectedDatasource.id || "",
-        mode: currentMode,
+        mode: currentMode.current,
       }),
     );
   };

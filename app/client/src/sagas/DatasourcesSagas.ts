@@ -81,6 +81,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../pages/Editor/GeneratePage/components/GeneratePageForm";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -744,7 +745,12 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
-  if (queryParams.initiator === "generate-page") {
+
+  if (
+    queryParams.initiator === "generate-page" &&
+    updatedDatasource.pluginId &&
+    VALID_PLUGINS_FOR_TEMPLATE[updatedDatasource.pluginId]
+  ) {
     history.push(
       `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
         updatedDatasource.id

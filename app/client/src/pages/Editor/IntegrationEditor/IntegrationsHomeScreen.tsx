@@ -23,8 +23,8 @@ import {
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -88,6 +88,7 @@ type IntegrationsHomeScreenProps = {
   selectedTab: string;
   location: {
     search: string;
+    pathname: string;
   };
   history: {
     replace: (data: string) => void;
@@ -317,16 +318,26 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      location,
-      pageId,
-    } = this.props;
-    const params: string = location.search;
-    const redirectMode = new URLSearchParams(params).get("mode");
-    if (
+    const { applicationId, dataSources, history, pageId } = this.props;
+
+    const queryParams = getQueryParams();
+    const redirectMode = queryParams.mode;
+    const initiator = queryParams.initiator;
+    if (initiator === "generate-page") {
+      if (redirectMode === INTEGRATION_EDITOR_MODES.AUTO) {
+        delete queryParams.mode;
+        delete queryParams.from;
+        history.replace(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.NEW,
+            "",
+            queryParams,
+          ),
+        );
+      }
+    } else if (
       dataSources.length > 0 &&
       redirectMode === INTEGRATION_EDITOR_MODES.AUTO
     ) {
@@ -406,11 +417,9 @@ class IntegrationsHomeScreen extends React.Component<
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
     const queryParams = getQueryParams();
-    let MOD_PRIMARY_MENU = PRIMARY_MENU;
-    if (queryParams.initiator === "generate-page") {
-      MOD_PRIMARY_MENU = PRIMARY_MENU.filter((tab) => tab.key !== "ACTIVE");
-    }
-
+    const isGeneratePageInitiator = queryParams.initiator === "generate-page";
+    // Avoid user to switch tabs when in generate page flow by hiding the tabs itself.
+    const showTabs = !isGeneratePageInitiator;
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
         <UseMockDatasources
@@ -492,11 +501,13 @@ class IntegrationsHomeScreen extends React.Component<
           </HeaderFlex>
           <SectionGrid>
             <MainTabsContainer>
-              <TabComponent
-                onSelect={this.onSelectPrimaryMenu}
-                selectedIndex={this.state.activePrimaryMenuId}
-                tabs={MOD_PRIMARY_MENU}
-              />
+              {showTabs && (
+                <TabComponent
+                  onSelect={this.onSelectPrimaryMenu}
+                  selectedIndex={this.state.activePrimaryMenuId}
+                  tabs={PRIMARY_MENU}
+                />
+              )}
             </MainTabsContainer>
             <div />
 
