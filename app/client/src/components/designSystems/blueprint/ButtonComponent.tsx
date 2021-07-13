@@ -20,6 +20,20 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import ReCAPTCHA from "react-google-recaptcha";
 
+export enum ButtonVariantTypes {
+  CONTAINED = "CONTAINED",
+  OUTLINED = "OUTLINED",
+  TEXT = "TEXT",
+}
+export type ButtonVariant = keyof typeof ButtonVariantTypes;
+
+export enum ButtonSizeTypes {
+  LARGE = "LARGE",
+  MEDIUM = "MEDIUM",
+  SMALL = "SMALL",
+}
+export type ButtonSize = keyof typeof ButtonSizeTypes;
+
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
   if (props.accent) {
