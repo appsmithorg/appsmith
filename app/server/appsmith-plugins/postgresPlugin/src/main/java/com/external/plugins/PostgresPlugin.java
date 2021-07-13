@@ -966,6 +966,9 @@ public class PostgresPlugin extends BasePlugin {
         // Now create the connection pool from the configuration
         HikariDataSource datasource = null;
         try {
+            config.setReadOnly(true);
+            //TODO: remove it.
+            System.out.println("devtest: cnfro: " + config.isReadOnly());
             datasource = new HikariDataSource(config);
         } catch (PoolInitializationException e) {
             throw new AppsmithPluginException(
@@ -1010,6 +1013,8 @@ public class PostgresPlugin extends BasePlugin {
             }
         }
 
+        //TODO: remove it.
+        System.out.println("devtest: cro: " + connection.isReadOnly());
         return connection;
     }
 }
