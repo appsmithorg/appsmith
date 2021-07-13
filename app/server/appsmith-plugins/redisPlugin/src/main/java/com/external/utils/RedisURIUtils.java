@@ -39,6 +39,7 @@ public class RedisURIUtils {
         return builder.toString();
     }
 
+    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)' method.
     private static String getUriHostAndPort(DatasourceConfiguration datasourceConfiguration) {
         // Jedis does not have support for backup hosts.
         Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
@@ -50,6 +51,7 @@ public class RedisURIUtils {
         return builder.toString();
     }
 
+    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)' method.
     private static String getUriAuth(DatasourceConfiguration datasourceConfiguration) {
         StringBuilder builder = new StringBuilder();
         DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
