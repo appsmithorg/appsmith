@@ -14,6 +14,7 @@ const initialState: WidgetDragResizeState = {
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
   startPoints: undefined,
+  draggedOn: undefined,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -22,6 +23,14 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ isDraggingDisabled: boolean }>,
   ) => {
     state.isDraggingDisabled = action.payload.isDraggingDisabled;
+  },
+  [ReduxActionTypes.SET_DRAGGING_CANVAS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{
+      draggedOn: string;
+    }>,
+  ) => {
+    state.draggedOn = action.payload.draggedOn;
   },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
@@ -146,6 +155,7 @@ export type WidgetDragResizeState = {
   selectedWidgets: string[];
   newWidget: any;
   startPoints: any;
+  draggedOn?: string;
 };
 
 export default widgetDraggingReducer;

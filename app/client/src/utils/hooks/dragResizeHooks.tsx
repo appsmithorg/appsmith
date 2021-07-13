@@ -133,6 +133,17 @@ export const useWidgetDragResize = () => {
       },
       [dispatch],
     ),
+    setDraggingCanvas: useCallback(
+      (draggedOn?: string) => {
+        dispatch({
+          type: ReduxActionTypes.SET_DRAGGING_CANVAS,
+          payload: {
+            draggedOn,
+          },
+        });
+      },
+      [dispatch],
+    ),
     setIsResizing: useCallback(
       (isResizing: boolean) => {
         dispatch({

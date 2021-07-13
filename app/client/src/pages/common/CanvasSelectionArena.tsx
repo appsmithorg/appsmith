@@ -83,7 +83,7 @@ export function CanvasSelectionArena({
   );
   useEffect(() => {
     if (appMode === APP_MODE.EDIT && !isDragging && canvasRef.current) {
-      const scale = 1;
+      const { devicePixelRatio: scale = 1 } = window;
 
       let canvasCtx: any = canvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
@@ -100,9 +100,9 @@ export function CanvasSelectionArena({
         if (canvasRef.current) {
           const { height, width } = canvasRef.current.getBoundingClientRect();
           if (height && width) {
-            canvasRef.current.width = width;
+            canvasRef.current.width = width * scale;
             canvasRef.current.height =
-              snapRows * snapRowSpace + (widgetId === "0" ? 200 : 0);
+              (snapRows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
           }
           canvasCtx = canvasRef.current.getContext("2d");
           canvasCtx.scale(scale, scale);
@@ -195,7 +195,7 @@ export function CanvasSelectionArena({
       };
 
       const onMouseDown = (e: any) => {
-        if (canvasRef.current) {
+        if (canvasRef.current && (widgetId === "0" || e.ctrlKey || e.metaKey)) {
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
           selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;
@@ -255,7 +255,7 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     snapRows,
-    mainContainer.minHeight,
+    // mainContainer.minHeight,
   ]);
 
   return appMode === APP_MODE.EDIT && !isDragging ? (
