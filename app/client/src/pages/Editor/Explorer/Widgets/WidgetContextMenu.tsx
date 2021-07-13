@@ -19,7 +19,6 @@ export function WidgetContextMenu(props: {
 }) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
-    // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
     return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
   });
   const widget = useSelector((state: AppState) => {
