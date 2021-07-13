@@ -161,16 +161,30 @@ class InputComponent extends React.Component<
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const fractionDigits = this.props.decimalsInCurrency || 0;
-      const locale = navigator.languages?.[0] || "en-US";
-      if (!valueAsString.endsWith(".")) {
+      const currentIndexOfDecimal = valueAsString.indexOf(".");
+      const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+      if (
+        valueAsString.includes(".") &&
+        currentIndexOfDecimal <= indexOfDecimal
+      ) {
         const value = parseFloat(valueAsString.split(",").join(""));
+        const locale = navigator.languages?.[0] || "en-US";
         if (value) {
-          const formatter = new Intl.NumberFormat(locale, {
-            style: "decimal",
-            maximumFractionDigits: fractionDigits,
-          });
-          const formattedValue = formatter.format(value);
-          this.props.onValueChange(formattedValue);
+          if (currentIndexOfDecimal === indexOfDecimal) {
+            const formatter = new Intl.NumberFormat(locale, {
+              style: "decimal",
+              minimumFractionDigits: fractionDigits,
+            });
+            const formattedValue = formatter.format(value);
+            this.props.onValueChange(formattedValue);
+          } else {
+            const formatter = new Intl.NumberFormat(locale, {
+              style: "decimal",
+              maximumFractionDigits: fractionDigits,
+            });
+            const formattedValue = formatter.format(value);
+            this.props.onValueChange(formattedValue);
+          }
         } else {
           this.props.onValueChange("");
         }
@@ -255,6 +269,10 @@ class InputComponent extends React.Component<
       this.props.inputType,
       !!this.props.disabled,
     );
+    const minorStepSize =
+      this.props.inputType === InputTypes.CURRENCY
+        ? this.props.decimalsInCurrency || 0
+        : 0;
     return (
       <NumericInput
         allowNumericCharactersOnly
@@ -269,17 +287,19 @@ class InputComponent extends React.Component<
             ? 0
             : this.props.minNum
         }
+        minorStepSize={
+          minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
+        }
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
-        stepSize={this.props.stepSize}
+        stepSize={minorStepSize === 0 ? this.props.stepSize : undefined}
         value={this.props.value}
       />
     );
   };
-
   private textAreaInputComponent = () => (
     <TextArea
       className={this.props.isLoading ? "bp3-skeleton" : ""}
