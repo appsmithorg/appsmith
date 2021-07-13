@@ -93,7 +93,6 @@ export type EditorStyleProps = {
   disabled?: boolean;
   link?: string;
   showLightningMenu?: boolean;
-  mutedHinting?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
@@ -239,7 +238,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
       };
@@ -287,14 +285,11 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
-    return (showLightningMenu !== false ? hinting : [bindingHint]).map(
-      (helper) => {
-        return helper(editor, dynamicData, additionalDynamicData);
-      },
-    );
+    return hinting.map((helper) => {
+      return helper(editor, dynamicData, additionalDynamicData);
+    });
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
@@ -337,10 +332,14 @@ class CodeEditor extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     // on blur closing the binding prompt for an editor regardless.
-    this.setState({ isFocused: false });
+    if (
+      !cm.state.completionActive ||
+      (cm.state.completionActive && cm.state.completionActive.startLen === 0)
+    )
+      this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -383,7 +382,7 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
@@ -391,7 +390,6 @@ class CodeEditor extends Component<Props, State> {
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
-        mutedHinting: force ? !force : this.props.mutedHinting,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         updatePropertyValue: this.updatePropertyValue.bind(this),
@@ -445,7 +443,7 @@ class CodeEditor extends Component<Props, State> {
     });
     this.setState({ isFocused: true }, () => {
       if (preventAutoComplete) return;
-      this.handleAutocompleteVisibility(this.editor, true);
+      this.handleAutocompleteVisibility(this.editor);
     });
   }
 

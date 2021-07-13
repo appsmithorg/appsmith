@@ -6,6 +6,7 @@ import { generateQuickCommands } from "./generateQuickCommands";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export const commandsHelper: HintHelper = (editor, data: any) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -19,12 +20,10 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       {
         datasources,
         executeCommand,
-        mutedHinting,
         pluginIdToImageLocation,
         recentEntities,
         updatePropertyValue,
       }: {
-        mutedHinting?: boolean;
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
@@ -45,7 +44,8 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding = (!value && !mutedHinting) || slashIndex > -1;
+      const shouldShowBinding =
+        slashIndex > -1 || (!value && currentEntityType === ENTITY_TYPE.WIDGET);
       if (!cursorBetweenBinding && shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(
@@ -87,7 +87,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               );
               if (selected.action && typeof selected.action === "function") {
                 updatePropertyValue(updatedValue, updatedValue.length, true);
-                selected.action();
+                setTimeout(selected.action);
               } else {
                 updatePropertyValue(updatedValue + selected.text);
               }
