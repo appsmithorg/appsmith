@@ -255,16 +255,30 @@ class InputComponent extends React.Component<
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const fractionDigits = this.props.decimalsInCurrency || 0;
-      const locale = navigator.languages?.[0] || "en-US";
-      if (!valueAsString.endsWith(".")) {
+      const currentIndexOfDecimal = valueAsString.indexOf(".");
+      const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+      if (
+        valueAsString.includes(".") &&
+        currentIndexOfDecimal <= indexOfDecimal
+      ) {
         const value = parseFloat(valueAsString.split(",").join(""));
+        const locale = navigator.languages?.[0] || "en-US";
         if (value) {
-          const formatter = new Intl.NumberFormat(locale, {
-            style: "decimal",
-            maximumFractionDigits: fractionDigits,
-          });
-          const formattedValue = formatter.format(value);
-          this.props.onValueChange(formattedValue);
+          if (currentIndexOfDecimal === indexOfDecimal) {
+            const formatter = new Intl.NumberFormat(locale, {
+              style: "decimal",
+              minimumFractionDigits: fractionDigits,
+            });
+            const formattedValue = formatter.format(value);
+            this.props.onValueChange(formattedValue);
+          } else {
+            const formatter = new Intl.NumberFormat(locale, {
+              style: "decimal",
+              maximumFractionDigits: fractionDigits,
+            });
+            const formattedValue = formatter.format(value);
+            this.props.onValueChange(formattedValue);
+          }
         } else {
           this.props.onValueChange("");
         }
@@ -325,39 +339,48 @@ class InputComponent extends React.Component<
     }
   };
 
-  private numericInputComponent = () => (
-    <NumericInput
-      allowNumericCharactersOnly
-      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-      disabled={this.props.disabled}
-      intent={this.props.intent}
-      leftIcon={
-        this.props.inputType === "PHONE_NUMBER"
-          ? "phone"
-          : this.props.inputType !== InputTypes.CURRENCY
-          ? this.props.leftIcon
-          : this.props.inputType === InputTypes.CURRENCY && (
-              <CurrencyTypeDropdown
-                allowCurrencyChange={this.props.allowCurrencyChange}
-                onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-                options={getCurrencyOptions()}
-                selected={getSelectedItem(this.props.currencyCountryCode)}
-              />
-            )
-      }
-      max={this.props.maxNum}
-      maxLength={this.props.maxChars}
-      min={this.props.minNum}
-      onBlur={() => this.setFocusState(false)}
-      onFocus={() => this.setFocusState(true)}
-      onKeyDown={this.onKeyDown}
-      onValueChange={this.onNumberChange}
-      placeholder={this.props.placeholder}
-      stepSize={this.props.stepSize}
-      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-      value={this.props.value}
-    />
-  );
+  private numericInputComponent = () => {
+    const minorStepSize =
+      this.props.inputType === InputTypes.CURRENCY
+        ? this.props.decimalsInCurrency || 0
+        : 0;
+    return (
+      <NumericInput
+        allowNumericCharactersOnly
+        className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
+        disabled={this.props.disabled}
+        intent={this.props.intent}
+        leftIcon={
+          this.props.inputType === "PHONE_NUMBER"
+            ? "phone"
+            : this.props.inputType !== InputTypes.CURRENCY
+            ? this.props.leftIcon
+            : this.props.inputType === InputTypes.CURRENCY && (
+                <CurrencyTypeDropdown
+                  allowCurrencyChange={this.props.allowCurrencyChange}
+                  onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+                  options={getCurrencyOptions()}
+                  selected={getSelectedItem(this.props.currencyCountryCode)}
+                />
+              )
+        }
+        max={this.props.maxNum}
+        maxLength={this.props.maxChars}
+        min={this.props.minNum}
+        minorStepSize={
+          minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
+        }
+        onBlur={() => this.setFocusState(false)}
+        onFocus={() => this.setFocusState(true)}
+        onKeyDown={this.onKeyDown}
+        onValueChange={this.onNumberChange}
+        placeholder={this.props.placeholder}
+        stepSize={minorStepSize === 0 ? this.props.stepSize : undefined}
+        type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+        value={this.props.value}
+      />
+    );
+  };
   private textAreaInputComponent = () => (
     <TextArea
       className={this.props.isLoading ? "bp3-skeleton" : ""}

@@ -74,6 +74,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       resetOnSubmit: true,
       isRequired: false,
       isDisabled: false,
+      allowCurrencyChange: false,
     },
     SWITCH_WIDGET: {
       label: "Label",
