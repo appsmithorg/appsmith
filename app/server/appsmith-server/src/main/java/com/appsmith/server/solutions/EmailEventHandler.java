@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.AppsmithConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -16,7 +17,6 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -45,9 +45,7 @@ public class EmailEventHandler {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
-
-    @Value("${mail.support}")
-    private String supportEmailAddress;
+    private final EmailConfig emailConfig;
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
@@ -184,7 +182,7 @@ public class EmailEventHandler {
 
     private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
         Map<String, Object> templateParams = new HashMap<>();
-        templateParams.put("App_User_Name", Appsmith.APPSMITH_BOT_NAME);
+        templateParams.put("App_User_Name", AppsmithConstants.APPSMITH_BOT_NAME);
         templateParams.put("Commenter_Name", comment.getAuthorName());
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
@@ -193,14 +191,16 @@ public class EmailEventHandler {
                 application,
                 comment.getPageId(),
                 comment.getThreadId(),
-                Appsmith.APPSMITH_BOT_USERNAME,
+                AppsmithConstants.APPSMITH_BOT_USERNAME,
                 originHeader)
         );
 
         templateParams.put("Mentioned", true);
         String emailSubject = String.format("New comment for you from %s", comment.getAuthorName());
 
-        return emailSender.sendMail(supportEmailAddress, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
+        return emailSender.sendMail(
+                emailConfig.getSupportEmailAddress(), emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams
+        );
     }
 
     private Mono<Boolean> sendEmailForCommentAdded(String authorUserName, Organization organization, Application application, Comment comment, String originHeader, Set<String> subscribers) {
@@ -211,7 +211,7 @@ public class EmailEventHandler {
             }
         }
 
-        if(CommentUtils.isUserMentioned(comment, Appsmith.APPSMITH_BOT_USERNAME)) {
+        if(CommentUtils.isUserMentioned(comment, AppsmithConstants.APPSMITH_BOT_USERNAME)) {
             emailMonos.add(geBotEmailSenderMono(comment, originHeader, organization, application));
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));

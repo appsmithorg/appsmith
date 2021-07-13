@@ -33,7 +33,7 @@ public class UserData extends BaseDomain {
     // list of organisation ids that were recently accessed by the user
     private List<String> recentlyUsedOrgIds;
 
-    // List of events that are triggered by comment bot for this user
+    // last event triggered by comment bot for this user
     private CommentBotEvent latestCommentEvent;
 
     public UserData(String userId) {

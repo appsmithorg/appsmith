@@ -44,8 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.constants.Appsmith.APPSMITH_BOT_NAME;
-import static com.appsmith.server.constants.Appsmith.APPSMITH_BOT_USERNAME;
+import static com.appsmith.server.constants.AppsmithConstants.APPSMITH_BOT_NAME;
+import static com.appsmith.server.constants.AppsmithConstants.APPSMITH_BOT_USERNAME;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 

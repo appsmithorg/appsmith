@@ -1,6 +1,6 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.constants.AppsmithConstants;
 import com.appsmith.server.domains.Comment;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -136,7 +136,7 @@ class CommentUtilsTest {
         assertThat(CommentUtils.isAnyoneMentioned(comment)).isFalse();
 
         // when comment has body, but only bot is mentioed
-        Map<String, Comment.Entity> entityMap2 = createEntityMapForUsers(List.of(Appsmith.APPSMITH_BOT_USERNAME));
+        Map<String, Comment.Entity> entityMap2 = createEntityMapForUsers(List.of(AppsmithConstants.APPSMITH_BOT_USERNAME));
         Comment.Body body2 = new Comment.Body();
         body2.setEntityMap(entityMap2);
         comment.setBody(body2);
@@ -144,7 +144,7 @@ class CommentUtilsTest {
 
         // when comment has body with bot and other user mentioned
         Map<String, Comment.Entity> entityMap3 = createEntityMapForUsers(
-                List.of(Appsmith.APPSMITH_BOT_USERNAME, "2")
+                List.of(AppsmithConstants.APPSMITH_BOT_USERNAME, "2")
         );
         Comment.Body body3 = new Comment.Body();
         body3.setEntityMap(entityMap3);
