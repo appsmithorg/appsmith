@@ -281,8 +281,8 @@ export const ActionWrapper = styled.div<{
       font-weight: 400;
     }
     &&& .bp3-disabled {
-      color: #768896;
-      background: #e8e8e8;
+      color: ${Colors.SLATE_GRAY};
+      background: ${Colors.MERCURY};
     }
   }
 `;
