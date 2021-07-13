@@ -133,8 +133,21 @@ export function* bindDataToWidgetSaga(
   history.replace(BUILDER_PAGE_URL(applicationId, pageId, {}));
 }
 
+function* resetSnipingModeSaga() {
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  searchParams.delete("isSnipingMode");
+  searchParams.delete("bindTo");
+  history.replace({
+    pathname: currentURL.pathname,
+    search: searchParams.toString(),
+    hash: currentURL.hash,
+  });
+}
+
 export default function* propertyPaneSagas() {
   yield all([
     takeLeading(ReduxActionTypes.BIND_DATA_TO_WIDGET, bindDataToWidgetSaga),
+    takeLeading(ReduxActionTypes.RESET_SNIPING_MODE, resetSnipingModeSaga),
   ]);
 }

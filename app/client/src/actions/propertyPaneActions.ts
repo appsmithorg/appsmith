@@ -26,3 +26,7 @@ export const setSnipingMode = (payload: boolean) => ({
   type: ReduxActionTypes.SET_SNIPING_MODE,
   payload,
 });
+
+export const resetSnipingMode = () => ({
+  type: ReduxActionTypes.RESET_SNIPING_MODE,
+});
