@@ -738,8 +738,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                 return WidgetType.TEXT_WIDGET;
 
-            } catch(Exception e) {
-                log.warn("Error while converting data to suggest widget "+ e);
+            } catch(ClassCastException e) {
+                log.warn("Error while casting data to suggest widget "+ e);
                 return WidgetType.TEXT_WIDGET;
             }
         }
