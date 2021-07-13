@@ -72,6 +72,16 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.data.id]: false,
     },
   }),
+  [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ data: JSAction }>,
+  ) => ({
+    ...state,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.data.id]: false,
+    },
+  }),
   [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ id: string }>,

@@ -14,6 +14,7 @@ import {
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -188,6 +189,14 @@ export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
   );
 }
 
+export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
@@ -340,7 +349,7 @@ export const getAllPaths = (
 ): Record<string, true> => {
   // Add the key if it exists
   if (curKey) result[curKey] = true;
-
+  // add all js action paths
   if (Array.isArray(records)) {
     for (let i = 0; i < records.length; i++) {
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;

@@ -132,7 +132,16 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSActionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
-        return { ...a, config: action.payload.data };
+        return { isLoading: false, config: action.payload.data };
+      return a;
+    }),
+  [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
+    state: JSActionDataState,
+    action: ReduxAction<{ data: JSAction }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.data.id)
+        return { isLoading: false, config: action.payload.data };
       return a;
     }),
   [ReduxActionTypes.COPY_JS_ACTION_INIT]: (

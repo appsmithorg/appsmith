@@ -90,12 +90,10 @@ interface JSFormProps {
 
 type Props = JSFormProps;
 
-function JSEditorForm(props: Props) {
+function JSEditorForm() {
   const theme = EditorTheme.LIGHT;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainTabIndex, setMainTabIndex] = useState(0);
-  const { jsAction } = props;
-  const body = jsAction?.body;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const responseTabs = [
@@ -136,7 +134,6 @@ function JSEditorForm(props: Props) {
   const currentJSAction: JSAction | undefined = jsActions.find(
     (js) => js.id === params.functionId,
   );
-
   const handleOnChange = (event: string) => {
     dispatch(updateJSAction(event));
   };
@@ -179,7 +176,7 @@ function JSEditorForm(props: Props) {
                   <CodeEditor
                     className={"js-editor"}
                     input={{
-                      value: body,
+                      value: currentJSAction?.body,
                       onChange: (event: any) => handleOnChange(event),
                     }}
                     mode={EditorModes.JAVASCRIPT}

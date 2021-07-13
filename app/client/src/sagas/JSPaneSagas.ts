@@ -6,7 +6,11 @@ import {
   debounce,
   call,
 } from "redux-saga/effects";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -73,15 +77,19 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   const body = actionPayload.body;
   const parsedBody = yield call(parseJSAction, body);
   const jsActionId = getJSActionIdFromURL();
+  const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSAction = yield select(getJSAction, jsActionId);
     const data = getDifferenceInJSAction(parsedBody, jsAction);
-    const jsActionTobeUpdated = { ...jsAction };
+    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     jsActionTobeUpdated.body = body;
     jsActionTobeUpdated.variables = parsedBody.variables;
     if (data.newActions.length) {
       for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.push(data.newActions[i]);
+        jsActionTobeUpdated.actions.push({
+          ...data.newActions[i],
+          organizationId: organizationId,
+        });
       }
       yield put(
         addJSCollectionAction({
@@ -90,16 +98,17 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
         }),
       );
     }
-    if (data.updateActions.length) {
-      for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js) => {
-          if (js.id === data.newActions[i].id) {
-            return data.newActions[i];
+    if (data.updateActions.length > 0) {
+      let changedActions = [];
+      for (let i = 0; i < data.updateActions.length; i++) {
+        changedActions = jsActionTobeUpdated.actions.map((js: any) => {
+          if (js.id === data.updateActions[i].id) {
+            return data.updateActions[i];
           }
           return js;
         });
-        jsActionTobeUpdated.actions.push(data.newActions[i]);
       }
+      jsActionTobeUpdated.actions = changedActions;
       yield put(
         updateJSCollectionAction({
           jsAction: jsAction,
@@ -107,14 +116,13 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
         }),
       );
     }
-    if (data.deletedActions.length) {
-      for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js) => {
-          if (js.id !== data.newActions[i].id) {
+    if (data.deletedActions.length > 0) {
+      for (let i = 0; i < data.deletedActions.length; i++) {
+        jsActionTobeUpdated.actions.map((js: any) => {
+          if (js.id !== data.deletedActions[i].id) {
             return js;
           }
         });
-        jsActionTobeUpdated.actions.push(data.newActions[i]);
       }
       yield put(
         deleteJSCollectionAction({
@@ -128,11 +136,23 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
 }
 
 function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
-  const { body } = actionPayload.payload;
-  const data = yield call(handleParseUpdateJSAction, { body: body });
-  if (data) {
-    const response = yield JSActionAPI.updateJSAction(data);
-    yield put(updateJSActionSuccess({ data: response }));
+  let jsAction = {};
+  const jsActionId = getJSActionIdFromURL();
+  if (jsActionId) {
+    jsAction = yield select(getJSAction, jsActionId);
+  }
+  try {
+    const { body } = actionPayload.payload;
+    const data = yield call(handleParseUpdateJSAction, { body: body });
+    if (data) {
+      const response = yield JSActionAPI.updateJSAction(data);
+      yield put(updateJSActionSuccess({ data: response?.data }));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR,
+      payload: { error, data: jsAction },
+    });
   }
 }
 
@@ -147,7 +167,7 @@ export default function* root() {
       handleJSActionCreatedSaga,
     ),
     debounce(
-      1000,
+      2000,
       ReduxActionTypes.UPDATE_JS_ACTION_INIT,
       handleUpdateJSAction,
     ),

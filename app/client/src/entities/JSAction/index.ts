@@ -19,6 +19,7 @@ export interface JSAction extends BaseAction {
   applicationId: string;
   variables: Array<variable>;
   actions: Array<JSSubAction>;
+  organizationId: string;
 }
 export interface JSSubAction {
   id: string;

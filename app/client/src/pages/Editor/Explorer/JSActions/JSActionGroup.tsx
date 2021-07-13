@@ -17,8 +17,8 @@ export const ExplorerJSActionGroup = memo(
   (props: ExplorerJSActionGroupProps) => {
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
-        No JS Functions yet. Please click the <strong>+</strong> icon on above,
-        to create.
+        No JS Collections yet. Please click the <strong>+</strong> icon on
+        above, to create.
       </EntityPlaceholder>
     );
     const childNode: ReactElement<ExplorerJSActionGroupProps> = (
