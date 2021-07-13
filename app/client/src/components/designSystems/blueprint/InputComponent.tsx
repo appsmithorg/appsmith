@@ -261,24 +261,18 @@ class InputComponent extends React.Component<
         valueAsString.includes(".") &&
         currentIndexOfDecimal <= indexOfDecimal
       ) {
-        const value = parseFloat(valueAsString.split(",").join(""));
-        const locale = navigator.languages?.[0] || "en-US";
+        let value = valueAsString.split(",").join("");
         if (value) {
-          if (currentIndexOfDecimal === indexOfDecimal) {
-            const formatter = new Intl.NumberFormat(locale, {
-              style: "decimal",
-              minimumFractionDigits: fractionDigits,
-            });
-            const formattedValue = formatter.format(value);
-            this.props.onValueChange(formattedValue);
-          } else {
-            const formatter = new Intl.NumberFormat(locale, {
-              style: "decimal",
-              maximumFractionDigits: fractionDigits,
-            });
-            const formattedValue = formatter.format(value);
-            this.props.onValueChange(formattedValue);
+          if (currentIndexOfDecimal !== indexOfDecimal) {
+            value = value.substr(0, currentIndexOfDecimal + fractionDigits + 1);
           }
+          const locale = navigator.languages?.[0] || "en-US";
+          const formatter = new Intl.NumberFormat(locale, {
+            style: "decimal",
+            minimumFractionDigits: fractionDigits,
+          });
+          const formattedValue = formatter.format(parseFloat(value));
+          this.props.onValueChange(formattedValue);
         } else {
           this.props.onValueChange("");
         }
