@@ -66,7 +66,7 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
-  const { setDraggingState } = useWidgetDragResize();
+  const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
 
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
@@ -160,6 +160,7 @@ function DraggableComponent(props: DraggableComponentProps) {
         top: (e.clientY - bounds.top) / props.parentRowSpace,
         left: (e.clientX - bounds.left) / props.parentColumnSpace,
       };
+      setDraggingCanvas(props.parentId);
       setDraggingState(
         true,
         props.parentId || "",

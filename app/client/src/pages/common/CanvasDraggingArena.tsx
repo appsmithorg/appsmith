@@ -4,7 +4,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
@@ -23,7 +23,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { debounce, isEmpty, throttle } from "lodash";
+import { debounce, isEmpty } from "lodash";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -77,6 +77,9 @@ export function CanvasDraggingArena({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const draggedOn = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.draggedOn,
+  );
   const dragStartPoints = useSelector(
     (state: AppState) => state.ui.widgetDragResize.startPoints,
   );
@@ -123,14 +126,22 @@ export function CanvasDraggingArena({
           isNotColliding: true,
         },
       ];
-  const { setDraggingNewWidget, setDraggingState } = useWidgetDragResize();
+  const {
+    setDraggingCanvas,
+    setDraggingNewWidget,
+    setDraggingState,
+  } = useWidgetDragResize();
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const {
-    persistDropTargetRows,
-    rows = snapRows,
-    updateDropTargetRows,
-  } = useContext(DropTargetContext);
+
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
+    DropTargetContext,
+  );
+
+  const rowRef = useRef(snapRows);
+  useEffect(() => {
+    rowRef.current = snapRows;
+  }, [snapRows]);
 
   const scrollToKeepUp = (
     drawingBlocks: {
@@ -270,16 +281,19 @@ export function CanvasDraggingArena({
 
   useEffect(() => {
     if (canvasRef.current && !isResizing && rectanglesToDraw.length > 0) {
-      const scale = 1;
+      const { devicePixelRatio: scale = 1 } = window;
 
       let canvasIsDragging = false;
+      let notDoneYet = false;
+      let animationFrameId: number;
       const onMouseOut = () => {
         if (canvasRef.current) {
           const { height, width } = canvasRef.current.getBoundingClientRect();
           const canvasCtx: any = canvasRef.current.getContext("2d");
-          canvasRef.current.style.zIndex = "";
           canvasCtx.clearRect(0, 0, width * scale, height * scale);
+          canvasRef.current.style.zIndex = "";
           canvasIsDragging = false;
+          setDraggingCanvas();
         }
       };
       if (isDragging) {
@@ -315,7 +329,7 @@ export function CanvasDraggingArena({
           widgetId: string;
           isNotColliding: boolean;
         }[] = [];
-        let canvasCtx: any = canvasRef.current.getContext("2d");
+        const canvasCtx: any = canvasRef.current.getContext("2d");
         canvasCtx.globalCompositeOperation = "destination-over";
         canvasCtx.scale(scale, scale);
 
@@ -329,12 +343,15 @@ export function CanvasDraggingArena({
           }
           startPoints.left = 20;
           startPoints.top = 20;
-          if (newWidget) {
-            setDraggingNewWidget(false, undefined);
-          } else {
-            setDraggingState(false);
-          }
+          const wasCanvasDragging = canvasIsDragging;
           onMouseOut();
+          if (wasCanvasDragging) {
+            if (newWidget) {
+              setDraggingNewWidget(false, undefined);
+            } else {
+              setDraggingState(false);
+            }
+          }
         };
 
         const onMouseDown = (e: any) => {
@@ -355,6 +372,9 @@ export function CanvasDraggingArena({
                   dragStartPoints.top) *
                   snapRowSpace +
                 (noPad ? 0 : 2 * CONTAINER_GRID_PADDING);
+            }
+            if (draggedOn !== widgetId) {
+              setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
@@ -379,8 +399,9 @@ export function CanvasDraggingArena({
               left: each.left + diff.left,
               top: each.top + diff.top,
             }));
-            const newRows = updateRows(drawingBlocks, rows);
-            const rowDiff = newRows ? newRows - rows : 0;
+            const newRows = updateRows(drawingBlocks, rowRef.current);
+            const rowDiff = newRows ? newRows - rowRef.current : 0;
+            rowRef.current = newRows ? newRows : rowRef.current;
             newRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding: noCollision(
@@ -392,7 +413,7 @@ export function CanvasDraggingArena({
                 each.rowHeight,
                 each.widgetId,
                 occSpaces,
-                rows,
+                rowRef.current,
                 GridDefaults.DEFAULT_GRID_COLUMNS,
               ),
             }));
@@ -400,14 +421,7 @@ export function CanvasDraggingArena({
               notDoneYet = true;
               drawInit(rowDiff, diff);
             } else if (!notDoneYet) {
-              const {
-                height,
-                width,
-              } = canvasRef.current.getBoundingClientRect();
-              canvasCtx.clearRect(0, 0, width * scale, height * scale);
-              newRectanglesToDraw.forEach((each) => {
-                drawRectangle(each);
-              });
+              drawBlocks();
             }
 
             scrollToKeepUp(newRectanglesToDraw);
@@ -415,47 +429,52 @@ export function CanvasDraggingArena({
             onMouseDown(e);
           }
         };
-        let notDoneYet = false;
-        const drawInit = throttle(
-          debounce(
-            (rowDiff, diff) => {
-              notDoneYet = true;
-              if (canvasRef.current) {
-                newRectanglesToDraw = rectanglesToDraw.map((each) => {
-                  return {
-                    ...each,
-                    left: each.left + diff.left,
-                    top: each.top + diff.top,
-                  };
-                });
+        const drawInit = debounce((rowDiff, diff) => {
+          notDoneYet = true;
+          if (canvasRef.current) {
+            newRectanglesToDraw = rectanglesToDraw.map((each) => {
+              return {
+                ...each,
+                left: each.left + diff.left,
+                top: each.top + diff.top,
+              };
+            });
+            canvasCtx.save();
+            canvasRef.current.height =
+              (rowRef.current * snapRowSpace + (widgetId === "0" ? 200 : 0)) *
+              scale;
+            // canvasCtx = canvasRef.current.getContext("2d");
+            canvasCtx.scale(scale, scale);
+            canvasCtx.clearRect(0, 0, width, canvasRef.current.height);
+            canvasCtx.restore();
+            drawBlocks();
+            // scrollToKeepUp(newRectanglesToDraw);
+          }
+        });
 
-                canvasRef.current.height =
-                  rows * snapRowSpace + (widgetId === "0" ? 200 : 0) * scale;
-                canvasCtx = canvasRef.current.getContext("2d");
-                canvasCtx.scale(scale, scale);
-                const {
-                  height,
-                  width,
-                } = canvasRef.current.getBoundingClientRect();
-                // drawDragLayer(rows);
-
-                canvasCtx.clearRect(0, 0, width * scale, height * scale);
-                notDoneYet = false;
+        const drawBlocks = debounce(
+          () => {
+            if (canvasRef.current) {
+              const canvasCtx: any = canvasRef.current.getContext("2d");
+              const {
+                height,
+                width,
+              } = canvasRef.current.getBoundingClientRect();
+              canvasCtx.save();
+              canvasCtx.clearRect(0, 0, width * scale, height * scale);
+              notDoneYet = false;
+              if (canvasIsDragging) {
                 newRectanglesToDraw.forEach((each) => {
                   drawRectangle(each);
                 });
-                // scrollToKeepUp(newRectanglesToDraw);
               }
-            },
-            10,
-            {
-              leading: false,
-              trailing: true,
-            },
-          ),
-          10,
+              canvasCtx.restore();
+              animationFrameId = window.requestAnimationFrame(drawBlocks);
+            }
+          },
+          0,
           {
-            leading: false,
+            leading: true,
             trailing: true,
           },
         );
@@ -534,6 +553,7 @@ export function CanvasDraggingArena({
           canvasRef.current.style.zIndex = "2";
         }
         return () => {
+          window.cancelAnimationFrame(animationFrameId);
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
           canvasRef.current?.removeEventListener("mouseover", onMouseDown);
@@ -546,7 +566,17 @@ export function CanvasDraggingArena({
         onMouseOut();
       }
     }
-  }, [isDragging, newWidget, isResizing, rectanglesToDraw]);
+  }, [isDragging, newWidget, isResizing, rectanglesToDraw, snapRows]);
+
+  useEffect(() => {
+    if (draggedOn !== widgetId && canvasRef.current) {
+      const { devicePixelRatio: scale = 1 } = window;
+      const { height, width } = canvasRef.current.getBoundingClientRect();
+      const canvasCtx: any = canvasRef.current.getContext("2d");
+      canvasCtx.clearRect(0, 0, width * scale, height * scale);
+    }
+  }, [draggedOn]);
+
   return isDragging && !isResizing ? (
     <StyledSelectionCanvas
       data-testid={`canvas-dragging-${widgetId}`}
@@ -555,4 +585,7 @@ export function CanvasDraggingArena({
     />
   ) : null;
 }
+CanvasDraggingArena.whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
