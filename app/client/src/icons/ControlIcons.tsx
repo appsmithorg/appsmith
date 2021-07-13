@@ -45,6 +45,8 @@ import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg"
 import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
 import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
 import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
+import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
+import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -284,6 +286,16 @@ export const ControlIcons: {
   DIVIDER_CAP_ALL: (props: IconProps) => (
     <IconWrapper {...props}>
       <DividerCapAllIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignLeftIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignRightIcon />
     </IconWrapper>
   ),
 };
