@@ -21,14 +21,6 @@ export function* bindDataToWidgetSaga(
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
-  yield put({
-    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-    payload: {
-      widgetId: action.payload.widgetId,
-      callForDragOrResize: undefined,
-      force: true,
-    },
-  });
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   const queryId = searchParams.get("bindTo");
@@ -123,6 +115,14 @@ export function* bindDataToWidgetSaga(
         RenderModes.CANVAS,
       ),
     );
+    yield put({
+      type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+      payload: {
+        widgetId: action.payload.widgetId,
+        callForDragOrResize: undefined,
+        force: true,
+      },
+    });
   } else {
     queryId &&
       Toaster.show({

@@ -59,6 +59,7 @@ type SettingsControlProps = {
   errorCount: number;
 };
 
+const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
@@ -142,9 +143,14 @@ export function SettingsControl(props: SettingsControlProps) {
             <span className="t--widget-error-count">{props.errorCount}</span>
           </>
         )}
-        <WidgetName className="t--widget-name">{props.name}</WidgetName>
-        {!isSnipingMode && settingsIcon}
+        {isSnipingMode && (
+          <BindDataIcon color={Colors.WHITE} height={16} width={12} />
+        )}
+        <WidgetName className="t--widget-name">
+          {isSnipingMode ? `Bind to ${props.name}` : props.name}
+        </WidgetName>
       </SettingsWrapper>
+      {!isSnipingMode && settingsIcon}
     </StyledTooltip>
   );
 }
