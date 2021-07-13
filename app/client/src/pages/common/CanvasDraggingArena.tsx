@@ -87,7 +87,6 @@ export function CanvasDraggingArena({
     (state: AppState) => state.ui.widgetDragResize.newWidget,
   );
   const allWidgets = useSelector(getWidgets);
-  // const widget = useSelector((state: AppState) => getWidget(state, widgetId));
   const dragCenter = useSelector(
     (state: AppState) => state.ui.widgetDragResize.draggingGroupCenter,
   );
@@ -260,7 +259,6 @@ export function CanvasDraggingArena({
             widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
           );
 
-          // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
           const widgetBottomRow =
             updateWidgetParams.payload.topRow +
             (updateWidgetParams.payload.rows ||
@@ -297,7 +295,6 @@ export function CanvasDraggingArena({
         }
       };
       if (isDragging) {
-        // draggingCanvas.style.padding = `${noPad ? 0 : CONTAINER_GRID_PADDING}px`;
         const { height, width } = canvasRef.current.getBoundingClientRect();
         canvasRef.current.width = width * scale;
         canvasRef.current.height = height * scale;
@@ -443,41 +440,29 @@ export function CanvasDraggingArena({
             canvasRef.current.height =
               (rowRef.current * snapRowSpace + (widgetId === "0" ? 200 : 0)) *
               scale;
-            // canvasCtx = canvasRef.current.getContext("2d");
             canvasCtx.scale(scale, scale);
             canvasCtx.clearRect(0, 0, width, canvasRef.current.height);
             canvasCtx.restore();
             drawBlocks();
-            // scrollToKeepUp(newRectanglesToDraw);
           }
         });
 
-        const drawBlocks = debounce(
-          () => {
-            if (canvasRef.current) {
-              const canvasCtx: any = canvasRef.current.getContext("2d");
-              const {
-                height,
-                width,
-              } = canvasRef.current.getBoundingClientRect();
-              canvasCtx.save();
-              canvasCtx.clearRect(0, 0, width * scale, height * scale);
-              notDoneYet = false;
-              if (canvasIsDragging) {
-                newRectanglesToDraw.forEach((each) => {
-                  drawRectangle(each);
-                });
-              }
-              canvasCtx.restore();
-              animationFrameId = window.requestAnimationFrame(drawBlocks);
+        const drawBlocks = () => {
+          if (canvasRef.current) {
+            const canvasCtx: any = canvasRef.current.getContext("2d");
+            const { height, width } = canvasRef.current.getBoundingClientRect();
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, width * scale, height * scale);
+            notDoneYet = false;
+            if (canvasIsDragging) {
+              newRectanglesToDraw.forEach((each) => {
+                drawRectangle(each);
+              });
             }
-          },
-          0,
-          {
-            leading: true,
-            trailing: true,
-          },
-        );
+            canvasCtx.restore();
+            animationFrameId = window.requestAnimationFrame(drawBlocks);
+          }
+        };
 
         const drawRectangle = (selectionDimensions: {
           top: number;
@@ -541,8 +526,6 @@ export function CanvasDraggingArena({
           window.addEventListener("mouseup", onMouseUp, false);
 
           if (canvasIsDragging) {
-            // fix_dpi();
-            // drawDragLayer(rows);
             rectanglesToDraw.forEach((each) => {
               drawRectangle(each);
             });
