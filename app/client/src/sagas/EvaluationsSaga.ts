@@ -314,7 +314,7 @@ function* evaluateTreeSaga(
   );
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: { dataTree, evaluationOrder },
+    payload: dataTree,
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,

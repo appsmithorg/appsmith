@@ -10,10 +10,9 @@ const initialState: EvaluatedTreeState = {};
 const evaluatedTreeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_EVALUATED_TREE]: (
     state: EvaluatedTreeState,
-    action: ReduxAction<{ dataTree: DataTree; evaluationOrder: [string] }>,
+    action: ReduxAction<DataTree>,
   ) => {
-    // const { dataTree, evaluationOrder } = action.payload;
-    const { dataTree } = action.payload;
+    const { payload: dataTree } = action;
 
     const originalState = original(state) as any;
     // If its the first time, return the full data tree.
