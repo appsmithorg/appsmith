@@ -149,7 +149,7 @@ const deleteHelpText = (
 );
 const groupHelpText = (
   <>
-    Click or <b>{modText()} + G</b> & {modText()} + V
+    Click or <b>{modText()} + G</b>
   </>
 );
 
