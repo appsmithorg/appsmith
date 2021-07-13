@@ -1,10 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
-import {
-  commentModeSelector,
-  snipingModeSelector,
-} from "selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../actions/propertyPaneActions";
 
 export const useShowPropertyPane = () => {

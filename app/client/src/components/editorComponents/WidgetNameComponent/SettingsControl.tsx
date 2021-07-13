@@ -5,7 +5,7 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Tooltip, Classes } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
-import { snipingModeSelector } from "../../../selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,

@@ -74,11 +74,6 @@ export const setCommentMode = (payload: boolean) => ({
   payload,
 });
 
-export const setSnipingMode = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_SNIPING_MODE,
-  payload,
-});
-
 export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });

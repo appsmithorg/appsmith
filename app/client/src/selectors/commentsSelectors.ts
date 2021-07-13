@@ -24,9 +24,6 @@ export const unpublishedCommentThreadSelector = (refId: string) => (
 export const commentModeSelector = (state: AppState) =>
   state.ui.comments?.isCommentMode;
 
-export const snipingModeSelector = (state: AppState) =>
-  state.ui.comments?.isSnipingMode;
-
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];

@@ -11,10 +11,8 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  commentModeSelector,
-  snipingModeSelector,
-} from "selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const DraggableWrapper = styled.div`

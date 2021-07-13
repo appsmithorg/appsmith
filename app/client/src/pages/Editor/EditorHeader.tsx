@@ -56,8 +56,9 @@ import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import TooltipComponent from "components/ads/Tooltip";
 import moment from "moment/moment";
 import { Colors } from "constants/Colors";
-import { snipingModeSelector } from "selectors/commentsSelectors";
-import { setSnipingMode as setSnipingModeAction } from "actions/commentActions";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { useLocation } from "react-router";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -188,7 +189,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     pageSaveError,
     publishApplication,
   } = props;
-
+  const location = useLocation();
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);

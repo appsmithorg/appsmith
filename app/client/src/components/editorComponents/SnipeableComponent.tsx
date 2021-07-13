@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
-import { snipingModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "../../constants/Layers";
 

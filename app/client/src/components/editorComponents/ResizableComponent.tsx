@@ -38,10 +38,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import {
-  commentModeSelector,
-  snipingModeSelector,
-} from "selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
