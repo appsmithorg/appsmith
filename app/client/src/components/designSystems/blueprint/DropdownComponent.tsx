@@ -10,7 +10,7 @@ import {
 import { IconNames } from "@blueprintjs/icons";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import _, { debounce } from "lodash";
+import _ from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import styled, {
@@ -219,7 +219,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     });
     return optionIndex === this.props.selectedIndex;
   };
-  serverSideSearch = debounce((filterValue: string) => {
+  serverSideSearch = _.debounce((filterValue: string) => {
     this.props.onFilterChange(filterValue);
   }, DEBOUNCE_TIMEOUT);
 
