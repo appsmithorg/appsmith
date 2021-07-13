@@ -292,7 +292,8 @@ public class CreateDBTablePageSolutionTests {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
-                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
+                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
+                        .replace("ilike", "like");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
                     if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
@@ -400,7 +401,8 @@ public class CreateDBTablePageSolutionTests {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
-                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
+                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
+                        .replace("ilike", "like");;
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
                     if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {

@@ -2816,7 +2816,7 @@ public class DatabaseChangelog {
                 if (sqlPackageNames.contains(plugin.getPackageName())) {
                     plugin.setGenerateCRUDPageComponent(templatePageNameForSQLDatasource);
                 } else {
-                    plugin.setGenerateCRUDPageComponent(plugin.getName().toUpperCase());
+                    plugin.setGenerateCRUDPageComponent(plugin.getName());
                 }
             }
             mongoTemplate.save(plugin);
