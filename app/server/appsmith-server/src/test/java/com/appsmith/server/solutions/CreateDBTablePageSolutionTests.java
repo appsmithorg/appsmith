@@ -87,7 +87,7 @@ public class CreateDBTablePageSolutionTests {
     private DatasourceStructure structure = new DatasourceStructure();
 
     // Regex to break string in separate words
-    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}]+";
+    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*]+";
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
@@ -138,7 +138,7 @@ public class CreateDBTablePageSolutionTests {
         testApplication.setOrganizationId(testOrg.getId());
         testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
 
-        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("col1")));
+        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
             new Column("primaryKey", "type1", null),
             new Column("field1", "type2", null),
@@ -295,7 +295,7 @@ public class CreateDBTablePageSolutionTests {
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals("SelectQuery")) {
+                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -351,7 +351,7 @@ public class CreateDBTablePageSolutionTests {
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals("SelectQuery")) {
+                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -403,7 +403,7 @@ public class CreateDBTablePageSolutionTests {
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals("SelectQuery")) {
+                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -454,7 +454,7 @@ public class CreateDBTablePageSolutionTests {
                     String templateActionBody =  actionNameToBodyMap
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
-                    if (action.getUnpublishedAction().getName().equals("SelectQuery")) {
+                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -554,7 +554,7 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    if (action.getUnpublishedAction().getName().equals("SelectQuery")) {
+                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -566,6 +566,84 @@ public class CreateDBTablePageSolutionTests {
                             assertThat(template.getValue().toString()).isEqualTo(pluginSpecificFields.get(template.getKey()));
                         }
                     });
+                }
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithValidPageIdForMongoDB() {
+
+        resource.setApplicationId(testApp.getId());
+
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-Mongo");
+
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("MongoDB")
+            .flatMap(plugin -> {
+                Datasource datasource = new Datasource();
+                datasource.setPluginId(plugin.getId());
+                datasource.setOrganizationId(testOrg.getId());
+                datasource.setName("Mongo-CRUD-Page-Table-DS");
+                datasource.setStructure(structure);
+                return datasourceService.create(datasource);
+            });
+
+        Mono<PageDTO> resultMono = datasourceMono
+            .flatMap(datasource1 -> {
+                resource.setDatasourceId(datasource1.getId());
+                return applicationPageService.createPage(newPage);
+            })
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+
+        StepVerifier
+            .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
+            .assertNext(tuple -> {
+                PageDTO page = tuple.getT1();
+                List<NewAction> actions = tuple.getT2();
+                Layout layout = page.getLayouts().get(0);
+                assertThat(page.getName()).isEqualTo(newPage.getName());
+                assertThat(page.getLayouts()).isNotEmpty();
+                assertThat(layout.getDsl()).isNotEmpty();
+                assertThat(layout.getActionsUsedInDynamicBindings()).hasSize(1);
+
+                assertThat(actions).hasSize(4);
+                for (NewAction action : actions) {
+                    ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
+                    if (action.getUnpublishedAction().getName().equals(solution.FIND_QUERY)) {
+                        assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
+                    } else {
+                        assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
+                    }
+
+                    List<Property> pluginSpecifiedTemplate = actionConfiguration.getPluginSpecifiedTemplates();
+                    assertThat(pluginSpecifiedTemplate.get(1).getValue().toString()).isEqualTo("FORM");
+                    assertThat(pluginSpecifiedTemplate.get(19).getValue().toString()).isEqualTo("sampleTable");
+                    String queryType = pluginSpecifiedTemplate.get(2).getValue().toString();
+                    if (queryType.equals("UPDATE")) {
+                        assertThat(pluginSpecifiedTemplate.get(11).getValue().toString())
+                            .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
+
+                        assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{\"field1\" : {{update_col_1.text}},\"field2\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
+                                .replaceAll(specialCharactersRegex, ""));
+                    } else if (queryType.equals("DELETE")) {
+                        assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }"
+                                .replaceAll(specialCharactersRegex, ""));
+                    } else if (queryType.equals("FIND")) {
+                        assertThat(pluginSpecifiedTemplate.get(4).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ \n\"{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}"
+                                .replaceAll(specialCharactersRegex, ""));
+
+                        assertThat(pluginSpecifiedTemplate.get(6).getValue().toString()).isEqualTo("{{data_table.pageSize}}");
+
+                        assertThat(pluginSpecifiedTemplate.get(7).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{{(data_table.pageNo - 1) * data_table.pageSize}}".replaceAll(specialCharactersRegex, ""));
+
+                    }
                 }
             })
             .verifyComplete();
