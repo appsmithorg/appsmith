@@ -713,16 +713,19 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
             try {
                 ArrayNode array = (ArrayNode) data;
-                Integer length = array.size();
-                JsonNode node = (JsonNode)array.get(0);
+                int length = array.size();
+                JsonNode node = array.get(0);
                 JsonNodeType nodeType = node.getNodeType();
 
                 if(nodeType.equals(JsonNodeType.STRING)) {
+                    if (length > 1) {
+                        return WidgetType.DROP_DOWN_WIDGET;
+                    }
                     return WidgetType.TEXT_WIDGET;
                 }
 
-                if(nodeType.equals(JsonNodeType.OBJECT)) {
-                    Integer fieldsCount = array.get(0).size();
+                if(nodeType.equals(JsonNodeType.OBJECT) || nodeType.equals(JsonNodeType.ARRAY)) {
+                    int fieldsCount = array.get(0).size();
                     if( (node.has("x") || (node.has("X")) )&&
                             (node.has("y") || (node.has("Y"))) ) {
                         return WidgetType.CHART_WIDGET;
