@@ -126,7 +126,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Discord Channel",
-          onClick: () => openExternalLink("https://discord.gg/djgApgCG"),
+          onClick: () => openExternalLink("https://discord.gg/9deFW7q4kB"),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
