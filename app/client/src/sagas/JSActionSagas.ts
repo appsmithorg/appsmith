@@ -10,8 +10,16 @@ import { JSAction } from "entities/JSAction";
 import {
   createJSActionSuccess,
   deleteJSActionSuccess,
+  copyJSActionSuccess,
+  copyJSActionError,
+  moveJSActionSuccess,
+  moveJSActionError,
 } from "actions/jsActionActions";
-import { getJSAction, getJSActions } from "selectors/entitiesSelector";
+import {
+  getJSAction,
+  getJSActions,
+  getPageNameByPageId,
+} from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
   getCurrentApplicationId,
@@ -22,9 +30,13 @@ import JSActionAPI, { JSActionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import {
-  ACTION_CREATED_SUCCESS,
   createMessage,
-  ACTION_DELETE_SUCCESS,
+  JS_ACTION_COPY_SUCCESS,
+  ERROR_JS_ACTION_COPY_FAIL,
+  JS_ACTION_DELETE_SUCCESS,
+  JS_ACTION_CREATED_SUCCESS,
+  JS_ACTION_MOVE_SUCCESS,
+  ERROR_JS_ACTION_MOVE_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 
@@ -53,7 +65,6 @@ export function* createJSActionSaga(
 ) {
   try {
     const payload = actionPayload.payload;
-    // yield put(createJSActionSuccess(newFunction));
     const response: JSActionCreateUpdateResponse = yield JSActionAPI.createJSAction(
       payload,
     );
@@ -63,7 +74,7 @@ export function* createJSActionSaga(
         ? actionPayload.payload.name
         : "";
       Toaster.show({
-        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
+        text: createMessage(JS_ACTION_CREATED_SUCCESS, actionName),
         variant: Variant.success,
       });
 
@@ -85,7 +96,39 @@ export function* createJSActionSaga(
 function* copyJSActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  console.log("copy", action);
+  const actionObject: JSAction = yield select(getJSAction, action.payload.id);
+  try {
+    if (!actionObject) throw new Error("Could not find js collection to copy");
+    const copyJSAction = Object.assign({}, actionObject, {
+      name: action.payload.name,
+      pageId: action.payload.destinationPageId,
+    }) as Partial<JSAction>;
+    delete copyJSAction.id;
+    const response = yield JSActionAPI.createJSAction(copyJSAction);
+
+    const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    if (isValidResponse) {
+      Toaster.show({
+        text: createMessage(
+          JS_ACTION_COPY_SUCCESS,
+          actionObject.name,
+          pageName,
+        ),
+        variant: Variant.success,
+      });
+      const payload = response.data;
+
+      yield put(copyJSActionSuccess(payload));
+    }
+  } catch (e) {
+    const actionName = actionObject ? actionObject.name : "";
+    Toaster.show({
+      text: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
+      variant: Variant.danger,
+    });
+    yield put(copyJSActionError(action.payload));
+  }
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -103,8 +146,42 @@ function* moveJSActionSaga(
     name: string;
   }>,
 ) {
-  console.log("move", action);
-  //move js action
+  const actionObject: JSAction = yield select(getJSAction, action.payload.id);
+  try {
+    const response = yield JSActionAPI.moveJSAction({
+      action: {
+        ...actionObject,
+        pageId: action.payload.originalPageId,
+        name: action.payload.name,
+      },
+      destinationPageId: action.payload.destinationPageId,
+    });
+
+    const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    if (isValidResponse) {
+      Toaster.show({
+        text: createMessage(
+          JS_ACTION_MOVE_SUCCESS,
+          response.data.name,
+          pageName,
+        ),
+        variant: Variant.success,
+      });
+    }
+    yield put(moveJSActionSuccess(response.data));
+  } catch (e) {
+    Toaster.show({
+      text: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
+      variant: Variant.danger,
+    });
+    yield put(
+      moveJSActionError({
+        id: action.payload.id,
+        originalPageId: action.payload.originalPageId,
+      }),
+    );
+  }
 }
 
 export function* deleteJSActionSaga(
@@ -120,7 +197,7 @@ export function* deleteJSActionSaga(
     const pageId = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
-        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
+        text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
       if (jsActions.length > 0) {
@@ -144,7 +221,10 @@ export function* watchJSActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_JS_ACTION_INIT, createJSActionSaga),
     takeLatest(ReduxActionTypes.COPY_JS_ACTION_INIT, copyJSActionSaga),
     takeEvery(ReduxActionTypes.COPY_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionErrorTypes.COPY_JS_ACTION_ERROR, handleMoveOrCopySaga),
     takeLatest(ReduxActionTypes.MOVE_JS_ACTION_INIT, moveJSActionSaga),
+    takeEvery(ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSActionSaga),
   ]);

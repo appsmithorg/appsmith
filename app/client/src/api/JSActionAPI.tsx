@@ -25,6 +25,11 @@ export interface JSActionResponse {
   isExecutionSuccess?: boolean;
 }
 
+export interface MoveJSActionRequest {
+  action: JSAction;
+  destinationPageId: string;
+}
+
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;
@@ -51,6 +56,10 @@ class JSActionAPI extends API {
 
   static deleteJSAction(id: string) {
     return API.delete(`${JSActionAPI.url}/${id}`);
+  }
+
+  static moveJSAction(moveRequest: MoveJSActionRequest) {
+    return API.put(JSActionAPI.url + "/move", moveRequest);
   }
 }
 

@@ -1,6 +1,7 @@
 import {
   ReduxActionTypes,
   EvaluationReduxAction,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { JSAction } from "entities/JSAction";
 
@@ -49,6 +50,16 @@ export const copyJSActionSuccess = (payload: JSAction) => {
   };
 };
 
+export const copyJSActionError = (payload: {
+  id: string;
+  destinationPageId: string;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.COPY_JS_ACTION_ERROR,
+    payload,
+  };
+};
+
 export const moveJSActionRequest = (payload: {
   id: string;
   destinationPageId: string;
@@ -64,6 +75,16 @@ export const moveJSActionRequest = (payload: {
 export const moveJSActionSuccess = (payload: JSAction) => {
   return {
     type: ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const moveJSActionError = (payload: {
+  id: string;
+  originalPageId: string;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR,
     payload,
   };
 };

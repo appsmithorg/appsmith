@@ -183,6 +183,24 @@ const jsActionsReducer = createReducer(initialState, {
 
       return a;
     }),
+  [ReduxActionErrorTypes.COPY_JS_ACTION_ERROR]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ): JSActionDataState =>
+    state.filter((a) => {
+      if (a.config.pageId === action.payload.destinationPageId) {
+        if (a.config.id === action.payload.id) {
+          return a.config.name !== action.payload.name;
+        }
+        return true;
+      }
+
+      return true;
+    }),
   [ReduxActionTypes.MOVE_JS_ACTION_INIT]: (
     state: JSActionDataState,
     action: ReduxAction<{
@@ -212,6 +230,23 @@ const jsActionsReducer = createReducer(initialState, {
     state.map((a) => {
       if (a.config.id === action.payload.id) {
         return { ...a, config: action.payload };
+      }
+
+      return a;
+    }),
+  [ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR]: (
+    state: JSActionDataState,
+    action: ReduxAction<{ id: string; originalPageId: string }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            pageId: action.payload.originalPageId,
+          },
+        };
       }
 
       return a;

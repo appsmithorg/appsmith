@@ -557,6 +557,8 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
   CREATE_JS_ACTION_ERROR: "CREATE_JS_ACTION_ERROR",
   UPDATE_JS_ACTION_ERROR: "UPDATE_JS_ACTION_ERROR",
+  COPY_JS_ACTION_ERROR: "COPY_JS_ACTION_ERROR",
+  MOVE_JS_ACTION_ERROR: "MOVE_JS_ACTION_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {
