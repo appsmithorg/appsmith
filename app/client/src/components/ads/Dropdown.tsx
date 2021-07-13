@@ -133,7 +133,7 @@ const DropdownWrapper = styled.div<{
 }>`
   width: ${(props) => props.width};
   max-height: ${(props) => (props.maxHeight ? props.maxHeight : "")};
-  overflow-y: ${(props) => (props.maxHeight ? "scroll" : "")};
+  overflow-y: ${(props) => (props.maxHeight ? "auto" : "")};
   z-index: 1;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
@@ -219,7 +219,7 @@ const StyledSubText = styled(Text)`
 `;
 
 const HeaderWrapper = styled.div`
-  color: #6d6d6d;
+  color: ${Colors.DOVE_GRAY};
   font-size: 10px;
   padding: 0px 7px 7px 7px;
 `;
@@ -252,13 +252,13 @@ const SelectedIcon = styled(Icon)`
 
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
-  color: #f22b2b;
+  color: ${Colors.POMEGRANATE2};
   margin: 6px 0px 10px;
 `;
 
 const ErrorLabel = styled.span`
   ${(props) => getTypographyByKey(props, "p1")};
-  color: #f22b2b;
+  color: ${Colors.POMEGRANATE2};
 `;
 
 function DefaultDropDownValueNode({
@@ -323,7 +323,7 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   const disabled = props.disabled || isLoading;
-  const downIconColor = errorMsg ? "#f22b2b" : "";
+  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
   return (
     <DropdownContainer
       data-cy={props.cypressSelector}
@@ -357,16 +357,18 @@ export default function Dropdown(props: DropdownProps) {
             />
             {isLoading ? (
               <Spinner size={IconSize.LARGE} />
-            ) : showDropIcon ? (
-              <Icon
-                fillColor={downIconColor}
-                hoverFillColor={downIconColor}
-                name="downArrow"
-                size={IconSize.XXS}
-              />
-            ) : null}
+            ) : (
+              showDropIcon && (
+                <Icon
+                  fillColor={downIconColor}
+                  hoverFillColor={downIconColor}
+                  name="downArrow"
+                  size={IconSize.XXS}
+                />
+              )
+            )}
           </Selected>
-          {errorMsg && !isOpen ? <ErrorMsg>{errorMsg}</ErrorMsg> : null}
+          {errorMsg && !isOpen && <ErrorMsg>{errorMsg}</ErrorMsg>}
         </DropdownSelect>
         <DropdownWrapper
           maxHeight={props.optionWrapperHeight || "auto"}
