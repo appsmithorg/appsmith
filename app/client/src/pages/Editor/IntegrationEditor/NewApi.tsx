@@ -1,12 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
+import PlusLogo from "assets/images/Plus-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -58,8 +58,8 @@ const StyledContainer = styled.div`
 
 const ApiCardsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
   text-align: center;
   min-width: 150px;
   border-radius: 4px;
@@ -76,8 +76,7 @@ const ApiCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
-  padding-left: 8px;
+  height: 64px;
   &:hover {
     background: ${Colors.Gallery};
     cursor: pointer;
@@ -153,7 +152,9 @@ function NewApiScreen(props: Props) {
     }
   };
   const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) + location.search;
+    getCurlImportPageURL(applicationId, pageId) +
+    "?from=datasources" +
+    location.search;
 
   return (
     <StyledContainer>
@@ -164,7 +165,11 @@ function NewApiScreen(props: Props) {
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
-              <Icon className="content-icon" icon="plus" iconSize={28} />
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
             </div>
             <p className="textBtn">Create new</p>
           </CardContentWrapper>

@@ -18,7 +18,7 @@ import {
   setAreCommentsEnabled,
   setCommentMode,
   fetchUnreadCommentThreadsCountSuccess,
-  fetchUnreadCommentThreadsCountRequest,
+  decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -127,7 +127,6 @@ function* fetchApplicationComments() {
 
     if (isValidResponse) {
       yield put(fetchApplicationCommentsSuccess(response.data));
-      yield put(fetchUnreadCommentThreadsCountRequest());
     }
   } catch (error) {
     yield put({
@@ -200,11 +199,14 @@ function* deleteComment(
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread({}, threadId);
+    const response = yield CommentsApi.updateCommentThread(
+      { isViewed: true },
+      threadId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
-      yield put(fetchUnreadCommentThreadsCountRequest());
+      yield put(decrementThreadUnreadCount());
     }
   } catch (error) {
     yield put({
@@ -303,20 +305,17 @@ function* deleteCommentReaction(
   }
 }
 
-function* fetchUnreadCommentsCount() {
-  try {
-    const applicationId = yield select(getCurrentApplicationId);
-    const response = yield call(
-      CommentsApi.fetchUnreadCommentThreads,
-      applicationId,
-    );
-    // const isValidResponse = yield validateResponse(response);
-    // if (isValidResponse) {
-    yield put(fetchUnreadCommentThreadsCountSuccess(response.data.count > 0));
-    // }
-  } catch (e) {
-    console.log(e, "handle error");
+function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
+  const type = action.type;
+  let unreadCommentsCount = yield select(
+    (state: AppState) => state.ui.comments.unreadCommentThreadsCount,
+  );
+  if (type === ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount += 1;
+  } else if (type === ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount -= 1;
   }
+  yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
 }
 
 export default function* commentSagas() {
@@ -350,8 +349,11 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
     fork(setIfCommentsAreEnabled),
     takeLatest(
-      ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_REQUEST,
-      fetchUnreadCommentsCount,
+      [
+        ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
+        ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
+      ],
+      updateCommentThreadUnreadCount,
     ),
   ]);
 }

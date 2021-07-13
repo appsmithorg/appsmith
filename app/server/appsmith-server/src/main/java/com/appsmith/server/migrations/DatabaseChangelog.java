@@ -178,8 +178,8 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
+        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
                 organization.setPlugins(new ArrayList<>());
             }
@@ -192,7 +192,7 @@ public class DatabaseChangelog {
                         .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
             }
 
-            mongoTemplate.save(organization);
+            mongockTemplate.save(organization);
         }
     }
 
@@ -588,7 +588,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "018", id = "install-mysql-plugins", author = "")
-    public void mysqlPlugin(MongoTemplate mongoTemplate) {
+    public void mysqlPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Mysql");
         plugin1.setType(PluginType.DB);
@@ -996,7 +996,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
-    public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
+    public void addElasticSearchPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("ElasticSearch");
         plugin1.setType(PluginType.DB);
@@ -1016,7 +1016,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
-    public void addDynamoPlugin(MongoTemplate mongoTemplate) {
+    public void addDynamoPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("DynamoDB");
         plugin1.setType(PluginType.DB);
@@ -1046,7 +1046,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
-    public void addRedisPlugin(MongoTemplate mongoTemplate) {
+    public void addRedisPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Redis");
         plugin1.setType(PluginType.DB);
@@ -1066,7 +1066,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
-    public void addMsSqlPlugin(MongoTemplate mongoTemplate) {
+    public void addMsSqlPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("MsSQL");
         plugin1.setType(PluginType.DB);
@@ -1274,7 +1274,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
-    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+    public void addFirestorePlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Firestore");
         plugin.setType(PluginType.DB);
@@ -1561,7 +1561,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
-    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
+    public void addRedshiftPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Redshift");
         plugin.setType(PluginType.DB);
@@ -1625,7 +1625,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
-    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
+    public void addAmazonS3Plugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Amazon S3");
         plugin.setType(PluginType.DB);
@@ -2093,7 +2093,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
-    public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
+    public void addGoogleSheetsPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
@@ -2475,7 +2475,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
-    public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
+    public void addSnowflakePlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Snowflake");
         plugin.setType(PluginType.DB);
@@ -2742,6 +2742,62 @@ public class DatabaseChangelog {
         // Now that all the actions have been updated, save all the actions
         for (NewAction action : rawMongoQueryActions) {
             mongockTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "077", id = "add-arangodb-plugin", author = "")
+    public void addArangoDBPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("ArangoDB");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("arangodb-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ArangoDB.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-arango-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
+    public void setSvgLogoToPluginIcons(MongockTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/postgresql.svg");
+            } else if ("dynamo-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-dynamodb.svg");
+            } else if ("firestore-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/firestore.svg");
+            } else if ("redshift-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-redshift.svg");
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mongodb.svg");
+            } else if ("redis-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/redis.svg");
+            } else if ("amazons3-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-s3.svg");
+            } else if ("mssql-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mssql.svg");
+            } else if ("snowflake-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/snowflake.svg");
+            } else if ("elasticsearch-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/elastic.svg");
+            } else if ("mysql-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mysql.svg");
+            } else if ("arangodb-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/arangodb.svg");
+            } else {
+                continue;
+            }
+
+            mongoTemplate.save(plugin);
         }
     }
 }

@@ -46,8 +46,6 @@ class ResultPagination extends React.Component<Props> {
           previousPage,
           totalPages,
         }) => {
-          console.log(hasNextPage, "hasNextPage");
-
           return (
             <PaginationContainer>
               <div

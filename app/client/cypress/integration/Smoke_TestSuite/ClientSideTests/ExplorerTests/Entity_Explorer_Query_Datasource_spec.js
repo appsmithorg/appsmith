@@ -60,7 +60,7 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     /* eslint-disable */
     cy.wait(2000);
-    cy.go("back");
+    cy.NavigateToQueryEditor();
 
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.editDatasourceButton)

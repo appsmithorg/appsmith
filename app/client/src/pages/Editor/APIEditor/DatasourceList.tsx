@@ -39,6 +39,7 @@ const DataSourceListWrapper = styled.div`
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
   transition: width 2s;
+  background: white;
   &.show {
     width: 280px;
   }
@@ -99,7 +100,7 @@ const DataSourceNameContainer = styled.div`
         fill: #4b4848;
       }
     }
-    &: hover {
+    &:hover {
       background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
     }
   }

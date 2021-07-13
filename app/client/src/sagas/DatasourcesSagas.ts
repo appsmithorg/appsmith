@@ -122,16 +122,28 @@ function* fetchMockDatasourcesSaga() {
 
 export function* addMockDbToDatasources(
   actionPayload: ReduxActionWithCallbacks<
-    { id: string; orgId: string },
+    {
+      name: string;
+      organizationId: string;
+      pluginId: string;
+      packageName: string;
+    },
     unknown,
     unknown
   >,
 ) {
   try {
-    const { id, orgId } = actionPayload.payload;
+    const {
+      name,
+      organizationId,
+      packageName,
+      pluginId,
+    } = actionPayload.payload;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
-      id,
-      orgId,
+      name,
+      organizationId,
+      pluginId,
+      packageName,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -142,10 +154,14 @@ export function* addMockDbToDatasources(
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
+      });
+      yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
       );
     }
   } catch (error) {
@@ -266,19 +282,18 @@ function* updateDatasourceSaga(
       yield put(
         updateDatasourceSuccess(response.data, !actionPayload.onSuccess),
       );
-      if (actionPayload.onSuccess) {
-        yield put(actionPayload.onSuccess);
-      }
+      yield put(
+        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
+      );
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
           id: response.data.id,
         },
       });
-      yield put(
-        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
-      );
-
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
       if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
@@ -602,10 +617,14 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-
-  history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
-  );
+  // this redirects to the same route, so checking first.
+  if (
+    history.location.pathname !==
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id)
+  )
+    history.push(
+      DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+    );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
