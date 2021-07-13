@@ -151,7 +151,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           </div>
         </WidgetList>
       </Collapsible>
-      <hr />
       <Collapsible label="Select Existing Widgets">
         <div className="description">Go to canvas and select widgets</div>
         <WidgetList>
