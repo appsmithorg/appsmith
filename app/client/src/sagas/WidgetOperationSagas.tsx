@@ -1905,16 +1905,22 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
  * @param action
  */
 export function* groupWidgetsSaga(action: ReduxAction<{ modalName: string }>) {
-  try {
-    yield put({
-      type: ReduxActionTypes.CUT_SELECTED_WIDGET,
-      payload: {
-        isShortcut: false,
-        groupWidgets: true,
-      },
-    });
-  } catch (error) {
-    log.error(error);
+  const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
+  const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
+
+  console.log({ isMultipleWidgetsSelected, selectedWidgetIDs });
+  if (isMultipleWidgetsSelected) {
+    try {
+      yield put({
+        type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+        payload: {
+          isShortcut: false,
+          groupWidgets: true,
+        },
+      });
+    } catch (error) {
+      log.error(error);
+    }
   }
 }
 

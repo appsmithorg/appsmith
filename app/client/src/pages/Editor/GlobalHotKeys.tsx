@@ -8,6 +8,7 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
 import {
@@ -246,7 +247,7 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
-    groupSelectedWidget: () => dispatch(cutWidget(true)),
+    groupSelectedWidget: () => dispatch(groupWidgets()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
