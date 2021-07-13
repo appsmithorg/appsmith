@@ -131,6 +131,10 @@ export const HelpMap = {
     path: "/widget-reference/divider",
     searchKey: "Divider",
   },
+  MENU_BUTTON_WIDGET: {
+    path: "/widget-reference/menu-button",
+    searchKey: "Menu Button",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
