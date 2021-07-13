@@ -555,7 +555,7 @@ export const groupWidgetsIntoContainer = function*(
     parentColumnSpace: widthPerColumn,
     backgroundColor: "#FFFFFF",
   };
-  newCanvasWidget.parentId = newContainerWidget.parentId;
+  newCanvasWidget.parentId = newContainerWidget.widgetId;
   const parentColumSpace = copiedWidgetGroups[0].list[0].parentColumnSpace;
   const percentageIncrease = parentColumSpace / widthPerColumn;
 

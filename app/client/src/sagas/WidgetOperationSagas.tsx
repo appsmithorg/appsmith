@@ -1527,7 +1527,7 @@ function* pasteWidgetSaga() {
 
   const shouldGroup: boolean = yield shouldGroupWidgets();
 
-  // if should is true, copied widgets will be goruped into a container
+  // if should is true, copied widgets will be grouped into a container
   if (shouldGroup) {
     copiedWidgetGroups = yield groupWidgetsIntoContainer(
       copiedWidgetGroups,
@@ -1564,6 +1564,7 @@ function* pasteWidgetSaga() {
           nextAvailableRow,
           true,
         );
+
         // goToNextAvailableRow = true,
         // persistColumnPosition = false,
 
