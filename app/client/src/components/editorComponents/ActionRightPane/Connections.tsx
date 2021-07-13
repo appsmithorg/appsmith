@@ -9,25 +9,29 @@ import LongArrowSVG from "assets/images/long-arrow.svg";
 import { useEntityLink } from "../Debugger/hooks";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
-    padding-left: 5px;
+    padding-left: ${(props) => props.theme.spaces[2] - 1}px;
   }
-  padding-bottom: 6px;
+  padding-bottom: ${(props) => props.theme.spaces[2]}px;
 `;
 
 const ConnectionWrapper = styled.span`
-  margin: 4px 2px;
+  margin: ${(props) => props.theme.spaces[1]}px
+    ${(props) => props.theme.spaces[0] + 2}px;
 `;
 
 const NoConnections = styled.div`
   width: 100%;
-  background-color: #f0f0f0;
-  padding: 11px 8px;
+  background-color: ${(props) =>
+    props.theme.colors.actionSidePane.noConnections};
+  padding: ${(props) => props.theme.spaces[4] + 1}px
+    ${(props) => props.theme.spaces[3]}px;
 
   .${Classes.TEXT} {
-    color: #e0dede;
+    color: ${(props) => props.theme.colors.actionSidePane.noConnectionsText};
   }
 `;
 
@@ -37,29 +41,33 @@ const ConnectionFlow = styled.div`
   flex-direction: column;
 
   img {
-    padding-top: 4px;
-    padding-bottom: 7px;
+    padding-top: ${(props) => props.theme.spaces[1]}px;
+    padding-bottom: ${(props) => props.theme.spaces[2] + 1}px;
   }
 `;
 
 const ConnectionsContainer = styled.span`
   width: 100%;
-  background-color: #f0f0f0;
+  background-color: ${(props) =>
+    props.theme.colors.actionSidePane.noConnections};
   display: flex;
   flex-wrap: wrap;
-  padding: 7px 7px;
+  padding: ${(props) => props.theme.spaces[2] + 1}px;
   .connection {
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 2px 4px;
-    font-size: 12px;
+    border: 1px solid
+      ${(props) => props.theme.colors.actionSidePane.connectionBorder};
+    padding: ${(props) => props.theme.spaces[0] + 2}px
+      ${(props) => props.theme.spaces[1]}px;
+    ${(props) => getTypographyByKey(props, "p3")}
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
 
     :hover {
-      border: 1px solid #6a86ce;
-      color: #6a86ce;
+      border: 1px solid
+        ${(props) => props.theme.colors.actionSidePane.connectionHover};
+      color: ${(props) => props.theme.colors.actionSidePane.connectionHover};
     }
   }
 `;

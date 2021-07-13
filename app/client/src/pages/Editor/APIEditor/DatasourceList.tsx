@@ -28,7 +28,7 @@ const DatasourceContainer = styled.div`
       margin-right: 0;
     }
   }
-  width: 265px;
+  width: ${(props) => props.theme.actionSidePane.width}px;
 `;
 
 const DataSourceListWrapper = styled.div`

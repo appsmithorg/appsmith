@@ -13,7 +13,7 @@ import { ExplorerURLParams } from "../../../pages/Editor/Explorer/helpers";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
-  margin-left: 7px;
+  margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   .image {
     width: 100%;
@@ -23,10 +23,6 @@ const WidgetList = styled.div`
 
   .widget:hover {
     cursor: pointer;
-  }
-
-  .widget:not(:first-child) {
-    margin-top: 24px;
   }
 `;
 
