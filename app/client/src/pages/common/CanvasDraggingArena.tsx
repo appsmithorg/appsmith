@@ -291,7 +291,6 @@ export function CanvasDraggingArena({
           canvasCtx.clearRect(0, 0, width * scale, height * scale);
           canvasRef.current.style.zIndex = "";
           canvasIsDragging = false;
-          setDraggingCanvas();
         }
       };
       if (isDragging) {
@@ -348,6 +347,7 @@ export function CanvasDraggingArena({
             } else {
               setDraggingState(false);
             }
+            setDraggingCanvas();
           }
         };
 
@@ -448,7 +448,7 @@ export function CanvasDraggingArena({
         });
 
         const drawBlocks = () => {
-          if (canvasRef.current) {
+          if (canvasRef.current && draggedOn === widgetId) {
             const canvasCtx: any = canvasRef.current.getContext("2d");
             const { height, width } = canvasRef.current.getBoundingClientRect();
             canvasCtx.save();
@@ -543,22 +543,13 @@ export function CanvasDraggingArena({
           canvasRef.current?.removeEventListener("mouseout", onMouseOut);
           canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
           document.body.removeEventListener("mouseup", onMouseUp);
-          window.removeEventListener("mouseup", onMouseUp, false);
+          window.removeEventListener("mouseup", onMouseUp);
         };
       } else {
         onMouseOut();
       }
     }
   }, [isDragging, newWidget, isResizing, rectanglesToDraw, snapRows]);
-
-  useEffect(() => {
-    if (draggedOn !== widgetId && canvasRef.current) {
-      const { devicePixelRatio: scale = 1 } = window;
-      const { height, width } = canvasRef.current.getBoundingClientRect();
-      const canvasCtx: any = canvasRef.current.getContext("2d");
-      canvasCtx.clearRect(0, 0, width * scale, height * scale);
-    }
-  }, [draggedOn]);
 
   return isDragging && !isResizing ? (
     <StyledSelectionCanvas
