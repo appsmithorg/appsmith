@@ -175,8 +175,8 @@
                 "parentRowSpace": 40,
                 "leftColumn": 4,
                 "rightColumn": 12,
-                "topRow": 8,
-                "bottomRow": 18,
+                "topRow": 2,
+                "bottomRow": 20,
                 "parentId": "0",
                 "widgetId": "wmuvmnfqm0",
                 "dynamicBindingPathList": [
