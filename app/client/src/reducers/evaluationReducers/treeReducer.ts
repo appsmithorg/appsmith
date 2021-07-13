@@ -1,7 +1,9 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { original } from "immer";
+import { get, set, unset } from "lodash";
 import { createImmerReducer } from "utils/AppsmithUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -10,27 +12,36 @@ const initialState: EvaluatedTreeState = {};
 const evaluatedTreeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_EVALUATED_TREE]: (
     state: EvaluatedTreeState,
-    action: ReduxAction<DataTree>,
+    action: ReduxAction<{
+      dataTree: DataTree;
+      evaluationOrder: [string];
+      removedPaths: [string];
+    }>,
   ) => {
-    const { payload: dataTree } = action;
+    const { dataTree, evaluationOrder, removedPaths } = action.payload;
 
-    const originalState = original(state) as any;
     // If its the first time, return the full data tree.
-    if (originalState === initialState) {
+    if (original(state) === initialState) {
       return dataTree;
     }
 
-    // If the values are the same, put the current ones back in datatree and return.
-    // We are doing this to make the tree in the store refer to a new object, so that
-    // getDataTree will return new value??
-    for (const key in originalState) {
-      if (
-        JSON.stringify(originalState[key]) === JSON.stringify(dataTree[key])
-      ) {
-        dataTree[key] = originalState[key];
-      }
-    }
-    return dataTree;
+    // Removed the deleted widgets and unset properties
+    removedPaths.forEach((path) => unset(state, path));
+
+    // Selectively update the widgets to prevent all the widgets from
+    // re-rendering
+    const updatedEntities: Set<string> = new Set();
+
+    // Make a list of updated entities
+    evaluationOrder.forEach((path) => {
+      const { entityName } = getEntityNameAndPropertyPath(path);
+      updatedEntities.add(entityName);
+    });
+
+    // Update the changed entities
+    updatedEntities.forEach((path) => {
+      set(state, path, get(dataTree, path));
+    });
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
 });
