@@ -359,7 +359,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Set<String> extractKeysFromDatasource(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() == null) {
+        if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
 

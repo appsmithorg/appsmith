@@ -495,7 +495,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
 
                     // This is a nested datasource. Return as is.
-                    return Mono.just(action.getDatasource());
+                    return Mono.justOrEmpty(action.getDatasource());
                 })
                 .cache();
 
