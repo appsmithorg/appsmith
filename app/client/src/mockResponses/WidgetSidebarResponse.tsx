@@ -125,6 +125,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Divider",
     key: generateReactKey(),
   },
+  {
+    type: "MENU_BUTTON_WIDGET",
+    widgetCardName: "Menu Button",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

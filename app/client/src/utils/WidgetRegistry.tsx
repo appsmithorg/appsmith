@@ -119,6 +119,10 @@ import IframeWidget, {
   IframeWidgetProps,
   ProfiledIframeWidget,
 } from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  MenuButtonWidgetProps,
+  ProfiledMenuButtonWidget,
+} from "widgets/MenuButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -520,6 +524,19 @@ export default class WidgetBuilderRegistry {
       DividerWidget.getDefaultPropertiesMap(),
       DividerWidget.getMetaPropertiesMap(),
       DividerWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MENU_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: MenuButtonWidgetProps): JSX.Element {
+          return <ProfiledMenuButtonWidget {...widgetData} />;
+        },
+      },
+      MenuButtonWidget.getDerivedPropertiesMap(),
+      MenuButtonWidget.getDefaultPropertiesMap(),
+      MenuButtonWidget.getMetaPropertiesMap(),
+      MenuButtonWidget.getPropertyPaneConfig(),
     );
   }
 }
