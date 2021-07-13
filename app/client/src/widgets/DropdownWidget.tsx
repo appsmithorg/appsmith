@@ -80,6 +80,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
           },
+          {
+            helpText: "Controls the Remote Data/ Server Side Filtering",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {
@@ -89,6 +99,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Filter options using filterText",
+            hidden: (props: DropdownWidgetProps) => !props.serverSideFiltering,
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -135,10 +155,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         label={`${this.props.label}`}
+        onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
+        serverSideFiltering={this.props.serverSideFiltering}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -165,6 +187,19 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           },
         },
       );
+    }
+  };
+
+  onFilterChange = (value: string) => {
+    this.props.updateWidgetMetaProperty("filterText", value);
+    if (value.length) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
     }
   };
 
@@ -196,6 +231,8 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   isFilterable: boolean;
   defaultValue: string;
   selectedOptionLabel: string;
+  serverSideFiltering: boolean;
+  onFilterUpdate: string;
 }
 
 export default DropdownWidget;

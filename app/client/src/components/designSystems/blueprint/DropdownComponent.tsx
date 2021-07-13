@@ -10,7 +10,7 @@ import {
 import { IconNames } from "@blueprintjs/icons";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import styled, {
@@ -142,6 +142,7 @@ const DropdownStyles = createGlobalStyle`
 const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
+const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
@@ -171,6 +172,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             onItemSelect={this.onItemSelect}
+            onQueryChange={
+              this.props.serverSideFiltering ? this.serverSideSearch : undefined
+            }
             popoverProps={{
               boundary: "window",
               minimal: true,
@@ -215,6 +219,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     });
     return optionIndex === this.props.selectedIndex;
   };
+  serverSideSearch = debounce((filterValue: string) => {
+    this.props.onFilterChange(filterValue);
+  }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
     option: DropdownOption,
@@ -247,6 +254,8 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   width: number;
   height: number;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
 
 export default DropDownComponent;

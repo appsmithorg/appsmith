@@ -117,10 +117,7 @@ class MultiSelectWidget extends BaseWidget<
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -151,14 +148,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getPageView() {
-    let options;
-    if (this.props.serverSideFiltering && this.props.filterText?.length) {
-      options = isArray(this.props.onFilterUpdate)
-        ? this.props.onFilterUpdate
-        : [];
-    } else {
-      options = isArray(this.props.options) ? this.props.options : [];
-    }
+    const options = isArray(this.props.options) ? this.props.options : [];
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
@@ -180,8 +170,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    console.log(value, "Selected");
-
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -195,13 +183,16 @@ class MultiSelectWidget extends BaseWidget<
   };
 
   onFilterChange = (value: string) => {
-    this.props.updateWidgetMetaProperty("filterText", value, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onFilterChange,
-      event: {
-        type: EventType.ON_FILTER_CHANGE,
-      },
-    });
+    this.props.updateWidgetMetaProperty("filterText", value);
+    if (value.length) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -227,11 +218,11 @@ export interface MultiSelectWidgetProps extends WidgetProps, WithMeta {
   isRequired: boolean;
   isLoading: boolean;
   selectedOptionValueArr: string[];
-  filterText?: string;
+  filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];
   serverSideFiltering: boolean;
-  onFilterUpdate?: DropdownOption[];
+  onFilterUpdate: string;
 }
 
 export default MultiSelectWidget;

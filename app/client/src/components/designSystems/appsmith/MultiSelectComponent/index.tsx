@@ -110,7 +110,6 @@ function MultiSelectComponent({
     const updateFilter = (filterValue: string) => {
       onFilterChange(filterValue);
     };
-
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
