@@ -25,7 +25,9 @@ import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
 import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
+import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -159,6 +161,11 @@ export const WidgetIcons: {
   DIVIDER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <DividerIcon />
+    </IconWrapper>
+  ),
+  MENU_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MenuButtonIcon />
     </IconWrapper>
   ),
   ICON_BUTTON_WIDGET: (props: IconProps) => (

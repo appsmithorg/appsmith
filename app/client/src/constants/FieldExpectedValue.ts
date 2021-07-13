@@ -194,6 +194,10 @@ const FIELD_VALUES: Record<
     dividerColor: "string",
     thickness: "number",
   },
+  MENU_BUTTON_WIDGET: {
+    isVisible: "boolean",
+    label: "string",
+  },
   ICON_BUTTON_WIDGET: {
     iconName: "string",
     isVisible: "boolean",

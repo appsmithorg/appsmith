@@ -1,14 +1,18 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-
 import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
-import BaseControl, { ControlProps } from "./BaseControl";
 
-const IconSelectContainerStyles = createGlobalStyle`
+import BaseControl, { ControlProps } from "./BaseControl";
+import TooltipComponent from "components/ads/Tooltip";
+
+const IconSelectContainerStyles = createGlobalStyle<{
+  targetWidth: number | undefined;
+}>`
   .bp3-select-popover {
-    width: 230px;
+    width: ${({ targetWidth }) => targetWidth}px;
+
     .bp3-input-group {
       margin: 5px !important;
     }
@@ -68,6 +72,10 @@ export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
 }
 
+export interface IconSelectControlState {
+  popoverTargetWidth: number | undefined;
+}
+
 const NONE = "(none)";
 type IconType = IconName | typeof NONE;
 const ICON_NAMES = Object.keys(IconNames).map<IconType>(
@@ -77,16 +85,48 @@ ICON_NAMES.push(NONE);
 
 const TypedSelect = Select.ofType<IconType>();
 
-class IconSelectControl extends BaseControl<IconSelectControlProps> {
+class IconSelectControl extends BaseControl<
+  IconSelectControlProps,
+  IconSelectControlState
+> {
+  private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
+  private timer?: number;
+
   constructor(props: IconSelectControlProps) {
     super(props);
+    this.iconSelectTargetRef = React.createRef();
+    this.state = { popoverTargetWidth: 0 };
+  }
+
+  componentDidMount() {
+    this.timer = setTimeout(() => {
+      const iconSelectTargetElement = this.iconSelectTargetRef.current;
+      console.log(
+        `target width: => `,
+        iconSelectTargetElement?.getBoundingClientRect().width,
+      );
+      this.setState((prevState: IconSelectControlState) => {
+        return {
+          ...prevState,
+          popoverTargetWidth: iconSelectTargetElement?.getBoundingClientRect()
+            .width,
+        };
+      });
+    }, 0);
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   }
 
   public render() {
     const { propertyValue: iconName } = this.props;
+    const { popoverTargetWidth } = this.state;
     return (
       <>
-        <IconSelectContainerStyles />
+        <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
         <TypedSelect
           className="icon-select-container"
           itemListRenderer={this.renderMenu}
@@ -100,6 +140,7 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
           <StyledButton
             alignText={Alignment.LEFT}
             className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            elementRef={this.iconSelectTargetRef}
             fill
             icon={iconName}
             rightIcon="caret-down"
@@ -128,13 +169,15 @@ class IconSelectControl extends BaseControl<IconSelectControlProps> {
       return null;
     }
     return (
-      <StyledMenuItem
-        active={modifiers.active}
-        icon={icon === NONE ? undefined : icon}
-        key={icon}
-        onClick={handleClick}
-        text={icon === NONE ? NONE : undefined}
-      />
+      <TooltipComponent content={icon}>
+        <StyledMenuItem
+          active={modifiers.active}
+          icon={icon === NONE ? undefined : icon}
+          key={icon}
+          onClick={handleClick}
+          text={icon === NONE ? NONE : undefined}
+        />
+      </TooltipComponent>
     );
   };
 

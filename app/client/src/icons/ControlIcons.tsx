@@ -45,6 +45,8 @@ import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg"
 import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
 import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
 import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
+import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
+import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import { ReactComponent as BorderRadiusSharpIcon } from "assets/icons/control/border-radius-sharp.svg";
 import { ReactComponent as BorderRadiusRoundedIcon } from "assets/icons/control/border-radius-rounded.svg";
 import { ReactComponent as BorderRadiusCircleIcon } from "assets/icons/control/border-radius-circle.svg";
@@ -293,6 +295,16 @@ export const ControlIcons: {
   DIVIDER_CAP_ALL: (props: IconProps) => (
     <IconWrapper {...props}>
       <DividerCapAllIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignLeftIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignRightIcon />
     </IconWrapper>
   ),
   BORDER_RADIUS_SHARP: (props: IconProps) => (
