@@ -228,13 +228,16 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     Map<String, Integer> pagesOrder = new HashMap<String, Integer>();
                     Map<String, Integer> publishedPagesOrder = new HashMap<String, Integer>();
 
-                    for (int i = 0; i < pages.size(); i++)
-                    {
-                        pagesOrder.put(pages.get(i).getId(), i);
-                    }
-                    for (int i = 0; i < publishedPages.size(); i++)
-                    {
-                        publishedPagesOrder.put(publishedPages.get(i).getId(), i);
+                    if(Boolean.TRUE.equals(view)) {
+                        for (int i = 0; i < publishedPages.size(); i++)
+                        {
+                            publishedPagesOrder.put(publishedPages.get(i).getId(), i);
+                        }
+                    } else {
+                        for (int i = 0; i < pages.size(); i++)
+                        {
+                            pagesOrder.put(pages.get(i).getId(), i);
+                        }
                     }
 
                     for (NewPage pageFromDb : pagesFromDb) {
