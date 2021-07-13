@@ -29,7 +29,7 @@ class MultiSelectWidget extends BaseWidget<
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
+            isJSConvertible: false,
             validation: VALIDATION_TYPES.OPTIONS_DATA,
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,

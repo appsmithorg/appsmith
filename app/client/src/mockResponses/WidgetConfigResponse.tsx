@@ -302,7 +302,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
@@ -319,7 +319,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     MULTI_SELECT_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       options: [
         { label: "Hashirama Senju", value: "First" },

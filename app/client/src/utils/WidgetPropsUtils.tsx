@@ -787,7 +787,6 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateItemsToListDataInListWidget(currentDSL);
     currentDSL.version = 26;
   }
-
   if (currentDSL.version === 26) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = 27;
@@ -797,7 +796,6 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateToNewMultiSelect(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
-
   return currentDSL;
 };
 

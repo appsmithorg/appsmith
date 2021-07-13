@@ -26,7 +26,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
+            isJSConvertible: false,
             validation: VALIDATION_TYPES.OPTIONS_DATA,
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
