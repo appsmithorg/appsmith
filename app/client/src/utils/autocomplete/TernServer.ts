@@ -20,6 +20,7 @@ import {
 } from "utils/autocomplete/EntityDefinitions";
 import { HintEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
@@ -270,7 +271,7 @@ class TernServer {
     completions: Completion[],
     findBestMatch: boolean,
     recentPaths: Set<string>,
-    expectedDataType?: string,
+    expectedDataType: DataType,
     entityName?: string,
     entityType?: ENTITY_TYPE,
   ) {
@@ -339,47 +340,6 @@ class TernServer {
       // Generally keywords or other unCategorised completions
       completionType.OTHER.push(completion);
     });
-    if (findBestMatch && completionType.MATCHING_TYPE.length) {
-      completionType.MATCHING_TYPE.sort((a, b) => {
-        let aRank = 0;
-        let bRank = 0;
-        const completionTypeA: ENTITY_TYPE = a.origin.split(
-          ".",
-        )[1] as ENTITY_TYPE;
-        const completionTypeB: ENTITY_TYPE = b.origin.split(
-          ".",
-        )[1] as ENTITY_TYPE;
-        if (completionTypeA === entityType) {
-          aRank = aRank + 1;
-        }
-        if (completionTypeB === entityType) {
-          bRank = bRank + 1;
-        }
-        if (recentPaths.has(a.text)) {
-          aRank = aRank + 1;
-        }
-        if (recentPaths.has(b.text)) {
-          bRank = bRank + 1;
-        }
-        return aRank - bRank;
-      });
-      completionType.MATCHING_TYPE = _.take(completionType.MATCHING_TYPE, 3);
-      if (completionType.MATCHING_TYPE.length) {
-        completionType.MATCHING_TYPE.unshift({
-          text: "Best Match",
-          displayText: "Best Match",
-          className: "CodeMirror-hint-header",
-          data: { doc: "" },
-          origin: "",
-          type: "UNKNOWN",
-          isHeader: true,
-        });
-      }
-    } else {
-      // Clear any matching type because we dont want to find best match
-      completionType.MATCHING_TYPE = [];
-    }
-
     completionType.DATA_TREE = completionType.DATA_TREE.sort(
       (a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
@@ -390,7 +350,48 @@ class TernServer {
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       },
     );
-    if (completionType.DATA_TREE.length && findBestMatch) {
+    if (findBestMatch && completionType.MATCHING_TYPE.length) {
+      const sortedMatches: Completion[] = [];
+      const groupedMatches = _.groupBy(completionType.MATCHING_TYPE, (c) => {
+        const [, , subType, name] = c.origin.split(".");
+        return c.text.replace(name, subType);
+      });
+      SortRules[expectedDataType].forEach((rule) => {
+        if (Array.isArray(groupedMatches[rule])) {
+          sortedMatches.push(...groupedMatches[rule]);
+        }
+      });
+
+      sortedMatches.sort((a, b) => {
+        let aRank = 0;
+        let bRank = 0;
+        const entityTypeA: ENTITY_TYPE = a.origin.split(".")[1] as ENTITY_TYPE;
+        const entityTypeB: ENTITY_TYPE = b.origin.split(".")[1] as ENTITY_TYPE;
+        if (entityTypeA === entityType) {
+          aRank = aRank + 1;
+        }
+        if (entityTypeB === entityType) {
+          bRank = bRank + 1;
+        }
+        if (recentPaths.has(a.text)) {
+          aRank = aRank + 1;
+        }
+        if (recentPaths.has(b.text)) {
+          bRank = bRank + 1;
+        }
+        return aRank - bRank;
+      });
+      completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
+      completionType.MATCHING_TYPE.unshift({
+        text: "Best Match",
+        displayText: "Best Match",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      });
+      completionType.DATA_TREE.unshift(..._.drop(sortedMatches, 3));
       completionType.DATA_TREE.unshift({
         text: "Search results",
         displayText: "Search results",
@@ -400,6 +401,9 @@ class TernServer {
         type: "UNKNOWN",
         isHeader: true,
       });
+    } else {
+      // Clear any matching type because we dont want to find best match
+      completionType.MATCHING_TYPE = [];
     }
     return [
       ...completionType.CONTEXT,
@@ -422,9 +426,9 @@ class TernServer {
     else return "OBJECT";
   }
 
-  getExpectedDataType() {
+  getExpectedDataType(): DataType {
     const type = this.entityInformation.expectedType;
-    if (type === undefined) return;
+    if (type === undefined) return "UNKNOWN";
     if (
       type === "Array<Object>" ||
       type === "Array" ||
@@ -438,7 +442,7 @@ class TernServer {
     if (type === "number") return "NUMBER";
     if (type === "object" || type === "JSON") return "OBJECT";
     if (type === "Function Call") return "FUNCTION";
-    return undefined;
+    return "UNKNOWN";
   }
 
   typeToIcon(type: string) {

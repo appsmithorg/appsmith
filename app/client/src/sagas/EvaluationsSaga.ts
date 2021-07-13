@@ -32,7 +32,7 @@ import {
   setEvaluatedTree,
   setLastEvaluationOrder,
   shouldProcessBatchedAction,
-} from "../actions/evaluationActions";
+} from "actions/evaluationActions";
 import {
   evalErrorHandler,
   logSuccessfulBindings,

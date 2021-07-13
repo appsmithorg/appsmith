@@ -15,8 +15,11 @@ import {
 let extraDefs: any = {};
 
 // Def names are encoded with information about the entity
-// DATA_TREE.{entityType}.{entityName}
-// eg DATA_TREE.WIDGET.Table1
+// This so that we have more info about them
+// when sorting results in autocomplete
+// DATA_TREE.{entityType}.{entitySubType}.{entityName}
+// eg DATA_TREE.WIDGET.TABLE_WIDGET.Table1
+// or DATA_TREE.ACTION.ACTION.Api1
 export const dataTreeTypeDefCreator = (
   entity: DataTreeEntity,
   entityName: string,
@@ -32,12 +35,12 @@ export const dataTreeTypeDefCreator = (
         def[entityName] = definition;
       }
       flattenDef(def, entityName);
-      def["!name"] = `DATA_TREE.WIDGET.${entityName}`;
+      def["!name"] = `DATA_TREE.WIDGET.${widgetType}.${entityName}`;
     }
   } else if (isAction(entity)) {
     def[entityName] = entityDefinitions.ACTION(entity);
     flattenDef(def, entityName);
-    def["!name"] = `DATA_TREE.ACTION.${entityName}`;
+    def["!name"] = `DATA_TREE.ACTION.ACTION.${entityName}`;
   } else if (isAppsmithEntity(entity)) {
     def["!name"] = "DATA_TREE.APPSMITH.APPSMITH";
     def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));

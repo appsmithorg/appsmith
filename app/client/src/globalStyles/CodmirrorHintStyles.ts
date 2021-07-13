@@ -136,7 +136,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
+        props.editorTheme === EditorTheme.LIGHT ? "#949ec6" : "#157A96"};
     }
   }
   .CodeMirror-Tern-completion:before {
