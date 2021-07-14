@@ -54,7 +54,8 @@ while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
 done
 
 if [ "$status_code" -eq "502" ]; then
-  echo "Hit 502"
+  echo "Unable to connect to server"
+  exit 1
 fi
 
 # Create the test user 
