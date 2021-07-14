@@ -238,6 +238,7 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
+          this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
       };
@@ -285,6 +286,7 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
     return hinting.map((helper) => {
@@ -334,12 +336,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    // on blur closing the binding prompt for an editor regardless.
-    if (
-      !cm.state.completionActive ||
-      (cm.state.completionActive && cm.state.completionActive.startLen === 0)
-    )
-      this.setState({ isFocused: false });
+    this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -374,7 +371,8 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      value !== inputValue &&
+      (value !== inputValue ||
+        _.get(this.editor, "state.completionActive.startLen") === 0) &&
       this.state.isFocused
     ) {
       this.props.input.onChange(value);
@@ -388,18 +386,19 @@ class CodeEditor extends Component<Props, State> {
       this.props.dataTreePath || "",
     );
     let hinterOpen = false;
+    if (!this.state.isFocused) return;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
-        updatePropertyValue: this.updatePropertyValue.bind(this),
+        updatePropertyValue: this.handleEditorBlur.bind(this), //this.updatePropertyValue.bind(this),
         recentEntities: this.props.recentEntities,
         executeCommand: (payload: any) => {
           this.props.executeCommand({
             ...payload,
             callback: (binding: string) => {
               const value = this.editor.getValue() + binding;
-              this.updatePropertyValue(value);
+              this.updatePropertyValue(value, value.length);
             },
           });
         },
@@ -430,16 +429,9 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(value);
     }
     this.editor.focus();
-    if (cursor === undefined) {
-      if (value) {
-        cursor = value.length - 2;
-      } else {
-        cursor = 1;
-      }
-    }
     this.editor.setCursor({
-      line: 0,
-      ch: cursor,
+      line: cursor || this.editor.lineCount() - 1,
+      ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
     });
     this.setState({ isFocused: true }, () => {
       if (preventAutoComplete) return;
@@ -594,12 +586,14 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
-            <BindingPrompt
-              editorTheme={this.props.theme}
-              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
-              promptMessage={this.props.promptMessage}
-              showLightningMenu={this.props.showLightningMenu}
-            />
+            {!_.get(this.editor, "state.completionActive") && (
+              <BindingPrompt
+                editorTheme={this.props.theme}
+                isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            )}
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
