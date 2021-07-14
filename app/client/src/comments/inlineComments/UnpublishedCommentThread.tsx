@@ -125,28 +125,3 @@ function UnpublishedCommentThread({
 }
 
 export default UnpublishedCommentThread;
-
-// <Popover
-// autoFocus
-// boundary="viewport"
-// canEscapeKeyClose
-// hasBackdrop
-// isOpen
-// minimal
-// modifiers={{
-//   offset: {
-//     enabled: true,
-//     offset: "-8, 10",
-//   },
-// }}
-// onInteraction={(nextOpenState) => {
-//   if (!nextOpenState) {
-//     onClosing();
-//   }
-// }}
-// popoverClassName="comment-thread"
-// position={Position.RIGHT_TOP}
-// >
-// <Icon keepColors name="unread-pin" />
-
-// </Popover>
