@@ -47,7 +47,7 @@ export const Layers = {
   productUpdates: Indices.Layer7,
   portals: Indices.Layer8,
   header: Indices.Layer9,
-  appComments: Indices.Layer9,
+  appComments: Indices.Layer7,
   max: Indices.LayerMax,
 };
 
