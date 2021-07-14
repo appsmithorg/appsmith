@@ -74,6 +74,9 @@ function TourTooltipWrapper(props: Props) {
     };
   }, [isOpen, dotRef?.current]);
 
+  // eslint-disable-next-line
+  if (!isOpen) return <>{children}</>;
+
   return (
     <>
       {/* A crude overlay which won't work with containers having overflow hidden */}
