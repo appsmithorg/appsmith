@@ -442,13 +442,29 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
+                {
+                  propertyName: "onClick",
+                  label: "onClick",
+                  controlType: "ACTION_SELECTOR",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "image";
+                  },
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                },
               ],
             },
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                // const baseProperty = getBasePropertyPath(propertyPath);
-                // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
 
                 return (
@@ -702,51 +718,6 @@ export default [
     ],
   },
   {
-    sectionName: "Header options",
-    children: [
-      {
-        helpText: "Toggle visibility of the search box",
-        propertyName: "isVisibleSearch",
-        label: "Search",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the filters",
-        propertyName: "isVisibleFilters",
-        label: "Filters",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the data download",
-        propertyName: "isVisibleDownload",
-        label: "Download",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the compact mode",
-        propertyName: "isVisibleCompactMode",
-        label: "Compact Mode",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the pagination",
-        propertyName: "isVisiblePagination",
-        label: "Pagination",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-    ],
-  },
-  {
     sectionName: "Actions",
     children: [
       {
@@ -783,6 +754,51 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the row height",
+        propertyName: "isVisibleCompactMode",
+        label: "Row Height",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },

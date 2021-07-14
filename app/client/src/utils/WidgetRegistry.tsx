@@ -100,13 +100,25 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import DividerWidget, {
+  ProfiledDividerWidget,
+  DividerWidgetProps,
+} from "widgets/DividerWidget";
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import RateWidget, {
+  RateWidgetProps,
+  ProfiledRateWidget,
+} from "widgets/RateWidget";
 import IframeWidget, {
   IframeWidgetProps,
   ProfiledIframeWidget,
 } from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  MenuButtonWidgetProps,
+  ProfiledMenuButtonWidget,
+} from "widgets/MenuButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -461,6 +473,19 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
+      "RATE_WIDGET",
+      {
+        buildWidget(widgetData: RateWidgetProps): JSX.Element {
+          return <ProfiledRateWidget {...widgetData} />;
+        },
+      },
+      RateWidget.getDerivedPropertiesMap(),
+      RateWidget.getDefaultPropertiesMap(),
+      RateWidget.getMetaPropertiesMap(),
+      RateWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
       WidgetTypes.IFRAME_WIDGET,
       {
         buildWidget(widgetData: IframeWidgetProps): JSX.Element {
@@ -471,6 +496,32 @@ export default class WidgetBuilderRegistry {
       IframeWidget.getDefaultPropertiesMap(),
       IframeWidget.getMetaPropertiesMap(),
       IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.DIVIDER_WIDGET,
+      {
+        buildWidget(widgetProps: DividerWidgetProps): JSX.Element {
+          return <ProfiledDividerWidget {...widgetProps} />;
+        },
+      },
+      DividerWidget.getDerivedPropertiesMap(),
+      DividerWidget.getDefaultPropertiesMap(),
+      DividerWidget.getMetaPropertiesMap(),
+      DividerWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MENU_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: MenuButtonWidgetProps): JSX.Element {
+          return <ProfiledMenuButtonWidget {...widgetData} />;
+        },
+      },
+      MenuButtonWidget.getDerivedPropertiesMap(),
+      MenuButtonWidget.getDefaultPropertiesMap(),
+      MenuButtonWidget.getMetaPropertiesMap(),
+      MenuButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

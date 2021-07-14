@@ -57,6 +57,10 @@ import {
 } from "constants/messages";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import TernServer from "utils/autocomplete/TernServer";
+import store from "store";
+import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -110,7 +114,7 @@ function getLatestEvalPropertyErrors(
         : ENTITY_TYPE.ACTION;
       const debuggerKeyMap = {
         [idField + "-" + propertyPath]: evalErrors,
-        [`${idField}-${propertyPath}-warnings`]: evalWarnings,
+        [`${idField}-${propertyPath}-warning`]: evalWarnings,
       };
       // if dataTree has error but debugger does not -> add
       // if debugger has error and data tree has error -> update error
@@ -124,6 +128,19 @@ function getLatestEvalPropertyErrors(
           const errorMessages = errors.map((e) => ({
             message: e.errorMessage,
           }));
+
+          if (!debuggerKey.endsWith("warning")) {
+            store.dispatch(
+              logDebuggerErrorAnalytics({
+                eventName: "DEBUGGER_NEW_ERROR",
+                entityId: idField,
+                entityName: nameField,
+                entityType,
+                propertyPath,
+                errorMessages,
+              }),
+            );
+          }
 
           // Add or update
           updatedDebuggerErrors[debuggerKey] = {
@@ -144,7 +161,21 @@ function getLatestEvalPropertyErrors(
               [propertyPath]: evaluatedValue,
             },
           };
-        } else {
+        } else if (debuggerKey in updatedDebuggerErrors) {
+          if (!debuggerKey.endsWith("warning")) {
+            store.dispatch(
+              logDebuggerErrorAnalytics({
+                eventName: "DEBUGGER_RESOLVED_ERROR",
+                entityId: idField,
+                entityName: nameField,
+                entityType,
+                propertyPath:
+                  updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
+                errorMessages:
+                  updatedDebuggerErrors[debuggerKey].messages ?? [],
+              }),
+            );
+          }
           // Remove
           delete updatedDebuggerErrors[debuggerKey];
         }
@@ -284,6 +315,42 @@ function* logSuccessfulBindings(
   });
 }
 
+// Update only the changed entities on tern. We will pick up the updated
+// entities from the evaluation order and create a new def from them.
+// When there is a top level entity removed in removedPaths,
+// we will remove its def
+function* updateTernDefinitions(
+  dataTree: DataTree,
+  evaluationOrder: string[],
+  removedPaths: string[],
+  isFirstEvaluation: boolean,
+) {
+  const updatedEntities: Set<string> = new Set();
+  // If it is the first evaluation, we want to add everything in the data tree
+  if (isFirstEvaluation) {
+    Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
+  } else {
+    evaluationOrder.forEach((path) => {
+      const { entityName } = getEntityNameAndPropertyPath(path);
+      updatedEntities.add(entityName);
+    });
+  }
+
+  updatedEntities.forEach((entityName) => {
+    const entity = dataTree[entityName];
+    if (entity) {
+      const { def, name } = dataTreeTypeDefCreator(entity, entityName);
+      TernServer.updateDef(name, def);
+    }
+  });
+  removedPaths.forEach((path) => {
+    // No '.' means that the path is an entity name
+    if (path.split(".").length === 1) {
+      TernServer.removeDef(path);
+    }
+  });
+}
+
 function* postEvalActionDispatcher(
   actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
@@ -294,6 +361,7 @@ function* postEvalActionDispatcher(
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  isFirstEvaluation = false,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
@@ -314,6 +382,7 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
+    removedPaths,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -322,6 +391,13 @@ function* evaluateTreeSaga(
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
+  yield fork(
+    updateTernDefinitions,
+    dataTree,
+    evaluationOrder,
+    removedPaths,
+    isFirstEvaluation,
+  );
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
@@ -523,7 +599,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, true);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),

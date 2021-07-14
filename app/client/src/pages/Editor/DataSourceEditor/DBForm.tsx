@@ -3,12 +3,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
-import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
 import Button, { Category } from "components/ads/Button";
@@ -123,23 +117,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     this.props.onTest(normalizedValues);
   };
 
-  onBackBtnClick = () => {
-    const { applicationId, pageId, viewMode } = this.props;
-    viewMode
-      ? history.push(BUILDER_PAGE_URL(applicationId, pageId))
-      : history.push(
-          INTEGRATION_EDITOR_URL(
-            applicationId,
-            pageId,
-            INTEGRATION_TABS.ACTIVE,
-          ),
-        );
-  };
-
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content, this.onBackBtnClick);
+    return this.renderForm(content);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
