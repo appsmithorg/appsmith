@@ -29,14 +29,28 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
 
 public class PostgresDataTypeUtils {
 
+    /**
+     * questionWithCast will match the following sample strings in a query
+     * - "?"
+     * - "?::text"
+     *
+     * Capturing only the words post "::" so that the explict data type to which the parameter must be cast can be read
+     * and ignoring the group "::" from getting captured by using regex "?:" which ignores the subsequent string
+     */
     private static String questionWithCast = "\\?(?:::)*([a-zA-Z]+)*";
     private static Pattern questionWithCastPattern = Pattern.compile(questionWithCast);
-    private static String word = "([a-zA-Z]*)";
-    private static Pattern wordPattern = Pattern.compile(word);
 
     public static DataType dataType = new DataType();
 
     public static class DataType {
+        /**
+         * Declare all the explicitly castable postgresql types below. These would be automatically added to the
+         * dataTypes set automatically.
+         *
+         * !!! WARNING !!!
+         * When adding a new data type to support for explicit casting, please ensure to add an entry in the Map
+         * dataTypeMapper which maps the postgres data types to Appsmith data types.
+         */
         public static final String INT8 = "int8";
         public static final String INT4 = "int4";
         public static final String DECIMAL = "decimal";
@@ -61,7 +75,9 @@ public class PostgresDataTypeUtils {
                     if (field.getType().equals(String.class)) { // if it is a String field
                         try {
                             dataTypes.add(field.get(dataType));
-                        } catch (IllegalAccessException e) {
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            // We weren't able to read the value of the field. Ignore this field and continue
+                            // Still print the stack trace for posterity.
                             e.printStackTrace();
                         }
                     }
@@ -72,6 +88,7 @@ public class PostgresDataTypeUtils {
         }
     }
 
+    // Stores the mapping between postgres data types and appsmith data types
     public static Map dataTypeMapper;
 
     private static Map getDataTypeMapper() {
@@ -87,6 +104,9 @@ public class PostgresDataTypeUtils {
             dataTypeMapper.put(FLOAT8, DOUBLE);
             dataTypeMapper.put(TEXT, STRING);
             dataTypeMapper.put(INT, INTEGER);
+
+            // Must ensure that all the declared postgres data types have a mapping to appsmith data types
+            assert(dataTypeMapper.size() == dataType.getDataTypes().size());
         }
 
         return dataTypeMapper;
@@ -109,6 +129,7 @@ public class PostgresDataTypeUtils {
                 }
             }
             // Either no external casting exists or unsupported data type is being used. Do not use external casting for this
+            // and instead default to implicit type casting (default behaviour) by setting the entry to null.
             inputDataTypes.add(null);
         }
 
