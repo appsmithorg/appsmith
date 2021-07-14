@@ -456,12 +456,10 @@ const resizeCanvasToLowestWidget = (
   );
   const childIds = finalWidgets[parentId].children || [];
 
-  console.log({ childIds, finalWidgets });
-  return;
   // find lowest row
   childIds.forEach((cId) => {
     const child = finalWidgets[cId];
-    console.log({ child });
+
     if (child.bottomRow > lowestBottomRow) {
       lowestBottomRow = child.bottomRow;
     }
@@ -837,9 +835,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       resizeCanvasToLowestWidget(finalWidgets, parentId);
     }
     yield put(updateAndSaveLayout(finalWidgets));
-    deletedWidgetIds.forEach((widgetId) => {
-      setTimeout(() => flashElementsById(widgetId), 100);
-    });
+    flashElementsById(deletedWidgetIds, 100);
     yield put(selectMultipleWidgetsInitAction(deletedWidgetIds));
     if (deletedWidgetIds.length === 1) {
       yield put(forceOpenPropertyPane(action.payload.widgetId));
@@ -1522,8 +1518,8 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
 
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
-    widgets = yield filterOutSelectedWidgets();
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
+    widgets = yield filterOutSelectedWidgets(copiedWidgetGroups[0].parentId);
 
     copiedWidgetGroups = yield groupWidgetsIntoContainer(
       copiedWidgetGroups,

@@ -624,14 +624,29 @@ export const createSelectedWidgetsAsCopiedWidgets = function*() {
 };
 
 /**
- * return canvasWidgets without selectedWidgets
+ * return canvasWidgets without selectedWidgets and remove the selected widgets
+ * ids in the children of parent widget
  * @return
  */
-export const filterOutSelectedWidgets = function*() {
-  const canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield select(getWidgets);
+export const filterOutSelectedWidgets = function*(parentId: string) {
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
 
-  return omit(canvasWidgets, selectedWidgetIDs);
+  const filteredWidgets: CanvasWidgetsReduxState = omit(
+    canvasWidgets,
+    selectedWidgetIDs,
+  );
+
+  return {
+    ...filteredWidgets,
+    [parentId]: {
+      ...filteredWidgets[parentId],
+      // removing the selected widgets ids in the children of parent widget
+      children: get(filteredWidgets[parentId], "children", []).filter(
+        (widgetId) => {
+          return !selectedWidgetIDs.includes(widgetId);
+        },
+      ),
+    },
+  };
 };
