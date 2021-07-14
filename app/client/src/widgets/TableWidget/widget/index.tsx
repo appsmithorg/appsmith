@@ -10,7 +10,6 @@ import {
   renderActions,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
@@ -619,7 +618,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   toggleDrag = (disable: boolean) => {
-    this.disableDrag(disable);
+    this.props.disableDrag(disable);
   };
 
   render() {

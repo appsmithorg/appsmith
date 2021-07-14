@@ -1,35 +1,6 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 export type WidgetType = FactoryWidgetType;
-// export const widgetTypeList = {};
-// // BUTTON_WIDGET = "BUTTON_WIDGET",
-// // TEXT_WIDGET = "TEXT_WIDGET",
-// // IMAGE_WIDGET = "IMAGE_WIDGET",
-// // INPUT_WIDGET = "INPUT_WIDGET",
-// // CONTAINER_WIDGET = "CONTAINER_WIDGET",
-// // DATE_PICKER_WIDGET = "DATE_PICKER_WIDGET",
-// // DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
-// // TABLE_WIDGET = "TABLE_WIDGET",
-// // DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
-// // CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
-// // RADIO_GROUP_WIDGET = "RADIO_GROUP_WIDGET",
-// // TABS_WIDGET = "TABS_WIDGET",
-// // MODAL_WIDGET = "MODAL_WIDGET",
-// // RICH_TEXT_EDITOR_WIDGET = "RICH_TEXT_EDITOR_WIDGET",
-// // CHART_WIDGET = "CHART_WIDGET",
-// // FORM_WIDGET = "FORM_WIDGET",
-// // FORM_BUTTON_WIDGET = "FORM_BUTTON_WIDGET",
-// // MAP_WIDGET = "MAP_WIDGET",
-// // CANVAS_WIDGET = "CANVAS_WIDGET",
-// // ICON_WIDGET = "ICON_WIDGET",
-// // FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
-// // VIDEO_WIDGET = "VIDEO_WIDGET",
-// // SKELETON_WIDGET = "SKELETON_WIDGET",
-// // SWITCH_WIDGET = "SWITCH_WIDGET",
-
-// export type WidgetTypes = keyof typeof widgetTypeList;
-// export const WidgetTypes: { [P in WidgetTypes]: P } = widgetTypeList;
-// export type WidgetType = keyof typeof WidgetTypes;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
 

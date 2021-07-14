@@ -1,6 +1,5 @@
 import React, {
   useState,
-  useContext,
   ReactNode,
   Context,
   createContext,
@@ -17,7 +16,6 @@ import {
   noCollision,
   getCanvasSnapRows,
 } from "utils/WidgetPropsUtils";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   GridDefaults,
@@ -25,7 +23,7 @@ import {
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "reducers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useShowPropertyPane,
   useCanvasSnapRowsUpdateHook,
@@ -35,6 +33,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { getSnapSpaces } from "widgets/WidgetUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { updateWidget } from "actions/pageActions";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -82,10 +81,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   console.log("Connected Widgets DropTarget", { props });
   const { snapColumnSpace, snapRowSpace } = getSnapSpaces(props);
   const canDropTargetExtend = props.canExtend;
-
+  const dispatch = useDispatch();
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
-  const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
@@ -232,12 +230,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
             "ms",
           );
           /* Finally update the widget */
-          updateWidget &&
+          dispatch(
             updateWidget(
               updateWidgetParams.operation,
               updateWidgetParams.widgetId,
               updateWidgetParams.payload,
-            );
+            ),
+          );
           console.log("Drop: update widget", performance.now() - start, "ms");
         }
       }

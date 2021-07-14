@@ -49,7 +49,7 @@ export function getParentToOpenIfAny(
   return;
 }
 
-export const useClickOpenPropPane = (widgetId: string) => {
+export const useClickOpenPropPane = () => {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);

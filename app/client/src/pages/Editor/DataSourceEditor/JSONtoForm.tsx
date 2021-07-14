@@ -1,4 +1,3 @@
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
@@ -10,6 +9,7 @@ import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;

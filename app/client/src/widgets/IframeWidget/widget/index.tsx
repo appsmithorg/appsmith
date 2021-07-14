@@ -126,7 +126,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderWidth,
       source,
       title,
-      widgetId,
     } = this.props;
     return (
       <IframeComponent
@@ -137,7 +136,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         onURLChanged={this.urlChangedHandler}
         source={source}
         title={title}
-        widgetId={widgetId}
       />
     );
   }

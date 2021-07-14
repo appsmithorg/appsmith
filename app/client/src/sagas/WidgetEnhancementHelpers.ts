@@ -3,11 +3,11 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import { get, set } from "lodash";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
+import WidgetFactory from "utils/WidgetFactory";
 import { getWidgets } from "./selectors";
 
 /*
@@ -74,10 +74,12 @@ export function getWidgetEnhancementFn(
   // Get enhancements for the widget type from the config response
   // Spread the config response so that we don't pollute the original
   // configs
-  const { enhancements = {} } = {
-    ...(WidgetConfigResponse as any).config[type],
-  };
-  return get(enhancements, enhancementType, undefined);
+  // const { enhancements = {} } = {
+  //   ...(WidgetConfigResponse as any).config[type],
+  // };
+  const config = WidgetFactory.widgetConfigMap.get(type);
+  if (config?.enhancements)
+    return get(config.enhancements, enhancementType, undefined);
 }
 
 // TODO(abhinav): Getting data from the tree may not be needed
@@ -116,7 +118,7 @@ export function* getChildWidgetEnhancementFn(
     if (parentDataFromDataTree) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
-        enhancementFn(parentDataFromDataTree, ...args);
+        (enhancementFn as EnhancementFn)(parentDataFromDataTree, ...args);
     }
   }
 }
@@ -157,17 +159,21 @@ export function useChildWidgetEnhancementFn(
     if (parentDataFromDataTree && enhancementFn) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
-        enhancementFn(parentDataFromDataTree, ...args);
+        (enhancementFn as EnhancementFn)(parentDataFromDataTree, ...args);
     }
   }
 }
 
+// Todo (abhinav): Specify styles here
+type EnhancementFn = (parentProps: any, ...rest: any) => unknown;
+type BoundEnhancementFn = (...rest: any) => unknown;
+
 type EnhancementFns = {
-  updateDataTreePathFn: any;
-  propertyPaneEnhancementFn: any;
-  autoCompleteEnhancementFn: any;
-  customJSControlEnhancementFn: any;
-  hideEvaluatedValueEnhancementFn: any;
+  updateDataTreePathFn?: BoundEnhancementFn;
+  propertyPaneEnhancementFn?: BoundEnhancementFn;
+  autoCompleteEnhancementFn?: BoundEnhancementFn;
+  customJSControlEnhancementFn?: BoundEnhancementFn;
+  hideEvaluatedValueEnhancementFn?: BoundEnhancementFn;
 };
 
 export function useChildWidgetEnhancementFns(widgetId: string): EnhancementFns {

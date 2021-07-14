@@ -1,12 +1,12 @@
 import React from "react";
-import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { EditorContext } from "../components/editorComponents/EditorContextProvider";
+import BaseWidget, { mapDispatchToProps, WidgetProps } from "./BaseWidget";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { fromPairs, isEqual, debounce } from "lodash";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { connect } from "react-redux";
 
 type DebouncedExecuteActionPayload = Omit<
   WidgetExecuteActionPayload,
@@ -28,10 +28,10 @@ export interface WithMeta {
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  return class MetaHOC extends React.Component<WidgetProps, any> {
-    static contextType = EditorContext;
+  class MetaHOC extends React.Component<WidgetProps, any> {
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
+    static displayName: string;
 
     debouncedHandleUpdateWidgetMetaProperty = debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
@@ -115,17 +115,19 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       propertyName: string,
       propertyValue: any,
     ): void => {
-      const { updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       this.setState({
         [propertyName]: propertyValue,
       });
       clearEvalPropertyCache(`${widgetName}.${propertyName}`);
-      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+      this.props.updateWidgetMetaProperty(
+        widgetId,
+        propertyName,
+        propertyValue,
+      );
     };
 
     handleUpdateWidgetMetaProperty() {
-      const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       const metaOptions = this.props.__metaOptions;
       /*
@@ -137,31 +139,34 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       */
 
       [...this.updatedProperties.keys()].forEach((propertyName) => {
-        if (updateWidgetMetaProperty) {
-          const propertyValue = this.state[propertyName];
+        const propertyValue = this.state[propertyName];
 
-          clearEvalPropertyCache(`${widgetName}.${propertyName}`);
-          // step 6 - look at this.props.options, check for metaPropPath value
-          // if they exist, then update the propertyName
-          updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+        clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+        // step 6 - look at this.props.options, check for metaPropPath value
+        // if they exist, then update the propertyName
+        this.props.updateWidgetMetaProperty(
+          widgetId,
+          propertyName,
+          propertyValue,
+        );
 
-          if (metaOptions) {
-            updateWidgetMetaProperty(
-              metaOptions.widgetId,
-              `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
-              propertyValue,
-            );
-          }
-
-          this.updatedProperties.delete(propertyName);
+        if (metaOptions) {
+          this.props.updateWidgetMetaProperty(
+            metaOptions.widgetId,
+            `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
+            propertyValue,
+          );
         }
+
+        this.updatedProperties.delete(propertyName);
+
         const debouncedPayload = this.propertyTriggers.get(propertyName);
         if (
           debouncedPayload &&
           debouncedPayload.dynamicString &&
-          executeAction
+          this.props.executeAction
         ) {
-          executeAction(debouncedPayload);
+          this.props.executeAction(debouncedPayload);
           this.propertyTriggers.delete(propertyName);
           debouncedPayload.triggerPropertyName &&
             AppsmithConsole.info({
@@ -188,7 +193,13 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     render() {
       return <WrappedWidget {...this.updatedProps()} />;
     }
-  };
+  }
+
+  MetaHOC.displayName = "WidgetMetaHOC";
+
+  // TODO(abhinav): This mapDispatchToProps only uses a subset of the dispatch available in BaseWidget
+  // Clean this.
+  return connect(null, mapDispatchToProps)(MetaHOC);
 };
 
 export default withMeta;

@@ -14,7 +14,7 @@ import { generateReactKey } from "./generators";
 export interface WidgetConfiguration {
   type: string;
   name: string;
-  iconSVG: string;
+  iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
   properties: {

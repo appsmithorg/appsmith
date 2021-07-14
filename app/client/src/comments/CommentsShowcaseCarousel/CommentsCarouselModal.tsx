@@ -1,6 +1,6 @@
 import React from "react";
-import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { Layers } from "constants/Layers";
+import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 
 function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
   return (

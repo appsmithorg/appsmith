@@ -1,11 +1,13 @@
 import { updateWidget } from "actions/pageActions";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
 import { useSelector } from "store";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetOperations } from "widgets/BaseWidget";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useCanvasMinHeightUpdateHook = (
   widgetId: string,

@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
+  FlattenedWidgetProps,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
 

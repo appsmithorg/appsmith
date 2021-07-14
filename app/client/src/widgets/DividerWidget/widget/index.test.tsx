@@ -1,5 +1,5 @@
 import React from "react";
-import DividerWidget, { DividerWidgetProps } from "./DividerWidget";
+import DividerWidget, { DividerWidgetProps } from "./";
 import configureStore from "redux-mock-store";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";

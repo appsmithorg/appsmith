@@ -46,8 +46,6 @@ import { getDisplayName } from "./WidgetUtils";
 import { makeGetWidgetProps } from "selectors/editorSelectors";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -106,7 +104,10 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     static displayName: string;
 
     render() {
-      console.log("Connected Widget, Rendering Widget......");
+      console.log(
+        "=====Connected Widget, Rendering Widget......",
+        this.props.widgetName,
+      );
       return this.getWidgetView(<Widget {...this.props} />);
     }
 
@@ -429,18 +430,12 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-const mapDispatchToProps = (dispatch: any, ownProps: { widgetId: string }) => ({
+export const mapDispatchToProps = (
+  dispatch: any,
+  ownProps: { widgetId: string },
+) => ({
   executeAction: (actionPayload: WidgetExecuteActionPayload): void => {
-    actionPayload.triggerPropertyName &&
-      AppsmithConsole.info({
-        text: `${actionPayload.triggerPropertyName} triggered`,
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: this.props.widgetId,
-          name: this.props.widgetName,
-        },
-      });
-    dispatch(executeAction(actionPayload));
+    dispatch(executeAction({ ...actionPayload, widgetId: ownProps.widgetId }));
   },
   disableDrag: (disable: boolean) => {
     disable !== undefined && dispatch(disableDragAction(disable));

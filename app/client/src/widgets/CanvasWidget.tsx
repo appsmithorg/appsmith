@@ -97,7 +97,6 @@ class CanvasWidget extends ContainerWidget {
 export const CONFIG = {
   type: CanvasWidget.getWidgetType(),
   name: "Canvas",
-  iconSVG: "",
   hideCard: true,
   defaults: {
     rows: 1,
@@ -106,7 +105,6 @@ export const CONFIG = {
     detachFromLayout: true,
   },
   properties: {
-    validations: CanvasWidget.getPropertyValidationMap(),
     derived: CanvasWidget.getDerivedPropertiesMap(),
     default: CanvasWidget.getDefaultPropertiesMap(),
     meta: CanvasWidget.getMetaPropertiesMap(),

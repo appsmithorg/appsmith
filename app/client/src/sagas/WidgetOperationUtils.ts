@@ -1,7 +1,4 @@
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { cloneDeep, get, isString, filter, set } from "lodash";
 import {
   CanvasWidgetsReduxState,
@@ -9,8 +6,11 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 /**
  * checks if triggerpaths contains property path passed

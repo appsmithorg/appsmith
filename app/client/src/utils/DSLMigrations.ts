@@ -4,11 +4,12 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "./generators";
 import {
   GridDefaults,
+  LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { isString } from "lodash";
+import { get, has, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
@@ -16,11 +17,118 @@ import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
 import {
   migrateTablePrimaryColumnsBindings,
+  migrateTableWidgetHeaderVisibilityProperties,
+  migrateTableWidgetParentRowSpaceProperty,
   tableWidgetPropertyPaneMigrations,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { theme } from "constants/DefaultTheme";
+import { getCanvasSnapRows } from "./WidgetPropsUtils";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { FetchPageResponse } from "api/PageApi";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import defaultTemplate from "templates/default";
+import { renameKeyInObject } from "./helpers";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
+
+/**
+ * adds logBlackList key for all list widget children
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addLogBlackListToAllListWidgetChildren = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.LIST_WIDGET) {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      widgets.map((widget: any, index: number) => {
+        const logBlackList: { [key: string]: boolean } = {};
+
+        Object.keys(widget).map((key) => {
+          logBlackList[key] = true;
+        });
+        if (!widget.logBlackList) {
+          set(
+            children,
+            `children.0.children.0.children.0.children.${index}.logBlackList`,
+            logBlackList,
+          );
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+      (path: { key: string }) => {
+        if (path.key === "items") {
+          return { key: "listData" };
+        }
+
+        return path;
+      },
+    );
+
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key, "").replace("items", "listData"),
+        );
+      }
+    });
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length > 0) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
+  return currentDSL;
+};
+
 const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
   if (
     dsl.type === WidgetTypes.CONTAINER_WIDGET ||
@@ -66,7 +174,7 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
 };
 
 //transform chart data, from old chart widget to new chart widget
-//updatd chart widget has support for multiple series
+//updated chart widget has support for multiple series
 const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (
@@ -604,7 +712,8 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
     currentDSL.snapRows =
-      Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
+      Math.floor(currentDSL.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) -
+      1;
 
     // Force the width of the canvas to 1224 px
     currentDSL.rightColumn = 1224;
@@ -826,7 +935,8 @@ const migrateWidgetsWithoutLeftRightColumns = (
       );
       canvasWidgets[currentDSL.widgetId].repositioned = true;
       const leftColumn = 0;
-      const rightColumn = WidgetConfigResponse.config[currentDSL.type].rows;
+      // TODO(abhinav): Figure out a way to get the correct values from the widgets
+      const rightColumn = 4;
       const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
       const topRow = nextRow;
       currentDSL = {
@@ -908,6 +1018,6 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };

@@ -93,12 +93,12 @@ import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import {
   EVAL_ERROR_PATH,
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;

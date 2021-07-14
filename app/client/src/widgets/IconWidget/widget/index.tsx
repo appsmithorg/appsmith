@@ -6,10 +6,6 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 const IconWrapper = styled.div`
@@ -19,10 +15,6 @@ const IconWrapper = styled.div`
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [];
-  }
-
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return BASE_WIDGET_VALIDATION;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

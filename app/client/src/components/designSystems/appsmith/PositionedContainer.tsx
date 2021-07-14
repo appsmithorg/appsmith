@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
-import styled, { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";

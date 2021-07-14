@@ -1,12 +1,16 @@
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { TabContainerWidgetProps, TabsWidgetProps } from "./TabsWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import withMeta from "widgets/MetaHOC";
-import * as Sentry from "@sentry/react";
-import { migrateTabsData } from "utils/WidgetPropsUtils";
+import {
+  TabContainerWidgetProps,
+  TabsWidgetProps,
+} from "widgets/TabsWidget/constants";
+import { WidgetType } from "constants/WidgetConstants";
+import { migrateTabsData } from "utils/DSLMigrations";
 import { cloneDeep, get } from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -88,7 +92,7 @@ class TabsMigratorWidget extends BaseWidget<
     if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
-      this.batchUpdateWidgetProperty({
+      this.props.batchUpdateWidgetProperty({
         modify: {
           tabsObj: migratedTabsDsl.tabsObj,
           type: WidgetTypes.TABS_WIDGET,
@@ -105,6 +109,3 @@ class TabsMigratorWidget extends BaseWidget<
   }
 }
 export default TabsMigratorWidget;
-export const ProfiledTabsMigratorWidget = Sentry.withProfiler(
-  withMeta(TabsMigratorWidget),
-);

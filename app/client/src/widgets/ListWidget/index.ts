@@ -2,11 +2,13 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import {
   BlueprintOperationTypes,
+  FlattenedWidgetProps,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -335,12 +337,13 @@ export const CONFIG = {
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
 
+            // TODO (abhinav): Figure out how to avoid this abstraction leak
             const disallowedWidgets = [
-              WidgetTypes.TABLE_WIDGET,
-              WidgetTypes.LIST_WIDGET,
-              WidgetTypes.TABS_WIDGET,
-              WidgetTypes.FORM_WIDGET,
-              WidgetTypes.CONTAINER_WIDGET,
+              "TABLE_WIDGET",
+              "LIST_WIDGET",
+              "TABS_WIDGET",
+              "FORM_WIDGET",
+              "CONTAINER_WIDGET",
             ];
 
             if (indexOf(disallowedWidgets, widget.type) > -1) {

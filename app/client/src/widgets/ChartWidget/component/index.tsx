@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
 import {
-  ChartData,
   ChartDataPoint,
   ChartType,
   CustomFusionChartConfig,

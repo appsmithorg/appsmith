@@ -1,6 +1,5 @@
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
@@ -38,7 +37,6 @@ import * as sentry from "@sentry/react";
 const sagas = [
   initSagas,
   pageSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
   watchActionExecutionSagas,
   widgetOperationSagas,

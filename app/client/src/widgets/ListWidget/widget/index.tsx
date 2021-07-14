@@ -31,6 +31,7 @@ import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
 import { ListWidgetProps } from "../constants";
+import { DSLWidget } from "widgets/constants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -233,7 +234,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow =
       this.props.bottomRow * this.props.parentRowSpace - 45;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
   /**
@@ -242,11 +243,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param children
    */
-  updatePosition = (
-    children: ContainerWidgetProps<WidgetProps>[],
-  ): ContainerWidgetProps<WidgetProps>[] => {
+  updatePosition = (children: DSLWidget[]): DSLWidget[] => {
     const gridGap = this.props.gridGap || 0;
-    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+    return children.map((child: DSLWidget, index) => {
       const gap = gridGap - 8;
 
       return {
@@ -417,12 +416,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  useNewValues = (children: ContainerWidgetProps<WidgetProps>[]) => {
+  useNewValues = (children: DSLWidget[]) => {
     const updatedChildren = children.map(
-      (
-        listItemContainer: ContainerWidgetProps<WidgetProps>,
-        listItemIndex: number,
-      ) => {
+      (listItemContainer: DSLWidget, listItemIndex: number) => {
         let updatedListItemContainer = listItemContainer;
         // Get an array of children in the current list item
         const listItemChildren = get(
@@ -489,7 +485,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
-  updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
+  updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
@@ -498,8 +494,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
-  updateActions = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+  updateActions = (children: DSLWidget[]) => {
+    return children.map((child: DSLWidget, index) => {
       return {
         ...child,
         onClickCapture: () =>
@@ -515,7 +511,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param children
    */
-  paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
+  paginateItems = (children: DSLWidget[]) => {
     const { page } = this.state;
     const { perPage, shouldPaginate } = this.shouldPaginate();
 

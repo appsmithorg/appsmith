@@ -9,7 +9,7 @@ import { WidgetOperations } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,

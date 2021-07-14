@@ -6,11 +6,14 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import SettingsControl, { Activities } from "./SettingsControl";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number }>`
   position: absolute;

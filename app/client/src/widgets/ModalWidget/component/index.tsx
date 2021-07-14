@@ -64,8 +64,7 @@ export type ModalComponentProps = {
   zIndex?: number;
 };
 
-/* eslint-disable react/display-name */
-export const ModalComponent = (props: ModalComponentProps) => {
+export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
@@ -76,29 +75,29 @@ export const ModalComponent = (props: ModalComponentProps) => {
   }, [props.scrollContents]);
   return (
     <Container
-      width={props.width}
       height={props.height}
-      top={props.top}
       left={props.left}
+      top={props.top}
+      width={props.width}
       zIndex={props.zIndex !== undefined ? props.zIndex : 2}
     >
       <Overlay
-        isOpen={props.isOpen}
-        onClose={props.onClose}
-        canOutsideClickClose={props.canOutsideClickClose}
         canEscapeKeyClose={props.canEscapeKeyClose}
-        usePortal={false}
+        canOutsideClickClose={props.canOutsideClickClose}
         enforceFocus={false}
         hasBackdrop={
           props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
         }
+        isOpen={props.isOpen}
+        onClose={props.onClose}
+        usePortal={false}
       >
         <div>
           <Content
-            scroll={props.scrollContents}
             className={`${getCanvasClassName()} ${props.className}`}
             height={props.height}
             ref={modalContentRef}
+            scroll={props.scrollContents}
           >
             {props.children}
           </Content>
@@ -106,6 +105,6 @@ export const ModalComponent = (props: ModalComponentProps) => {
       </Overlay>
     </Container>
   );
-};
+}
 
 export default ModalComponent;

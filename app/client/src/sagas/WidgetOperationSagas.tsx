@@ -63,9 +63,6 @@ import {
   RenderModes,
   WIDGET_DELETE_UNDO_TIMEOUT,
 } from "constants/WidgetConstants";
-import WidgetConfigResponse, {
-  GRID_DENSITY_MIGRATION_V1,
-} from "mockResponses/WidgetConfigResponse";
 import {
   flushDeletedWidgets,
   getCopiedWidgets,
@@ -134,13 +131,21 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, newWidgetId, props, topRow, type } = params;
-  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
+  const { leftColumn, newWidgetId, topRow, type } = params;
+  let {
+    columns,
+    parentColumnSpace,
+    parentRowSpace,
+    props,
+    rows,
+    widgetName,
+  } = params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
@@ -474,7 +479,7 @@ export function* deleteAllSelectedWidgetsSaga(
   deleteAction: ReduxAction<MultipleWidgetDeletePayload>,
 ) {
   try {
-    const { disallowUndo = false, isShortcut } = deleteAction.payload;
+    const { disallowUndo = false } = deleteAction.payload;
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
@@ -785,7 +790,6 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               const parent = cloneDeep(widgets[widget.parentId]);
               if (parent.tabsObj) {
                 try {
-                  const tabs = Object.values(parent.tabsObj);
                   parent.tabsObj[widget.tabId] = {
                     id: widget.tabId,
                     widgetId: widget.widgetId,
@@ -1228,8 +1232,8 @@ function* batchUpdateWidgetPropertySaga(
     widget = yield removeWidgetProperties(widget, remove);
   }
 
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
+  // const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  // const widgets = { ...stateWidgets, [widgetId]: widget };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -1581,7 +1585,6 @@ function* pasteWidgetSaga() {
           const widgetIdMap: Record<string, string> = {};
           const widgetNameMap: Record<string, string> = {};
           const newWidgetList: FlattenedWidgetProps[] = [];
-          let newWidgetId: string = copiedWidget.widgetId;
           // Generate new widgetIds for the flat list of all the widgets to be updated
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
@@ -1668,7 +1671,6 @@ function* pasteWidgetSaga() {
 
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
-              newWidgetId = widget.widgetId;
               widget.leftColumn = leftColumn;
               widget.topRow = topRow;
               widget.bottomRow = bottomRow;

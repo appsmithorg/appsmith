@@ -35,6 +35,9 @@ import {
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
+import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { getWidget } from "./selectors";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -198,6 +201,24 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
+function* logActionSaga(action: ReduxAction<WidgetExecuteActionPayload>) {
+  const { triggerPropertyName, widgetId } = action.payload;
+  if (triggerPropertyName && widgetId) {
+    const widget = yield select(getWidget, widgetId);
+    AppsmithConsole.info({
+      text: `${triggerPropertyName} triggered`,
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: widgetId,
+        name: widget.widgetName,
+      },
+    });
+  }
+}
+
 export default function* debuggerSagasListeners() {
-  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
+  yield all([
+    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
+    takeEvery(ReduxActionTypes.EXECUTE_ACTION, logActionSaga),
+  ]);
 }

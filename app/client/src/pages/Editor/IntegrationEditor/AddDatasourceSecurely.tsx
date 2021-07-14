@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Secure from "assets/images/secure.svg";
 import AppsmithDatasource from "assets/images/appsmith-datasource.svg";
 import { Colors } from "constants/Colors";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;

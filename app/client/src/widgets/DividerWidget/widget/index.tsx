@@ -160,7 +160,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
         orientation={this.props.orientation}
         strokeStyle={this.props.strokeStyle}
         thickness={this.props.thickness}
-        widgetId={this.props.widgetId}
       />
     );
   }

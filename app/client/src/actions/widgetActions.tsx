@@ -7,6 +7,7 @@ import {
 import {
   ExecuteActionPayload,
   ExecuteErrorPayload,
+  WidgetExecuteActionPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
@@ -14,12 +15,13 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 
 export const executeAction = (
-  payload: ExecuteActionPayload,
-): BatchAction<ExecuteActionPayload> =>
-  batchAction({
+  payload: ExecuteActionPayload | WidgetExecuteActionPayload,
+): BatchAction<ExecuteActionPayload> => {
+  return batchAction({
     type: ReduxActionTypes.EXECUTE_ACTION,
     payload,
   });
+};
 
 export const executeActionError = (
   executeErrorPayload: ExecuteErrorPayload,

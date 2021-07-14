@@ -62,7 +62,7 @@ import DividerWidget, {
 } from "widgets/DividerWidget";
 import TabsMigratorWidget, {
   CONFIG as TABS_MIGRATOR_WIDGET_CONFIG,
-} from "widgets/Tabs/TabsMigrator";
+} from "widgets/TabsMigrator";
 import RateWidget, { CONFIG as RATE_WIDGET_CONFIG } from "widgets/RateWidget";
 import IframeWidget, {
   CONFIG as IFRAME_WIDGET_CONFIG,

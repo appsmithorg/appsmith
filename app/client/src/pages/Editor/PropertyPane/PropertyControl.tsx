@@ -256,7 +256,9 @@ const PropertyControl = memo((props: Props) => {
     let dataTreePath: string =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
     if (childWidgetDataTreePathEnhancementFn) {
-      dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
+      dataTreePath = childWidgetDataTreePathEnhancementFn(
+        dataTreePath,
+      ) as string;
     }
 
     const evaluatedValue = _.get(
@@ -295,19 +297,23 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete = undefined;
+    let additionAutocomplete:
+      | Record<string, Record<string, unknown>>
+      | undefined = undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
-      additionAutocomplete = childWidgetAutoCompleteEnhancementFn();
+      additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
+        | Record<string, Record<string, unknown>>
+        | undefined;
     }
 
     /**
      * if the current widget requires a customJSControl, use that.
      */
-    const getCustomJSControl = () => {
+    const getCustomJSControl = (): string | undefined => {
       if (childWidgetCustomJSControlEnhancementFn) {
-        return childWidgetCustomJSControlEnhancementFn();
+        return childWidgetCustomJSControlEnhancementFn() as string | undefined;
       }
 
       return props.customJSControl;
@@ -317,9 +323,9 @@ const PropertyControl = memo((props: Props) => {
      * should the property control hide evaluated popover
      * @returns
      */
-    const hideEvaluatedValue = () => {
+    const hideEvaluatedValue = (): boolean => {
       if (childWidgetHideEvaluatedValueEnhancementFn) {
-        return childWidgetHideEvaluatedValueEnhancementFn();
+        return childWidgetHideEvaluatedValueEnhancementFn() as boolean;
       }
 
       return false;

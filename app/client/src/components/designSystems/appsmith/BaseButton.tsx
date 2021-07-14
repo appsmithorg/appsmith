@@ -106,6 +106,6 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
 `;
 
 // To be used in any other part of the app
-export const BaseButton = (props: IButtonProps & ButtonStyleProps) => {
+export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   return <ButtonWrapper {...props} />;
-};
+}

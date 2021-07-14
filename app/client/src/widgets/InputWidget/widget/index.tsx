@@ -10,7 +10,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { InputType } from "../constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {

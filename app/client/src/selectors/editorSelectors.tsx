@@ -108,10 +108,8 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
-export const getCanvasWidth = (
-  state: AppState,
-  ownProps: { widgetId: string },
-) => state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) =>
+  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
 
 export const getWidgetFromDataTree = (
   state: AppState,
@@ -138,9 +136,7 @@ export const getWidgetFromDataTree = (
 export const getWidgetFromCanvasWidgets = (
   state: AppState,
   ownProps: { widgetId: string },
-) => {
-  if (!ownProps.widgetId) return;
-
+): WidgetProps => {
   const props = state.entities.canvasWidgets[ownProps.widgetId];
   return produce(props, (draft) => {
     for (const [key, value] of Object.entries(ownProps)) {
@@ -153,18 +149,19 @@ export const getWidgetFromCanvasWidgets = (
 export const makeGetWidgetProps = () => {
   return createSelector(
     getCanvasWidth,
-    getWidgetFromDataTree,
     getWidgetFromCanvasWidgets,
+    getWidgetFromDataTree,
     (
       canvasWidth: number,
+      canvasWidget: WidgetProps,
       dataTreeWidget?: WidgetProps,
-      canvasWidget?: WidgetProps,
-    ) => {
+    ): WidgetProps => {
       console.log("Connected Widgets, Widget Props selector", {
         widget: dataTreeWidget || canvasWidget,
       });
+      const props: WidgetProps = dataTreeWidget || canvasWidget;
       // TODO(abhinav): Get static props from canvas widget and others from dataTree widget
-      return { ...(dataTreeWidget || canvasWidget), canvasWidth: canvasWidth };
+      return { ...props, canvasWidth: canvasWidth };
     },
   );
 };

@@ -6,7 +6,6 @@ import {
   WidgetRowCols,
   WidgetProps,
 } from "widgets/BaseWidget";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { generateClassName } from "utils/generators";
 import { DropTargetContext } from "./DropTargetComponent";
 import {
@@ -18,7 +17,7 @@ import {
   useShowPropertyPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
 import { omit, get } from "lodash";
@@ -40,6 +39,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { updateWidget } from "actions/pageActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -48,9 +48,9 @@ export type ResizableComponentProps = WidgetProps & {
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
+  const dispatch = useDispatch();
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
-  const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
 
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
@@ -224,8 +224,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (newRowCols) {
       persistDropTargetRows &&
         persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
-      updateWidget &&
-        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
+      dispatch(
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols),
+      );
     }
     // Tell the Canvas that we've stopped resizing
     // Put it later in the stack so that other updates like click, are not propagated to the parent container
