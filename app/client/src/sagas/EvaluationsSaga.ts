@@ -14,7 +14,10 @@ import {
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -305,7 +308,6 @@ function* logSuccessfulBindings(
 function* updateTernDefinitions(
   dataTree: DataTree,
   evaluationOrder: string[],
-  removedPaths: string[],
   isFirstEvaluation: boolean,
 ) {
   const updatedEntities: Set<string> = new Set();
@@ -326,12 +328,12 @@ function* updateTernDefinitions(
       TernServer.updateDef(name, def);
     }
   });
-  removedPaths.forEach((path) => {
-    // No '.' means that the path is an entity name
-    if (path.split(".").length === 1) {
-      TernServer.removeDef(path);
-    }
-  });
+  // removedPaths.forEach((path) => {
+  //   // No '.' means that the path is an entity name
+  //   if (path.split(".").length === 1) {
+  //     TernServer.removeDef(path);
+  //   }
+  // });
 }
 
 function* postEvalActionDispatcher(
@@ -348,6 +350,7 @@ function* evaluateTreeSaga(
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
+  console.log(unevalTree);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -365,33 +368,40 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
-    removedPaths,
+    updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
-  yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
-  yield fork(
-    updateTernDefinitions,
-    dataTree,
-    evaluationOrder,
-    removedPaths,
-    isFirstEvaluation,
-  );
-
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: { dataTree, evaluationOrder, removedPaths },
+    payload: { dataTree, updates },
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
+  const updatedDataTree = yield select(getDataTree);
+
+  log.debug({ dataTree: updatedDataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  yield fork(
+    logSuccessfulBindings,
+    unevalTree,
+    updatedDataTree,
+    evaluationOrder,
+  );
+  yield fork(
+    updateTernDefinitions,
+    updatedDataTree,
+    evaluationOrder,
+    isFirstEvaluation,
+  );
+
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },
