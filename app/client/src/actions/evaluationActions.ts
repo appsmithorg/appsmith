@@ -76,10 +76,3 @@ export const setDependencyMap = (
     payload: { inverseDependencyMap },
   };
 };
-
-export const setLastEvaluationOrder = (evaluationOrder: string[]) => {
-  return {
-    type: ReduxActionTypes.SET_LAST_EVALUATION_ORDER,
-    payload: evaluationOrder,
-  };
-};

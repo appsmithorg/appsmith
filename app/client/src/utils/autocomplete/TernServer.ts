@@ -84,7 +84,6 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   entityInformation: HintEntityInformation = {};
-  recentPaths: Set<string> = new Set([]);
 
   constructor() {
     this.server = new tern.Server({
@@ -98,7 +97,6 @@ class TernServer {
       async: true,
       defs: DEFS,
     });
-    this.recentPaths = new Set();
     this.docs = Object.create(null);
   }
 
@@ -199,7 +197,6 @@ class TernServer {
       completions,
       onlySingleBinding,
       searchText,
-      this.recentPaths,
       expectedDataType,
       entityName,
       entityType,
@@ -272,7 +269,6 @@ class TernServer {
     completions: Completion[],
     findBestMatch: boolean,
     bestMatchSearch: string,
-    recentPaths: Set<string>,
     expectedDataType: DataType,
     entityName?: string,
     entityType?: ENTITY_TYPE,
@@ -376,12 +372,6 @@ class TernServer {
           aRank = aRank + 1;
         }
         if (entityTypeB === entityType) {
-          bRank = bRank + 1;
-        }
-        if (recentPaths.has(a.text)) {
-          aRank = aRank + 1;
-        }
-        if (recentPaths.has(b.text)) {
           bRank = bRank + 1;
         }
         return aRank - bRank;
@@ -845,10 +835,6 @@ class TernServer {
 
   setEntityInformation(entityInformation: HintEntityInformation) {
     this.entityInformation = entityInformation;
-  }
-
-  setRecentEvaluations(recentEvaluations: string[][]) {
-    this.recentPaths = new Set(_.flatten(recentEvaluations));
   }
 }
 

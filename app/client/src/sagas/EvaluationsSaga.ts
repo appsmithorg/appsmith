@@ -30,7 +30,6 @@ import {
   FIRST_EVAL_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
-  setLastEvaluationOrder,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
 import {
@@ -39,8 +38,6 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import TernServer from "utils/autocomplete/TernServer";
-import { AppState } from "reducers";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -95,11 +92,6 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   yield put(setDependencyMap(dependencies));
-  yield put(setLastEvaluationOrder(evaluationOrder));
-  const recentEvaluations = yield select(
-    (state: AppState) => state.evaluations.recentEvaluations,
-  );
-  TernServer.setRecentEvaluations(recentEvaluations);
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
