@@ -7,6 +7,7 @@ import {
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
+  indexOf,
   isBoolean,
   isNil,
   isNumber,
@@ -14,10 +15,15 @@ import _, {
   isPlainObject,
   isString,
   isUndefined,
+  startsWith,
   toNumber,
   toString,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
+import {
+  CUSTOM_CHART_TYPES,
+  CUSTOM_CHART_DEFAULT_PARSED,
+} from "../constants/CustomChartConstants";
 import moment from "moment";
 
 export function validateDateString(
@@ -143,9 +149,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     let parsed = value;
     if (isUndefined(value)) {
       return {
-        isValid: false,
+        isValid: true,
         parsed: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     const isABoolean = isBoolean(value);
@@ -155,7 +160,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (!isValid) {
       return {
         isValid: isValid,
-        parsed: parsed,
+        parsed: !!parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
@@ -196,6 +201,39 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           parsed: [],
           transformed: undefined,
           message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+        };
+      }
+      if (isString(value)) {
+        parsed = JSON.parse(parsed as string);
+      }
+
+      if (!Array.isArray(parsed)) {
+        return {
+          isValid: false,
+          parsed: [],
+          transformed: parsed,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+        };
+      }
+
+      return { isValid: true, parsed, transformed: parsed };
+    } catch (e) {
+      return {
+        isValid: false,
+        parsed: [],
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+      };
+    }
+  },
+  [VALIDATION_TYPES.ARRAY_OPTIONAL]: (value: any): ValidationResponse => {
+    let parsed = value;
+    try {
+      if (!value) {
+        return {
+          isValid: true,
+          parsed: undefined,
+          transformed: undefined,
         };
       }
       if (isString(value)) {
@@ -413,6 +451,15 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
+      };
+    }
+    // check custom chart exist or not
+    const typeExist = indexOf(CUSTOM_CHART_TYPES, parsed.type) !== -1;
+    if (!typeExist) {
+      return {
+        isValid: false,
+        parsed: { ...CUSTOM_CHART_DEFAULT_PARSED },
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
@@ -1018,5 +1065,71 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       parsed: [],
       message: `${WIDGET_TYPE_VALIDATION_ERROR}: number[]`,
     };
+  },
+  [VALIDATION_TYPES.RATE_DEFAULT_RATE]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+      value,
+      props,
+    );
+    if (!isValid) {
+      return { isValid, parsed, message };
+    }
+    // default rate must be less than max count
+    if (!isNaN(props.maxCount) && Number(value) > Number(props.maxCount)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value must be less than or equal to max count`,
+      };
+    }
+    // default rate can be a decimal onlf if Allow half property is true
+    if (!props.isAllowHalf && !Number.isInteger(parsed)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value can be a decimal onlf if 'Allow half' is true`,
+      };
+    }
+    return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.RATE_MAX_COUNT]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+      value,
+      props,
+    );
+    if (!isValid) {
+      return { isValid, parsed, message };
+    }
+    // max count must be integer
+    if (!Number.isInteger(parsed)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value must be integer`,
+      };
+    }
+    return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.COLOR_PICKER_TEXT]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    // check value should be string
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](value, props);
+    // check value should not html tag or unparsed js
+    if (startsWith(parsed, "{{") || startsWith(parsed, "<")) {
+      return {
+        isValid: false,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    return { isValid, parsed };
   },
 };

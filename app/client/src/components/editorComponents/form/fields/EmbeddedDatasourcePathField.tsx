@@ -63,7 +63,6 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: calc(100% - 155px);
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -82,14 +81,21 @@ const datasourceNameStyles: React.CSSProperties = {
   fontSize: "14px",
   fontWeight: 500,
   color: "#090707",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 const datasourceInfoStyles: React.CSSProperties = {
   color: "#4B4848",
   fontWeight: 400,
   fontSize: "12px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 const italicInfoStyles = {
   ...datasourceInfoStyles,
+  flexShrink: 0,
   fontStyle: "italic",
 };
 
@@ -152,7 +158,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = datasource.datasourceConfiguration.url;
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -198,7 +204,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url.length;
+        const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -299,7 +305,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     return (
       <DatasourceContainer>
         <CodeEditor {...props} />
-        {datasource && !("id" in datasource) ? (
+        {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon

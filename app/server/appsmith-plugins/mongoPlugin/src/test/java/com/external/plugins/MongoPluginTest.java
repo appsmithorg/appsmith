@@ -49,7 +49,6 @@ import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
 import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.ConfigurationIndex.BSON;
 import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
@@ -57,14 +56,16 @@ import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
 import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
 import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
+import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
+import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_LIMIT;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -233,6 +234,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -273,6 +279,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -314,6 +325,11 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -331,7 +347,7 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DELETE");
         configMap.put(COLLECTION, "users");
@@ -357,6 +373,11 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -388,6 +409,11 @@ public class MongoPluginTest {
                 "      find: \"users\",\n" +
                 "      limit: 1,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -519,9 +545,9 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "UPDATE_MANY");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_MANY_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_MANY_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "UPDATE");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -733,6 +759,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -767,6 +798,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -801,6 +837,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -833,6 +874,8 @@ public class MongoPluginTest {
                 "    }");
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -937,7 +980,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "FIND");
         configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
@@ -970,7 +1013,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "INSERT");
         configMap.put(COLLECTION, "users");
@@ -997,7 +1040,7 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DELETE");
         configMap.put(COLLECTION, "users");
@@ -1014,7 +1057,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "INSERT");
         configMap.put(COLLECTION, "users");
@@ -1041,7 +1084,7 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DELETE");
         configMap.put(COLLECTION, "users");
@@ -1058,12 +1101,13 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "UPDATE_ONE");
+        configMap.put(COMMAND, "UPDATE");
         configMap.put(COLLECTION, "users");
-        configMap.put(UPDATE_ONE_QUERY, "{ name: \"Alden Cantrell\" }");
-        configMap.put(UPDATE_ONE_UPDATE, "{ $set: { age: 31 }}}");
+        configMap.put(UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
+        configMap.put(UPDATE_UPDATE, "{ $set: { age: 31 }}}");
+        configMap.put(UPDATE_LIMIT, "SINGLE");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1077,10 +1121,8 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    value = ((ObjectNode) result.getBody()).get("value");
-                    assertNotNull(value);
-                    assertEquals("Alden Cantrell", value.get("name").asText());
-                    assertEquals(31, value.get("age").asInt());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
+                    assertEquals(value.asText(), "1");
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
@@ -1094,13 +1136,14 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "UPDATE_MANY");
+        configMap.put(COMMAND, "UPDATE");
         configMap.put(COLLECTION, "users");
         // Query for all the documents in the collection
-        configMap.put(UPDATE_MANY_QUERY, "{}");
-        configMap.put(UPDATE_MANY_UPDATE, "{ $set: { updatedByCommand: true }}}");
+        configMap.put(UPDATE_QUERY, "{}");
+        configMap.put(UPDATE_UPDATE, "{ $set: { updatedByCommand: true }}}");
+        configMap.put(UPDATE_LIMIT, "ALL");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1133,7 +1176,7 @@ public class MongoPluginTest {
 
         Map<Integer, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "INSERT");
         configMap.put(COLLECTION, "users");
@@ -1143,7 +1186,7 @@ public class MongoPluginTest {
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete one of them
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DELETE");
         configMap.put(COLLECTION, "users");
@@ -1180,7 +1223,7 @@ public class MongoPluginTest {
 
         Map<Integer, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "INSERT");
         configMap.put(COLLECTION, "users");
@@ -1190,7 +1233,7 @@ public class MongoPluginTest {
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete both of them
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DELETE");
         configMap.put(COLLECTION, "users");
@@ -1221,7 +1264,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "COUNT");
         configMap.put(COLLECTION, "users");
@@ -1251,7 +1294,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "DISTINCT");
         configMap.put(COLLECTION, "users");
@@ -1282,7 +1325,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "AGGREGATE");
         configMap.put(COLLECTION, "users");
@@ -1300,6 +1343,101 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode value = ((ArrayNode) result.getBody()).get(0).get("userCount");
                     assertEquals(value.asInt(), 3);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFindCommandProjection() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        configMap.put(FIND_SORT, "{ id: 1 }");
+        configMap.put(FIND_PROJECTION, "{ name: 1 }");
+        configMap.put(COLLECTION, "users");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    JsonNode value = ((ArrayNode) result.getBody()).get(0).get("name");
+                    assertNotNull(value);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBsonSmartSubstitutionMongoForm() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(FIND_QUERY, "\"{{Input1.text}}\"");
+        configMap.put(FIND_SORT, "{ id: {{Input2.text}} }");
+        configMap.put(FIND_LIMIT, "{{Input3.text}}");
+        configMap.put(COLLECTION, "{{Input4.text}}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ age: { \"$gte\": 30 } }");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("1");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input3.text");
+        param4.setValue("10");
+        params.add(param4);
+        Param param5 = new Param();
+        param5.setKey("Input4.text");
+        param5.setValue("users");
+        params.add(param5);
+        executeActionDTO.setParams(params);
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+
+                    String expectedQuery = "{\"find\": \"users\", \"filter\": {\"age\": {\"$gte\": 30}}, \"sort\": {\"id\": 1}, \"limit\": 10, \"batchSize\": 10}";
+                    assertEquals(expectedQuery,
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }

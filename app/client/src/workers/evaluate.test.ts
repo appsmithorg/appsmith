@@ -25,6 +25,7 @@ describe("evaluate", () => {
     bindingPaths: {},
     triggerPaths: {},
     validationPaths: {},
+    logBlackList: {},
   };
   const dataTree: DataTree = {
     Input1: widget,
@@ -34,19 +35,45 @@ describe("evaluate", () => {
     const response = evaluate(js, {});
     expect(response.result).toBe("Hello!");
   });
-  it("unescapes string and removes linebreaks before evaluation", () => {
-    const js = "'Hello,\\nworld!'";
-    const response = evaluate(js, {});
-    expect(response.result).toBe("Hello,world!");
-  });
   it("throws error for undefined js", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
-  it("throws for syntax errors", () => {
-    expect(() => evaluate("wrongJS", {})).toThrow(ReferenceError);
-    expect(() => evaluate("{}.map()", {})).toThrow(TypeError);
+  it("Returns for syntax errors", () => {
+    const response1 = evaluate("wrongJS", {});
+    expect(response1).toStrictEqual({
+      result: undefined,
+      triggers: [],
+      errors: [
+        {
+          errorMessage: "'wrongJS' is not defined.",
+          errorSegment: "return wrongJS",
+          errorType: "LINT",
+          raw: "return wrongJS",
+          severity: "warning",
+        },
+        {
+          errorMessage: "ReferenceError: wrongJS is not defined",
+          errorType: "PARSE",
+          raw: "return wrongJS",
+          severity: "error",
+        },
+      ],
+    });
+    const response2 = evaluate("{}.map()", {});
+    expect(response2).toStrictEqual({
+      result: undefined,
+      triggers: [],
+      errors: [
+        {
+          errorMessage: "TypeError: {}.map is not a function",
+          errorType: "PARSE",
+          raw: "return {}.map()",
+          severity: "error",
+        },
+      ],
+    });
   });
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
@@ -55,7 +82,7 @@ describe("evaluate", () => {
   });
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, undefined, true);
     expect(response.result).toBe(undefined);
     expect(response.triggers).toStrictEqual([
       {
@@ -69,7 +96,19 @@ describe("evaluate", () => {
   });
   it("disallows unsafe function calls", () => {
     const js = "setTimeout(() => {}, 100)";
-    expect(() => evaluate(js, dataTree)).toThrow(TypeError);
+    const response = evaluate(js, dataTree);
+    expect(response).toStrictEqual({
+      result: undefined,
+      triggers: [],
+      errors: [
+        {
+          errorMessage: "TypeError: setTimeout is not a function",
+          errorType: "PARSE",
+          raw: "return setTimeout(() => {}, 100)",
+          severity: "error",
+        },
+      ],
+    });
   });
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";

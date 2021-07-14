@@ -16,18 +16,19 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
+import { renameKeyInObject, snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { has, isString, omit, set } from "lodash";
+import { get, has, isString, omit, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
+  migrateTableWidgetHeaderVisibilityProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -38,6 +39,7 @@ import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { theme } from "../../src/constants/DefaultTheme";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -522,13 +524,20 @@ export function migrateChartDataFromArrayToObject(
   return currentDSL;
 }
 
+const pixelToNumber = (pixel: string) => {
+  if (pixel.includes("px")) {
+    return parseInt(pixel.split("px").join(""));
+  }
+  return 0;
+};
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = {},
   presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
 ) => {
-  let minmumHeight = presentMinimumHeight;
+  let minimumHeight = presentMinimumHeight;
   const nextAvailableRow = nextAvailableRowInContainer(
     MAIN_CONTAINER_WIDGET_ID,
     canvasWidgets,
@@ -537,19 +546,19 @@ export const calculateDynamicHeight = (
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 2 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 2 * DGRH (approx)
-  // buffer = DGRH, it's not 2 * DGRH coz we already add a buffer on the canvas which is also equal to DGRH.
-  const buffer = gridRowHeight;
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
   if (
     calculatedCanvasHeight < screenHeight &&
     calculatedMinHeight !== presentMinimumHeight
   ) {
-    minmumHeight = calculatedMinHeight;
+    minimumHeight = calculatedMinHeight;
   }
-  return minmumHeight;
+  return minimumHeight;
 };
 
 export const migrateInitialValues = (
@@ -761,10 +770,67 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 22) {
     currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
+    currentDSL.version = 23;
+  }
+
+  if (currentDSL.version === 23) {
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 24;
+  }
+
+  if (currentDSL.version === 24) {
+    currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = 25;
+  }
+
+  if (currentDSL.version === 25) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = 26;
+  }
+  if (currentDSL.version === 26) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
+};
+
+const addFilterDefaultValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    if (!currentDSL.hasOwnProperty("isFilterable")) {
+      currentDSL.isFilterable = true;
+    }
+  }
+  return currentDSL;
+};
+export const migrateFilterValueForDropDownWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addFilterDefaultValue(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateFilterValueForDropDownWidget(children);
+  });
+
+  return newDSL;
+};
+export const migrateObjectFitToImageWidget = (
+  dsl: ContainerWidgetProps<WidgetProps>,
+) => {
+  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+    widgetProps.objectFit = "cover";
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        if (widgetProps.type === "IMAGE_WIDGET") {
+          addObjectFitProperty(eachWidgetProp);
+        }
+      });
+    }
+  };
+  addObjectFitProperty(dsl);
+  return dsl;
 };
 
 const migrateOverFlowingTabsWidgets = (
@@ -929,7 +995,7 @@ export const getDropZoneOffsets = (
   );
 };
 
-const areIntersecting = (r1: Rect, r2: Rect) => {
+export const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(
     r2.left >= r1.right ||
     r2.right <= r1.left ||
@@ -1163,4 +1229,100 @@ export const generateWidgetProps = (
       throw Error("Failed to create widget: Parent's size cannot be calculate");
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
+};
+
+/**
+ * adds logBlackList key for all list widget children
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addLogBlackListToAllListWidgetChildren = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.LIST_WIDGET) {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      widgets.map((widget: any, index: number) => {
+        const logBlackList: { [key: string]: boolean } = {};
+
+        Object.keys(widget).map((key) => {
+          logBlackList[key] = true;
+        });
+        if (!widget.logBlackList) {
+          set(
+            children,
+            `children.0.children.0.children.0.children.${index}.logBlackList`,
+            logBlackList,
+          );
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+      (path: { key: string }) => {
+        if (path.key === "items") {
+          return { key: "listData" };
+        }
+
+        return path;
+      },
+    );
+
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key, "").replace("items", "listData"),
+        );
+      }
+    });
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length > 0) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
+  return currentDSL;
 };

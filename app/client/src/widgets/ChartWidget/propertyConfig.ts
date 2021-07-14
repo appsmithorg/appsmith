@@ -68,8 +68,8 @@ export default [
     children: [
       {
         helpText:
-          "Manually configure a FusionChart, see https://www.fusioncharts.com",
-        placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+          "Manually configure a FusionChart, see https://docs.appsmith.com/widget-reference/chart#custom-chart",
+        placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
         controlType: "CUSTOM_FUSION_CHARTS_DATA",

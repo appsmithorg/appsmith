@@ -24,7 +24,10 @@ import {
   setAppMode,
   updateAppPersistentStore,
 } from "actions/pageActions";
-import { fetchDatasources } from "actions/datasourceActions";
+import {
+  fetchDatasources,
+  fetchMockDatasources,
+} from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchJSActions } from "actions/jsActionActions";
@@ -42,7 +45,6 @@ import {
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { initCommentThreads } from "actions/commentActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -99,7 +101,7 @@ function* initializeEditorSaga(
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
         fetchPageList(applicationId, APP_MODE.EDIT),
-        fetchPage(pageId),
+        fetchPage(pageId, true),
         fetchApplication(applicationId, APP_MODE.EDIT),
       ],
       [
@@ -122,14 +124,16 @@ function* initializeEditorSaga(
 
     if (!jsActionsCall) return;
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
-      [fetchPlugins(), fetchDatasources()],
+      [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
       [
         ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
         ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+        ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
         ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+        ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ],
     );
     if (!pluginsAndDatasourcesCalls) return;
@@ -160,9 +164,6 @@ function* initializeEditorSaga(
       appId: appId,
       appName: appName,
     });
-
-    // todo remove (for dev)
-    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -255,9 +256,6 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
-
-    // todo remove (for dev)
-    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

@@ -4,6 +4,7 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import { Row } from "react-table";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
@@ -46,6 +47,8 @@ interface ReactTableComponentProps {
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
+  unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
@@ -66,6 +69,11 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleSearch?: boolean;
+  isVisibleFilters?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleCompactMode?: boolean;
+  isVisiblePagination?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -81,6 +89,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    isVisibleCompactMode,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
+    multiRowSelection,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -88,12 +102,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     prevPageClick,
     searchKey,
     searchTableData,
+    selectAllRow,
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
     triggerRowSelection,
+    unSelectAllRow,
     updateCompactMode,
     updatePageNo,
     widgetId,
@@ -212,6 +228,17 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onRowClick(row.original, row.index);
   };
 
+  const toggleAllRowSelect = (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => {
+    if (isSelect) {
+      selectAllRow(pageData);
+    } else {
+      unSelectAllRow(pageData);
+    }
+  };
+
   return (
     <Table
       applyFilter={applyFilter}
@@ -230,6 +257,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
+      isVisibleCompactMode={isVisibleCompactMode}
+      isVisibleDownload={isVisibleDownload}
+      isVisibleFilters={isVisibleFilters}
+      isVisiblePagination={isVisiblePagination}
+      isVisibleSearch={isVisibleSearch}
+      multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
@@ -241,6 +274,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
+      toggleAllRowSelect={toggleAllRowSelect}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
@@ -262,6 +296,11 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.handleResizeColumn === next.handleResizeColumn &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
+    prev.isVisibleCompactMode === next.isVisibleCompactMode &&
+    prev.isVisibleDownload === next.isVisibleDownload &&
+    prev.isVisibleFilters === next.isVisibleFilters &&
+    prev.isVisiblePagination === next.isVisiblePagination &&
+    prev.isVisibleSearch === next.isVisibleSearch &&
     prev.nextPageClick === next.nextPageClick &&
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&

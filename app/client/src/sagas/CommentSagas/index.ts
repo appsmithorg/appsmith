@@ -1,22 +1,10 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
-  put,
-  takeLatest,
-  take,
-  all,
-  call,
-  actionChannel,
-  fork,
-  select,
-} from "redux-saga/effects";
-// import { updateLayout, getTestComments } from "comments/init";
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
+import { put, takeLatest, all, call, fork, select } from "redux-saga/effects";
 import {
-  COMMENT_EVENTS_CHANNEL,
-  // COMMENT_EVENTS,
-} from "constants/CommentConstants";
-import handleCommentEvents from "./handleCommentEvents";
-import {
-  // commentEvent,
   createUnpublishedCommentThreadSuccess,
   removeUnpublishedCommentThreads,
   createCommentThreadSuccess,
@@ -29,6 +17,8 @@ import {
   deleteCommentThreadSuccess,
   setAreCommentsEnabled,
   setCommentMode,
+  fetchUnreadCommentThreadsCountSuccess,
+  decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -40,11 +30,12 @@ import { waitForFetchUserSuccess } from "sagas/userSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
-// import { getAppsmithConfigs } from "configs";
-
 import { validateResponse } from "../ErrorSagas";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
   CreateCommentThreadPayload,
@@ -53,37 +44,9 @@ import {
 import { RawDraftContentState } from "draft-js";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { get } from "lodash";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
-
-// const { commentsTestModeEnabled } = getAppsmithConfigs();
-// export function* initCommentThreads() {
-//   if (!commentsTestModeEnabled) return;
-//   try {
-//     yield race([
-//       take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
-//       take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
-//     ]);
-//     yield put(updateLayout());
-//     yield put(
-//       commentEvent({
-//         type: COMMENT_EVENTS.SET_COMMENTS,
-//         payload: getTestComments(),
-//       }),
-//     );
-//   } catch (err) {
-//     console.log(err, "err");
-//   }
-// }
-
-function* watchCommentEvents() {
-  const requestChan = yield actionChannel(COMMENT_EVENTS_CHANNEL);
-  while (true) {
-    const { payload } = yield take(requestChan);
-    yield fork(handleCommentEvents, payload);
-  }
-}
+import { AppState } from "reducers";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -95,50 +58,63 @@ function* createUnpublishedCommentThread(
 }
 
 function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
-  yield put(removeUnpublishedCommentThreads());
-  const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
-    action.payload,
-  );
-  const applicationId = yield select(getCurrentApplicationId);
-  const response = yield call(CommentsApi.createNewThread, {
-    ...newCommentThreadPayload,
-    applicationId,
-  });
-  const isValidResponse = yield validateResponse(response);
+  try {
+    yield put(removeUnpublishedCommentThreads());
+    const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
+      action.payload,
+    );
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    const mode = yield select((state: AppState) => state.entities.app.mode);
+    const response = yield call(CommentsApi.createNewThread, {
+      ...newCommentThreadPayload,
+      applicationId,
+      pageId,
+      mode,
+    });
+    const isValidResponse = yield validateResponse(response);
 
-  if (isValidResponse) {
-    yield put(createCommentThreadSuccess(response.data));
-    yield put(setVisibleThread(response.data.id));
-  } else {
-    // todo handle error here
-    console.log(response, "invalid response");
+    if (isValidResponse) {
+      yield put(createCommentThreadSuccess(response.data));
+      yield put(setVisibleThread(response.data.id));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_COMMENT_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
 function* addCommentToThread(
   action: ReduxAction<AddCommentToCommentThreadRequestPayload>,
 ) {
-  const { payload } = action;
-  const { callback, commentBody, commentThread } = payload;
+  try {
+    const { payload } = action;
+    const { callback, commentBody, commentThread } = payload;
 
-  const response = yield CommentsApi.createNewThreadComment(
-    { body: commentBody },
-    commentThread.id,
-  );
-
-  const isValidResponse = yield validateResponse(response);
-
-  if (isValidResponse) {
-    yield put(
-      addCommentToThreadSuccess({
-        commentThreadId: commentThread.id,
-        comment: response.data,
-      }),
+    const mode = yield select((state: AppState) => state.entities.app.mode);
+    const response = yield CommentsApi.createNewThreadComment(
+      { body: commentBody, mode },
+      commentThread.id,
     );
-    callback();
-  } else {
-    // todo handle error here
-    console.log(response, "invalid response");
+
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(
+        addCommentToThreadSuccess({
+          commentThreadId: commentThread.id,
+          comment: response.data,
+        }),
+      );
+      callback();
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ADD_COMMENT_TO_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -151,12 +127,12 @@ function* fetchApplicationComments() {
 
     if (isValidResponse) {
       yield put(fetchApplicationCommentsSuccess(response.data));
-    } else {
-      // todo invalid response
     }
-  } catch (e) {
-    // todo handle error here
-    console.log(e, "error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_COMMENTS_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -172,11 +148,12 @@ function* setCommentResolution(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
-    } else {
-      console.log(isValidResponse, "handle error");
     }
-  } catch (e) {
-    console.log(e, "handle error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_COMMENT_RESOLUTION_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -193,8 +170,11 @@ function* pinCommentThread(
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
     }
-  } catch (e) {
-    console.log(e, "handle error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PIN_COMMENT_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -208,21 +188,31 @@ function* deleteComment(
     if (isValidResponse) {
       yield put(deleteCommentSuccess({ commentId, threadId }));
     }
-  } catch (e) {
-    console.log(e, "handle error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_COMMENT_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread({}, threadId);
+    const response = yield CommentsApi.updateCommentThread(
+      { isViewed: true },
+      threadId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
+      yield put(decrementThreadUnreadCount());
     }
-  } catch (e) {
-    console.log(e, "handle error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.MARK_THREAD_AS_READ_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -242,54 +232,47 @@ function* editComment(
         updateCommentSuccess({ comment: response.data, commentThreadId }),
       );
     }
-  } catch (e) {
-    console.log(e, "handle error");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.EDIT_COMMENT_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
 function* deleteCommentThread(action: ReduxAction<string>) {
   try {
-    yield CommentsApi.deleteCommentThread(action.payload);
-    // const isValidResponse = yield validateResponse(response);
-    // if (isValidResponse) {
-    const applicationId = yield select(getCurrentApplicationId);
-    yield put(
-      deleteCommentThreadSuccess({
-        commentThreadId: action.payload,
-        appId: applicationId,
-      }),
-    );
-    // }
-  } catch (e) {
-    console.log(e, "handle error");
+    const response = yield CommentsApi.deleteCommentThread(action.payload);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const applicationId = yield select(getCurrentApplicationId);
+      yield put(
+        deleteCommentThreadSuccess({
+          commentThreadId: action.payload,
+          appId: applicationId,
+        }),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_COMMENT_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
 function* setIfCommentsAreEnabled() {
-  while (true) {
-    // Reset if comments are enabled when appview access is updated
-    yield take([
-      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
-    ]);
+  yield call(waitForFetchUserSuccess);
 
-    yield call(waitForInit);
-    yield call(waitForFetchUserSuccess);
+  const user = yield select(getCurrentUser);
+  const email = get(user, "email", "");
+  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
 
-    const user = yield select(getCurrentUser);
-    const email = get(user, "email", "");
-    const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
+  const isCommentModeEnabled = isAppsmithEmail;
+  yield put(setAreCommentsEnabled(isAppsmithEmail));
 
-    const currentApplication = yield select(getCurrentApplication);
-
-    const isModeEnaabledForAppAndUser =
-      isAppsmithEmail && !currentApplication?.isPublic;
-    yield put(setAreCommentsEnabled(isModeEnaabledForAppAndUser));
-
-    const isCommentMode = yield select(commentModeSelector);
-    if (isCommentMode && !isModeEnaabledForAppAndUser)
-      yield put(setCommentMode(false));
-  }
+  const isCommentMode = yield select(commentModeSelector);
+  if (isCommentMode && !isCommentModeEnabled) yield put(setCommentMode(false));
 }
 
 function* addCommentReaction(
@@ -298,8 +281,11 @@ function* addCommentReaction(
   try {
     const { commentId, emoji } = action.payload;
     yield CommentsApi.addCommentReaction(commentId, { emoji });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ADD_COMMENT_REACTION_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
 }
 
@@ -311,14 +297,29 @@ function* deleteCommentReaction(
     yield CommentsApi.removeCommentReaction(commentId, {
       emoji,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_COMMENT_REACTION_ERROR,
+      payload: { error, logToSentry: true },
+    });
   }
+}
+
+function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
+  const type = action.type;
+  let unreadCommentsCount = yield select(
+    (state: AppState) => state.ui.comments.unreadCommentThreadsCount,
+  );
+  if (type === ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount += 1;
+  } else if (type === ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount -= 1;
+  }
+  yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
 }
 
 export default function* commentSagas() {
   yield all([
-    // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
       fetchApplicationComments,
@@ -339,7 +340,6 @@ export default function* commentSagas() {
       ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
       setCommentResolution,
     ),
-    call(watchCommentEvents),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
@@ -348,5 +348,12 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
     fork(setIfCommentsAreEnabled),
+    takeLatest(
+      [
+        ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
+        ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
+      ],
+      updateCommentThreadUnreadCount,
+    ),
   ]);
 }

@@ -21,7 +21,6 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
@@ -60,7 +59,6 @@ public class ExamplesOrganizationCloner {
     private final UserService userService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
-    private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
@@ -372,7 +370,7 @@ public class ExamplesOrganizationCloner {
                 );
     }
 
-    private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
         final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toOrganizationId)
                 .collectList();
 
@@ -403,9 +401,7 @@ public class ExamplesOrganizationCloner {
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
-
                                 templateDatasource.setOrganizationId(toOrganizationId);
-
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
@@ -458,7 +454,7 @@ public class ExamplesOrganizationCloner {
                     throw error;
                 });
     }
-
+    
     public void makePristine(BaseDomain domain) {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.

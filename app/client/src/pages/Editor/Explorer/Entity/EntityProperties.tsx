@@ -12,6 +12,7 @@ import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getPropsForJsAction } from "utils/autocomplete/dataTreeTypeDefCreator";
+import _ from "lodash";
 
 export const EntityProperties = memo(
   (props: {
@@ -90,7 +91,14 @@ export const EntityProperties = memo(
                 actionProperty = actionProperty + "()";
               }
               if (actionProperty === "data") {
-                value = entity.data?.body;
+                if (
+                  _.isEmpty(entity.data) ||
+                  !entity.data.hasOwnProperty("body")
+                ) {
+                  value = "{}";
+                } else {
+                  value = entity.data.body;
+                }
               }
               return {
                 propertyName: actionProperty,

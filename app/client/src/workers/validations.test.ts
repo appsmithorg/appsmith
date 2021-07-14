@@ -126,7 +126,7 @@ describe("Chart Custom Config validator", () => {
     const cases = [
       {
         input: {
-          type: "area2d",
+          type: "area",
           dataSource: {
             chart: {
               caption: "Countries With Most Oil Reserves [2017-18]",
@@ -175,7 +175,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: true,
           parsed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -222,7 +222,7 @@ describe("Chart Custom Config validator", () => {
           },
 
           transformed: {
-            type: "area2d",
+            type: "area",
             dataSource: {
               chart: {
                 caption: "Countries With Most Oil Reserves [2017-18]",
@@ -350,6 +350,7 @@ describe("Chart Custom Config validator", () => {
               ],
             },
           },
+
           transformed: {
             type: "area2d",
             dataSource: {
@@ -575,5 +576,223 @@ describe("List data validator", () => {
       const response = validator(input, widgetProps);
       expect(response).toStrictEqual(expected[index]);
     });
+  });
+});
+
+describe("Rating widget : defaultRate", () => {
+  const validator = VALIDATORS.RATE_DEFAULT_RATE;
+  it("An input is not a number", () => {
+    const cases = [
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          parsed: 0,
+          message: 'This value does not evaluate to type "number"',
+        },
+      },
+      {
+        input: "",
+        output: {
+          isValid: true,
+          parsed: 0,
+        },
+      },
+      {
+        input: "string",
+        output: {
+          isValid: false,
+          parsed: 0,
+          message: 'This value does not evaluate to type "number"',
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
+  it("An input is a number & maxCount", () => {
+    const cases = [
+      {
+        input: 3,
+        output: {
+          isValid: true,
+          parsed: 3,
+        },
+      },
+      {
+        input: 5,
+        output: {
+          isValid: true,
+          parsed: 5,
+        },
+      },
+      {
+        input: 6,
+        output: {
+          isValid: false,
+          parsed: 6,
+          message: "This value must be less than or equal to max count",
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(
+        testCase.input,
+        { ...DUMMY_WIDGET, maxCount: 5 },
+        {},
+      );
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
+  it("An input is a number & isAllowedHalf=true", () => {
+    const cases = [
+      {
+        input: 3,
+        output: {
+          isValid: true,
+          parsed: 3,
+        },
+      },
+      {
+        input: 3.5,
+        output: {
+          isValid: true,
+          parsed: 3.5,
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(
+        testCase.input,
+        { ...DUMMY_WIDGET, isAllowHalf: true },
+        {},
+      );
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
+  it("An input is a number & isAllowedHalf=false", () => {
+    const cases = [
+      {
+        input: 3,
+        output: {
+          isValid: true,
+          parsed: 3,
+        },
+      },
+      {
+        input: 3.5,
+        output: {
+          isValid: false,
+          parsed: 3.5,
+          message: `This value can be a decimal onlf if 'Allow half' is true`,
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(
+        testCase.input,
+        { ...DUMMY_WIDGET, isAllowHalf: false },
+        {},
+      );
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+});
+
+describe("Rating widget : maxCount", () => {
+  const validator = VALIDATORS.RATE_MAX_COUNT;
+  it("An input is not a number", () => {
+    const cases = [
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          parsed: 0,
+          message: 'This value does not evaluate to type "number"',
+        },
+      },
+      {
+        input: "",
+        output: {
+          isValid: true,
+          parsed: 0,
+        },
+      },
+      {
+        input: "string",
+        output: {
+          isValid: false,
+          parsed: 0,
+          message: 'This value does not evaluate to type "number"',
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
+  it("An input is a number, should be an integer", () => {
+    const cases = [
+      {
+        input: 3,
+        output: {
+          isValid: true,
+          parsed: 3,
+        },
+      },
+      {
+        input: 3.5,
+        output: {
+          isValid: false,
+          parsed: 3.5,
+          message: "This value must be integer",
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+});
+
+describe("Color Picker Text validator", () => {
+  const validator = VALIDATORS.COLOR_PICKER_TEXT;
+  const inputs = [
+    "#e0e0e0",
+    "rgb(200,200,200)",
+    "{{Text2.text}}",
+    "<p>red</p>",
+  ];
+  const expected = [
+    {
+      isValid: true,
+      parsed: "#e0e0e0",
+    },
+    {
+      isValid: true,
+      parsed: "rgb(200,200,200)",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+    {
+      isValid: false,
+      parsed: "",
+      message: "This value does not evaluate to type: text",
+    },
+  ];
+  inputs.forEach((input, index) => {
+    const response = validator(input, DUMMY_WIDGET);
+    expect(response).toStrictEqual(expected[index]);
   });
 });

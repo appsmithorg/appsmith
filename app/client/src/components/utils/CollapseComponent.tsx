@@ -5,17 +5,18 @@ import { Collapse, Icon } from "@blueprintjs/core";
 
 const CollapseWrapper = styled.div`
   position: relative;
-  border-top: 1px solid #ffffff2e;
-  padding: 12px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
   .collapse-title {
-    color: ${Colors.CADET_BLUE};
+    color: ${Colors.TROUT_DARK};
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-weight: 500;
     font-size: 12px;
     line-height: 16px;
     display: flex;
-    justify-content: space-between;
+    gap: 4px;
+    cursor: pointer;
+    /* justify-content: space-between; */
     .icon {
       transition: transform 0.3s;
       cursor: pointer;
@@ -24,8 +25,11 @@ const CollapseWrapper = styled.div`
       }
     }
   }
-  .inner-content {
-    margin-top: 12px;
+  && .bp3-collapse-body {
+    position: relative;
+    border: none;
+    box-shadow: none;
+    padding: 0;
   }
 `;
 
@@ -34,7 +38,7 @@ function CollapseComponent(props: {
   title?: string;
   isOpen?: boolean;
 }) {
-  const [open, toggleOpen] = React.useState(true);
+  const [open, toggleOpen] = React.useState(false);
   const handleIsOpen = () => {
     toggleOpen(!open);
   };
@@ -43,13 +47,12 @@ function CollapseComponent(props: {
   }
   return (
     <CollapseWrapper>
-      <div className="collapse-title">
+      <div className="collapse-title" onClick={handleIsOpen}>
         {props.title}
         <Icon
           className={`icon ${!open ? "collapse" : ""}`}
           icon="chevron-down"
           iconSize={16}
-          onClick={handleIsOpen}
         />
       </div>
       <Collapse isOpen={open} keepChildrenMounted>

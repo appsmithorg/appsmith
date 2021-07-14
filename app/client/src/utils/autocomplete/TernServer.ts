@@ -1,26 +1,38 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
 import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
+import forge from "constants/defs/forge.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
+import {
+  GLOBAL_DEFS,
+  GLOBAL_FUNCTIONS,
+} from "utils/autocomplete/EntityDefinitions";
 
-const DEFS = [ecma, lodash, base64, moment, xmlJs];
+const DEFS: Def[] = [
+  GLOBAL_FUNCTIONS,
+  GLOBAL_DEFS,
+  // @ts-ignore
+  ecma,
+  lodash,
+  base64,
+  moment,
+  xmlJs,
+  forge,
+];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-type Completion = Hint & {
+export type Completion = Hint & {
   origin: string;
   type: DataType;
   data: {
@@ -28,6 +40,11 @@ type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
+};
+
+export type CommandsCompletion = Completion & {
+  action?: () => void;
+  shortcut: string;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -61,26 +78,18 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   expected?: string;
+  entityName?: string;
 
-  constructor(
-    dataTree: DataTree,
-    additionalDataTree?: Record<string, Record<string, unknown>>,
-  ) {
-    const dataTreeDef = dataTreeTypeDefCreator(dataTree);
-    let customDataTreeDef = undefined;
-    if (additionalDataTree) {
-      customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
-    }
+  constructor() {
     this.server = new tern.Server({
       async: true,
-      defs: customDataTreeDef
-        ? [...DEFS, dataTreeDef, customDataTreeDef]
-        : [...DEFS, dataTreeDef],
+      defs: DEFS,
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string) {
+  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
     this.expected = expected;
+    this.entityName = entityName;
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -119,6 +128,10 @@ class TernServer {
     this.server.addDefs(def, true);
   }
 
+  removeDef(name: string) {
+    this.server.deleteDefs(name);
+  }
+
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {
@@ -152,15 +165,18 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
+      const entityName = this.entityName;
       if (data.guess) className += " " + cls + "guess";
-      completions.push({
-        text: completion.name + after,
-        displayText: completion.displayName || completion.name,
-        className: className,
-        data: completion,
-        origin: completion.origin,
-        type: dataType,
-      });
+      if (!entityName || !completion.name.includes(entityName)) {
+        completions.push({
+          text: completion.name + after,
+          displayText: completion.displayName || completion.name,
+          className: className,
+          data: completion,
+          origin: completion.origin,
+          type: dataType,
+        });
+      }
     }
     completions = this.sortCompletions(completions);
     const indexToBeSelected = completions.length > 1 ? 1 : 0;
@@ -230,7 +246,7 @@ class TernServer {
     // Add data tree completions before others
     const expectedDataType = this.getExpectedDataType();
     const dataTreeCompletions = completions
-      .filter((c) => c.origin === "dataTree")
+      .filter((c) => c.origin && c.origin.startsWith("DATA_TREE_"))
       .sort((a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
@@ -292,7 +308,13 @@ class TernServer {
 
   getExpectedDataType() {
     const type = this.expected;
-    if (type === "Array<Object>" || type === "Array") return "ARRAY";
+    if (
+      type === "Array<Object>" ||
+      type === "Array" ||
+      type === "Array<{ label: string, value: string }>" ||
+      type === "Array<x:string, y:number>"
+    )
+      return "ARRAY";
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";
@@ -692,4 +714,4 @@ class TernServer {
   }
 }
 
-export default TernServer;
+export default new TernServer();

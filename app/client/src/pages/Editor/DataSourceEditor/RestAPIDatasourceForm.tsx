@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
+import AdsButton from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -14,7 +14,6 @@ import {
 } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import BackButton from "./BackButton";
 import InputTextControl, {
   StyledInfo,
 } from "components/formControls/InputTextControl";
@@ -41,6 +40,7 @@ import {
 } from "transformers/RestAPIDatasourceFormTransformer";
 import {
   ApiDatasourceForm,
+  ApiKeyAuthType,
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
@@ -55,6 +55,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -86,7 +87,10 @@ const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.headerHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -123,7 +127,7 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  //margin-top: 16px;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -140,12 +144,15 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const CreateApiButton = styled(BaseButton)`
-  &&& {
-    max-width: 120px;
-    margin-right: 9px;
-    align-self: center;
-    min-height: 32px;
+const CreateApiButton = styled(AdsButton)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    //max-width: 120px;
+    width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -194,13 +201,29 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   componentDidUpdate() {
-    this.ensureOAuthDefaultsAreCorrect();
+    if (!this.props.formData) return;
+
+    const { authType } = this.props.formData;
+
+    if (authType === AuthType.OAuth2) {
+      this.ensureOAuthDefaultsAreCorrect();
+    } else if (authType === AuthType.apiKey) {
+      this.ensureAPIKeyDefaultsAreCorrect();
+    }
   }
 
   isDirty(prop: any) {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
+
+  ensureAPIKeyDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
+    const { authentication } = this.props.formData;
+    if (!authentication || !_.get(authentication, "addTo")) {
+      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
+    }
+  };
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
@@ -211,27 +234,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return false;
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
-      return false;
     }
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
       this.props.change("authentication.headerPrefix", "Bearer");
-      return false;
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
       }
     }
-    return true;
   };
 
   disableSave = (): boolean => {
@@ -263,6 +281,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         text: "Unable to create API. Try adding a url to the datasource",
         variant: Variant.danger,
       });
+      return;
     }
     const newApiName = createNewApiName(actions, pageId || "");
 
@@ -292,44 +311,41 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   render = () => {
     return (
-      <RestApiForm>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {this.renderHeader()}
-          {this.renderEditor()}
-          {this.renderSave()}
-        </form>
-      </RestApiForm>
+      <>
+        <CloseEditor />
+        <RestApiForm>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {this.renderHeader()}
+            {this.renderEditor()}
+            {this.renderSave()}
+          </form>
+        </RestApiForm>
+      </>
     );
   };
 
   renderHeader = () => {
     const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
-      <>
-        <BackButton onClick={history.goBack} />
-        <br />
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={pluginImage} />
-            <FormTitle focusOnMount={isNewDatasource} />
-          </FormTitleContainer>
+      <Header>
+        <FormTitleContainer>
+          <PluginImage alt="Datasource" src={pluginImage} />
+          <FormTitle focusOnMount={isNewDatasource} />
+        </FormTitleContainer>
 
-          <CreateApiButton
-            accent="primary"
-            className="t--create-query"
-            disabled={this.disableSave()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-            text="New API"
-          />
-        </Header>
-      </>
+        <CreateApiButton
+          className="t--create-query"
+          disabled={this.disableSave()}
+          icon="plus"
+          isLoading={isSaving}
+          onClick={this.createApiAction}
+          text="New API"
+        />
+      </Header>
     );
   };
 
@@ -433,6 +449,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
+              {
+                label: "API Key",
+                value: AuthType.apiKey,
+              },
+              {
+                label: "Bearer Token",
+                value: AuthType.bearerToken,
+              },
             ]}
             placeholderText=""
             propertyValue=""
@@ -451,6 +475,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       content = this.renderOauth2();
     } else if (authType === AuthType.basic) {
       content = this.renderBasic();
+    } else if (authType === AuthType.apiKey) {
+      content = this.renderApiKey();
+    } else if (authType === AuthType.bearerToken) {
+      content = this.renderBearerToken();
     }
     if (content) {
       return (
@@ -459,6 +487,61 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </Collapsible>
       );
     }
+  };
+
+  renderApiKey = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.label"
+            label="Key"
+            placeholderText="api_key"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.value"
+            label="Value"
+            placeholderText="value"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.addTo"
+            label="Add To"
+            options={[
+              {
+                label: "Query Params",
+                value: ApiKeyAuthType.QueryParams,
+              },
+              {
+                label: "Header",
+                value: ApiKeyAuthType.Header,
+              },
+            ]}
+            placeholderText=""
+            propertyValue=""
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
+  renderBearerToken = () => {
+    return (
+      <FormInputContainer>
+        <InputTextControl
+          {...COMMON_INPUT_PROPS}
+          configProperty="authentication.bearerToken"
+          label="Bearer Token"
+          placeholderText="Bearer Token"
+        />
+      </FormInputContainer>
+    );
   };
 
   renderBasic = () => {

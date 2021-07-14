@@ -52,7 +52,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access", AppsmithErrorAction.DEFAULT, null),
-    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Please reach out to Appsmith customer support to report this", AppsmithErrorAction.DEFAULT, null),
+    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Message : {0}. Please reach out to Appsmith customer support to report this", AppsmithErrorAction.DEFAULT, null),
     USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in instead.", AppsmithErrorAction.DEFAULT, null),
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Uh oh! You do not have permissions to do : {0}", AppsmithErrorAction.DEFAULT, null),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} {1}", AppsmithErrorAction.DEFAULT, null),
@@ -61,6 +61,7 @@ public enum AppsmithError {
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}", AppsmithErrorAction.DEFAULT, null),
     VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, null),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null),
+    REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +

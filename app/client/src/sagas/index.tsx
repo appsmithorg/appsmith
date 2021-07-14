@@ -22,16 +22,18 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./EvaluationsSaga";
-import onboardingSaga from "./OnboardingSagas";
+import onboardingSagas from "./OnboardingSagas";
 import utilSagas from "./UtilSagas";
 import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
-import websocketSagas from "./WebsocketSagas";
+import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
+import notificationsSagas from "./NotificationsSagas";
+import selectionCanvasSagas from "./SelectionCanvasSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -59,18 +61,18 @@ const sagas = [
   batchSagas,
   themeSagas,
   evaluationsSaga,
-  onboardingSaga,
+  onboardingSagas,
   actionExecutionChangeListeners,
   utilSagas,
-  saaSPaneSagas,
   globalSearchSagas,
   recentEntitiesSagas,
   commentSagas,
   websocketSagas,
   debuggerSagas,
-  utilSagas,
   saaSPaneSagas,
   tourSagas,
+  notificationsSagas,
+  selectionCanvasSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

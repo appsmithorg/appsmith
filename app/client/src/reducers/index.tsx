@@ -47,6 +47,8 @@ import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSActionDataState } from "./entityReducers/jsActionsReducer";
+import { NotificationReducerState } from "./uiReducers/notificationsReducer";
+import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -91,6 +93,8 @@ export interface AppState {
     debugger: DebuggerReduxState;
     tour: TourReducerState;
     jsPane: JsPaneReduxState;
+    notifications: NotificationReducerState;
+    canvasSelection: CanvasSelectionState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

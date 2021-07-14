@@ -20,13 +20,15 @@ import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
 } from "actions/globalSearchActions";
 import {
   getItemType,
+  getItemTitle,
+  getItemPage,
   SEARCH_ITEM_TYPES,
   useDefaultDocumentationResults,
   DocSearchItem,
@@ -43,9 +45,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
+import Footer from "./Footer";
+
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -63,12 +67,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -92,7 +92,46 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
+const getSortedResults = (
+  query: string,
+  filteredActions: Array<any>,
+  filteredWidgets: Array<any>,
+  filteredPages: Array<any>,
+  filteredDatasources: Array<any>,
+  documentationSearchResults: Array<any>,
+  currentPageId?: string,
+) => {
+  return [
+    ...filteredActions,
+    ...filteredWidgets,
+    ...filteredPages,
+    ...filteredDatasources,
+    ...documentationSearchResults,
+  ].sort((a: any, b: any) => {
+    const titleA = getItemTitle(a) || "";
+    const titleB = getItemTitle(b) || "";
+
+    const queryIndexA = titleA.toLowerCase().indexOf(query.toLowerCase());
+    const queryIndexB = titleB.toLowerCase().indexOf(query.toLowerCase());
+
+    if (queryIndexA === queryIndexB) {
+      const pageA = getItemPage(a);
+      const pageB = getItemPage(b);
+      const isAInCurrentPage = pageA === currentPageId;
+      const isBInCurrentPage = pageB === currentPageId;
+      if (isAInCurrentPage) return -1;
+      if (isBInCurrentPage) return 1;
+      return 0;
+    } else {
+      if (queryIndexA === -1 && queryIndexB !== -1) return 1;
+      else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
+      else return queryIndexA - queryIndexB;
+    }
+  });
+};
+
 function GlobalSearch() {
+  const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
@@ -166,13 +205,24 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(1);
+      if (!query)
+        recentEntities.length > 1
+          ? setActiveItemIndex(2)
+          : setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    setActiveItemIndex(1);
-  }, [query]);
+    if (query) {
+      setActiveItemIndex(0);
+    } else {
+      if (recentEntities.length > 1) {
+        setActiveItemIndex(2);
+      } else {
+        setActiveItemIndex(1);
+      }
+    }
+  }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -208,9 +258,8 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
-  const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
   const searchResults = useMemo(() => {
     if (!query) {
@@ -229,25 +278,15 @@ function GlobalSearch() {
       ];
     }
 
-    const results = [];
-
-    const entities = [
-      entitiesSectionTitle,
-      ...filteredPages,
-      ...filteredWidgets,
-      ...filteredActions,
-      ...filteredDatasources,
-    ];
-
-    if (entities.length > 1) {
-      results.push(...entities);
-    }
-
-    if (documentationSearchResults.length > 0) {
-      results.push(docsSectionTitle, ...documentationSearchResults);
-    }
-
-    return results;
+    return getSortedResults(
+      query,
+      filteredActions,
+      filteredWidgets,
+      filteredPages,
+      filteredDatasources,
+      documentationSearchResults,
+      currentPageId,
+    );
   }, [
     filteredWidgets,
     filteredActions,
@@ -315,7 +354,12 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(params.applicationId, pageId, id);
+    const url = actionConfig?.getURL(
+      params.applicationId,
+      pageId,
+      id,
+      pluginType,
+    );
     toggleShow();
     url && history.push(url);
   };
@@ -401,6 +445,7 @@ function GlobalSearch() {
                   <ResultsNotFound />
                 )}
               </div>
+              {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

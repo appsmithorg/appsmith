@@ -27,8 +27,8 @@ import TooltipComponent from "components/ads/Tooltip";
 const FixedTitle = styled.div`
   position: fixed;
   z-index: 3;
-  width: ${(props) =>
-    props.theme.propertyPane.width - 2 * props.theme.spaces[5]}px;
+  width: ${(props) => props.theme.propertyPane.width}px;
+  padding: 0px ${(props) => props.theme.spaces[5]}px;
 `;
 
 const Wrapper = styled.div<{ iconCount: number }>`

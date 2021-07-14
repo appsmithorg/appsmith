@@ -34,6 +34,7 @@ import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -49,23 +50,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedItem: `{{(()=>{
-        const selectedItemIndex =
-          this.selectedItemIndex === undefined ||
-          Number.isNaN(parseInt(this.selectedItemIndex))
-            ? -1
-            : parseInt(this.selectedItemIndex);
-        const items = this.items || [];
-        if (selectedItemIndex === -1) {
-          const emptyRow = { ...items[0] };
-          Object.keys(emptyRow).forEach((key) => {
-            emptyRow[key] = "";
-          });
-          return emptyRow;
-        }
-        const selectedItem = { ...items[selectedItemIndex] };
-        return selectedItem;
-      })()}}`,
+      selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
+      items: `{{(() => {${derivedProperties.getItems}})()}}`,
     };
   }
 
@@ -74,11 +60,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param items
    */
-  getCurrentItemStructure = (items: Array<Record<string, unknown>>) => {
-    return Array.isArray(items) && items.length > 0
+  getCurrentItemStructure = (listData: Array<Record<string, unknown>>) => {
+    return Array.isArray(listData) && listData.length > 0
       ? Object.assign(
           {},
-          ...Object.keys(items[0]).map((key) => ({
+          ...Object.keys(listData[0]).map((key) => ({
             [key]: "",
           })),
         )
@@ -89,19 +75,83 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (
       !this.props.childAutoComplete ||
       (Object.keys(this.props.childAutoComplete).length === 0 &&
-        this.props.items &&
-        Array.isArray(this.props.items))
+        this.props.listData &&
+        Array.isArray(this.props.listData))
     ) {
-      const structure = this.getCurrentItemStructure(this.props.items);
+      const structure = this.getCurrentItemStructure(this.props.listData);
       super.updateWidgetProperty("childAutoComplete", {
         currentItem: structure,
       });
     }
+
+    // generate childMetaPropertyMap
+    this.generateChildrenDefaultPropertiesMap(this.props);
+    this.generateChildrenMetaPropertiesMap(this.props);
   }
 
+  generateChildrenDefaultPropertiesMap = (
+    props: ListWidgetProps<WidgetProps>,
+  ) => {
+    const template = props.template;
+    let childrenDefaultPropertiesMap = {};
+
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+          currentTemplate.type,
+        );
+
+        Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
+          childrenDefaultPropertiesMap = {
+            ...childrenDefaultPropertiesMap,
+            [`${key}.${defaultPropertyKey}`]: defaultProperties[
+              defaultPropertyKey
+            ],
+          };
+        });
+      });
+    }
+
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenDefaultPropertiesMap",
+        childrenDefaultPropertiesMap,
+      );
+    }
+  };
+
+  generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
+    const template = props.template;
+    let childrenMetaPropertiesMap = {};
+
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
+          currentTemplate.type,
+        );
+
+        Object.keys(metaProperties).map((metaPropertyKey: string) => {
+          childrenMetaPropertiesMap = {
+            ...childrenMetaPropertiesMap,
+            [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
+          };
+        });
+      });
+    }
+
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenMetaPropertiesMap",
+        Object.keys(childrenMetaPropertiesMap),
+      );
+    }
+  };
+
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const oldRowStructure = this.getCurrentItemStructure(prevProps.items);
-    const newRowStructure = this.getCurrentItemStructure(this.props.items);
+    const oldRowStructure = this.getCurrentItemStructure(prevProps.listData);
+    const newRowStructure = this.getCurrentItemStructure(this.props.listData);
 
     if (
       xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
@@ -110,12 +160,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         currentItem: newRowStructure,
       });
     }
+
+    if (
+      xor(Object.keys(prevProps.template), Object.keys(this.props.template))
+        .length > 0
+    ) {
+      this.generateChildrenDefaultPropertiesMap(this.props);
+      this.generateChildrenMetaPropertiesMap(this.props);
+    }
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      itemBackgroundColor: "#FFFFFF",
-    };
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, string> {
+    return {};
   }
 
   /**
@@ -143,7 +203,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!action) return;
 
     try {
-      const rowData = [this.props.items[rowIndex]];
+      const rowData = [this.props.listData[rowIndex]];
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentItem) => { ${next} }}} `;
@@ -165,7 +225,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend =
       childWidgetData.virtualizedEnabled && false
         ? true
@@ -174,6 +234,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
+    childWidgetData.bottomRow =
+      this.props.bottomRow * this.props.parentRowSpace - 45;
+    childWidgetData.shouldScrollContents = false;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -225,7 +288,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
       const dynamicPaths: string[] = compact(
         dynamicBindingPathList.map((path: Record<"key", string>) =>
-          path.key.split(".").pop(),
+          path.key.replace(`template.${widgetName}.`, ""),
         ),
       );
 
@@ -239,19 +302,44 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          const validationPath = get(widget, `validationPaths.${path}`);
+          const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            validationPath === VALIDATION_TYPES.BOOLEAN &&
-            isBoolean(evaluatedValue)
+            (validationPath === VALIDATION_TYPES.BOOLEAN &&
+              isBoolean(evaluatedValue)) ||
+            validationPath === VALIDATION_TYPES.CHART_SERIES_DATA
           ) {
             set(widget, path, evaluatedValue);
+            set(widget, `validationMessages.${path}`, "");
+            set(widget, `invalidProps.${path}`, "");
           } else {
             set(widget, path, toString(evaluatedValue));
           }
         }
       });
     }
+
+    // add default value
+    Object.keys(widget.defaultProps).map((key: string) => {
+      const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
+
+      set(widget, `${key}`, defaultPropertyValue);
+    });
+
+    widget.defaultMetaProps.map((key: string) => {
+      const metaPropertyValue = get(
+        this.props.childMetaProperties,
+        `${widget.widgetName}.${key}.${itemIndex}`,
+        undefined,
+      );
+
+      if (
+        typeof metaPropertyValue !== "undefined" &&
+        metaPropertyValue !== null
+      ) {
+        set(widget, key, metaPropertyValue);
+      }
+    });
 
     if (
       Array.isArray(dynamicTriggerPathList) &&
@@ -274,7 +362,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           propertyValue.indexOf("{{((currentItem) => {") === -1
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.items[itemIndex];
+          const listItem = this.props.listData[itemIndex];
 
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
@@ -304,33 +392,29 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   ) => {
     const { page } = this.state;
     const { perPage } = this.shouldPaginate();
+    const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
 
-    if (itemIndex > 0) {
-      const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
+    if (originalIndex !== 0) {
+      set(
+        widget,
+        `widgetId`,
+        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+      );
 
-      if (this.props.renderMode === RenderModes.PAGE) {
-        set(
-          widget,
-          `widgetId`,
-          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-        );
-      }
-
-      if (originalIndex !== 0) {
-        set(
-          widget,
-          `widgetId`,
-          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-        );
-
-        if (this.props.renderMode === RenderModes.CANVAS) {
-          set(widget, `resizeDisabled`, true);
-          set(widget, `disablePropertyPane`, true);
-          set(widget, `dragDisabled`, true);
-          set(widget, `dropDisabled`, true);
-        }
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        set(widget, `resizeDisabled`, true);
+        set(widget, `disablePropertyPane`, true);
+        set(widget, `dragDisabled`, true);
+        set(widget, `dropDisabled`, true);
       }
     }
+
+    set(widget, `__metaOptions`, {
+      widgetName: this.props.widgetName,
+      widgetId: this.props.widgetId,
+      metaPropPrefix: `childMetaProperties`,
+      index: itemIndex,
+    });
 
     return widget;
   };
@@ -351,6 +435,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "children[0].children",
           [],
         );
+
         // If children exist
         if (listItemChildren.length > 0) {
           // Update the properties of all the children
@@ -391,6 +476,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           listItemContainer,
           listItemIndex,
         );
+
+        set(updatedListItemContainer, `disabledResizeHandles`, [
+          "left",
+          "top",
+          "right",
+          "bottomRight",
+          "topLeft",
+          "topRight",
+          "bottomLeft",
+        ]);
+
         return updatedListItemContainer;
       },
     );
@@ -474,7 +570,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    const numberOfItemsInGrid = this.props.items.length;
+    const numberOfItemsInGrid = this.props.listData.length;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
@@ -497,7 +593,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         childCanvas.children = canvasChildren;
       } catch (e) {
-        console.log({ error: e });
+        log.error(e);
       }
 
       return this.renderChild(childCanvas);
@@ -511,7 +607,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   shouldPaginate = () => {
     let { gridGap } = this.props;
-    const { children, items } = this.props;
+    const { children, listData } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight =
@@ -528,16 +624,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     const shouldPaginate =
-      templateHeight * items.length + parseInt(gridGap) * (items.length - 1) >
+      templateHeight * listData.length +
+        parseInt(gridGap) * (listData.length - 1) >
       componentHeight;
 
-    const totalSpaceAvailable = componentHeight - (100 + WIDGET_PADDING * 2);
+    const totalSpaceAvailable = componentHeight - (110 + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
-      templateHeight + (gridGap * (items.length - 1)) / items.length;
+      templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    return { shouldPaginate, perPage: round(perPage) };
+    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : round(perPage) };
   };
 
   /**
@@ -545,7 +642,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
+    const { componentHeight } = this.getComponentDimensions();
     const { perPage, shouldPaginate } = this.shouldPaginate();
+    const templateBottomRow = get(
+      this.props.children,
+      "0.children.0.bottomRow",
+    );
+    const templateHeight =
+      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     if (this.props.isLoading) {
       return (
@@ -574,24 +678,29 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
     }
 
-    if (!isNumber(perPage) || perPage === 0) {
-      return (
-        <ListComponentEmpty>
-          Please make sure the list widget size is greater than the template
-        </ListComponentEmpty>
-      );
-    }
-
     if (
-      Array.isArray(this.props.items) &&
-      this.props.items.length === 0 &&
+      Array.isArray(this.props.listData) &&
+      this.props.listData.length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
 
+    if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
+      return (
+        <ListComponentEmpty>
+          Please make sure the list widget height is greater than the template
+          container height.
+        </ListComponentEmpty>
+      );
+    }
+
     return (
-      <ListComponent {...this.props} hasPagination={shouldPaginate}>
+      <ListComponent
+        {...this.props}
+        hasPagination={shouldPaginate}
+        key={`list-widget-page-${this.state.page}`}
+      >
         {children}
 
         {shouldPaginate && (
@@ -600,7 +709,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             disabled={false && this.props.renderMode === RenderModes.CANVAS}
             onChange={(page: number) => this.setState({ page })}
             perPage={perPage}
-            total={this.props.items.length}
+            total={this.props.listData.length}
           />
         )}
       </ListComponent>
@@ -620,7 +729,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   onListItemClick?: string;
-  items: Array<Record<string, unknown>>;
+  listData: Array<Record<string, unknown>>;
   currentItemStructure?: Record<string, string>;
 }
 
