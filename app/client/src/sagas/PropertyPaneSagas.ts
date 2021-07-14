@@ -8,7 +8,10 @@ import {
 } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
-import { updateWidgetPropertyRequest } from "../actions/controlActions";
+import {
+  setWidgetDynamicProperty,
+  updateWidgetPropertyRequest,
+} from "../actions/controlActions";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
@@ -49,6 +52,10 @@ export function* bindDataToWidgetSaga(
     case WidgetTypes.DATE_PICKER_WIDGET2:
       propertyPath = "defaultDate";
       propertyValue = `{{${currentAction.config.name}.data}}`;
+      // setting default date to `js` mode
+      yield put(
+        setWidgetDynamicProperty(action.payload.widgetId, propertyPath, true),
+      );
       break;
     case WidgetTypes.FILE_PICKER_WIDGET:
       propertyPath = "onFilesSelected";
