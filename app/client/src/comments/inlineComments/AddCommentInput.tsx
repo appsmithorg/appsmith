@@ -37,6 +37,10 @@ import { isEmail } from "utils/formhelpers";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
 
 const StyledInputContainer = styled.div`
   width: 100%;
@@ -137,10 +141,12 @@ function AddCommentInput({
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
 }) {
-  const proceedToNextTourStep = useProceedToNextTourStep(
-    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
-    2,
-  );
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.SAY_HELLO,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.SAY_HELLO,
+  });
 
   const dispatch = useDispatch();
   const users = useOrgUsers();
@@ -229,11 +235,12 @@ function AddCommentInput({
 
   return (
     <TourTooltipWrapper
-      tourIndex={2}
-      tourType={[
-        TourType.COMMENTS_TOUR_EDIT_MODE,
-        TourType.COMMENTS_TOUR_PUBLISHED_MODE,
-      ]}
+      activeStepConfig={{
+        [TourType.COMMENTS_TOUR_EDIT_MODE]:
+          commentsTourStepsEditModeTypes.SAY_HELLO,
+        [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+          commentsTourStepsPublishedModeTypes.SAY_HELLO,
+      }}
     >
       <PaddingContainer removePadding={removePadding}>
         <Row>

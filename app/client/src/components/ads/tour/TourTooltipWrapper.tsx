@@ -17,12 +17,11 @@ import { Indices } from "constants/Layers";
 type Props = {
   children: React.ReactNode;
   hasOverlay?: boolean;
-  tourType: TourType | Array<TourType>;
-  tourIndex: number;
   modifiers?: Modifiers;
   onClick?: () => void;
   pulseStyles?: CSSProperties;
   showPulse?: boolean;
+  activeStepConfig: { [key in TourType]?: any };
 };
 
 const Overlay = styled.div`
@@ -47,25 +46,18 @@ const Container = styled.div`
 `;
 
 function TourTooltipWrapper(props: Props) {
-  const { children, tourIndex, tourType } = props;
-  const isCurrentStepActive = useSelector(
-    (state: AppState) => getActiveTourIndex(state) === tourIndex,
-  );
-  const matchingActiveTourType = useSelector((state: AppState) => {
-    const activeTourType = getActiveTourType(state) as TourType;
+  const { activeStepConfig, children } = props;
 
-    if (typeof tourType === "string") {
-      return activeTourType === tourType && tourType;
-    } else if (Array.isArray(tourType)) {
-      const activeTour = tourType.find(
-        (tour: TourType) => tour === activeTourType,
-      );
-      return activeTour;
-    }
-  });
-  const tourStepsConfig = TourStepsByType[matchingActiveTourType as TourType];
-  const tourStepConfig = tourStepsConfig && tourStepsConfig[tourIndex];
-  const isOpen = isCurrentStepActive && matchingActiveTourType;
+  const activeTourType = useSelector(getActiveTourType) as TourType;
+  const expectedActiveStep = activeStepConfig[activeTourType];
+
+  const isCurrentStepActive = useSelector(
+    (state: AppState) => getActiveTourIndex(state) === expectedActiveStep,
+  );
+
+  const tourStepsConfig = TourStepsByType[activeTourType as TourType];
+  const tourStepConfig = tourStepsConfig && tourStepsConfig[expectedActiveStep];
+  const isOpen = isCurrentStepActive;
   const dotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

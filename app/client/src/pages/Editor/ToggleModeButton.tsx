@@ -45,6 +45,10 @@ import localStorage from "utils/localStorage";
 import { getAppMode } from "selectors/applicationSelectors";
 
 import { noop } from "lodash";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -235,11 +239,12 @@ const tourToolTipProps = {
     width: 30,
   },
   showPulse: true,
-  tourIndex: 0,
-  tourType: [
-    TourType.COMMENTS_TOUR_EDIT_MODE,
-    TourType.COMMENTS_TOUR_PUBLISHED_MODE,
-  ],
+  activeStepConfig: {
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.ENTER_COMMENTS_MODE,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.ENTER_COMMENTS_MODE,
+  },
 };
 
 function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
@@ -334,15 +339,16 @@ function ToggleCommentModeButton() {
 
   useUpdateCommentMode(currentUser);
 
-  const proceedToNextTourStep = useProceedToNextTourStep(
-    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
-    0,
-  );
+  const activeStepConfig = {
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.ENTER_COMMENTS_MODE,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.ENTER_COMMENTS_MODE,
+  };
 
-  const isTourStepActive = useIsTourStepActive(
-    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
-    0,
-  );
+  const proceedToNextTourStep = useProceedToNextTourStep(activeStepConfig);
+
+  const isTourStepActive = useIsTourStepActive(activeStepConfig);
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
 
