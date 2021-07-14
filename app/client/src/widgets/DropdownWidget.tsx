@@ -80,7 +80,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
-            helpText: "Controls the Remote Data/ Server Side Filtering",
+            helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
             label: "Server Side Filtering",
             controlType: "SWITCH",
@@ -104,7 +104,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Filter options using filterText",
+            helpText: " Trigger an action on change of filterText",
             hidden: (props: DropdownWidgetProps) => !props.serverSideFiltering,
             propertyName: "onFilterUpdate",
             label: "onFilterUpdate",
