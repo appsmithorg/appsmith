@@ -9,11 +9,7 @@ import {
   getDatasources,
   getIsFetchingDatasourceStructure,
 } from "../../../../selectors/entitiesSelector";
-import {
-  Datasource,
-  DatasourceStructure,
-  DatasourceTable,
-} from "entities/Datasource";
+import { Datasource, DatasourceTable } from "entities/Datasource";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
 import { fetchPage, generateTemplateToUpdatePage } from "actions/pageActions";
@@ -22,7 +18,8 @@ import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
-} from "../../../../constants/routes";
+  DATA_SOURCES_EDITOR_ID_URL,
+} from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelectors";
@@ -136,6 +133,10 @@ const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
   margin: 10px 0px;
 `;
 
+const EditDatasourceButton = styled(Button)`
+  margin-top: 30px;
+`;
+
 const Bold = styled.span`
   font-weight: 500;
 `;
@@ -178,11 +179,9 @@ function GeneratePageForm() {
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
   const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
 
-  const datasourcesStructure: Record<string, DatasourceStructure> = useSelector(
-    getDatasourcesStructure,
-  );
+  const datasourcesStructure = useSelector(getDatasourcesStructure);
 
-  const isFetchingDatasourceStructure: boolean = useSelector(
+  const isFetchingDatasourceStructure = useSelector(
     getIsFetchingDatasourceStructure,
   );
 
@@ -204,6 +203,11 @@ function GeneratePageForm() {
   const [selectedTable, selectTable] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
+
+  const [
+    selectedDatasourceIsInvalid,
+    setSelectedDatasourceIsInvalid,
+  ] = useState(false);
 
   const [selectedColumn, selectColumn] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
@@ -234,7 +238,6 @@ function GeneratePageForm() {
       dispatch,
     ],
   );
-
   const onSelectTable = useCallback(
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
       if (table && TableObj) {
@@ -281,6 +284,7 @@ function GeneratePageForm() {
   );
 
   useEffect(() => {
+    // On mount of component and on change of datasources, Update the list.
     const unSupportedDatasourceOptions: Array<DropdownOption> = [];
     const supportedDatasourceOptions: Array<DropdownOption> = [];
     let newDataSourceOptions: Array<DropdownOption> = [];
@@ -310,30 +314,44 @@ function GeneratePageForm() {
   }, [datasources, setDataSourceOptions]);
 
   useEffect(() => {
-    if (selectedDatasource.id) {
+    if (
+      selectedDatasource.id &&
+      selectedDatasource.value &&
+      !isFetchingDatasourceStructure
+    ) {
+      // On finished fetching datasource structure
       const selectedDatasourceStructure =
-        datasourcesStructure[selectedDatasource.id];
+        datasourcesStructure[selectedDatasource.id] || {};
 
       const datasourceIcon: IconName = "tables";
-      const tables = selectedDatasourceStructure?.tables;
-      if (tables) {
-        const newTables = tables.map(({ columns, name }) => ({
-          id: name,
-          label: name,
-          value: name,
-          icon: datasourceIcon,
-          iconSize: IconSize.LARGE,
-          iconColor: "#FF7742",
-          data: {
-            columns,
-          },
-        }));
-        setSelectedDatasourceTableOptions(newTables);
+      const hasError = selectedDatasourceStructure?.error;
+
+      if (hasError) {
+        setSelectedDatasourceIsInvalid(true);
+      } else {
+        setSelectedDatasourceIsInvalid(false);
+        const tables = selectedDatasourceStructure?.tables;
+        if (tables) {
+          const newTables = tables.map(({ columns, name }) => ({
+            id: name,
+            label: name,
+            value: name,
+            icon: datasourceIcon,
+            iconSize: IconSize.LARGE,
+            iconColor: "#FF7742",
+            data: {
+              columns,
+            },
+          }));
+          setSelectedDatasourceTableOptions(newTables);
+        }
       }
     }
   }, [
     datasourcesStructure,
     selectedDatasource,
+    isFetchingDatasourceStructure,
+    setSelectedDatasourceIsInvalid,
     setSelectedDatasourceTableOptions,
   ]);
 
@@ -390,7 +408,7 @@ function GeneratePageForm() {
     }
   }, [currentPageId]);
 
-  const routeToCreateNewDatasource = useCallback(() => {
+  const routeToCreateNewDatasource = () => {
     history.push(
       `${INTEGRATION_EDITOR_URL(
         currentApplicationId,
@@ -398,7 +416,7 @@ function GeneratePageForm() {
         INTEGRATION_TABS.NEW,
       )}?initiator=generate-page`,
     );
-  }, []);
+  };
 
   const handleFormSubmit = () => {
     dispatch(
@@ -417,9 +435,19 @@ function GeneratePageForm() {
     );
   };
 
+  const goToEditDatasource = () => {
+    const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
+      currentApplicationId,
+      currentPageId,
+      selectedDatasource.id,
+      { initiator: "generate-page" },
+    );
+    history.push(redirectURL);
+  };
+
   const showSubmitButton = selectedTable.value;
   const submitButtonDisable = !selectedTable.value;
-  // const showTableDropdown =
+
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   const pluginField: {
     TABLE: string;
@@ -431,6 +459,16 @@ function GeneratePageForm() {
       : PluginFormInputFieldMap.DEFAULT;
   const tableLabel = pluginField.TABLE;
   const columnLabel = pluginField.COLUMN;
+
+  let tableDropdownErrorMsg = "";
+  if (!isFetchingDatasourceStructure) {
+    if (datasourceTableOptions.length === 0) {
+      tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
+    }
+    if (selectedDatasourceIsInvalid) {
+      tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
+    }
+  }
 
   return (
     <div>
@@ -468,12 +506,7 @@ function GeneratePageForm() {
               Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
-              errorMsg={
-                datasourceTableOptions.length === 0 &&
-                !isFetchingDatasourceStructure
-                  ? `Couldn't find any ${tableLabel} in ${selectedDatasource.label}`
-                  : ""
-              }
+              errorMsg={tableDropdownErrorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
               isLoading={isFetchingDatasourceStructure}
               onSelect={onSelectTable}
@@ -486,6 +519,17 @@ function GeneratePageForm() {
             />
           </SelectWrapper>
         ) : null}
+        {!isFetchingDatasourceStructure &&
+          selectedDatasourceIsInvalid &&
+          selectedDatasource.value && (
+            <EditDatasourceButton
+              category={Category.tertiary}
+              onClick={goToEditDatasource}
+              size={Size.medium}
+              text="Edit Datasource"
+              type="button"
+            />
+          )}
         {selectedTable.value ? (
           <SelectWrapper>
             <Label>
