@@ -13,6 +13,7 @@ import {
 } from "../../constants/routes";
 import { useSelector } from "react-redux";
 import { getQueryParams } from "../../utils/AppsmithUtils";
+import { getGenerateTemplateFormURL } from "../../constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -57,6 +58,8 @@ function CloseEditor() {
             "",
             getQueryParams(),
           )
+        : isGeneratePageInitiator
+        ? getGenerateTemplateFormURL(applicationId, pageId)
         : BUILDER_PAGE_URL(applicationId, pageId);
     history.push(URL);
   };
