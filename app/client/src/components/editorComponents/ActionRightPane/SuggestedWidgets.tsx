@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
 import Tooltip from "components/ads/Tooltip";
+import { addSuggestedWidget } from "actions/widgetActions";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -77,6 +78,13 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "text",
     widgetName: "Text",
   },
+  [WidgetTypes.INPUT_WIDGET]: {
+    label: "text",
+    propertyName: "defaultText",
+    widgetName: "Input",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/input.svg",
+  },
 };
 
 function getWidgetProps(
@@ -137,10 +145,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       props.actionName,
     );
 
-    dispatch({
-      type: "ADD_WIDGET",
-      payload,
-    });
+    dispatch(addSuggestedWidget(payload));
   };
 
   return (

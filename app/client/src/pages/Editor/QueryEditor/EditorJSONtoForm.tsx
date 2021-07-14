@@ -20,14 +20,13 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import styled, { getTypographyByKey } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
@@ -129,26 +128,9 @@ const SettingsWrapper = styled.div`
   ${thinScrollbar};
 `;
 
-const GenerateWidgetButton = styled.a`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 30px;
-  top: 8px;
-  ${(props) => getTypographyByKey(props, "h5")}
-  color: #716e6e;
-  && {
-    margin: 0;
-  }
-  &:hover {
-    text-decoration: none;
-    color: #716e6e;
-  }
-`;
-
 const ResultsCount = styled.div`
   position: absolute;
-  right: 180px;
+  right: 13px;
   top: 8px;
   color: #716e6e;
 `;
@@ -453,9 +435,6 @@ export function EditorJSONtoForm(props: Props) {
   const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
-  const onAddWidget = () => {
-    dispatch(addTableWidgetFromQuery(actionName));
-  };
 
   function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
@@ -765,13 +744,6 @@ export function EditorJSONtoForm(props: Props) {
                       }`}</Text>
                     </Text>
                   </ResultsCount>
-                  <GenerateWidgetButton
-                    className="t--add-widget"
-                    onClick={onAddWidget}
-                  >
-                    <AdsIcon name="plus" />
-                    &nbsp;&nbsp;Generate Widget
-                  </GenerateWidgetButton>
                 </Boxed>
               )}
 
