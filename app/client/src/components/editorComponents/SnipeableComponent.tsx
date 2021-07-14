@@ -38,16 +38,13 @@ function SnipeableComponent(props: SnipeableComponentProps) {
 
   const isSnipingMode = useSelector(snipingModeSelector);
 
-  // This state tels us which widget is focused
-  // The value is the widgetId of the focused widget.
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+  const isFocusedWidget = useSelector(
+    (state: AppState) =>
+      state.ui.widgetDragResize.focusedWidget === props.widgetId,
   );
 
   const handleMouseOver = (e: any) => {
-    focusWidget &&
-      focusedWidget !== props.widgetId &&
-      focusWidget(props.widgetId);
+    focusWidget && !isFocusedWidget && focusWidget(props.widgetId);
     e.stopPropagation();
   };
 
@@ -61,7 +58,7 @@ function SnipeableComponent(props: SnipeableComponentProps) {
   return isSnipingMode ? (
     <SnipeableWrapper
       className={className}
-      isFocused={focusedWidget === props.widgetId}
+      isFocused={isFocusedWidget}
       onMouseOver={handleMouseOver}
     >
       {props.children}

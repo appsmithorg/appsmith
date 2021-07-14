@@ -139,9 +139,9 @@ function* resetSnipingModeSaga() {
   searchParams.delete("isSnipingMode");
   searchParams.delete("bindTo");
   history.replace({
+    ...window.location,
     pathname: currentURL.pathname,
     search: searchParams.toString(),
-    hash: currentURL.hash,
   });
 }
 
