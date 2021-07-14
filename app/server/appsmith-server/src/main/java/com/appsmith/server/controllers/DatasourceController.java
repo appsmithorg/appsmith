@@ -1,7 +1,9 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -101,6 +105,13 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
         return mockDataService.createMockDataSet(mockDataSource)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+    }
+
+    @PutMapping("/datasource-query/{datasourceId}")
+    public Mono<ResponseDTO<ActionExecutionResult>> runQueryOnDatasource(@PathVariable String datasourceId,
+                                                                    @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
+        return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
+            .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
 }

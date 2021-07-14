@@ -35,6 +35,8 @@ public class GoogleSheetsMethodStrategy {
                 return new UpdateMethod(objectMapper);
             case MethodIdentifiers.DELETE_ROW:
                 return new DeleteRowMethod(objectMapper);
+            case MethodIdentifiers.SHEET_METADATA:
+                return new SheetMetadataMethod(objectMapper);
             default:
                 throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown method type: " + type));
         }
