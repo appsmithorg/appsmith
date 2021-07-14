@@ -81,9 +81,12 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
                   line: editor.lineCount() - 1,
                   ch: editor.getLine(editor.lineCount() - 1).length - 2,
                 });
-                if (selected.action && typeof selected.action === "function")
+                if (selected.action && typeof selected.action === "function") {
                   selected.action();
-              });
+                } else {
+                  CodeMirror.signal(editor, "postSelection");
+                }
+              }, 200);
               try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { data, render, ...rest } = selected;

@@ -226,6 +226,9 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
+        editor.on("postSelection", (cm) =>
+          this.handleAutocompleteVisibility(editor),
+        );
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
@@ -340,7 +343,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
-
     this.editor.setOption("matchBrackets", false);
   };
 
@@ -386,7 +388,6 @@ class CodeEditor extends Component<Props, State> {
       this.props.dataTreePath || "",
     );
     let hinterOpen = false;
-    if (!this.state.isFocused) return;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
