@@ -180,11 +180,18 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         boxShadowColor={boxShadowColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
+        height={
+          (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
+        }
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
         onClick={this.handleClick}
         widgetId={widgetId}
+        width={
+          (this.props.rightColumn - this.props.leftColumn) *
+          this.props.parentColumnSpace
+        }
       />
     );
   }

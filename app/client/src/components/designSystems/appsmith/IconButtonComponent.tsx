@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import { Button } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
@@ -20,11 +21,13 @@ export interface ButtonStyleProps {
   boxShadowColor?: string;
   buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
+  dimension: number;
 }
 
 const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
   background-image: none !important;
-
+  height: ${({ dimension }) => `${dimension}px`};
+  width: ${({ dimension }) => `${dimension}px`};
   ${({ buttonStyle, buttonVariant, theme }) => `
     &:enabled {
       background: ${
@@ -100,6 +103,12 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
     } !important;
 
     & > span {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
       color: ${
         buttonVariant === ButtonVariantTypes.SOLID
           ? `${theme.colors.button.primary.solid.textColor}`
@@ -113,6 +122,13 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
           ? `${theme.colors.button.secondary.outline.textColor}`
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
+    }
+
+    & > span > svg {
+      height: 60%;
+      width: 60%;
+      min-height: 16px;
+      min-width: 16px;
     }
   `}
 
@@ -186,6 +202,8 @@ export interface IconButtonComponentProps extends ComponentProps {
   isDisabled: boolean;
   isVisible: boolean;
   onClick: () => void;
+  height: number;
+  width: number;
 }
 
 function IconButtonComponent(props: IconButtonComponentProps) {
@@ -195,9 +213,24 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     boxShadowColor,
     buttonStyle,
     buttonVariant,
+    height,
     isDisabled,
     onClick,
+    width,
   } = props;
+
+  /**
+   * returns the dimension to be used for widget
+   * whatever is the minimum between width and height,
+   * we will use that for the dimension of the widget
+   */
+  const dimension = useMemo(() => {
+    if (width > height) {
+      return height;
+    }
+
+    return width;
+  }, [width, height]);
 
   return (
     <IconButtonContainer>
@@ -207,6 +240,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         boxShadowColor={boxShadowColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
+        dimension={dimension}
         disabled={isDisabled}
         icon={props.iconName}
         large
