@@ -1,13 +1,13 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { applyChange, Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { createImmerReducer, createReducer } from "utils/AppsmithUtils";
-import { Diff, applyChange } from "deep-diff";
+import { createImmerReducer } from "utils/AppsmithUtils";
 
 export type EvaluatedTreeState = DataTree;
 
 const initialState: EvaluatedTreeState = {};
 
-const evaluatedTreeReducer = createReducer(initialState, {
+const evaluatedTreeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_EVALUATED_TREE]: (
     state: EvaluatedTreeState,
     action: ReduxAction<{
@@ -21,11 +21,12 @@ const evaluatedTreeReducer = createReducer(initialState, {
       return dataTree;
     }
     for (const update of updates) {
-      if (!Array.isArray(update.path) || update.path.length === 0) continue; // Null check for typescript
+      // Null check for typescript
+      if (!Array.isArray(update.path) || update.path.length === 0) {
+        continue;
+      }
       applyChange(state, undefined, update);
     }
-
-    return state;
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
 });
