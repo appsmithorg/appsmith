@@ -11,16 +11,15 @@ type MenuProps = CommonComponentProps & {
   position?: Position;
   onOpening?: (node: HTMLElement) => void;
   onClosing?: (node: HTMLElement) => void;
-  onInteraction?: (nextOpenState: boolean, e: any) => void;
   modifiers?: PopperModifiers;
   isOpen?: boolean;
   onClose?: () => void;
   canEscapeKeyClose?: boolean;
   canOutsideClickClose?: boolean;
-  menuItemWrapperWidth?: number;
+  menuItemWrapperWidth?: string;
 };
 
-const MenuWrapper = styled.div<{ width?: string | number }>`
+const MenuWrapper = styled.div<{ width?: string }>`
   width: ${(props) => (props.width ? props.width : "234px")};
   background: ${(props) => props.theme.colors.menu.background};
   box-shadow: 0px 12px 28px ${(props) => props.theme.colors.menu.shadow};
@@ -42,11 +41,6 @@ function Menu(props: MenuProps) {
       modifiers={props.modifiers}
       onClose={props.onClose}
       onClosing={props.onClosing}
-      onInteraction={(nextOpenState, e) => {
-        if (props.onInteraction) {
-          props.onInteraction(nextOpenState, e);
-        }
-      }}
       onOpening={props.onOpening}
       portalClassName={props.className}
       position={props.position || Position.BOTTOM}

@@ -29,6 +29,7 @@ import Icon from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "../../../actions/datasourceActions";
 import { getIsDeletingDatasource } from "../../../selectors/entitiesSelector";
+import TooltipComponent from "components/ads/Tooltip";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -198,6 +199,11 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!supportTemplateGeneration) {
+      // disable button when it doesn't support page generation
+      return;
+    }
+
     history.push(
       `${getGenerateTemplateFormURL(
         params.applicationId,
@@ -233,14 +239,22 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {supportTemplateGeneration ? (
+            <TooltipComponent
+              boundary={"viewport"}
+              content="Currently not supported for page generation"
+              disabled={!!supportTemplateGeneration}
+              hoverOpenDelay={200}
+              position={Position.BOTTOM}
+            >
               <GenerateTemplateButton
                 category={Category.tertiary}
                 className="t--generate-template"
+                disabled={!supportTemplateGeneration}
                 onClick={routeToGeneratePage}
                 text="GENERATE NEW PAGE"
               />
-            ) : null}
+            </TooltipComponent>
+
             <ActionButton
               className="t--create-query"
               icon="plus"
@@ -251,11 +265,8 @@ function DatasourceCard(props: DatasourceCardProps) {
           </ButtonsWrapper>
         </DatasourceCardHeader>
         <MenuWrapper
-          menuItemWrapperWidth={160}
-          onInteraction={(nextState, e) => {
-            e?.stopPropagation();
-          }}
-          position={Position.RIGHT_BOTTOM}
+          menuItemWrapperWidth="140px"
+          position={Position.LEFT_TOP}
           target={
             <MoreOptionsContainer>
               <Icon
