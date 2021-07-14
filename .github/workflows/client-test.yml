@@ -336,7 +336,11 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
         run: |
-            ./scripts/start-dev-server.sh > /dev/null 2>&1 &             
+            ./scripts/start-dev-server.sh > /dev/null 2>&1 &
+
+      - name: Wait for 30 seconds for server to start
+        run: sleep 30s
+        shell: bash
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
