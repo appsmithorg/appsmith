@@ -704,50 +704,48 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
      * @return
      */
-    private WidgetType getSuggestedWidget(Object data) {
+    private List<WidgetType> getSuggestedWidget(Object data) {
 
-        if(data instanceof String) {
-            return WidgetType.TEXT_WIDGET;
-        }
+        List<WidgetType> widgetTypeList = new ArrayList<>();
 
-        if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
-            try {
-                ArrayNode array = (ArrayNode) data;
-                int length = array.size();
-                JsonNode node = array.get(0);
-                JsonNodeType nodeType = node.getNodeType();
+        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
+            if(!((ArrayNode) data).isEmpty()) {
+                try {
+                    ArrayNode array = (ArrayNode) data;
+                    int length = array.size();
+                    JsonNode node = array.get(0);
+                    JsonNodeType nodeType = node.getNodeType();
 
-                if(nodeType.equals(JsonNodeType.STRING)) {
-                    if (length > 1) {
-                        return WidgetType.DROP_DOWN_WIDGET;
+                    if(nodeType.equals(JsonNodeType.STRING)) {
+                        if (length > 1) {
+                            widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        }
+                        else {
+                            widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                        }
                     }
-                    return WidgetType.TEXT_WIDGET;
+
+                    if(nodeType.equals(JsonNodeType.OBJECT) || nodeType.equals(JsonNodeType.ARRAY)) {
+                        widgetTypeList.add(WidgetType.CHART_WIDGET);
+                        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        widgetTypeList.add(WidgetType.LIST_WIDGET);
+                        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+                    }
+
+                    if(nodeType.equals(JsonNodeType.NUMBER)) {
+                        widgetTypeList.add(WidgetType.INPUT_WIDGET);
+                        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                    }
+
+                } catch(ClassCastException e) {
+                    log.warn("Error while casting data to suggest widget "+ e);
+                    widgetTypeList.add(WidgetType.TEXT_WIDGET);
                 }
-
-                if(nodeType.equals(JsonNodeType.OBJECT) || nodeType.equals(JsonNodeType.ARRAY)) {
-                    int fieldsCount = array.get(0).size();
-                    if( (node.has("x") || (node.has("X")) )&&
-                            (node.has("y") || (node.has("Y"))) ) {
-                        return WidgetType.CHART_WIDGET;
-                    }
-                    if(fieldsCount <= 2) {
-                        return WidgetType.DROP_DOWN_WIDGET;
-                    }
-                    if(length <= 20 && fieldsCount <= 5) {
-                        return WidgetType.LIST_WIDGET;
-                    }
-                    return WidgetType.TABLE_WIDGET;
-                }
-
-                return WidgetType.TEXT_WIDGET;
-
-            } catch(ClassCastException e) {
-                log.warn("Error while casting data to suggest widget "+ e);
-                return WidgetType.TEXT_WIDGET;
             }
+        } else {
+            widgetTypeList.add(WidgetType.TEXT_WIDGET);
         }
-        return WidgetType.TEXT_WIDGET;
-
+        return widgetTypeList;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
