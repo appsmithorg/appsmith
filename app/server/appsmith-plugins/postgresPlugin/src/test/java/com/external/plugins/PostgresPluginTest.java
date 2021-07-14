@@ -9,9 +9,9 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1114,5 +1114,71 @@ public class PostgresPluginTest {
                     assertEquals("kyoto", node.get("origin").get("city").asText());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithExplicitTypeCasting() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        String query = "INSERT INTO users (id, username, password, email, dob) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date)";
+        actionConfiguration.setBody(query);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        params.add(new Param("id", "10"));
+        params.add(new Param("firstName", "1001"));
+        params.add(new Param("lastName", "LastName"));
+        params.add(new Param("email", "email@email.com"));
+        params.add(new Param("date", "2018-12-31"));
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("affectedRows").asText(), "1");
+
+                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    RequestParamDTO requestParamDTO = requestParams.get(0);
+                    Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
+                    for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
+                        PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
+                        switch (psParameter.getValue()) {
+                            case "10" :
+                                assertEquals(psParameter.getType(), "INTEGER");
+                                break;
+                            case "1001" :
+
+                            case "LastName" :
+
+                            case "email@email.com" :
+                                assertEquals(psParameter.getType(), "STRING");
+                                break;
+                            case "2018-12-31" :
+                                assertEquals(psParameter.getType(), "DATE");
+                                break;
+                        }
+                    }
+
+                })
+                .verifyComplete();
+
+        // Delete the newly added row to not affect any other test case
+        actionConfiguration.setBody("DELETE FROM users WHERE id = 10");
+        connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
     }
 }
