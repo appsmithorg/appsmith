@@ -382,25 +382,26 @@ class TernServer {
         return aRank - bRank;
       });
       completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
-      completionType.MATCHING_TYPE.unshift({
-        text: "Best Match",
-        displayText: "Best Match",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      });
-      completionType.DATA_TREE.unshift(..._.drop(sortedMatches, 3));
-      completionType.DATA_TREE.unshift({
-        text: "Search results",
-        displayText: "Search results",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      });
+      if (completionType.MATCHING_TYPE.length) {
+        completionType.MATCHING_TYPE.unshift({
+          text: "Best Match",
+          displayText: "Best Match",
+          className: "CodeMirror-hint-header",
+          data: { doc: "" },
+          origin: "",
+          type: "UNKNOWN",
+          isHeader: true,
+        });
+        completionType.DATA_TREE.unshift({
+          text: "Search results",
+          displayText: "Search results",
+          className: "CodeMirror-hint-header",
+          data: { doc: "" },
+          origin: "",
+          type: "UNKNOWN",
+          isHeader: true,
+        });
+      }
     } else {
       // Clear any matching type because we dont want to find best match
       completionType.MATCHING_TYPE = [];
