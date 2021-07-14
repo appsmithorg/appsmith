@@ -87,7 +87,10 @@ const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.headerHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -145,8 +148,11 @@ const CreateApiButton = styled(AdsButton)`
   padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 120px;
+    //max-width: 120px;
     width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -275,6 +281,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         text: "Unable to create API. Try adding a url to the datasource",
         variant: Variant.danger,
       });
+      return;
     }
     const newApiName = createNewApiName(actions, pageId || "");
 
@@ -333,6 +340,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <CreateApiButton
           className="t--create-query"
           disabled={this.disableSave()}
+          icon="plus"
           isLoading={isSaving}
           onClick={this.createApiAction}
           text="New API"
