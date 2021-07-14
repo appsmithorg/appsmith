@@ -69,15 +69,15 @@ const OptionWrapper = styled.div<{ clickable?: boolean; selected?: boolean }>`
 `;
 
 const CreateIconWrapper = styled.div`
-  margin: 0px 8px;
+  margin: 0px 8px 0px 0px;
 `;
 
 const ImageWrapper = styled.div`
-  height: 24px;
+  height: 20px;
   width: auto;
   display: flex;
   align-items: center;
-  margin: 0px 8px;
+  margin: 0px 8px 0px 0px;
 `;
 
 const DatasourceImage = styled.img`

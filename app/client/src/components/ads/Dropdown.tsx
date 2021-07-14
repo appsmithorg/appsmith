@@ -280,6 +280,7 @@ function DefaultDropDownValueNode({
       <Text type={TextType.P1}>{LabelText}</Text>
     );
   }
+
   return (
     <SelectedDropDownHolder>
       {renderNode ? (
@@ -287,7 +288,12 @@ function DefaultDropDownValueNode({
       ) : (
         <>
           {selected.icon ? (
-            <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+            <SelectedIcon
+              fillColor={selected?.iconColor}
+              hoverFillColor={selected?.iconColor}
+              name={selected.icon}
+              size={selected.iconSize || IconSize.XXS}
+            />
           ) : null}
           <Label />
         </>
@@ -395,6 +401,7 @@ export default function Dropdown(props: DropdownProps) {
                 {option.icon ? (
                   <SelectedIcon
                     fillColor={option?.iconColor}
+                    hoverFillColor={option?.iconColor}
                     name={option.icon}
                     size={option.iconSize || IconSize.XXS}
                   />

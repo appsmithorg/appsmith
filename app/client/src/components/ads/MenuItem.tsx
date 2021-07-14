@@ -114,6 +114,7 @@ const MenuItemContent = forwardRef(
           {props.icon ? (
             <Icon
               isLoading={props.isLoading}
+              loaderWithIconWrapper
               name={props.icon}
               size={IconSize.LARGE}
             />

@@ -29,8 +29,8 @@ import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelec
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
-// import { IconName } from "components/ads/Icon";
 import { convertToQueryParams } from "constants/routes";
+import { IconName, IconSize } from "components/ads/Icon";
 
 // Temporary hardcoded valid plugins which support generate template
 // Record<pluginId, pluginName>
@@ -241,7 +241,7 @@ function GeneratePageForm() {
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         const { data } = TableObj;
-
+        const columnIcon: IconName = "column";
         if (data.columns) {
           const newSelectedTableColumnOptions: DropdownOption[] = [];
           data.columns.map((column) => {
@@ -254,6 +254,9 @@ function GeneratePageForm() {
                 label: column.name,
                 value: column.name,
                 subText: column.type,
+                icon: columnIcon,
+                iconSize: IconSize.LARGE,
+                iconColor: "#FFD300",
               });
             }
           });
@@ -311,21 +314,21 @@ function GeneratePageForm() {
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id];
 
-      // const datasourceIcon: IconName = "datasource";
+      const datasourceIcon: IconName = "tables";
       const tables = selectedDatasourceStructure?.tables;
-      if (tables?.length) {
+      if (tables) {
         const newTables = tables.map(({ columns, name }) => ({
           id: name,
           label: name,
           value: name,
-          // icon: datasourceIcon,
+          icon: datasourceIcon,
+          iconSize: IconSize.LARGE,
+          iconColor: "#FF7742",
           data: {
             columns,
           },
         }));
         setSelectedDatasourceTableOptions(newTables);
-      } else {
-        // show Error of No tables
       }
     }
   }, [
@@ -465,6 +468,12 @@ function GeneratePageForm() {
               Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
+              errorMsg={
+                datasourceTableOptions.length === 0 &&
+                !isFetchingDatasourceStructure
+                  ? `Couldn't find any ${tableLabel} in ${selectedDatasource.label}`
+                  : ""
+              }
               height={DROPDOWN_DIMENSION.HEIGHT}
               isLoading={isFetchingDatasourceStructure}
               onSelect={onSelectTable}
