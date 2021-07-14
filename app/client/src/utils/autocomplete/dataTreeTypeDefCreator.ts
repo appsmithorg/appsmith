@@ -44,27 +44,27 @@ export const dataTreeTypeDefCreator = (
       for (const [key, value] of Object.entries(finalData)) {
         def[key] = value;
       }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
-        const result: any = _.omit(entity, [
-          "ENTITY_TYPE",
-          "actionId",
-          "pluginType",
-        ]);
-        const dataObj = entity.data;
-        const jsOptions: any = {};
-        for (const key in result) {
-          if (dataObj.hasOwnProperty(key)) {
-            jsOptions[key] =
-              "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
-          } else {
-            jsOptions[key] = generateTypeDef(entity[key]);
-          }
+    }
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+      const result: any = _.omit(entity, [
+        "ENTITY_TYPE",
+        "actionId",
+        "pluginType",
+      ]);
+      const dataObj = entity.data;
+      const jsOptions: any = {};
+      for (const key in result) {
+        if (dataObj.hasOwnProperty(key)) {
+          jsOptions[key] =
+            "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+        } else {
+          jsOptions[key] = generateTypeDef(entity[key]);
         }
-        def[entityName] = jsOptions;
-        const flattenedjsObjects = flattenObjKeys(jsOptions, entityName);
-        for (const [key, value] of Object.entries(flattenedjsObjects)) {
-          def[key] = value;
-        }
+      }
+      def[entityName] = jsOptions;
+      const flattenedjsObjects = flattenObjKeys(jsOptions, entityName);
+      for (const [key, value] of Object.entries(flattenedjsObjects)) {
+        def[key] = value;
       }
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
