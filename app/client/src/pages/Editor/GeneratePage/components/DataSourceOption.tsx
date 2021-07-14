@@ -95,6 +95,8 @@ function DataSourceOption({
     CONNECT_NEW_DATASOURCE_OPTION_ID === dropdownOption.id;
 
   const isSupportedForTemplate = dropdownOption.data.isSupportedForTemplate;
+  const isNotSupportedDatasource =
+    !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
   return (
     <TooltipComponent
       content="Not supported for template generation"
@@ -104,14 +106,10 @@ function DataSourceOption({
     >
       <OptionWrapper
         className="t--dropdown-option"
-        disabled={
-          !isSupportedForTemplate &&
-          !isSelectedNode &&
-          !isConnectNewDataSourceBtn
-        }
+        disabled={isNotSupportedDatasource}
         key={dropdownOption.id}
         onClick={() => {
-          if (!isSupportedForTemplate) {
+          if (isNotSupportedDatasource) {
             return;
           }
           if (isConnectNewDataSourceBtn) {
