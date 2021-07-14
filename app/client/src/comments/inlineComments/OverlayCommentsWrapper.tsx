@@ -9,6 +9,10 @@ import { getOffsetPos } from "comments/utils";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { TourType } from "entities/Tour";
 import { WidgetType } from "constants/WidgetConstants";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
 
 type Props = {
   children: React.ReactNode;
@@ -32,10 +36,12 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
 
-  const proceedToNextTourStep = useProceedToNextTourStep(
-    [TourType.COMMENTS_TOUR_EDIT_MODE, TourType.COMMENTS_TOUR_PUBLISHED_MODE],
-    1,
-  );
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.CREATE_UNPUBLISHED_COMMENT,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.CREATE_UNPUBLISHED_COMMENT,
+  });
 
   // create new unpublished thread
   const clickHandler = (e: any) => {

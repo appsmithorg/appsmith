@@ -53,6 +53,7 @@ import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -265,10 +266,9 @@ function CommentCard({
   inline?: boolean;
   visible?: boolean;
 }) {
-  const proceedToNextTourStep = useProceedToNextTourStep(
-    TourType.COMMENTS_TOUR_EDIT_MODE,
-    3,
-  );
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]: commentsTourStepsEditModeTypes.RESOLVE,
+  });
 
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
@@ -434,8 +434,10 @@ function CommentCard({
               <ResolveButtonContainer>
                 {inline ? (
                   <TourTooltipWrapper
-                    tourIndex={3}
-                    tourType={TourType.COMMENTS_TOUR_EDIT_MODE}
+                    activeStepConfig={{
+                      [TourType.COMMENTS_TOUR_EDIT_MODE]:
+                        commentsTourStepsEditModeTypes.RESOLVE,
+                    }}
                   >
                     <ResolveCommentButton
                       handleClick={() => {

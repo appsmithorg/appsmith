@@ -5,29 +5,27 @@ import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { proceedToNextTourStep } from "actions/tourActions";
 
 export const useIsTourStepActive = (
-  tourTypes: Array<TourType> | TourType,
-  tourIndex: number,
+  activeTourStepConfig: { [key in TourType]?: any },
 ) => {
+  const activeTourType = useSelector(getActiveTourType);
+  const expectedActiveStep =
+    activeTourType &&
+    activeTourStepConfig &&
+    activeTourStepConfig[activeTourType];
+
   const isCurrentStepActive = useSelector(
-    (state: AppState) => getActiveTourIndex(state) === tourIndex,
+    (state: AppState) => getActiveTourIndex(state) === expectedActiveStep,
   );
 
-  const activeTourType = useSelector(getActiveTourType);
-  const isCurrentTourActive =
-    typeof tourTypes === "string"
-      ? activeTourType === tourTypes
-      : tourTypes.indexOf(activeTourType as TourType) !== -1;
-
-  return isCurrentStepActive && isCurrentTourActive;
+  return isCurrentStepActive;
 };
 
 const useProceedToNextTourStep = (
-  tourTypes: Array<TourType> | TourType,
-  tourIndex: number,
+  activeTourStepConfig: { [key in TourType]?: any },
 ) => {
   const dispatch = useDispatch();
 
-  const isActive = useIsTourStepActive(tourTypes, tourIndex);
+  const isActive = useIsTourStepActive(activeTourStepConfig);
 
   return () => isActive && dispatch(proceedToNextTourStep());
 };
