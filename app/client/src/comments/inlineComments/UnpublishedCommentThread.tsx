@@ -14,6 +14,9 @@ import { RawDraftContentState } from "draft-js";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+import { Popover2 } from "@blueprintjs/popover2";
+
+const Container = document.getElementById("root");
 
 const CommentTriggerContainer = styled.div<{
   top: number;
@@ -80,17 +83,28 @@ function UnpublishedCommentThread({
         top={top}
         topPercent={topPercent}
       >
-        <Popover
-          autoFocus
-          boundary="viewport"
+        <Popover2
+          autoFocus={false}
+          boundary={Container as HTMLDivElement}
           canEscapeKeyClose
+          content={
+            <ThreadContainer tabIndex={0}>
+              <AddCommentInput
+                onCancel={onClosing}
+                onSave={createCommentThread}
+              />
+            </ThreadContainer>
+          }
+          enforceFocus={false}
           hasBackdrop
           isOpen
           minimal
           modifiers={{
             offset: {
               enabled: true,
-              offset: "-8, 10",
+              options: {
+                offset: [-8, 10],
+              },
             },
           }}
           onInteraction={(nextOpenState) => {
@@ -98,20 +112,41 @@ function UnpublishedCommentThread({
               onClosing();
             }
           }}
+          placement={"right-start"}
           popoverClassName="comment-thread"
+          portalClassName="inline-comment-thread"
           position={Position.RIGHT_TOP}
         >
           <Icon keepColors name="unread-pin" />
-          <ThreadContainer tabIndex={0}>
-            <AddCommentInput
-              onCancel={onClosing}
-              onSave={createCommentThread}
-            />
-          </ThreadContainer>
-        </Popover>
+        </Popover2>
       </CommentTriggerContainer>
     </div>
   );
 }
 
 export default UnpublishedCommentThread;
+
+// <Popover
+// autoFocus
+// boundary="viewport"
+// canEscapeKeyClose
+// hasBackdrop
+// isOpen
+// minimal
+// modifiers={{
+//   offset: {
+//     enabled: true,
+//     offset: "-8, 10",
+//   },
+// }}
+// onInteraction={(nextOpenState) => {
+//   if (!nextOpenState) {
+//     onClosing();
+//   }
+// }}
+// popoverClassName="comment-thread"
+// position={Position.RIGHT_TOP}
+// >
+// <Icon keepColors name="unread-pin" />
+
+// </Popover>
