@@ -445,7 +445,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -477,7 +477,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -506,7 +506,7 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -798,7 +798,7 @@ public class ActionServiceTest {
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
                                         ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
 
-        List<WidgetType> expectedWidget = mockResult.getSuggestedWidget();
+        List<WidgetType> expectedWidget = mockResult.getSuggestedWidgets();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
@@ -806,9 +806,9 @@ public class ActionServiceTest {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
                     assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidget().size()).isEqualTo(expectedWidget.size());
-                    assertThat(result.getSuggestedWidget().containsAll(expectedWidget)).isTrue();
-                    assertThat(expectedWidget.containsAll(result.getSuggestedWidget())).isTrue();
+                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidget.size());
+                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidget)).isTrue();
+                    assertThat(expectedWidget.containsAll(result.getSuggestedWidgets())).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1231,7 +1231,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1273,7 +1273,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1315,7 +1315,7 @@ public class ActionServiceTest {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1348,7 +1348,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1416,7 +1416,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetType.LIST_WIDGET);
         widgetTypeList.add(WidgetType.TABLE_WIDGET);
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1526,7 +1526,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetType.LIST_WIDGET);
         widgetTypeList.add(WidgetType.TABLE_WIDGET);
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1628,7 +1628,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetType.TABLE_WIDGET);
         widgetTypeList.add(WidgetType.CHART_WIDGET);
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1686,7 +1686,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetType.LIST_WIDGET);
         widgetTypeList.add(WidgetType.TABLE_WIDGET);
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1724,7 +1724,7 @@ public class ActionServiceTest {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1767,7 +1767,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetType.LIST_WIDGET);
         widgetTypeList.add(WidgetType.TABLE_WIDGET);
         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1804,7 +1804,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
         List<WidgetType> widgetTypeList = new ArrayList<>();
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1843,7 +1843,7 @@ public class ActionServiceTest {
         List<WidgetType> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetType.TEXT_WIDGET);
         widgetTypeList.add(WidgetType.INPUT_WIDGET);
-        mockResult.setSuggestedWidget(widgetTypeList);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();

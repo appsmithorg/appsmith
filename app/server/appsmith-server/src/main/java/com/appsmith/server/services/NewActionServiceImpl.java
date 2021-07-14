@@ -688,21 +688,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
-        if(FALSE.equals(viewMode)) {
-            result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
-        }
 
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
+        }
+
         return result;
     }
 
     /**
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
-     * @return
+     * @return List of Widgets
      */
     private List<WidgetType> getSuggestedWidget(Object data) {
 
@@ -716,7 +718,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     JsonNode node = array.get(0);
                     JsonNodeType nodeType = node.getNodeType();
 
-                    if(nodeType.equals(JsonNodeType.STRING)) {
+                    if(JsonNodeType.STRING.equals(nodeType)) {
                         if (length > 1) {
                             widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
                         }
@@ -725,20 +727,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         }
                     }
 
-                    if(nodeType.equals(JsonNodeType.OBJECT) || nodeType.equals(JsonNodeType.ARRAY)) {
+                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
                         widgetTypeList.add(WidgetType.CHART_WIDGET);
                         widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
                         widgetTypeList.add(WidgetType.LIST_WIDGET);
                         widgetTypeList.add(WidgetType.TABLE_WIDGET);
                     }
 
-                    if(nodeType.equals(JsonNodeType.NUMBER)) {
+                    if(JsonNodeType.NUMBER.equals(nodeType)) {
                         widgetTypeList.add(WidgetType.INPUT_WIDGET);
                         widgetTypeList.add(WidgetType.TEXT_WIDGET);
                     }
 
                 } catch(ClassCastException e) {
-                    log.warn("Error while casting data to suggest widget "+ e);
+                    log.warn("Error while casting data to suggest widget.", e);
                     widgetTypeList.add(WidgetType.TEXT_WIDGET);
                 }
             }
