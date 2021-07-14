@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
+import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -13,6 +13,8 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -131,9 +133,16 @@ type ApiHomeScreenProps = {
   plugins: Plugin[];
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  showUnsupportedPluginDialog: (callback: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
+
+const API_ACTION = {
+  IMPORT_CURL: "IMPORT_CURL",
+  CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
+};
 
 function NewApiScreen(props: Props) {
   const {
@@ -141,7 +150,6 @@ function NewApiScreen(props: Props) {
     createNewApiAction,
     history,
     isCreating,
-    location,
     pageId,
     plugins,
   } = props;
@@ -151,17 +159,52 @@ function NewApiScreen(props: Props) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
-  const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) +
-    "?from=datasources" +
-    location.search;
+
+  const handleOnClick = (actionType: string, params?: any) => {
+    const queryParams = getQueryParams();
+    const isGeneratePageInitiator = queryParams.initiator === "generate-page";
+    if (
+      isGeneratePageInitiator &&
+      !params?.skipValidPluginCheck &&
+      !VALID_PLUGINS_FOR_TEMPLATE[params?.pluginId]
+    ) {
+      // show modal informing user that this will break the generate flow.
+      props?.showUnsupportedPluginDialog(() =>
+        handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
+      );
+      return;
+    }
+    switch (actionType) {
+      case API_ACTION.CREATE_NEW_API:
+        handleCreateNew();
+        break;
+      case API_ACTION.IMPORT_CURL: {
+        AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+          importSource: CURL,
+        });
+
+        delete queryParams.initiator;
+        const curlImportURL =
+          getCurlImportPageURL(applicationId, pageId) +
+          convertToQueryParams({ from: "datasources", ...queryParams });
+
+        history.push(curlImportURL);
+        break;
+      }
+      case API_ACTION.CREATE_DATASOURCE_FORM: {
+        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        break;
+      }
+      default:
+    }
+  };
 
   return (
     <StyledContainer>
       <ApiCardsContainer>
         <ApiCard
           className="t--createBlankApiCard create-new-api"
-          onClick={handleCreateNew}
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -177,12 +220,7 @@ function NewApiScreen(props: Props) {
         </ApiCard>
         <ApiCard
           className="t--createBlankCurlCard"
-          onClick={() => {
-            AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-              importSource: CURL,
-            });
-            history.push(curlImportURL);
-          }}
+          onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -201,7 +239,11 @@ function NewApiScreen(props: Props) {
             <ApiCard
               className={`t--createBlankApi-${p.packageName}`}
               key={p.id}
-              onClick={() => props.createDatasourceFromForm({ pluginId: p.id })}
+              onClick={() =>
+                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                  pluginId: p.id,
+                })
+              }
             >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">

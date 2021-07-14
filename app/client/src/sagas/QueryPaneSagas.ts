@@ -184,7 +184,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       applicationId,
       pageId,
       actionPayload.payload.id,
-      { from: "datasources" },
+      { from: "datasources", ...getQueryParams() },
     ),
   );
 }

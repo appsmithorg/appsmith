@@ -11,6 +11,25 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+
+// This function remove the given key from queryParams and return string
+const removeQueryParams = (paramKeysToRemove: Array<string>) => {
+  const queryParams = getQueryParams();
+  let queryString = "";
+  const queryParamKeys = Object.keys(queryParams);
+  if (queryParamKeys && queryParamKeys.length) {
+    queryParamKeys.map((key) => {
+      if (!paramKeysToRemove.includes(key)) {
+        queryString +=
+          encodeURIComponent(key) + "=" + encodeURIComponent(queryParams[key]);
+      }
+    });
+    return "?" + queryString;
+  }
+  return "";
+};
 
 const DatasourceHomePage = styled.div`
   max-height: 95vh;
@@ -97,6 +116,7 @@ interface DatasourceHomeScreenProps {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showUnsupportedPluginDialog: (callback: any) => void;
 }
 
 interface ReduxDispatchProps {
@@ -114,13 +134,42 @@ interface ReduxStateProps {
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
 
 class DatasourceHomeScreen extends React.Component<Props> {
-  goToCreateDatasource = (pluginId: string, pluginName: string) => {
-    const { currentApplication } = this.props;
+  goToCreateDatasource = (
+    pluginId: string,
+    pluginName: string,
+    params?: any,
+  ) => {
+    const {
+      currentApplication,
+      history,
+      showUnsupportedPluginDialog,
+    } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       appName: currentApplication?.name,
       plugin: pluginName,
     });
+
+    const queryParams = getQueryParams();
+    const { initiator } = queryParams;
+    if (
+      !params?.skipValidPluginCheck &&
+      initiator &&
+      initiator === "generate-page"
+    ) {
+      if (!VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
+        // show modal informing user that this will break the generate flow.
+        showUnsupportedPluginDialog(() => {
+          const URL =
+            window.location.pathname + removeQueryParams(["initiator"]);
+          history.replace(URL);
+          this.goToCreateDatasource(pluginId, pluginName, {
+            skipValidPluginCheck: true,
+          });
+        });
+        return;
+      }
+    }
 
     this.props.createDatasource({
       pluginId,

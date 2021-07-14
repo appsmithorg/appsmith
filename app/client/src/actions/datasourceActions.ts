@@ -31,15 +31,18 @@ export type UpdateDatasourceSuccessAction = {
   type: string;
   payload: Datasource;
   redirect: boolean;
+  queryParams?: Record<string, string>;
 };
 
 export const updateDatasourceSuccess = (
   payload: Datasource,
   redirect = true,
+  queryParams = {},
 ): UpdateDatasourceSuccessAction => ({
   type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
   payload,
   redirect,
+  queryParams,
 });
 
 export const redirectAuthorizationCode = (
@@ -112,12 +115,14 @@ export const deleteDatasource = (
   payload: Partial<Datasource>,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
+  onSuccessCallback?: () => void,
 ): ReduxActionWithCallbacks<Partial<Datasource>, unknown, unknown> => {
   return {
     type: ReduxActionTypes.DELETE_DATASOURCE_INIT,
     payload,
     onSuccess,
     onError,
+    onSuccessCallback,
   };
 };
 
@@ -143,20 +148,28 @@ export const fetchMockDatasources = () => {
   };
 };
 
+export interface addMockRequest
+  extends ReduxAction<{
+    name: string;
+    organizationId: string;
+    pluginId: string;
+    packageName: string;
+    initiator?: string;
+  }> {
+  extraParams?: any;
+}
+
 export const addMockDatasourceToOrg = (
   name: string,
   organizationId: string,
   pluginId: string,
   packageName: string,
-): ReduxAction<{
-  name: string;
-  organizationId: string;
-  pluginId: string;
-  packageName: string;
-}> => {
+  initiator?: string,
+): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
     payload: { name, packageName, pluginId, organizationId },
+    extraParams: { initiator },
   };
 };
 

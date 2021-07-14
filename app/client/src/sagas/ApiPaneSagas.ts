@@ -122,7 +122,7 @@ function* syncApiParamsSaga(
 }
 
 function* redirectToNewIntegrations(
-  action: ReduxAction<{ applicationId: string; pageId: string }>,
+  action: ReduxAction<{ applicationId: string; pageId: string; params?: any }>,
 ) {
   history.push(
     INTEGRATION_EDITOR_URL(
@@ -130,6 +130,7 @@ function* redirectToNewIntegrations(
       action.payload.pageId,
       INTEGRATION_TABS.ACTIVE,
       INTEGRATION_EDITOR_MODES.AUTO,
+      action.payload.params,
     ),
   );
 }
@@ -404,6 +405,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       actionPayload.payload.id,
       {
         from: "datasources",
+        ...getQueryParams(),
       },
     ),
   );

@@ -473,6 +473,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_RECENT_ENTITIES: "SET_RECENT_ENTITIES",
   RESET_RECENT_ENTITIES: "RESET_RECENT_ENTITIES",
   UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
+  GENERATE_TEMPLATE_PAGE_INIT: "GENERATE_TEMPLATE_PAGE_INIT",
+  GENERATE_TEMPLATE_PAGE_SUCCESS: "GENERATE_TEMPLATE_PAGE_SUCCESS",
   EXECUTE_COMMAND: "EXECUTE_COMMAND",
 };
 
@@ -598,6 +600,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
   DELETE_ORG_USER_ERROR: "DELETE_ORG_USER_ERROR",
   CHANGE_APPVIEW_ACCESS_ERROR: "CHANGE_APPVIEW_ACCESS_ERROR",
+  GENERATE_TEMPLATE_PAGE_ERROR: "GENERATE_TEMPLATE_PAGE_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {
@@ -623,6 +626,8 @@ export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
 export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
   onSuccess?: ReduxAction<S>;
   onError?: ReduxAction<E>;
+  onSuccessCallback?: (response: S) => void;
+  onErrorCallback?: (error: E) => void;
 }
 
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
