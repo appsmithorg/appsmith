@@ -508,7 +508,6 @@ export function EditorJSONtoForm(props: Props) {
         } else {
           try {
             const { configProperty } = formControlOrSection;
-            console.log(`${configProperty}_${idx}`);
             return (
               <FieldWrapper key={`${configProperty}_${idx}`}>
                 <FormControl
