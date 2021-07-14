@@ -298,6 +298,7 @@ function GeneratePageForm() {
         value: name,
         data: {
           pluginId,
+          isSupportedForTemplate: VALID_PLUGINS_FOR_TEMPLATE[pluginId],
         },
       };
       if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
