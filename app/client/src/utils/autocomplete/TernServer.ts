@@ -175,9 +175,9 @@ class TernServer {
       after = '"]';
     }
     const bindings = getDynamicBindings(cm.getValue());
-    const isEmpty =
-      bindings.stringSegments.length === 1 &&
-      bindings.jsSnippets[0].trim() === "";
+    console.log({ bindings });
+    const onlySingleBinding = bindings.stringSegments.length === 1;
+    const searchText = bindings.jsSnippets[0].trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
@@ -197,7 +197,8 @@ class TernServer {
     const { entityName, entityType } = this.entityInformation;
     completions = TernServer.sortCompletions(
       completions,
-      isEmpty,
+      onlySingleBinding,
+      searchText,
       this.recentPaths,
       expectedDataType,
       entityName,
@@ -270,6 +271,7 @@ class TernServer {
   static sortCompletions(
     completions: Completion[],
     findBestMatch: boolean,
+    bestMatchSearch: string,
     recentPaths: Set<string>,
     expectedDataType: DataType,
     entityName?: string,
@@ -349,6 +351,9 @@ class TernServer {
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       },
+    );
+    completionType.MATCHING_TYPE = completionType.MATCHING_TYPE.filter((c) =>
+      c.text.startsWith(bestMatchSearch),
     );
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
       const sortedMatches: Completion[] = [];
