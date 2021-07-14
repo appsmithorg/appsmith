@@ -40,6 +40,23 @@ sleep 30
 
 echo "Checking if the containers have started"
 sudo docker ps -a 
+sudo docker logs wildcard-ngnix
+
+echo "Checking if the server has started"
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+
+retry_count=1
+
+while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
+	echo "Hit 502.Server not started retrying..."
+	retry_count=$((1 + $retry_count))
+	sleep 30
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+done
+
+if [ "$status_code" -eq "502" ]; then
+  echo "Hit 502"
+fi
 
 # Create the test user 
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
