@@ -775,11 +775,14 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   });
 }
 
-function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
+function* fetchDatasourceStructureSaga(
+  action: ReduxAction<{ id: string; ignoreCache: boolean }>,
+) {
   const datasource = yield select(getDatasource, action.payload.id);
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
+      action.payload.ignoreCache,
     );
     const isValidResponse = yield validateResponse(response, false);
     if (isValidResponse) {

@@ -225,7 +225,7 @@ function GeneratePageForm() {
         selectTable(DEFAULT_DROPDOWN_OPTION);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         if (dataSourceObj.id) {
-          dispatch(fetchDatasourceStructure(dataSourceObj.id));
+          dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
         }
       }
     },

@@ -11,10 +11,7 @@ const Container = styled.div`
 
 function PageContent() {
   const pathname = window.location.pathname;
-  let hasFormRoute = false;
-  if (pathname.includes("/form")) {
-    hasFormRoute = true;
-  }
+  const hasFormRoute = pathname.includes("/form");
   return (
     <Container>
       {!hasFormRoute ? <ActionCards /> : <GeneratePageForm />}

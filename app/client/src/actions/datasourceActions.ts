@@ -60,11 +60,12 @@ export const redirectAuthorizationCode = (
   };
 };
 
-export const fetchDatasourceStructure = (id: string) => {
+export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
+      ignoreCache,
     },
   };
 };
