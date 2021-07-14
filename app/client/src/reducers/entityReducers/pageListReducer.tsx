@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   PageListPayload,
   ClonePageSuccessPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
 const initialState: PageListReduxState = {
@@ -133,7 +134,7 @@ export const pageListReducer = createReducer(initialState, {
 
     return { ..._state, isGeneratingTemplatePage: false };
   },
-  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
+  [ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
     state: PageListReduxState,
   ) => {
     return { ...state, isGeneratingTemplatePage: false };

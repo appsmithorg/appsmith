@@ -866,10 +866,6 @@ export function* generateTemplatePageSaga(
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      Toaster.show({
-        text: "Successfully generated a page",
-        variant: Variant.success,
-      });
       const pageId = response.data.id;
       const applicationId =
         response.data.applicationId || request.applicationId;
@@ -877,6 +873,7 @@ export function* generateTemplatePageSaga(
         fetchPageResponse: response,
         pageId,
       });
+      // TODO : Add this to onSuccess (Redux Action)
       yield put(
         generateTemplateSuccess({
           pageId: response.data.id,
@@ -885,9 +882,15 @@ export function* generateTemplatePageSaga(
           isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
         }),
       );
+      // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
-
+      // TODO : Add it to onSuccessCallback
       history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+      // TODO : Add it to onSuccessCallback
+      Toaster.show({
+        text: "Successfully generated a page",
+        variant: Variant.success,
+      });
     }
   } catch (error) {
     yield put(generateTemplateError());

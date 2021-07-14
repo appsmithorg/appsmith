@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
   ReduxActionWithoutPayload,
   UpdateCanvasPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -332,7 +333,7 @@ export const generateTemplateSuccess = ({
 
 export const generateTemplateError = () => {
   return {
-    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_ERROR,
+    type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
   };
 };
 
