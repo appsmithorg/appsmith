@@ -34,14 +34,14 @@ describe("Dropdown Widget Functionality", function() {
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
+    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("be.visible");
+    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("be.visible");
     cy.get(publish.backToEditor).click();
   });
 });
