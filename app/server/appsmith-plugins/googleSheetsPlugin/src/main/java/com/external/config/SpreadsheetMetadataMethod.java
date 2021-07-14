@@ -17,11 +17,11 @@ import java.util.stream.StreamSupport;
 /**
  * API reference: https://developers.google.com/sheets/api/guides/migration#retrieve_sheet_metadata
  */
-public class SheetMetadataMethod implements Method {
+public class SpreadsheetMetadataMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public SheetMetadataMethod(ObjectMapper objectMapper) {
+    public SpreadsheetMetadataMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
