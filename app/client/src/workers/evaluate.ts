@@ -27,27 +27,11 @@ const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `
-  function closedFunction () {
-    const result = ${script}
-    return result;
-  }
-  closedFunction()
-  `,
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) => `
-  function callback (script) {
-    const userFunction = script;
-    const result = userFunction.apply(self, ARGUMENTS);
-    return result;
-  }
-  callback(${script})
-  `,
-  [EvaluationScriptType.TRIGGERS]: (script) => `
-  function closedFunction () {
-    const result = ${script}
-  }
-  closedFunction()
-  `,
+  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
+    `const userFunction = ${script}
+    return userFunction.apply(self, ARGUMENTS)`,
+  [EvaluationScriptType.TRIGGERS]: (script) => `(function() { ${script} })()`,
 };
 
 const getScriptToEval = (
@@ -175,7 +159,7 @@ export default function evaluate(
       self[func] = undefined;
     });
     try {
-      result = eval(script);
+      result = Function(script)();
       if (isTriggerBased) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
