@@ -22,17 +22,11 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         executeCommand,
         pluginIdToImageLocation,
         recentEntities,
-        updatePropertyValue,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        updatePropertyValue: (
-          value: string,
-          cursor?: number,
-          preventAutoComplete?: boolean,
-        ) => void;
       },
     ): boolean => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
@@ -81,16 +75,15 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
-              const updatedValue = value.slice(
-                0,
-                value.length - searchText.length - 1,
-              );
-              if (selected.action && typeof selected.action === "function") {
-                updatePropertyValue(updatedValue, updatedValue.length, true);
-                setTimeout(selected.action);
-              } else {
-                updatePropertyValue(updatedValue + selected.text);
-              }
+              setTimeout(() => {
+                editor.focus();
+                editor.setCursor({
+                  line: editor.lineCount() - 1,
+                  ch: editor.getLine(editor.lineCount() - 1).length - 2,
+                });
+                if (selected.action && typeof selected.action === "function")
+                  selected.action();
+              });
               try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { data, render, ...rest } = selected;
