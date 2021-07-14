@@ -391,7 +391,6 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
-        updatePropertyValue: this.handleEditorBlur.bind(this), //this.updatePropertyValue.bind(this),
         recentEntities: this.props.recentEntities,
         executeCommand: (payload: any) => {
           this.props.executeCommand({
