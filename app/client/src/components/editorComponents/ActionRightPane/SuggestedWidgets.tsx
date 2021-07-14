@@ -11,15 +11,19 @@ import { bindDataOnCanvas } from "../../../actions/actionActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../../pages/Editor/Explorer/helpers";
 import { getWidgets } from "sagas/selectors";
+import Tooltip from "components/ads/Tooltip";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
-  .image {
-    width: 100%;
-    height: 40px;
-    background-color: #f0f0f0;
+  img {
+    max-width: 100%;
+  }
+
+  .image-wrapper {
+    position: relative;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   .widget:hover {
@@ -27,10 +31,24 @@ const WidgetList = styled.div`
   }
 `;
 
+const WidgetOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  &:hover {
+    display: block;
+    background: rgba(0, 0, 0, 0.6);
+  }
+`;
+
 type WidgetBindingInfo = {
   label: string;
   propertyName: string;
   widgetName: string;
+  image?: string;
 };
 
 export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
@@ -38,11 +56,15 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "items",
     propertyName: "listData",
     widgetName: "List",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/list.svg",
   },
   [WidgetTypes.TABLE_WIDGET]: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table+1.svg",
   },
   [WidgetTypes.CHART_WIDGET]: {
     label: "chart-series-data-control",
@@ -53,6 +75,8 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/Dropdown.svg",
   },
   [WidgetTypes.TEXT_WIDGET]: {
     label: "text",
@@ -143,13 +167,17 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     <>
       <Collapsible label="Add New Widget">
         <div className="description">
-          This will add a new widget to the canvas.{" "}
+          This will add a new widget to the canvas.
         </div>
-
         <WidgetList>
           <div className="widget" onClick={addWidget}>
             <div>{widgetInfo.widgetName} Widget</div>
-            <div className="image" />
+            <Tooltip content="Add to canvas">
+              <div className="image-wrapper">
+                {widgetInfo.image && <img src={widgetInfo.image} />}
+                <WidgetOverlay />
+              </div>
+            </Tooltip>
           </div>
         </WidgetList>
       </Collapsible>
