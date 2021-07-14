@@ -351,6 +351,7 @@ export type Theme = {
   sidebarWidth: string;
   canvasBottomPadding: number;
   navbarMenuHeight: string;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -2480,6 +2481,7 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "30%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
