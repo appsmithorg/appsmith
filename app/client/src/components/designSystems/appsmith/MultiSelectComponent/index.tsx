@@ -46,6 +46,7 @@ function MultiSelectComponent({
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
+    // TODO: Use generateClassName func.
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
 

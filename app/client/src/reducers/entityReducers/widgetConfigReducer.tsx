@@ -8,17 +8,17 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
-import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
-import { DatePickerWidget2Props } from "../../widgets/DatePickerWidget2";
-import { TableWidgetProps } from "../../widgets/TableWidget/TableWidgetConstants";
-import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
-import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
-import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
-import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
+import { DatePickerWidgetProps } from "widgets/DatePickerWidget";
+import { DatePickerWidget2Props } from "widgets/DatePickerWidget2";
+import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
+import { DropdownWidgetProps } from "widgets/DropdownWidget";
+import { CheckboxWidgetProps } from "widgets/CheckboxWidget";
+import { RadioGroupWidgetProps } from "widgets/RadioGroupWidget";
+import { FilePickerWidgetProps } from "widgets/FilepickerWidget";
 import {
   TabsWidgetProps,
   TabContainerWidgetProps,
-} from "../../widgets/Tabs/TabsWidget";
+} from "widgets/Tabs/TabsWidget";
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
@@ -26,12 +26,12 @@ import { MapWidgetProps } from "widgets/MapWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
-import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
+import { SkeletonWidgetProps } from "widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
-import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
+import { ListWidgetProps } from "widgets/ListWidget/ListWidget";
 import { MultiSelectWidgetProps } from "widgets/MultiSelectWidget";
-import { DividerWidgetProps } from "../../widgets/DividerWidget";
-import { RateWidgetProps } from "../../widgets/RateWidget";
+import { DividerWidgetProps } from "widgets/DividerWidget";
+import { RateWidgetProps } from "widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 
