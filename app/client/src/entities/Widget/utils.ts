@@ -1,9 +1,10 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { get, isObject, isUndefined } from "lodash";
+import { get, isObject, isUndefined, omitBy } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -146,6 +147,7 @@ export const getAllPathsFromPropertyConfig = (
 
 /**
  * this function gets the next available row for pasting widgets
+ * NOTE: this function excludes modal widget when calculating next available row
  *
  * @param parentContainerId
  * @param canvasWidgets
@@ -155,8 +157,12 @@ export const nextAvailableRowInContainer = (
   parentContainerId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) => {
+  const filetedCanvasWidgets = omitBy(canvasWidgets, (widget) => {
+    return widget.type === WidgetTypes.MODAL_WIDGET;
+  });
+
   return (
-    Object.values(canvasWidgets).reduce(
+    Object.values(filetedCanvasWidgets).reduce(
       (prev: number, next: any) =>
         next?.parentId === parentContainerId && next.bottomRow > prev
           ? next.bottomRow
