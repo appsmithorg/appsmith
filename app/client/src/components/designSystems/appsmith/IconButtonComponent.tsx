@@ -6,6 +6,7 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 const IconButtonContainer = styled.div`
   display: flex;
@@ -225,11 +226,12 @@ function IconButtonComponent(props: IconButtonComponentProps) {
    * we will use that for the dimension of the widget
    */
   const dimension = useMemo(() => {
+    console.log({ width, height });
     if (width > height) {
-      return height;
+      return height - WIDGET_PADDING * 2;
     }
 
-    return width;
+    return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
   return (
