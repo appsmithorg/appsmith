@@ -215,6 +215,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     &:after {
       color: #fff;
     }
+    &:hover {
+      background: #6A86CE;
+      color: #fff;
+      &:after {
+        color: #fff;
+      }
+    }
   }
   .CodeMirror-Tern-hint-doc {
     display: none;
