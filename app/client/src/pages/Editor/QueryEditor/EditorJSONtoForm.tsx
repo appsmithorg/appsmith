@@ -98,7 +98,7 @@ const ErrorMessage = styled.p`
 
 const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  height: 50%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
