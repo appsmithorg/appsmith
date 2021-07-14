@@ -4,6 +4,10 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -79,8 +83,10 @@ export const getOffsetPos = (
   );
 
   return {
-    left: offsetLeftPercent,
-    top: offsetTopPercent,
+    leftPercent: offsetLeftPercent,
+    topPercent: offsetTopPercent,
+    left: offsetLeft,
+    top: offsetTop,
   };
 };
 
@@ -120,4 +126,41 @@ export const getCommentThreadURL = ({
   );
 
   return url;
+};
+
+/**
+ * Absolutely position the pins within the
+ * main container canvas since the height
+ * can change dynamically
+ */
+export const getPosition = (props: {
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset?: string;
+  yOffset?: string;
+  offset?: string;
+}) => {
+  const xOffset = props.xOffset || props.offset || `- 2`;
+  const yOffset = props.yOffset || props.offset || `- 2`;
+  if (props.positionAbsolutely) {
+    return `
+      top: ${props.top - 29}px;
+      left: ${props.left - 29}px;
+    `;
+  } else {
+    return `
+      bottom: calc(${100 - props.topPercent}% ${yOffset}px);
+      right: calc(${100 - props.leftPercent}% ${xOffset}px);
+    `;
+  }
+};
+
+export const getShouldPositionAbsolutely = (commentThread: CommentThread) => {
+  return (
+    commentThread?.refId === MAIN_CONTAINER_WIDGET_ID &&
+    commentThread?.widgetType === WidgetTypes.CANVAS_WIDGET
+  );
 };
