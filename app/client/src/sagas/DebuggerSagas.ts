@@ -59,8 +59,8 @@ function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   const headers = request.headers;
 
   const source = payload.source;
-  const action: Action = yield select(getAction, source.id);
-  if (action.pluginType === PluginType.API) {
+  const action: Action | undefined = yield select(getAction, source.id);
+  if (action && action.pluginType === PluginType.API) {
     let formattedHeaders = [];
 
     // Convert headers from Record<string, array>[] to Record<string, string>[]
