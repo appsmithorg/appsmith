@@ -50,6 +50,8 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "items",
     propertyName: "listData",
     widgetName: "List",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/list.svg",
   },
   [WidgetTypes.TABLE_WIDGET]: {
     label: "tabledata",
@@ -67,6 +69,8 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/Dropdown.svg",
   },
   [WidgetTypes.TEXT_WIDGET]: {
     label: "text",
