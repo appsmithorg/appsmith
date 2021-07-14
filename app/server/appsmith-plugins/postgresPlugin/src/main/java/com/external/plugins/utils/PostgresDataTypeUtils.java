@@ -20,8 +20,10 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.FLOAT8;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT4;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT8;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TEXT;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TIME;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
 
@@ -43,6 +45,8 @@ public class PostgresDataTypeUtils {
         public static final String DATE = "date";
         public static final String TIME = "time";
         public static final String FLOAT8 = "float8";
+        public static final String TEXT = "text";
+        public static final String INT = "int";
 
         public Set dataTypes = null;
 
@@ -81,6 +85,8 @@ public class PostgresDataTypeUtils {
             dataTypeMapper.put(DATE, com.appsmith.external.constants.DataType.DATE);
             dataTypeMapper.put(TIME, com.appsmith.external.constants.DataType.TIME);
             dataTypeMapper.put(FLOAT8, DOUBLE);
+            dataTypeMapper.put(TEXT, STRING);
+            dataTypeMapper.put(INT, INTEGER);
         }
 
         return dataTypeMapper;
