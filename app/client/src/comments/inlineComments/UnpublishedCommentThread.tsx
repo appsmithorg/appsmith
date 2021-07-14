@@ -13,10 +13,17 @@ import Icon from "components/ads/Icon";
 import { RawDraftContentState } from "draft-js";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
-const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
+import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+
+const CommentTriggerContainer = styled.div<{
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+}>`
   position: absolute;
-  bottom: calc(${(props) => 100 - props.top}% - 2px);
-  right: calc(${(props) => 100 - props.left}% - 2px);
+  ${(props) => getPosition(props)}
 
   & svg {
     width: 30px;
@@ -33,10 +40,16 @@ function UnpublishedCommentThread({
 }: {
   commentThread: CommentThread;
 }) {
-  const { left, top } = get(commentThread, "position", {
-    top: 0,
-    left: 0,
-  });
+  const { left, leftPercent, top, topPercent } = get(
+    commentThread,
+    "position",
+    {
+      left: 0,
+      leftPercent: 0,
+      top: 0,
+      topPercent: 0,
+    },
+  );
   const dispatch = useDispatch();
   const onClosing = () => {
     dispatch(removeUnpublishedCommentThreads());
@@ -45,6 +58,10 @@ function UnpublishedCommentThread({
   const createCommentThread = (text: RawDraftContentState) => {
     dispatch(createCommentThreadAction({ commentBody: text, commentThread }));
   };
+
+  const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
+
+  console.log(commentThread, "commentThread");
 
   return (
     <div
@@ -56,7 +73,13 @@ function UnpublishedCommentThread({
         e.stopPropagation();
       }}
     >
-      <CommentTriggerContainer left={left} top={top}>
+      <CommentTriggerContainer
+        left={left}
+        leftPercent={leftPercent}
+        positionAbsolutely={positionAbsolutely}
+        top={top}
+        topPercent={topPercent}
+      >
         <Popover
           autoFocus
           boundary="viewport"
