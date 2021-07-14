@@ -40,7 +40,6 @@ sleep 30
 
 echo "Checking if the containers have started"
 sudo docker ps -a 
-sudo docker logs wildcard-ngnix
 
 echo "Checking if the server has started"
 status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
