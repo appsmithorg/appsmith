@@ -36,7 +36,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
-import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { AppState } from "reducers";
@@ -91,49 +91,63 @@ function getLatestEvalPropertyErrors(
         entity,
         getEvalValuePath(evaluatedPath, false),
       );
-      const evalErrors = allEvalErrors.filter(
-        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-      );
+      const evalErrors: EvaluationError[] = [];
+      const evalWarnings: EvaluationError[] = [];
+
+      for (const err of allEvalErrors) {
+        if (err.severity === Severity.WARNING) {
+          evalWarnings.push(err);
+        }
+        if (err.severity === Severity.ERROR) {
+          evalErrors.push(err);
+        }
+      }
+
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : ENTITY_TYPE.ACTION;
-      const debuggerKey = idField + "-" + propertyPath;
+      const debuggerKeyMap = {
+        [idField + "-" + propertyPath]: evalErrors,
+        [`${idField}-${propertyPath}-warnings`]: evalWarnings,
+      };
       // if dataTree has error but debugger does not -> add
       // if debugger has error and data tree has error -> update error
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      if (evalErrors.length) {
-        // TODO Rank and set the most critical error
-        const error = evalErrors[0];
-        const errorMessages = evalErrors.map((e) => ({
-          message: e.errorMessage,
-        }));
+      for (const [debuggerKey, errors] of Object.entries(debuggerKeyMap)) {
+        if (errors.length) {
+          // TODO Rank and set the most critical error
+          const error = errors[0];
+          const errorMessages = errors.map((e) => ({
+            message: e.errorMessage,
+          }));
 
-        // Add or update
-        updatedDebuggerErrors[debuggerKey] = {
-          logType: LOG_TYPE.EVAL_ERROR,
-          text: PropertyEvalErrorTypeDebugMessage[error.errorType](
-            propertyPath,
-          ),
-          messages: errorMessages,
-          severity: error.severity,
-          timestamp: moment().format("hh:mm:ss"),
-          source: {
-            id: idField,
-            name: nameField,
-            type: entityType,
-            propertyPath: propertyPath,
-          },
-          state: {
-            [propertyPath]: evaluatedValue,
-          },
-        };
-      } else if (debuggerKey in updatedDebuggerErrors) {
-        // Remove
-        delete updatedDebuggerErrors[debuggerKey];
+          // Add or update
+          updatedDebuggerErrors[debuggerKey] = {
+            logType: LOG_TYPE.EVAL_ERROR,
+            text: PropertyEvalErrorTypeDebugMessage[error.errorType](
+              propertyPath,
+            ),
+            messages: errorMessages,
+            severity: error.severity,
+            timestamp: moment().format("hh:mm:ss"),
+            source: {
+              id: idField,
+              name: nameField,
+              type: entityType,
+              propertyPath: propertyPath,
+            },
+            state: {
+              [propertyPath]: evaluatedValue,
+            },
+          };
+        } else {
+          // Remove
+          delete updatedDebuggerErrors[debuggerKey];
+        }
       }
     }
   }
