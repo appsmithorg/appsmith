@@ -1,7 +1,7 @@
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
@@ -10,6 +10,7 @@ import { Variant } from "../../ads/common";
 import { bindDataOnCanvas } from "../../../actions/actionActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../../pages/Editor/Explorer/helpers";
+import { getWidgets } from "sagas/selectors";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -106,6 +107,7 @@ type SuggestedWidgetProps = {
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
+  const widgets = useSelector(getWidgets);
   const widgetInfo: WidgetBindingInfo | undefined =
     WIDGET_DATA_FIELD_MAP[props.suggestedWidget];
 
@@ -151,20 +153,22 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           </div>
         </WidgetList>
       </Collapsible>
-      <Collapsible label="Select Existing Widgets">
-        <div className="description">Go to canvas and select widgets</div>
-        <WidgetList>
-          <Button
-            category={Category.tertiary}
-            onClick={handleBindData}
-            size={Size.medium}
-            tag="button"
-            text="Select In Canvas"
-            type="button"
-            variant={Variant.info}
-          />
-        </WidgetList>
-      </Collapsible>
+      {Object.keys(widgets).length > 1 && (
+        <Collapsible label="Select Existing Widgets">
+          <div className="description">Go to canvas and select widgets</div>
+          <WidgetList>
+            <Button
+              category={Category.tertiary}
+              onClick={handleBindData}
+              size={Size.medium}
+              tag="button"
+              text="Select In Canvas"
+              type="button"
+              variant={Variant.info}
+            />
+          </WidgetList>
+        </Collapsible>
+      )}
     </>
   );
 }
