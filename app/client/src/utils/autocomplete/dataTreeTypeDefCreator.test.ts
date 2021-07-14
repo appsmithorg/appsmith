@@ -74,21 +74,32 @@ describe("dataTreeTypeDefCreator", () => {
 
   it("flatten object", () => {
     const def = {
-      someNumber: "number",
-      someString: "string",
-      someBool: "bool",
-      nested: {
-        someExtraNested: "string",
+      entity1: {
+        someNumber: "number",
+        someString: "string",
+        someBool: "bool",
+        nested: {
+          someExtraNested: "string",
+        },
       },
     };
 
     const expected = {
+      entity1: {
+        someNumber: "number",
+        someString: "string",
+        someBool: "bool",
+        nested: {
+          someExtraNested: "string",
+        },
+      },
       "entity1.someNumber": "number",
       "entity1.someString": "string",
       "entity1.someBool": "bool",
       "entity1.nested": {
         someExtraNested: "string",
       },
+      "entity1.nested.someExtraNested": "string",
     };
 
     const value = flattenDef(def, "entity1");
