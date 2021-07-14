@@ -84,7 +84,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
                 if (selected.action && typeof selected.action === "function") {
                   selected.action();
                 } else {
-                  CodeMirror.signal(editor, "postSelection");
+                  CodeMirror.signal(editor, "postPick");
                 }
               }, 200);
               try {

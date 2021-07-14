@@ -226,7 +226,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
-        editor.on("postSelection", (cm) =>
+        editor.on("postPick", () =>
           this.handleAutocompleteVisibility(editor),
         );
         if (this.props.height) {
@@ -337,7 +337,7 @@ class CodeEditor extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
