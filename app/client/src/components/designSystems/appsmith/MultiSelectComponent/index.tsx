@@ -12,6 +12,7 @@ import {
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
+import { Classes } from "@blueprintjs/core";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -83,7 +84,7 @@ function MultiSelectComponent({
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
-      <>
+      <div className={loading ? Classes.SKELETON : ""}>
         {options.length ? (
           <StyledCheckbox
             alignIndicator="left"
@@ -93,9 +94,9 @@ function MultiSelectComponent({
           />
         ) : null}
         {menu}
-      </>
+      </div>
     ),
-    [isSelectAll, options],
+    [isSelectAll, options, loading],
   );
 
   const filterOption = useCallback(
