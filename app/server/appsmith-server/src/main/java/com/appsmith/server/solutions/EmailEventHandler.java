@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.constants.AppsmithConstants;
+import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -182,7 +182,7 @@ public class EmailEventHandler {
 
     private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
         Map<String, Object> templateParams = new HashMap<>();
-        templateParams.put("App_User_Name", AppsmithConstants.APPSMITH_BOT_NAME);
+        templateParams.put("App_User_Name", CommentConstants.APPSMITH_BOT_NAME);
         templateParams.put("Commenter_Name", comment.getAuthorName());
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Organization_Name", organization.getName());
@@ -191,7 +191,7 @@ public class EmailEventHandler {
                 application,
                 comment.getPageId(),
                 comment.getThreadId(),
-                AppsmithConstants.APPSMITH_BOT_USERNAME,
+                CommentConstants.APPSMITH_BOT_USERNAME,
                 originHeader)
         );
 
@@ -211,7 +211,7 @@ public class EmailEventHandler {
             }
         }
 
-        if(CommentUtils.isUserMentioned(comment, AppsmithConstants.APPSMITH_BOT_USERNAME)) {
+        if(CommentUtils.isUserMentioned(comment, CommentConstants.APPSMITH_BOT_USERNAME)) {
             emailMonos.add(geBotEmailSenderMono(comment, originHeader, organization, application));
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));

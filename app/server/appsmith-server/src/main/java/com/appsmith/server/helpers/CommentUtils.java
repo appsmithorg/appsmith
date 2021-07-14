@@ -1,6 +1,6 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.constants.AppsmithConstants;
+import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Comment;
 import org.springframework.util.StringUtils;
 
@@ -49,7 +49,7 @@ public class CommentUtils {
                     // this comment has a mention, check the provided user is mentioned or not
                     if(commentEntity.getData() != null) {
                         String mentionedUsername = getMentionedUsername(commentEntity.getData().getMention());
-                        if(!StringUtils.isEmpty(mentionedUsername) && !AppsmithConstants.APPSMITH_BOT_USERNAME.equals(mentionedUsername)) {
+                        if(!StringUtils.isEmpty(mentionedUsername) && !CommentConstants.APPSMITH_BOT_USERNAME.equals(mentionedUsername)) {
                             return true;
                         }
                     }
@@ -80,7 +80,7 @@ public class CommentUtils {
                     // this comment has a mention, check the provided user is mentioned or not
                     if(commentEntity.getData() != null) {
                         String mentionedUsername = getMentionedUsername(commentEntity.getData().getMention());
-                        if(!StringUtils.isEmpty(mentionedUsername) && !mentionedUsername.equals(AppsmithConstants.APPSMITH_BOT_USERNAME)) {
+                        if(!StringUtils.isEmpty(mentionedUsername) && !mentionedUsername.equals(CommentConstants.APPSMITH_BOT_USERNAME)) {
                             usernamesSet.add(mentionedUsername);
                         }
                     }

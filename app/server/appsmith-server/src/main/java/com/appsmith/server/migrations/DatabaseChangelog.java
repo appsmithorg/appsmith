@@ -12,7 +12,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.constants.AppsmithConstants;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -2116,7 +2116,7 @@ public class DatabaseChangelog {
     public void markInstanceAsUnregistered(MongoTemplate mongoTemplate) {
         mongoTemplate.insert(new Config(
                 new JSONObject(Map.of("value", false)),
-                AppsmithConstants.APPSMITH_REGISTERED
+                Appsmith.APPSMITH_REGISTERED
         ));
     }
 

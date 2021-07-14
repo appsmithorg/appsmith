@@ -1,6 +1,6 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.constants.AppsmithConstants;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -33,7 +33,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        configService.getByName(AppsmithConstants.APPSMITH_REGISTERED)
+        configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
                 .subscribe(null, e -> {
@@ -71,9 +71,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                             Objects.requireNonNull(responseEntity.getBody()).getResponseMeta().getError().getMessage()));
                 })
                 .flatMap(instanceId -> configService
-                        .updateByName(AppsmithConstants.APPSMITH_REGISTERED, new Config(
+                        .updateByName(Appsmith.APPSMITH_REGISTERED, new Config(
                                 new JSONObject(Map.of("value", true)),
-                                AppsmithConstants.APPSMITH_REGISTERED
+                                Appsmith.APPSMITH_REGISTERED
                         ))
                 );
     }
