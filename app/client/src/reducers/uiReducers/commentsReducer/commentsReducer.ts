@@ -72,7 +72,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => ({
     ...state,
-    isCommentMode: action.payload,
+    isCommentMode: action.payload && state.areCommentsEnabled,
     isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
