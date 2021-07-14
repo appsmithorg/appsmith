@@ -173,7 +173,6 @@ class TernServer {
       after = '"]';
     }
     const bindings = getDynamicBindings(cm.getValue());
-    console.log({ bindings });
     const onlySingleBinding = bindings.stringSegments.length === 1;
     const searchText = bindings.jsSnippets[0].trim();
     for (let i = 0; i < data.completions.length; ++i) {
@@ -181,9 +180,13 @@ class TernServer {
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
+      let completionText = completion.name + after;
+      if (dataType === "FUNCTION") {
+        completionText = completionText + "()";
+      }
       completions.push({
-        text: completion.name + after,
-        displayText: completion.displayName || completion.name,
+        text: completionText,
+        displayText: completionText,
         className: className,
         data: completion,
         origin: completion.origin,
