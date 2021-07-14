@@ -39,7 +39,7 @@ export const generateQuickCommands = (
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "New Integration",
+    displayText: "New Datasource",
     action: () =>
       executeCommand({
         actionType: "NEW_INTEGRATION",
