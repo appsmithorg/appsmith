@@ -55,6 +55,9 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
+import { getAllWidgetsMap } from "selectors/entitiesSelector";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+
 const StyledContainer = styled.div`
   width: 100%;
   padding: ${(props) =>
@@ -333,6 +336,8 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
+  const widgetMap = useSelector(getAllWidgetsMap);
+
   const contextMenuProps = {
     switchToEditCommentMode,
     pin,
@@ -347,9 +352,27 @@ function CommentCard({
   // TODO enable when comments links are enabled
   // useSelectCommentUsingQuery(comment.id);
 
+  const { navigateToWidget } = useNavigateToWidget();
+
   // Dont make inline cards clickable
+  // TODO check if type === widget
   const handleCardClick = () => {
     if (inline) return;
+    if (commentThread.widgetType) {
+      const widget = widgetMap[commentThread.refId];
+      // only needed for modal widgetMap
+      // TODO check if we can do something similar for tabs
+      if (widget.parentModalId) {
+        navigateToWidget(
+          commentThread.refId,
+          commentThread.widgetType,
+          widget.pageId,
+          false,
+          widget.parentModalId,
+        );
+      }
+    }
+
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
