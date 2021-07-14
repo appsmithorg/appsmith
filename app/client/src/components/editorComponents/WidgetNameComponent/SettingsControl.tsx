@@ -39,6 +39,7 @@ const SettingsWrapper = styled.div`
 const WidgetName = styled.span`
   margin-right: ${(props) => props.theme.spaces[1] + 1}px;
   margin-left: ${(props) => props.theme.spaces[3]}px;
+  white-space: nowrap;
 `;
 
 const StyledErrorIcon = styled(Icon)`
