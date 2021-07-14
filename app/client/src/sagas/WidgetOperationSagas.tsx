@@ -528,14 +528,14 @@ export function* deleteAllSelectedWidgetsSaga(
       setTimeout(() => {
         if (bulkDeleteKey) {
           flushDeletedWidgets(bulkDeleteKey);
-          falttendedWidgets.map((e: any) => {
+          falttendedWidgets.map((widget: any) => {
             AppsmithConsole.info({
               logType: LOG_TYPE.ENTITY_DELETED,
               text: "Widget was deleted",
               source: {
-                name: e.widgetName,
+                name: widget.widgetName,
                 type: ENTITY_TYPE.WIDGET,
-                id: e.widgetId,
+                id: widget.widgetId,
               },
             });
           });
@@ -649,14 +649,14 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         setTimeout(() => {
           if (widgetId) {
             flushDeletedWidgets(widgetId);
-            otherWidgetsToDelete.map((e) => {
+            otherWidgetsToDelete.map((widget) => {
               AppsmithConsole.info({
                 logType: LOG_TYPE.ENTITY_DELETED,
                 text: "Widget was deleted",
                 source: {
-                  name: e.widgetName,
+                  name: widget.widgetName,
                   type: ENTITY_TYPE.WIDGET,
-                  id: e.widgetId,
+                  id: widget.widgetId,
                 },
               });
             });
