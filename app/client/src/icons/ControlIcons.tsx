@@ -46,6 +46,8 @@ import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divi
 import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
 import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
 import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
+import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
+import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -290,6 +292,16 @@ export const ControlIcons: {
   BIND_DATA_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <TrendingFlat />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignLeftIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignRightIcon />
     </IconWrapper>
   ),
 };
