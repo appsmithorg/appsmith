@@ -40,7 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -656,7 +656,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     /*
@@ -683,50 +683,71 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
-        result.setSuggestedWidget(getSuggestedWidget(result.getBody()));
 
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
+        }
+
         return result;
     }
 
     /**
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
-     * @return
+     * @return List of Widgets
      */
-    private WidgetType getSuggestedWidget(Object data) {
+    private List<WidgetType> getSuggestedWidget(Object data) {
 
-        if(data instanceof String) {
-            return WidgetType.TEXT_WIDGET;
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+
+        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
+            if(!((ArrayNode) data).isEmpty()) {
+                try {
+                    ArrayNode array = (ArrayNode) data;
+                    int length = array.size();
+                    JsonNode node = array.get(0);
+                    JsonNodeType nodeType = node.getNodeType();
+
+                    if(JsonNodeType.STRING.equals(nodeType)) {
+                        if (length > 1) {
+                            widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        }
+                        else {
+                            widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                        }
+                    }
+
+                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
+                        widgetTypeList.add(WidgetType.CHART_WIDGET);
+                        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        widgetTypeList.add(WidgetType.LIST_WIDGET);
+                        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+                    }
+
+                    if(JsonNodeType.NUMBER.equals(nodeType)) {
+                        widgetTypeList.add(WidgetType.INPUT_WIDGET);
+                        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                    }
+
+                } catch(ClassCastException e) {
+                    log.warn("Error while casting data to suggest widget.", e);
+                    widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                }
+            }
+        } else {
+            widgetTypeList.add(WidgetType.TEXT_WIDGET);
         }
-
-        if(data instanceof ArrayNode && !((ArrayNode) data).isEmpty()  && ((ArrayNode) data).isArray()) {
-            ArrayNode array = (ArrayNode) data;
-            Integer length = array.size();
-            ObjectNode objectNode = (ObjectNode)array.get(0);
-            Integer fieldsCount = array.get(0).size();
-            if( (objectNode.has("x") || (objectNode.has("X")) )&&
-                    (objectNode.has("y") || (objectNode.has("Y"))) ) {
-                return WidgetType.CHART_WIDGET;
-            }
-            if(fieldsCount <= 2) {
-                return WidgetType.DROP_DOWN_WIDGET;
-            }
-            if(length <= 20 && fieldsCount <= 5) {
-                return WidgetType.LIST_WIDGET;
-            }
-            return WidgetType.TABLE_WIDGET;
-        }
-        return WidgetType.TEXT_WIDGET;
-
+        return widgetTypeList;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(

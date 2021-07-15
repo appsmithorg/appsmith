@@ -358,11 +358,11 @@ public class RestApiPlugin extends BasePlugin {
                             if (MediaType.APPLICATION_JSON.equals(contentType) ||
                                     MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
                                 try {
-                                    String jsonBody = new String(body);
+                                    String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
                                     System.out.println("Unable to parse response JSON. Setting response body as string.");
-                                    String bodyString = new String(body);
+                                    String bodyString = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(bodyString.trim());
 
                                     // Warn user that the API response is not a valid JSON.
@@ -379,7 +379,7 @@ public class RestApiPlugin extends BasePlugin {
                                 result.setBody(encode);
                             } else {
                                 // If the body is not of JSON type, just set it as is.
-                                String bodyString = new String(body);
+                                String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
                             }
                         }
