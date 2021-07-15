@@ -23,7 +23,7 @@ import { getScrollByPixels } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { debounce, defer, isEmpty } from "lodash";
+import { debounce, isEmpty } from "lodash";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
