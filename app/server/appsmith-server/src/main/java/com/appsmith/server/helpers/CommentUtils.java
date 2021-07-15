@@ -101,7 +101,6 @@ public class CommentUtils {
     }
 
     private static String getMentionedUsername(Comment.EntityData.Mention mention){
-        // Comment.EntityData.Mention mention = commentEntity.getData().getMention();
         if(mention.getUser() != null) {
             return mention.getUser().getUsername();
         } else {
