@@ -198,7 +198,7 @@ public class PostgresPluginTest {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
         dsConfig.getConnection().setSsl(new SSLDetails());
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
 
         return dsConfig;
     }
@@ -1180,5 +1180,27 @@ public class PostgresPluginTest {
         connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
 
+    }
+
+    public void testReadOnlyMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(
+                "UPDATE public.\"users\" set created_on = '2021-03-24 14:05:34' where id = 3;"
+        );
+
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+
+                    String expectedBody = "ERROR: cannot execute UPDATE in a read-only transaction";
+                    assertEquals(expectedBody, result.getBody());
+                })
+                .verifyComplete();
     }
 }
