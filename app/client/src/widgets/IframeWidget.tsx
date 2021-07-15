@@ -6,6 +6,7 @@ import IframeComponent from "components/designSystems/blueprint/IframeComponent"
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -91,6 +92,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     ];
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      message: undefined,
+    };
+  }
+
   urlChangedHandler = (url: string) => {
     if (url && this.props.onURLChanged) {
       super.executeAction({
@@ -108,15 +115,14 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     if (!this.props.source?.includes(event.origin)) {
       return;
     }
-    if (this.props.onMessageReceived) {
-      super.executeAction({
-        triggerPropertyName: "onMessageReceived",
-        dynamicString: this.props.onMessageReceived,
-        event: {
-          type: EventType.ON_IFRAME_MESSAGE_RECEIVED,
-        },
-      });
-    }
+
+    this.props.updateWidgetMetaProperty("message", event.data, {
+      triggerPropertyName: "onMessageReceived",
+      dynamicString: this.props.onMessageReceived,
+      event: {
+        type: EventType.ON_IFRAME_MESSAGE_RECEIVED,
+      },
+    });
   };
 
   getPageView() {
@@ -147,7 +153,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   }
 }
 
-export interface IframeWidgetProps extends WidgetProps {
+export interface IframeWidgetProps extends WidgetProps, WithMeta {
   source: string;
   title?: string;
   onURLChanged?: string;
@@ -155,7 +161,8 @@ export interface IframeWidgetProps extends WidgetProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  message?: any;
 }
 
 export default IframeWidget;
-export const ProfiledIframeWidget = Sentry.withProfiler(IframeWidget);
+export const ProfiledIframeWidget = Sentry.withProfiler(withMeta(IframeWidget));
