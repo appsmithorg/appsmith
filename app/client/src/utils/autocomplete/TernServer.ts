@@ -289,45 +289,48 @@ class TernServer {
       if (entityName && completion.text.includes(entityName)) {
         return;
       }
-      if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
-        if (completion.text.includes(".")) {
-          // nested paths (with ".") should only be used for best match
-          if (completion.type === expectedDataType) {
+      if (completion.origin) {
+        if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
+          if (completion.text.includes(".")) {
+            // nested paths (with ".") should only be used for best match
+            if (completion.type === expectedDataType) {
+              completionType.MATCHING_TYPE.push(completion);
+            }
+          } else if (
+            completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
+            completion.type === expectedDataType
+          ) {
+            // Global functions should be in best match as well as DataTree
             completionType.MATCHING_TYPE.push(completion);
+            completionType.DATA_TREE.push(completion);
+          } else {
+            // All top level entities are set in data tree
+            completionType.DATA_TREE.push(completion);
           }
-        } else if (
-          completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
-          completion.type === expectedDataType
-        ) {
-          // Global functions should be in best match as well as DataTree
-          completionType.MATCHING_TYPE.push(completion);
-          completionType.DATA_TREE.push(completion);
-        } else {
-          // All top level entities are set in data tree
-          completionType.DATA_TREE.push(completion);
+          return;
         }
-        return;
+        if (
+          completion.origin === "[doc]" ||
+          completion.origin === "customDataTree"
+        ) {
+          // [doc] are variables defined in the current context
+          // customDataTree are implicit context defined by platform
+          completionType.CONTEXT.push(completion);
+          return;
+        }
+        if (
+          completion.origin === "ecmascript" ||
+          completion.origin === "base64-js"
+        ) {
+          completionType.JS.push(completion);
+          return;
+        }
+        if (completion.origin.startsWith("LIB/")) {
+          completionType.LIBRARY.push(completion);
+          return;
+        }
       }
-      if (
-        completion.origin === "[doc]" ||
-        completion.origin === "customDataTree"
-      ) {
-        // [doc] are variables defined in the current context
-        // customDataTree are implicit context defined by platform
-        completionType.CONTEXT.push(completion);
-        return;
-      }
-      if (
-        completion.origin === "ecmascript" ||
-        completion.origin === "base64-js"
-      ) {
-        completionType.JS.push(completion);
-        return;
-      }
-      if (completion.origin.startsWith("LIB/")) {
-        completionType.LIBRARY.push(completion);
-        return;
-      }
+
       // Generally keywords or other unCategorised completions
       completionType.OTHER.push(completion);
     });
