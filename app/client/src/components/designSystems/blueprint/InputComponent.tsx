@@ -209,7 +209,11 @@ class InputComponent extends React.Component<
       disabled={this.props.disabled}
       intent={this.props.intent}
       leftIcon={
-        this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
+        this.props.inputType === "PHONE_NUMBER"
+          ? "phone"
+          : this.props.iconName && this.props.iconAlign === "left"
+          ? this.props.iconName
+          : undefined
       }
       max={this.props.maxNum}
       maxLength={this.props.maxChars}

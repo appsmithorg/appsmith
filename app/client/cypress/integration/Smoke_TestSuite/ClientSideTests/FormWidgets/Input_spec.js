@@ -156,6 +156,19 @@ describe("Input Widget Functionality", function() {
     // tooltip help icon shows
     cy.get(".t--input-widget-tooltip").should("be.visible");
   });
+
+  it("Input icon shows on icon select", () => {
+    cy.get(commonlocators.dataType)
+      .first()
+      .click();
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+    cy.get(".bp3-icon-add")
+      .first()
+      .click({ force: true });
+    cy.get(".bp3-input-group .bp3-icon-add").should("exist");
+  });
 });
 afterEach(() => {
   // put your clean up code if any
