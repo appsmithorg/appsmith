@@ -1,5 +1,5 @@
 import React from "react";
-import { Popover, Position } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
 import { ThreadContainer } from "./StyledComponents";
 import { useDispatch } from "react-redux";
