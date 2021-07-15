@@ -53,6 +53,10 @@ while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
 	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
 done
 
+echo "Checking if client and server have started"
+ps -ef |grep java 2>&1 
+ps -ef |grep  serve 2>&1
+
 if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"
   exit 1
