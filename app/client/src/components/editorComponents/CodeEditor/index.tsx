@@ -226,6 +226,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
+        editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
