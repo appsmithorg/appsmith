@@ -110,5 +110,9 @@
   "switchWidgetActive": ".t--switch-widget-active",
   "switchWidgetInActive": ".t--switch-widget-inactive",
   "switchWidgetLoading": ".t--switch-widget-loading",
-  "tablePageSizeChangeAction": ".t--property-control-onpagesizechange .t--open-dropdown-Select-Action"
+  "tablePageSizeChangeAction": ".t--property-control-onpagesizechange .t--open-dropdown-Select-Action",
+  "currencyType": ".t--property-control-currency  .bp3-popover-target",
+  "decimalType": ".t--property-control-decimals  .bp3-popover-target",
+  "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
+  "inputCurrencyChangeType": ".t--input-currency-change"
 }
