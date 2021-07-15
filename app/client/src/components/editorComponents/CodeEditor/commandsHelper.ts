@@ -22,11 +22,13 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         executeCommand,
         pluginIdToImageLocation,
         recentEntities,
+        update,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
+        update: (value: string) => void;
       },
     ): boolean => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
@@ -75,6 +77,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+              update(value.slice(0, slashIndex) + selected.text);
               setTimeout(() => {
                 editor.focus();
                 editor.setCursor({
@@ -86,7 +89,7 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
                 } else {
                   CodeMirror.signal(editor, "postPick");
                 }
-              }, 200);
+              });
               try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { data, render, ...rest } = selected;

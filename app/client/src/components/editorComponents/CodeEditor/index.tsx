@@ -381,6 +381,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
     const expected = this.props.expected ? this.props.expected : "";
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
@@ -391,6 +392,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
+        update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
             ...payload,
@@ -584,14 +586,15 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
-            {!_.get(this.editor, "state.completionActive") && (
-              <BindingPrompt
-                editorTheme={this.props.theme}
-                isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
-                promptMessage={this.props.promptMessage}
-                showLightningMenu={this.props.showLightningMenu}
-              />
-            )}
+            <BindingPrompt
+              editorTheme={this.props.theme}
+              isOpen={
+                showBindingPrompt(showEvaluatedValue, input.value) &&
+                !_.get(this.editor, "state.completionActive")
+              }
+              promptMessage={this.props.promptMessage}
+              showLightningMenu={this.props.showLightningMenu}
+            />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>

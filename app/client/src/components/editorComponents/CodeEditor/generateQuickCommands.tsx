@@ -93,7 +93,7 @@ export const generateQuickCommands = (
     suggestions,
     searchText,
     recentEntities,
-    currentEntityType === "WIDGET" ? 2 : 3,
+    5,
   );
   suggestionsMatchingSearchText.push(
     ...matchingCommands([newBinding], searchText, []),
@@ -128,7 +128,7 @@ const matchingCommands = (
   list: any,
   searchText: string,
   recentEntities: string[] = [],
-  limit = 2,
+  limit = 5,
 ) => {
   list = list.filter((action: any) => {
     return action.displayText
