@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
@@ -12,6 +12,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { bindDataToWidget } from "../../../actions/propertyPaneActions";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -47,6 +48,7 @@ type WidgetNameComponentProps = {
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
+  const dispatch = useDispatch();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
   const propertyPaneState: PropertyPaneReduxState = useSelector(
@@ -70,7 +72,13 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   );
 
   const togglePropertyEditor = (e: any) => {
-    if (
+    if (isSnipingMode) {
+      dispatch(
+        bindDataToWidget({
+          widgetId: props.widgetId,
+        }),
+      );
+    } else if (
       (!propertyPaneState.isVisible &&
         props.widgetId === propertyPaneState.widgetId) ||
       props.widgetId !== propertyPaneState.widgetId

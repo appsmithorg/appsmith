@@ -11,10 +11,6 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "../../constants/Layers";
 import { bindDataToWidget } from "../../actions/propertyPaneActions";
 
-export const stopEventPropagation = (e: any) => {
-  e.stopPropagation();
-};
-
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;
   width: calc(100% + ${WIDGET_PADDING - 5}px);
@@ -58,20 +54,23 @@ function SnipeableComponent(props: SnipeableComponentProps) {
 
   const className = `${classNameForTesting}`;
 
-  const onSelectWidgetToBind = useCallback(() => {
-    dispatch(
-      bindDataToWidget({
-        widgetId: props.widgetId,
-      }),
-    );
-  }, [bindDataToWidget, props.widgetId, dispatch]);
+  const onSelectWidgetToBind = useCallback(
+    (e) => {
+      dispatch(
+        bindDataToWidget({
+          widgetId: props.widgetId,
+        }),
+      );
+      e.stopPropagation();
+    },
+    [bindDataToWidget, props.widgetId, dispatch],
+  );
 
   return isSnipingMode ? (
     <SnipeableWrapper
       className={className}
       isFocused={isFocusedWidget}
-      onClick={stopEventPropagation}
-      onClickCapture={onSelectWidgetToBind}
+      onClick={onSelectWidgetToBind}
       onMouseOver={handleMouseOver}
     >
       {props.children}
