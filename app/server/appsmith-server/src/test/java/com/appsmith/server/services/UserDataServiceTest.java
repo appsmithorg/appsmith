@@ -155,8 +155,8 @@ public class UserDataServiceTest {
     public void testUploadProfilePhoto_invalidImageSize() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
-                .repeat(70)  // So the file size looks like it's much larger than what it actually is.
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096)
+                .repeat(100)  // So the file size looks like it's much larger than what it actually is.
                 .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);

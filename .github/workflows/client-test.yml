@@ -1,4 +1,4 @@
-name: Appsmith Client Test Workflow
+name: Appsmith Test Workflow
 
 on:
   # This line enables manual triggering of this workflow.
@@ -9,6 +9,7 @@ on:
     branches: [release, master]
     paths:
       - "app/client/**"
+      - "app/server/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
   # trigger for pushes to release and master
@@ -16,6 +17,7 @@ on:
     branches: [release, release-frozen, master]
     paths:
       - "app/client/**"
+      - "app/server/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
@@ -24,7 +26,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build:
+  buildClient:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
     if: |
@@ -38,7 +40,12 @@ jobs:
         working-directory: app/client
         shell: bash
 
-    steps:
+    steps:    
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+ 
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -100,9 +107,6 @@ jobs:
           echo "next_version = $next_version"
           echo ::set-output name=version::$next_version-SNAPSHOT
 
-      - name: Run the jest tests
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
-
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
@@ -124,8 +128,91 @@ jobs:
           name: build
           path: app/client/build/
 
+  buildServer:
+    defaults:
+        run:
+            working-directory: app/server
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository || 
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          
+      - name: Build package
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+        working-directory: app/server
+        run: |
+            ./build.sh -DskipTests
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/
+
   ui-test:
-    needs: build
+    needs: [buildClient, buildServer]
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
@@ -137,6 +224,7 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -161,7 +249,62 @@ jobs:
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2   
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Start server
+      - name: start server
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+        run: |
+            ./scripts/start-dev-server.sh > /dev/null 2>&1 &
+
+      - name: Wait for 30 seconds for server to start
+        run: sleep 30s
+        shell: bash
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -194,51 +337,6 @@ jobs:
         with:
           name: build
           path: app/client/build
-
-      - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release' || github.event.pull_request.head.ref == 'release'
-        shell: bash
-        run: |
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
-
-      - name: Pull release-frozen server docker container and start it locally
-        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
-        shell: bash
-        run: |
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
-
-      - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master'
-        shell: bash
-        run: |
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       - name: Installing Yarn serve
         run: |
