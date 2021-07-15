@@ -29,6 +29,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,8 +226,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
                     List<ApplicationPage> pages = tuple.getT3().getPages();
                     List<ApplicationPage> publishedPages = tuple.getT3().getPublishedPages();
-                    Map<String, Integer> pagesOrder = new HashMap<String, Integer>();
-                    Map<String, Integer> publishedPagesOrder = new HashMap<String, Integer>();
+                    Map<String, Integer> pagesOrder = new HashMap<>();
+                    Map<String, Integer> publishedPagesOrder = new HashMap<>();
 
                     if(Boolean.TRUE.equals(view)) {
                         for (int i = 0; i < publishedPages.size(); i++)
@@ -254,11 +255,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
-                            pageNameIdDTO.setOrder(publishedPagesOrder.get(pageFromDb.getId()));
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
                             pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
-                            pageNameIdDTO.setOrder(pagesOrder.get(pageFromDb.getId()));
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
@@ -266,8 +265,14 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         } else {
                             pageNameIdDTO.setIsDefault(false);
                         }
-
                         pageNameIdDTOList.add(pageNameIdDTO);
+                    }
+                    if(Boolean.TRUE.equals(view)) {
+                        Collections.sort(pageNameIdDTOList,
+                                Comparator.comparing(item -> publishedPages.indexOf(item)));
+                    } else {
+                        Collections.sort(pageNameIdDTOList,
+                                Comparator.comparing(item -> pages.indexOf(item)));
                     }
                     return Mono.just(pageNameIdDTOList);
                 });

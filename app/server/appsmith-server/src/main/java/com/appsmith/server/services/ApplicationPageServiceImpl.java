@@ -675,7 +675,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Application object with the latest order
      **/
     @Override
-    public Mono<Application> reorderPage(String applicationId, String pageId, Integer order) {
+    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order) {
         return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
@@ -696,7 +696,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return applicationRepository
                             .setPages(applicationId, pages)
-                            .then(applicationService.getById(applicationId));
+                            .then(newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId,Boolean.FALSE));
                 });
     }
 

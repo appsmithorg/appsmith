@@ -12,8 +12,10 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -403,7 +405,7 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
                 .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
@@ -428,7 +430,7 @@ public class PageServiceTest {
         StepVerifier
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
-                    final List<ApplicationPage> pages = application.getPages();
+                    final List<PageNameIdDTO> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
                     assertThat(application.getPages().get(0).getId().equals(pageIds[0]));
                     assertThat(application.getPages().get(1).getId().equals(pageIds[3]));
@@ -454,7 +456,7 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
                 .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
@@ -479,7 +481,7 @@ public class PageServiceTest {
         StepVerifier
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
-                    final List<ApplicationPage> pages = application.getPages();
+                    final List<PageNameIdDTO> pages = application.getPages();
                     assertThat(application.getPages().size()).isEqualTo(4);
                     assertThat(application.getPages().get(3).getId().equals(pageIds[0]));
                     assertThat(application.getPages().get(0).getId().equals(pageIds[1]));
