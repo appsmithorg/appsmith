@@ -222,13 +222,20 @@ public class PolicyUtils {
     }
 
     public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(
-            String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+            String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
 
         return
                 // fetch comment threads with read permissions
                 commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                    } else {
+                        if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
+                            thread.getSubscribers().remove(username);
+                        }
+                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
                     if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
                         if (addPolicyToObject) {
                             return addPoliciesToExistingObject(commentThreadPolicyMap, thread);

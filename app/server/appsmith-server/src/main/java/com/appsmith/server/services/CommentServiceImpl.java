@@ -397,6 +397,19 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         return saveUserDataMono.then(saveThreadMono).thenReturn(TRUE);
                     }
                     return Mono.just(FALSE);
+                                if(resolvedState != null && resolvedState.getActive()) {
+                                    Mono<Boolean> publishEmailMono = emailEventHandler.publish(
+                                            user.getUsername(),
+                                            updatedThread.getApplicationId(),
+                                            updatedThread,
+                                            originHeader
+                                    );
+                                    return notificationService.createNotification(updatedThread, user.getUsername())
+                                            .then(publishEmailMono).thenReturn(updatedThread);
+                                } else {
+                                    return Mono.just(updatedThread);
+                                }
+                            });
                 });
     }
 
