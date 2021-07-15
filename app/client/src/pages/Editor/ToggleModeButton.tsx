@@ -43,7 +43,11 @@ const getShowCommentsButtonToolTip = () => {
 const setShowCommentsButtonToolTip = (value = "") =>
   localStorage.setItem("ShowCommentsButtonToolTip", value);
 
-const ModeButton = styled.div<{ active: boolean; type: string }>`
+const ModeButton = styled.div<{
+  active: boolean;
+  showSelectedMode: boolean;
+  type: string;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -53,7 +57,7 @@ const ModeButton = styled.div<{ active: boolean; type: string }>`
   height: ${(props) => props.theme.smallHeaderHeight};
   width: ${(props) => props.theme.smallHeaderHeight};
   background: ${(props) =>
-    props.active
+    props.active && props.showSelectedMode
       ? props.theme.colors.comments.activeModeBackground
       : "transparent"};
 
@@ -91,6 +95,7 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
+  margin-left: ${(props) => props.theme.smallHeaderHeight};
 `;
 
 /**
@@ -222,11 +227,13 @@ function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
 function CommentModeBtn({
   handleSetCommentModeButton,
   isCommentMode,
+  showSelectedMode,
   showUnreadIndicator,
 }: {
   handleSetCommentModeButton: () => void;
   isCommentMode: boolean;
   showUnreadIndicator: boolean;
+  showSelectedMode: boolean;
 }) {
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
 
@@ -235,6 +242,7 @@ function CommentModeBtn({
       active={isCommentMode}
       className="t--switch-comment-mode-on"
       onClick={handleSetCommentModeButton}
+      showSelectedMode={showSelectedMode}
       type="stroke"
     >
       <TooltipComponent
@@ -253,7 +261,13 @@ function CommentModeBtn({
   );
 }
 
-function ToggleCommentModeButton() {
+type ToggleCommentModeButtonProps = {
+  showSelectedMode?: boolean;
+};
+
+function ToggleCommentModeButton({
+  showSelectedMode = true,
+}: ToggleCommentModeButtonProps) {
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const currentUser = useSelector(getCurrentUser);
@@ -281,10 +295,6 @@ function ToggleCommentModeButton() {
     setShowCommentsButtonToolTip();
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
-  const handleSetEditModeButton = useCallback(() => {
-    setCommentModeInUrl(false);
-  }, []);
-
   // Show comment mode button only on the canvas editor and viewer
   const [shouldHide, setShouldHide] = useState(false);
   const location = useLocation();
@@ -303,7 +313,8 @@ function ToggleCommentModeButton() {
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
-            onClick={handleSetEditModeButton}
+            onClick={() => setCommentModeInUrl(false)}
+            showSelectedMode={showSelectedMode}
             type="fill"
           >
             <ViewOrEditMode mode={mode} />
@@ -317,6 +328,7 @@ function ToggleCommentModeButton() {
                 handleSetCommentModeButton,
                 isCommentMode,
                 showUnreadIndicator,
+                showSelectedMode,
               }}
             />
           </TooltipComponent>
