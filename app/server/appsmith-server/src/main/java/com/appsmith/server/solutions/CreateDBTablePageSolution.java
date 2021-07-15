@@ -68,8 +68,6 @@ public class CreateDBTablePageSolution {
     private final ApplicationPageService applicationPageService;
     private final PluginService pluginService;
     
-    private final String DATABASE_TABLE = "database table";
-    
     private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
     private final String TEMPLATE_TABLE_NAME = "public.template_table";
@@ -78,9 +76,9 @@ public class CreateDBTablePageSolution {
 
     private final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
 
-    public final String SELECT_QUERY = "SelectQuery";
+    private final String SELECT_QUERY = "SelectQuery";
 
-    public final String FIND_QUERY = "FindQuery";
+    private final String FIND_QUERY = "FindQuery";
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
@@ -506,8 +504,8 @@ public class CreateDBTablePageSolution {
 
         if (searchColumn != null && !searchColumn.isEmpty()) {
             mappedTableColumns.put(DEFAULT_SEARCH_COLUMN, searchColumn);
-            sourceTable.getColumns().removeIf(column -> column.getName().equals(DEFAULT_SEARCH_COLUMN));
-            destTable.getColumns().removeIf(column -> column.getName().equals(searchColumn));
+            sourceTable.getColumns().removeIf(column -> DEFAULT_SEARCH_COLUMN.equals(column.getName()));
+            destTable.getColumns().removeIf(column -> searchColumn.equals(column.getName()));
         }
         mappedTableColumns.putAll(mapKeys(sourceTable, destTable));
         List<Column> sourceTableColumns = sourceTable.getColumns(), destTableColumns = destTable.getColumns();
