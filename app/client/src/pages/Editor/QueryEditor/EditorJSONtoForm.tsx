@@ -60,6 +60,7 @@ import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { WidgetType } from "constants/WidgetConstants";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -404,7 +405,8 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
