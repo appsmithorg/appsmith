@@ -27,11 +27,27 @@ const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
-    `const userFunction = ${script}
-    return userFunction.apply(self, ARGUMENTS)`,
-  [EvaluationScriptType.TRIGGERS]: (script) => `(function() { ${script} })()`,
+  [EvaluationScriptType.EXPRESSION]: (script: string) => `
+  function closedFunction () {
+    const result = ${script}
+    return result;
+  }
+  closedFunction()
+  `,
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) => `
+  function callback (script) {
+    const userFunction = script;
+    const result = userFunction.apply(self, ARGUMENTS);
+    return result;
+  }
+  callback(${script})
+  `,
+  [EvaluationScriptType.TRIGGERS]: (script) => `
+  function closedFunction () {
+    const result = ${script}
+  }
+  closedFunction()
+  `,
 };
 
 const getScriptToEval = (
@@ -149,10 +165,12 @@ export default function evaluate(
       self[func] = undefined;
     });
     try {
-      result = Function(script)();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      triggers = [...self.triggers];
+      result = eval(script);
+      if (isTriggerBased) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        triggers = [...self.triggers];
+      }
     } catch (e) {
       errors.push({
         errorMessage: `${e.stack.split(`\n`)[0]}`,
