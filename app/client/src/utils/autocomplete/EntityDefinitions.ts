@@ -264,6 +264,24 @@ export const entityDefinitions = {
     source: "string",
     title: "string",
   },
+  DIVIDER_WIDGET: {
+    "!doc": "Divider is a simple UI widget used as a separator",
+    "!url": "https://docs.appsmith.com/widget-reference/divider",
+    isVisible: isVisible,
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    strokeStyle: "string",
+    dividerColor: "string",
+    thickness: "number",
+  },
+  MENU_BUTTON_WIDGET: {
+    "!doc":
+      "Menu button widget is used to represent a set of actions in a group.",
+    "!url": "https://docs.appsmith.com/widget-reference/menu-button",
+    isVisible: isVisible,
+    label: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

@@ -30,6 +30,10 @@ const ActionButton = styled(BaseButton)`
     max-width: 120px;
     width: auto;
   }
+
+  span > svg > path {
+    stroke: white;
+  }
 `;
 
 const DatasourceImage = styled.img`

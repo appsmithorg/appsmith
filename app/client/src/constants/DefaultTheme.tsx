@@ -350,6 +350,7 @@ export type Theme = {
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -1065,6 +1066,10 @@ type ColorType = {
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
   notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
 };
 
 const notifications = {
@@ -1675,6 +1680,10 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
 };
 
 export const light: ColorType = {
@@ -2140,6 +2149,10 @@ export const light: ColorType = {
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
 };
 
 export const theme: Theme = {
@@ -2447,6 +2460,7 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "30%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

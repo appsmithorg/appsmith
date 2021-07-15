@@ -185,6 +185,19 @@ const FIELD_VALUES: Record<
     borderOpacity: "number",
     borderWidth: "number",
   },
+  DIVIDER_WIDGET: {
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    isVisible: "boolean",
+    strokeStyle: "solid | dashed | dotted",
+    dividerColor: "string",
+    thickness: "number",
+  },
+  MENU_BUTTON_WIDGET: {
+    isVisible: "boolean",
+    label: "string",
+  },
 };
 
 export default FIELD_VALUES;
