@@ -55,6 +55,9 @@ export const excludeList = [
   WidgetTypes.TABS_WIDGET,
   WidgetTypes.FORM_WIDGET,
   WidgetTypes.MODAL_WIDGET,
+  WidgetTypes.DIVIDER_WIDGET,
+  WidgetTypes.FILE_PICKER_WIDGET,
+  WidgetTypes.DIVIDER_WIDGET,
 ];
 
 export const actionsExist = (state: AppState): boolean =>
