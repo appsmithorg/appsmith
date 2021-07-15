@@ -7,6 +7,7 @@ import {
 } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
+  Alignment,
   Intent,
   NumericInput,
   IconName,
@@ -16,6 +17,7 @@ import {
   Classes,
   ControlGroup,
   TextArea,
+  Tag,
   Position,
 } from "@blueprintjs/core";
 import Tooltip from "components/ads/Tooltip";
@@ -80,6 +82,10 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
+      .bp3-tag {
+        background-color: transparent;
+        color: #5c7080;
+      }
     }
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
@@ -220,6 +226,7 @@ class InputComponent extends React.Component<
   );
   private textAreaInputComponent = () => (
     <TextArea
+      autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
@@ -240,9 +247,15 @@ class InputComponent extends React.Component<
       this.textAreaInputComponent()
     ) : (
       <InputGroup
+        autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
         intent={this.props.intent}
+        leftIcon={
+          this.props.iconName && this.props.iconAlign === "left"
+            ? this.props.iconName
+            : undefined
+        }
         maxLength={this.props.maxChars}
         onBlur={() => this.setFocusState(false)}
         onChange={this.onTextChange}
@@ -257,6 +270,8 @@ class InputComponent extends React.Component<
                 this.setState({ showPassword: !this.state.showPassword });
               }}
             />
+          ) : this.props.iconName && this.props.iconAlign === "right" ? (
+            <Tag icon={this.props.iconName} />
           ) : (
             undefined
           )
@@ -362,6 +377,9 @@ export interface InputComponentProps extends ComponentProps {
   multiline: boolean;
   compactMode: boolean;
   isInvalid: boolean;
+  autoFocus?: boolean;
+  iconName?: IconName;
+  iconAlign?: Omit<Alignment, "center">;
   showError: boolean;
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;

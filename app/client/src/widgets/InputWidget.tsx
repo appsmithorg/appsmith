@@ -1,6 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
@@ -119,6 +121,16 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -157,6 +169,30 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
+          },
+        ],
+      },
+      {
+        sectionName: "Icon Options",
+        children: [
+          {
+            propertyName: "iconName",
+            label: "Icon",
+            helpText: "Sets the icon to be used in input field",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Icon alignment",
+            helpText: "Sets the icon alignment of input field",
+            controlType: "ICON_ALIGN",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+            hidden: (props: InputWidgetProps) => !props.iconName,
           },
         ],
       },
@@ -333,6 +369,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
+        autoFocus={this.props.autoFocus}
         // show label and Input side by side if true
         compactMode={
           !(
@@ -344,6 +381,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
+        iconAlign={this.props.iconAlign}
+        iconName={this.props.iconName}
         inputType={this.props.inputType}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
@@ -410,6 +449,9 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+  autoFocus?: boolean;
+  iconName?: IconName;
+  iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
 }
 
