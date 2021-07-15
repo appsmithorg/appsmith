@@ -16,6 +16,7 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
+import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -132,6 +133,11 @@ function ActionSidebar({
   const { applicationId, pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {
+    AnalyticsUtil.logEvent("SELECT_IN_CANVAS_CLICK", {
+      actionName: actionName,
+      apiId: params.apiId || params.queryId,
+      appId: applicationId,
+    });
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,

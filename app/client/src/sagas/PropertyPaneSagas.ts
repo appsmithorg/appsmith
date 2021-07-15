@@ -15,6 +15,7 @@ import {
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
+import AnalyticsUtil from "../utils/AnalyticsUtil";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -113,6 +114,13 @@ export function* bindDataToWidgetSaga(
       isValidProperty = false;
       break;
   }
+  AnalyticsUtil.logEvent("WIDGET_SELECTED_VIA_SNIPING_MODE", {
+    widgetType: selectedWidget.type,
+    actionName: currentAction.config.name,
+    apiId: queryId,
+    propertyPath,
+    propertyValue,
+  });
   if (queryId && isValidProperty) {
     yield put(
       updateWidgetPropertyRequest(
