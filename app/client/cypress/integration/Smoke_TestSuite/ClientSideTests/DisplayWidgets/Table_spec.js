@@ -50,10 +50,52 @@ describe("Table Widget Functionality", function() {
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
     });
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Verify Column Sequnce Changing property", function() {
+    cy.reArrangeColumn({ x: 200, y: 20 });
+    cy.wait(2000);
+  });
+
+  it("Verify Row Height Functionality", function() {
+    //click on Row Height Toggle
+    cy.get(widgetsPage.rowHeight).click({ force: true });
+    // Select short row height
+    cy.get(widgetsPage.rowHeightShortOpt).click({ force: true });
+    cy.PublishtheApp();
+    // Verify the row height is short
+    cy.get(widgetsPage.tbIndex0).should("have.css", "height", "20px");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Drage and Drop Table widget and verify default data", function() {
+    // Click on Add widget button
+    cy.get(widgetsPage.addWidget).click();
+    // Drag and drop table widget
+    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 500 });
+    cy.wait(2000);
+    // Close widget bar
+    cy.get(widgetsPage.closeWidgetBar).click({ force: true });
+    cy.closePropertyPane();
+    // Open property pane
+    cy.SearchEntityandOpen("Table1");
+    cy.get(widgetsPage.visible).click({ force: true });
+    cy.PublishtheApp();
+    // Reading single cell value of the table and verify value is not empty.
+    cy.readTabledataPublish("1", "1").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.not.be.equal("");
+      cy.log("the value is" + tabValue);
+    });
+    cy.get(publish.backToEditor).click();
+    cy.SearchEntityandOpen("Table2");
+    // Delete Table2
+    cy.deleteWidget(widgetsPage.tableWidget);
+    cy.wait(2000);
   });
 
   it("Table Widget Functionality To Show a Base64 Image", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     // Adding Base64 images to all the columns
     cy.editColumn("image");
@@ -64,7 +106,7 @@ describe("Table Widget Functionality", function() {
     const imageVal = this.data.TableInput[index].image;
     // Verifying the href of the image added.
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {
-      expect(hrefVal).to.be.equal(imageVal);
+      expect(hrefVal).to.be.contains(imageVal);
     });
   });
 

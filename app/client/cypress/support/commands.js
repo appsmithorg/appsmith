@@ -91,7 +91,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
     .first()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -241,6 +241,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   );
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -251,8 +262,11 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
+
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -272,8 +286,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   );
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
 
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -374,12 +389,12 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser").should(
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-
   initLocalstorage();
 });
 
@@ -753,16 +768,14 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
+      .type(hValue, { parseSpecialCharSequences: true });
     cy.WaitAutoSave();
   },
 );
@@ -801,6 +814,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--property-control-dateformat .bp3-popover-target")
     .last()
     .click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
@@ -855,22 +878,20 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithQueryParam",
   (baseUrl, v1method, hKey, hValue, qKey, qValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
-    cy.xpath(apiwidget.queryKey)
+      .type(hValue, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.queryKey)
       .first()
       .click({ force: true })
       .type(qKey, { force: true })
       .should("have.value", qKey);
-    cy.xpath(apiwidget.queryValue)
+    cy.get(apiwidget.queryValue)
       .first()
       .click({ force: true })
       .type(qValue, { force: true })
@@ -2483,9 +2504,9 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] a`;
-  const hrefVal = cy.get(selector).invoke("attr", "href");
-  return hrefVal;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
+  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  return bgUrl;
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
@@ -2584,10 +2605,16 @@ Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
     .should("be.visible")
     .click({ force: true });
-  cy.xpath(apiwidget.paramKey)
-    .first()
-    .contains(param.key);
-  cy.xpath(apiwidget.paramValue)
-    .first()
-    .contains(param.value);
+
+  cy.validateCodeEditorContent(apiwidget.paramKey, param.key);
+  cy.validateCodeEditorContent(apiwidget.paramValue, param.value);
 });
+
+Cypress.Commands.add(
+  "validateCodeEditorContent",
+  (selector, contentToValidate) => {
+    cy.get(selector).within(() => {
+      cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+    });
+  },
+);

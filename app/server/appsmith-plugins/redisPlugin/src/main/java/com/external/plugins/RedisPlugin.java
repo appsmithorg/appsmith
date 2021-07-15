@@ -12,8 +12,8 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.utils.RedisURIUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.pf4j.util.StringUtils;
@@ -28,6 +28,7 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.util.SafeEncoder;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,7 +40,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 
 public class RedisPlugin extends BasePlugin {
-    private static final Long DEFAULT_PORT = 6379L;
     private static final int CONNECTION_TIMEOUT = 60;
 
     public RedisPlugin(PluginWrapper wrapper) {
@@ -164,33 +164,11 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
-            return (Mono<JedisPool>) Mono.fromCallable(() -> {
-                if (datasourceConfiguration.getEndpoints().isEmpty()) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "No endpoint(s) " +
-                            "configured"));
-                }
-
-                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+            return Mono.fromCallable(() -> {
                 final JedisPoolConfig poolConfig = buildPoolConfig();
-                DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
                 int timeout = (int)Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
-                JedisPool jedisPool;
-                if (auth != null && StringUtils.isNotNullOrEmpty(auth.getPassword())) {
-                    if (StringUtils.isNullOrEmpty(auth.getUsername())) {
-                        // If username is empty, then authenticate with password only.
-                         jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout, auth.getPassword());
-                    }
-                    else {
-                        jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port, timeout,
-                                auth.getUsername(), auth.getPassword());
-                    }
-                }
-                else {
-                    jedisPool = new JedisPool(poolConfig, endpoint.getHost(), port);
-                }
-
+                URI uri = RedisURIUtils.getURI(datasourceConfiguration);
+                JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
                 return Mono.just(jedisPool);
             })
                     .flatMap(obj -> obj)
@@ -219,27 +197,52 @@ public class RedisPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("Missing endpoint(s)");
-            } else {
-                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
-                    invalids.add("Missing host for endpoint");
-                }
+            if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
+                invalids.add(
+                        "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
+                                "endpoint."
+                );
             }
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
-                if (StringUtils.isNullOrEmpty(auth.getUsername())) {
-                    invalids.add("Missing username for authentication.");
-                }
-
-                if (StringUtils.isNullOrEmpty(auth.getPassword())) {
-                    invalids.add("Missing password for authentication.");
-                }
+            if (isAuthenticationMissing(auth)) {
+                invalids.add(
+                        "Could not find password. Please edit the 'Password' field to provide the password."
+                );
             }
 
             return invalids;
+        }
+
+        private boolean isAuthenticationMissing(DBAuth auth) {
+            /**
+             * - Check if username exists without password.
+             * - Following combinations are valid:
+             *  (1) only password, no username
+             *  (2) both username and password
+             *  (3) neither username nor password - i.e. redis server has not auth config setup.
+             */
+            if (auth != null
+                    && StringUtils.isNotNullOrEmpty(auth.getUsername())
+                    && StringUtils.isNullOrEmpty(auth.getPassword())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean isEndpointMissing(List<Endpoint> endpoints) {
+            /**
+             * - Check if the endpoint is null or empty.
+             * - Redis does not support backup connections, hence only need to check for one endpoint i.e index 0.
+             */
+            if (CollectionUtils.isEmpty(endpoints)
+                    || endpoints.get(0) == null
+                    || StringUtils.isNullOrEmpty(endpoints.get(0).getHost())) {
+                return true;
+            }
+
+            return false;
         }
 
         private Mono<Void> verifyPing(Jedis jedis) {

@@ -63,6 +63,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    currencyCountryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency type input",
+    },
   },
   TABLE_WIDGET: (widget: any) => ({
     "!doc":
@@ -270,6 +274,13 @@ export const entityDefinitions = {
     strokeStyle: "string",
     dividerColor: "string",
     thickness: "number",
+  },
+  MENU_BUTTON_WIDGET: {
+    "!doc":
+      "Menu button widget is used to represent a set of actions in a group.",
+    "!url": "https://docs.appsmith.com/widget-reference/menu-button",
+    isVisible: isVisible,
+    label: "string",
   },
 };
 

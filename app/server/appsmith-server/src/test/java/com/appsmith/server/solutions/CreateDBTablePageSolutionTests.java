@@ -73,14 +73,14 @@ public class CreateDBTablePageSolutionTests {
 
     Application testApp;
 
-    private Plugin installedPlugin;
+    private Plugin postgreSQLPlugin;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
+        postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
 
         Organization organization = new Organization();
         organization.setName("Create-DB-Table-Page-Org");
@@ -100,7 +100,7 @@ public class CreateDBTablePageSolutionTests {
         );
         List<Table> tables = List.of(new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()));
         structure.setTables(tables);
-        testDatasource.setPluginId(installedPlugin.getId());
+        testDatasource.setPluginId(postgreSQLPlugin.getId());
         testDatasource.setOrganizationId(testOrg.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         testDatasource.setStructure(structure);
@@ -108,7 +108,7 @@ public class CreateDBTablePageSolutionTests {
 
         resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
-        resource.setColumnNames(Set.of("id", "field1", "field2", "field3"));
+        resource.setColumns(Set.of("id", "field1", "field2", "field3"));
 
     }
 

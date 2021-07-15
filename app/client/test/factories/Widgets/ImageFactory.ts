@@ -6,6 +6,8 @@ export const ImageFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
   defaultImage:
     "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+  enableDownload: false,
+  enableRotation: false,
   imageShape: "RECTANGLE",
   image: "",
   widgetName: Factory.each((i) => `Image${i + 1}`),

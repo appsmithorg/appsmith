@@ -16,7 +16,12 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidget,
+  getWidgets,
+} from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -523,14 +528,16 @@ export function* deleteAllSelectedWidgetsSaga(
       setTimeout(() => {
         if (bulkDeleteKey) {
           flushDeletedWidgets(bulkDeleteKey);
-          AppsmithConsole.info({
-            logType: LOG_TYPE.ENTITY_DELETED,
-            text: `${selectedWidgets.length} were deleted`,
-            source: {
-              name: "Group Delete",
-              type: ENTITY_TYPE.WIDGET,
-              id: bulkDeleteKey,
-            },
+          falttendedWidgets.map((widget: any) => {
+            AppsmithConsole.info({
+              logType: LOG_TYPE.ENTITY_DELETED,
+              text: "Widget was deleted",
+              source: {
+                name: widget.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                id: widget.widgetId,
+              },
+            });
           });
         }
       }, WIDGET_DELETE_UNDO_TIMEOUT);
@@ -570,7 +577,9 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
-      const selectedWidget = yield select(getSelectedWidget);
+      const selectedWidget: FlattenedWidgetProps | undefined = yield select(
+        getSelectedWidget,
+      );
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't don anything
@@ -583,7 +592,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidgets = yield select(getWidgets);
       const widgets = { ...stateWidgets };
-      const stateWidget = yield select(getWidget, widgetId);
+      const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
 
       const stateParent: FlattenedWidgetProps = yield select(
@@ -636,17 +645,20 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             },
           },
         });
+
         setTimeout(() => {
           if (widgetId) {
             flushDeletedWidgets(widgetId);
-            AppsmithConsole.info({
-              logType: LOG_TYPE.ENTITY_DELETED,
-              text: "Widget was deleted",
-              source: {
-                name: widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                id: widgetId,
-              },
+            otherWidgetsToDelete.map((widget) => {
+              AppsmithConsole.info({
+                logType: LOG_TYPE.ENTITY_DELETED,
+                text: "Widget was deleted",
+                source: {
+                  name: widget.widgetName,
+                  type: ENTITY_TYPE.WIDGET,
+                  id: widget.widgetId,
+                },
+              });
             });
           }
         }, WIDGET_DELETE_UNDO_TIMEOUT);
@@ -1496,10 +1508,13 @@ function* pasteWidgetSaga() {
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
   );
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
 
   selectedWidget = yield checkIfPastingIntoListWidget(
     stateWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 
