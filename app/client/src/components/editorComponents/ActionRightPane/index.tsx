@@ -156,7 +156,7 @@ function ActionSidebar({
           suggestedWidgets={suggestedWidgets}
         />
       )}
-      {Object.keys(widgets).length > 1 && (
+      {hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Select Existing Widgets">
           <div className="description">Go to canvas and select widgets</div>
           <SnipingWrapper>
