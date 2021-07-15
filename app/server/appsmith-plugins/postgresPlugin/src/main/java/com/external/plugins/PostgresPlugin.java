@@ -963,6 +963,19 @@ public class PostgresPlugin extends BasePlugin {
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
+        // Set read only mode if applicable
+        switch (configurationConnection.getMode()) {
+            case READ_WRITE: {
+                config.setReadOnly(false);
+                break;
+            }
+            case READ_ONLY: {
+                config.setReadOnly(true);
+                config.addDataSourceProperty("readOnlyMode", "always");
+                break;
+            }
+        }
+
         // Now create the connection pool from the configuration
         HikariDataSource datasource = null;
         try {
@@ -998,16 +1011,6 @@ public class PostgresPlugin extends BasePlugin {
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         if (configurationConnection == null) {
             return connection;
-        }
-        switch (configurationConnection.getMode()) {
-            case READ_WRITE: {
-                connection.setReadOnly(false);
-                break;
-            }
-            case READ_ONLY: {
-                connection.setReadOnly(true);
-                break;
-            }
         }
 
         return connection;
