@@ -22,13 +22,11 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
         executeCommand,
         pluginIdToImageLocation,
         recentEntities,
-        update,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        update: (value: string) => void;
       },
     ): boolean => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
