@@ -1,5 +1,6 @@
-import TernServer from "./TernServer";
+import TernServer, { Completion } from "./TernServer";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -155,5 +156,84 @@ describe("Tern server", () => {
 
       expect(value.from).toEqual(testCase.expectedOutput);
     });
+  });
+});
+
+describe("Tern server sorting", () => {
+  const completions: Completion[] = [
+    {
+      text: "sameType",
+      type: "OBJECT",
+      origin: "DATA_TREE.WIDGET.TABLE_WIDGET.Table1",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "diffType",
+      type: "ARRAY",
+      origin: "DATA_TREE.WIDGET.TABLE_WIDGET.Table1",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "diffEntity",
+      type: "OBJECT",
+      origin: "DATA_TREE.ACTION.ACTION.API1",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "otherDataTree",
+      type: "STRING",
+      origin: "DATA_TREE.WIDGET.TEXT_WIDGET.Text1",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "otherJS",
+      type: "OBJECT",
+      origin: "ecma",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "context",
+      type: "STRING",
+      origin: "[doc]",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "libValue",
+      type: "OBJECT",
+      origin: "lodash",
+      data: {
+        doc: "",
+      },
+    },
+    {
+      text: "unknownSuggestion",
+      type: "UNKNOWN",
+      origin: "unknown",
+      data: {
+        doc: "",
+      },
+    },
+  ];
+
+  it("shows best match results", () => {
+    TernServer.setEntityInformation({
+      entityName: "Table2",
+      entityType: ENTITY_TYPE.WIDGET,
+      expectedType: "object",
+    });
+    const sortedCompletions = TernServer.sortCompletions(completions, true, "");
+    expect(sortedCompletions).toStrictEqual({});
   });
 });

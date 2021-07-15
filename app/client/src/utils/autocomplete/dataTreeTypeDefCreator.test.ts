@@ -72,7 +72,7 @@ describe("dataTreeTypeDefCreator", () => {
     expect(objType).toStrictEqual(expected);
   });
 
-  it("flatten object", () => {
+  it("flatten def", () => {
     const def = {
       entity1: {
         someNumber: "number",

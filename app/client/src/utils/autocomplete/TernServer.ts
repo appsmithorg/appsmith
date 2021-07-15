@@ -194,15 +194,11 @@ class TernServer {
         isHeader: false,
       });
     }
-    const expectedDataType = this.getExpectedDataType();
-    const { entityName, entityType } = this.entityInformation;
-    completions = TernServer.sortCompletions(
+
+    completions = this.sortCompletions(
       completions,
       onlySingleBinding,
       searchText,
-      expectedDataType,
-      entityName,
-      entityType,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;
@@ -268,14 +264,13 @@ class TernServer {
     });
   }
 
-  static sortCompletions(
+  sortCompletions(
     completions: Completion[],
     findBestMatch: boolean,
     bestMatchSearch: string,
-    expectedDataType: DataType,
-    entityName?: string,
-    entityType?: ENTITY_TYPE,
   ) {
+    const expectedDataType = this.getExpectedDataType();
+    const { entityName, entityType } = this.entityInformation;
     type CompletionType =
       | "DATA_TREE"
       | "MATCHING_TYPE"
@@ -330,11 +325,7 @@ class TernServer {
         completionType.JS.push(completion);
         return;
       }
-      if (
-        extraLibraries
-          .map((lib) => lib.displayName)
-          .indexOf(completion.origin) > -1
-      ) {
+      if (completion.origin.startsWith("LIB/")) {
         completionType.LIBRARY.push(completion);
         return;
       }
