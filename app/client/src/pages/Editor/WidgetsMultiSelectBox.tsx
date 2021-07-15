@@ -208,11 +208,9 @@ function WidgetsMultiSelectBox(props: {
         top: (e.clientY - bounds.top) / parentRowSpace,
         left: (e.clientX - bounds.left) / parentColumnSpace,
       };
-      const top = selectedWidgets.sort((a1, a2) => a1.topRow - a2.topRow)[0]
-        .topRow;
-      const left = selectedWidgets.sort(
-        (a1, a2) => a1.leftColumn - a2.leftColumn,
-      )[0].leftColumn;
+      const top = minBy(selectedWidgets, (rect) => rect.topRow)?.topRow;
+      const left = minBy(selectedWidgets, (rect) => rect.leftColumn)
+        ?.leftColumn;
 
       setDraggingState(
         true,

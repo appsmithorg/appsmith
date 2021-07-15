@@ -19,11 +19,11 @@ import {
 } from "utils/WidgetPropsUtils";
 import { getSnappedXY } from "components/editorComponents/Dropzone";
 import { getNearestParentCanvas } from "utils/generators";
-import { scrollElementIntoParentCanvasView } from "utils/helpers";
+import { getScrollByPixels } from "utils/helpers";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { getWidgets } from "sagas/selectors";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { debounce, isEmpty } from "lodash";
+import { debounce, defer, isEmpty } from "lodash";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -96,7 +96,9 @@ export function CanvasDraggingArena({
       ? childrenOccupiedSpaces.find(
           (each) => each.id === dragCenter.widgetId,
         ) || {}
-      : dragCenter && !!dragCenter.top && dragCenter.left
+      : dragCenter &&
+        Number.isInteger(dragCenter.top) &&
+        Number.isInteger(dragCenter.left)
       ? dragCenter
       : {};
   const rectanglesToDraw = !newWidget
@@ -140,59 +142,7 @@ export function CanvasDraggingArena({
   const rowRef = useRef(snapRows);
   useEffect(() => {
     rowRef.current = snapRows;
-  }, [snapRows]);
-
-  const scrollToKeepUp = (
-    drawingBlocks: {
-      left: number;
-      top: number;
-      width: number;
-      height: number;
-      columnWidth: number;
-      rowHeight: number;
-      widgetId: string;
-    }[],
-  ) => {
-    if (isDragging) {
-      let groupBlock;
-      if (drawingBlocks.length) {
-        const sortedByTopBlocks = drawingBlocks.sort(
-          (each2, each1) => each2.top - each1.top,
-        );
-        const topMostBlock = sortedByTopBlocks[0];
-        const sortedByBottomBlocks = drawingBlocks.sort(
-          (each1, each2) =>
-            each2.top + each2.height - (each1.top + each1.height),
-        );
-        const bottomMostBlock = sortedByBottomBlocks[0];
-        groupBlock = {
-          top: topMostBlock.top,
-          height:
-            bottomMostBlock.top - topMostBlock.top + bottomMostBlock.height,
-        };
-      } else {
-        const block = drawingBlocks[0];
-        groupBlock = {
-          top: block.top,
-          height: block.height,
-        };
-      }
-
-      const scrollParent: Element | null = getNearestParentCanvas(
-        canvasRef.current,
-      );
-      if (canvasRef.current) {
-        // if (el && props.canDropTargetExtend) {
-        if (groupBlock) {
-          scrollElementIntoParentCanvasView(
-            groupBlock,
-            scrollParent,
-            canvasRef.current,
-          );
-        }
-      }
-    }
-  };
+  }, [snapRows, isDragging]);
 
   const updateRows = (
     drawingBlocks: {
@@ -284,12 +234,86 @@ export function CanvasDraggingArena({
       let canvasIsDragging = false;
       let notDoneYet = false;
       let animationFrameId: number;
+      let scrollTimeOut: number[] = [];
+      let scrollDirection = 0;
+      let scrollByPixels = 0;
+      const scrollFn = (scrollParent: Element | null) => {
+        if (isDragging && draggedOn === widgetId && scrollParent) {
+          if (scrollByPixels < 0 && scrollParent.scrollTop > 0) {
+            scrollParent.scrollBy({
+              top: scrollByPixels,
+              behavior: "smooth",
+            });
+          }
+          if (scrollByPixels > 0) {
+            scrollParent.scrollBy({
+              top: scrollByPixels,
+              behavior: "smooth",
+            });
+          }
+          if (scrollTimeOut.length) {
+            scrollTimeOut.forEach((each) => {
+              clearTimeout(each);
+            });
+            scrollTimeOut = [];
+          }
+          scrollTimeOut.push(setTimeout(() => scrollFn(scrollParent), 50));
+        } else {
+          if (scrollTimeOut.length) {
+            scrollTimeOut.forEach((each) => {
+              clearTimeout(each);
+            });
+            scrollTimeOut = [];
+          }
+        }
+      };
+      const checkIfNeedsScroll = debounce((e: any) => {
+        if (isDragging && canvasIsDragging && draggedOn === widgetId) {
+          const scrollParent: Element | null = getNearestParentCanvas(
+            canvasRef.current,
+          );
+          if (canvasRef.current && scrollParent) {
+            scrollByPixels = getScrollByPixels(
+              {
+                top: e.offsetY,
+                height: 0,
+              },
+              scrollParent,
+              canvasRef.current,
+            );
+            const currentScrollDirection = scrollByPixels
+              ? scrollByPixels > 0
+                ? 1
+                : -1
+              : 0;
+            if (currentScrollDirection !== scrollDirection) {
+              scrollDirection = currentScrollDirection;
+              if (scrollTimeOut.length) {
+                scrollTimeOut.forEach((each) => {
+                  clearTimeout(each);
+                });
+                scrollTimeOut = [];
+              }
+              if (!!scrollDirection) {
+                scrollFn(scrollParent);
+              }
+            }
+          }
+        }
+      });
       const onMouseOut = () => {
         if (canvasRef.current) {
+          if (scrollTimeOut.length) {
+            scrollTimeOut.forEach((each) => {
+              clearTimeout(each);
+            });
+            scrollTimeOut = [];
+          }
           const { height, width } = canvasRef.current.getBoundingClientRect();
           const canvasCtx: any = canvasRef.current.getContext("2d");
           canvasCtx.clearRect(0, 0, width * scale, height * scale);
           canvasRef.current.style.zIndex = "";
+          scrollDirection = 0;
           canvasIsDragging = false;
         }
       };
@@ -336,6 +360,12 @@ export function CanvasDraggingArena({
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
             onDrop(newRectanglesToDraw);
+          }
+          if (scrollTimeOut.length) {
+            scrollTimeOut.forEach((each) => {
+              clearTimeout(each);
+            });
+            scrollTimeOut = [];
           }
           startPoints.left = 20;
           startPoints.top = 20;
@@ -420,8 +450,7 @@ export function CanvasDraggingArena({
             } else if (!notDoneYet) {
               drawBlocks();
             }
-
-            scrollToKeepUp(newRectanglesToDraw);
+            checkIfNeedsScroll(e);
           } else {
             onMouseDown(e);
           }
@@ -536,6 +565,12 @@ export function CanvasDraggingArena({
           canvasRef.current.style.zIndex = "2";
         }
         return () => {
+          if (scrollTimeOut.length) {
+            scrollTimeOut.forEach((each) => {
+              clearTimeout(each);
+            });
+            scrollTimeOut = [];
+          }
           window.cancelAnimationFrame(animationFrameId);
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
