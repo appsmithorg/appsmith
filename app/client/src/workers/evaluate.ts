@@ -20,25 +20,47 @@ export type EvalResult = {
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
+  TRIGGERS = "TRIGGERS",
 }
 
 const evaluationScripts: Record<
   EvaluationScriptType,
   (script: string) => string
 > = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `return ${script}`,
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) =>
-    `const userFunction = ${script}
-    return userFunction.apply(self, ARGUMENTS)`,
+  [EvaluationScriptType.EXPRESSION]: (script: string) => `
+  function closedFunction () {
+    const result = ${script}
+    return result;
+  }
+  closedFunction()
+  `,
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) => `
+  function callback (script) {
+    const userFunction = script;
+    const result = userFunction.apply(self, ARGUMENTS);
+    return result;
+  }
+  callback(${script})
+  `,
+  [EvaluationScriptType.TRIGGERS]: (script) => `
+  function closedFunction () {
+    const result = ${script}
+  }
+  closedFunction()
+  `,
 };
 
 const getScriptToEval = (
   userScript: string,
   evalArguments?: Array<any>,
+  isTriggerBased = false,
 ): string => {
-  const scriptType = evalArguments
-    ? EvaluationScriptType.ANONYMOUS_FUNCTION
-    : EvaluationScriptType.EXPRESSION;
+  let scriptType = EvaluationScriptType.EXPRESSION;
+  if (evalArguments) {
+    scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
+  } else if (isTriggerBased) {
+    scriptType = EvaluationScriptType.TRIGGERS;
+  }
   return evaluationScripts[scriptType](userScript);
 };
 
@@ -81,13 +103,13 @@ export default function evaluate(
   js: string,
   data: DataTree,
   evalArguments?: Array<any>,
+  isTriggerBased = false,
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
-  const script = getScriptToEval(unescapedJS, evalArguments);
-
+  const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -96,25 +118,36 @@ export default function evaluate(
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = addFunctions(data);
-    ///// Adding Data tree
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-    ///// Fixing action paths and capturing their execution response
-    if (dataTreeWithFunctions.actionPaths) {
-      GLOBAL_DATA.triggers = [];
-      const pusher = function(this: DataTree, action: any, ...payload: any[]) {
-        const actionPayload = action(...payload);
-        GLOBAL_DATA.triggers.push(actionPayload);
-      };
-      GLOBAL_DATA.actionPaths.forEach((path: string) => {
-        const action = _.get(GLOBAL_DATA, path);
-        const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
-        if (action) {
-          _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
-        }
+    if (isTriggerBased) {
+      //// Add internal functions to dataTree;
+      const dataTreeWithFunctions = addFunctions(data);
+      ///// Adding Data tree with functions
+      Object.keys(dataTreeWithFunctions).forEach((datum) => {
+        GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+      });
+      ///// Fixing action paths and capturing their execution response
+      if (dataTreeWithFunctions.actionPaths) {
+        GLOBAL_DATA.triggers = [];
+        const pusher = function(
+          this: DataTree,
+          action: any,
+          ...payload: any[]
+        ) {
+          const actionPayload = action(...payload);
+          GLOBAL_DATA.triggers.push(actionPayload);
+        };
+        GLOBAL_DATA.actionPaths.forEach((path: string) => {
+          const action = _.get(GLOBAL_DATA, path);
+          const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
+          if (action) {
+            _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
+          }
+        });
+      }
+    } else {
+      ///// Adding Data tree
+      Object.keys(data).forEach((datum) => {
+        GLOBAL_DATA[datum] = data[datum];
       });
     }
 
@@ -142,10 +175,12 @@ export default function evaluate(
       self[func] = undefined;
     });
     try {
-      result = Function(script)();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      triggers = [...self.triggers];
+      result = eval(script);
+      if (isTriggerBased) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        triggers = [...self.triggers];
+      }
     } catch (e) {
       errors.push({
         errorMessage: `${e.stack.split(`\n`)[0]}`,

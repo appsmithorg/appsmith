@@ -117,7 +117,7 @@ const TabTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
+    margin-right: ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
@@ -126,7 +126,7 @@ export const TabTitle = styled.span`
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
   letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
-  margin: 0 5px;
+  margin: 0;
 `;
 
 export const TabCount = styled.div`

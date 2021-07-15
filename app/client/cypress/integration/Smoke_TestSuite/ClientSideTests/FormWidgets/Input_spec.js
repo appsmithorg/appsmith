@@ -151,7 +151,7 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear()
-      .type("13242.22");
+      .type("13242.2");
 
     cy.get(commonlocators.inputCurrencyChangeType)
       .invoke("text")

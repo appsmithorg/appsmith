@@ -7,7 +7,7 @@ const CollapseWrapper = styled.div`
   position: relative;
   margin-top: ${(props) => props.theme.spaces[3]}px;
   .collapse-title {
-    color: ${Colors.CADET_BLUE};
+    color: ${Colors.TROUT_DARK};
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-weight: 500;
