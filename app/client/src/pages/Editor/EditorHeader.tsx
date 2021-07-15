@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -35,7 +36,7 @@ import {
   getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
-import EditableAppName from "./EditableAppName";
+import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -105,6 +106,10 @@ const HeaderSection = styled.div`
   }
   :nth-child(3) {
     justify-content: flex-end;
+  }
+  > .${Popover2Classes.POPOVER2_TARGET} {
+    max-width: calc(100% - 50px);
+    min-width: 100px;
   }
 `;
 
@@ -191,6 +196,8 @@ export function EditorHeader(props: EditorHeaderProps) {
     };
   }, [lastUpdatedTime]);
 
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+
   const handlePublish = () => {
     if (applicationId) {
       publishApplication(applicationId);
@@ -253,9 +260,18 @@ export function EditorHeader(props: EditorHeaderProps) {
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            <EditableAppName
+            <EditorAppName
+              applicationId={applicationId}
               className="t--application-name editable-application-name"
+              currentDeployLink={getApplicationViewerPageURL(
+                applicationId,
+                pageId,
+              )}
+              defaultSavingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
               defaultValue={currentApplication?.name || ""}
+              deploy={handlePublish}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -263,17 +279,16 @@ export function EditorHeader(props: EditorHeaderProps) {
                 applicationList.filter((el) => el.id === applicationId).length >
                 0
               }
+              isPopoverOpen={isPopoverOpen}
               onBlur={(value: string) =>
                 updateApplicationDispatch(applicationId || "", {
                   name: value,
                   currentApp: true,
                 })
               }
-              savingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
+              setIsPopoverOpen={setIsPopoverOpen}
             />
-            <ToggleModeButton />
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
