@@ -20,6 +20,22 @@ export const htmlToElement = (html: string) => {
  */
 const strip = (text: string) => text.replace(/{% .*?%}/gm, "");
 
+const updateVideoEmbedingsWithIframe = (text: string) => {
+  let docString = text;
+  const videoIdSelectionRegex = /{% embed url="<a href="https:\/\/www.youtube.com\/watch\?v=(.*?)\&.*? %}/m;
+  const videoEmbeddingRegex = /{% embed url="<a href="https:\/\/www.youtube.com\/watch\?v=.*? %}/m;
+  let match;
+  while ((match = videoIdSelectionRegex.exec(docString)) !== null) {
+    // gitbook adds \\ in front of a _ char in an id. TO remove that we have to do this.
+    const videoId = match[1].replaceAll("%5C", "");
+    docString = docString.replace(
+      videoEmbeddingRegex,
+      `<iframe width="100%" height="280" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`,
+    );
+  }
+  return docString;
+};
+
 /**
  * strip: description tag from the top
  */
@@ -208,8 +224,8 @@ const parseDocumentationContent = (item: any): string | undefined => {
     removeBadHighlights(documentObj, query);
     // update description title
     updateDocumentDescriptionTitle(documentObj, item);
-
-    const content = strip(documentObj.body.innerHTML).trim();
+    let content = updateVideoEmbedingsWithIframe(documentObj.body.innerHTML);
+    content = strip(content).trim();
     return content;
   } catch (e) {
     log.error(e);
