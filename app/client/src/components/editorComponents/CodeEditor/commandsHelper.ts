@@ -77,19 +77,6 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
-              update(value.slice(0, slashIndex) + selected.text);
-              setTimeout(() => {
-                editor.focus();
-                editor.setCursor({
-                  line: editor.lineCount() - 1,
-                  ch: editor.getLine(editor.lineCount() - 1).length - 2,
-                });
-                if (selected.action && typeof selected.action === "function") {
-                  selected.action();
-                } else {
-                  CodeMirror.signal(editor, "postPick");
-                }
-              });
               try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { data, render, ...rest } = selected;

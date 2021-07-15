@@ -32,10 +32,12 @@ export const generateQuickCommands = (
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
   recentEntities.reverse();
+  const hintHandler = updateEditorValueAndCursor(searchText);
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
+    action: hintHandler,
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
@@ -53,6 +55,7 @@ export const generateQuickCommands = (
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
+      hint: hintHandler,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
         ReactDOM.render(
@@ -72,7 +75,7 @@ export const generateQuickCommands = (
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
       data: action,
-      action: () =>
+      hint: () =>
         executeCommand({
           actionType: "NEW_QUERY",
           args: { datasource: action },
@@ -89,6 +92,7 @@ export const generateQuickCommands = (
       },
     };
   });
+
   const suggestionsMatchingSearchText = matchingCommands(
     suggestions,
     searchText,
@@ -172,7 +176,7 @@ const generateCreateNewCommand = ({
   type: "UNKNOWN",
   className: "CodeMirror-commands",
   shortcut: shortcut,
-  action: action,
+  hint: action,
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <Command
@@ -184,6 +188,25 @@ const generateCreateNewCommand = ({
     );
   },
 });
+
+function updateEditorValueAndCursor(searchText: string) {
+  return function(cm: CodeMirror.Editor, self: any, data: any) {
+    cm.operation(() => {
+      setTimeout(() => {
+        const currentVal = cm.getValue();
+        const updatedVal =
+          currentVal.slice(0, currentVal.length - searchText.length - 1) +
+          data.text;
+        cm.setValue(updatedVal);
+        cm.setCursor({
+          line: cm.lineCount() - 1,
+          ch: cm.getLine(cm.lineCount() - 1).length - 2,
+        });
+      });
+      cm.focus();
+    });
+  };
+}
 
 function Command(props: {
   pluginType?: PluginType;

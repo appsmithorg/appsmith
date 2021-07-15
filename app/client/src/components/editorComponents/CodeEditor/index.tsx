@@ -226,7 +226,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
-        editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
@@ -326,10 +325,12 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
     if (this.props.size === EditorSize.COMPACT) {
-      const inputValue = this.props.input.value;
-      this.editor.setOption("lineWrapping", true);
-      this.editor.setValue(inputValue);
-      this.editor.setCursor(inputValue.length);
+      this.editor.operation(() => {
+        const inputValue = this.props.input.value;
+        this.editor.setOption("lineWrapping", true);
+        this.editor.setValue(inputValue);
+        this.editor.setCursor(inputValue.length);
+      });
     }
     if (this.editor.getValue().length === 0)
       this.handleAutocompleteVisibility(this.editor);
