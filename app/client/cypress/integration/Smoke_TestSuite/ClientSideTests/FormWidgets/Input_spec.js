@@ -177,7 +177,7 @@ describe("Input Widget Functionality", function() {
         expect(text).to.equal("🇺🇸+1");
       });
   });
-});
-afterEach(() => {
-  // put your clean up code if any
+  afterEach(() => {
+    // put your clean up code if any
+  });
 });

@@ -111,9 +111,8 @@
   "switchWidgetInActive": ".t--switch-widget-inactive",
   "switchWidgetLoading": ".t--switch-widget-loading",
   "currencyType": ".t--property-control-currency  .bp3-popover-target",
-  "phoneNumberCodeType": ".t--property-control-defaultcountrycode  .bp3-popover-target",
   "decimalType": ".t--property-control-decimals  .bp3-popover-target",
   "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
   "inputCurrencyChangeType": ".t--input-currency-change",
-  "inputCountryCodeChangeType": ".t--input-country-code-change"
+  "inputCountryCodeChangeType": ".t--input-country-code-change"  
 }

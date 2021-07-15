@@ -87,7 +87,14 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
                     if (isFromSignupFinal) {
                         final boolean isFromInvite = user.getInviteToken() != null;
-                        monos.add(analyticsService.sendObjectEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)));
+                        String modeOfLogin = "FormSignUp";
+                        if(authentication instanceof OAuth2AuthenticationToken) {
+                            modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                        }
+                        monos.add(analyticsService.sendObjectEvent(
+                                AnalyticsEvents.FIRST_LOGIN,
+                                user,
+                                Map.of("isFromInvite", isFromInvite, "modeOfLogin", modeOfLogin)));
                         monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
                     }
 

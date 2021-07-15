@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
+  getCurrencyOptions,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -100,6 +101,55 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or name",
             options: CurrencyDropdownOptions,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "No. of decimals in currency input",
+            propertyName: "decimalsInCurrency",
+            label: "Decimals",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1",
+                value: 1,
+              },
+              {
+                label: "2",
+                value: 2,
+              },
+            ],
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "allowCurrencyChange",
+            label: "Allow currency change",
+            helpText: "Search by currency or country",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+          },
+          {
+            helpText: "Changes the type of currency",
+            propertyName: "currencyCountryCode",
+            label: "Currency",
+            enableSearch: true,
+            dropdownHeight: "195px",
+            controlType: "DROP_DOWN",
+            placeholderText: "Search by code or name",
+            options: getCurrencyOptions(),
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
