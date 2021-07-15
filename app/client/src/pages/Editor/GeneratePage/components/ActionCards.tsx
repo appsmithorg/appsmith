@@ -1,16 +1,9 @@
 import React from "react";
 import ActionCard from "./ActionCard";
-import styled from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
 import { GEN_TEMPLATE_URL } from "../../../../constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
-
-const Separator = styled.div`
-  width: 1px;
-  background-color: ${Colors.MERCURY};
-`;
 
 const routeToEmptyEditorFromGenPage = (): void => {
   const currentPath = window.location.pathname;
@@ -41,14 +34,14 @@ function ActionCards() {
         subTitle="Start from scratch and create your custom UI"
         title="Build with Drag & Drop"
       />
-      <Separator />
+
       <ActionCard
         Icon={({ color }) => (
           <Icon
             fillColor={color}
             hoverFillColor={color}
             name="wand"
-            size={IconSize.MEDIUM}
+            size={IconSize.LARGE}
           />
         )}
         onClick={AddParamToShowGenForm}

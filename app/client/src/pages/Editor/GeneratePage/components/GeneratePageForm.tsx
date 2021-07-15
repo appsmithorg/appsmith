@@ -477,7 +477,7 @@ function GeneratePageForm() {
     <div>
       <Wrapper>
         <DescWrapper>
-          <Title>Generate from Table Data</Title>
+          <Title>Generate from Data</Title>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>

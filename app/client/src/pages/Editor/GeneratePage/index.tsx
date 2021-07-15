@@ -52,7 +52,7 @@ function GeneratePage() {
     }
   }, [currentPageId, params.pageId, dispatch]);
   const isGenerateFormPage = window.location.pathname.includes("/form");
-  const heading = isGenerateFormPage ? "🚀 Quick Page Wizard" : "📃 New Page";
+  const heading = isGenerateFormPage ? "Quick Page Wizard" : "New Page";
 
   return (
     <Container>
