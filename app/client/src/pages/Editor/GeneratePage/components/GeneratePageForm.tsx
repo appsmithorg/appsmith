@@ -467,7 +467,7 @@ function GeneratePageForm() {
       tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
     }
     if (selectedDatasourceIsInvalid) {
-      tableDropdownErrorMsg = `Unable to fetch the structure of this datasource. Please check the configuration and ensure that the necessary permissions are available`;
+      tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
 
