@@ -14,7 +14,7 @@ import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
 import * as Sentry from "@sentry/react";
-import { retryPromise } from "utils/AppsmithUtils";
+import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import log from "loglevel";
@@ -200,6 +200,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
+          } else if (columnProperties.columnType === "image") {
+            const isSelected = !!props.row.isSelected;
+            const onClick = columnProperties.onClick
+              ? () =>
+                  this.onCommandClick(rowIndex, columnProperties.onClick, noop)
+              : noop;
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              componentWidth,
+              onClick,
+              isSelected,
+            );
           } else {
             return renderCell(
               props.cell.value,

@@ -82,7 +82,7 @@ describe("evaluate", () => {
   });
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, undefined, true);
     expect(response.result).toBe(undefined);
     expect(response.triggers).toStrictEqual([
       {
