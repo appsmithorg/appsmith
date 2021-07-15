@@ -7,7 +7,7 @@ import Dropdown, {
 } from "components/ads/Dropdown";
 import Tooltip from "components/ads/Tooltip";
 import { AppState } from "reducers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import { getPluginIcon, getWidgetIcon } from "../Explorer/ExplorerIcons";
@@ -22,6 +22,9 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { Message } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { useCallback } from "react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { showDebugger } from "actions/debuggerActions";
+import { setActionTabsInitialIndex } from "actions/actionActions";
 
 const TopLayer = styled.div`
   display: flex;
@@ -76,9 +79,16 @@ const OptionWrapper = styled.div`
   width: 100%;
   overflow: hidden;
 
-  .property-pane-connection {
+  .debug {
     height: 28px;
     margin-top: 0px;
+    display: none;
+  }
+
+  &:hover {
+    .debug {
+      display: flex;
+    }
   }
 `;
 
@@ -106,7 +116,8 @@ const OptionContentWrapper = styled.div<{
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${(props) =>
+      props.hasError ? "#F22B2B" : props.theme.colors.propertyPane.label};
   }
 
   .${Classes.ICON} {
@@ -201,6 +212,7 @@ const useGetEntityInfo = (name: string) => {
       name,
       icon,
       hasError,
+      type: ENTITY_TYPE.WIDGET,
     };
   } else if (isAction(entity)) {
     const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
@@ -210,6 +222,7 @@ const useGetEntityInfo = (name: string) => {
       icon,
       datasourceName: datasource?.name ?? "",
       hasError,
+      type: ENTITY_TYPE.ACTION,
     };
   }
 };
@@ -254,13 +267,26 @@ const useDependencyList = (name: string) => {
 
 function OptionNode(props: any) {
   const entityInfo = useGetEntityInfo(props.option.label);
+  const dispatch = useDispatch();
+  const { navigateToEntity } = useEntityLink();
+
+  const onClick = () => {
+    if (entityInfo?.hasError) {
+      if (entityInfo?.type === ENTITY_TYPE.ACTION) {
+        dispatch(setActionTabsInitialIndex(1));
+      } else {
+        dispatch(showDebugger(true));
+      }
+    }
+    navigateToEntity(props.option.label);
+  };
 
   return (
     <OptionWrapper>
       <OptionContentWrapper
         fillIconColor={!entityInfo?.datasourceName}
         hasError={!!entityInfo?.hasError}
-        onClick={props.optionClickHandler}
+        onClick={onClick}
       >
         <span>{entityInfo?.icon}</span>
         <Text type={TextType.H6}>
@@ -271,10 +297,7 @@ function OptionNode(props: any) {
         </Text>
       </OptionContentWrapper>
       {!!entityInfo?.hasError && (
-        <DebugButton
-          className="property-pane-connection"
-          onClick={() => null}
-        />
+        <DebugButton className="debug" onClick={onClick} />
       )}
     </OptionWrapper>
   );
@@ -324,6 +347,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
   const debuggerErrors = useSelector(getDebuggerErrors);
+
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
       dependencies.dependencyOptions,
@@ -358,14 +382,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height="28px"
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
-          return (
-            <OptionNode
-              option={optionProps.option}
-              optionClickHandler={() =>
-                navigateToEntity(optionProps.option.value)
-              }
-            />
-          );
+          return <OptionNode option={optionProps.option} />;
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
@@ -392,14 +409,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
-          return (
-            <OptionNode
-              option={optionProps.option}
-              optionClickHandler={() =>
-                navigateToEntity(optionProps.option.value)
-              }
-            />
-          );
+          return <OptionNode option={optionProps.option} />;
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
