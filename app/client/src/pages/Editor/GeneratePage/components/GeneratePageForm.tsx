@@ -45,7 +45,7 @@ export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
   // "5fbbc39ad1f71d6666c32e4b": "Firestore",
   "6023b4a070eb652de19476d3": "S3",
   // "6080f9266b8cfd602957ba72": "Google Sheets",
-  // "60cb22feef0bd0550e175f3d": "Snowflake",
+  "60cb22feef0bd0550e175f3d": "Snowflake",
 };
 
 export const PluginFormInputFieldMap: Record<
