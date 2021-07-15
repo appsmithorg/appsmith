@@ -257,7 +257,7 @@ export function CanvasDraggingArena({
             });
             scrollTimeOut = [];
           }
-          scrollTimeOut.push(setTimeout(() => scrollFn(scrollParent), 50));
+          scrollTimeOut.push(setTimeout(() => scrollFn(scrollParent), 100));
         } else {
           if (scrollTimeOut.length) {
             scrollTimeOut.forEach((each) => {
