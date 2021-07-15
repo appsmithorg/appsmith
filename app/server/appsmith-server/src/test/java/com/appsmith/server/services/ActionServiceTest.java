@@ -443,7 +443,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -473,7 +475,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -500,7 +504,9 @@ public class ActionServiceTest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -792,7 +798,7 @@ public class ActionServiceTest {
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
                                         ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
 
-        WidgetType expectedWidget = mockResult.getSuggestedWidget();
+        List<WidgetType> expectedWidget = mockResult.getSuggestedWidgets();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
@@ -800,7 +806,9 @@ public class ActionServiceTest {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
                     assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidget()).isEqualTo(expectedWidget);
+                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidget.size());
+                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidget)).isTrue();
+                    assertThat(expectedWidget.containsAll(result.getSuggestedWidgets())).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1221,7 +1229,9 @@ public class ActionServiceTest {
                 "]");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1261,7 +1271,9 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1301,7 +1313,9 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1332,7 +1346,9 @@ public class ActionServiceTest {
         mockResult.setBody(null);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setSuggestedWidget(WidgetType.TEXT_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1395,7 +1411,12 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget(WidgetType.CHART_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.CHART_WIDGET);
+        widgetTypeList.add(WidgetType.LIST_WIDGET);
+        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1500,7 +1521,12 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget(WidgetType.TABLE_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.CHART_WIDGET);
+        widgetTypeList.add(WidgetType.LIST_WIDGET);
+        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1597,7 +1623,12 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget(WidgetType.LIST_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.LIST_WIDGET);
+        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+        widgetTypeList.add(WidgetType.CHART_WIDGET);
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1650,7 +1681,169 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        mockResult.setSuggestedWidget(WidgetType.DROP_DOWN_WIDGET);
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.CHART_WIDGET);
+        widgetTypeList.add(WidgetType.LIST_WIDGET);
+        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithArrayOfStringsDropDownWidget() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithArrayOfArray() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
+                "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
+                "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.CHART_WIDGET);
+        widgetTypeList.add(WidgetType.LIST_WIDGET);
+        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithEmptyData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\":[] }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithNumericData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": [1] }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        widgetTypeList.add(WidgetType.INPUT_WIDGET);
+        mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
