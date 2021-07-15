@@ -5,11 +5,13 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "components/designSystems/blueprint/InputComponent/utilties";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 
-const DropdownTriggerIconWrapper = styled.div`
+const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   height: 19px;
   padding: 9px 0px 9px 12px;
-  width: 85px;
-  min-width: 85px;
+  width: ${(props) => (props.disabled ? 40 : 85)}px;
+  min-width: ${(props) => (props.disabled ? 40 : 85)}px;
+  padding-top: ${(props) => props.disabled && "6px"};
+  opacity: ${(props) => props.disabled && "0.6"};
   height: 19px;
   display: flex;
   align-items: center;
@@ -76,7 +78,9 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   const selectedCountry = getSelectedISDCode(props.selected.value);
   if (props.disabled) {
     return (
-      <DropdownTriggerIconWrapper>{selectedCountry}</DropdownTriggerIconWrapper>
+      <DropdownTriggerIconWrapper className="country-type-filter" disabled>
+        <div className="code">{selectedCountry.id && selectedCountry.id}</div>
+      </DropdownTriggerIconWrapper>
     );
   }
   const dropdownTriggerIcon = (

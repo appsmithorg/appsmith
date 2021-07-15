@@ -48,6 +48,7 @@ const InputComponentWrapper = styled((props) => (
   multiline: string;
   hasError: boolean;
   allowCurrencyChange?: boolean;
+  disabled?: boolean;
   inputType: InputType;
 }>`
   &&&& {
@@ -77,7 +78,13 @@ const InputComponentWrapper = styled((props) => (
         `
       padding-left: 35px;`};
       ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        !props.disabled &&
+        `padding-left: 85px;`};
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        props.disabled &&
+        `padding-left: 40px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -350,6 +357,7 @@ class InputComponent extends React.Component<
     return (
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}
+        disabled={this.props.disabled}
         fill
         hasError={this.props.isInvalid}
         inputType={this.props.inputType}

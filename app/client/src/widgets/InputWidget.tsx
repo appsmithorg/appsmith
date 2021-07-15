@@ -3,7 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
-  isNumberInputType,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -138,24 +137,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
-            hidden: (props: InputWidgetProps) => {
-              return isNumberInputType(props.inputType);
-            },
-          },
-          {
-            helpText:
-              "Sets the default number of the widget. The number is updated if the default number changes",
-            propertyName: "defaultText",
-            label: "Default Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter default value",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
-            defaultValue: 0,
-            hidden: (props: InputWidgetProps) => {
-              return !isNumberInputType(props.inputType);
-            },
           },
           {
             helpText: "Sets a placeholder text for the input",
