@@ -48,27 +48,15 @@ describe("evaluate", () => {
       errors: [
         {
           errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
+          errorSegment: "return wrongJS",
           errorType: "LINT",
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction()
-  `,
+          raw: "return wrongJS",
           severity: "warning",
         },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction()
-  `,
+          raw: "return wrongJS",
           severity: "error",
         },
       ],
@@ -81,13 +69,7 @@ describe("evaluate", () => {
         {
           errorMessage: "TypeError: {}.map is not a function",
           errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = {}.map()
-    return result;
-  }
-  closedFunction()
-  `,
+          raw: "return {}.map()",
           severity: "error",
         },
       ],
@@ -122,13 +104,7 @@ describe("evaluate", () => {
         {
           errorMessage: "TypeError: setTimeout is not a function",
           errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = setTimeout(() => {}, 100)
-    return result;
-  }
-  closedFunction()
-  `,
+          raw: "return setTimeout(() => {}, 100)",
           severity: "error",
         },
       ],
