@@ -1,6 +1,7 @@
-import TernServer, { Completion } from "./TernServer";
+import TernServer, { Completion, createCompletionHeader } from "./TernServer";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -160,80 +161,131 @@ describe("Tern server", () => {
 });
 
 describe("Tern server sorting", () => {
-  const completions: Completion[] = [
-    {
-      text: "sameType",
-      type: "OBJECT",
-      origin: "DATA_TREE.WIDGET.TABLE_WIDGET.Table1",
-      data: {
-        doc: "",
-      },
+  const contextCompletion: Completion = {
+    text: "context",
+    type: "STRING",
+    origin: "[doc]",
+    data: {
+      doc: "",
     },
-    {
-      text: "diffType",
-      type: "ARRAY",
-      origin: "DATA_TREE.WIDGET.TABLE_WIDGET.Table1",
-      data: {
-        doc: "",
-      },
+  };
+
+  const sameEntityCompletion: Completion = {
+    text: "sameEntity.tableData",
+    type: "ARRAY",
+    origin: "DATA_TREE.WIDGET.TABLE_WIDGET.sameEntity",
+    data: {
+      doc: "",
     },
-    {
-      text: "diffEntity",
-      type: "OBJECT",
-      origin: "DATA_TREE.ACTION.ACTION.API1",
-      data: {
-        doc: "",
-      },
+  };
+
+  const sameTypeCompletion: Completion = {
+    text: "sameType.selectedRow",
+    type: "OBJECT",
+    origin: "DATA_TREE.WIDGET.TABLE_WIDGET.sameType",
+    data: {
+      doc: "",
     },
-    {
-      text: "otherDataTree",
-      type: "STRING",
-      origin: "DATA_TREE.WIDGET.TEXT_WIDGET.Text1",
-      data: {
-        doc: "",
-      },
+  };
+
+  const diffTypeCompletion: Completion = {
+    text: "diffType.tableData",
+    type: "ARRAY",
+    origin: "DATA_TREE.WIDGET.TABLE_WIDGET.diffType",
+    data: {
+      doc: "",
     },
-    {
-      text: "otherJS",
-      type: "OBJECT",
-      origin: "ecma",
-      data: {
-        doc: "",
-      },
+  };
+
+  const sameTypeDiffEntityTypeCompletion: Completion = {
+    text: "diffEntity.data",
+    type: "OBJECT",
+    origin: "DATA_TREE.ACTION.ACTION.diffEntity",
+    data: {
+      doc: "",
     },
-    {
-      text: "context",
-      type: "STRING",
-      origin: "[doc]",
-      data: {
-        doc: "",
-      },
+  };
+
+  const dataTreeCompletion: Completion = {
+    text: "otherDataTree",
+    type: "STRING",
+    origin: "DATA_TREE.WIDGET.TEXT_WIDGET.otherDataTree",
+    data: {
+      doc: "",
     },
-    {
-      text: "libValue",
-      type: "OBJECT",
-      origin: "lodash",
-      data: {
-        doc: "",
-      },
+  };
+
+  const functionCompletion: Completion = {
+    text: "otherDataFunction",
+    type: "FUNCTION",
+    origin: "DATA_TREE.APPSMITH.FUNCTIONS",
+    data: {
+      doc: "",
     },
-    {
-      text: "unknownSuggestion",
-      type: "UNKNOWN",
-      origin: "unknown",
-      data: {
-        doc: "",
-      },
+  };
+
+  const ecmascriptCompletion: Completion = {
+    text: "otherJS",
+    type: "OBJECT",
+    origin: "ecmascript",
+    data: {
+      doc: "",
     },
+  };
+
+  const libCompletion: Completion = {
+    text: "libValue",
+    type: "OBJECT",
+    origin: "LIB/lodash",
+    data: {
+      doc: "",
+    },
+  };
+
+  const unknownCompletion: Completion = {
+    text: "unknownSuggestion",
+    type: "UNKNOWN",
+    origin: "unknown",
+    data: {
+      doc: "",
+    },
+  };
+
+  const completions = [
+    sameEntityCompletion,
+    sameTypeCompletion,
+    contextCompletion,
+    libCompletion,
+    unknownCompletion,
+    diffTypeCompletion,
+    sameTypeDiffEntityTypeCompletion,
+    ecmascriptCompletion,
+    functionCompletion,
+    dataTreeCompletion,
   ];
 
   it("shows best match results", () => {
     TernServer.setEntityInformation({
-      entityName: "Table2",
+      entityName: "sameEntity",
       entityType: ENTITY_TYPE.WIDGET,
       expectedType: "object",
     });
-    const sortedCompletions = TernServer.sortCompletions(completions, true, "");
-    expect(sortedCompletions).toStrictEqual({});
+    const sortedCompletions = TernServer.sortCompletions(
+      _.shuffle(completions),
+      true,
+      "",
+    );
+    expect(sortedCompletions[0]).toStrictEqual(contextCompletion);
+    expect(sortedCompletions).toEqual(
+      expect.arrayContaining([
+        createCompletionHeader("Best Match"),
+        sameTypeDiffEntityTypeCompletion,
+        createCompletionHeader("Search Results"),
+        dataTreeCompletion,
+      ]),
+    );
+    expect(sortedCompletions).toEqual(
+      expect.not.arrayContaining([diffTypeCompletion]),
+    );
   });
 });

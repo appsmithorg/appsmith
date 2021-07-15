@@ -9,7 +9,6 @@ import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
-  extraLibraries,
   getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
@@ -372,24 +371,12 @@ class TernServer {
       });
       completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
       if (completionType.MATCHING_TYPE.length) {
-        completionType.MATCHING_TYPE.unshift({
-          text: "Best Match",
-          displayText: "Best Match",
-          className: "CodeMirror-hint-header",
-          data: { doc: "" },
-          origin: "",
-          type: "UNKNOWN",
-          isHeader: true,
-        });
-        completionType.DATA_TREE.unshift({
-          text: "Search results",
-          displayText: "Search results",
-          className: "CodeMirror-hint-header",
-          data: { doc: "" },
-          origin: "",
-          type: "UNKNOWN",
-          isHeader: true,
-        });
+        completionType.MATCHING_TYPE.unshift(
+          createCompletionHeader("Best Match"),
+        );
+        completionType.DATA_TREE.unshift(
+          createCompletionHeader("Search Results"),
+        );
       }
     } else {
       // Clear any matching type because we dont want to find best match
@@ -831,5 +818,15 @@ class TernServer {
     this.entityInformation = entityInformation;
   }
 }
+
+export const createCompletionHeader = (name: string): Completion => ({
+  text: name,
+  displayText: name,
+  className: "CodeMirror-hint-header",
+  data: { doc: "" },
+  origin: "",
+  type: "UNKNOWN",
+  isHeader: true,
+});
 
 export default new TernServer();
