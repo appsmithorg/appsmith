@@ -21,7 +21,7 @@ const Wrapper = styled.span<{
   width: 100%;
   line-height: 13px;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  z-index: 1;
+  z-index: 3;
 `;
 
 const CurlyBraces = styled.span`
