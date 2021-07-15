@@ -80,7 +80,7 @@ const FIELD_VALUES: Record<
   INPUT_WIDGET: {
     inputType: "string",
     placeholderText: "string",
-    defaultText: "string",
+    defaultText: "string | number",
     regex: "string",
     errorMessage: "string",
     isRequired: "boolean",

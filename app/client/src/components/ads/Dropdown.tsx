@@ -61,14 +61,13 @@ type RenderOption = ({
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
   width: ${(props) => props.width};
-  height: ${(props) => props.height};
+  min-height: ${(props) => props.height};
   position: relative;
 `;
 
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -405,7 +404,6 @@ export default function Dropdown(props: DropdownProps) {
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={props.height || "38px"}
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -416,7 +414,7 @@ export default function Dropdown(props: DropdownProps) {
       bgColor={props.bgColor}
       className={props.className}
       disabled={props.disabled}
-      height={props.height || "38px"}
+      height={props.height || "32px"}
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -432,7 +430,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "32px"}
       tabIndex={0}
       width={props.width || "260px"}
     >

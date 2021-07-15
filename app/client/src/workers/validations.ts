@@ -1,3 +1,4 @@
+import { isNumberInputType } from "components/designSystems/blueprint/InputComponent";
 import {
   ISO_DATE_FORMAT,
   VALIDATION_TYPES,
@@ -1131,5 +1132,21 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       };
     }
     return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.INPUT_DEFAULT_VALUE]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    if (isNumberInputType(props.inputType)) {
+      if (isNil(value) || value === "") {
+        return {
+          isValid: true,
+          parsed: 0,
+        };
+      }
+      return VALIDATORS[VALIDATION_TYPES.NUMBER](value, props);
+    } else {
+      return VALIDATORS[VALIDATION_TYPES.TEXT](value, props);
+    }
   },
 };

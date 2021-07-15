@@ -136,7 +136,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: VALIDATION_TYPES.INPUT_DEFAULT_VALUE,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -472,7 +472,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   allowCurrencyChange?: boolean;
   phoneNumberCountryCode?: string;
   decimalsInCurrency?: number;
-  defaultText?: string;
+  defaultText?: string | number;
   isDisabled?: boolean;
   text: string;
   regex?: string;

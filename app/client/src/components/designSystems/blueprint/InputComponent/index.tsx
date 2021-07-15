@@ -401,7 +401,7 @@ export interface InputComponentProps extends ComponentProps {
   inputType: InputType;
   disabled?: boolean;
   intent?: Intent;
-  defaultValue?: string;
+  defaultValue?: string | number;
   currencyCountryCode?: string;
   noOfDecimals?: number;
   phoneNumberCountryCode?: string;
