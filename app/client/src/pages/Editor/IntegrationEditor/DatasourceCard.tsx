@@ -34,7 +34,7 @@ import TooltipComponent from "components/ads/Tooltip";
 const Wrapper = styled.div`
   padding: 18px;
   /* margin-top: 18px; */
-
+  cursor: pointer;
   &:hover {
     background: ${Colors.Gallery};
     .bp3-collapse-body {
@@ -50,9 +50,13 @@ const DatasourceCardMainBody = styled.div`
   width: 100%;
 `;
 
-const MenuWrapper = styled(Menu)`
+const MenuComponent = styled(Menu)`
   flex: 0;
-  margin: 8px 8px;
+`;
+
+const MenuWrapper = styled.div`
+  display: flex;
+  margin: 8px 0px;
 `;
 
 const ActionButton = styled(Button)`
@@ -123,6 +127,11 @@ const MoreOptionsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const CollapseComponentWrapper = styled.div`
+  display: flex;
+  width: fit-content;
 `;
 
 type DatasourceCardProps = {
@@ -217,12 +226,13 @@ function DatasourceCard(props: DatasourceCardProps) {
   };
 
   return (
-    <Wrapper className="t--datasource" key={datasource.id}>
+    <Wrapper
+      className="t--datasource"
+      key={datasource.id}
+      onClick={editDatasource}
+    >
       <DatasourceCardMainBody>
-        <DatasourceCardHeader
-          className="t--datasource-name"
-          onClick={editDatasource}
-        >
+        <DatasourceCardHeader className="t--datasource-name">
           <div style={{ flex: 1 }}>
             <DatasourceNameWrapper>
               <DatasourceImage
@@ -262,36 +272,48 @@ function DatasourceCard(props: DatasourceCardProps) {
               onClick={onCreateNewQuery}
               text="New Query"
             />
+            <MenuWrapper
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <MenuComponent
+                menuItemWrapperWidth="140px"
+                position={Position.LEFT_TOP}
+                target={
+                  <MoreOptionsContainer>
+                    <Icon
+                      fillColor={Colors.GRAY2}
+                      name="comment-context-menu"
+                      size={IconSize.XXXL}
+                    />
+                  </MoreOptionsContainer>
+                }
+              >
+                <MenuItem
+                  icon="delete"
+                  isLoading={isDeletingDatasource}
+                  onSelect={deleteAction}
+                  text="Delete"
+                />
+                <MenuItem icon="edit" onSelect={editDatasource} text="Edit" />
+              </MenuComponent>
+            </MenuWrapper>
           </ButtonsWrapper>
         </DatasourceCardHeader>
-        <MenuWrapper
-          menuItemWrapperWidth="140px"
-          position={Position.LEFT_TOP}
-          target={
-            <MoreOptionsContainer>
-              <Icon
-                fillColor={Colors.GRAY2}
-                name="comment-context-menu"
-                size={IconSize.XXXL}
-              />
-            </MoreOptionsContainer>
-          }
-        >
-          <MenuItem
-            icon="delete"
-            isLoading={isDeletingDatasource}
-            onSelect={deleteAction}
-            text="Delete"
-          />
-          <MenuItem icon="edit" onSelect={editDatasource} text="Edit" />
-        </MenuWrapper>
       </DatasourceCardMainBody>
       {!isNil(currentFormConfig) && (
-        <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
-          <DatasourceInfo>
-            {renderDatasourceSection(currentFormConfig[0], datasource)}
-          </DatasourceInfo>
-        </CollapseComponent>
+        <CollapseComponentWrapper
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
+            <DatasourceInfo>
+              {renderDatasourceSection(currentFormConfig[0], datasource)}
+            </DatasourceInfo>
+          </CollapseComponent>
+        </CollapseComponentWrapper>
       )}
     </Wrapper>
   );
