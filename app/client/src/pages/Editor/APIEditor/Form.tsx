@@ -21,7 +21,9 @@ import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
-import ApiResponseView from "components/editorComponents/ApiResponseView";
+import ApiResponseView, {
+  EMPTY_RESPONSE,
+} from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
@@ -32,7 +34,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
-import { TabComponent, TabTitle } from "components/ads/Tabs";
+import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
@@ -43,10 +45,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
-import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
+import { getActionResponses } from "selectors/entitiesSelector";
+import { isEmpty } from "lodash";
+import { WidgetType } from "constants/WidgetConstants";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -205,6 +209,8 @@ interface APIFormProps {
   datasources?: any;
   currentPageId?: string;
   applicationId?: string;
+  hasResponse: boolean;
+  suggestedWidgets?: WidgetType[];
   updateDatasource: (datasource: Datasource) => void;
 }
 
@@ -310,24 +316,6 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
   );
 }
 
-const DatasourceListTrigger = styled.div`
-  position: absolute;
-  right: 10px;
-  top: 7px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  color: #939090;
-  &:hover {
-    span {
-      color: #090707;
-    }
-    svg path {
-      fill: #090707;
-    }
-  }
-`;
-
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
@@ -360,17 +348,6 @@ function renderImportedHeadersButton(
     </KeyValueStackContainer>
   );
 }
-
-const CloseIconContainer = styled.div`
-  position: absolute;
-  top: 12px;
-  right: 10px;
-  svg {
-    path {
-      fill: #a9a7a7;
-    }
-  }
-`;
 
 function renderHelpSection(
   handleClickLearnHow: any,
@@ -434,9 +411,6 @@ function ImportedHeaders(props: { headers: any }) {
 
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showDatasources, toggleDatasources] = useState(
-    !!props.datasources.length,
-  );
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -625,14 +599,6 @@ function ApiEditorForm(props: Props) {
                   },
                 ]}
               />
-              {!showDatasources && (
-                <DatasourceListTrigger
-                  onClick={() => toggleDatasources(!showDatasources)}
-                >
-                  <Icon name="datasource" size={IconSize.LARGE} />
-                  <TabTitle>Datasources</TabTitle>
-                </DatasourceListTrigger>
-              )}
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
@@ -640,24 +606,15 @@ function ApiEditorForm(props: Props) {
               theme={theme}
             />
           </SecondaryWrapper>
-          {showDatasources && (
-            <>
-              <DataSourceList
-                applicationId={props.applicationId}
-                currentPageId={props.currentPageId}
-                datasources={props.datasources}
-                onClick={updateDatasource}
-              />
-              <CloseIconContainer>
-                <Icon
-                  className="close-modal-icon"
-                  name="close-modal"
-                  onClick={() => toggleDatasources(!showDatasources)}
-                  size={IconSize.SMALL}
-                />
-              </CloseIconContainer>
-            </>
-          )}
+          <DataSourceList
+            actionName={actionName}
+            applicationId={props.applicationId}
+            currentPageId={props.currentPageId}
+            datasources={props.datasources}
+            hasResponse={props.hasResponse}
+            onClick={updateDatasource}
+            suggestedWidgets={props.suggestedWidgets}
+          />
         </Wrapper>
       </Form>
     </>
@@ -716,6 +673,16 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   }
   const hintMessages = selector(state, "datasource.messages");
 
+  const responses = getActionResponses(state);
+  let hasResponse = false;
+  let suggestedWidgets;
+  if (apiId && apiId in responses) {
+    const response = responses[apiId] || EMPTY_RESPONSE;
+    hasResponse =
+      !isEmpty(response.statusCode) && response.statusCode[0] === "2";
+    suggestedWidgets = response.suggestedWidgets;
+  }
+
   return {
     actionName,
     apiId,
@@ -730,6 +697,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    suggestedWidgets,
+    hasResponse,
   };
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
