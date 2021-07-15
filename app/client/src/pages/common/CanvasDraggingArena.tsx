@@ -237,15 +237,13 @@ export function CanvasDraggingArena({
       let scrollTimeOut: number[] = [];
       let scrollDirection = 0;
       let scrollByPixels = 0;
+      let speed = 0;
       const scrollFn = (scrollParent: Element | null) => {
         if (isDragging && draggedOn === widgetId && scrollParent) {
-          if (scrollByPixels < 0 && scrollParent.scrollTop > 0) {
-            scrollParent.scrollBy({
-              top: scrollByPixels,
-              behavior: "smooth",
-            });
-          }
-          if (scrollByPixels > 0) {
+          if (
+            (scrollByPixels < 0 && scrollParent.scrollTop > 0) ||
+            scrollByPixels > 0
+          ) {
             scrollParent.scrollBy({
               top: scrollByPixels,
               behavior: "smooth",
@@ -257,7 +255,12 @@ export function CanvasDraggingArena({
             });
             scrollTimeOut = [];
           }
-          scrollTimeOut.push(setTimeout(() => scrollFn(scrollParent), 100));
+          scrollTimeOut.push(
+            setTimeout(
+              () => scrollFn(scrollParent),
+              100 * Math.max(0.4, speed),
+            ),
+          );
         } else {
           if (scrollTimeOut.length) {
             scrollTimeOut.forEach((each) => {
@@ -273,7 +276,7 @@ export function CanvasDraggingArena({
             canvasRef.current,
           );
           if (canvasRef.current && scrollParent) {
-            scrollByPixels = getScrollByPixels(
+            const scrollObj = getScrollByPixels(
               {
                 top: e.offsetY,
                 height: 0,
@@ -281,6 +284,8 @@ export function CanvasDraggingArena({
               scrollParent,
               canvasRef.current,
             );
+            scrollByPixels = scrollObj.scrollAmount;
+            speed = scrollObj.speed;
             const currentScrollDirection = scrollByPixels
               ? scrollByPixels > 0
                 ? 1

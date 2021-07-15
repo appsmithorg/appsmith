@@ -60,7 +60,10 @@ export const getScrollByPixels = function(
   },
   scrollParent: Element,
   child: Element,
-): number {
+): {
+  scrollAmount: number;
+  speed: number;
+} {
   // const bounding = elem.getBoundingClientRect();
   const scrollParentBounds = scrollParent.getBoundingClientRect();
   const scrollChildBounds = child.getBoundingClientRect();
@@ -83,16 +86,25 @@ export const getScrollByPixels = function(
       (SCROLL_THRESHOLD - topBuff) / (2 * SCROLL_THRESHOLD),
       0.1,
     );
-    return -(scrollAmount * speed);
+    return {
+      scrollAmount: 0 - scrollAmount,
+      speed,
+    };
   }
   if (bottomBuff < SCROLL_THRESHOLD) {
     const speed = Math.max(
       (SCROLL_THRESHOLD - bottomBuff) / (2 * SCROLL_THRESHOLD),
       0.1,
     );
-    return scrollAmount * speed;
+    return {
+      scrollAmount,
+      speed,
+    };
   }
-  return 0;
+  return {
+    scrollAmount: 0,
+    speed: 0,
+  };
 };
 
 export const scrollElementIntoParentCanvasView = (
@@ -106,7 +118,11 @@ export const scrollElementIntoParentCanvasView = (
   if (el) {
     const scrollParent = parent;
     if (scrollParent && child) {
-      const scrollBy: number = getScrollByPixels(el, scrollParent, child);
+      const { scrollAmount: scrollBy } = getScrollByPixels(
+        el,
+        scrollParent,
+        child,
+      );
       if (scrollBy < 0 && scrollParent.scrollTop > 0) {
         scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
       }
