@@ -3,7 +3,6 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { bindDataToWidget } from "../../actions/propertyPaneActions";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -13,17 +12,7 @@ export const useShowPropertyPane = () => {
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
-      if (isCommentMode) return;
-      // If user is in sniping mode,
-      // dedicated saga will open the property pane && make data binding
-      if (isSnipingMode && widgetId) {
-        dispatch(
-          bindDataToWidget({
-            widgetId,
-          }),
-        );
-        return;
-      }
+      if (isCommentMode || isSnipingMode) return;
 
       dispatch(
         // If widgetId is not provided, we don't show the property pane.

@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "../../constants/Layers";
+import { bindDataToWidget } from "../../actions/propertyPaneActions";
+
+export const stopEventPropagation = (e: any) => {
+  e.stopPropagation();
+};
 
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;
@@ -33,7 +38,7 @@ type SnipeableComponentProps = WidgetProps;
 
 function SnipeableComponent(props: SnipeableComponentProps) {
   const { focusWidget } = useWidgetSelection();
-
+  const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const isFocusedWidget = useSelector(
@@ -53,10 +58,20 @@ function SnipeableComponent(props: SnipeableComponentProps) {
 
   const className = `${classNameForTesting}`;
 
+  const onSelectWidgetToBind = useCallback(() => {
+    dispatch(
+      bindDataToWidget({
+        widgetId: props.widgetId,
+      }),
+    );
+  }, [bindDataToWidget, props.widgetId, dispatch]);
+
   return isSnipingMode ? (
     <SnipeableWrapper
       className={className}
       isFocused={isFocusedWidget}
+      onClick={stopEventPropagation}
+      onClickCapture={onSelectWidgetToBind}
       onMouseOver={handleMouseOver}
     >
       {props.children}
