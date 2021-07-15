@@ -24,8 +24,6 @@ const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
         props.isFocused
           ? getColorWithOpacity(props.theme.colors.textAnchor, 0.5)
           : "transparent"};
-    ${(props) =>
-      props.isFocused && "background-color: rgba(106, 134, 206, 0.3)"};
     ${(props) => props.isFocused && "cursor: pointer"};
     z-index: ${Layers.snipeableZone + 1} !important;
   }

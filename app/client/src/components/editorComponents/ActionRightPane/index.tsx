@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import { useState } from "react";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
@@ -10,6 +10,12 @@ import SuggestedWidgets from "./SuggestedWidgets";
 import { WidgetType } from "constants/WidgetConstants";
 import { ReactNode } from "react";
 import { useEffect } from "react";
+import Button, { Category, Size } from "components/ads/Button";
+import { bindDataOnCanvas } from "../../../actions/actionActions";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidgets } from "sagas/selectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -64,6 +70,24 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 `;
 
+const SnipingWrapper = styled.div`
+  ${(props) => getTypographyByKey(props, "p1")}
+  margin-left: ${(props) => props.theme.spaces[2] + 1}px;
+
+  img {
+    max-width: 100%;
+  }
+
+  .image-wrapper {
+    position: relative;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
+  }
+
+  .widget:hover {
+    cursor: pointer;
+  }
+`;
+
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
@@ -103,6 +127,20 @@ function ActionSidebar({
   hasResponse: boolean;
   suggestedWidget?: WidgetType;
 }) {
+  const dispatch = useDispatch();
+  const widgets = useSelector(getWidgets);
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const handleBindData = () => {
+    dispatch(
+      bindDataOnCanvas({
+        queryId: (params.apiId || params.queryId) as string,
+        applicationId,
+        pageId,
+      }),
+    );
+  };
+
   return (
     <SideBar>
       <Connections actionName={actionName} expand={!hasResponse} />
@@ -111,6 +149,22 @@ function ActionSidebar({
           actionName={actionName}
           suggestedWidget={suggestedWidget}
         />
+      )}
+      {Object.keys(widgets).length > 1 && (
+        <Collapsible label="Select Existing Widgets">
+          <div className="description">Go to canvas and select widgets</div>
+          <SnipingWrapper>
+            <Button
+              category={Category.tertiary}
+              onClick={handleBindData}
+              size={Size.medium}
+              tag="button"
+              text="Select In Canvas"
+              type="button"
+              variant={Variant.info}
+            />
+          </SnipingWrapper>
+        </Collapsible>
       )}
     </SideBar>
   );
