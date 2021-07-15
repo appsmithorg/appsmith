@@ -259,7 +259,7 @@ function GeneratePageForm() {
                 subText: column.type,
                 icon: columnIcon,
                 iconSize: IconSize.LARGE,
-                iconColor: "#FFD300",
+                iconColor: Colors.GOLD,
               });
             }
           });
@@ -291,7 +291,7 @@ function GeneratePageForm() {
     newDataSourceOptions.push(
       FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
     );
-    datasources.forEach(({ id, name, pluginId }) => {
+    datasources.forEach(({ id, isValid, name, pluginId }) => {
       const datasourceObject = {
         id,
         label: name,
@@ -299,6 +299,7 @@ function GeneratePageForm() {
         data: {
           pluginId,
           isSupportedForTemplate: VALID_PLUGINS_FOR_TEMPLATE[pluginId],
+          isValid,
         },
       };
       if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
@@ -339,7 +340,7 @@ function GeneratePageForm() {
             value: name,
             icon: datasourceIcon,
             iconSize: IconSize.LARGE,
-            iconColor: "#FF7742",
+            iconColor: Colors.BURNING_ORANGE,
             data: {
               columns,
             },
@@ -448,7 +449,8 @@ function GeneratePageForm() {
 
   const showSubmitButton = selectedTable.value;
   const submitButtonDisable = !selectedTable.value;
-
+  // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
+  const isValidDatasourceConfig = selectedDatasource.data?.isValid;
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   const pluginField: {
     TABLE: string;
@@ -463,10 +465,10 @@ function GeneratePageForm() {
 
   let tableDropdownErrorMsg = "";
   if (!isFetchingDatasourceStructure) {
-    if (datasourceTableOptions.length === 0) {
+    if (datasourceTableOptions.length === 0 && !isValidDatasourceConfig) {
       tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
     }
-    if (selectedDatasourceIsInvalid) {
+    if (selectedDatasourceIsInvalid && isValidDatasourceConfig) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
@@ -522,7 +524,8 @@ function GeneratePageForm() {
         ) : null}
         {!isFetchingDatasourceStructure &&
           selectedDatasourceIsInvalid &&
-          selectedDatasource.value && (
+          selectedDatasource.value &&
+          isValidDatasourceConfig && (
             <EditDatasourceButton
               category={Category.tertiary}
               onClick={goToEditDatasource}

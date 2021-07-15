@@ -18,6 +18,7 @@ export const Colors: Record<string, string> = {
   BINDING_COLOR_LT: "#063289",
   PURE_ORANGE: "#ffb100",
   WHITE_CLOUD: "#D3DEE3",
+  GOLD: "#FFD300",
 
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
@@ -57,6 +58,7 @@ export const Colors: Record<string, string> = {
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
   JAFFA_DARK: "#EF7541",
+  BURNING_ORANGE: "#FF7742",
   TIA_MARIA: "#CB4810",
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
