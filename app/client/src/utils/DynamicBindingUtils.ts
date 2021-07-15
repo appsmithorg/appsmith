@@ -248,12 +248,7 @@ export const isPathADynamicProperty = (
   return false;
 };
 
-export const unsafeFunctionForEval = [
-  "setTimeout",
-  "fetch",
-  "setInterval",
-  "Promise",
-];
+export const unsafeFunctionForEval = ["setTimeout", "fetch", "setInterval"];
 
 export const isChildPropertyPath = (
   parentPropertyPath: string,

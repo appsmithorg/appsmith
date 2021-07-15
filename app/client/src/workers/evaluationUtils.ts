@@ -12,6 +12,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
+  ActionDescription,
   DataTree,
   DataTreeAction,
   DataTreeEntity,
@@ -409,9 +410,31 @@ export const trimDependantChangePaths = (
   return trimmedPaths;
 };
 
+class AppsmithPromise {
+  action?: ActionDescription<any>;
+  constructor(action: ActionDescription<any>) {
+    this.action = action;
+  }
+  parsed = () => {
+    return this.action;
+  };
+  all = (promises: AppsmithPromise[]) => {
+    return {
+      type: "PROMISE_ALL",
+      payload: promises.map((promise) => promise.parsed()),
+    };
+  };
+}
+
 export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
+
   withFunction.actionPaths = [];
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  withFunction.Promise = AppsmithPromise;
+
   Object.keys(withFunction).forEach((entityName) => {
     const entity = withFunction[entityName];
     if (isAction(entity)) {
@@ -421,7 +444,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
         onError: string,
         params = "",
       ) {
-        return {
+        return new AppsmithPromise({
           type: "RUN_ACTION",
           payload: {
             actionId: this.actionId,
@@ -429,7 +452,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
             onError: onError ? `{{${onError.toString()}}}` : "",
             params,
           },
-        };
+        });
       };
       _.set(withFunction, `${entityName}.run`, runFunction);
       withFunction.actionPaths &&
