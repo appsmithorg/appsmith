@@ -766,7 +766,7 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
-    case "NEW_DATASOURCE":
+    case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
