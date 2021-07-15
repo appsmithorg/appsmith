@@ -1,4 +1,3 @@
-import { isNumberInputType } from "components/designSystems/blueprint/InputComponent";
 import {
   ISO_DATE_FORMAT,
   VALIDATION_TYPES,
@@ -50,6 +49,15 @@ export function validateDateString(
     isValid = parsedDate.isValid();
   }
   return isValid;
+}
+
+function isNumberInputType(inputType: string) {
+  return (
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
+  );
 }
 
 const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
@@ -1144,9 +1152,37 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           parsed: 0,
         };
       }
-      return VALIDATORS[VALIDATION_TYPES.NUMBER](value, props);
+      const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+        value,
+        props,
+      );
+      if (!isValid) {
+        return {
+          isValid: false,
+          parsed: 0,
+          message: "This value must be a number",
+        };
+      }
+      return {
+        isValid,
+        parsed,
+      };
     } else {
-      return VALIDATORS[VALIDATION_TYPES.TEXT](value, props);
+      const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](
+        value,
+        props,
+      );
+      if (!isValid) {
+        return {
+          isValid: false,
+          parsed: "",
+          message: "This value must be text",
+        };
+      }
+      return {
+        isValid,
+        parsed,
+      };
     }
   },
 };
