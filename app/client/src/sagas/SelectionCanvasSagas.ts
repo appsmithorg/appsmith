@@ -124,6 +124,9 @@ function* startCanvasSelectionSaga(
     getWidget,
     actionPayload.payload.widgetId,
   );
+  const lastSelectedWidgetsWithoutParent = lastSelectedWidgets.filter(
+    (each) => each !== mainContainer.parentId,
+  );
   const widgetOccupiedSpaces:
     | {
         [containerWidgetId: string]: OccupiedSpace[];
@@ -132,7 +135,11 @@ function* startCanvasSelectionSaga(
   const selectionTask = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
     selectAllWidgetsInAreaSaga,
-    { lastSelectedWidgets, mainContainer, widgetOccupiedSpaces },
+    {
+      lastSelectedWidgets: lastSelectedWidgetsWithoutParent,
+      mainContainer,
+      widgetOccupiedSpaces,
+    },
   );
   yield take(ReduxActionTypes.STOP_CANVAS_SELECTION);
   yield cancel(selectionTask);

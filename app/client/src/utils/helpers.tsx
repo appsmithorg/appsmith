@@ -51,7 +51,7 @@ export const Directions: { [id: string]: string } = {
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];
-const SCROLL_THRESHOLD = 2.5;
+const SCROLL_THRESHOLD = 20;
 
 export const getScrollByPixels = function(
   elem: {
@@ -65,23 +65,33 @@ export const getScrollByPixels = function(
   const scrollParentBounds = scrollParent.getBoundingClientRect();
   const scrollChildBounds = child.getBoundingClientRect();
   const scrollAmount =
-    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  if (
-    elem.top + scrollChildBounds.top > 0 &&
-    elem.top +
-      scrollChildBounds.top -
-      SCROLL_THRESHOLD -
-      scrollParentBounds.top <
-      SCROLL_THRESHOLD
-  )
-    return -scrollAmount;
-  if (
+    2 *
+    GridDefaults.CANVAS_EXTENSION_OFFSET *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const topBuff =
+    elem.top + scrollChildBounds.top > 0
+      ? elem.top +
+        scrollChildBounds.top -
+        SCROLL_THRESHOLD -
+        scrollParentBounds.top
+      : 0;
+  const bottomBuff =
     scrollParentBounds.bottom -
-      (elem.top + elem.height + scrollChildBounds.top + SCROLL_THRESHOLD) <
-    SCROLL_THRESHOLD
-  )
-    return scrollAmount;
+    (elem.top + elem.height + scrollChildBounds.top + SCROLL_THRESHOLD);
+  if (topBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - topBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return -(scrollAmount * speed);
+  }
+  if (bottomBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - bottomBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return scrollAmount * speed;
+  }
   return 0;
 };
 
