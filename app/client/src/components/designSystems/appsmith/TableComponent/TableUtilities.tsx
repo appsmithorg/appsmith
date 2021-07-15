@@ -133,7 +133,6 @@ export const renderCell = (
 };
 
 interface RenderActionProps {
-  isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
@@ -156,7 +155,6 @@ export const renderActions = (
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
-            isSelected={props.isSelected}
             key={index}
             onCommandClick={props.onCommandClick}
           />
@@ -167,7 +165,6 @@ export const renderActions = (
 };
 
 function TableAction(props: {
-  isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
@@ -183,9 +180,7 @@ function TableAction(props: {
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
+        e.stopPropagation();
       }}
     >
       <Button
