@@ -287,14 +287,12 @@ class TernServer {
     const otherCompletions = completions.filter(
       (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
-    return Array.from(
-      new Set([
-        ...docCompletetions,
-        ...sameDataType,
-        ...otherDataType,
-        ...otherCompletions,
-      ]),
-    );
+    return [
+      ...docCompletetions,
+      ...sameDataType,
+      ...otherDataType,
+      ...otherCompletions,
+    ];
   }
 
   getDataType(type: string): DataType {
