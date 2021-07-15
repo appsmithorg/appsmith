@@ -21,7 +21,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.NavigateToQueryEditor();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.contains(".t--datasource-name", datasourceName)
@@ -29,12 +29,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         .click();
     });
 
-    cy.get("@getPluginForm").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
+    cy.get("@getPluginForm").should("not.be.null");
     cy.xpath('//div[contains(text(),"Find Document(s)")]').click({
       force: true,
     });
@@ -50,7 +45,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
     cy.runAndDeleteQuery();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.deleteDatasource(datasourceName);

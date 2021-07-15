@@ -7,7 +7,7 @@ describe("Add widget", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -25,6 +25,10 @@ describe("Add widget", function() {
       .type("select * from configs");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.WaitAutoSave();
+    cy.wait("@saveAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+      cy.log(interception.response.body.data.actionConfiguration.body);
+    });
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
       "have.nested.property",

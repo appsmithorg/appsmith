@@ -26,7 +26,7 @@ describe("Create, test, save then delete a mongo datasource", function() {
     /*
     cy.NavigateToQueryEditor();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = "Untitled Datasource";
 
       cy.contains(".t--datasource-name", datasourceName)

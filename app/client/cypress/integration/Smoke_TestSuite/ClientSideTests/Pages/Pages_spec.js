@@ -12,13 +12,16 @@ describe("Pages", function() {
       .last()
       .click({ force: true });
     cy.get(pages.clonePage).click({ force: true });
+    cy.wait(500);
 
+    cy.wait("@clonePage");
+    /*
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-
+    */
     // to check if apis are cloned
     cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
       multiple: true,

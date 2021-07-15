@@ -7,6 +7,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 let updatedName;
 let datasourceName;
+let newDsName;
 
 describe("Entity explorer tests related to copy query", function() {
   beforeEach(() => {
@@ -21,24 +22,26 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
+    cy.testDatasource();
 
-    cy.NavigateToQueryEditor();
+    cy.get(".t--save-datasource").click();
 
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-
-      cy.contains(".t--datasource-name", datasourceName)
-        .find(queryLocators.createQuery)
-        .click();
-    });
-
-    cy.get("@getPluginForm").should(
+    cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    cy.get("@saveDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+      newDsName = datasourceName;
+      cy.log(datasourceName);
+      cy.NavigateToQueryEditor();
+      cy.get(".t--datasource-name:contains(".concat(datasourceName).concat(")"))
+        .find(queryLocators.createQuery)
+        .click({ force: true });
+    });
 
+    cy.get("@getPluginForm").should("not.be.null");
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -89,8 +92,8 @@ describe("Entity explorer tests related to copy query", function() {
   it("Delete query and rename datasource in explorer", function() {
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.NavigateToDatasourceEditor();
-    cy.GlobalSearchEntity(`${datasourceName}`);
-    cy.get(`.t--entity-name:contains(${datasourceName})`)
+    cy.GlobalSearchEntity(`${newDsName}`);
+    cy.get(`.t--entity-name:contains(${newDsName})`)
       .last()
       .click();
     cy.generateUUID().then((uid) => {
@@ -98,7 +101,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
-      cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
+      cy.EditEntityNameByDoubleClick(newDsName, updatedName);
       cy.SearchEntityandOpen(updatedName);
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
@@ -109,8 +112,12 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
-
     cy.SearchEntityandOpen("Query1");
-    cy.deleteQuery();
+    cy.hoverAndClick();
+    cy.get(apiwidget.delete).click({ force: true });
+    cy.wait(500);
+    cy.get(
+      commonlocators.entitySearchResult.concat("Query1").concat("')"),
+    ).should("have.length", 1);
   });
 });

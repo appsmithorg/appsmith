@@ -6,11 +6,16 @@ describe("API Panel Test Functionality", function() {
   afterEach(function() {
     cy.get(ApiEditor.ApiActionMenu).click({ force: true });
     cy.get(apiwidget.deleteAPI).click({ force: true });
+    /*
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    */
+    cy.wait("@deleteAction")
+      .its("request")
+      .should("not.be.null");
   });
 
   it("PUT Action test API fetaure", function() {
