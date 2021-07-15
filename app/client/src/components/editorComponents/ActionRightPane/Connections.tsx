@@ -96,7 +96,6 @@ function Dependencies(props: any) {
 
 type ConnectionsProps = {
   actionName: string;
-  expand: boolean;
 };
 
 function Connections(props: ConnectionsProps) {
@@ -112,7 +111,7 @@ function Connections(props: ConnectionsProps) {
       entityDependencies?.inverseDependencies.length > 0)
   ) {
     return (
-      <Collapsible expand={props.expand} label="Relationship">
+      <Collapsible label="Relationship">
         <span className="description">See all entities connected</span>
         <ConnectionType className="icon-text">
           <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
