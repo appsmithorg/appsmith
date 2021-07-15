@@ -96,7 +96,6 @@ function Dependencies(props: any) {
 
 type ConnectionsProps = {
   actionName: string;
-  expand: boolean;
 };
 
 function Connections(props: ConnectionsProps) {
@@ -107,16 +106,16 @@ function Connections(props: ConnectionsProps) {
   );
 
   return (
-    <Collapsible expand={props.expand} label="Relationship">
-      <span className="description">See all entities connected</span>
+    <Collapsible label="Relationships">
+      <span className="description">See all connected entities</span>
       <ConnectionType className="icon-text">
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
-        <span className="connection-type">Incoming Connections</span>
+        <span className="connection-type">Incoming entities</span>
       </ConnectionType>
       {/* Direct Dependencies */}
       <Dependencies
         dependencies={entityDependencies?.directDependencies ?? []}
-        placeholder="No incoming connections"
+        placeholder="No incoming entities"
       />
       <ConnectionFlow>
         <img src={LongArrowSVG} />
@@ -124,13 +123,13 @@ function Connections(props: ConnectionsProps) {
         <img src={LongArrowSVG} />
       </ConnectionFlow>
       <ConnectionType className="icon-text">
-        <span className="connection-type">Outgoing Connections</span>
+        <span className="connection-type">Outgoing entities</span>
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
       </ConnectionType>
       {/* Inverse dependencies */}
       <Dependencies
         dependencies={entityDependencies?.inverseDependencies ?? []}
-        placeholder="No outgoing connections"
+        placeholder="No outgoing entities"
       />
     </Collapsible>
   );
