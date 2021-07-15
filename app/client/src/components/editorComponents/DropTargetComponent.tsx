@@ -76,9 +76,11 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const draggedOn = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.draggedOn,
+  const dragDetails = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
   );
+
+  const { draggedOn } = dragDetails;
 
   const childWidgets = useSelector(
     (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
