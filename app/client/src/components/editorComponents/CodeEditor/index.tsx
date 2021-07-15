@@ -582,7 +582,14 @@ class CodeEditor extends Component<Props, State> {
                 src={this.props.leftImage}
               />
             )}
-            <div className="CodeEditorTarget" ref={this.codeEditorTarget} />
+            <div className="CodeEditorTarget" ref={this.codeEditorTarget}>
+              <BindingPrompt
+                editorTheme={this.props.theme}
+                isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
             {this.props.link && (
               <a
                 className="linkStyles"
@@ -596,12 +603,6 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
-            <BindingPrompt
-              editorTheme={this.props.theme}
-              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
-              promptMessage={this.props.promptMessage}
-              showLightningMenu={this.props.showLightningMenu}
-            />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
