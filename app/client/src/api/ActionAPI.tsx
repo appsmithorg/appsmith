@@ -84,7 +84,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
-  suggestedWidget?: WidgetType;
+  suggestedWidgets?: WidgetType[];
   messages?: Array<string>;
 }
 

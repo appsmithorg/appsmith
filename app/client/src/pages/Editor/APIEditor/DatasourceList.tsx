@@ -206,7 +206,7 @@ export default function DataSourceList(props: any) {
                   <ActionRightPane
                     actionName={props.actionName}
                     hasResponse={props.hasResponse}
-                    suggestedWidget={props.suggestedWidget}
+                    suggestedWidgets={props.suggestedWidgets}
                   />
                 </SomeWrapper>
               ),
