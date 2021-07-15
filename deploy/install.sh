@@ -152,7 +152,7 @@ check_os() {
             ;;
         red\ hat*)
             desired_os=1
-            os="red hat"
+            os="rhel"
             package_manager="yum"
             ;;
         centos*)
