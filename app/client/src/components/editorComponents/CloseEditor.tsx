@@ -1,73 +1,58 @@
-import TooltipComponent from "components/ads/Tooltip";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import React from "react";
-import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import {
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "../../constants/routes";
+import { useSelector } from "react-redux";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
+  //width: 100%;
+  height: 30px;
   display: flex;
-  margin-right: 16px;
-  justify-content: center;
   align-items: center;
   cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-  }
+  padding-left: 16px;
+  /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
 
 function CloseEditor() {
+  const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-
-  const history = useHistory();
+  const params: string = location.search;
+  const redirectTo = new URLSearchParams(params).get("from");
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(
+      redirectTo === "datasources"
+        ? INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE)
+        : BUILDER_PAGE_URL(applicationId, pageId),
+    );
   };
 
   return (
-    <TooltipComponent
-      content={
-        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-          Close
-        </Text>
-      }
-      minWidth="auto !important"
-      minimal
-      position={Position.BOTTOM_LEFT}
-    >
-      <IconContainer onClick={handleClose}>
-        <Icon
-          className="close-modal-icon"
-          name="close-modal"
-          size={IconSize.LARGE}
-        />
-      </IconContainer>
-    </TooltipComponent>
+    <IconContainer onClick={handleClose}>
+      <Icon icon="chevron-left" iconSize={16} />
+      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
+        Back
+      </Text>
+    </IconContainer>
   );
 }
 

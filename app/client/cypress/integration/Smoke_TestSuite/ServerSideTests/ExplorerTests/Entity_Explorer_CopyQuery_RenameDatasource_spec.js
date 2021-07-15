@@ -103,8 +103,6 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(newDsName, updatedName);
       cy.SearchEntityandOpen(updatedName);
-      cy.get(".t--edit-datasource").click({ force: true });
-      cy.testSaveDatasource();
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
       //This is check to make sure if a datasource is active 409

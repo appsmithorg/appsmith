@@ -41,4 +41,7 @@ public class PageDTO {
 
     Boolean isHidden;
 
+    @Transient
+    Long lastUpdatedTime;
+
 }

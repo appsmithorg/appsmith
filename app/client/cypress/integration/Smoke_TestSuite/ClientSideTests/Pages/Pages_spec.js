@@ -26,7 +26,9 @@ describe("Pages", function() {
     cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
       multiple: true,
     });
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(APIs)").click({
+    cy.get(
+      ".bp3-icon-caret-right ~ .t--entity-name:contains(Datasources)",
+    ).click({
       multiple: true,
     });
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
