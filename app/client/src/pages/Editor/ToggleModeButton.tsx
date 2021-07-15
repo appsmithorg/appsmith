@@ -295,10 +295,6 @@ function ToggleCommentModeButton({
     setShowCommentsButtonToolTip();
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
-  const handleSetEditModeButton = useCallback(() => {
-    setCommentModeInUrl(false);
-  }, []);
-
   // Show comment mode button only on the canvas editor and viewer
   const [shouldHide, setShouldHide] = useState(false);
   const location = useLocation();
@@ -317,7 +313,7 @@ function ToggleCommentModeButton({
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
-            onClick={handleSetEditModeButton}
+            onClick={() => setCommentModeInUrl(false)}
             showSelectedMode={showSelectedMode}
             type="fill"
           >

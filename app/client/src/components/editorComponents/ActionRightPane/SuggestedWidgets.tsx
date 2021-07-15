@@ -161,7 +161,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
           return (
             <div
-              className="widget"
+              className={`widget t--suggested-widget-${widgetType}`}
               key={widgetType}
               onClick={() => addWidget(widgetType, widgetInfo)}
             >
