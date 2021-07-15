@@ -16,6 +16,7 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
+import { get } from "lodash";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -74,6 +75,7 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
+      showPicker: false,
     };
   }
 
@@ -142,14 +144,20 @@ class DatePickerComponent extends React.Component<
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
-              closeOnSelection={this.props.closeOnSelection}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                onFocus: this.showPicker,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
+              popoverProps={{
+                isOpen: this.state.showPicker,
+                onClose: this.closePicker,
+              }}
               shortcuts={this.props.shortcuts}
               showActionsBar
               timePrecision={TimePrecision.MINUTE}
@@ -211,13 +219,31 @@ class DatePickerComponent extends React.Component<
    */
   onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
     if (isUserChange) {
-      const { onDateSelected } = this.props;
+      const { closeOnSelection, onDateSelected } = this.props;
 
       const date = selectedDate ? selectedDate.toISOString() : "";
-      this.setState({ selectedDate: date });
+      this.setState({
+        selectedDate: date,
+        // close picker while user changes in calender
+        // if closeOnSelection false, do not allow user to close picker
+        showPicker: !closeOnSelection,
+      });
 
       onDateSelected(date);
     }
+  };
+
+  showPicker = () => {
+    this.setState({ showPicker: true });
+  };
+
+  closePicker = (e: any) => {
+    const { closeOnSelection } = this.props;
+    // check user click on shortcuts or out side widget
+    const clickedContent = get(e, "target.innerText");
+    // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
+    const showPicker = clickedContent ? !closeOnSelection : false;
+    this.setState({ showPicker });
   };
 }
 
@@ -239,6 +265,7 @@ interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
+  showPicker?: boolean;
 }
 
 export default DatePickerComponent;
