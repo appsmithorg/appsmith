@@ -21,7 +21,7 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
-import { getGenerateTemplateFormURL } from "../../../constants/routes";
+import { getGenerateTemplateFormURL } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
 import { IconSize } from "../../../components/ads/Icon";
@@ -270,7 +270,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           target={
             <MoreOptionsContainer>
               <Icon
-                fillColor="#939090"
+                fillColor={Colors.GRAY2}
                 name="comment-context-menu"
                 size={IconSize.XXXL}
               />
@@ -287,7 +287,7 @@ function DatasourceCard(props: DatasourceCardProps) {
         </MenuWrapper>
       </DatasourceCardMainBody>
       {!isNil(currentFormConfig) && (
-        <CollapseComponent title="Show More">
+        <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
           <DatasourceInfo>
             {renderDatasourceSection(currentFormConfig[0], datasource)}
           </DatasourceInfo>
