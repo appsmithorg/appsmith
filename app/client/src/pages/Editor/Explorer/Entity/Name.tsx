@@ -165,7 +165,6 @@ export const EntityName = forwardRef(
             searchTokenizationDelimiter + str + searchTokenizationDelimiter
           );
         });
-
         const final = replace(
           delimited,
           searchTokenizationDelimiter,
@@ -205,21 +204,19 @@ export const EntityName = forwardRef(
         </Wrapper>
       );
     return (
-      <Wrapper>
-        <EditableText
-          className={`${props.className} editing`}
-          defaultValue={updatedName}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          isEditingDefault
-          isInvalid={isInvalidName}
-          minimal
-          onBlur={exitEditMode}
-          onTextChanged={handleAPINameChange}
-          placeholder="Name"
-          type="text"
-          valueTransform={props.nameTransformFn || removeSpecialChars}
-        />
-      </Wrapper>
+      <EditableText
+        className={`${props.className} editing`}
+        defaultValue={updatedName}
+        editInteractionKind={EditInteractionKind.SINGLE}
+        isEditingDefault
+        isInvalid={isInvalidName}
+        minimal
+        onBlur={exitEditMode}
+        onTextChanged={handleAPINameChange}
+        placeholder="Name"
+        type="text"
+        valueTransform={props.nameTransformFn || removeSpecialChars}
+      />
     );
   },
 );
