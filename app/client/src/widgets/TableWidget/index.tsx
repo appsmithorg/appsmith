@@ -16,7 +16,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
+import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/Constants";
@@ -201,6 +201,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
+          } else if (columnProperties.columnType === "image") {
+            const isSelected = !!props.row.isSelected;
+            const onClick = columnProperties.onClick
+              ? () =>
+                  this.onCommandClick(rowIndex, columnProperties.onClick, noop)
+              : noop;
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              componentWidth,
+              onClick,
+              isSelected,
+            );
           } else {
             return renderCell(
               props.cell.value,

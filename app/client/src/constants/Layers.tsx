@@ -42,6 +42,7 @@ export const Layers = {
   tableFilterPane: Indices.Layer6,
 
   help: Indices.Layer4,
+  contextMenu: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
