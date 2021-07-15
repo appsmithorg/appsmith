@@ -162,6 +162,7 @@ function ActionSidebar({
           <SnipingWrapper>
             <Button
               category={Category.tertiary}
+              className={"t--select-in-canvas"}
               onClick={handleBindData}
               size={Size.medium}
               tag="button"

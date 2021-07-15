@@ -132,6 +132,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   return showWidgetName ? (
     <PositionStyle
+      className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
       isSnipingMode={isSnipingMode}
       topRow={props.topRow}

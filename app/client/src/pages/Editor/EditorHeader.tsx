@@ -383,7 +383,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         <OnboardingHelper />
         <GlobalSearch />
         {isSnipingMode && (
-          <BindingBanner>Select a widget to bind</BindingBanner>
+          <BindingBanner className="t--sniping-mode-banner">
+            Select a widget to bind
+          </BindingBanner>
         )}
       </HeaderWrapper>
     </ThemeProvider>
