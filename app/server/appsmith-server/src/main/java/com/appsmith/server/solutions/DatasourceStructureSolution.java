@@ -150,6 +150,10 @@ public class DatasourceStructureSolution {
             )));
 
         return datasourceMono.flatMap(datasource -> {
+            if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
+                // Don't attempt to run query for invalid datasources.
+                return Mono.empty();
+            }
             // check if the plugin is present and call method from plugin executor
             return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
