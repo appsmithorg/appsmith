@@ -658,21 +658,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
-      serverSidePaginationEnabled,
     } = this.props;
     const tableColumns = this.getTableColumns() || [];
-    const paginatedFilteredData = [...filteredTableData];
-    if (serverSidePaginationEnabled && totalRecordsCount) {
-      //if total records count configured is more than tableData
-      if (this.props.pageNo * pageSize > totalRecordsCount) {
-        const count = totalRecordsCount - (this.props.pageNo - 1) * pageSize;
-        paginatedFilteredData.splice(count, paginatedFilteredData.length);
-      }
-    }
-    const transformedData = this.transformData(
-      paginatedFilteredData,
-      tableColumns,
-    );
+    const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isVisibleHeaderOptions =
       isVisibleCompactMode ||

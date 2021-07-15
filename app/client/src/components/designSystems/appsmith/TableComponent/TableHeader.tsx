@@ -174,7 +174,9 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={props.pageNo === props.pageCount - 1}
+            disabled={
+              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
+            }
             onClick={() => {
               props.nextPageClick();
             }}
