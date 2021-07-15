@@ -80,7 +80,10 @@ export const getPluginPackageFromDatasourceId = (
   return plugin.packageName;
 };
 
-export const getPluginNameFromId = (state: AppState, pluginId: string) => {
+export const getPluginNameFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
   const plugin = state.entities.plugins.list.find(
     (plugin) => plugin.id === pluginId,
   );
