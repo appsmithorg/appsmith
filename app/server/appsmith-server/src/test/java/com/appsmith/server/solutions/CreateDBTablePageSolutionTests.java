@@ -89,6 +89,10 @@ public class CreateDBTablePageSolutionTests {
     // Regex to break string in separate words
     final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*]+";
 
+    private final String SELECT_QUERY = "SelectQuery";
+
+    private final String FIND_QUERY = "FindQuery";
+
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
@@ -296,7 +300,7 @@ public class CreateDBTablePageSolutionTests {
                         .replace("ilike", "like");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
+                    if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -352,7 +356,7 @@ public class CreateDBTablePageSolutionTests {
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
+                    if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -405,7 +409,7 @@ public class CreateDBTablePageSolutionTests {
                         .replace("ilike", "like");;
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
-                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
+                    if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -456,7 +460,7 @@ public class CreateDBTablePageSolutionTests {
                     String templateActionBody =  actionNameToBodyMap
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
-                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
+                    if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -556,7 +560,7 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    if (action.getUnpublishedAction().getName().equals(solution.SELECT_QUERY)) {
+                    if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
@@ -614,7 +618,7 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(actions).hasSize(4);
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
-                    if (action.getUnpublishedAction().getName().equals(solution.FIND_QUERY)) {
+                    if (FIND_QUERY.equals(action.getUnpublishedAction().getName())) {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                     } else {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
