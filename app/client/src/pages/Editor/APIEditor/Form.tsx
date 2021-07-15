@@ -210,7 +210,7 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
-  suggestedWidget?: WidgetType;
+  suggestedWidgets?: WidgetType[];
   updateDatasource: (datasource: Datasource) => void;
 }
 
@@ -613,7 +613,7 @@ function ApiEditorForm(props: Props) {
             datasources={props.datasources}
             hasResponse={props.hasResponse}
             onClick={updateDatasource}
-            suggestedWidget={props.suggestedWidget}
+            suggestedWidgets={props.suggestedWidgets}
           />
         </Wrapper>
       </Form>
@@ -675,12 +675,12 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 
   const responses = getActionResponses(state);
   let hasResponse = false;
-  let suggestedWidget;
+  let suggestedWidgets;
   if (apiId && apiId in responses) {
     const response = responses[apiId] || EMPTY_RESPONSE;
     hasResponse =
       !isEmpty(response.statusCode) && response.statusCode[0] === "2";
-    suggestedWidget = response.suggestedWidget;
+    suggestedWidgets = response.suggestedWidgets;
   }
 
   return {
@@ -697,7 +697,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
-    suggestedWidget,
+    suggestedWidgets,
     hasResponse,
   };
 }, mapDispatchToProps)(

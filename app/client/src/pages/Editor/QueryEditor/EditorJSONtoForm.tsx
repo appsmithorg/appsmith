@@ -359,7 +359,7 @@ type QueryFormProps = {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
-    suggestedWidget?: WidgetType;
+    suggestedWidgets?: WidgetType[];
   };
   runErrorMessage: string | undefined;
   location: {
@@ -758,7 +758,7 @@ export function EditorJSONtoForm(props: Props) {
             <ActionRightPane
               actionName={actionName}
               hasResponse={!!output}
-              suggestedWidget={executedQueryData?.suggestedWidget}
+              suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>
         </Wrapper>

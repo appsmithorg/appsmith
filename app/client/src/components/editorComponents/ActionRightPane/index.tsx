@@ -97,19 +97,19 @@ export function Collapsible({
 function ActionSidebar({
   actionName,
   hasResponse,
-  suggestedWidget,
+  suggestedWidgets,
 }: {
   actionName: string;
   hasResponse: boolean;
-  suggestedWidget?: WidgetType;
+  suggestedWidgets?: WidgetType[];
 }) {
   return (
     <SideBar>
       <Connections actionName={actionName} expand={!hasResponse} />
-      {hasResponse && suggestedWidget && (
+      {hasResponse && suggestedWidgets && (
         <SuggestedWidgets
           actionName={actionName}
-          suggestedWidget={suggestedWidget}
+          suggestedWidgets={suggestedWidgets}
         />
       )}
     </SideBar>

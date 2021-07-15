@@ -24,6 +24,10 @@ const WidgetList = styled.div`
   .widget:hover {
     cursor: pointer;
   }
+
+  .widget:not(:first-child) {
+    margin-top: 24px;
+  }
 `;
 
 const WidgetOverlay = styled.div`
@@ -31,7 +35,7 @@ const WidgetOverlay = styled.div`
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - ${(props) => props.theme.spaces[1]}px);
 
   &:hover {
     display: block;
@@ -104,15 +108,18 @@ function getWidgetProps(
         parentRowSpace: 10,
       };
     case WidgetTypes.CHART_WIDGET:
+      const reactKey = generateReactKey();
+
       return {
         type: widgetType,
         props: {
           [fieldName]: {
-            [generateReactKey()]: {
+            [reactKey]: {
               seriesName: "Sales",
               data: `{{${actionName}.data}}`,
             },
           },
+          dynamicBindingPathList: [{ key: `chart.${reactKey}.data` }],
         },
       };
     default:
@@ -128,22 +135,14 @@ function getWidgetProps(
 
 type SuggestedWidgetProps = {
   actionName: string;
-  suggestedWidget: WidgetType;
+  suggestedWidgets: WidgetType[];
 };
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
-  const widgetInfo: WidgetBindingInfo | undefined =
-    WIDGET_DATA_FIELD_MAP[props.suggestedWidget];
 
-  if (!widgetInfo) return null;
-
-  const addWidget = () => {
-    const payload = getWidgetProps(
-      props.suggestedWidget,
-      widgetInfo,
-      props.actionName,
-    );
+  const addWidget = (widgetType: WidgetType, widgetInfo: WidgetBindingInfo) => {
+    const payload = getWidgetProps(widgetType, widgetInfo, props.actionName);
 
     dispatch(addSuggestedWidget(payload));
   };
@@ -155,15 +154,28 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       </div>
 
       <WidgetList>
-        <div className="widget" onClick={addWidget}>
-          <div>{widgetInfo.widgetName} Widget</div>
-          <Tooltip content="Add to canvas">
-            <div className="image-wrapper">
-              {widgetInfo.image && <img src={widgetInfo.image} />}
-              <WidgetOverlay />
+        {props.suggestedWidgets.map((widgetType) => {
+          const widgetInfo: WidgetBindingInfo | undefined =
+            WIDGET_DATA_FIELD_MAP[widgetType];
+
+          if (!widgetInfo) return null;
+
+          return (
+            <div
+              className="widget"
+              key={widgetType}
+              onClick={() => addWidget(widgetType, widgetInfo)}
+            >
+              <div>{widgetInfo.widgetName} Widget</div>
+              <Tooltip content="Add to canvas">
+                <div className="image-wrapper">
+                  {widgetInfo.image && <img src={widgetInfo.image} />}
+                  <WidgetOverlay />
+                </div>
+              </Tooltip>
             </div>
-          </Tooltip>
-        </div>
+          );
+        })}
       </WidgetList>
     </Collapsible>
   );
