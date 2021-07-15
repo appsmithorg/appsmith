@@ -13,6 +13,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Click on table name controller to bind the data and exit sniping mode", function() {
+    cy.get(".t--draggable-tablewidget").trigger("mouseover");
     cy.get(".t--settings-sniping-control").click();
     cy.get(".t--property-control-tabledata .CodeMirror").contains(
       "{{Api1.data}}",
