@@ -1,13 +1,18 @@
 import React from "react";
+import * as Sentry from "@sentry/react";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonType,
+  ButtonVariant,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -70,6 +75,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 label: "Danger Button",
                 value: "DANGER_BUTTON",
               },
+              {
+                label: "Text Button",
+                value: "TEXT_BUTTON",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -91,27 +100,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               {
                 label: "Text",
                 value: "TEXT",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "buttonSize",
-            label: "Size",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Large",
-                value: "LARGE",
-              },
-              {
-                label: "Medium",
-                value: "MEDIUM",
-              },
-              {
-                label: "Small",
-                value: "SMALL",
               },
             ],
             isBindProperty: false,
@@ -269,15 +257,23 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   getPageView() {
     return (
       <ButtonComponent
+        backgroundColor={this.props.backgroundColor}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         buttonStyle={this.props.buttonStyle}
+        buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         disabled={this.props.isDisabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
+        iconAlign={this.props.iconAlign}
+        iconColor={this.props.iconColor}
+        iconName={this.props.iconName}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
+        textColor={this.props.textColor}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
@@ -294,7 +290,8 @@ export type ButtonStyle =
   | "PRIMARY_BUTTON"
   | "SECONDARY_BUTTON"
   | "SUCCESS_BUTTON"
-  | "DANGER_BUTTON";
+  | "DANGER_BUTTON"
+  | "TEXT_BUTTON";
 
 export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
@@ -305,6 +302,13 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
+  textColor?: string;
+  buttonVariant?: ButtonVariant;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  iconColor?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {
