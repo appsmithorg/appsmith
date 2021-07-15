@@ -80,7 +80,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
-            if (mockDataSource.getPluginName().equals("mongo-plugin")) {
+            if (mockDataSource.getPackageName().equals("mongo-plugin")) {
                 datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             } else {
                 datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);

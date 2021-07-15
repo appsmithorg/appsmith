@@ -126,7 +126,7 @@ export function* addMockDbToDatasources(
       name: string;
       organizationId: string;
       pluginId: string;
-      pluginName: string;
+      packageName: string;
     },
     unknown,
     unknown
@@ -136,14 +136,14 @@ export function* addMockDbToDatasources(
     const {
       name,
       organizationId,
+      packageName,
       pluginId,
-      pluginName,
     } = actionPayload.payload;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
       name,
       organizationId,
       pluginId,
-      pluginName,
+      packageName,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

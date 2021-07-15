@@ -149,9 +149,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     let parsed = value;
     if (isUndefined(value)) {
       return {
-        isValid: false,
+        isValid: true,
         parsed: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     const isABoolean = isBoolean(value);
