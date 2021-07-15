@@ -1,8 +1,6 @@
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
-  let apiData;
   before(() => {
     cy.addDsl(dsl);
   });
@@ -10,17 +8,6 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Add users api, execute it and go to sniping mode.", function() {
     cy.createAndFillApi(this.data.userApi, "/users");
     cy.RunAPI();
-    cy.get(apiPage.responseBody)
-      .contains("name")
-      .siblings("span")
-      .invoke("text")
-      .then((text) => {
-        const value = text.match(/"(.*)"/)[0];
-        cy.log(value);
-
-        apiData = value;
-        cy.log("val1:" + value);
-      });
     cy.get(".t--select-in-canvas").click();
     cy.get(".t--sniping-mode-banner").should("be.visible");
   });
