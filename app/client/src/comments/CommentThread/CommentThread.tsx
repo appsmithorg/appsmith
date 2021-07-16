@@ -42,7 +42,7 @@ const ThreadContainer = styled(animated.div)<{
   max-height: ${(props) =>
     props.inline ? `calc(100vh - ${props.theme.smallHeaderHeight})` : "unset"};
   /* overflow: auto collapses the comment threads in the sidebar */
-  overflow: ${(props) => (props.inline ? "auto" : "unset")};
+  overflow: ${(props) => (props.inline ? "visible" : "unset")};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`

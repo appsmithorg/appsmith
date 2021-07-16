@@ -52,6 +52,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     pointer-events: none !important;
     font-family: ${(props) => props.theme.fonts.text};
     ${(props) => getTypographyByKey(props, "p3")}
+    font-weight: 600;
   }
 
   .CodeMirror-commands {
@@ -86,6 +87,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         margin-right: 7px;
       }
       svg {
+        height: 12px;
+        width: 12px;
         margin-right: 7px;
       }
     }

@@ -95,7 +95,6 @@ export type EditorStyleProps = {
   disabled?: boolean;
   link?: string;
   showLightningMenu?: boolean;
-  mutedHinting?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
@@ -229,6 +228,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
+        editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
@@ -292,11 +292,9 @@ class CodeEditor extends Component<Props, State> {
     showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
-    return (showLightningMenu !== false ? hinting : [bindingHint]).map(
-      (helper) => {
-        return helper(editor, dynamicData, additionalDynamicData);
-      },
-    );
+    return hinting.map((helper) => {
+      return helper(editor, dynamicData, additionalDynamicData);
+    });
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
@@ -330,10 +328,12 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
     if (this.props.size === EditorSize.COMPACT) {
-      const inputValue = this.props.input.value;
-      this.editor.setOption("lineWrapping", true);
-      this.editor.setValue(inputValue);
-      this.editor.setCursor(inputValue.length);
+      this.editor.operation(() => {
+        const inputValue = this.props.input.value;
+        this.editor.setOption("lineWrapping", true);
+        this.editor.setValue(inputValue);
+        this.editor.setCursor(inputValue.length);
+      });
     }
     if (this.editor.getValue().length === 0)
       this.handleAutocompleteVisibility(this.editor);
@@ -341,12 +341,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorBlur = () => {
     this.handleChange();
-    // on blur closing the binding prompt for an editor regardless.
     this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
-
     this.editor.setOption("matchBrackets", false);
   };
 
@@ -377,7 +375,8 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      value !== inputValue &&
+      (value !== inputValue ||
+        _.get(this.editor, "state.completionActive.startLen") === 0) &&
       this.state.isFocused
     ) {
       this.props.input.onChange(value);
@@ -385,8 +384,8 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
-    const { dataTreePath, dynamicData, expected } = this.props;
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
     const entityInformation: HintEntityInformation = {
       expectedType: expected,
     };
@@ -406,18 +405,17 @@ class CodeEditor extends Component<Props, State> {
     }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
-        mutedHinting: force ? !force : this.props.mutedHinting,
+      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
-        updatePropertyValue: this.updatePropertyValue.bind(this),
         recentEntities: this.props.recentEntities,
+        update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
             ...payload,
             callback: (binding: string) => {
               const value = this.editor.getValue() + binding;
-              this.updatePropertyValue(value);
+              this.updatePropertyValue(value, value.length);
             },
           });
         },
@@ -448,20 +446,13 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(value);
     }
     this.editor.focus();
-    if (cursor === undefined) {
-      if (value) {
-        cursor = value.length - 2;
-      } else {
-        cursor = 1;
-      }
-    }
     this.editor.setCursor({
-      line: 0,
-      ch: cursor,
+      line: cursor || this.editor.lineCount() - 1,
+      ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
     });
     this.setState({ isFocused: true }, () => {
       if (preventAutoComplete) return;
-      this.handleAutocompleteVisibility(this.editor, true);
+      this.handleAutocompleteVisibility(this.editor);
     });
   }
 
@@ -598,7 +589,17 @@ class CodeEditor extends Component<Props, State> {
                 src={this.props.leftImage}
               />
             )}
-            <div className="CodeEditorTarget" ref={this.codeEditorTarget} />
+            <div className="CodeEditorTarget" ref={this.codeEditorTarget}>
+              <BindingPrompt
+                editorTheme={this.props.theme}
+                isOpen={
+                  showBindingPrompt(showEvaluatedValue, input.value) &&
+                  !_.get(this.editor, "state.completionActive")
+                }
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
             {this.props.link && (
               <a
                 className="linkStyles"
@@ -612,12 +613,6 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
-            <BindingPrompt
-              editorTheme={this.props.theme}
-              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
-              promptMessage={this.props.promptMessage}
-              showLightningMenu={this.props.showLightningMenu}
-            />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
