@@ -51,7 +51,6 @@ export function CanvasDraggingArena({
     snapRowSpace,
     widgetId,
   });
-
   return showCanvas ? (
     <StyledSelectionCanvas
       data-testid={`canvas-dragging-${widgetId}`}

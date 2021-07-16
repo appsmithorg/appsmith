@@ -2,18 +2,19 @@ import { getSnappedXY } from "components/editorComponents/Dropzone";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { debounce } from "lodash";
+import { debounce, defer, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
-import { getScrollByPixels } from "utils/helpers";
 import { noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
+import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 
 export const useCanvasDragging = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
@@ -27,6 +28,7 @@ export const useCanvasDragging = (
 ) => {
   const {
     blocksToDraw,
+    defaultHandlePositions,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
@@ -50,6 +52,15 @@ export const useCanvasDragging = (
     setDraggingNewWidget,
     setDraggingState,
   } = useWidgetDragResize();
+  const scrollParent: Element | null = getNearestParentCanvas(
+    canvasRef.current,
+  );
+  const canScroll = useCanvasDragToScroll(
+    canvasRef,
+    isCurrentDraggedCanvas,
+    isDragging,
+    snapRows,
+  );
   useEffect(() => {
     if (
       canvasRef.current &&
@@ -60,134 +71,30 @@ export const useCanvasDragging = (
       const { devicePixelRatio: scale = 1 } = window;
 
       let canvasIsDragging = false;
-      let notDoneYet = false;
+      let isUpdatingRows = false;
       let animationFrameId: number;
-      let scrollTimeOut: number[] = [];
-      let scrollDirection = 0;
-      let scrollByPixels = 0;
-      let speed = 0;
-      const scrollFn = (scrollParent: Element | null) => {
-        if (isDragging && isCurrentDraggedCanvas && scrollParent) {
-          if (
-            (scrollByPixels < 0 && scrollParent.scrollTop > 0) ||
-            scrollByPixels > 0
-          ) {
-            scrollParent.scrollBy({
-              top: scrollByPixels,
-              behavior: "smooth",
-            });
-          }
-          if (scrollTimeOut.length) {
-            scrollTimeOut.forEach((each) => {
-              clearTimeout(each);
-            });
-            scrollTimeOut = [];
-          }
-          scrollTimeOut.push(
-            setTimeout(
-              () => scrollFn(scrollParent),
-              100 * Math.max(0.4, speed),
-            ),
-          );
-        } else {
-          if (scrollTimeOut.length) {
-            scrollTimeOut.forEach((each) => {
-              clearTimeout(each);
-            });
-            scrollTimeOut = [];
-          }
-        }
-      };
-      const checkIfNeedsScroll = debounce((e: any) => {
-        if (isDragging && canvasIsDragging && isCurrentDraggedCanvas) {
-          const scrollParent: Element | null = getNearestParentCanvas(
-            canvasRef.current,
-          );
-          if (canvasRef.current && scrollParent) {
-            const scrollObj = getScrollByPixels(
-              {
-                top: e.offsetY,
-                height: 0,
-              },
-              scrollParent,
-              canvasRef.current,
-            );
-            scrollByPixels = scrollObj.scrollAmount;
-            speed = scrollObj.speed;
-            const currentScrollDirection = scrollByPixels
-              ? scrollByPixels > 0
-                ? 1
-                : -1
-              : 0;
-            if (currentScrollDirection !== scrollDirection) {
-              scrollDirection = currentScrollDirection;
-              if (scrollTimeOut.length) {
-                scrollTimeOut.forEach((each) => {
-                  clearTimeout(each);
-                });
-                scrollTimeOut = [];
-              }
-              if (!!scrollDirection) {
-                scrollFn(scrollParent);
-              }
-            }
-          }
-        }
-      });
-      const onMouseOut = () => {
+      let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
+      const scrollObj: any = {};
+
+      const resetCanvasState = () => {
         if (canvasRef.current) {
-          if (scrollTimeOut.length) {
-            scrollTimeOut.forEach((each) => {
-              clearTimeout(each);
-            });
-            scrollTimeOut = [];
-          }
           const { height, width } = canvasRef.current.getBoundingClientRect();
           const canvasCtx: any = canvasRef.current.getContext("2d");
           canvasCtx.clearRect(0, 0, width * scale, height * scale);
           canvasRef.current.style.zIndex = "";
-          scrollDirection = 0;
           canvasIsDragging = false;
         }
       };
       if (isDragging) {
-        const { height, width } = canvasRef.current.getBoundingClientRect();
-        canvasRef.current.width = width * scale;
-        canvasRef.current.height = height * scale;
-
-        let newRectanglesToDraw: {
-          top: number;
-          left: number;
-          width: number;
-          height: number;
-          columnWidth: number;
-          rowHeight: number;
-          widgetId: string;
-          isNotColliding: boolean;
-        }[] = [];
-        const canvasCtx: any = canvasRef.current.getContext("2d");
-        canvasCtx.globalCompositeOperation = "destination-over";
-        canvasCtx.scale(scale, scale);
-
-        const startPoints = {
-          left: 20,
-          top: 20,
-        };
+        const startPoints = defaultHandlePositions;
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
-            onDrop(newRectanglesToDraw);
+            onDrop(currentRectanglesToDraw);
           }
-          if (scrollTimeOut.length) {
-            scrollTimeOut.forEach((each) => {
-              clearTimeout(each);
-            });
-            scrollTimeOut = [];
-          }
-          startPoints.left = 20;
-          startPoints.top = 20;
-          const wasCanvasDragging = canvasIsDragging;
-          onMouseOut();
-          if (wasCanvasDragging) {
+          startPoints.top = defaultHandlePositions.top;
+          startPoints.left = defaultHandlePositions.left;
+          resetCanvasState();
+          if (isCurrentDraggedCanvas) {
             if (isNewWidget) {
               setDraggingNewWidget(false, undefined);
             } else {
@@ -197,7 +104,7 @@ export const useCanvasDragging = (
           }
         };
 
-        const onMouseDown = (e: any) => {
+        const onFirstMoveOnCanvas = (e: any) => {
           if (
             !isResizing &&
             isDragging &&
@@ -209,6 +116,7 @@ export const useCanvasDragging = (
               startPoints.top = relativeStartPoints.top;
             }
             if (!isCurrentDraggedCanvas) {
+              // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;
@@ -216,22 +124,22 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
-        const onMouseMove = (e: any) => {
+        const onMouseMove = (e: any, scroll = false) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
-            const diff = {
+            const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
 
             const drawingBlocks = blocksToDraw.map((each) => ({
               ...each,
-              left: each.left + diff.left,
-              top: each.top + diff.top,
+              left: each.left + delta.left,
+              top: each.top + delta.top,
             }));
             const newRows = updateRows(drawingBlocks, rowRef.current);
-            const rowDiff = newRows ? newRows - rowRef.current : 0;
+            const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;
-            newRectanglesToDraw = drawingBlocks.map((each) => ({
+            currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding: noCollision(
                 { x: each.left, y: each.top },
@@ -246,64 +154,89 @@ export const useCanvasDragging = (
                 GridDefaults.DEFAULT_GRID_COLUMNS,
               ),
             }));
-            if (rowDiff && canvasRef.current) {
-              notDoneYet = true;
-              drawInit(rowDiff, diff);
-            } else if (!notDoneYet) {
-              drawBlocks();
+            if (rowDelta && canvasRef.current) {
+              isUpdatingRows = true;
+              renderNewRows(delta);
+              canScroll.current = false;
+            } else if (!isUpdatingRows) {
+              renderBlocks();
             }
-            checkIfNeedsScroll(e);
+            scrollObj.lastMouseMoveEvent = e;
+            scrollObj.lastScrollTop = scrollParent?.scrollTop;
+            scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
           } else {
-            onMouseDown(e);
+            onFirstMoveOnCanvas(e);
           }
         };
-        const drawInit = debounce((rowDiff, diff) => {
-          notDoneYet = true;
+        const renderNewRows = debounce((delta) => {
+          isUpdatingRows = true;
           if (canvasRef.current) {
-            newRectanglesToDraw = blocksToDraw.map((each) => {
+            const canvasCtx: any = canvasRef.current.getContext("2d");
+
+            currentRectanglesToDraw = blocksToDraw.map((each) => {
               return {
                 ...each,
-                left: each.left + diff.left,
-                top: each.top + diff.top,
+                left: each.left + delta.left,
+                top: each.top + delta.top,
               };
             });
             canvasCtx.save();
             canvasRef.current.height =
-              (rowRef.current * snapRowSpace + (widgetId === "0" ? 200 : 0)) *
+              (rowRef.current * snapRowSpace +
+                (widgetId === MAIN_CONTAINER_WIDGET_ID ? 200 : 0)) *
               scale;
             canvasCtx.scale(scale, scale);
-            canvasCtx.clearRect(0, 0, width, canvasRef.current.height);
+            canvasCtx.clearRect(
+              0,
+              0,
+              canvasRef.current.width,
+              canvasRef.current.height,
+            );
             canvasCtx.restore();
-            drawBlocks();
+            renderBlocks();
+            endRenderRows();
           }
         });
 
-        const drawBlocks = () => {
+        const endRenderRows = throttle(
+          () => {
+            canScroll.current = true;
+            scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+            scrollObj.lastScrollTop = scrollParent?.scrollTop;
+          },
+          100,
+          {
+            leading: true,
+            trailing: true,
+          },
+        );
+
+        const renderBlocks = () => {
           if (canvasRef.current && isCurrentDraggedCanvas) {
             const canvasCtx: any = canvasRef.current.getContext("2d");
             const { height, width } = canvasRef.current.getBoundingClientRect();
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, width * scale, height * scale);
-            notDoneYet = false;
+            isUpdatingRows = false;
             if (canvasIsDragging) {
-              newRectanglesToDraw.forEach((each) => {
-                drawRectangle(each);
+              currentRectanglesToDraw.forEach((each) => {
+                drawBlockOnCanvas(each);
               });
             }
             canvasCtx.restore();
-            animationFrameId = window.requestAnimationFrame(drawBlocks);
+            animationFrameId = window.requestAnimationFrame(renderBlocks);
           }
         };
 
-        const drawRectangle = (selectionDimensions: WidgetDraggingBlock) => {
+        const drawBlockOnCanvas = (blockDimensions: WidgetDraggingBlock) => {
           if (canvasRef.current) {
             const canvasCtx: any = canvasRef.current.getContext("2d");
             const snappedXY = getSnappedXY(
               snapColumnSpace,
               snapRowSpace,
               {
-                x: selectionDimensions.left,
-                y: selectionDimensions.top,
+                x: blockDimensions.left,
+                y: blockDimensions.top,
               },
               {
                 x: 0,
@@ -312,20 +245,16 @@ export const useCanvasDragging = (
             );
 
             canvasCtx.fillStyle = `${
-              selectionDimensions.isNotColliding
-                ? "rgb(104,	113,	239, 0.6)"
-                : "red"
+              blockDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
             }`;
             canvasCtx.fillRect(
-              selectionDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
-              selectionDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
-              selectionDimensions.width,
-              selectionDimensions.height,
+              blockDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              blockDimensions.top + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              blockDimensions.width,
+              blockDimensions.height,
             );
             canvasCtx.fillStyle = `${
-              selectionDimensions.isNotColliding
-                ? "rgb(233, 250, 243, 0.6)"
-                : "red"
+              blockDimensions.isNotColliding ? "rgb(233, 250, 243, 0.6)" : "red"
             }`;
             const strokeWidth = 1;
             canvasCtx.setLineDash([3]);
@@ -333,48 +262,98 @@ export const useCanvasDragging = (
             canvasCtx.strokeRect(
               snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
               snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-              selectionDimensions.width - strokeWidth,
-              selectionDimensions.height - strokeWidth,
+              blockDimensions.width - strokeWidth,
+              blockDimensions.height - strokeWidth,
             );
           }
         };
-        const startDragging = () => {
+        const onScroll = () => {
+          const {
+            lastMouseMoveEvent,
+            lastScrollHeight,
+            lastScrollTop,
+          } = scrollObj;
+          if (
+            lastMouseMoveEvent &&
+            Number.isInteger(lastScrollHeight) &&
+            Number.isInteger(lastScrollTop) &&
+            scrollParent &&
+            canScroll.current
+          ) {
+            const delta =
+              scrollParent?.scrollHeight +
+              scrollParent?.scrollTop -
+              (lastScrollHeight + lastScrollTop);
+            onMouseMove(
+              {
+                offsetX: lastMouseMoveEvent.offsetX,
+                offsetY: lastMouseMoveEvent.offsetY + delta,
+              },
+              true,
+            );
+          }
+        };
+        const initializeListeners = () => {
           canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
-          canvasRef.current?.addEventListener("mouseover", onMouseDown, false);
-          canvasRef.current?.addEventListener("mouseout", onMouseOut, false);
-          canvasRef.current?.addEventListener("mouseleave", onMouseOut, false);
+          scrollParent?.addEventListener("scroll", onScroll, false);
+          canvasRef.current?.addEventListener(
+            "mouseover",
+            onFirstMoveOnCanvas,
+            false,
+          );
+          canvasRef.current?.addEventListener(
+            "mouseout",
+            resetCanvasState,
+            false,
+          );
+          canvasRef.current?.addEventListener(
+            "mouseleave",
+            resetCanvasState,
+            false,
+          );
           document.body.addEventListener("mouseup", onMouseUp, false);
           window.addEventListener("mouseup", onMouseUp, false);
-
-          if (canvasIsDragging) {
-            blocksToDraw.forEach((each) => {
-              drawRectangle(each);
-            });
+        };
+        const startDragging = () => {
+          if (canvasRef.current) {
+            const { height, width } = canvasRef.current.getBoundingClientRect();
+            canvasRef.current.width = width * scale;
+            canvasRef.current.height = height * scale;
+            const canvasCtx: any = canvasRef.current.getContext("2d");
+            canvasCtx.scale(scale, scale);
+            initializeListeners();
+            if (canvasIsDragging) {
+              blocksToDraw.forEach((each) => {
+                drawBlockOnCanvas(each);
+              });
+            }
+            if (isChildOfCanvas && canvasRef.current) {
+              canvasRef.current.style.zIndex = "2";
+            }
           }
         };
         startDragging();
-        if (isChildOfCanvas) {
-          canvasRef.current.style.zIndex = "2";
-        }
+
         return () => {
-          if (scrollTimeOut.length) {
-            scrollTimeOut.forEach((each) => {
-              clearTimeout(each);
-            });
-            scrollTimeOut = [];
-          }
           window.cancelAnimationFrame(animationFrameId);
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
-          canvasRef.current?.removeEventListener("mouseover", onMouseDown);
-          canvasRef.current?.removeEventListener("mouseout", onMouseOut);
-          canvasRef.current?.removeEventListener("mouseleave", onMouseOut);
+          scrollParent?.removeEventListener("scroll", onScroll);
+          canvasRef.current?.removeEventListener(
+            "mouseover",
+            onFirstMoveOnCanvas,
+          );
+          canvasRef.current?.removeEventListener("mouseout", resetCanvasState);
+          canvasRef.current?.removeEventListener(
+            "mouseleave",
+            resetCanvasState,
+          );
           document.body.removeEventListener("mouseup", onMouseUp);
           window.removeEventListener("mouseup", onMouseUp);
         };
       } else {
-        onMouseOut();
+        resetCanvasState();
       }
     }
   }, [isDragging, isResizing, blocksToDraw, snapRows]);

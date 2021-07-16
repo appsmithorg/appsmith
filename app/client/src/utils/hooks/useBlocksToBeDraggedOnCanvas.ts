@@ -225,8 +225,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
   return {
     blocksToDraw,
-    dragCenterSpace,
-    dragDetails,
+    defaultHandlePositions,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
