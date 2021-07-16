@@ -18,7 +18,7 @@
         "minHeight":1292,
         "parentColumnSpace":1,
         "dynamicBindingPathList":[
-           
+
         ],
         "leftColumn":0,
         "children":[
@@ -89,10 +89,10 @@
         "parentId":"0",
         "widgetId":"2qx2f9fos0",
         "dynamicBindingPathList":[
-           
+
         ],
         "dynamicTriggerPathList":[
-           
+
         ]
      },
      "ubbav1xf6q":{
@@ -194,10 +194,10 @@
         "parentId":"0",
         "widgetId":"9vdwgtssh2",
         "dynamicBindingPathList":[
-           
+
         ],
         "dynamicTriggerPathList":[
-           
+
         ]
      },
      "a0n63ney9n":{
@@ -222,10 +222,10 @@
         "parentId":"0",
         "widgetId":"a0n63ney9n",
         "dynamicBindingPathList":[
-           
+
         ],
         "dynamicTriggerPathList":[
-           
+
         ]
      },
      "1732afpskq":{
@@ -402,10 +402,10 @@
         "parentId":"0",
         "widgetId":"j7jpsomgrm",
         "dynamicBindingPathList":[
-           
+
         ],
         "dynamicTriggerPathList":[
-           
+
         ]
      },
      "suqn935kol":{
@@ -608,7 +608,7 @@
               "isVisible":true,
               "isDerived":false,
               "label":"id",
-              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.id})}}"
+              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.id ))}}"
            },
            "email":{
               "index":1,
@@ -623,7 +623,7 @@
               "isVisible":true,
               "isDerived":false,
               "label":"email",
-              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.email})}}"
+              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.email ))}}"
            },
            "userName":{
               "index":2,
@@ -638,7 +638,7 @@
               "isVisible":true,
               "isDerived":false,
               "label":"userName",
-              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.userName})}}"
+              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.userName ))}}"
            },
            "productName":{
               "index":3,
@@ -653,7 +653,7 @@
               "isVisible":true,
               "isDerived":false,
               "label":"productName",
-              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.productName})}}"
+              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.productName ))}}"
            },
            "orderAmount":{
               "index":4,
@@ -668,11 +668,11 @@
               "isVisible":true,
               "isDerived":false,
               "label":"orderAmount",
-              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.orderAmount})}}"
+              "computedValue":"{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.orderAmount ))}}"
            }
         },
         "derivedColumns":{
-           
+
         },
         "tableData":"[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]",
         "version":1,
@@ -711,7 +711,7 @@
            }
         ],
         "dynamicTriggerPathList":[
-           
+
         ]
      },
      "zviu5egw42":{
@@ -778,7 +778,7 @@
         "parentId":"zviu5egw42",
         "detachFromLayout":true,
         "children":[
-           
+
         ],
         "parentRowSpace":1,
         "parentColumnSpace":1,
