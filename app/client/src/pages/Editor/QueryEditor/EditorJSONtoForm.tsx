@@ -161,7 +161,7 @@ const DocumentationLink = styled.a`
   top: -6px;
 `;
 
-export const SecondaryWrapper = styled.div`
+const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 50px);

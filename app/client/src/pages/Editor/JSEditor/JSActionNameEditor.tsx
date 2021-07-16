@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -31,7 +31,7 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
   }
 
   ${(props) =>
-    props.page === "API_PANE"
+    props.page === "JS_PANE"
       ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
     font-size: ${props.theme.typography.h3.fontSize}px;
     line-height: ${props.theme.typography.h3.lineHeight}px !important;
@@ -56,6 +56,7 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
+  const dispatch = useDispatch();
   if (!params.functionId) {
     log.error("No API id or Query id found in the url.");
   }
@@ -144,20 +145,25 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
 
   return (
     <ApiNameWrapper page={props.page}>
-      <EditableText
-        className="t--action-name-edit-field"
-        defaultValue={currentJSActionConfig ? currentJSActionConfig.name : ""}
-        editInteractionKind={EditInteractionKind.SINGLE}
-        forceDefault={forceUpdate}
-        hideEditIcon
-        isEditingDefault={isNew && !hideEditIcon}
-        isInvalid={isInvalidJSActionName}
-        onTextChanged={handleJSFunctionNameChange}
-        placeholder="Name of the function in camelCase"
-        type="text"
-        updating={saveStatus.isSaving}
-        valueTransform={removeSpecialChars}
-      />
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <EditableText
+          className="t--action-name-edit-field"
+          defaultValue={currentJSActionConfig ? currentJSActionConfig.name : ""}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          forceDefault={forceUpdate}
+          isEditingDefault={isNew}
+          isInvalid={isInvalidJSActionName}
+          onTextChanged={handleJSFunctionNameChange}
+          placeholder="Name of the function in camelCase"
+          type="text"
+          updating={saveStatus.isSaving}
+          valueTransform={removeSpecialChars}
+        />
+      </div>
     </ApiNameWrapper>
   );
 }

@@ -516,12 +516,14 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-  ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
+  // JS Actions
   ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
   ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

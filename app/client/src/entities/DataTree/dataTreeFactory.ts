@@ -70,6 +70,8 @@ export interface DataTreeJSAction {
   body: string;
   [propName: string]: any;
   meta: Record<string, any>;
+  dynamicBindingPathList: DynamicPath[];
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
 }
 
 export interface DataTreeWidget extends WidgetProps {

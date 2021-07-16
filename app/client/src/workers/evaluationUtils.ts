@@ -23,7 +23,6 @@ import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { Severity } from "entities/AppsmithConsole";
-
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -89,6 +88,7 @@ export function getEntityNameAndPropertyPath(
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
+  unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
@@ -101,6 +101,9 @@ export const translateDiffEventToDataTreeDiffEvent = (
     return result;
   }
   const propertyPath = convertPathToString(difference.path);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
+  const entity = unEvalDataTree[entityName];
+  const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
       result.event = DataTreeDiffEvent.NEW;
@@ -115,11 +118,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      const rhsChange =
-        typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
+      let rhsChange, lhsChange;
+      if (isJsAction) {
+        rhsChange = typeof difference.rhs === "string";
+        lhsChange = typeof difference.lhs === "string";
+      } else {
+        rhsChange =
+          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
 
-      const lhsChange =
-        typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+        lhsChange =
+          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+      }
 
       if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
@@ -177,10 +186,13 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      return translateDiffEventToDataTreeDiffEvent({
-        ...difference.item,
-        path: [...difference.path, difference.index],
-      });
+      return translateDiffEventToDataTreeDiffEvent(
+        {
+          ...difference.item,
+          path: [...difference.path, difference.index],
+        },
+        unEvalDataTree,
+      );
     }
     default: {
       break;

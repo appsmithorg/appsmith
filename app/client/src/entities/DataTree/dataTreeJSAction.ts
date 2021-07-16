@@ -3,13 +3,16 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const generateDataTreeJSAction = (
   js: JSActionData,
 ): DataTreeJSAction => {
-  const data: any = {};
-  const meta: any = {};
+  const data: Record<string, unknown> = {};
+  const meta: Record<string, unknown> = {};
+  const dynamicBindingPathList = [];
   let result: any = {};
+  const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const variables = js?.config?.variables;
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
@@ -27,6 +30,8 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };
+      bindingPaths[action.name] = EvaluationSubstitutionType.TEMPLATE;
+      dynamicBindingPathList.push({ key: action.name });
     }
   }
   result = {
@@ -37,6 +42,8 @@ export const generateDataTreeJSAction = (
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body: js.config.body,
     meta: meta,
+    bindingPaths: bindingPaths,
+    dynamicBindingPathList: dynamicBindingPathList,
   };
 
   return Object.assign(result, subActionsObject);

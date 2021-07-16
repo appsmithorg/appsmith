@@ -19,53 +19,47 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Resizable from "components/editorComponents/Debugger/Resizer";
-import {
-  TabbedViewContainer,
-  TabContainerView,
-  SecondaryWrapper,
-  StyledFormRow,
-} from "../QueryEditor/EditorJSONtoForm";
+import { TabbedViewContainer } from "../QueryEditor/EditorJSONtoForm";
+import FormRow from "components/editorComponents/FormRow";
 import JSActionNameEditor from "./JSActionNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  height: calc(
+    100vh - ${(props) => props.theme.smallHeaderHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   overflow: hidden;
-  padding: 20px 0 0 0;
   width: 100%;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
-  .statementTextArea {
-    font-size: 14px;
-    line-height: 20px;
-    color: #2e3d49;
-    margin-top: 5px;
+  ${FormLabel} {
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
-  .queryInput {
-    max-width: 30%;
-    padding-right: 10px;
-  }
-  .executeOnLoad {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
+  ${FormRow} {
+    ${FormLabel} {
+      padding: 0;
+      width: 100%;
+    }
   }
 `;
 
 const NameWrapper = styled.div`
+  width: 49%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   input {
     margin: 0;
     box-sizing: border-box;
   }
+  margin: 20px;
 `;
+
 const ActionButtons = styled.div`
   justify-self: flex-end;
   display: flex;
@@ -82,6 +76,39 @@ const SettingsWrapper = styled.div`
   ${FormLabel} {
     padding: 0px;
   }
+`;
+
+const SecondaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 50px);
+  margin-top: 20px;
+`;
+
+const TabContainerView = styled.div`
+  flex: 1;
+  overflow: auto;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  margin-top 5px;
+  ${thinScrollbar}
+  a {
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 15px;
+  }
+  .react-tabs__tab-panel {
+    overflow: scroll;
+    margin-top: 2px;
+  }
+  .react-tabs__tab-list {
+    margin: 0px;
+  }
+  &&& {
+    ul.react-tabs__tab-list {
+      padding-left: 23px;
+    }
+  }
+  position: relative;
 `;
 interface JSFormProps {
   jsAction: JSAction | undefined;
@@ -140,81 +167,83 @@ function JSEditorForm() {
   const { pageId } = useParams<ExplorerURLParams>();
 
   return (
-    <Form>
-      <StyledFormRow className="form-row-header">
-        <NameWrapper className="t--nameOfApi">
-          <CloseEditor />
-          <JSActionNameEditor />
-        </NameWrapper>
-        <ActionButtons className="t--formActionButtons">
-          <MoreJSActionsMenu
-            className="t--more-action-menu"
-            id={currentJSAction ? currentJSAction.id : ""}
-            name={currentJSAction ? currentJSAction.name : ""}
-            pageId={pageId}
-          />
-          <Button
-            className="t--apiFormRunBtn"
-            isLoading={false}
-            size={Size.medium}
-            tag="button"
-            text="Run"
-            type="button"
-          />
-        </ActionButtons>
-      </StyledFormRow>
-      <SecondaryWrapper>
-        <TabContainerView>
-          <TabComponent
-            onSelect={setMainTabIndex}
-            selectedIndex={mainTabIndex}
-            tabs={[
-              {
-                key: "code",
-                title: "Code",
-                panelComponent: (
-                  <CodeEditor
-                    className={"js-editor"}
-                    input={{
-                      value: currentJSAction?.body,
-                      onChange: (event: any) => handleOnChange(event),
-                    }}
-                    mode={EditorModes.JAVASCRIPT}
-                    placeholder="code goes here"
-                    showLightningMenu={false}
-                    showLineNumbers
-                    size={EditorSize.EXTENDED}
-                    tabBehaviour={TabBehaviour.INPUT}
-                    theme={theme}
-                  />
-                ),
-              },
-              {
-                key: "settings",
-                title: "Settings",
-                panelComponent: (
-                  <SettingsWrapper>
-                    {/* <ActionSettings
-                      actionSettingsConfig={{}}
-                      formName={JS_EDITOR_FORM}
+    <>
+      <CloseEditor />
+      <Form>
+        <FormRow className="form-row-header">
+          <NameWrapper className="t--nameOfApi">
+            <JSActionNameEditor page="JS_PANE" />
+          </NameWrapper>
+          <ActionButtons className="t--formActionButtons">
+            <MoreJSActionsMenu
+              className="t--more-action-menu"
+              id={currentJSAction ? currentJSAction.id : ""}
+              name={currentJSAction ? currentJSAction.name : ""}
+              pageId={pageId}
+            />
+            <Button
+              className="t--apiFormRunBtn"
+              isLoading={false}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
+          </ActionButtons>
+        </FormRow>
+        <SecondaryWrapper>
+          <TabContainerView>
+            <TabComponent
+              onSelect={setMainTabIndex}
+              selectedIndex={mainTabIndex}
+              tabs={[
+                {
+                  key: "code",
+                  title: "Code",
+                  panelComponent: (
+                    <CodeEditor
+                      className={"js-editor"}
+                      input={{
+                        value: currentJSAction?.body,
+                        onChange: (event: any) => handleOnChange(event),
+                      }}
+                      mode={EditorModes.JAVASCRIPT}
+                      placeholder="code goes here"
+                      showLightningMenu={false}
+                      showLineNumbers
+                      size={EditorSize.EXTENDED}
+                      tabBehaviour={TabBehaviour.INPUT}
                       theme={theme}
-                    /> */}
-                  </SettingsWrapper>
-                ),
-              },
-            ]}
-          />
-        </TabContainerView>
-        <TabbedViewContainer ref={panelRef}>
-          <Resizable panelRef={panelRef} />
-          <TabComponent
-            onSelect={onTabSelect}
-            selectedIndex={selectedIndex}
-            tabs={responseTabs}
-          />
-        </TabbedViewContainer>
-      </SecondaryWrapper>
-    </Form>
+                    />
+                  ),
+                },
+                {
+                  key: "settings",
+                  title: "Settings",
+                  panelComponent: (
+                    <SettingsWrapper>
+                      {/* <ActionSettings
+                        actionSettingsConfig={{}}
+                        formName={JS_EDITOR_FORM}
+                        theme={theme}
+                      /> */}
+                    </SettingsWrapper>
+                  ),
+                },
+              ]}
+            />
+          </TabContainerView>
+          <TabbedViewContainer ref={panelRef}>
+            <Resizable panelRef={panelRef} />
+            <TabComponent
+              onSelect={onTabSelect}
+              selectedIndex={selectedIndex}
+              tabs={responseTabs}
+            />
+          </TabbedViewContainer>
+        </SecondaryWrapper>
+      </Form>
+    </>
   );
 }
 
