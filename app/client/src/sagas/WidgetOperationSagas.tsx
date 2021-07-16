@@ -1511,6 +1511,12 @@ function* pasteWidgetSaga() {
     copiedWidgetGroups,
   );
 
+  selectedWidget = yield checkIfPastingIntoListWidget(
+    stateWidgets,
+    selectedWidget,
+    copiedWidgetGroups,
+  );
+
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     { ...stateWidgets },
     selectedWidget,
