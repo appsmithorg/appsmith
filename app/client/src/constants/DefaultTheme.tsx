@@ -350,6 +350,7 @@ export type Theme = {
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
+  navbarMenuHeight: string;
   actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
@@ -608,6 +609,14 @@ type ColorType = {
       color: string;
       bg: string;
     };
+  };
+  navigationMenu: {
+    contentActive: string;
+    backgroundActive: string;
+    contentInactive: string;
+    backgroundInactive: string;
+    label: string;
+    warning: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -1225,6 +1234,15 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const navigationMenu = {
+  contentActive: "#F0F0F0",
+  backgroundActive: "#222222",
+  contentInactive: "#858282",
+  backgroundInactive: "#090707",
+  label: "#A9A7A7",
+  warning: "#F22B2B",
+};
+
 export const dark: ColorType = {
   overlayColor: "#090707cc",
   notifications,
@@ -1236,6 +1254,7 @@ export const dark: ColorType = {
   helpModal,
   globalSearch,
   comments,
+  navigationMenu,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1704,6 +1723,7 @@ export const light: ColorType = {
     modeIconCircleStroke: "#fff",
     activeModeIconCircleStroke: "#EBEBEB",
   },
+  navigationMenu,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2406,6 +2426,7 @@ export const theme: Theme = {
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2460,7 +2481,7 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "30%",
+  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
