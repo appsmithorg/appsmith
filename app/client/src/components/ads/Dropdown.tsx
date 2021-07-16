@@ -61,7 +61,7 @@ type RenderOption = ({
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
   width: ${(props) => props.width};
-  min-height: ${(props) => props.height};
+  height: ${(props) => props.height};
   position: relative;
 `;
 
@@ -123,6 +123,10 @@ const Selected = styled.div<{
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: calc(100% - 10px);
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
@@ -251,6 +255,7 @@ const HeaderWrapper = styled.div`
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 
 const SelectedIcon = styled(Icon)`
