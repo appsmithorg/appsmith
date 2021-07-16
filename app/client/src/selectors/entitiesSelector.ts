@@ -358,3 +358,5 @@ export const getAllPageWidgets = createSelector(
     );
   },
 );
+
+export const getAppMode = (state: AppState) => state.entities.app.mode;
