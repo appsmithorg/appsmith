@@ -388,6 +388,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
+    const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: HintEntityInformation = {
       expectedType: expected,
     };
@@ -407,7 +408,7 @@ class CodeEditor extends Component<Props, State> {
     }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
