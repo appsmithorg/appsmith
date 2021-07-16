@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import CodeMirror, { EditorConfiguration } from "codemirror";
+import CodeMirror, { Editor, EditorConfiguration } from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -41,7 +41,10 @@ import {
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import {
+  bindingHint,
+  checkIfCursorInsideBinding,
+} from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import ScrollIndicator from "components/ads/ScrollIndicator";
@@ -260,11 +263,12 @@ class CodeEditor extends Component<Props, State> {
         const editorValue = this.editor.getValue();
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
+
         if (!!inputValue || inputValue === "") {
           if (this.props.size === EditorSize.COMPACT) {
-            this.editor.setValue(removeNewLineChars(inputValue));
-          } else if (inputValue !== editorValue) {
-            this.editor.setValue(inputValue);
+            if (inputValue !== editorValue) {
+              this.editor.setValue(inputValue);
+            }
           }
         }
         CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -326,17 +330,20 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
-    this.setState({ isFocused: true });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.operation(() => {
-        const inputValue = this.props.input.value;
-        this.editor.setOption("lineWrapping", true);
-        this.editor.setValue(inputValue);
-        this.editor.setCursor(inputValue.length);
-      });
-    }
-    if (this.editor.getValue().length === 0)
-      this.handleAutocompleteVisibility(this.editor);
+    this.setState({ isFocused: true }, () => {
+      if (this.props.size === EditorSize.COMPACT) {
+        this.editor.operation(() => {
+          this.editor.setOption("lineWrapping", true);
+          if (!checkIfCursorInsideBinding(this.editor)) {
+            const inputValue = this.props.input.value;
+            this.editor.setValue(inputValue);
+            this.editor.setCursor(inputValue.length);
+          }
+        });
+      }
+      if (this.editor.getValue().length === 0)
+        this.handleAutocompleteVisibility(this.editor);
+    });
   };
 
   handleEditorBlur = () => {
