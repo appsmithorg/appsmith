@@ -63,6 +63,8 @@ export interface LogActionPayload {
   source?: SourceEntity;
   // Snapshot KV pair of scope variables or state associated with this event.
   state?: Record<string, any>;
+  // Any other data required for analytics
+  analytics?: Record<string, any>;
 }
 
 export interface Message extends LogActionPayload {
