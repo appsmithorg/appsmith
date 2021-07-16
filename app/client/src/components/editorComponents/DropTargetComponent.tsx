@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
+import { isEqual } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
@@ -32,7 +33,7 @@ import {
   useShowPropertyPane,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
-import { getMemoizedOccupiedSpaces } from "selectors/editorSelectors";
+import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { OccupiedSpace } from "constants/editorConstants";
 
@@ -90,12 +91,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
   );
 
-  const selectOccupiedSpaces = useMemo(
-    () => getMemoizedOccupiedSpaces(props.widgetId),
+  const selectOccupiedSpaces = useCallback(
+    getOccupiedSpacesSelectorForContainer(props.widgetId),
     [props.widgetId],
   );
 
-  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces);
+  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, isEqual);
 
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const [rows, setRows] = useState(snapRows);

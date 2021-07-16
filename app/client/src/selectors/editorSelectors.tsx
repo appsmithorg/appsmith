@@ -22,8 +22,6 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
-import { createMemoizedArrayResult } from "utils/SelectorUtils";
-
 import { getCanvasWidgets } from "./entitiesSelector";
 import { WidgetTypes } from "../constants/WidgetConstants";
 
@@ -226,10 +224,10 @@ export const getOccupiedSpaces = createSelector(
   },
 );
 
-//Memoizing the result because of frequent updates to getWidgets selector #perf
-export const getMemoizedOccupiedSpaces = (containerId: string | undefined) => {
-  const memArray = createMemoizedArrayResult();
-
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+export function getOccupiedSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
   return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
     | OccupiedSpace[]
     | undefined => {
@@ -251,9 +249,9 @@ export const getMemoizedOccupiedSpaces = (containerId: string | undefined) => {
       containerId,
       childWidgets.map((widgetId) => widgets[widgetId]),
     );
-    return memArray(occupiedSpaces) as OccupiedSpace[];
+    return occupiedSpaces;
   });
-};
+}
 
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
