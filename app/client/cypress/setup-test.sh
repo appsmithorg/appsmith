@@ -41,6 +41,27 @@ sleep 30
 echo "Checking if the containers have started"
 sudo docker ps -a 
 
+echo "Checking if the server has started"
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+
+retry_count=1
+
+while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
+	echo "Hit 502.Server not started retrying..."
+	retry_count=$((1 + $retry_count))
+	sleep 30
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+done
+
+echo "Checking if client and server have started"
+ps -ef |grep java 2>&1 
+ps -ef |grep  serve 2>&1
+
+if [ "$status_code" -eq "502" ]; then
+  echo "Unable to connect to server"
+  exit 1
+fi
+
 # Create the test user 
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 --header 'Content-Type: application/json' \
