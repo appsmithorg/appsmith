@@ -48,6 +48,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -411,6 +412,7 @@ public class PostgresPlugin extends BasePlugin {
                         result.setRequest(request);
                         return result;
                     })
+                    .timeout(Duration.ofMillis(actionConfiguration.getTimeoutInMillisecond()))
                     .subscribeOn(scheduler);
 
         }
