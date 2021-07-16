@@ -32,6 +32,9 @@ import history from "utils/history";
 import { keyBy } from "lodash";
 import { getPluginIcon, apiIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -365,6 +368,9 @@ function useIntegrationsOptionTree() {
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getActionsForCurrentPage);
+  // For onboarding
+  const currentStep = useSelector(getCurrentStep);
+  const currentSubStep = useSelector(getCurrentSubStep);
 
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     pageId,
@@ -379,9 +385,18 @@ function useIntegrationsOptionTree() {
       icon: "plus",
       className: "t--create-datasources-query-btn",
       onSelect: () => {
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
+        // For onboarding
+        if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
+          if (currentSubStep === 2) {
+            dispatch({
+              type: ReduxActionTypes.ONBOARDING_ADD_ONSUBMIT_BINDING,
+            });
+          }
+        } else {
+          history.push(
+            INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+          );
+        }
       },
     },
     dispatch,
