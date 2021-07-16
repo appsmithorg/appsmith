@@ -25,7 +25,12 @@ export type CreateCommentThreadRequest = {
   pageId: string;
   refId: string; // could be an id to refer any parent based on parent type
   tabId?: string;
-  position: { top: number; left: number }; // used as a percentage value
+  position: {
+    top: number;
+    left: number;
+    leftPercent: number;
+    topPercent: number;
+  };
   comments: Array<CreateCommentRequest>;
   resolvedState?: {
     active: boolean;

@@ -23,13 +23,9 @@ import { updateUserDetails } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
 import useOrg from "utils/hooks/useOrg";
+import { getCanManage } from "utils/helpers";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
@@ -143,15 +139,6 @@ const getSteps = (
       },
     },
   ];
-};
-
-const getCanManage = (currentOrg: Org) => {
-  const userOrgPermissions = currentOrg.userPermissions || [];
-  const canManage = isPermitted(
-    userOrgPermissions,
-    PERMISSION_TYPE.MANAGE_ORGANIZATION,
-  );
-  return canManage;
 };
 
 export default function CommentsShowcaseCarousel() {

@@ -20,14 +20,23 @@ import { AppState } from "reducers";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
+import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+
 /**
  * The relavent pixel position is bottom right for the comment cursor
  * instead of the top left for the default arrow cursor
  */
-const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
+const CommentTriggerContainer = styled.div<{
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset: number;
+  yOffset: number;
+}>`
   position: absolute;
-  bottom: calc(${(props) => 100 - props.top}% - 2px);
-  right: calc(${(props) => 100 - props.left}% - 2px);
+  ${(props) => getPosition(props)}
   z-index: 1;
 `;
 
@@ -123,10 +132,18 @@ function InlineCommentPin({
   focused: boolean;
 }) {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
-  const { left, top } = get(commentThread, "position", {
-    top: 0,
-    left: 0,
-  });
+  const { left, leftPercent, top, topPercent } = get(
+    commentThread,
+    "position",
+    {
+      left: 0,
+      leftPercent: 0,
+      top: 0,
+      topPercent: 0,
+    },
+  );
+
+  const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
   const dispatch = useDispatch();
 
@@ -164,12 +181,17 @@ function InlineCommentPin({
       data-cy="inline-comment-pin"
       draggable="true"
       left={left}
+      leftPercent={leftPercent}
       onClick={(e: any) => {
         // capture clicks so that create new thread is not triggered
         e.preventDefault();
         e.stopPropagation();
       }}
+      positionAbsolutely={positionAbsolutely}
       top={top}
+      topPercent={topPercent}
+      xOffset={-1}
+      yOffset={-6}
     >
       <Popover2
         autoFocus={false}

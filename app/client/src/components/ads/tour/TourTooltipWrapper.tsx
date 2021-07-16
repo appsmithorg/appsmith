@@ -15,7 +15,7 @@ import pulsatingDot from "assets/lottie/pulse-dot.json";
 import { Indices } from "constants/Layers";
 
 type Props = {
-  children: React.ReactNode;
+  children: React.ReactElement<any>;
   hasOverlay?: boolean;
   modifiers?: Modifiers;
   onClick?: () => void;
@@ -73,6 +73,8 @@ function TourTooltipWrapper(props: Props) {
       anim?.destroy();
     };
   }, [isOpen, dotRef?.current]);
+
+  if (!isOpen) return children;
 
   return (
     <>
