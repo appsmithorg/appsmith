@@ -74,7 +74,7 @@ const SelectedNodeWrapper = styled.div<{
   }
 `;
 
-const OptionWrapper = styled.div`
+const OptionWrapper = styled.div<{ hasError: boolean }>`
   display: flex;
   width: 100%;
   overflow: hidden;
@@ -90,6 +90,8 @@ const OptionWrapper = styled.div`
       display: flex;
     }
   }
+
+  background-color: ${(props) => props.hasError && `rgba(246,71,71, 0.2)`};
 `;
 
 const OptionContentWrapper = styled.div<{
@@ -136,9 +138,7 @@ const OptionContentWrapper = styled.div<{
 
   &:hover {
     background-color: ${(props) =>
-      props.hasError
-        ? "rgba(246,71,71, 0.2)"
-        : props.theme.colors.dropdown.hovered.bg};
+      !props.hasError && props.theme.colors.dropdown.hovered.bg};
 
     &&& svg {
       rect {
@@ -282,7 +282,7 @@ function OptionNode(props: any) {
   };
 
   return (
-    <OptionWrapper>
+    <OptionWrapper hasError={!!entityInfo?.hasError}>
       <OptionContentWrapper
         fillIconColor={!entityInfo?.datasourceName}
         hasError={!!entityInfo?.hasError}
