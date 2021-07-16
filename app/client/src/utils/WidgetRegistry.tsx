@@ -119,6 +119,10 @@ import MenuButtonWidget, {
   MenuButtonWidgetProps,
   ProfiledMenuButtonWidget,
 } from "widgets/MenuButtonWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -522,6 +526,19 @@ export default class WidgetBuilderRegistry {
       MenuButtonWidget.getDefaultPropertiesMap(),
       MenuButtonWidget.getMetaPropertiesMap(),
       MenuButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

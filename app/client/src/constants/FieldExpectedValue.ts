@@ -198,6 +198,10 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     label: "string",
   },
+  ICON_BUTTON_WIDGET: {
+    iconName: "string",
+    isVisible: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

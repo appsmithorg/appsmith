@@ -33,6 +33,7 @@ import { DividerWidgetProps } from "../../widgets/DividerWidget";
 import { RateWidgetProps } from "../../widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
+import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -90,6 +91,7 @@ export interface WidgetConfigReducerState {
     RATE_WIDGET: Partial<RateWidgetProps> & WidgetConfigProps;
     IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
     MENU_BUTTON_WIDGET: Partial<MenuButtonWidgetProps> & WidgetConfigProps;
+    ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }
