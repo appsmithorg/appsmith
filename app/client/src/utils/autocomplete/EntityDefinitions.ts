@@ -89,6 +89,10 @@ export const entityDefinitions = {
       "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
     selectedOptionValue: {
       "!type": "string",
       "!doc": "The value selected in a single select dropdown",

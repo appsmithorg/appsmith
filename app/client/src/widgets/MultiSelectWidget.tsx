@@ -85,7 +85,7 @@ class MultiSelectWidget extends BaseWidget<
             validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
-            helpText: "Controls the Remote Data/ Server Side Filtering",
+            helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
             label: "Server Side Filtering",
             controlType: "SWITCH",
@@ -109,7 +109,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Filter options using filterText",
+            helpText: "Trigger an action on change of filterText",
             hidden: (props: MultiSelectWidgetProps) =>
               !props.serverSideFiltering,
             propertyName: "onFilterUpdate",
