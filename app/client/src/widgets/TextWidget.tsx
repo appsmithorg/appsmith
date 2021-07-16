@@ -101,6 +101,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText: "Controls clean space between text and widget boundary",
+            propertyName: "padding",
+            label: "Padding (px)",
+            placeholderText: "Enter value for padding (px)",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.NUMBER,
+          },
+          {
             propertyName: "fontStyle",
             label: "Font Style",
             controlType: "BUTTON_TABS",
@@ -152,6 +162,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
         key={this.props.widgetId}
+        padding={this.props.padding}
         shouldScroll={this.props.shouldScroll}
         text={this.props.text}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
@@ -180,6 +191,7 @@ export interface TextStyles {
   fontStyle?: string;
   fontSize?: TextSize;
   textAlign?: TextAlign;
+  padding?: string;
 }
 
 export interface TextWidgetProps extends WidgetProps, TextStyles {
