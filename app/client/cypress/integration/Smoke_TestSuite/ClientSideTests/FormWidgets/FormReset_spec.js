@@ -22,7 +22,7 @@ describe("Form reset functionality", function() {
       .invoke("attr", "value")
       .should("contain", "lindsay.ferguson@reqres.in");
 
-    cy.get(widgetsPage.formButtonWidget)
+    cy.get(widgetsPage.buttonWidget)
       .contains("Reset")
       .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting

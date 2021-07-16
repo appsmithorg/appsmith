@@ -52,9 +52,9 @@
                 "text": "Submit",
                 "isDefaultClickDisabled": true,
                 "buttonStyle": "PRIMARY_BUTTON",
-                "disabledWhenInvalid": true,
-                "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
+                "isDisabled": false,
+                "onClick": "{{resetWidget(\"Form1\", true)}}",
+                "type": "BUTTON_WIDGET",
                 "isLoading": false,
                 "leftColumn": 12,
                 "rightColumn": 16,
@@ -69,9 +69,9 @@
                 "text": "Reset",
                 "isDefaultClickDisabled": true,
                 "buttonStyle": "SECONDARY_BUTTON",
-                "disabledWhenInvalid": false,
-                "resetFormOnClick": true,
-                "type": "FORM_BUTTON_WIDGET",
+                "isDisabled": false,
+                "onClick": "{{resetWidget(\"Form1\", true)}}",
+                "type": "BUTTON_WIDGET",
                 "isLoading": false,
                 "leftColumn": 8,
                 "rightColumn": 12,
@@ -178,7 +178,7 @@
                   }
                 },
                 {
-                  "type": "FORM_BUTTON_WIDGET",
+                  "type": "BUTTON_WIDGET",
                   "size": {
                     "rows": 1,
                     "cols": 4
@@ -190,12 +190,12 @@
                   "props": {
                     "text": "Submit",
                     "buttonStyle": "PRIMARY_BUTTON",
-                    "disabledWhenInvalid": true,
-                    "resetFormOnClick": true
+                    "isDisabled": false,
+                    "onClick":"{{resetWidget(\"Form1\", true)}}"
                   }
                 },
                 {
-                  "type": "FORM_BUTTON_WIDGET",
+                  "type": "BUTTON_WIDGET",
                   "size": {
                     "rows": 1,
                     "cols": 4
@@ -207,8 +207,8 @@
                   "props": {
                     "text": "Reset",
                     "buttonStyle": "SECONDARY_BUTTON",
-                    "disabledWhenInvalid": false,
-                    "resetFormOnClick": true
+                    "isDisabled": false,
+                    "onClick":"{{resetWidget(\"Form1\", true)}}"
                   }
                 }
               ]
@@ -258,7 +258,7 @@
                       }
                     },
                     {
-                      "type": "FORM_BUTTON_WIDGET",
+                      "type": "BUTTON_WIDGET",
                       "size": {
                         "rows": 1,
                         "cols": 4
@@ -270,12 +270,12 @@
                       "props": {
                         "text": "Submit",
                         "buttonStyle": "PRIMARY_BUTTON",
-                        "disabledWhenInvalid": true,
-                        "resetFormOnClick": true
+                        "isDisabled": false,
+                        "onClick":"{{resetWidget(\"Form1\", true)}}"
                       }
                     },
                     {
-                      "type": "FORM_BUTTON_WIDGET",
+                      "type": "BUTTON_WIDGET",
                       "size": {
                         "rows": 1,
                         "cols": 4
@@ -287,8 +287,8 @@
                       "props": {
                         "text": "Reset",
                         "buttonStyle": "SECONDARY_BUTTON",
-                        "disabledWhenInvalid": false,
-                        "resetFormOnClick": true
+                        "isDisabled": false,
+                        "onClick":"{{resetWidget(\"Form1\", true)}}"
                       }
                     }
                   ]
