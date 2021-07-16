@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -87,13 +86,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 })
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
-
-                    // If authentication exists for the datasource, decrypt the fields
-                    if (datasource1.getDatasourceConfiguration() != null &&
-                            datasource1.getDatasourceConfiguration().getAuthentication() != null) {
-                        AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
-                        datasource1.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(authentication));
-                    }
 
                     PluginExecutor<Object> pluginExecutor = objects.getT2();
 
@@ -184,19 +176,5 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     return datasourceContextMap.remove(datasourceId);
                 });
-    }
-
-    @Override
-    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
-            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                    .filter(e -> e.getValue() != null && !e.getValue().isBlank())
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            e -> encryptionService.decryptString(e.getValue())));
-            authentication.setEncryptionFields(decryptedFields);
-            authentication.setIsEncrypted(false);
-        }
-        return authentication;
     }
 }

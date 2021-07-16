@@ -1,7 +1,9 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit, cloneDeep } from "lodash";
+import get from "lodash/get";
+import omit from "lodash/omit";
+import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -25,10 +27,10 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -66,66 +68,42 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getIndextoUpdate } from "utils/ApiPaneUtils";
+import {
+  getIndextoUpdate,
+  parseUrlForQueryParams,
+  queryParamsRegEx,
+} from "utils/ApiPaneUtils";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
   actionId: string,
 ) {
   const field = actionPayload.meta.field;
+  //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
   const value = actionPayload.payload;
-  const padQueryParams = { key: "", value: "" };
+  // Regular expression to find the query params group
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
-    if (value.indexOf("?") > -1) {
-      const paramsString = value.substr(value.indexOf("?") + 1);
-      const params = paramsString.split("&").map((p) => {
-        const keyValue = p.split("=");
-        return { key: keyValue[0], value: keyValue[1] || "" };
-      });
-      if (params.length < 2) {
-        while (params.length < 2) {
-          params.push(padQueryParams);
-        }
-      }
-      yield put(
-        autofill(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          params,
-        ),
-      );
-      yield put(
-        setActionProperty({
-          actionId: actionId,
-          propertyName: "actionConfiguration.queryParameters",
-          value: params,
-        }),
-      );
-    } else {
-      yield put(
-        autofill(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          Array(2).fill(padQueryParams),
-        ),
-      );
-      yield put(
-        setActionProperty({
-          actionId: actionId,
-          propertyName: "actionConfiguration.queryParameters",
-          value: Array(2).fill(padQueryParams),
-        }),
-      );
-    }
+    const params = parseUrlForQueryParams(value);
+    yield put(
+      autofill(
+        API_EDITOR_FORM_NAME,
+        "actionConfiguration.queryParameters",
+        params,
+      ),
+    );
+    yield put(
+      setActionProperty({
+        actionId: actionId,
+        propertyName: "actionConfiguration.queryParameters",
+        value: params,
+      }),
+    );
   } else if (field.includes("actionConfiguration.queryParameters")) {
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     const path = values.actionConfiguration.path || "";
-    const pathHasParams = path.indexOf("?") > -1;
-    const currentPath = path.substring(
-      0,
-      pathHasParams ? path.indexOf("?") : undefined,
-    );
+    const matchGroups = path.match(queryParamsRegEx) || [];
+    const currentPath = matchGroups[1] || "";
     const paramsString = values.actionConfiguration.queryParameters
       .filter((p: Property) => p.key)
       .map(
@@ -143,10 +121,23 @@ function* syncApiParamsSaga(
   PerformanceTracker.stopTracking();
 }
 
+function* redirectToNewIntegrations(
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
+) {
+  history.push(
+    INTEGRATION_EDITOR_URL(
+      action.payload.applicationId,
+      action.payload.pageId,
+      INTEGRATION_TABS.ACTIVE,
+      INTEGRATION_EDITOR_MODES.AUTO,
+    ),
+  );
+}
+
 function* handleUpdateBodyContentType(
   action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
 ) {
-  const { title, apiId } = action.payload;
+  const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
     (el) => el.label === title,
@@ -347,7 +338,7 @@ function* updateFormFields(
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
@@ -392,6 +383,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }
@@ -406,7 +398,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const pageId = yield select(getCurrentPageId);
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      {
+        from: "datasources",
+      },
+    ),
   );
 }
 
@@ -418,7 +417,6 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -443,9 +441,6 @@ function* handleCreateNewApiActionSaga(
         },
         pageId,
       } as ApiAction), // We don't have recursive partial in typescript for now.
-    );
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
   }
 }
@@ -503,11 +498,10 @@ function* handleCreateNewQueryActionSaga(
     }
 
     yield put(createActionRequest(createActionPayload));
-    history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
   } else {
-    history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
   }
 }
 
@@ -584,6 +578,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+      redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

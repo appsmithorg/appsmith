@@ -20,6 +20,8 @@ import {
   updateCurrentPage,
   updateWidgetNameSuccess,
   updateAndSaveLayout,
+  saveLayout,
+  setLastUpdatedTime,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -49,7 +51,10 @@ import {
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import {
+  checkIfMigrationIsNeeded,
+  extractCurrentDSL,
+} from "utils/WidgetPropsUtils";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -85,6 +90,7 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { getAppMode } from "selectors/applicationSelectors";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -169,11 +175,14 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
+const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+  pageResponse.data.lastUpdatedTime;
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -182,6 +191,8 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
+    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+    const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -195,12 +206,23 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
-
+      yield put(
+        fetchPageSuccess(
+          // Execute page load actions post page load
+          isFirstLoad ? [] : [executePageLoadActions()],
+        ),
+      );
+      // Sets last updated time
+      yield put(setLastUpdatedTime(lastUpdatedTime));
+      const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractCurrentDSL(fetchPageResponse),
+        payload: extractedDSL,
       });
+
+      if (willPageBeMigrated) {
+        yield put(saveLayout());
+      }
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
@@ -227,7 +249,7 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
 ) {
   try {
-    const { pageId, bustCache } = pageRequestAction.payload;
+    const { bustCache, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -326,7 +348,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
-      const { messages, actionUpdates } = savePageResponse.data;
+      const { actionUpdates, messages } = savePageResponse.data;
       // Show toast messages from the server
       if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {
@@ -340,6 +362,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       if (actionUpdates && actionUpdates.length > 0) {
         yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
+      yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
@@ -362,7 +385,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     });
 
     if (error instanceof IncorrectBindingError) {
-      const { isRetry } = action.payload;
+      const { isRetry } = action?.payload;
       const incorrectBindingError = JSON.parse(error.message);
       const { message } = incorrectBindingError;
       if (isRetry) {
@@ -419,10 +442,10 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVE_PAGE_INIT,
-      payload: action.payload,
-    });
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+    if (appMode === APP_MODE.EDIT) {
+      yield put(saveLayout(action.payload.isRetry));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

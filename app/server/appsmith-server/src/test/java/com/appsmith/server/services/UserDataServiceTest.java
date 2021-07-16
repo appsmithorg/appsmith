@@ -5,6 +5,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -167,4 +169,34 @@ public class UserDataServiceTest {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
+        String sampleOrgId = "abcd";
+        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+        StepVerifier.create(saveMono).assertNext(userData -> {
+            Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+        // Set an initial list of org ids to the current user.
+        UserData changes = new UserData();
+        changes.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
+
+        final Mono<UserData> resultMono = userDataService.updateForCurrentUser(changes)
+                .flatMap(userData -> {
+                    // Now check whether a new org id is put at first.
+                    String sampleOrgId = "sample-org-id";
+                    return userDataService.updateLastUsedOrgList(sampleOrgId);
+                });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
+            Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
 }

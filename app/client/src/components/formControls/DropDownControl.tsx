@@ -49,7 +49,7 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, options, label, isRequired, subtitle } = this.props;
+    const { configProperty, isRequired, label, options, subtitle } = this.props;
 
     return (
       <div>

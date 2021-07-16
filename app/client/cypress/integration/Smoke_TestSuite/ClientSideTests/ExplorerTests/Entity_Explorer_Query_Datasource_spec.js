@@ -5,6 +5,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const pages = require("../../../../locators/Pages.json");
 
 const pageid = "MyPage";
 let datasourceName;
@@ -59,7 +60,7 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     /* eslint-disable */
     cy.wait(2000);
-    cy.go("back");
+    cy.NavigateToQueryEditor();
 
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.editDatasourceButton)
@@ -101,10 +102,11 @@ describe("Entity explorer tests related to query and datasource", function() {
       .find(explorer.collapse)
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(3);
+      expect($lis).to.have.length(4);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1.run()}}");
+      expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
+      expect($lis.eq(3)).to.contain("{{Query1.run()}}");
     });
     cy.Createpage(pageid);
     cy.GlobalSearchEntity("Query1");
@@ -120,7 +122,12 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.runQuery();
 
     cy.deleteQuery();
-
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+    cy.wait(500);
+    cy.NavigateToQueryEditor();
+    cy.get(pages.integrationActiveTab)
+      .should("be.visible")
+      .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName)
       .find(".t--edit-datasource")
       .click();

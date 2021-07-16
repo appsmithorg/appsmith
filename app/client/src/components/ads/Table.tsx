@@ -93,14 +93,14 @@ interface TableProps {
 }
 
 function Table(props: TableProps) {
-  const { data, columns } = props;
+  const { columns, data } = props;
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
   } = useTable({ columns, data }, useSortBy);
 
   return (

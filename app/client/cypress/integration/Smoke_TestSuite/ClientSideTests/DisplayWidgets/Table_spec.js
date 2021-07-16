@@ -3,7 +3,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -83,7 +82,9 @@ describe("Table Widget Functionality", function() {
       cy.wait(5000);
       cy.get(publish.searchInput)
         .first()
-        .clear()
+        .within(() => {
+          return cy.get("input").clear();
+        })
         .type("7434532");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
@@ -97,7 +98,9 @@ describe("Table Widget Functionality", function() {
   it("Table Widget Functionality To Filter The Data", function() {
     cy.get(publish.searchInput)
       .first()
-      .clear();
+      .within(() => {
+        return cy.get("input").clear();
+      });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.isSelectRow(1);
@@ -261,16 +264,16 @@ describe("Table Widget Functionality", function() {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
+      cy.get(publish.rowHeight).click();
+      cy.get(publish.rowHeightOpt)
         .contains("Tall")
         .click();
       cy.scrollTabledataPublish("3", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
       });
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
+      cy.get(publish.rowHeight).click();
+      cy.get(publish.rowHeightOpt)
         .contains("Short")
         .click();
       cy.readTabledataPublish("4", "3").then((tabData) => {
@@ -282,7 +285,7 @@ describe("Table Widget Functionality", function() {
 
   /*
   To enabled later
-  
+
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
     cy.get(publish.backToEditor)
       .first()

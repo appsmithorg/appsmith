@@ -2,6 +2,9 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const pages = require("../../../../locators/Pages.json");
+const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {
@@ -50,7 +53,7 @@ describe("Onboarding", function() {
 
         // Add widget
         cy.get(".t--add-widget").click();
-        cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
+        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 40 });
 
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting

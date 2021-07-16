@@ -325,7 +325,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 query[0] = s3Action.name();
 
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
-                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
+                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null, null));
 
                 if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
                         || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
@@ -341,7 +341,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 final String bucketName = (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(BUCKET_NAME_PROPERTY_INDEX),
-                        bucketName, null, null));
+                        bucketName, null, null, null));
 
                 if (StringUtils.isEmpty(bucketName)) {
                     return Mono.error(
@@ -390,7 +390,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             prefix = (String) properties.get(PREFIX_PROPERTY_INDEX).getValue();
                         }
                         requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(PREFIX_PROPERTY_INDEX),
-                                prefix, null, null));
+                                prefix, null, null, null));
 
                         ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
 
@@ -398,7 +398,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 && properties.get(GET_SIGNED_URL_PROPERTY_INDEX) != null
                                 && properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_SIGNED_URL_PROPERTY_INDEX), YES, null,
-                                    null));
+                                    null, null));
 
                             int durationInMinutes;
                             if (properties.size() < (1 + URL_EXPIRY_DURATION_PROPERTY_INDEX)
@@ -424,7 +424,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 }
                             }
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
-                                    durationInMinutes, null, null));
+                                    durationInMinutes, null, null, null));
 
                             Calendar calendar = Calendar.getInstance();
                             calendar.add(Calendar.MINUTE, durationInMinutes);
@@ -455,7 +455,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             }
                         } else {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_SIGNED_URL_PROPERTY_INDEX),
-                                    "", null, null));
+                                    "", null, null, null));
                             actionResult = new ArrayList<>();
                             for (int i = 0; i < listOfFiles.size(); i++) {
                                 HashMap<String, Object> fileInfo = new HashMap<>();
@@ -465,7 +465,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         int durationInMinutes;
                         if (properties.size() < (1 + URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
@@ -503,11 +503,11 @@ public class AmazonS3Plugin extends BasePlugin {
                                 && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) != null
                                 && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue().equals(YES)) {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX), "Base64",
-                                    null, null));
+                                    null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, true, expiryDateTime);
                         } else {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX),
-                                    "Text / Binary", null, null));
+                                    "Text / Binary", null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, false, expiryDateTime);
                         }
                         actionResult = new HashMap<String, Object>();
@@ -515,28 +515,28 @@ public class AmazonS3Plugin extends BasePlugin {
                         ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
 
                         requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX),
-                                expiryDateTimeString, null, null));
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null));
+                                expiryDateTimeString, null, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
                         break;
                     case READ_FILE:
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         String result;
                         if (properties.size() > READ_WITH_BASE64_ENCODING_PROPERTY_INDEX
                                 && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX) != null
                                 && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX).getValue().equals(YES)) {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX),
-                                    YES, null, null));
+                                    YES, null, null, null));
                             result = readFile(connection, bucketName, path, true);
                         } else {
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX),
-                                    NO, null, null));
+                                    NO, null, null, null));
                             result = readFile(connection, bucketName, path, false);
                         }
                         actionResult = Map.of("fileData", result);
                         break;
                     case DELETE_FILE:
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         /*
                          * - If attempting to delete an object that does not exist, Amazon S3 returns a success message

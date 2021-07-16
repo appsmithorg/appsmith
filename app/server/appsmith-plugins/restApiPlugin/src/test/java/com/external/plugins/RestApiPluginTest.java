@@ -11,6 +11,7 @@ import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -26,8 +27,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -67,34 +65,6 @@ public class RestApiPluginTest {
                     assertEquals(requestBody, data.toString());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
-        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                true);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertEquals(expected_value, encoded_value);
-    }
-
-    @Test
-    public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
-        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded",
-                false);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertNotEquals(expected_value, encoded_value);
     }
 
     @Test
@@ -363,7 +333,6 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    System.out.println(result.getBody());
                     String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -378,7 +347,8 @@ public class RestApiPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 7);
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
@@ -403,4 +373,59 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testMultipartFormData() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://httpbin.org/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "multipart/form-data")));
+
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"key\":\"skdjfh&kjsd\"}";
+        List<Property> formData = List.of(new Property("key", "skdjfh&kjsd"));
+        actionConfig.setBodyFormData(formData);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
+                    assertEquals(requestBody, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testParsingBodyWithInvalidJSONHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://mock-api.appsmith.com/echo/raw");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String requestBody = "{\n" +
+                "    \"headers\": {\n" +
+                "        \"Content-Type\": \"application/json\",\n" +
+                "        \"X-RANDOM-HEADER\": \"random-value\"\n" +
+                "    },\n" +
+                "    \"body\": \"invalid json text\"\n" +
+                "}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("invalid json text", result.getBody());
+                    ArrayNode data = (ArrayNode) result.getHeaders().get("Content-Type");
+                    assertEquals("application/json; charset=utf-8", data.get(0).asText());
+                })
+                .verifyComplete();
+    }
+
 }

@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -18,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     private final SessionUserService sessionUserService;
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
+    private final UserDataRepository userDataRepository;
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
 
@@ -50,12 +53,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     public UserOrganizationServiceImpl(SessionUserService sessionUserService,
                                        OrganizationRepository organizationRepository,
                                        UserRepository userRepository,
+                                       UserDataRepository userDataRepository,
                                        PolicyUtils policyUtils,
-                                       EmailSender emailSender
-    ) {
+                                       EmailSender emailSender) {
         this.sessionUserService = sessionUserService;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
+        this.userDataRepository = userDataRepository;
         this.policyUtils = policyUtils;
         this.emailSender = emailSender;
     }
@@ -188,15 +192,23 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     }
 
     @Override
-    public Mono<Organization> removeUserRoleFromOrganization(String orgId, UserRole userRole) {
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS);
-        Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());
+    public Mono<User> leaveOrganization(String orgId) {
+        Mono<Organization> organizationMono = organizationRepository.findById(orgId);
+        Mono<User> userMono = sessionUserService.getCurrentUser()
+                    .flatMap(user1 -> userRepository.findByEmail(user1.getUsername()));
 
         return Mono.zip(organizationMono, userMono)
                 .flatMap(tuple -> {
                     Organization organization = tuple.getT1();
                     User user = tuple.getT2();
-                    return removeUserRoleFromOrganizationGivenUserObject(organization, user);
+
+                    UserRole userRole = new UserRole();
+                    userRole.setUsername(user.getUsername());
+
+                    user.getOrganizationIds().remove(organization.getId());
+                    return this.updateMemberRole(
+                            organization, user, userRole, user, null
+                    ).thenReturn(user);
                 });
     }
 
@@ -229,6 +241,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
 
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
@@ -242,15 +257,100 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(application.getId(), commentThreadPolicyMap, false));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT4();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.zip(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                updatedThreadsFlux.collectList(),
+                Mono.just(updatedOrganization)
+        ).flatMap(tuple -> {
+                //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+                Organization updatedOrgBeforeSave = tuple.getT5();
+                return organizationRepository.save(updatedOrgBeforeSave);
+        });
     }
 
+    private Mono<UserRole> updateMemberRole(Organization organization, User user, UserRole userRole, User currentUser, String originHeader) {
+        List<UserRole> userRoles = organization.getUserRoles();
+
+        // count how many admins are there is this organization
+        long orgAdminCount = userRoles.stream().filter(
+                userRole1 -> userRole1.getRole() == AppsmithRole.ORGANIZATION_ADMIN
+        ).count();
+
+        for (UserRole role : userRoles) {
+            if (role.getUsername().equals(userRole.getUsername())) {
+                // User found in the organization.
+
+                if (role.getRole().equals(userRole.getRole())) {
+                    // No change in the role. Do nothing.
+                    return Mono.just(userRole);
+                } else if(role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)) {
+                    // user is currently admin, check if this user is the only admin
+                    if(orgAdminCount == 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_ORG_ADMIN_ERROR));
+                    }
+                }
+
+                // Step 1. Remove the existing role of the user from the organization
+                Mono<Organization> userRemovedOrganizationMono = this.removeUserRoleFromOrganizationGivenUserObject(organization, user);
+
+                // Step 2. Add the new role (if present) to the organization for the user
+                Mono<Organization> finalUpdatedOrganizationMono = userRemovedOrganizationMono;
+                if (userRole.getRoleName() != null) {
+                    // If a userRole name has been specified, then it means that the user's role has been modified.
+                    Mono<Organization> userAddedToOrganizationMono = userRemovedOrganizationMono
+                            .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
+                    finalUpdatedOrganizationMono = userAddedToOrganizationMono.flatMap(addedOrganization -> {
+
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Inviter_First_Name", currentUser.getName());
+                        params.put("inviter_org_name", organization.getName());
+                        params.put("inviteUrl", originHeader);
+                        params.put("user_role_name", userRole.getRoleName());
+
+                        Mono<Boolean> emailMono = emailSender.sendMail(user.getEmail(),
+                                "Appsmith: Your Role has been changed",
+                                UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);
+                        return emailMono
+                                .thenReturn(addedOrganization);
+                    });
+                } else {
+                    // If the roleName was not present, then it implies that the user is being removed from the org.
+                    // Since at this point we have already removed the user from the organization,
+                    // remove the organization from recent org list of UserData
+                    // we also need to remove the org id from User.orgIdList
+                    finalUpdatedOrganizationMono = userDataRepository
+                            .removeOrgFromRecentlyUsedList(user.getId(), organization.getId())
+                            .then(userRemovedOrganizationMono)
+                            .flatMap(organization1 -> {
+                                    if(user.getOrganizationIds() != null) {
+                                        user.getOrganizationIds().remove(organization.getId());
+                                        return userRepository.save(user).thenReturn(organization1);
+                                    }
+                                    return Mono.just(organization1);
+                            });
+                }
+
+                return finalUpdatedOrganizationMono.thenReturn(userRole);
+            }
+        }
+        // The user was not found in the organization. Return an error
+        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getUsername()
+                + " in the organization " + organization.getName()));
+    }
+
+    /**
+     * This method is used when an admin of an organization changes the role or removes a member.
+     * Admin user can also remove himself from the organization, if there is another admin there in the organization.
+     * @param orgId ID of the organization
+     * @param userRole updated role of the target member. userRole.roleName will be null when removing a member
+     * @param originHeader
+     * @return The updated UserRole
+     */
     @Override
     public Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader) {
         if (userRole.getUsername() == null) {
@@ -269,56 +369,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                     Organization organization = tuple.getT1();
                     User user = tuple.getT2();
                     User currentUser = tuple.getT3();
-
-                    if (user.getUsername().equals(currentUser.getUsername())) {
-                        // The user is trying to change its own role. Disallow the same.
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-
-                    List<UserRole> userRoles = organization.getUserRoles();
-                    for (UserRole role : userRoles) {
-                        if (role.getUsername().equals(userRole.getUsername())) {
-                            // User found in the organization.
-
-                            if (role.getRole().equals(userRole)) {
-                                // No change in the role. Do nothing.
-                                Mono.just(userRole);
-                            }
-
-                            // Step 1. Remove the existing role of the user from the organization
-                            Mono<Organization> userRemovedOrganizationMono = this.removeUserRoleFromOrganizationGivenUserObject(organization, user);
-                            // Step 2. Add the new role (if present) to the organization for the user
-                            Mono<Organization> finalUpdatedOrganizationMono = userRemovedOrganizationMono;
-                            if (userRole.getRoleName() != null) {
-                                // If a userRole name has been specified, then it means that the user's role has been modified.
-                                Mono<Organization> userAddedToOrganizationMono = userRemovedOrganizationMono
-                                        .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
-                                finalUpdatedOrganizationMono = userAddedToOrganizationMono.flatMap(addedOrganization -> {
-                                    
-                                    Map<String, String> params = new HashMap<>();
-                                    params.put("Inviter_First_Name", currentUser.getName());
-                                    params.put("inviter_org_name", organization.getName());
-                                    params.put("inviteUrl", originHeader);
-                                    params.put("user_role_name", userRole.getRoleName());
-
-                                    Mono<Boolean> emailMono = emailSender.sendMail(user.getEmail(),
-                                        "Appsmith: Your Role has been changed",
-                                        UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);
-                                    return emailMono
-                                           .thenReturn(addedOrganization);
-                                });
-                            } else {
-                                // If the roleName was not present, then it implies that the user is being removed from the org.
-                                // Since at this point we have already removed the user from the organization, we dont need to do anything else.
-                            }
-
-                            return finalUpdatedOrganizationMono
-                                    .thenReturn(userRole);
-                        }
-                    }
-                    // The user was not found in the organization. Return an error
-                    return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getUsername()
-                            + " in the organization " + organization.getName()));
+                    return this.updateMemberRole(organization, user, userRole, currentUser, originHeader);
                 });
     }
 
@@ -363,10 +414,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
         //Now update the organization policies
-        Organization updatedOrganization = (Organization) policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
+        Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -375,11 +429,16 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .cache();
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
-
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(application.getId(), commentThreadPolicyMap, true));
 
-        return Mono.when(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList())
+        return Mono.when(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                updatedThreadsFlux.collectList())
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
                 .then(organizationRepository.save(updatedOrganization));
     }

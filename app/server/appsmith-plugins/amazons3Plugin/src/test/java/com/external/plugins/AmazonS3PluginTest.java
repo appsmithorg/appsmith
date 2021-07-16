@@ -419,12 +419,12 @@ public class AmazonS3PluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "UPLOAD_FILE_FROM_BODY", null, null)); // Action
+                            "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
-                            null, null)); // Bucket name
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null)); // Path
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "Base64", null,
-                            null)); // File data type
+                            null, null)); // File data type
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -520,12 +520,12 @@ public class AmazonS3PluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "READ_FILE",
-                            null, null)); // Action
+                            null, null, null)); // Action
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
-                            null, null)); // Bucket name
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null)); // Path
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "YES", null,
-                            null)); // Base64 encode file
+                            null, null)); // Base64 encode file
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -568,10 +568,10 @@ public class AmazonS3PluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "DELETE_FILE",
-                            null, null)); // Action
+                            null, null, null)); // Action
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
-                            null, null)); // Bucket name
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null)); // Path
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(),
                             expectedRequestParams.toString());
                 })
@@ -800,15 +800,15 @@ public class AmazonS3PluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "LIST", null
-                            , null)); // Action
+                            , null, null)); // Action
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
-                            null, null)); // Bucket name
+                            null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
-                            null)); // Prefix
+                            null, null)); // Prefix
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "YES", null,
-                            null)); // Generate signed URL
+                            null, null)); // Generate signed URL
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "5", null,
-                            null)); // Expiry duration
+                            null, null)); // Expiry duration
                     assertEquals(result.getRequest().getRequestParams().toString(),
                             expectedRequestParams.toString());
                 })

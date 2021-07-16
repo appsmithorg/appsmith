@@ -37,7 +37,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   pluginSpecifiedTemplates: [
     {
       // JSON smart substitution
-      value: false,
+      value: true,
     },
   ],
 };
@@ -65,17 +65,11 @@ export const POST_BODY_FORMAT_OPTIONS: Array<{
   { label: ApiContentTypes.RAW, value: "raw" },
 ];
 
-export const POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS.filter(
-  (option) => {
-    return option.value !== "multipart/form-data";
-  },
-);
-
 export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
   return option.value;
 });
 
-export const POST_BODY_FORMAT_TITLES_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART.map(
+export const POST_BODY_FORMAT_TITLES = POST_BODY_FORMAT_OPTIONS.map(
   (option) => {
     return { title: option.label, key: option.value };
   },

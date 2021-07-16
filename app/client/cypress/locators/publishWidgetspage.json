@@ -22,7 +22,7 @@
   "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']",
   "rectChart": ".t--widget-chartwidget g  rect",
   "chartLab": ".t--widget-chartwidget g:nth-child(5) text",
-  "searchInput": "input",
+  "searchInput": ".t--search-input",
   "downloadBtn": ".t--table-download-btn",
   "filterBtn": ".t--table-filter-toggle-btn",
   "attributeDropdown": ".t--table-filter-columns-dropdown",
@@ -31,11 +31,13 @@
   "inputValue": ".t--table-filter-value-input",
   "canvas": ".canvas",
   "removeFilter": ".t--table-filter-remove-btn",
-  "compactMode": ".t--table-compact-mode-toggle-btn",
-  "compactOpt": ".t--table-compact-mode-option",
+  "rowHeight": ".t--table-compact-mode-toggle-btn",
+  "rowHeightOpt": ".t--table-compact-mode-option",
   "visibilityMode": ".t--table-column-visibility-toggle-btn",
   "visibilityOpt": ".option-title",
   "containerWidget": ".t--widget-containerwidget",
   "pageInfo": ".bp3-heading",
-  "inputGrp": ".bp3-input-group input"
+  "inputGrp": ".bp3-input-group input",
+  "datePickerNew": ".t--widget-datepickerwidget2",
+  "tab": ".t--tab-Tab"
 }

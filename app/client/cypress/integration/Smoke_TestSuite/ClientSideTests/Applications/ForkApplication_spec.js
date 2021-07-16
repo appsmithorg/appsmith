@@ -1,7 +1,10 @@
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const dsl = require("../../../../fixtures/basicDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+
 let forkedApplicationDsl;
+let parentApplicationDsl;
 
 describe("Fork application across orgs", function() {
   before(() => {
@@ -9,12 +12,20 @@ describe("Fork application across orgs", function() {
   });
 
   it("Check if the forked application has the same dsl as the original", function() {
-    cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
+    cy.SearchEntityandOpen("Input1");
+    cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
+    cy.get(widgetsPage.defaultInput).type("A");
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.wait("@inputUpdate").then((response) => {
+      parentApplicationDsl = response.response.body.data.dsl;
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.NavigateToHome();
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
@@ -28,6 +39,8 @@ describe("Fork application across orgs", function() {
       .last()
       .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
@@ -35,8 +48,11 @@ describe("Fork application across orgs", function() {
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-
-      expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
+      cy.log(JSON.stringify(forkedApplicationDsl));
+      cy.log(JSON.stringify(parentApplicationDsl));
+      expect(JSON.stringify(forkedApplicationDsl)).to.contain(
+        JSON.stringify(parentApplicationDsl),
+      );
     });
   });
 });

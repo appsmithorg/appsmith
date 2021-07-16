@@ -72,12 +72,12 @@ export function ResetPassword(props: ResetPasswordProps) {
   const {
     error,
     handleSubmit,
-    pristine,
-    submitting,
-    submitSucceeded,
-    submitFailed,
     initialValues,
     isTokenValid,
+    pristine,
+    submitFailed,
+    submitSucceeded,
+    submitting,
     validatingToken,
     verifyToken,
   } = props;

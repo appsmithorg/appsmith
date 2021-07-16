@@ -145,7 +145,7 @@ const queryPaneReducer = createReducer(initialState, {
     state: any,
     action: ReduxAction<{ id: string; error: Error }>,
   ) => {
-    const { id, error } = action.payload;
+    const { error, id } = action.payload;
 
     return {
       ...state,

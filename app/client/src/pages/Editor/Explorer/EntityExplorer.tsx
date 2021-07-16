@@ -55,7 +55,7 @@ function EntityExplorer(props: IPanelProps) {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
+  const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);
@@ -86,7 +86,7 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} ref={searchInputRef} />
+      <Search clear={clearSearch} isHidden ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}

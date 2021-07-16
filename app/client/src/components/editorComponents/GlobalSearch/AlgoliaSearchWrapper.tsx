@@ -12,7 +12,7 @@ type SearchProps = {
   children: React.ReactNode;
 };
 
-function Search({ query, children }: SearchProps) {
+function Search({ children, query }: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),

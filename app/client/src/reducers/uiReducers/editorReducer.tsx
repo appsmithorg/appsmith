@@ -97,17 +97,23 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.savingError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_LAST_UPDATED_TIME]: (
+    state: EditorReduxState,
+    actions: ReduxAction<number>,
+  ) => {
+    return { ...state, lastUpdatedTime: actions.payload };
+  },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: EditorReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const {
-      currentPageName,
-      currentLayoutId,
-      pageWidgetId,
       currentApplicationId,
+      currentLayoutId,
       currentPageId,
+      currentPageName,
       pageActions,
+      pageWidgetId,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
@@ -174,6 +180,7 @@ export interface EditorReduxState {
   currentLayoutId?: string;
   currentPageName?: string;
   currentPageId?: string;
+  lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   loadingStates: {
     saving: boolean;

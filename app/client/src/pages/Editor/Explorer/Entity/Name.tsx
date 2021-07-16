@@ -71,7 +71,7 @@ export interface EntityNameProps {
 
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
-    const { name, updateEntityName, searchKeyword } = props;
+    const { name, searchKeyword, updateEntityName } = props;
     const tabs:
       | Array<{ id: string; widgetId: string; label: string }>
       | undefined = useSelector((state: AppState) => {

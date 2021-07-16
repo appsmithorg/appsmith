@@ -25,7 +25,9 @@ const ValueWrapper = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  margin-top: 9px;
+  &:not(first-child) {
+    margin-top: 9px;
+  }
 `;
 
 export const renderDatasourceSection = (
@@ -40,7 +42,7 @@ export const renderDatasourceSection = (
           return renderDatasourceSection(section, datasource);
         } else {
           try {
-            const { label, configProperty, controlType } = section;
+            const { configProperty, controlType, label } = section;
             const reactKey = datasource.id + "_" + label;
             let value = get(datasource, configProperty);
 

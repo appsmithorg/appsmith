@@ -7,6 +7,8 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -26,7 +28,7 @@ function messageEventListener(
 ) {
   return (e: MessageEvent) => {
     const startTime = performance.now();
-    const { method, requestId, requestData } = e.data;
+    const { method, requestData, requestId } = e.data;
     const responseData = fn(method, requestData);
     const endTime = performance.now();
     ctx.postMessage({
@@ -42,23 +44,31 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { widgetTypeConfigMap, unevalTree } = requestData;
+        const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
+        let dataTreeObject: any = {};
+        let evaluationOrder: string[] = [];
+        let removedPaths: string[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-            dataTreeEvaluator.createFirstTree(unevalTree);
-            dataTree = dataTreeEvaluator.evalTree;
+            dataTreeObject = dataTreeEvaluator.createFirstTree(unevalTree);
+            dataTree = dataTreeObject.dataTree;
+            evaluationOrder = dataTreeObject.evaluationOrder;
+            removedPaths = dataTreeObject.removedPaths;
           } else {
-            dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTreeObject = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTree = dataTreeObject.dataTree;
+            evaluationOrder = dataTreeObject.evaluationOrder;
+            removedPaths = dataTreeObject.removedPaths;
           }
 
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
-          dataTree = JSON.parse(JSON.stringify(dataTree));
+          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
@@ -79,11 +89,14 @@ ctx.addEventListener(
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
+        // step 6: eval order
         return {
           dataTree,
           dependencies,
           errors,
+          evaluationOrder,
           logs,
+          removedPaths,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -104,12 +117,19 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { dynamicTrigger, callbackData, dataTree } = requestData;
+        const { callbackData, dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
-        const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
-        const triggers = dataTreeEvaluator.getDynamicValue(
+        dataTreeEvaluator.updateDataTree(dataTree);
+        const evalTree = dataTreeEvaluator.evalTree;
+        const {
+          errors: evalErrors,
+          triggers,
+        }: {
+          errors: EvaluationError[];
+          triggers: Array<any>;
+        } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
           EvaluationSubstitutionType.TEMPLATE,
@@ -119,16 +139,15 @@ ctx.addEventListener(
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
-        const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_ERROR) {
-            return {
-              ...error,
-              type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-            };
-          }
-          return error;
-        });
-        dataTreeEvaluator.clearErrors();
+        const errors = evalErrors
+          .filter(
+            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
+          )
+          .map((error) => ({
+            ...error,
+            message: error.errorMessage,
+            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
+          }));
         return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
@@ -152,7 +171,7 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { property, value, props, validation } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
           validateWidgetProperty(property, value, props, validation),
         );

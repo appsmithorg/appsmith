@@ -77,7 +77,7 @@ public class UserSignup {
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, true)
                             .thenReturn(savedUser);
                 });
     }

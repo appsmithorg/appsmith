@@ -297,8 +297,8 @@ public class DynamoPlugin extends BasePlugin {
                     );
                 }
                 requestData.put("action", action);
-                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, action, null, null));
-                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, action, null, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
 
                 Map<String, Object> parameters = null;
                 try {
@@ -460,6 +460,7 @@ public class DynamoPlugin extends BasePlugin {
                 for (final String tableName : listTablesResponse.tableNames()) {
                     tables.add(new DatasourceStructure.Table(
                             DatasourceStructure.TableType.TABLE,
+                            null,
                             tableName,
                             Collections.emptyList(),
                             Collections.emptyList(),

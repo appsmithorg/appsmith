@@ -42,7 +42,9 @@ import { Datasource } from "entities/Datasource";
 import {
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_URL,
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
@@ -76,6 +78,7 @@ import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -101,6 +104,74 @@ function* fetchDatasourcesSaga() {
   }
 }
 
+function* fetchMockDatasourcesSaga() {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
+    // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
+    yield put({
+      type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+      payload: !!response && !!response.data ? response.data : [],
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+export function* addMockDbToDatasources(
+  actionPayload: ReduxActionWithCallbacks<
+    {
+      name: string;
+      organizationId: string;
+      pluginId: string;
+      packageName: string;
+    },
+    unknown,
+    unknown
+  >,
+) {
+  try {
+    const {
+      name,
+      organizationId,
+      packageName,
+      pluginId,
+    } = actionPayload.payload;
+    const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
+      name,
+      organizationId,
+      pluginId,
+      packageName,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
+        payload: response.data,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
+      });
+      yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ADD_MOCK_DATASOURCES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
@@ -120,7 +191,14 @@ export function* deleteDatasourceSaga(
         window.location.pathname ===
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
       ) {
-        history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+        history.push(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.NEW,
+            INTEGRATION_EDITOR_MODES.AUTO,
+          ),
+        );
       }
 
       Toaster.show({
@@ -204,19 +282,18 @@ function* updateDatasourceSaga(
       yield put(
         updateDatasourceSuccess(response.data, !actionPayload.onSuccess),
       );
-      if (actionPayload.onSuccess) {
-        yield put(actionPayload.onSuccess);
-      }
+      yield put(
+        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
+      );
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
           id: response.data.id,
         },
       });
-      yield put(
-        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
-      );
-
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
       if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
@@ -540,10 +617,14 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-
-  history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
-  );
+  // this redirects to the same route, so checking first.
+  if (
+    history.location.pathname !==
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id)
+  )
+    history.push(
+      DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+    );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -561,7 +642,7 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
@@ -573,8 +654,24 @@ function* storeAsDatasourceSaga() {
   const pageId = yield select(getCurrentPageId);
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
-
-  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+  const originalHeaders = _.get(values, "actionConfiguration.headers", []);
+  const [datasourceHeaders, actionHeaders] = _.partition(
+    originalHeaders,
+    ({ key, value }: { key: string; value: string }) => {
+      return !(isDynamicValue(key) || isDynamicValue(value));
+    },
+  );
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: "actionConfiguration.headers",
+      value: actionHeaders,
+    }),
+  );
+  _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
+  history.push(
+    INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(
@@ -747,6 +844,14 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+      fetchMockDatasourcesSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
+      addMockDbToDatasources,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
       createDatasourceFromFormSaga,

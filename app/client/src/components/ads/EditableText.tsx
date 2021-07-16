@@ -43,6 +43,7 @@ export type EditableTextProps = CommonComponentProps & {
   hideEditIcon?: boolean;
   fill?: boolean;
   underline?: boolean;
+  isError?: boolean;
 };
 
 export const EditableTextWrapper = styled.div<{
@@ -154,11 +155,12 @@ const IconWrapper = styled.div`
 
 export function EditableText(props: EditableTextProps) {
   const {
-    onBlur,
-    onTextChanged,
-    isInvalid: inputValidation,
     defaultValue,
     isEditingDefault,
+    isError,
+    isInvalid: inputValidation,
+    onBlur,
+    onTextChanged,
     valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -169,6 +171,14 @@ export function EditableText(props: EditableTextProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+
+  useEffect(() => {
+    if (isError) {
+      // if there is any error occurs while saving appname.
+      // last saved app name will be shown to user.
+      setValue(defaultValue);
+    }
+  }, [isError]);
 
   useEffect(() => {
     setSavingState(props.savingState);

@@ -7,6 +7,7 @@ import {
   matchPath,
 } from "react-router-dom";
 import ApiEditor from "./APIEditor";
+import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
 
@@ -14,23 +15,17 @@ import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
   getCurlImportPageURL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
-import {
-  useShowPropertyPane,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
 import PerformanceTracker, {
@@ -41,6 +36,7 @@ import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -58,8 +54,7 @@ const DrawerWrapper = styled.div<{
   isActionPath: any;
 }>`
   background-color: white;
-  width: ${(props) =>
-    !props.isVisible ? "0px" : props.isActionPath ? "100%" : "75%"};
+  width: ${(props) => (!props.isVisible ? "0" : "100%")};
   height: 100%;
 `;
 
@@ -98,10 +93,8 @@ class EditorsRouter extends React.Component<
   isMatchPath = () => {
     return matchPath(this.props.location.pathname, {
       path: [
-        API_EDITOR_URL(),
+        INTEGRATION_EDITOR_URL(),
         API_EDITOR_ID_URL(),
-        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
-        QUERIES_EDITOR_URL(),
         QUERIES_EDITOR_ID_URL(),
       ],
       exact: true,
@@ -135,21 +128,15 @@ class EditorsRouter extends React.Component<
           onClick={this.preventClose}
         >
           <Switch>
-            <SentryRoute component={ApiEditor} exact path={API_EDITOR_URL()} />
+            <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={INTEGRATION_EDITOR_URL()}
+            />
             <SentryRoute
               component={ApiEditor}
               exact
               path={API_EDITOR_ID_URL()}
-            />
-            <SentryRoute
-              component={ApiEditor}
-              exact
-              path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-            />
-            <SentryRoute
-              component={QueryEditor}
-              exact
-              path={QUERIES_EDITOR_URL()}
             />
             <SentryRoute
               component={QueryEditor}
@@ -165,11 +152,6 @@ class EditorsRouter extends React.Component<
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
             ))}
-            <SentryRoute
-              component={DataSourceEditor}
-              exact
-              path={DATA_SOURCES_EDITOR_URL()}
-            />
             <SentryRoute
               component={DataSourceEditor}
               exact
@@ -194,7 +176,7 @@ type PaneDrawerProps = {
 };
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   useEffect(() => {
     // This pane drawer is only open when NOT on canvas.

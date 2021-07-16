@@ -28,32 +28,29 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
-import {
-  deleteSelectedWidget,
-  copyWidget,
-  selectWidget,
-} from "actions/widgetActions";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
+import { Layers } from "constants/Layers";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
+import PropertyPaneConnections from "./PropertyPaneConnections";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
 }>`
-  width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
+  padding-top: 0px;
   margin-bottom: ${(props) => props.theme.spaces[2]}px;
   margin-left: ${(props) => props.theme.spaces[10]}px;
-  padding: ${(props) => props.theme.spaces[5]}px;
   padding-top: 0px;
-  padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   text-transform: none;
 `;
 
@@ -81,7 +78,22 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
+  padding: ${(props) => props.theme.spaces[5]}px;
+  padding-top: 0px;
+`;
+
+export const FixedHeader = styled.div`
+  position: fixed;
+  z-index: 3;
+`;
+
+export const PropertyPaneBodyWrapper = styled.div`
   margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+  max-height: ${(props) =>
+    props.theme.propertyPane.height -
+    (props.theme.propertyPane.titleHeight +
+      props.theme.propertyPane.connectionsHeight)}px;
+  overflow: auto;
 `;
 
 function PropertyPaneView(
@@ -92,12 +104,15 @@ function PropertyPaneView(
 ) {
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const doActionsExist = useSelector(actionsExist);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  if (!widgetProperties) return null;
 
   return (
     <>
@@ -154,14 +169,17 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
-      <PropertyControlsWrapper>
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={theme}
-          type={widgetProperties.type}
-        />
-      </PropertyControlsWrapper>
+      <PropertyPaneBodyWrapper>
+        {!doActionsExist && <ConnectDataCTA />}
+        <PropertyControlsWrapper>
+          <PropertyControlsGenerator
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={theme}
+            type={widgetProperties.type}
+          />
+        </PropertyControlsWrapper>
+      </PropertyPaneBodyWrapper>
     </>
   );
 }
@@ -178,7 +196,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
-    if (get(this.props, "widgetProperties.disablePropertyPane")) {
+    if (
+      !get(this.props, "widgetProperties") ||
+      get(this.props, "widgetProperties.disablePropertyPane")
+    ) {
       return null;
     }
 
@@ -204,7 +225,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           position={this.props?.propPanePreference?.position}
           targetNode={el}
           themeMode={this.getPopperTheme()}
-          zIndex={3}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>
@@ -228,12 +249,14 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
         ref={this.panelWrapperRef}
         themeMode={this.getTheme()}
       >
+        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         <StyledPanelStack
           initialPanel={{
             component: PropertyPaneView,
@@ -319,7 +342,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           },
         },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetInitAction(widgetId));
     },
     hidePropertyPane: () =>
       dispatch({

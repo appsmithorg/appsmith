@@ -26,6 +26,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -76,6 +77,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final ConfigService configService;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
+    private final UserChangedHandler userChangedHandler;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -105,7 +107,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            RoleGraph roleGraph,
                            ConfigService configService,
                            CommonConfig commonConfig,
-                           EmailConfig emailConfig) {
+                           EmailConfig emailConfig,
+                           UserChangedHandler userChangedHandler) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -120,6 +123,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.configService = configService;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
+        this.userChangedHandler = userChangedHandler;
     }
 
     @Override
@@ -398,19 +402,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return Mono.just(user)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
-                .flatMap(tuple -> {
-                    final String templateOrganizationId = tuple.getT2();
-
-                    if (!StringUtils.hasText(templateOrganizationId)) {
-                        // Since template organization is not configured, we create an empty default organization.
-                        final User savedUser = tuple.getT1();
-                        log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                        return organizationService.createDefault(new Organization(), savedUser);
-                    }
-
-                    return Mono.empty();
-                })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser);
     }
@@ -444,7 +435,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findByEmail(user.getUsername())
+        return repository.findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -454,9 +445,25 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
-                .switchIfEmpty(Mono.defer(() -> signupIfAllowed(user)))
+                .switchIfEmpty(Mono.defer(() -> {
+                    return signupIfAllowed(user)
+                            .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
+                            .flatMap(tuple -> {
+                                final User savedUser = tuple.getT1();
+                                final String templateOrganizationId = tuple.getT2();
+
+                                if (!StringUtils.hasText(templateOrganizationId)) {
+                                    // Since template organization is not configured, we create an empty default organization.
+                                    log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                                    return organizationService.createDefault(new Organization(), savedUser).thenReturn(savedUser);
+                                }
+
+                                return Mono.just(savedUser);
+                            })
+                            .flatMap(savedUser -> findByEmail(savedUser.getEmail()));
+                }))
                 .flatMap(savedUser ->
                         emailConfig.isWelcomeEmailEnabled()
                                 ? sendWelcomeEmail(savedUser, finalOriginHeader)
@@ -524,7 +531,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
                     return existingUser;
                 })
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .map(userChangedHandler::publish);
     }
 
     /**
@@ -615,7 +623,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
-
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
@@ -748,11 +755,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->
-                        update(user.getEmail(), allUpdates, fieldName(QUser.user.email))
+                        update(user.getEmail(), allowedUpdates, fieldName(QUser.user.email))
                                 .then(exchange == null
                                         ? repository.findByEmail(user.getEmail())
                                         : sessionUserService.refreshCurrentUser(exchange))
-                );
+                )
+                .map(userChangedHandler::publish);
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {

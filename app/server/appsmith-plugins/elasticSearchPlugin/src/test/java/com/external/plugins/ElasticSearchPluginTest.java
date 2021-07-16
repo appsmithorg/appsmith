@@ -15,6 +15,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,9 +38,8 @@ public class ElasticSearchPluginTest {
     ElasticSearchPlugin.ElasticSearchPluginExecutor pluginExecutor = new ElasticSearchPlugin.ElasticSearchPluginExecutor();
 
     @ClassRule
-    public static final ElasticsearchContainer container =
-            new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:6.4.1")
-                    .withEnv("discovery.type", "single-node");
+    public static final ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
+            .withEnv("discovery.type", "single-node");
 
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
     private static String host;
@@ -128,9 +128,9 @@ public class ElasticSearchPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", HttpMethod.GET.toString(),
-                            null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "/planets/_mget", null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  contentJson, null, null));
+                            null, null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "/planets/_mget", null, null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  contentJson, null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();

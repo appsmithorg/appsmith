@@ -33,8 +33,8 @@ export const smartSubstituteDynamicValues = (
 ): string => {
   const {
     binding,
-    subValues,
     subBindings,
+    subValues,
   } = filterBindingSegmentsAndRemoveQuotes(
     originalBinding,
     subSegments,
@@ -73,8 +73,8 @@ export const parameterSubstituteDynamicValues = (
 ) => {
   const {
     binding,
-    subValues,
     subBindings,
+    subValues,
   } = filterBindingSegmentsAndRemoveQuotes(
     originalBinding,
     subSegments,

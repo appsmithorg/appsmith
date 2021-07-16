@@ -2,6 +2,8 @@ import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 
 const PropertyPaneConfig = [
   {
@@ -9,7 +11,7 @@ const PropertyPaneConfig = [
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
-        propertyName: "items",
+        propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
@@ -17,6 +19,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.LIST_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         propertyName: "backgroundColor",
@@ -33,6 +36,7 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
       },
 
       {
@@ -69,14 +73,20 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
+
+          if (Array.isArray(items)) {
+            items = items.filter(Boolean);
+          } else {
+            items = [];
+          }
+
           return {
             currentItem: Object.assign(
               {},
-              ...Object.keys(get(props, "evaluatedValues.items.0", {})).map(
-                (key) => ({
-                  [key]: "",
-                }),
-              ),
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
             ),
           };
         },

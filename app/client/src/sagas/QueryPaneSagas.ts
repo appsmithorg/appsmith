@@ -14,7 +14,8 @@ import {
   APPLICATIONS_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -37,6 +38,7 @@ import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import get from "lodash/get";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -58,7 +60,9 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
   const action = yield select(getAction, id);
   if (!action) {
-    history.push(QUERIES_EDITOR_URL(applicationId, pageId));
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
     return;
   }
 
@@ -91,7 +95,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
@@ -114,21 +118,35 @@ function* formValueChangeSaga(
     return;
   }
 
-  yield put(
-    setActionProperty({
-      actionId: values.id,
-      propertyName: field,
-      value: actionPayload.payload,
-    }),
-  );
+  if (
+    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+  ) {
+    const value = get(values, field);
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value,
+      }),
+    );
+  } else {
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value: actionPayload.payload,
+      }),
+    );
+  }
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
-    id,
-    pluginType,
-    pluginId,
     actionConfiguration,
+    id,
+    pluginId,
+    pluginType,
   } = actionPayload.payload;
   if (pluginType === PluginType.DB) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
@@ -144,6 +162,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
         showTemplate,
+        from: "datasources",
       }),
     );
   }
@@ -161,7 +180,12 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
   );
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      { from: "datasources" },
+    ),
   );
 }
 

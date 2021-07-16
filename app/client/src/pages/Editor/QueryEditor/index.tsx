@@ -4,12 +4,12 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
-  DATA_SOURCES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   QueryEditorRouteParams,
 } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
-import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
@@ -84,7 +84,7 @@ class QueryEditor extends React.Component<Props> {
   };
 
   handleRunClick = () => {
-    const { match, dataSources } = this.props;
+    const { dataSources, match } = this.props;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { queryId: this.props.match.params.queryId },
@@ -110,19 +110,19 @@ class QueryEditor extends React.Component<Props> {
   render() {
     const {
       dataSources,
-      isRunning,
+      editorConfig,
+      isCreating,
       isDeleting,
+      isEditorInitialized,
+      isRunning,
       match: {
         params: { queryId },
       },
-      pluginImages,
       pluginIds,
+      pluginImages,
       responses,
-      isCreating,
       runErrorMessage,
-      editorConfig,
       settingConfig,
-      isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -147,9 +147,11 @@ class QueryEditor extends React.Component<Props> {
     }));
 
     const onCreateDatasourceClick = () => {
-      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
     };
-    return queryId ? (
+    return (
       <QueryEditorForm
         DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
         dataSources={dataSources}
@@ -163,15 +165,6 @@ class QueryEditor extends React.Component<Props> {
         onRunClick={this.handleRunClick}
         runErrorMessage={runErrorMessage[queryId]}
         settingConfig={settingConfig}
-      />
-    ) : (
-      <QueryHomeScreen
-        applicationId={applicationId}
-        dataSources={dataSources}
-        history={this.props.history}
-        isCreating={isCreating}
-        location={this.props.location}
-        pageId={pageId}
       />
     );
   }

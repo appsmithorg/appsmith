@@ -3,8 +3,10 @@ import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
-import { BlankState, useFilteredLogs, usePagination } from "./helpers";
+import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
+import { usePagination, useFilteredLogs } from "./hooks";
+import { createMessage, NO_LOGS } from "constants/messages";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -37,7 +39,7 @@ function DebbuggerLogs(props: Props) {
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filteredLogs = useFilteredLogs(searchQuery, filter);
-  const { paginatedData, next } = usePagination(filteredLogs);
+  const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
   const selectedFilter = useMemo(
     () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
@@ -79,7 +81,10 @@ function DebbuggerLogs(props: Props) {
 
       <ListWrapper className="debugger-list" ref={listRef}>
         {!paginatedData.length ? (
-          <BlankState hasShortCut={!!props.hasShortCut} />
+          <BlankState
+            hasShortCut={!!props.hasShortCut}
+            placeholderText={createMessage(NO_LOGS)}
+          />
         ) : (
           paginatedData.map((e, index: number) => {
             const logItemProps = getLogItemProps(e);

@@ -2,13 +2,15 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import { Position, Tooltip, PopperBoundary } from "@blueprintjs/core";
 import { GLOBAL_STYLE_TOOLTIP_CLASSNAME } from "globalStyles/tooltip";
+import { Modifiers } from "popper.js";
 
 type Variant = "dark" | "light";
 
 type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
+  disabled?: boolean;
   position?: Position;
-  children: JSX.Element;
+  children: JSX.Element | React.ReactNode;
   variant?: Variant;
   maxWidth?: string;
   boundary?: PopperBoundary;
@@ -17,7 +19,11 @@ type TooltipProps = CommonComponentProps & {
   autoFocus?: boolean;
   hoverOpenDelay?: number;
   minimal?: boolean;
+  modifiers?: Modifiers;
+  isOpen?: boolean;
 };
+
+const portalContainer = document.getElementById("tooltip-root");
 
 function TooltipComponent(props: TooltipProps) {
   return (
@@ -25,13 +31,17 @@ function TooltipComponent(props: TooltipProps) {
       autoFocus={props.autoFocus}
       boundary={props.boundary || "scrollParent"}
       content={props.content}
+      disabled={props.disabled}
       hoverOpenDelay={props.hoverOpenDelay}
+      isOpen={props.isOpen}
       minimal={props.minimal}
       modifiers={{
         preventOverflow: { enabled: false },
+        ...props.modifiers,
       }}
       openOnTargetFocus={props.openOnTargetFocus}
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
       usePortal
     >

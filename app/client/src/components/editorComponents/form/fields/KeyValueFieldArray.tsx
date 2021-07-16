@@ -14,8 +14,12 @@ import {
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 
-const KeyValueStackContainer = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
+type CustomStack = {
+  removeTopPadding?: boolean;
+};
+
+const KeyValueStackContainer = styled.div<CustomStack>`
+  padding: ${(props) => (props.removeTopPadding ? 0 : props.theme.spaces[4])}px
     ${(props) => props.theme.spaces[14]}px
     ${(props) => props.theme.spaces[11] + 1}px
     ${(props) => props.theme.spaces[11] + 2}px;
@@ -89,19 +93,21 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   }, [props.fields, props.pushFields]);
 
   return (
-    <KeyValueStackContainer>
-      <FlexContainer>
-        <Flex className="key-value" size={1}>
-          <Text case={Case.CAPITALIZE} type={TextType.H6}>
-            Key
-          </Text>
-        </Flex>
-        <Flex className="key-value" size={3}>
-          <Text case={Case.CAPITALIZE} type={TextType.H6}>
-            Value
-          </Text>
-        </Flex>
-      </FlexContainer>
+    <KeyValueStackContainer removeTopPadding={props.hideHeader}>
+      {!props.hideHeader && (
+        <FlexContainer>
+          <Flex className="key-value" size={1}>
+            <Text case={Case.CAPITALIZE} type={TextType.H6}>
+              Key
+            </Text>
+          </Flex>
+          <Flex className="key-value" size={3}>
+            <Text case={Case.CAPITALIZE} type={TextType.H6}>
+              Value
+            </Text>
+          </Flex>
+        </FlexContainer>
+      )}
       {props.fields.length > 0 && (
         <>
           {props.fields.map((field: any, index: number) => {
@@ -130,7 +136,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
-                    showLightningMenu={false}
                     theme={props.theme}
                   />
                 </Flex>
@@ -224,6 +229,7 @@ type Props = {
   placeholder?: string;
   pushFields?: boolean;
   dataTreePath?: string;
+  hideHeader?: boolean;
   theme?: EditorTheme;
 };
 

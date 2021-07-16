@@ -334,7 +334,6 @@ export const createCommentThreadSuccessPayload = {
     },
   ],
   new: false,
-  isVisible: true,
 };
 
 export const addCommentToThreadSuccessPayload = {

@@ -25,7 +25,7 @@ class StepControl extends BaseControl<StepControlProps> {
   };
 
   render() {
-    const { min, max, steps, displayFormat } = this.getStepTypeControls();
+    const { displayFormat, max, min, steps } = this.getStepTypeControls();
     return (
       <StepComponent
         displayFormat={displayFormat}

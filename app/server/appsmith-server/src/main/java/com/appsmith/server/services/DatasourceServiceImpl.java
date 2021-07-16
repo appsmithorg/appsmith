@@ -1,13 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -36,7 +35,6 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +47,9 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
 
+    private static final String LOCALHOST_STRING = "localhost";
+    private static final String LOCALHOST_IP = "127.0.0.1";
+
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
@@ -56,7 +57,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-    private final EncryptionService encryptionService;
+
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -71,8 +72,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService) {
+                                 NewActionRepository newActionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -81,18 +81,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
-        this.encryptionService = encryptionService;
-    }
-
-    @Override
-    public Mono<Datasource> getById(String s) {
-        return super.getById(s).flatMap(datasource -> {
-            if (datasource.getDatasourceConfiguration().getAuthentication() != null &&
-                    Boolean.TRUE.equals(datasource.getDatasourceConfiguration().getAuthentication().isEncrypted())) {
-                datasource.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication()));
-            }
-            return Mono.just(datasource);
-        });
     }
 
     @Override
@@ -105,11 +93,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null) {
-            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
-        }
-
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (StringUtils.isEmpty(datasource.getName())) {
             datasourceMono = sequenceService
@@ -120,29 +103,48 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     });
         }
 
-        return datasourceMono
-                .flatMap(datasource1 ->
-                        sessionUserService.getCurrentUser()
-                                .flatMap(user -> {
-                                    // Create policies for this datasource -> This datasource should inherit its permissions and policies from
-                                    // the organization and this datasource should also allow the current user to crud this datasource.
-                                    return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource1.getOrganizationId())))
-                                            .map(org -> {
-                                                Set<Policy> policySet = org.getPolicies().stream()
-                                                        .filter(policy ->
-                                                                policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                                        policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                                        ).collect(Collectors.toSet());
+        Mono<Datasource> datasourceWithPoliciesMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    Mono<User> userMono = sessionUserService.getCurrentUser();
+                    return generateAndSetDatasourcePolicies(userMono, datasource1);
+                });
 
-                                                Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
-                                                datasource1.setPolicies(documentPolicies);
-                                                return datasource1;
-                                            });
-                                })
-                )
+        return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+    }
+
+    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
+        return userMono
+                .flatMap(user -> {
+                    Mono<Organization> orgMono = organizationService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
+
+                    return orgMono.map(org -> {
+                        Set<Policy> policySet = org.getPolicies().stream()
+                                .filter(policy ->
+                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                ).collect(Collectors.toSet());
+
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
+                        datasource.setPolicies(documentPolicies);
+                        return datasource;
+                    });
+                });
+    }
+
+    private boolean endpointContainsLocalhost(Endpoint endpoint) {
+        if (endpoint == null || StringUtils.isEmpty(endpoint.getHost())) {
+            return false;
+        }
+
+        String host = endpoint.getHost().toLowerCase();
+        if (host.contains(LOCALHOST_STRING) || host.contains(LOCALHOST_IP)) {
+            return true;
+        }
+
+        return false;
     }
 
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
@@ -168,7 +170,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         .getDatasourceConfiguration()
                         .getEndpoints()
                         .stream()
-                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+                        .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
             }
 
             if(usingLocalhostUrl) {
@@ -190,11 +192,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null) {
-            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
-        }
-
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
@@ -213,23 +210,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages);
-    }
-
-    @Override
-    public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
-        if (authentication != null
-                && !Boolean.TRUE.equals(authentication.isEncrypted())) {
-            Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                    .filter(e -> e.getValue() != null)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            e -> encryptionService.encryptString(e.getValue())));
-            if (!encryptedFields.isEmpty()) {
-                authentication.setEncryptionFields(encryptedFields);
-                authentication.setIsEncrypted(true);
-            }
-        }
-        return authentication;
     }
 
     @Override
@@ -318,22 +298,18 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
      */
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
-        Mono<Datasource> datasourceMono = null;
+        Mono<Datasource> datasourceMono = Mono.just(datasource);
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
         if (datasource.getId() != null && datasource.getDatasourceConfiguration() != null &&
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
-            Set<String> emptyFields = datasource.getDatasourceConfiguration().getAuthentication().getEmptyEncryptionFields();
-            if (emptyFields != null && !emptyFields.isEmpty()) {
-
-                datasourceMono = getById(datasource.getId())
-                        .switchIfEmpty(Mono.just(datasource));
-            }
-        }
-
-        if (datasourceMono == null) {
-            datasourceMono = Mono.just(datasource);
+            datasourceMono = getById(datasource.getId())
+                    .map(datasource1 -> {
+                        BeanCopyUtils.copyNestedNonNullProperties(datasource, datasource1);
+                        return datasource1;
+                    })
+                    .switchIfEmpty(Mono.just(datasource));
         }
 
         return datasourceMono
@@ -364,8 +340,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission);
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
+        return repository.findByNameAndOrganizationId(name, organizationId, permission);
     }
 
     @Override
@@ -426,19 +402,4 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
-
-    private AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
-            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                    .filter(e -> e.getValue() != null)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            e -> encryptionService.decryptString(e.getValue())));
-            authentication.setEncryptionFields(decryptedFields);
-            authentication.setIsEncrypted(false);
-        }
-        return authentication;
-    }
-
-
 }

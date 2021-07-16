@@ -11,5 +11,6 @@ node_modules
 **/.classpath
 **/.project
 **/.factorypath
+container-volumes
 *.env
 dependency-reduced-pom.xml

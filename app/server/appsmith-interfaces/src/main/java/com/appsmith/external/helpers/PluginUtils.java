@@ -50,4 +50,8 @@ public class PluginUtils {
     public static String getActionConfigurationPropertyPath(int index) {
         return "actionConfiguration.pluginSpecifiedTemplates[" + index + "].value";
     }
+
+    public static String getPSParamLabel(int i) {
+        return "$" + i;
+    }
 }

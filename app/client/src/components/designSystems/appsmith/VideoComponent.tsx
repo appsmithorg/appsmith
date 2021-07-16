@@ -29,18 +29,18 @@ const Error = styled.span``;
 
 export default function VideoComponent(props: VideoComponentProps) {
   const {
-    url,
     autoplay,
     controls,
-    onStart,
-    onPlay,
-    onPause,
     onEnded,
-    onReady,
-    onProgress,
-    onSeek,
     onError,
+    onPause,
+    onPlay,
+    onProgress,
+    onReady,
+    onSeek,
+    onStart,
     player,
+    url,
   } = props;
   return url ? (
     <ReactPlayer

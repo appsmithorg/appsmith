@@ -11,10 +11,13 @@ export type TabProp = {
   count?: number;
   panelComponent: JSX.Element;
   icon?: IconName;
+  iconSize?: IconSize;
 };
 
-const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  user-select: none;
+const TabsWrapper = styled.div<{
+  shouldOverflow?: boolean;
+  vertical?: boolean;
+}>`
   border-radius: 0px;
   height: 100%;
   .react-tabs {
@@ -27,9 +30,9 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   .react-tabs__tab-list {
     margin: 0px;
     display: flex;
-    align-items: center;
-    border-bottom: ${(props) => props.theme.spaces[1] - 2}px solid
-      ${(props) => props.theme.colors.tabs.border};
+    flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
+    align-items: ${(props) => (!!props.vertical ? "flex-start" : "center")};
+    border-bottom: none;
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.normal};
@@ -46,8 +49,10 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: ${(props) => props.theme.spaces[3] - 1}px 0
-      ${(props) => props.theme.spaces[4]}px 0;
+    padding: ${(props) => props.theme.spaces[3] - 1}px
+      ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
+      ${(props) => props.theme.spaces[4]}px
+      ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)};
     margin-right: ${(props) => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;
@@ -73,10 +78,15 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     &::after {
       content: "";
       position: absolute;
-      width: 100%;
-      bottom: ${(props) => props.theme.spaces[0] - 1}px;
+      width: ${(props) =>
+        props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
+      bottom: ${(props) =>
+        props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
+      top: ${(props) =>
+        props.vertical ? `${props.theme.spaces[0] - 1}px` : "100%"};
       left: ${(props) => props.theme.spaces[0]}px;
-      height: ${(props) => props.theme.spaces[1] - 2}px;
+      height: ${(props) =>
+        props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
       background-color: ${(props) => props.theme.colors.info.main};
     }
   }
@@ -84,10 +94,15 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     &::after {
       content: "";
       position: absolute;
-      width: 100%;
-      bottom: ${(props) => props.theme.spaces[0] - 1}px;
+      width: ${(props) =>
+        props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
+      bottom: ${(props) =>
+        props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
+      top: ${(props) =>
+        props.vertical ? `${props.theme.spaces[0] - 1}px` : "100%"};
       left: ${(props) => props.theme.spaces[0]}px;
-      height: ${(props) => props.theme.spaces[1] - 2}px;
+      height: ${(props) =>
+        props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
       background-color: ${(props) => props.theme.colors.info.main};
     }
     box-shadow: none;
@@ -102,19 +117,19 @@ const TabTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
+    margin-right: ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
-const TabTitle = styled.span`
+export const TabTitle = styled.span`
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
   letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
-  margin: 0 5px;
+  margin: 0;
 `;
 
-const TabCount = styled.div`
+export const TabCount = styled.div`
   background-color: ${(props) => props.theme.colors.tabs.countBg};
   border-radius: 8px;
   width: 17px;
@@ -128,6 +143,7 @@ type TabbedViewComponentType = CommonComponentProps & {
   selectedIndex?: number;
   onSelect?: (tabIndex: number) => void;
   overflow?: boolean;
+  vertical?: boolean;
 };
 
 export function TabComponent(props: TabbedViewComponentType) {
@@ -135,6 +151,7 @@ export function TabComponent(props: TabbedViewComponentType) {
     <TabsWrapper
       data-cy={props.cypressSelector}
       shouldOverflow={props.overflow}
+      vertical={props.vertical}
     >
       <Tabs
         onSelect={(index: number) => {
@@ -144,10 +161,13 @@ export function TabComponent(props: TabbedViewComponentType) {
       >
         <TabList>
           {props.tabs.map((tab) => (
-            <Tab key={tab.key}>
+            <Tab data-cy={`t--tab-${tab.key}`} key={tab.key}>
               <TabTitleWrapper>
                 {tab.icon ? (
-                  <Icon name={tab.icon} size={IconSize.XXXL} />
+                  <Icon
+                    name={tab.icon}
+                    size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
+                  />
                 ) : null}
                 <TabTitle>{tab.title}</TabTitle>
                 {tab.count && tab.count > 0 ? (

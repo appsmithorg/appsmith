@@ -170,6 +170,10 @@
       "color": "50ba23",
       "description": ""
     },
+    "Import-Export-App": {
+      "name": "Import-Export-App",
+      "color": "50ba23"
+    },
     "JS": {
       "name": "JS",
       "color": "ffc1c2",
@@ -620,6 +624,11 @@
                 "value": true
               },
               {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Widgets",
                 "type": "hasLabel",
                 "value": true
@@ -648,6 +657,11 @@
                 "type": "hasLabel",
                 "label": "UI Building",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Performance",
+                "value": true
               }
             ]
           },
@@ -662,6 +676,11 @@
               {
                 "type": "hasLabel",
                 "label": "Debugger",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Import-Export-App",
                 "value": true
               },
               {

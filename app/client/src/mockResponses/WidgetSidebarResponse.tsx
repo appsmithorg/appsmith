@@ -36,7 +36,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   },
   {
     type: "DROP_DOWN_WIDGET",
-    widgetCardName: "Dropdown",
+    widgetCardName: "Select",
     key: generateReactKey(),
   },
   {
@@ -103,6 +103,21 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   {
     type: "MODAL_WIDGET",
     widgetCardName: "Modal",
+    key: generateReactKey(),
+  },
+  {
+    type: "RATE_WIDGET",
+    widgetCardName: "Rating",
+    key: generateReactKey(),
+  },
+  {
+    type: "IFRAME_WIDGET",
+    widgetCardName: "Iframe",
+    key: generateReactKey(),
+  },
+  {
+    type: "DIVIDER_WIDGET",
+    widgetCardName: "Divider",
     key: generateReactKey(),
   },
 ];

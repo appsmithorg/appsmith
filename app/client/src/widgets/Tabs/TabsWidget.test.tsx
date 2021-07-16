@@ -3,48 +3,20 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import { render, fireEvent } from "test/testUtils";
-
 import Canvas from "pages/Editor/Canvas";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { editorInitializer } from "utils/EditorUtils";
-import { initCanvasLayout } from "actions/pageActions";
-import { getCanvasWidgetsPayload } from "sagas/PageSagas";
-import { noop } from "utils/AppsmithUtils";
+import { MockPageDSL } from "test/testCommon";
 
-Element.prototype.scrollTo = noop;
-function SetCanvas({ dsl, children }: any) {
-  const dispatch = useDispatch();
-  const mockResp: any = {
-    data: {
-      id: "asa",
-      name: "App",
-      applicationId: "asa",
-      layouts: [
-        {
-          id: "w323",
-          dsl,
-          layoutOnLoadActions: [],
-          layoutActions: [],
-        },
-      ],
-    },
-  };
-  const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
-  dispatch(initCanvasLayout(canvasWidgetsPayload));
-  return children;
-}
 describe("Tabs widget functional cases", () => {
   it("Should render 2 tabs by default", () => {
-    editorInitializer();
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
     const component = render(
-      <SetCanvas dsl={dsl}>
+      <MockPageDSL dsl={dsl}>
         <Canvas dsl={dsl} />
-      </SetCanvas>,
+      </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
     const tab2 = component.queryByText("Tab 2");
@@ -53,7 +25,6 @@ describe("Tabs widget functional cases", () => {
   });
 
   it("Should render components inside tabs by default", () => {
-    editorInitializer();
     const tab1Children = buildChildren([
       { type: "SWITCH_WIDGET", label: "Tab1 Switch" },
       { type: "CHECKBOX_WIDGET", label: "Tab1 Checkbox" },
@@ -69,9 +40,9 @@ describe("Tabs widget functional cases", () => {
       children,
     });
     const component = render(
-      <SetCanvas dsl={dsl}>
+      <MockPageDSL dsl={dsl}>
         <Canvas dsl={dsl} />
-      </SetCanvas>,
+      </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
     const tab2: any = component.queryByText("Tab 2");

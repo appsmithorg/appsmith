@@ -69,7 +69,7 @@ export const draggableElement = (
   };
 
   const calculateNewPosition = () => {
-    const { height, width, top, left } = element.getBoundingClientRect();
+    const { height, left, top, width } = element.getBoundingClientRect();
     const isElementOpen = height && width;
     const {
       left: calculatedLeft,
@@ -135,8 +135,9 @@ const createDragHandler = (
   const dragElement = document.createElement("div");
   dragElement.setAttribute("id", `${id}-draghandler`);
   dragElement.style.position = "absolute";
-  dragElement.style.left = "0px";
+  dragElement.style.left = "135px";
   dragElement.style.top = "0px";
+  dragElement.style.zIndex = "3";
   oldDragHandler
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);

@@ -61,12 +61,12 @@ class DynamicTextControl extends BaseControl<
 
   render() {
     const {
-      responseType,
-      label,
-      placeholderText,
       actionName,
       configProperty,
       evaluationSubstitutionType,
+      label,
+      placeholderText,
+      responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
@@ -122,6 +122,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   responseType: string;
   placeholderText?: string;
   evaluationSubstitutionType: EvaluationSubstitutionType;
+  mutedHinting?: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {

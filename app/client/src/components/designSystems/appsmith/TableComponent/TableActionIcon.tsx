@@ -34,13 +34,12 @@ function TableActionIcon(props: TableActionIconProps) {
         selected={props.selected}
       >
         <IconWrapper
-          color={props.selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+          color={props.selected ? Colors.CODE_GRAY : Colors.GRAY}
           height={20}
           width={20}
         >
           {props.children}
         </IconWrapper>
-        {props.icon ? props.icon : null}
       </TableIconWrapper>
     </Tooltip>
   );

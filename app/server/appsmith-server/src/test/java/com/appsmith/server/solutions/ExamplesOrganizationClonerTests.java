@@ -473,6 +473,7 @@ public class ExamplesOrganizationClonerTests {
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
                     ds1.setOrganizationId(organization.getId());
+                    ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -483,6 +484,7 @@ public class ExamplesOrganizationClonerTests {
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setOrganizationId(organization.getId());
+                    ds2.setPluginId(installedPlugin.getId());
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
@@ -797,6 +799,7 @@ public class ExamplesOrganizationClonerTests {
                             Connection.Type.DIRECT,
                             new SSLDetails(
                                     SSLDetails.AuthType.ALLOW,
+                                    SSLDetails.CACertificateType.NONE,
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),
@@ -851,7 +854,9 @@ public class ExamplesOrganizationClonerTests {
                             Set.of(
                                     new Property("custom token param 1", "custom token param value 1"),
                                     new Property("custom token param 2", "custom token param value 2")
-                            )
+                            ),
+                            null,
+                            null
                     ));
 
                     final Datasource ds3 = new Datasource();
@@ -929,7 +934,8 @@ public class ExamplesOrganizationClonerTests {
                                         .thenReturn(targetOrg1);
                             });
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadOrganizationData)
+                .doOnError(error -> log.error("Error in test", error));
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {

@@ -12,7 +12,7 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "components/designSystems/appsmith/TableComponent/CascadeFields";
-import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
+import TableAction from "components/designSystems/appsmith/TableComponent/TableAction";
 import {
   ReactTableColumnProps,
   Condition,
@@ -173,7 +173,7 @@ function TableFilters(props: TableFilterProps) {
       position={Position.BOTTOM}
       usePortal
     >
-      <TableActionIcon
+      <TableAction
         className="t--table-filter-toggle-btn"
         icon={
           hasAnyFilters ? (
@@ -184,10 +184,11 @@ function TableFilters(props: TableFilterProps) {
           selectMenu(selected);
         }}
         selected={selected}
-        tooltip="Filters"
+        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+        titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
       >
         <FilterIcon />
-      </TableActionIcon>
+      </TableAction>
       <TableFilterOuterWrapper>
         <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {

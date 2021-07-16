@@ -1,5 +1,6 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
@@ -15,7 +16,8 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(commonlocators.entityExplorersearch)
       .clear()
       .type("form");
-    cy.dragAndDropToCanvas("formwidget", { x: 300, y: -300 });
+    cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
+    cy.get(formWidgetsPage.formD).click();
     /**
      * @param{Text} Random Text
      * @param{FormWidget}Mouseover
@@ -29,10 +31,13 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.testCodeMirror(this.data.colour);
+    cy.get(widgetsPage.backgroundcolorPicker)
+      .first()
+      .click({ force: true });
+    cy.xpath(widgetsPage.greenColor).click();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", this.data.rgbValue);
+      .and("eq", "rgb(3, 179, 101)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */

@@ -10,10 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,16 +42,16 @@ public class CommentController extends BaseController<CommentService, Comment, S
                                              @RequestParam String threadId,
                                              ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.create(threadId, resource)
+        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
-                                                         ServerWebExchange exchange) {
+                                                         @RequestHeader(name = "Origin") String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.createThread(resource)
+        return service.createThread(resource, originHeader)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -60,13 +61,13 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
 
-    @PatchMapping("/threads/{threadId}")
+    @PutMapping("/threads/{threadId}")
     public Mono<ResponseDTO<CommentThread>> updateThread(
             @Valid @RequestBody CommentThread resource,
-            @PathVariable String threadId
+            @PathVariable String threadId, ServerWebExchange exchange
     ) {
         log.debug("Going to update resource {}", resource.getClass().getName());
-        return service.updateThread(threadId, resource)
+        return service.updateThread(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
                 .map(updated -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), updated, null));
     }
 
@@ -78,4 +79,30 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @DeleteMapping("/threads/{threadId}")
+    public Mono<ResponseDTO<CommentThread>> deleteThread(@PathVariable String threadId) {
+        log.debug("Going to delete thread with id: {}", threadId);
+        return service.deleteThread(threadId)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @PostMapping("/{commentId}/reactions")
+    public Mono<ResponseDTO<Boolean>> createReaction(
+            @PathVariable String commentId,
+            @Valid @RequestBody Comment.Reaction reaction
+    ) {
+        log.debug("Going to create reaction on comment with id: {}", commentId);
+        return service.createReaction(commentId, reaction)
+                .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
+    }
+
+    @DeleteMapping("/{commentId}/reactions")
+    public Mono<ResponseDTO<Boolean>> deleteReaction(
+            @PathVariable String commentId,
+            @Valid @RequestBody Comment.Reaction reaction
+    ) {
+        log.debug("Going to delete reaction on comment with id: {}", commentId);
+        return service.deleteReaction(commentId, reaction)
+                .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
+    }
 }

@@ -127,10 +127,10 @@ class EntityNameComponent extends React.Component<
     const { focused } = this.state;
     const {
       isValid,
+      onChange,
+      placeholder,
       validationMessage,
       value,
-      placeholder,
-      onChange,
     } = this.props;
 
     return (

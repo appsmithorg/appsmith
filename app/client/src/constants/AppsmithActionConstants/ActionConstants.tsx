@@ -56,6 +56,7 @@ export enum EventType {
   ON_HOVER = "ON_HOVER",
   ON_TOGGLE = "ON_TOGGLE",
   ON_LOAD = "ON_LOAD",
+  ON_MODAL_CLOSE = "ON_MODAL_CLOSE",
   ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
   ON_SUBMIT = "ON_SUBMIT",
   ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
@@ -71,6 +72,9 @@ export enum EventType {
   ON_VIDEO_END = "ON_VIDEO_END",
   ON_VIDEO_PLAY = "ON_VIDEO_PLAY",
   ON_VIDEO_PAUSE = "ON_VIDEO_PAUSE",
+  ON_RATE_CHANGED = "ON_RATE_CHANGED",
+  ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
+  ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
 }
 
 export type ActionType =
@@ -101,7 +105,7 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;
+export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;

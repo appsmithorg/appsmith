@@ -34,14 +34,14 @@ const ShareToggle = styled.div`
 
 function AppInviteUsersForm(props: any) {
   const {
-    isFetchingApplication,
-    isChangingViewAccess,
-    currentApplicationDetails,
-    changeAppViewAccess,
     applicationId,
-    fetchCurrentOrg,
+    changeAppViewAccess,
+    currentApplicationDetails,
     currentUser,
     defaultPageId,
+    fetchCurrentOrg,
+    isChangingViewAccess,
+    isFetchingApplication,
   } = props;
 
   const currentOrg = useSelector(getCurrentAppOrg);

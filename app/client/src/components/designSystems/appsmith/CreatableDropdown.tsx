@@ -77,14 +77,14 @@ const selectStyles = {
 class CreatableDropdown extends React.Component<DropdownProps> {
   render() {
     const {
-      placeholder,
-      options,
-      isLoading,
-      input,
-      noOptionsMessage,
       components,
+      input,
       inputValue,
+      isLoading,
+      noOptionsMessage,
       onInputChange,
+      options,
+      placeholder,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
     if (noOptionsMessage) optionalProps.noOptionsMessage = noOptionsMessage;

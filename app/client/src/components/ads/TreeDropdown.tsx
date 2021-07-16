@@ -19,6 +19,7 @@ export type TreeDropdownOption = DropdownOption & {
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  icon?: React.ReactNode;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -137,13 +138,13 @@ function getSelectedOption(
 
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
-    selectedValue,
     defaultText,
-    optionTree,
-    onSelect,
-    getDefaults,
-    selectedLabelModifier,
     displayValue,
+    getDefaults,
+    onSelect,
+    optionTree,
+    selectedLabelModifier,
+    selectedValue,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(

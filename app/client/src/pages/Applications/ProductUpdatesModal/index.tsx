@@ -94,7 +94,7 @@ const Header = withTheme(
 );
 
 function ProductUpdatesModal() {
-  const { releaseItems, newReleasesCount } = useSelector(
+  const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
   const dispatch = useDispatch();

@@ -50,7 +50,8 @@ public interface SmartSubstitutionInterface {
 
     // Default implementation does not do any substitution. The plugin doing intelligent substitution is responsible
     // for overriding this function.
-    default Object substituteValueInInput(int index, String binding, String value, Object input, List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
+    default Object substituteValueInInput(int index, String binding, String value, Object input,
+                                          List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
         return input;
     }
 }

@@ -9,8 +9,8 @@ import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getSelectedWidgets } from "selectors/ui";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -31,9 +31,7 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
+  const selectedWidgets = useSelector(getSelectedWidgets);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
@@ -53,6 +51,9 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     </EntityPlaceholder>
   );
 
+  const widgetsInStep =
+    props.widgets?.children?.map((child) => child.widgetId) || [];
+
   return (
     <Entity
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
@@ -61,7 +62,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       icon={widgetIcon}
       isDefaultExpanded={
         !!props.searchKeyword ||
-        (params.pageId === props.pageId && !!selectedWidget)
+        (params.pageId === props.pageId &&
+          !!(selectedWidgets && selectedWidgets.length))
       }
       key={props.pageId + "_widgets"}
       name="Widgets"
@@ -79,6 +81,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           widgetId={child.widgetId}
           widgetName={child.widgetName}
           widgetType={child.type}
+          widgetsInStep={widgetsInStep}
         />
       ))}
       {(!props.widgets?.children || props.widgets?.children.length === 0) &&

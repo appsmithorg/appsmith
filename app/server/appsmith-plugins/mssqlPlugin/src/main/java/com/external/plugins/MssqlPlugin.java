@@ -14,6 +14,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -57,10 +58,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -120,12 +124,8 @@ public class MssqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                // In case the prepared statement configuration is missing, default to true
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -133,10 +133,10 @@ public class MssqlPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -164,8 +164,10 @@ public class MssqlPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
                 try {
@@ -207,6 +209,13 @@ public class MssqlPlugin extends BasePlugin {
                                 parameters);
 
                         requestData.put("ps-parameters", parameters);
+
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
+
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }

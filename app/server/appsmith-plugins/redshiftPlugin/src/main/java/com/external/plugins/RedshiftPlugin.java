@@ -222,7 +222,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, null));
 
             if (query == null) {
                 return Mono.error(
@@ -491,6 +491,7 @@ public class RedshiftPlugin extends BasePlugin {
                 if (!tablesByName.containsKey(fullTableName)) {
                     tablesByName.put(fullTableName, new DatasourceStructure.Table(
                             kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                            schemaName,
                             fullTableName,
                             new ArrayList<>(),
                             new ArrayList<>(),
@@ -602,15 +603,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
         }

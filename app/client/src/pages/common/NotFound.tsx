@@ -26,7 +26,7 @@ interface Props {
 }
 
 function NotFound(props: Props) {
-  const { title, subtitle, buttonText, onBackButton } = props;
+  const { buttonText, onBackButton, subtitle, title } = props;
 
   return (
     <Wrapper>

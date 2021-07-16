@@ -1,6 +1,6 @@
 import {
-  ActionData,
   ActionDataState,
+  ActionDataWithMeta,
 } from "reducers/entityReducers/actionsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
@@ -42,7 +42,8 @@ export enum EvaluationSubstitutionType {
   SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
 }
 
-export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
+export interface DataTreeAction
+  extends Omit<ActionDataWithMeta, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
   config: Partial<ActionConfig>;
@@ -55,6 +56,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeWidget extends WidgetProps {
@@ -62,6 +64,7 @@ export interface DataTreeWidget extends WidgetProps {
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
@@ -96,12 +99,12 @@ type DataTreeSeed = {
 export class DataTreeFactory {
   static create({
     actions,
-    widgets,
-    widgetsMeta,
-    pageList,
     appData,
     editorConfigs,
+    pageList,
     pluginDependencyConfig,
+    widgets,
+    widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach((action) => {

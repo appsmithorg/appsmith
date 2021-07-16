@@ -33,21 +33,19 @@ const PaginationContainer = styled.div`
 
 class ResultPagination extends React.Component<Props> {
   render() {
-    const { total, handlePageChange, currentPage = 1 } = this.props;
+    const { currentPage = 1, handlePageChange, total } = this.props;
 
     return (
       <Pagination limit={40} pageCount={5} total={total}>
         {({
-          pages,
+          getPageItemProps,
           hasNextPage,
           hasPreviousPage,
-          previousPage,
           nextPage,
+          pages,
+          previousPage,
           totalPages,
-          getPageItemProps,
         }) => {
-          console.log(hasNextPage, "hasNextPage");
-
           return (
             <PaginationContainer>
               <div

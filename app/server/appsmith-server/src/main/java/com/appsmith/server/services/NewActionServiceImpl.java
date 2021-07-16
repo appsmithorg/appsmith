@@ -8,11 +8,11 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -39,6 +39,8 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -59,10 +61,9 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -244,17 +245,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
-            if (action.getDatasource().getDatasourceConfiguration() != null &&
-                    action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
-                action.getDatasource()
-                        .getDatasourceConfiguration()
-                        .setAuthentication(datasourceService.encryptAuthenticationFields(action
-                                .getDatasource()
-                                .getDatasourceConfiguration()
-                                .getAuthentication()
-                        ));
-            }
-
             datasourceMono = Mono.just(action.getDatasource())
                     .flatMap(datasourceService::validateDatasource);
         } else {
@@ -540,13 +530,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    // If authentication exists for the datasource, decrypt the fields
-                    if (datasource.getDatasourceConfiguration() != null &&
-                            datasource.getDatasourceConfiguration().getAuthentication() != null) {
-                        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-                        datasource.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
-                    }
-
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
@@ -557,17 +540,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
-
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono.flatMap(datasource1 -> {
-                                        // Check encryption again
-                                        if (datasource1.getDatasourceConfiguration() != null &&
-                                                datasource1.getDatasourceConfiguration().getAuthentication() != null) {
-                                            AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
-                                            datasource1.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
-                                        }
+                            .flatMap(resourceContext -> validatedDatasourceMono
+                                    .flatMap(datasource1 -> {
                                         return (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
                                                 resourceContext.getConnection(),
                                                 executeActionDTO,
@@ -679,42 +656,98 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypes(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
-    // Add label and data types to request param entities.
+    /*
+     * - Get label for request params.
+     * - Transform request params list: [""] to a map: {"label": {"value": ...}}
+     * - Rearrange request params in the order as they appear in query editor form.
+     */
     private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {
-        List<RequestParamDTO> transformedParams = new ArrayList<>();
+        Map<String, Object> transformedParams = new LinkedHashMap<>();
         Map<String, RequestParamDTO> requestParamsConfigMap = new HashMap();
-        result.getRequest().getRequestParams().stream()
-                .forEach(param -> requestParamsConfigMap.put(param.getConfigProperty(), param));
+        ((List)result.getRequest().getRequestParams()).stream()
+                .forEach(param -> requestParamsConfigMap.put(((RequestParamDTO) param).getConfigProperty(),
+                        (RequestParamDTO) param));
 
         labelMap.entrySet().stream()
                 .forEach(e -> {
                     String configProperty = e.getKey();
                     if(requestParamsConfigMap.containsKey(configProperty)) {
                         RequestParamDTO param = requestParamsConfigMap.get(configProperty);
-                        param.setTypes(param.getValue() != null ?
-                                getDisplayDataTypes(param.getValue()) : new ArrayList<>());
-                        param.setLabel(e.getValue());
-                        transformedParams.add(param);
+                        transformedParams.put(e.getValue(), param);
                     }
                 });
 
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
+
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
+        }
+
         return result;
+    }
+
+    /**
+     * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
+     * @return List of Widgets
+     */
+    private List<WidgetType> getSuggestedWidget(Object data) {
+
+        List<WidgetType> widgetTypeList = new ArrayList<>();
+
+        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
+            if(!((ArrayNode) data).isEmpty()) {
+                try {
+                    ArrayNode array = (ArrayNode) data;
+                    int length = array.size();
+                    JsonNode node = array.get(0);
+                    JsonNodeType nodeType = node.getNodeType();
+
+                    if(JsonNodeType.STRING.equals(nodeType)) {
+                        if (length > 1) {
+                            widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        }
+                        else {
+                            widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                        }
+                    }
+
+                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
+                        widgetTypeList.add(WidgetType.CHART_WIDGET);
+                        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+                        widgetTypeList.add(WidgetType.LIST_WIDGET);
+                        widgetTypeList.add(WidgetType.TABLE_WIDGET);
+                    }
+
+                    if(JsonNodeType.NUMBER.equals(nodeType)) {
+                        widgetTypeList.add(WidgetType.INPUT_WIDGET);
+                        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                    }
+
+                } catch(ClassCastException e) {
+                    log.warn("Error while casting data to suggest widget.", e);
+                    widgetTypeList.add(WidgetType.TEXT_WIDGET);
+                }
+            }
+        } else {
+            widgetTypeList.add(WidgetType.TEXT_WIDGET);
+        }
+        return widgetTypeList;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
@@ -780,12 +813,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode)
+                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
+                        pluginService.getById(action.getPluginId())
                 ))
                 .map(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
+                    final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
                     final Map<String, Object> data = new HashMap<>();
@@ -793,6 +828,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     data.putAll(Map.of(
                             "username", user.getUsername(),
                             "type", pluginType,
+                            "pluginName", plugin.getName(),
                             "name", actionDTO.getName(),
                             "datasource", Map.of(
                                     "name", datasource.getName()
@@ -801,11 +837,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             "appId", action.getApplicationId(),
                             "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),
-                            "isExampleApp", application.isAppIsExample(),
-                            "request", request
+                            "isExampleApp", application.isAppIsExample()
                     ));
 
                     data.putAll(Map.of(
+                            "request", request,
                             "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),

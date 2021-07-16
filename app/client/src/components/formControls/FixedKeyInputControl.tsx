@@ -13,12 +13,12 @@ const Wrapper = styled.div`
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
     const {
+      configProperty,
+      dataType,
+      fixedKey,
+      isRequired,
       label,
       placeholderText,
-      dataType,
-      configProperty,
-      isRequired,
-      fixedKey,
     } = this.props;
 
     return (

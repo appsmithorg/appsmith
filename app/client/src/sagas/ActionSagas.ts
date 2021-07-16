@@ -9,6 +9,7 @@ import {
   call,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
@@ -20,6 +21,7 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
+  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -55,13 +57,14 @@ import {
   getPlugin,
   getSettingConfig,
   getDatasources,
+  getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -78,12 +81,15 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import _, { merge } from "lodash";
+import _, { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -330,7 +336,11 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 export function* deleteActionSaga(
-  actionPayload: ReduxAction<{ id: string; name: string }>,
+  actionPayload: ReduxAction<{
+    id: string;
+    name: string;
+    onSuccess?: () => void;
+  }>,
 ) {
   try {
     const id = actionPayload.payload.id;
@@ -371,14 +381,16 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
-      if (isApi || isSaas) {
-        history.push(API_EDITOR_URL(applicationId, pageId));
-      }
 
-      if (isQuery) {
-        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
+      if (!!actionPayload.payload.onSuccess) {
+        actionPayload.payload.onSuccess();
+      } else {
+        const applicationId = yield select(getCurrentApplicationId);
+        const pageId = yield select(getCurrentPageId);
+
+        history.push(
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        );
       }
 
       AppsmithConsole.info({
@@ -619,20 +631,26 @@ function getDynamicBindingsChangesSaga(
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, value, propertyName } = action.payload;
+  const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  const fieldToBeUpdated = propertyName.replace(
+    "actionConfiguration",
+    "config",
+  );
   AppsmithConsole.info({
+    logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
       name: actionObj.name,
       id: actionId,
+      propertyPath: fieldToBeUpdated,
     },
     state: {
-      [propertyName]: value,
+      [fieldToBeUpdated]: value,
     },
   });
 
@@ -715,6 +733,64 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* executeCommand(
+  actionPayload: ReduxAction<{
+    actionType: string;
+    callback: (binding: string) => void;
+    args: any;
+  }>,
+) {
+  const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
+  switch (actionPayload.payload.actionType) {
+    case "NEW_INTEGRATION":
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      break;
+    case "NEW_QUERY":
+      const datasource = get(actionPayload, "payload.args.datasource");
+      const pluginId = get(datasource, "pluginId");
+      const plugin = yield select(getPlugin, pluginId);
+      const actions = yield select(getActions);
+      const pageActions = actions.filter(
+        (a: ActionData) => a.config.pageId === pageId,
+      );
+      const newQueryName =
+        plugin.type === PluginType.DB
+          ? createNewQueryName(actions, pageId)
+          : createNewApiName(pageActions, pageId);
+      const nextPayload: Partial<Action> = {
+        name: newQueryName,
+        pageId,
+        eventData: {
+          actionType: "Query",
+          from: "Quick-Commands",
+          dataSource: datasource.name,
+        },
+        pluginId: datasource.pluginId,
+        actionConfiguration: {},
+      };
+      if (plugin.type === "API") {
+        nextPayload.datasource = datasource;
+        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
+      } else {
+        nextPayload.datasource = {
+          id: datasource.id,
+        };
+      }
+      yield put(createActionRequest(nextPayload));
+      const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
+      break;
+    case "NEW_API":
+      yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
+      const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      break;
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -741,5 +817,6 @@ export function* watchActionSagas() {
       ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
       toggleActionExecuteOnLoadSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommand),
   ]);
 }

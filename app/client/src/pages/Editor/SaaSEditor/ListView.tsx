@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
-import { API_EDITOR_URL } from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -81,11 +81,11 @@ class ListView extends React.Component<Props> {
 
   handleCreateNewAPI = (datasource: Datasource) => {
     const {
+      actions,
+      location,
       match: {
         params: { pageId },
       },
-      actions,
-      location,
     } = this.props;
     const params: string = location.search;
     let pgId = new URLSearchParams(params).get("importTo");
@@ -107,7 +107,7 @@ class ListView extends React.Component<Props> {
   };
 
   render() {
-    const { plugin, isCreating, isEditorInitialized } = this.props;
+    const { isCreating, isEditorInitialized, plugin } = this.props;
     if (!plugin) {
       return this.renderNotFound();
     }
@@ -159,19 +159,25 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
+      history,
       match: {
         params: { applicationId, pageId },
       },
-      history,
     } = this.props;
     return (
       <IntegrationHomePage>
         <NotFound
-          buttonText="Go back to Integrations"
+          buttonText="Go back to Datasources"
           onBackButton={() =>
-            history.push(API_EDITOR_URL(applicationId, pageId))
+            history.push(
+              INTEGRATION_EDITOR_URL(
+                applicationId,
+                pageId,
+                INTEGRATION_TABS.ACTIVE,
+              ),
+            )
           }
-          title="Integration Not found"
+          title="Datasources/Queries Not found"
         />
       </IntegrationHomePage>
     );

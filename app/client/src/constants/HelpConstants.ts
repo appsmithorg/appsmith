@@ -41,7 +41,7 @@ export const HelpMap = {
   },
   DROP_DOWN_WIDGET: {
     path: "/widget-reference/dropdown",
-    searchKey: "Dropdown",
+    searchKey: "Select",
   },
   RADIO_GROUP_WIDGET: {
     path: "/widget-reference/radio",
@@ -114,6 +114,18 @@ export const HelpMap = {
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",
     searchKey: "Switch",
+  },
+  RATE_WIDGET: {
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
   },
 };
 

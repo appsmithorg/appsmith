@@ -12,7 +12,7 @@ import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 
 const Container = styled.div`
@@ -50,6 +50,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       const queryactionConfiguration: Partial<QueryAction> = {
         actionConfiguration: {
           body: template.body,
+          pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
         },
       };
 
@@ -69,10 +70,10 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         }),
       );
       history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        INTEGRATION_EDITOR_URL(
           params.applicationId,
           currentPageId,
-          currentPageId,
+          INTEGRATION_TABS.ACTIVE,
         ),
       );
     },

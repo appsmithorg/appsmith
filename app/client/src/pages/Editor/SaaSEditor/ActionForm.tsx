@@ -1,7 +1,6 @@
 import React from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
-import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
@@ -15,7 +14,6 @@ import {
   getActionResponses,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { Plugin } from "api/PluginApi";
 import { RouteComponentProps } from "react-router";
 import { deleteAction, runActionInit } from "actions/actionActions";
 import {
@@ -25,6 +23,10 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
+import {
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "../../../constants/routes";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{
@@ -32,17 +34,16 @@ type StateAndRouteProps = EditorJSONtoFormProps &
     pageId: string;
     pluginPackageName: string;
     apiId: string;
-  }> & { plugin?: Plugin };
+  }>;
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
 function ActionForm(props: Props) {
   const {
-    match: {
-      params: { pageId, applicationId, apiId },
-    },
     actionName,
-    plugin,
+    match: {
+      params: { apiId, applicationId, pageId },
+    },
   } = props;
 
   const dispatch = useDispatch();
@@ -54,7 +55,9 @@ function ActionForm(props: Props) {
     dispatch(runActionInit(apiId));
   };
   const onCreateDatasourceClick = () => {
-    history.push(SAAS_EDITOR_URL(applicationId, pageId, plugin?.packageName));
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+    );
   };
 
   const childProps: any = {

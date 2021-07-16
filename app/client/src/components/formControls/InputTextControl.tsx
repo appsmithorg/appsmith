@@ -30,14 +30,14 @@ export function InputText(props: {
   disabled?: boolean;
 }) {
   const {
+    dataType,
+    disabled,
+    encrypted,
+    isRequired,
+    label,
     name,
     placeholder,
-    dataType,
-    label,
-    isRequired,
-    disabled,
     subtitle,
-    encrypted,
   } = props;
 
   return (
@@ -71,15 +71,15 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      validationMessage,
-      propertyValue,
+      configProperty,
+      dataType,
+      disabled,
       isValid,
       label,
       placeholderText,
-      dataType,
-      configProperty,
-      disabled,
+      propertyValue,
       subtitle,
+      validationMessage,
     } = this.props;
 
     return (

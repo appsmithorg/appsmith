@@ -82,6 +82,8 @@ public class ReleaseNotesService {
                 .flatMap(instanceId -> WebClient
                         .create(
                                 baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                        // isCloudHosted should be true only for our cloud instance,
+                                        // For docker images that burn the segment key with the image, the CE key will be present
                                         "&isSourceInstall=" + (isCloudHosted || StringUtils.isEmpty(segmentConfig.getCeKey())) +
                                         (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
                         )

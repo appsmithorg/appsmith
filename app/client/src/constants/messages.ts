@@ -202,7 +202,7 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
 export const DEFAULT_ERROR_MESSAGE = () => `There was an unexpected error`;
-
+export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>
   `File size should be less than ${fileSize}!`;
 export const ERROR_DATEPICKER_MIN_DATE = () =>
@@ -247,6 +247,8 @@ export const ERROR_EVAL_TRIGGER = (message: string) =>
 
 export const WIDGET_DELETE = (widgetName: string) =>
   `${widgetName} widget deleted`;
+export const WIDGET_BULK_DELETE = (widgetName: string) =>
+  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -255,6 +257,8 @@ export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const SELECT_ALL_WIDGETS_MSG = () =>
+  `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
 
 export const REST_API_AUTHORIZATION_SUCCESSFUL = () =>
@@ -297,14 +301,52 @@ export const UNRESOLVE = () => "Unresolve";
 // comments
 export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
 export const PIN_COMMENT = () => "Pin Comment";
+export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const DELETE_THREAD = () => "Delete Thread";
+export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
+export const VIEW_LATEST = () => "View Latest";
+export const POST = () => "Post";
+export const CANCEL = () => "Cancel";
+export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
+  `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
+export const LINK_COPIED_SUCCESSFULLY = () => "Link copied to clipboard";
+export const FULL_NAME = () => "Full Name";
+export const DISPLAY_NAME = () => "Display Name";
+export const EMAIL_ADDRESS = () => "Email Address";
+export const FIRST_AND_LAST_NAME = () => "First and last name";
+export const MARK_ALL_AS_READ = () => "Mark all as read";
+export const INVITE_A_NEW_USER = () => "Invite a new user";
+export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
+export const ONE_UNREAD_MESSAGE = () => "1 unread conversation";
+
+// Showcase Carousel
+export const NEXT = () => "NEXT";
+export const BACK = () => "BACK";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const NO_ERRORS = () => "No signs of trouble here!";
+export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_LOGS = () => "Logs";
+export const INSPECT_ENTITY = () => "Inspect Entity";
+export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
+export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
+export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
+export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+
+// Import/Export Application features
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+
+export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
+  `You want to remove ${name} from this organization`;

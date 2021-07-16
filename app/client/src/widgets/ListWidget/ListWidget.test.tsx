@@ -14,7 +14,8 @@ describe("<ListWidget />", () => {
   const initialState = {
     ui: {
       widgetDragResize: {
-        selectedWidget: "Widget1",
+        lastSelectedWidget: "Widget1",
+        selectedWidgets: ["Widget1"],
       },
       propertyPane: {
         isVisible: true,
@@ -40,7 +41,7 @@ describe("<ListWidget />", () => {
       topRow: 1,
       bottomRow: 3,
       isLoading: false,
-      items: [],
+      listData: [],
       version: 16,
       disablePropertyPane: false,
       ...props,

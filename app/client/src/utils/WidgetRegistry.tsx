@@ -100,9 +100,22 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import DividerWidget, {
+  ProfiledDividerWidget,
+  DividerWidgetProps,
+} from "widgets/DividerWidget";
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import RateWidget, {
+  RateWidgetProps,
+  ProfiledRateWidget,
+} from "widgets/RateWidget";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -453,6 +466,45 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "RATE_WIDGET",
+      {
+        buildWidget(widgetData: RateWidgetProps): JSX.Element {
+          return <ProfiledRateWidget {...widgetData} />;
+        },
+      },
+      RateWidget.getDerivedPropertiesMap(),
+      RateWidget.getDefaultPropertiesMap(),
+      RateWidget.getMetaPropertiesMap(),
+      RateWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.DIVIDER_WIDGET,
+      {
+        buildWidget(widgetProps: DividerWidgetProps): JSX.Element {
+          return <ProfiledDividerWidget {...widgetProps} />;
+        },
+      },
+      DividerWidget.getDerivedPropertiesMap(),
+      DividerWidget.getDefaultPropertiesMap(),
+      DividerWidget.getMetaPropertiesMap(),
+      DividerWidget.getPropertyPaneConfig(),
     );
   }
 }

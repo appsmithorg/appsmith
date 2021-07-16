@@ -1,8 +1,8 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.constants.FieldName;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,9 +18,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,6 +43,7 @@ public class OAuth2 extends AuthenticationDTO {
 
     String clientId;
 
+    @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clientSecret;
 
@@ -61,6 +59,10 @@ public class OAuth2 extends AuthenticationDTO {
     String headerPrefix;
 
     Set<Property> customTokenParameters;
+
+    String audience;
+
+    String resource;
 
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
@@ -81,69 +83,16 @@ public class OAuth2 extends AuthenticationDTO {
     }
 
     @Override
-    public Map<String, String> getEncryptionFields() {
-        Map<String, String> map = new HashMap<>();
-        if (this.clientSecret != null) {
-            map.put(FieldName.CLIENT_SECRET, this.clientSecret);
-        }
-        if (this.getAuthenticationResponse() != null) {
-            if (this.authenticationResponse.getToken() != null) {
-                map.put(FieldName.TOKEN, this.authenticationResponse.getToken());
-            }
-            if (this.authenticationResponse.getRefreshToken() != null) {
-                map.put(FieldName.REFRESH_TOKEN, this.authenticationResponse.getRefreshToken());
-            }
-            if (this.authenticationResponse.getTokenResponse() != null) {
-                map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.authenticationResponse.getTokenResponse()));
-            }
-        }
-        return map;
-    }
-
-    @Override
-    public void setEncryptionFields(Map<String, String> encryptedFields) {
-        if (encryptedFields != null) {
-            if (encryptedFields.containsKey(FieldName.CLIENT_SECRET)) {
-                this.clientSecret = encryptedFields.get(FieldName.CLIENT_SECRET);
-            }
-            if (encryptedFields.containsKey(FieldName.TOKEN)) {
-                this.authenticationResponse.setToken(encryptedFields.get(FieldName.TOKEN));
-            }
-            if (encryptedFields.containsKey(FieldName.REFRESH_TOKEN)) {
-                this.authenticationResponse.setRefreshToken(encryptedFields.get(FieldName.REFRESH_TOKEN));
-            }
-            if (encryptedFields.containsKey(FieldName.TOKEN_RESPONSE)) {
-                this.authenticationResponse.setTokenResponse(encryptedFields.get(FieldName.TOKEN_RESPONSE));
-            }
-        }
-    }
-
-    @Override
-    public Set<String> getEmptyEncryptionFields() {
-        Set<String> set = new HashSet<>();
-        if (this.clientSecret == null || this.clientSecret.isEmpty()) {
-            set.add(FieldName.CLIENT_SECRET);
-        }
-        if (this.getAuthenticationResponse() != null) {
-            if (this.authenticationResponse.getToken() == null || this.authenticationResponse.getToken().isEmpty()) {
-                set.add(FieldName.TOKEN);
-            }
-            if (this.authenticationResponse.getRefreshToken() == null || this.authenticationResponse.getRefreshToken().isEmpty()) {
-                set.add(FieldName.REFRESH_TOKEN);
-            }
-            if (this.authenticationResponse.getTokenResponse() == null || (String.valueOf(this.authenticationResponse.getTokenResponse())).isEmpty()) {
-                set.add(FieldName.TOKEN_RESPONSE);
-            }
-        }
-        return set;
-    }
-
-    @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
             return Mono.error(new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Expected datasource to have valid authentication tokens at this point"));
+        }
+
+        if (this.authenticationResponse.expiresAt == null) {
+            // If the token did not return with an expiry time, assume that it has always expired
+            return Mono.just(Boolean.TRUE);
         }
 
         return Mono.just(authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60)));

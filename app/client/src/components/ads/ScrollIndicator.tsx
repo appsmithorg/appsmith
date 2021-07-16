@@ -53,11 +53,11 @@ interface Props {
   mode?: "DARK" | "LIGHT";
 }
 function ScrollIndicator({
-  containerRef,
-  top,
-  bottom,
-  right,
   alwaysShowScrollbar,
+  bottom,
+  containerRef,
+  right,
+  top,
 }: Props) {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;

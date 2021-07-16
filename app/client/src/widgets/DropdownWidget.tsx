@@ -9,6 +9,7 @@ import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -41,10 +42,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.OPTIONS_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Selects the option with value by default",
@@ -55,6 +58,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
+          },
+          {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -138,18 +150,26 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       ? this.props.selectedOptionValueArr
       : [];
   }
+  getDropdownPosition = (node: HTMLDivElement | null) => {
+    if (Boolean(node?.closest(".bp3-modal-widget"))) {
+      return document.querySelector(".bp3-modal-widget") as HTMLElement;
+    }
+    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+  };
 
   getPageView() {
-    const options = this.props.options || [];
+    const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
     const computedSelectedIndexArr = this.props.selectedIndexArr || [];
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
         disabled={this.props.isDisabled}
+        getDropdownPosition={this.getDropdownPosition}
         height={componentHeight}
+        isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         label={`${this.props.label}`}
         onOptionRemoved={this.onOptionRemoved}
@@ -260,6 +280,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  isFilterable: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionLabels: string[];

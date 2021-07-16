@@ -77,14 +77,14 @@ const ItemContainer = styled.div`
 class NavBarItem extends React.Component<Props> {
   render(): React.ReactNode {
     const {
-      title,
-      icon,
-      path,
       exact,
-      width,
       height,
-      onClick,
+      icon,
       isActive,
+      onClick,
+      path,
+      title,
+      width,
     } = this.props;
 
     return (
