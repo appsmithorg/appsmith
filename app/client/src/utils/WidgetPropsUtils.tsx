@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { get, has, isString, omit, set } from "lodash";
+import { has, isString, set, isEmpty, omit, get } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -35,6 +35,7 @@ import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
@@ -789,12 +790,45 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
   if (currentDSL.version === 26) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 27;
   }
 
+  if (currentDSL.version === 27) {
+    currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
   return currentDSL;
 };
 
+const addIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!isEmpty(currentDSL.primaryColumns)) {
+      for (const key of Object.keys(
+        currentDSL.primaryColumns as Record<string, ColumnProperties>,
+      )) {
+        if (currentDSL.primaryColumns[key].columnType === "button") {
+          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+            currentDSL.primaryColumns[key]["isDisabled"] = false;
+          }
+        }
+      }
+    }
+  }
+  return currentDSL;
+};
+
+const migrateIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateIsDisabledToButtonColumn(children);
+  });
+  return currentDSL;
+};
 const addFilterDefaultValue = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {

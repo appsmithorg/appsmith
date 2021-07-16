@@ -280,6 +280,10 @@ export const ActionWrapper = styled.div<{
     .bp3-button span {
       font-weight: 400;
     }
+    &&& .bp3-disabled {
+      color: ${Colors.SLATE_GRAY};
+      background: ${Colors.MERCURY};
+    }
   }
 `;
 

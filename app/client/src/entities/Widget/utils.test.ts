@@ -128,6 +128,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -152,7 +153,11 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonStyle":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -166,6 +171,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: "TEXT",
         defaultSelectedRow: "DEFAULT_SELECTED_ROW",
         isVisible: "BOOLEAN",
+        "primaryColumns.createdAt.isVisible": "BOOLEAN",
+        "primaryColumns.name.isVisible": "BOOLEAN",
+        "primaryColumns.status.isDisabled": "BOOLEAN",
+        "primaryColumns.status.isVisible": "BOOLEAN",
         tableData: "TABLE_DATA",
       },
     };
