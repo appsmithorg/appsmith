@@ -89,7 +89,7 @@ const UserName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
 `;
 
