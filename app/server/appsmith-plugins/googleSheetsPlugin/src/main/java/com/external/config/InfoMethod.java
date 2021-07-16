@@ -60,7 +60,7 @@ public class InfoMethod implements Method {
                 try {
                     sheets = objectMapper.readTree(jsonBody).get("sheets");
                 } catch (IOException e) {
-                    Mono.error(new AppsmithPluginException(
+                    throw Exceptions.propagate(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                         new String(responseBody),
                         e.getMessage()

@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -20,15 +21,15 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
+
+import static com.appsmith.external.models.AuthenticationDTO.AuthenticationStatus.SUCCESS;
 
 @Component
 @RequiredArgsConstructor
@@ -152,14 +153,17 @@ public class DatasourceStructureSolution {
             )));
 
         return datasourceMono.flatMap(datasource -> {
-            if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
+
+            AuthenticationDTO auth = datasource.getDatasourceConfiguration() == null
+                || datasource.getDatasourceConfiguration().getAuthentication() == null ?
+                null : datasource.getDatasourceConfiguration().getAuthentication();
+            if (auth == null || !SUCCESS.equals(auth.getAuthenticationStatus())) {
                 // Don't attempt to run query for invalid datasources.
-                Set<String> invalids = datasource.getInvalids();
-                log.error("Unable to execute DB query because it's datasource is not valid. Cause: {}",
-                    ArrayUtils.toString(invalids));
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_DATASOURCE,
                     datasource.getName(),
-                    ArrayUtils.toString(invalids)));
+                    "Authentication failure for datasource, please re-authenticate and try again!"
+                ));
             }
             // check if the plugin is present and call method from plugin executor
             return pluginExecutorHelper

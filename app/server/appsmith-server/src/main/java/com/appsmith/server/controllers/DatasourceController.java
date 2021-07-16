@@ -110,6 +110,7 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     @PutMapping("/datasource-query/{datasourceId}")
     public Mono<ResponseDTO<ActionExecutionResult>> runQueryOnDatasource(@PathVariable String datasourceId,
                                                                     @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
+        log.debug("Getting datasource metadata");
         return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
             .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
