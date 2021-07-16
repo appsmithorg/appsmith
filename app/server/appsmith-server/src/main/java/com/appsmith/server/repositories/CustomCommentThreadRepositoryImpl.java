@@ -58,6 +58,12 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    public Mono<UpdateResult> removeSubscriber(String threadId, String username) {
+        Update update = new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username);
+        return this.updateById(threadId, update, AclPermission.READ_THREAD);
+    }
+
+    @Override
     public Mono<Long> countUnreadThreads(String applicationId, String userEmail) {
         List<Criteria> criteriaList = List.of(
             where(fieldName(QCommentThread.commentThread.viewedByUsers)).ne(userEmail),

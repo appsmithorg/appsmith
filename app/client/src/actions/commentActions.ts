@@ -43,6 +43,11 @@ export const removeUnpublishedCommentThreads = () => ({
   payload: null,
 });
 
+export const unsubscribeCommentThreadAction = (threadId: string) => ({
+  type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_REQUEST,
+  payload: threadId,
+});
+
 export const createCommentThreadRequest = (
   payload: CreateCommentThreadPayload,
 ) => ({
@@ -113,6 +118,11 @@ export const updateCommentThreadSuccess = (
 export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   type: ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT,
   payload,
+});
+
+export const unsubscribedCommentThreadSuccess = () => ({
+  type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
+  payload: null,
 });
 
 export const pinCommentThreadRequest = (payload: {

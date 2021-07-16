@@ -2,8 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.services.SessionUserService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,23 +15,13 @@ import java.security.Principal;
 
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("")
 public class IndexController {
 
     private final SessionUserService service;
-
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
-
     private final ChannelTopic topic;
-
-    @Autowired
-    public IndexController(SessionUserService service,
-                           ReactiveRedisTemplate<String, String> reactiveTemplate,
-                           ChannelTopic topic) {
-        this.service = service;
-        this.reactiveTemplate = reactiveTemplate;
-        this.topic = topic;
-    }
 
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
