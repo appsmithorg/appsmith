@@ -6,17 +6,7 @@ import {
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import {
-  cloneDeep,
-  get,
-  isString,
-  filter,
-  set,
-  minBy,
-  maxBy,
-  flattenDeep,
-  omit,
-} from "lodash";
+import _ from "lodash";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -85,14 +75,14 @@ export const handleIfParentIsListWidgetWhilePasting = (
   widget: FlattenedWidgetProps,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): { [widgetId: string]: FlattenedWidgetProps } => {
-  let root = get(widgets, `${widget.parentId}`);
+  let root = _.get(widgets, `${widget.parentId}`);
 
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === WidgetTypes.LIST_WIDGET) {
       const listWidget = root;
-      const currentWidget = cloneDeep(widget);
-      let template = get(listWidget, "template", {});
-      const dynamicBindingPathList: any[] = get(
+      const currentWidget = _.cloneDeep(widget);
+      let template = _.get(listWidget, "template", {});
+      const dynamicBindingPathList: any[] = _.get(
         listWidget,
         "dynamicBindingPathList",
         [],
@@ -105,7 +95,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
         const key = keys[i];
         let value = currentWidget[key];
 
-        if (isString(value) && value.indexOf("currentItem") > -1) {
+        if (_.isString(value) && value.indexOf("currentItem") > -1) {
           const { jsSnippets } = getDynamicBindings(value);
 
           const modifiedAction = jsSnippets.reduce(
@@ -211,7 +201,7 @@ export const handleSpecificCasesWhilePasting = (
       (key) => widgetNameMap[key] === widget.widgetName,
     );
     // get all the button, icon widgets
-    const copiedBtnIcnWidgets = filter(
+    const copiedBtnIcnWidgets = _.filter(
       newWidgetList,
       (copyWidget) =>
         copyWidget.type === "BUTTON_WIDGET" ||
@@ -224,7 +214,7 @@ export const handleSpecificCasesWhilePasting = (
           oldWidgetName,
           widget.widgetName,
         );
-        set(widgets[copyWidget.widgetId], "onClick", newOnClick);
+        _.set(widgets[copyWidget.widgetId], "onClick", newOnClick);
       }
     });
   }
@@ -239,7 +229,7 @@ export function getWidgetChildren(
   widgetId: string,
 ): any {
   const childrenIds: string[] = [];
-  const widget = get(canvasWidgets, widgetId);
+  const widget = _.get(canvasWidgets, widgetId);
   // When a form widget tries to resetChildrenMetaProperties
   // But one or more of its container like children
   // have just been deleted, widget can be undefined
@@ -358,7 +348,7 @@ export const checkIfPastingIntoListWidget = function(
       }
     }
 
-    return get(canvasWidgets, firstChildId);
+    return _.get(canvasWidgets, firstChildId);
   }
   return selectedWidget;
 };
@@ -501,10 +491,10 @@ export const groupWidgetsIntoContainer = function*(
   );
 
   const boundary = {
-    top: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
-    left: minBy(copiedWidgets, (copiedWidget) => copiedWidget?.leftColumn),
-    bottom: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.bottomRow),
-    right: maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.rightColumn),
+    top: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
+    left: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.leftColumn),
+    bottom: _.maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.bottomRow),
+    right: _.maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.rightColumn),
   };
 
   const widthPerColumn =
@@ -589,7 +579,7 @@ export const groupWidgetsIntoContainer = function*(
     ];
   });
 
-  const flatList = flattenDeep(list);
+  const flatList = _.flattenDeep(list);
 
   return [
     {
@@ -632,7 +622,7 @@ export const filterOutSelectedWidgets = function*(parentId: string) {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
 
-  const filteredWidgets: CanvasWidgetsReduxState = omit(
+  const filteredWidgets: CanvasWidgetsReduxState = _.omit(
     canvasWidgets,
     selectedWidgetIDs,
   );
@@ -642,11 +632,57 @@ export const filterOutSelectedWidgets = function*(parentId: string) {
     [parentId]: {
       ...filteredWidgets[parentId],
       // removing the selected widgets ids in the children of parent widget
-      children: get(filteredWidgets[parentId], "children", []).filter(
+      children: _.get(filteredWidgets[parentId], "children", []).filter(
         (widgetId) => {
           return !selectedWidgetIDs.includes(widgetId);
         },
       ),
     },
   };
+};
+
+/**
+ * checks if selected widgets are colliding with other widgets or not
+ *
+ * @param widgets
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const isSelectedWidgetsColliding = function*(
+  widgets: CanvasWidgetsReduxState,
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  const parentId = copiedWidgetGroups[0].parentId;
+
+  const topMostWidget = getTopMostSelectedWidget(copiedWidgetGroups);
+  const bottomMostWidget = getBottomSelectedWidget(copiedWidgetGroups);
+  const leftMostWidget = getLeftMostSelectedWidget(copiedWidgetGroups);
+  const rightMostWidget = getRightMostSelectedWidget(copiedWidgetGroups);
+
+  const widgetsWithSameParent = _.omitBy(widgets, (widget) => {
+    return widget.parentId !== parentId;
+  });
+
+  const widgetsArray = Object.values(widgetsWithSameParent);
+  let isColliding = false;
+
+  for (let i = 0; i < widgetsArray.length; i++) {
+    const widget = widgetsArray[i];
+
+    if (
+      widget.bottomRow < topMostWidget.topRow ||
+      widget.topRow > bottomMostWidget.bottomRow
+    ) {
+      isColliding = false;
+    } else if (
+      widget.rightColumn < leftMostWidget.leftColumn ||
+      widget.leftColumn > rightMostWidget.rightColumn
+    ) {
+      isColliding = false;
+    } else {
+      return true;
+    }
+  }
+
+  return isColliding;
 };

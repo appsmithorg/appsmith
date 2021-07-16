@@ -132,6 +132,7 @@ import {
   getTopMostSelectedWidget,
   createSelectedWidgetsAsCopiedWidgets,
   filterOutSelectedWidgets,
+  isSelectedWidgetsColliding,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
@@ -1441,7 +1442,8 @@ export function calculateNewWidgetPosition(
   parentId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
   parentBottomRow?: number,
-  persistColumnPosition = false,
+  shouldPersistColumnPosition = false,
+  isThereACollision = false,
 ): {
   topRow: number;
   bottomRow: number;
@@ -1452,14 +1454,18 @@ export function calculateNewWidgetPosition(
     ? parentBottomRow
     : nextAvailableRowInContainer(parentId, canvasWidgets);
   return {
-    leftColumn: persistColumnPosition ? widget.leftColumn : 0,
-    rightColumn: persistColumnPosition
+    leftColumn: shouldPersistColumnPosition ? widget.leftColumn : 0,
+    rightColumn: shouldPersistColumnPosition
       ? widget.rightColumn
       : widget.rightColumn - widget.leftColumn,
-    topRow: parentBottomRow
+    topRow: !isThereACollision
+      ? widget.topRow
+      : parentBottomRow
       ? nextAvailableRow + widget.topRow
       : nextAvailableRow,
-    bottomRow: parentBottomRow
+    bottomRow: !isThereACollision
+      ? widget.bottomRow
+      : parentBottomRow
       ? nextAvailableRow + widget.bottomRow
       : nextAvailableRow + (widget.bottomRow - widget.topRow),
   };
@@ -1515,11 +1521,19 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   );
 
   const shouldGroup: boolean = action.payload.groupWidgets;
+  let isThereACollision: boolean = yield isSelectedWidgetsColliding(
+    widgets,
+    copiedWidgetGroups,
+  );
 
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
     widgets = yield filterOutSelectedWidgets(copiedWidgetGroups[0].parentId);
+    isThereACollision = yield isSelectedWidgetsColliding(
+      widgets,
+      copiedWidgetGroups,
+    );
 
     copiedWidgetGroups = yield groupWidgetsIntoContainer(
       copiedWidgetGroups,
@@ -1541,11 +1555,15 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
 
         const copiedWidgetId = copiedWidgets.widgetId;
         const unUpdatedCopyOfWidget = copiedWidgets.list[0];
-
+        const newTopRow = shouldGroup
+          ? isThereACollision
+            ? topMostWidget.topRow
+            : 0
+          : topMostWidget.topRow;
         const copiedWidget = {
           ...unUpdatedCopyOfWidget,
-          topRow: unUpdatedCopyOfWidget.topRow - topMostWidget.topRow,
-          bottomRow: unUpdatedCopyOfWidget.bottomRow - topMostWidget.topRow,
+          topRow: unUpdatedCopyOfWidget.topRow - newTopRow,
+          bottomRow: unUpdatedCopyOfWidget.bottomRow - -newTopRow,
         };
 
         // Log the paste event.
@@ -1561,6 +1579,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           widgets,
           nextAvailableRow,
           true,
+          isThereACollision,
         );
 
         // goToNextAvailableRow = true,

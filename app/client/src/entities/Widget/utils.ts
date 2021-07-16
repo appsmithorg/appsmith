@@ -157,12 +157,12 @@ export const nextAvailableRowInContainer = (
   parentContainerId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) => {
-  const filetedCanvasWidgets = omitBy(canvasWidgets, (widget) => {
+  const filteredCanvasWidgets = omitBy(canvasWidgets, (widget) => {
     return widget.type === WidgetTypes.MODAL_WIDGET;
   });
 
   return (
-    Object.values(filetedCanvasWidgets).reduce(
+    Object.values(filteredCanvasWidgets).reduce(
       (prev: number, next: any) =>
         next?.parentId === parentContainerId && next.bottomRow > prev
           ? next.bottomRow
