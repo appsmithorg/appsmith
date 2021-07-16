@@ -4,7 +4,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { getScrollByPixels } from "utils/helpers";
 
 export const useCanvasDragToScroll = (
-  canvasRef: RefObject<HTMLCanvasElement>,
+  canvasRef: RefObject<HTMLDivElement>,
   isCurrentDraggedCanvas: boolean,
   isDragging: boolean,
   snapRows: number,
@@ -24,11 +24,14 @@ export const useCanvasDragToScroll = (
           scrollTimeOut = [];
         }
       };
-      const scrollFn = (scrollParent: Element | null) => {
+      const scrollFn = () => {
         clearScrollStacks();
         if (!canScroll.current) {
           scrollDirection = 0;
         }
+        const scrollParent: Element | null = getNearestParentCanvas(
+          canvasRef.current,
+        );
         if (
           isDragging &&
           isCurrentDraggedCanvas &&
@@ -39,17 +42,13 @@ export const useCanvasDragToScroll = (
             (scrollByPixels < 0 && scrollParent.scrollTop > 0) ||
             scrollByPixels > 0
           ) {
+            console.count("scrollFn");
             scrollParent.scrollBy({
               top: scrollByPixels,
               behavior: "smooth",
             });
           }
-          scrollTimeOut.push(
-            setTimeout(
-              () => scrollFn(scrollParent),
-              100 * Math.max(0.4, speed),
-            ),
-          );
+          scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };
       const checkIfNeedsScroll = debounce((e: any) => {
@@ -77,7 +76,7 @@ export const useCanvasDragToScroll = (
             if (currentScrollDirection !== scrollDirection) {
               scrollDirection = currentScrollDirection;
               if (!!scrollDirection) {
-                scrollFn(scrollParent);
+                scrollFn();
               }
             }
           }

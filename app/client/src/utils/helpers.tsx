@@ -64,7 +64,6 @@ export const getScrollByPixels = function(
   scrollAmount: number;
   speed: number;
 } {
-  // const bounding = elem.getBoundingClientRect();
   const scrollParentBounds = scrollParent.getBoundingClientRect();
   const scrollChildBounds = child.getBoundingClientRect();
   const scrollAmount =
