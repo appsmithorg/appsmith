@@ -139,12 +139,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
-                .doOnSuccess(result -> {
-                    if (result.getModifiedCount() != 1) {
-                        log.error("Add page to application didn't update anything, probably because application wasn't found.");
-                    }
-                });
+        if(isDuplicatePage(application, page.getId())) {
+            return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
+                    .doOnSuccess(result -> {
+                        if (result.getModifiedCount() != 1) {
+                            log.error("Add page to application didn't update anything, probably because application wasn't found.");
+                        }
+                    });
+        } else{
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id "+page.getId()));
+        }
+
+    }
+
+    private Boolean isDuplicatePage(Application application, String pageId) {
+        if( application.getPages() != null) {
+            int count = (int) application.getPages().stream().filter(
+                    applicationPage -> applicationPage.getId().equals(pageId)).count();
+            if (count > 0) {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
     }
 
     @Override

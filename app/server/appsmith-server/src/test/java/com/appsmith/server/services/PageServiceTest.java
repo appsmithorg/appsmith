@@ -491,6 +491,30 @@ public class PageServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addDuplicatePageToApplication() {
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageServiceTest TestApp");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(pageDTO -> {
+                    PageDTO testPage1 = new PageDTO();
+                    testPage1.setName("Page3");
+                    testPage1.setApplicationId(applicationId);
+                    testPage1.setId(pageDTO.getId());
+                    return applicationPageService.createPage(testPage1);
+                });
+        StepVerifier
+                .create(pageMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+                .verify();
+    }
+
+
     @After
     public void purgeAllPages() {
         newPageService.deleteAll();
