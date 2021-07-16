@@ -53,12 +53,12 @@ describe("Table Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Verify Column Sequnce Changing property", function() {
+  /*it("Verify Column Sequnce Changing property", function() {
     cy.reArrangeColumn({ x: 200, y: 20 });
     cy.wait(2000);
-  });
+  });*/
 
-  it("Verify Row Height Functionality", function() {
+  it("Table Widget Functionality To Verify Row Height Functionality", function() {
     //click on Row Height Toggle
     cy.get(widgetsPage.rowHeight).click({ force: true });
     // Select short row height
@@ -69,7 +69,7 @@ describe("Table Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Drage and Drop Table widget and verify default data", function() {
+  it("Table Widget Functionality To Drage and Drop Table widget and verify default data", function() {
     // Click on Add widget button
     cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
@@ -253,7 +253,7 @@ describe("Table Widget Functionality", function() {
     });
   });
 
-  it("Table Widget Functionality To Filter The Data using 'does not contain'", function() {
+  /* it("Table Widget Functionality To Filter The Data using 'does not contain'", function() {
     cy.isSelectRow(1);
     // Reading single cell value of the table and verify it's value.
     cy.readTabledataPublish("1", "3").then((tabData) => {
@@ -300,7 +300,7 @@ describe("Table Widget Functionality", function() {
         .first()
         .click();
     });
-  });
+  });*/
 
   it("Table Widget Functionality To Filter The Data using starts with ", function() {
     cy.isSelectRow(1);

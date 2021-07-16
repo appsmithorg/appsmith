@@ -2109,7 +2109,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
     .trigger("mousemove", x, y)
-    .trigger("mouseup", x, y + 20);
+    .trigger("mouseup", x, y);
 });
 
 Cypress.Commands.add("resizeTablePage", (widgetType, { x, y }) => {

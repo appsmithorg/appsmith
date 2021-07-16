@@ -13,45 +13,78 @@ describe("Table Widget property pane feature validation", function() {
   // To be done:
   // Column Data type: Video
 
-  it("Check On Search Text Change Action", function() {
+  it("Verify On Search Text Change Action", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Show Message on Search text change Action
     cy.addAction("Search Text Changed");
     cy.PublishtheApp();
+    // Change the Search text
     cy.get(widgetsPage.searchField).type("search");
     cy.wait(2000);
+    // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
     cy.get(publish.backToEditor).click();
   });
 
-  it("Check On Row Selected Action", function() {
+  it("Verify default array data", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Open Widget side bar
+    cy.get(widgetsPage.addWidget).click();
+    // Drag and drop table widget
+    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
+    // close Widget side bar
+    cy.get(widgetsPage.closeWidgetBar).click({ force: true });
+    cy.wait(2000);
+    cy.SearchEntityandOpen("Table2");
+    // Verify default array data
+    cy.get(widgetsPage.tabedataField).should("not.be.empty");
+    cy.deleteWidget(widgetsPage.tableWidget);
+    cy.wait(2000);
+  });
+
+  it("Verify On Row Selected Action", function() {
+    // Open property pane
+    cy.SearchEntityandOpen("Table1");
+    // Select show message in the "on selected row" dropdown
     cy.onRowSelectedAction();
+    // Type message in the message field
     cy.get(widgetsPage.selectedRowMessageField).type("Row is selected");
     cy.PublishtheApp();
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
+    // Verify Row is selected by showing the message
     cy.get(commonlocators.toastmsg).contains("Row is selected");
     cy.get(publish.backToEditor).click();
   });
 
-  it("Check On Page Size Change", function() {
+  it("Explore Widget related documents Verification", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
-    cy.onPageSizeChangeAction();
-    cy.get(widgetsPage.pageSizeChangeMessageField).type("Page Size Changed");
+    // Click on "Explore widget related docs" button
+    cy.get(widgetsPage.exploreWidget).click();
+    // Verify the widget related document
+    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Table1");
     cy.wait(2000);
-    cy.resizeTablePage("dividerwidget", { x: 300, y: 300 });
-    //cy.get(commonlocators.toastmsg).contains('Page Size Changed');
+    cy.get("#header-root").click();
+    cy.wait(1000);
   });
 
   it("Check On Page Change Action", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Select show message in the "on selected row" dropdown
     cy.onPageChangeAction();
+    // Type message in the message fiald
     cy.get(widgetsPage.pageChangeMessageField).type("Page Changed");
     cy.PublishtheApp();
     cy.wait(2000);
-    //cy.get(widgetsPage.nextPageButton).click({force:true});
-    //cy.get(commonlocators.toastmsg).contains('Page Changed');
+    // Change the page
+    cy.get(widgetsPage.nextPageButton).click({ force: true });
+    // Verify the page is changed
+    cy.get(commonlocators.toastmsg).contains("Page Changed");
     cy.get(publish.backToEditor).click();
   });
 
@@ -124,7 +157,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "URL" to "Video"
-    /*const videoVal = 'https://youtu.be/Sc-m3ceZyfk';
+    /* const videoVal = 'https://youtu.be/Sc-m3ceZyfk';
     cy.changeColumnType("Video");
     // "Moement "date" to "Video"
     cy.updateComputedValue(videoVal);
@@ -143,7 +176,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.updateComputedValue(imageVal);
     // Verifying the href of the image added.
     cy.readTableLinkPublish("1", "1").then((hrefVal) => {
-      expect(hrefVal).to.be.equal(imageVal);
+      expect(hrefVal).to.be.contains(imageVal);
     });
 
     // Changing Column data type from "Date" to "URl"
@@ -244,21 +277,29 @@ describe("Table Widget property pane feature validation", function() {
     cy.closePropertyPane();
   });
 
-  it("Check default search text", function() {
+  it("Verify default search text", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
+    // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     cy.get(publish.backToEditor).click();
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Clear the default search text value
     cy.testJsontext("defaultsearchtext", "");
   });
 
-  it("Check default selected row", function() {
+  it("Verify default selected row", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
+    // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");
     cy.wait(2000);
     cy.PublishtheApp();
+    // Verify the default selected row
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
@@ -268,10 +309,12 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Table-Delete Verification", function() {
+    // Open property pane
     cy.SearchEntityandOpen("Table1");
-    // Delete the button widget
+    // Delete the Table widget
     cy.deleteWidget(widgetsPage.tableWidget);
     cy.PublishtheApp();
+    // Verify the Table widget is deleted
     cy.get(widgetsPage.tableWidget).should("not.exist");
   });
 });
