@@ -32,6 +32,8 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };
+      bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      dynamicBindingPathList.push({ key: action.name });
     }
   }
   result = {
