@@ -27,6 +27,7 @@ import {
   addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
+  DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
   getEntityNameAndPropertyPath,
@@ -144,12 +145,12 @@ export default class DataTreeEvaluator {
   }
 
   updateDataTree(unEvalTree: DataTree): EvaluateDataTreeResponse {
-    const newUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, newUnEvalTree) || [];
+      diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -163,12 +164,19 @@ export default class DataTreeEvaluator {
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
 
+    const translatedDiffs = _.flatten(
+      differences.map((diff) =>
+        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+      ),
+    );
+    this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
+
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
-    } = this.updateDependencyMap(differences, newUnEvalTree);
+    } = this.updateDependencyMap(translatedDiffs, localUnEvalTree);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
@@ -177,11 +185,11 @@ export default class DataTreeEvaluator {
       differences,
       dependenciesOfRemovedPaths,
       removedPaths,
-      newUnEvalTree,
+      localUnEvalTree,
     );
 
     const calculateSortOrderStop = performance.now();
-    this.resolveJSActions(differences, newUnEvalTree);
+    this.resolveJSActions(translatedDiffs, localUnEvalTree);
 
     // Evaluate
     const evalStart = performance.now();
@@ -190,8 +198,8 @@ export default class DataTreeEvaluator {
     const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
-      if (this.isDynamicLeaf(newUnEvalTree, propertyPath)) {
-        const unEvalPropValue = _.get(newUnEvalTree, propertyPath);
+      if (this.isDynamicLeaf(localUnEvalTree, propertyPath)) {
+        const unEvalPropValue = _.get(localUnEvalTree, propertyPath);
         if (!_.isFunction(_.get(this.evalTree, propertyPath))) {
           _.set(this.evalTree, propertyPath, unEvalPropValue);
         }
@@ -763,71 +771,54 @@ export default class DataTreeEvaluator {
     return propertyValue;
   }
 
-  resolveJSActions(
-    differences: Array<Diff<DataTree, DataTree>>,
-    unEvalDataTree: DataTree,
-  ) {
-    const myUnEvalTree = JSON.parse(JSON.stringify(unEvalDataTree));
-    const translatedDiffs = differences.map((diff) =>
-      translateDiffEventToDataTreeDiffEvent(diff, myUnEvalTree),
-    );
-
-    _.flatten(translatedDiffs).forEach((diff) => {
+  resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
+    differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
       );
-      const entity = { ...myUnEvalTree[entityName] } as DataTreeEntity;
-      if (isJSAction(entity)) {
-        if (diff.event === DataTreeDiffEvent.NEW) {
-          // Check if it is new JS Action
-          if (entityName == diff.payload.propertyPath) {
-            //// get all js functions and resolve them
-            Object.keys(entity.meta).forEach((unEvalFunc) => {
-              const unEvalValue = _.get(entity, unEvalFunc);
-              if (typeof unEvalValue === "string") {
-                const { result } = evaluate(unEvalValue, {});
-                _.set(this.evalTree, `${entityName}.${unEvalFunc}`, result);
-              }
-            });
-            // Check if it is a new JS action function
-          } else if (propertyPath in entity.meta) {
-            //// resolve that function
-            const unEvalValue = _.get(entity, propertyPath);
-            if (typeof unEvalValue === "string") {
-              const { result } = evaluate(unEvalValue, this.evalTree);
-              _.set(this.evalTree, `${entityName}.${propertyPath}`, result);
-            }
-          }
-        }
-        if (diff.event === DataTreeDiffEvent.EDIT) {
-          const unEvalValue = _.get(entity, propertyPath);
-          if (typeof unEvalValue === "string") {
-            const { result } = evaluate(unEvalValue, this.evalTree);
-            _.set(this.evalTree, diff.payload.propertyPath, result);
-          }
-        }
+      const entity = unEvalDataTree[entityName];
+      if (!isJSAction(entity)) {
+        return;
       }
       // if a new js function is added
       // or if js function is edited
       // Resolve the js function and save it
-
+      if (diff.event === DataTreeDiffEvent.NEW) {
+        // Check if it is new JS Action
+        if (entityName == diff.payload.propertyPath) {
+          //// get all js functions and resolve them
+          Object.keys(entity.meta).forEach((unEvalFunc) => {
+            const unEvalValue = _.get(entity, unEvalFunc);
+            if (typeof unEvalValue === "string") {
+              const { result } = evaluate(unEvalValue, {});
+              _.set(this.evalTree, `${entityName}.${unEvalFunc}`, result);
+            }
+          });
+          // Check if it is a new JS action function
+        } else if (propertyPath in entity.meta) {
+          //// resolve that function
+          const unEvalValue = _.get(entity, propertyPath);
+          if (typeof unEvalValue === "string") {
+            const { result } = evaluate(unEvalValue, this.evalTree);
+            _.set(this.evalTree, `${entityName}.${propertyPath}`, result);
+          }
+        }
+      }
+      if (diff.event === DataTreeDiffEvent.EDIT) {
+        const unEvalValue = _.get(entity, propertyPath);
+        if (typeof unEvalValue === "string") {
+          const { result } = evaluate(unEvalValue, this.evalTree);
+          _.set(this.evalTree, diff.payload.propertyPath, result);
+        }
+      }
+      // TODO
       // if the js function is deleted
       // delete the js function (check if needed)
     });
   }
 
-  removeJsFunctions(unEvalTree: DataTree) {
-    Object.entries(this.evalTree).forEach(([entityName, entity]) => {
-      if (isJSAction(entity)) {
-        Object.keys(entity.meta).forEach((func) => {
-          _.set(this.evalTree, `${entityName}.${func}`, {});
-        });
-      }
-    });
-  }
-
   updateDependencyMap(
-    differences: Array<Diff<DataTree, DataTree>>,
+    differences: DataTreeDiff[],
     unEvalDataTree: DataTree,
   ): {
     dependenciesOfRemovedPaths: Array<string>;
@@ -842,16 +833,8 @@ export default class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    const translatedDiffs = differences.map((diff) => {
-      return translateDiffEventToDataTreeDiffEvent(diff, unEvalDataTree);
-    });
-    // const translatedDiffs = differences.map(translateDiffEventToDataTreeDiffEvent);
-    this.logs.push({
-      differences: _.cloneDeep(differences),
-      translatedDiffs: [...translatedDiffs],
-    });
     // Transform the diff library events to Appsmith evaluator events
-    _.flatten(translatedDiffs).forEach((dataTreeDiff) => {
+    differences.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
       let entity = unEvalDataTree[entityName];
       if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
