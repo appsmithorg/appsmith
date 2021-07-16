@@ -552,7 +552,7 @@ const Icon = forwardRef(
     if (props.loaderWithIconWrapper) {
       loader = (
         <IconWrapper className={Classes.ICON} {...props}>
-          <Spinner size={props.size} />;
+          <Spinner size={props.size} />
         </IconWrapper>
       );
     }
