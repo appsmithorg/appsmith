@@ -9,10 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
-import org.togglz.core.manager.FeatureManager;
-import org.togglz.core.manager.FeatureManagerBuilder;
-import org.togglz.core.repository.mem.InMemoryStateRepository;
-import org.togglz.core.user.NoOpUserProvider;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -84,15 +80,5 @@ public class CommonConfig {
         }
 
         return allowedDomains;
-    }
-
-    @Bean
-    public FeatureManager getFeatureManager() {
-        FeatureManager manager = new FeatureManagerBuilder()
-//                .featureClass(MyFeaturess.class)
-                .stateRepository(new InMemoryStateRepository())
-                .userProvider(new NoOpUserProvider())
-                .build();
-        return manager;
     }
 }

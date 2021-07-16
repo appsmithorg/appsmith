@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <ff4j.version>1.8.11</ff4j.version>
     </properties>
 
     <repositories>
@@ -223,35 +224,18 @@
             <version>1.8</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.togglz/togglz-spring-boot-starter -->
+        <!-- Dependencies for feature flagging -->
         <dependency>
-            <groupId>org.togglz</groupId>
-            <artifactId>togglz-spring-boot-starter</artifactId>
-<!--            <version>2.9.8</version>-->
-            <version>2.6.0.Final</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.togglz</groupId>
-                    <artifactId>togglz-console</artifactId>
-                    <!-- declare the exclusion here -->
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-webmvc</artifactId>
-                    <!-- declare the exclusion here -->
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jboss.spec.javax.servlet</groupId>
-                    <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-core</artifactId>
+            <version>${ff4j.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.togglz/togglz-core -->
-<!--        <dependency>-->
-<!--            <groupId>org.togglz</groupId>-->
-<!--            <artifactId>togglz-core</artifactId>-->
-<!--            <version>2.9.8</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-store-mongodb</artifactId>
+            <version>${ff4j.version}</version>
+        </dependency>
+
 
     </dependencies>
 
