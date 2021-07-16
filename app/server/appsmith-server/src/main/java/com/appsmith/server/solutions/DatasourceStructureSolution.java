@@ -20,12 +20,14 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -152,7 +154,12 @@ public class DatasourceStructureSolution {
         return datasourceMono.flatMap(datasource -> {
             if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
                 // Don't attempt to run query for invalid datasources.
-                return Mono.empty();
+                Set<String> invalids = datasource.getInvalids();
+                log.error("Unable to execute DB query because it's datasource is not valid. Cause: {}",
+                    ArrayUtils.toString(invalids));
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                    datasource.getName(),
+                    ArrayUtils.toString(invalids)));
             }
             // check if the plugin is present and call method from plugin executor
             return pluginExecutorHelper
