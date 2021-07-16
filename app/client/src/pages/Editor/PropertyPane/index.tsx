@@ -1,4 +1,4 @@
-import React, { Component, ReactElement, useCallback } from "react";
+import React, { Component, ReactElement, useCallback, useMemo } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -37,9 +37,8 @@ import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
-import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
+import ConnectDataCTA, { actionsExist, excludeList } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import { useMemo } from "react";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -106,6 +105,13 @@ function PropertyPaneView(
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
+  const hideConnectDataCTA = useMemo(() => {
+    if (widgetProperties) {
+      return excludeList.includes(widgetProperties.type);
+    }
+
+    return true;
+  }, [widgetProperties?.type]);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {
@@ -177,7 +183,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
       <PropertyPaneBodyWrapper>
-        {!doActionsExist && <ConnectDataCTA />}
+        {!doActionsExist && !hideConnectDataCTA && <ConnectDataCTA />}
         <PropertyControlsWrapper>
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}

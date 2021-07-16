@@ -25,6 +25,8 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid"),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when connecting to " +
             "datasource"),
+    PLUGIN_AUTHENTICATION_ERROR(401, 4000, "Invalid authentication credentials. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT, "Datasource authentication error"),
     ;
 
     private final Integer httpErrorCode;
