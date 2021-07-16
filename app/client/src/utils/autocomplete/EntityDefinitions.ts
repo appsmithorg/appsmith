@@ -80,6 +80,7 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
   }),
   VIDEO_WIDGET: {
     "!doc":

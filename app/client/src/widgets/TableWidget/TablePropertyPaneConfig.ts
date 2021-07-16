@@ -699,6 +699,20 @@ export default [
         isTriggerProperty: false,
       },
       {
+        helpText:
+          "Bind the Table.pageSize and Table.pageNo \n property in your API and call it onPageChange. \n Without this the Table widget cannot calculate \n the number of pages and disable page buttons.",
+        propertyName: "totalRecordsCount",
+        label: "Total Record Count",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter total record count",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.NUMBER,
+        hidden: (props: TableWidgetProps) => {
+          return !props.serverSidePaginationEnabled;
+        },
+      },
+      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         isJSConvertible: true,
