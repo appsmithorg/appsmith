@@ -42,6 +42,9 @@ import ButtonTabControl, {
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
+import MenuItemsControl from "./MenuItemsControl";
+import IconSelectControl from "./IconSelectControl";
+import IconAlignControl from "./IconAlignControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -63,6 +66,9 @@ export const PropertyControls = {
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  MenuItemsControl,
+  IconSelectControl,
+  IconAlignControl,
 };
 
 export type PropertyControlPropsType =

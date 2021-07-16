@@ -141,7 +141,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
-                    showLightningMenu={false}
                     theme={props.theme}
                   />
                 </Flex>
@@ -154,7 +153,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
                       hoverInteraction
-                      mutedHinting
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
                       theme={props.theme}
@@ -174,7 +172,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={expected}
-                      mutedHinting
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder

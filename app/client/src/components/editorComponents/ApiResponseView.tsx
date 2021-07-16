@@ -38,7 +38,7 @@ import Button, { Size } from "components/ads/Button";
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: 60%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;

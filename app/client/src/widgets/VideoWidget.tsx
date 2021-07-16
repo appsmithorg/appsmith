@@ -106,10 +106,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {};
   }
 
-  shouldComponentUpdate(nextProps: VideoWidgetProps) {
-    return nextProps.url !== this.props.url;
-  }
-
   getPageView() {
     const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
     return (
