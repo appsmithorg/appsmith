@@ -345,7 +345,7 @@ class TernServer {
       },
     );
     completionType.MATCHING_TYPE = completionType.MATCHING_TYPE.filter((c) =>
-      c.text.startsWith(bestMatchSearch),
+      c.text.toLowerCase().startsWith(bestMatchSearch.toLowerCase()),
     );
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
       const sortedMatches: Completion[] = [];
