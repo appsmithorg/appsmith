@@ -323,6 +323,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 
   return (
     <SelectedNodeWrapper
+      className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
     >
