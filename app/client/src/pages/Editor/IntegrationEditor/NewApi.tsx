@@ -13,7 +13,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
 
 const StyledContainer = styled.div`

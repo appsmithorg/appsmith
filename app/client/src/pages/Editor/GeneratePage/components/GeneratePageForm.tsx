@@ -11,7 +11,7 @@ import {
 } from "../../../../selectors/entitiesSelector";
 import { Datasource, DatasourceTable } from "entities/Datasource";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
-import { getDatasourcesStructure } from "../../../../selectors/entitiesSelector";
+import { getDatasourcesStructure } from "selectors/entitiesSelector";
 import { fetchPage, generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
@@ -22,31 +22,13 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { getIsGeneratingTemplatePage } from "../../../../selectors/pageListSelectors";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
 } from "./DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
-
-// Temporary hardcoded valid plugins which support generate template
-// Record<pluginId, pluginName>
-export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
-  "5c9f512f96c1a50004819786": "PostgreSQL",
-  "5e687c18fb01e64e6a3f873f": "MongoDB",
-  "5f16c4be93f44d4622f487e2": "Mysql",
-  "5f92f2628c11891d27ff0f1f": "MsSQL",
-  "5ff5af0851d64d5127abc597": "Redshift",
-  // "5ca385dc81b37f0004b4db85": "REST API",
-  // "5e75ce2b8f4b473507a4a52e": "Rapid API Plugin",
-  // "5f9008736e895f2d2942eb07": "ElasticSearch",
-  // "5f90331f8373f73ad9b2fd2e": "DynamoDB",
-  // "5f9169920c6d936f469f4c8a": "Redis",
-  // "5fbbc39ad1f71d6666c32e4b": "Firestore",
-  "6023b4a070eb652de19476d3": "S3",
-  // "6080f9266b8cfd602957ba72": "Google Sheets",
-  "60cb22feef0bd0550e175f3d": "Snowflake",
-};
+import { VALID_PLUGINS_FOR_TEMPLATE, PLUGIN_ID } from "./constants";
 
 export const PluginFormInputFieldMap: Record<
   string,
@@ -60,6 +42,11 @@ export const PluginFormInputFieldMap: Record<
   "6023b4a070eb652de19476d3": {
     DATASOURCE: "S3",
     TABLE: "bucket",
+    COLUMN: "keys",
+  },
+  [PLUGIN_ID.GOOGLE_SHEET]: {
+    DATASOURCE: "Google Sheets",
+    TABLE: "spreadsheet",
     COLUMN: "keys",
   },
   DEFAULT: {
@@ -141,14 +128,14 @@ const Bold = styled.span`
   font-weight: 500;
 `;
 
-export const DescWrapper = styled.div`
+const DescWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 
-export const Title = styled.p`
+const Title = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
@@ -162,7 +149,7 @@ type DropdownOptions = Array<DropdownOption>;
 
 // ---------- GeneratePageForm Component ----------
 
-export const GENERATE_PAGE_MODE = {
+const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
@@ -245,7 +232,7 @@ function GeneratePageForm() {
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         const { data } = TableObj;
         const columnIcon: IconName = "column";
-        if (data.columns) {
+        if (data.columns && Array.isArray(data.columns)) {
           const newSelectedTableColumnOptions: DropdownOption[] = [];
           data.columns.map((column) => {
             if (
@@ -392,7 +379,6 @@ function GeneratePageForm() {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
         }
         setNewDatasourceId(datasourceId);
-        // TODO: Remove only datasourceId and new_page from search
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
@@ -465,7 +451,7 @@ function GeneratePageForm() {
 
   let tableDropdownErrorMsg = "";
   if (!isFetchingDatasourceStructure) {
-    if (datasourceTableOptions.length === 0 && !isValidDatasourceConfig) {
+    if (datasourceTableOptions.length === 0) {
       tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
     }
     if (selectedDatasourceIsInvalid && isValidDatasourceConfig) {

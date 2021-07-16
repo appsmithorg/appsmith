@@ -20,7 +20,7 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/GeneratePageForm";
+import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/constants";
 import { getGenerateTemplateFormURL } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
