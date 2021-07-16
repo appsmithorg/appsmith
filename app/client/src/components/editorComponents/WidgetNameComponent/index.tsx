@@ -111,6 +111,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
+  // in sniping mode we only show the widget name tag if it's focused.
+  // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
+  // with sniping mode.
   const showWidgetName = isSnipingMode
     ? focusedWidget === props.widgetId
     : props.showControls ||
