@@ -66,8 +66,6 @@ function UnpublishedCommentThread({
 
   const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
-  console.log(commentThread, "commentThread");
-
   return (
     <div
       data-cy="unpublished-comment-thread"
