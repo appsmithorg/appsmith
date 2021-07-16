@@ -40,6 +40,11 @@
       "color": "074ac6",
       "description": ""
     },
+    "Collaboration": {
+      "name": "Collaboration",
+      "color": "d802a3",
+      "description": "Example apps created for new signups"
+    },
     "Container Widget": {
       "name": "Container Widget",
       "color": "19AD0D",
@@ -129,6 +134,11 @@
       "name": "Good First Issue",
       "color": "7057ff",
       "description": "Good for newcomers"
+    },
+    "Generate Page": {
+      "name": "Generate Page",
+      "color": "7057ff",
+      "description": "Issues related to page generation"
     },
     "Help Wanted": {
       "name": "Help Wanted",
@@ -720,6 +730,11 @@
               },
               {
                 "type": "hasLabel",
+                "label": "Generate Page",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
                 "label": "Settings",
                 "value": true
               },
@@ -736,6 +751,11 @@
               {
                 "type": "hasLabel",
                 "label": "Version Control",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Collaboration",
                 "value": true
               },
               {
