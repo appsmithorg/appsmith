@@ -57,7 +57,7 @@ export const excludeList = [
   WidgetTypes.MODAL_WIDGET,
   WidgetTypes.DIVIDER_WIDGET,
   WidgetTypes.FILE_PICKER_WIDGET,
-  WidgetTypes.DIVIDER_WIDGET,
+  WidgetTypes.BUTTON_WIDGET,
 ];
 
 export const actionsExist = (state: AppState): boolean =>
