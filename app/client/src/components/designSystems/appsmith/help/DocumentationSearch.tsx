@@ -25,12 +25,7 @@ import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 
-const {
-  algolia,
-  appVersion,
-  cloudHosting,
-  intercomAppID,
-} = getAppsmithConfigs();
+const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -116,7 +111,7 @@ function DefaultHelpMenuItem(props: {
         onClick={() => {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
-            if (cloudHosting && intercomAppID && window.Intercom) {
+            if (intercomAppID && window.Intercom) {
               window.Intercom("show");
             }
           }
@@ -320,7 +315,7 @@ type HelpItem = {
   icon: React.ReactNode;
 };
 
-let HELP_MENU_ITEMS: HelpItem[] = [
+const HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: <StyledDocumentIcon color="#181F24" height={14} width={11.2} />,
     label: "Documentation",
@@ -343,10 +338,6 @@ let HELP_MENU_ITEMS: HelpItem[] = [
   },
 ];
 
-if (!cloudHosting) {
-  HELP_MENU_ITEMS = HELP_MENU_ITEMS.slice(0, -1);
-}
-
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -356,7 +347,7 @@ class DocumentationSearch extends React.Component<Props, State> {
   }
   componentDidMount() {
     const { user } = this.props;
-    if (cloudHosting && intercomAppID && window.Intercom) {
+    if (intercomAppID && window.Intercom) {
       window.Intercom("boot", {
         app_id: intercomAppID,
         user_id: user?.username,
