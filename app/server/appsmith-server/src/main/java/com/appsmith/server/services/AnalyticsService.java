@@ -7,7 +7,9 @@ import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -21,6 +23,11 @@ public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
+
+    // Is this instance hosted on Appsmith cloud?
+    // isCloudHosted should be true only for our cloud instance
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
 
     @Autowired
     public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
@@ -65,6 +72,13 @@ public class AnalyticsService {
             return;
         }
 
+        if (!isCloudHosted) {
+            userId = DigestUtils.sha256Hex(userId);
+            if (properties.containsKey("username")) {
+                properties.put("username", userId);
+            }
+        }
+
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
         if (!CollectionUtils.isEmpty(properties)) {
@@ -99,7 +113,14 @@ public class AnalyticsService {
                         return object;
                     }
 
-                    final String username = (object instanceof User ? (User) object : user).getUsername();
+                    String username = (object instanceof User ? (User) object : user).getUsername();
+
+                    if (!isCloudHosted) {
+                        username = DigestUtils.sha256Hex(username);
+                        if (extraProperties != null && extraProperties.containsKey("username")) {
+                            extraProperties.put("username", username);
+                        }
+                    }
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
