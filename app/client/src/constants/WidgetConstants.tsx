@@ -29,6 +29,8 @@ export enum WidgetTypes {
   TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
   RATE_WIDGET = "RATE_WIDGET",
   IFRAME_WIDGET = "IFRAME_WIDGET",
+  DIVIDER_WIDGET = "DIVIDER_WIDGET",
+  MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -98,7 +100,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 26;
+export const LATEST_PAGE_VERSION = 27;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,

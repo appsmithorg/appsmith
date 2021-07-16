@@ -339,6 +339,8 @@ export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
+export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
+export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 

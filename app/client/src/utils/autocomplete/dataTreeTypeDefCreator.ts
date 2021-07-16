@@ -1,60 +1,58 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntity, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
-import {
-  entityDefinitions,
-  GLOBAL_DEFS,
-  GLOBAL_FUNCTIONS,
-} from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
+import { Def } from "tern";
 
 let extraDefs: any = {};
 const skipProperties = ["!doc", "!url", "!type"];
 
-export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
+export const dataTreeTypeDefCreator = (
+  entity: DataTreeEntity,
+  entityName: string,
+): { def: Def; name: string } => {
+  const defName = `DATA_TREE_${entityName}`;
   const def: any = {
-    "!name": "dataTree",
+    "!name": defName,
   };
-  Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
-    if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        const widgetType = entity.type;
-        if (widgetType in entityDefinitions) {
-          const definition = _.get(entityDefinitions, widgetType);
-          if (_.isFunction(definition)) {
-            const data = definition(entity);
-            const allData = flattenObjKeys(data, entityName);
-            for (const [key, value] of Object.entries(allData)) {
-              def[key] = value;
-            }
-            def[entityName] = definition(entity);
-          } else {
-            def[entityName] = definition;
-            const allFlattenData = flattenObjKeys(definition, entityName);
-            for (const [key, value] of Object.entries(allFlattenData)) {
-              def[key] = value;
-            }
+  if (entity && "ENTITY_TYPE" in entity) {
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+      const widgetType = entity.type;
+      if (widgetType in entityDefinitions) {
+        const definition = _.get(entityDefinitions, widgetType);
+        if (_.isFunction(definition)) {
+          const data = definition(entity);
+          const allData = flattenObjKeys(data, entityName);
+          for (const [key, value] of Object.entries(allData)) {
+            def[key] = value;
+          }
+          def[entityName] = definition(entity);
+        } else {
+          def[entityName] = definition;
+          const allFlattenData = flattenObjKeys(definition, entityName);
+          for (const [key, value] of Object.entries(allFlattenData)) {
+            def[key] = value;
           }
         }
       }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        const actionDefs = entityDefinitions.ACTION(entity);
-        def[entityName] = actionDefs;
-        const finalData = flattenObjKeys(actionDefs, entityName);
-        for (const [key, value] of Object.entries(finalData)) {
-          def[key] = value;
-        }
-      }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
-        const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
-        def.appsmith = options;
+    }
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      const actionDefs = entityDefinitions.ACTION(entity);
+      def[entityName] = actionDefs;
+      const finalData = flattenObjKeys(actionDefs, entityName);
+      for (const [key, value] of Object.entries(finalData)) {
+        def[key] = value;
       }
     }
-  });
-  def["!define"] = { ...GLOBAL_DEFS, ...extraDefs };
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
+      const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+      def.appsmith = options;
+    }
+  }
+  def["!define"] = { ...extraDefs };
   extraDefs = {};
-  return { ...def, ...GLOBAL_FUNCTIONS };
+  return { def, name: defName };
 };
 
 export function generateTypeDef(

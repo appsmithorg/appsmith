@@ -11,6 +11,7 @@ import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -332,7 +333,6 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    System.out.println(result.getBody());
                     String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -394,6 +394,44 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");
                     assertEquals(requestBody, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testParsingBodyWithInvalidJSONHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://mock-api.appsmith.com/echo/raw");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String requestBody = "{\n" +
+                "    \"headers\": {\n" +
+                "        \"Content-Type\": \"application/json\",\n" +
+                "        \"X-RANDOM-HEADER\": \"random-value\"\n" +
+                "    },\n" +
+                "    \"body\": \"invalid json text\"\n" +
+                "}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("invalid json text", result.getBody());
+                    ArrayNode data = (ArrayNode) result.getHeaders().get("Content-Type");
+                    assertEquals("application/json; charset=utf-8", data.get(0).asText());
+
+                    assertEquals(1, result.getMessages().size());
+                    String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
+                            "be careful when using the API response anywhere a valid JSON is required" +
+                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                            "Header to indicate a non-JSON response or by modifying the API response " +
+                            "to return a valid JSON.";
+                    assertEquals(expectedMessage, result.getMessages().toArray()[0]);
                 })
                 .verifyComplete();
     }
