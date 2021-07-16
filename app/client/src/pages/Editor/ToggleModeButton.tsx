@@ -313,6 +313,7 @@ function ToggleCommentModeButton({
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
+            className="t--switch-comment-mode-off"
             onClick={() => setCommentModeInUrl(false)}
             showSelectedMode={showSelectedMode}
             type="fill"
