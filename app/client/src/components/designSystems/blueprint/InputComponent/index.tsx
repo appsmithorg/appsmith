@@ -78,13 +78,7 @@ const InputComponentWrapper = styled((props) => (
         `
       padding-left: 35px;`};
       ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        !props.disabled &&
-        `padding-left: 85px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        props.disabled &&
-        `padding-left: 40px;`};
+        props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
