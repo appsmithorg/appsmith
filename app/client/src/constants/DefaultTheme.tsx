@@ -1032,6 +1032,11 @@ type ColorType = {
     ctaTextColor: string;
     ctaBackgroundColor: string;
     ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -1679,6 +1684,11 @@ export const dark: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -2150,6 +2160,11 @@ export const light: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",

@@ -25,6 +25,10 @@ import { useCallback } from "react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { showDebugger } from "actions/debuggerActions";
 import { setActionTabsInitialIndex } from "actions/actionActions";
+import { getTypographyByKey } from "constants/DefaultTheme";
+
+const CONNECTION_WIDTH = 113;
+const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
@@ -38,7 +42,8 @@ const TopLayer = styled.div`
     border: none;
   }
   .error {
-    border: 1px solid #f22b2b;
+    border: 1px solid
+      ${(props) => props.theme.colors.propertyPane.connections.error};
     border-bottom: none;
   }
 `;
@@ -50,8 +55,11 @@ const SelectedNodeWrapper = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${(props) => (props.hasError ? "#f22b2b" : "#090707")};
-  font-size: 12px;
+  color: ${(props) =>
+    props.hasError
+      ? props.theme.colors.propertyPane.connections.error
+      : props.theme.colors.propertyPane.connections.connectionsCount};
+  ${(props) => getTypographyByKey(props, "p3")}
   width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
@@ -67,36 +75,52 @@ const SelectedNodeWrapper = styled.div<{
       `
     svg {
       path {
-        fill: #f22b2b
+        fill: ${props.theme.colors.propertyPane.connections.error}
       }
     }
     `}
   }
 `;
 
-const OptionWrapper = styled.div<{ hasError: boolean }>`
+const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
   display: flex;
   width: 100%;
   overflow: hidden;
 
   .debug {
-    height: 28px;
+    height: ${CONNECTION_HEIGHT}px;
     margin-top: 0px;
     display: none;
   }
+
+  ${(props) =>
+    props.fillIconColor &&
+    `&:not(:hover) {
+    svg {
+      path {
+        fill: #6a86ce;
+      }
+    }
+  }`}
 
   &:hover {
     .debug {
       display: flex;
     }
-  }
 
-  background-color: ${(props) => props.hasError && `rgba(246,71,71, 0.2)`};
+    background-color: ${(props) =>
+      props.hasError && props.theme.colors.propertyPane.connections.optionBg}};
+
+    &&& svg {
+      rect {
+        fill: ${(props) => props.theme.colors.textOnDarkBG};
+      }
+    }
+  }
 `;
 
 const OptionContentWrapper = styled.div<{
   hasError: boolean;
-  fillIconColor: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -119,36 +143,24 @@ const OptionContentWrapper = styled.div<{
     white-space: nowrap;
     text-overflow: ellipsis;
     color: ${(props) =>
-      props.hasError ? "#F22B2B" : props.theme.colors.propertyPane.label};
+      props.hasError
+        ? props.theme.colors.propertyPane.connections.error
+        : props.theme.colors.propertyPane.label};
   }
 
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 
-  ${(props) =>
-    props.fillIconColor &&
-    `&:not(:hover) {
-    svg {
-      path {
-        fill: #6a86ce;
-      }
-    }
-  }`}
-
   &:hover {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
 
-    &&& svg {
-      rect {
-        fill: ${(props) => props.theme.colors.textOnDarkBG};
-      }
-    }
-
     .${Classes.TEXT} {
       color: ${(props) =>
-        props.hasError ? "#F22B2B" : props.theme.colors.textOnDarkBG};
+        props.hasError
+          ? props.theme.colors.propertyPane.connections.error
+          : props.theme.colors.textOnDarkBG};
     }
   }
 `;
@@ -282,12 +294,11 @@ function OptionNode(props: any) {
   };
 
   return (
-    <OptionWrapper hasError={!!entityInfo?.hasError}>
-      <OptionContentWrapper
-        fillIconColor={!entityInfo?.datasourceName}
-        hasError={!!entityInfo?.hasError}
-        onClick={onClick}
-      >
+    <OptionWrapper
+      fillIconColor={!entityInfo?.datasourceName}
+      hasError={!!entityInfo?.hasError}
+    >
+      <OptionContentWrapper hasError={!!entityInfo?.hasError} onClick={onClick}>
         <span>{entityInfo?.icon}</span>
         <Text type={TextType.H6}>
           {props.option.label}{" "}
@@ -379,7 +390,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         }`}
         disabled={!dependencies.dependencyOptions.length}
         headerLabel="Incoming connections"
-        height="28px"
+        height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
           return <OptionNode option={optionProps.option} />;
@@ -387,7 +398,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width="113px"
+        width={`${CONNECTION_WIDTH}px`}
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
@@ -405,7 +416,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         }`}
         disabled={!dependencies.inverseDependencyOptions.length}
         headerLabel="Outgoing connections"
-        height="28px"
+        height={`${CONNECTION_HEIGHT}px`}
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
@@ -414,7 +425,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width="113px"
+        width={`${CONNECTION_WIDTH}px`}
       />
     </TopLayer>
   );
