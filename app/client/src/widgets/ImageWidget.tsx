@@ -34,7 +34,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
             helpText: "Controls the visibility of the widget",

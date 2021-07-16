@@ -51,6 +51,19 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+        },
       },
       {
         propertyName: "isVisible",

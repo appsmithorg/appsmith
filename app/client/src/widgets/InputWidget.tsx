@@ -66,7 +66,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },

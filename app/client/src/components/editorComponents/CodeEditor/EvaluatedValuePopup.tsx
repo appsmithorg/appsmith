@@ -16,6 +16,7 @@ import {
   ExpectedValueExample,
   UNDEFINED_VALIDATION,
 } from "utils/validation/common";
+import { IPopoverSharedProps } from "@blueprintjs/core";
 
 import {
   EvaluationError,
@@ -24,10 +25,14 @@ import {
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 
-const modifiers = {
+const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
     offset: "0, 15",
+  },
+  preventOverflow: {
+    enabled: true,
+    boundariesElement: "viewport",
   },
 };
 const Wrapper = styled.div`

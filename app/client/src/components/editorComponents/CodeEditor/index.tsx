@@ -383,7 +383,7 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor, force?: boolean) => {
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
     const expected = this.props.expected ? this.props.expected.type : "";
     const { entityName } = getEntityNameAndPropertyPath(

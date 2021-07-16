@@ -28,6 +28,12 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+          },
+        },
       },
       {
         propertyName: "itemBackgroundColor",
@@ -37,6 +43,12 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         defaultValue: "#FFFFFF",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+          },
+        },
       },
 
       {
@@ -58,6 +70,9 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
       },
     ],
   },
