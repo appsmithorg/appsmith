@@ -267,6 +267,19 @@ describe("getAllPathsFromPropertyConfig", () => {
         chartName: {
           type: "TEXT",
         },
+        chartType: {
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+          type: "TEXT",
+        },
         isVisible: {
           type: "BOOLEAN",
         },
