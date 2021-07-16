@@ -4,6 +4,7 @@ import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
+import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 
 export type DropdownOption = {
@@ -11,12 +12,37 @@ export type DropdownOption = {
   value?: string;
   id?: string;
   icon?: IconName;
+  leftElement?: string;
+  searchText?: string;
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
   onSelect?: (value?: string) => void;
 };
+export interface DropdownSearchProps {
+  enableSearch?: boolean;
+  searchPlaceholder?: string;
+  onSearch?: (value: any) => void;
+}
 
+export type DropdownProps = CommonComponentProps &
+  DropdownSearchProps & {
+    options: DropdownOption[];
+    selected: DropdownOption;
+    onSelect?: (value?: string) => void;
+    width?: string;
+    height?: string;
+    showLabelOnly?: boolean;
+    optionWidth?: string;
+    dropdownHeight?: string;
+    showDropIcon?: boolean;
+    dropdownTriggerIcon?: ReactNode;
+    containerClassName?: string;
+    headerLabel?: string;
+    SelectedValueNode?: typeof DefaultDropDownValueNode;
+    bgColor?: string;
+    renderOption?: RenderOption;
+  };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
   showLabelOnly?: boolean;
@@ -33,25 +59,30 @@ type RenderOption = ({
   optionClickHandler,
 }: RenderDropdownOptionType) => ReactNode;
 
-export type DropdownProps = CommonComponentProps & {
-  options: DropdownOption[];
-  selected: DropdownOption;
-  onSelect?: (value?: string) => void;
-  width?: string;
-  height?: string;
-  showLabelOnly?: boolean;
-  optionWidth?: string;
-  showDropIcon?: boolean;
-  headerLabel?: string;
-  SelectedValueNode?: typeof DefaultDropDownValueNode;
-  bgColor?: string;
-  renderOption?: RenderOption;
-};
-
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   position: relative;
+`;
+
+const DropdownTriggerWrapper = styled.div<{
+  isOpen: boolean;
+  disabled?: boolean;
+  height: string;
+}>`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  ${(props) =>
+    props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
+  .${Classes.TEXT} {
+    ${(props) =>
+      props.disabled
+        ? `color: ${props.theme.colors.dropdown.header.disabledText}`
+        : `color: ${props.theme.colors.dropdown.header.text}`};
+  }
 `;
 
 const Selected = styled.div<{
@@ -112,6 +143,19 @@ const DropdownWrapper = styled.div<{
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
+  .dropdown-search {
+    margin: 4px 12px 8px;
+    width: calc(100% - 24px);
+  }
+`;
+
+const DropdownOptionsWrapper = styled.div<{
+  height: string;
+}>`
+  display: flex;
+  flex-direction: column;
+  height: ${(props) => props.height};
+  overflow-y: auto;
 `;
 
 const OptionWrapper = styled.div<{
@@ -192,6 +236,13 @@ const StyledSubText = styled(Text)`
   }
 `;
 
+const LeftIconWrapper = styled.span`
+  margin-right: 15px;
+  height: 100%;
+  position: relative;
+  top: 1px;
+`;
+
 const HeaderWrapper = styled.div`
   color: #6d6d6d;
   font-size: 10px;
@@ -243,12 +294,97 @@ export function DefaultDropDownValueNode({
   );
 }
 
+interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
+  optionClickHandler: (option: DropdownOption) => void;
+  renderOption?: RenderOption;
+  headerLabel?: string;
+  selected: DropdownOption;
+}
+
+export function RenderDropdownOptions(props: DropdownOptionsProps) {
+  const { onSearch } = props;
+  const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const onOptionSearch = (searchStr: string) => {
+    const search = searchStr.toLocaleUpperCase();
+    const filteredOptions: Array<DropdownOption> = props.options.filter(
+      (option: DropdownOption) => {
+        return (
+          option.label?.toLocaleUpperCase().includes(search) ||
+          option.searchText?.toLocaleUpperCase().includes(search)
+        );
+      },
+    );
+    setSearchValue(searchStr);
+    setOptions(filteredOptions);
+    onSearch && onSearch(searchStr);
+  };
+  return (
+    <DropdownWrapper width={props.optionWidth || "260px"}>
+      {props.enableSearch && (
+        <SearchComponent
+          className="dropdown-search"
+          onSearch={onOptionSearch}
+          placeholder={props.searchPlaceholder || ""}
+          value={searchValue}
+        />
+      )}
+      {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
+      <DropdownOptionsWrapper height={props.dropdownHeight || "100%"}>
+        {options.map((option: DropdownOption, index: number) => {
+          if (props.renderOption) {
+            return props.renderOption({
+              option,
+              optionClickHandler: props.optionClickHandler,
+            });
+          }
+          return (
+            <OptionWrapper
+              className="t--dropdown-option"
+              key={index}
+              onClick={() => props.optionClickHandler(option)}
+              selected={props.selected.value === option.value}
+            >
+              {option.leftElement && (
+                <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+              )}
+              {option.icon ? (
+                <SelectedIcon
+                  fillColor={option?.iconColor}
+                  name={option.icon}
+                  size={option.iconSize || IconSize.XXS}
+                />
+              ) : null}
+
+              {props.showLabelOnly ? (
+                <Text type={TextType.P1}>{option.label}</Text>
+              ) : option.label && option.value ? (
+                <LabelWrapper className="label-container">
+                  <Text type={TextType.H5}>{option.value}</Text>
+                  <Text type={TextType.P1}>{option.label}</Text>
+                </LabelWrapper>
+              ) : (
+                <Text type={TextType.P1}>{option.value}</Text>
+              )}
+
+              {option.subText ? (
+                <StyledSubText type={TextType.P3}>
+                  {option.subText}
+                </StyledSubText>
+              ) : null}
+            </OptionWrapper>
+          );
+        })}
+      </DropdownOptionsWrapper>
+    </DropdownWrapper>
+  );
+}
+
 export default function Dropdown(props: DropdownProps) {
   const {
     onSelect,
     showDropIcon = true,
     SelectedValueNode = DefaultDropDownValueNode,
-    renderOption,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -266,8 +402,35 @@ export default function Dropdown(props: DropdownProps) {
     },
     [onSelect],
   );
+  const dropdownTrigger = props.dropdownTriggerIcon ? (
+    <DropdownTriggerWrapper
+      disabled={props.disabled}
+      height={props.height || "38px"}
+      isOpen={isOpen}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      {props.dropdownTriggerIcon}
+    </DropdownTriggerWrapper>
+  ) : (
+    <Selected
+      bgColor={props.bgColor}
+      className={props.className}
+      disabled={props.disabled}
+      height={props.height || "38px"}
+      isOpen={isOpen}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <SelectedValueNode
+        isOpen={isOpen}
+        selected={selected}
+        showLabelOnly={props.showLabelOnly}
+      />
+      {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
+    </Selected>
+  );
   return (
     <DropdownContainer
+      className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
       tabIndex={0}
@@ -281,67 +444,11 @@ export default function Dropdown(props: DropdownProps) {
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
       >
-        <Selected
-          bgColor={props.bgColor}
-          className={props.className}
-          disabled={props.disabled}
-          height={props.height || "38px"}
-          isOpen={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <SelectedValueNode
-            isOpen={isOpen}
-            selected={selected}
-            showLabelOnly={props.showLabelOnly}
-          />
-          {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
-        </Selected>
-        <DropdownWrapper width={props.optionWidth || "260px"}>
-          {props.headerLabel && (
-            <HeaderWrapper>{props.headerLabel}</HeaderWrapper>
-          )}
-          {props.options.map((option: DropdownOption, index: number) => {
-            if (renderOption) {
-              return renderOption({
-                option,
-                optionClickHandler,
-              });
-            }
-            return (
-              <OptionWrapper
-                className="t--dropdown-option"
-                key={index}
-                onClick={() => optionClickHandler(option)}
-                selected={selected.value === option.value}
-              >
-                {option.icon ? (
-                  <SelectedIcon
-                    fillColor={option?.iconColor}
-                    name={option.icon}
-                    size={option.iconSize || IconSize.XXS}
-                  />
-                ) : null}
-
-                {props.showLabelOnly ? (
-                  <Text type={TextType.P1}>{option.label}</Text>
-                ) : option.label && option.value ? (
-                  <LabelWrapper className="label-container">
-                    <Text type={TextType.H5}>{option.value}</Text>
-                    <Text type={TextType.P1}>{option.label}</Text>
-                  </LabelWrapper>
-                ) : (
-                  <Text type={TextType.P1}>{option.value}</Text>
-                )}
-
-                {option.subText ? (
-                  <StyledSubText type={TextType.P3}>
-                    {option.subText}
-                  </StyledSubText>
-                ) : null}
-              </OptionWrapper>
-            );
-          })}
-        </DropdownWrapper>
+        {dropdownTrigger}
+        <RenderDropdownOptions
+          optionClickHandler={optionClickHandler}
+          {...props}
+        />
       </Popover>
     </DropdownContainer>
   );

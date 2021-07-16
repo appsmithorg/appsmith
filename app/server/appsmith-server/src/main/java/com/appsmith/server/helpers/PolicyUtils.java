@@ -15,7 +15,6 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,6 @@ public class PolicyUtils {
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
-    private final UserChangedHandler userChangedHandler;
     private final CommentThreadRepository commentThreadRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
@@ -110,13 +108,17 @@ public class PolicyUtils {
      * @return
      */
     public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
+        return generatePolicyFromPermission(permissions, user.getUsername());
+    }
+
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(Set.of(user.getUsername())).build();
+                            .users(Set.of(username)).build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(user.getUsername()), null);
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
                     policiesForUser.add(policyWithCurrentPermission);
                     return policiesForUser;
                 })
@@ -219,21 +221,25 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
-    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(
+            String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
 
         return
                 // fetch comment threads with read permissions
                 commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
-                    if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
-                    } else {
-                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                    if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
+                        if (addPolicyToObject) {
+                            return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                        } else {
+                            return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                        }
                     }
+                    return thread;
                 })
                 .collectList()
-                .flatMapMany(commentThreads -> commentThreadRepository.saveAll(commentThreads));
+                .flatMapMany(commentThreadRepository::saveAll);
     }
 
     /**
