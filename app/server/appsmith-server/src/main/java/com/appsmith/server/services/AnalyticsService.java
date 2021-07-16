@@ -77,6 +77,9 @@ public class AnalyticsService {
             if (properties.containsKey("username")) {
                 properties.put("username", userId);
             }
+            if (properties.containsKey("request")) {
+                properties.remove("request");
+            }
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);

@@ -766,6 +766,46 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+        ActionExecutionRequest request;
+        if (actionExecutionRequest != null) {
+            // Do a deep copy of request to not edit
+            request = new ActionExecutionRequest(
+                actionExecutionRequest.getQuery(),
+                actionExecutionRequest.getBody(),
+                actionExecutionRequest.getHeaders(),
+                actionExecutionRequest.getHttpMethod(),
+                actionExecutionRequest.getUrl(),
+                actionExecutionRequest.getProperties(),
+                actionExecutionRequest.getExecutionParameters(),
+                null
+            );
+        } else {
+            request = new ActionExecutionRequest();
+        }
+
+        if (request.getHeaders() != null) {
+            JsonNode headers = (JsonNode) request.getHeaders();
+            try {
+                String headersAsString = objectMapper.writeValueAsString(headers);
+                request.setHeaders(headersAsString);
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(request.getProperties())) {
+            final Map<String, String> stringProperties = new HashMap<>();
+            for (final Map.Entry<String, ?> entry : request.getProperties().entrySet()) {
+                String jsonValue;
+                try {
+                    jsonValue = objectMapper.writeValueAsString(entry.getValue());
+                } catch (JsonProcessingException e) {
+                    jsonValue = "\"Error serializing value to JSON.\"";
+                }
+                stringProperties.put(entry.getKey(), jsonValue);
+            }
+            request.setProperties(stringProperties);
+        }
 
         return Mono.justOrEmpty(action.getApplicationId())
                 .flatMap(applicationService::findById)
@@ -801,6 +841,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     ));
 
                     data.putAll(Map.of(
+                            "request", request,
                             "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
@@ -827,11 +868,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
 
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
-                    return actionExecutionRequest;
+                    return request;
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);
-                    return Mono.justOrEmpty(actionExecutionRequest);
+                    return Mono.just(request);
                 });
     }
 
