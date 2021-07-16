@@ -59,6 +59,9 @@ export const getIsPageSaving = (state: AppState) => {
   return state.ui.editor.loadingStates.saving || areApisSaving;
 };
 
+export const snipingModeSelector = (state: AppState) =>
+  state.ui.editor?.isSnipingMode;
+
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
 };
@@ -235,6 +238,9 @@ export const getActionById = createSelector(
     }
   },
 );
+
+export const getActionTabsInitialIndex = (state: AppState) =>
+  state.ui.actionTabs.index;
 
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,

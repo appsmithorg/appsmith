@@ -39,6 +39,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
@@ -58,6 +59,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
@@ -277,7 +279,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props]);
 
   const isEnabled =
-    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+    !isDragging &&
+    isWidgetFocused &&
+    !props.resizeDisabled &&
+    !isCommentMode &&
+    !isSnipingMode;
 
   return (
     <Resizable
