@@ -137,6 +137,32 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
+    cy.closePropertyPane("inputwidget");
+  });
+
+  it("Input Functionality To check currency input type", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.selectDropdownValue(commonlocators.dataType, "Currency");
+    cy.togglebar(commonlocators.allowCurrencyChange);
+    cy.testJsontext("regex", "");
+    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
+    cy.selectDropdownValue(commonlocators.decimalType, "1");
+
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("13242.2");
+
+    cy.get(commonlocators.inputCurrencyChangeType)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("€");
+      });
+    cy.get(widgetsPage.innertext)
+      .invoke("attr", "value")
+      .then((text) => {
+        expect(text).to.equal("13,242.2");
+      });
   });
 });
 afterEach(() => {
