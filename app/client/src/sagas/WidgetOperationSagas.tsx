@@ -1563,7 +1563,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
         const copiedWidget = {
           ...unUpdatedCopyOfWidget,
           topRow: unUpdatedCopyOfWidget.topRow - newTopRow,
-          bottomRow: unUpdatedCopyOfWidget.bottomRow - -newTopRow,
+          bottomRow: unUpdatedCopyOfWidget.bottomRow - newTopRow,
         };
 
         // Log the paste event.
