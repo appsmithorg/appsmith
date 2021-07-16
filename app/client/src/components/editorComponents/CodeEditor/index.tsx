@@ -430,10 +430,10 @@ class CodeEditor extends Component<Props, State> {
     cursor?: number,
     preventAutoComplete = false,
   ) {
+    this.editor.focus();
     if (value) {
       this.editor.setValue(value);
     }
-    this.editor.focus();
     this.editor.setCursor({
       line: cursor || this.editor.lineCount() - 1,
       ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
