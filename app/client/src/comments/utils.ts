@@ -139,21 +139,24 @@ export const getPosition = (props: {
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
-  xOffset?: string;
-  yOffset?: string;
-  offset?: string;
+  xOffset?: number;
+  yOffset?: number;
+  offset?: number;
 }) => {
-  const xOffset = props.xOffset || props.offset || `- 2`;
-  const yOffset = props.yOffset || props.offset || `- 2`;
+  const xOffset = props.xOffset || props.offset || 0;
+  const yOffset = props.yOffset || props.offset || 0;
   if (props.positionAbsolutely) {
     return `
       top: ${props.top - 29}px;
       left: ${props.left - 29}px;
     `;
   } else {
+    // The folling syntax is supported: bottom: calc(50% + -6px);
+    // so we can work with both +ve and -ve offset values as
+    // `calc(${100 - props.topPercent}% + ${yOffset}px);`
     return `
-      bottom: calc(${100 - props.topPercent}% ${yOffset}px);
-      right: calc(${100 - props.leftPercent}% ${xOffset}px);
+      bottom: calc(${100 - props.topPercent}% + ${yOffset}px);
+      right: calc(${100 - props.leftPercent}% + ${xOffset}px);
     `;
   }
 };

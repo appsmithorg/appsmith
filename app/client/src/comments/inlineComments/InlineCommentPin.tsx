@@ -32,8 +32,8 @@ const CommentTriggerContainer = styled.div<{
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
-  xOffset: string;
-  yOffset: string;
+  xOffset: number;
+  yOffset: number;
 }>`
   position: absolute;
   ${(props) => getPosition(props)}
@@ -190,8 +190,8 @@ function InlineCommentPin({
       positionAbsolutely={positionAbsolutely}
       top={top}
       topPercent={topPercent}
-      xOffset={"- 1"}
-      yOffset={"- 6"}
+      xOffset={-1}
+      yOffset={-6}
     >
       <Popover2
         autoFocus={false}

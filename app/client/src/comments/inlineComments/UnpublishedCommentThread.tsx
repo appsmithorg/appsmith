@@ -24,6 +24,8 @@ const CommentTriggerContainer = styled.div<{
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
+  xOffset: number;
+  yOffset: number;
 }>`
   position: absolute;
   ${(props) => getPosition(props)}
@@ -82,6 +84,8 @@ function UnpublishedCommentThread({
         positionAbsolutely={positionAbsolutely}
         top={top}
         topPercent={topPercent}
+        xOffset={-1}
+        yOffset={-6}
       >
         <Popover2
           autoFocus={false}
