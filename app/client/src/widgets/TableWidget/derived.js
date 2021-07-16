@@ -97,7 +97,7 @@ export default {
   //
   getTableColumns: (props, moment, _) => {
     let columns = [];
-    let allColumns = props.primaryColumns || {};
+    let allColumns = Object.assign({}, props.primaryColumns || {});
     const data = props.sanitizedTableData || [];
     if (data.length > 0) {
       const columnIdsFromData = [];
@@ -171,7 +171,7 @@ export default {
     }
     const allColumnProperties = Object.values(allColumns);
     for (let index = 0; index < allColumnProperties.length; index++) {
-      const columnProperties = allColumnProperties[index];
+      const columnProperties = { ...allColumnProperties[index] };
       columnProperties.isAscOrder =
         columnProperties.id === sortColumn ? sortOrder : undefined;
       const columnData = columnProperties;
@@ -197,7 +197,11 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.log("Error parsing column value: ", column.computedValue);
+              console.error(
+                e,
+                "Error parsing column value: ",
+                column.computedValue,
+              );
             }
           } else if (Array.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -401,7 +405,7 @@ export default {
             );
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         const filterValue = result;
         if (filterOperator === "AND") {
