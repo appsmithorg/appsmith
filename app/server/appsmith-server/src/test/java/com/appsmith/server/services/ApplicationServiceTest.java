@@ -793,7 +793,6 @@ public class ApplicationServiceTest {
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
         applicationPage.setIsDefault(false);
-        applicationPage.setOrder(1);
 
         StepVerifier
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
