@@ -21,6 +21,7 @@ import {
   updateWidgetNameSuccess,
   updateAndSaveLayout,
   saveLayout,
+  setLastUpdatedTime,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -90,6 +91,7 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { getAppMode } from "selectors/applicationSelectors";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -175,11 +177,14 @@ export const getCanvasWidgetsPayload = (
   };
 };
 
+const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+  pageResponse.data.lastUpdatedTime;
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -189,6 +194,7 @@ export function* fetchPageSaga(
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+    const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -202,7 +208,14 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
+      yield put(
+        fetchPageSuccess(
+          // Execute page load actions post page load
+          isFirstLoad ? [] : [executePageLoadActions()],
+        ),
+      );
+      // Sets last updated time
+      yield put(setLastUpdatedTime(lastUpdatedTime));
       const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -351,6 +364,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       if (actionUpdates && actionUpdates.length > 0) {
         yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
+      yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
@@ -430,7 +444,10 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put(saveLayout(action.payload.isRetry));
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+    if (appMode === APP_MODE.EDIT) {
+      yield put(saveLayout(action.payload.isRetry));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

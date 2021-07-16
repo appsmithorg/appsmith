@@ -29,7 +29,10 @@ import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
+import { DividerWidgetProps } from "../../widgets/DividerWidget";
+import { RateWidgetProps } from "../../widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
+import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -83,7 +86,10 @@ export interface WidgetConfigReducerState {
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
     LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
+    DIVIDER_WIDGET: Partial<DividerWidgetProps> & WidgetConfigProps;
+    RATE_WIDGET: Partial<RateWidgetProps> & WidgetConfigProps;
     IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
+    MENU_BUTTON_WIDGET: Partial<MenuButtonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

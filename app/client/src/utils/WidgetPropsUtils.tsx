@@ -785,10 +785,52 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 25) {
     currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = 26;
+  }
+  if (currentDSL.version === 26) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
+};
+
+const addFilterDefaultValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    if (!currentDSL.hasOwnProperty("isFilterable")) {
+      currentDSL.isFilterable = true;
+    }
+  }
+  return currentDSL;
+};
+export const migrateFilterValueForDropDownWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addFilterDefaultValue(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateFilterValueForDropDownWidget(children);
+  });
+
+  return newDSL;
+};
+export const migrateObjectFitToImageWidget = (
+  dsl: ContainerWidgetProps<WidgetProps>,
+) => {
+  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+    widgetProps.objectFit = "cover";
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        if (widgetProps.type === "IMAGE_WIDGET") {
+          addObjectFitProperty(eachWidgetProp);
+        }
+      });
+    }
+  };
+  addObjectFitProperty(dsl);
+  return dsl;
 };
 
 const migrateOverFlowingTabsWidgets = (

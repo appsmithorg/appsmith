@@ -2,6 +2,10 @@
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor
 
+
+[![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
+
+
 ### Pre-requisites:
 
 On your development machine, please ensure that:
@@ -90,7 +94,7 @@ This error occurs because the node version is not compatible with the app enviro
 node versions to be used in different projects. Check below for installation and usage details:
 
 1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-1. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
+1. In the root of the project, run `nvm use 14.15.4` or `fnm use 14.15.4`.
 
 #### If you would like to hit a different Appsmith server:
 

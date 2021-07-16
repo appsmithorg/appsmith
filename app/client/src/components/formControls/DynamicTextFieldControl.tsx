@@ -65,6 +65,7 @@ class DynamicTextControl extends BaseControl<
       configProperty,
       evaluationSubstitutionType,
       label,
+      mutedHinting,
       placeholderText,
       responseType,
     } = this.props;
@@ -104,6 +105,7 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={dataTreePath}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
+            mutedHinting={mutedHinting}
             name={this.props.configProperty}
             placeholder={placeholderText}
             size={EditorSize.EXTENDED}
@@ -122,6 +124,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   responseType: string;
   placeholderText?: string;
   evaluationSubstitutionType: EvaluationSubstitutionType;
+  mutedHinting?: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {

@@ -45,6 +45,7 @@ import {
   getApplicationViewerPageURL,
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
 } from "constants/routes";
 import {
   executeApiActionRequest,
@@ -115,6 +116,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
+import { setDataUrl } from "./PageSagas";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -154,6 +156,7 @@ function* navigateActionSaga(
     (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
+    const currentPageId = yield select(getCurrentPageId);
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
@@ -165,6 +168,9 @@ function* navigateActionSaga(
         : getApplicationViewerPageURL(applicationId, page.pageId, params);
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
+      if (currentPageId === page.pageId) {
+        yield call(setDataUrl);
+      }
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
@@ -719,6 +725,7 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_URL(),
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+      INTEGRATION_EDITOR_URL(),
     ],
     exact: true,
     strict: false,

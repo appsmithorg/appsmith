@@ -4,6 +4,7 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import { Row } from "react-table";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
@@ -42,13 +43,12 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
-  tablePageSize: number;
-  defaultPageSize?: number;
-  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
+  unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
@@ -82,7 +82,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
-    defaultPageSize,
     disableDrag,
     editMode,
     filters,
@@ -95,6 +94,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isVisibleFilters,
     isVisiblePagination,
     isVisibleSearch,
+    multiRowSelection,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -102,14 +102,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     prevPageClick,
     searchKey,
     searchTableData,
+    selectAllRow,
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
-    tablePageSize,
-    totalRecordsCount,
     triggerRowSelection,
+    unSelectAllRow,
     updateCompactMode,
     updatePageNo,
     widgetId,
@@ -228,6 +228,17 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onRowClick(row.original, row.index);
   };
 
+  const toggleAllRowSelect = (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => {
+    if (isSelect) {
+      selectAllRow(pageData);
+    } else {
+      unSelectAllRow(pageData);
+    }
+  };
+
   return (
     <Table
       applyFilter={applyFilter}
@@ -235,7 +246,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
-      defaultPageSize={defaultPageSize}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -252,6 +262,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
       isVisibleSearch={isVisibleSearch}
+      multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
@@ -263,8 +274,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
-      tablePageSize={tablePageSize}
-      totalRecordsCount={totalRecordsCount}
+      toggleAllRowSelect={toggleAllRowSelect}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
@@ -279,7 +289,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
-    prev.defaultPageSize === next.defaultPageSize &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&
@@ -296,7 +305,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&
     prev.pageSize === next.pageSize &&
-    prev.tablePageSize === next.tablePageSize &&
     prev.prevPageClick === next.prevPageClick &&
     prev.searchKey === next.searchKey &&
     prev.searchTableData === next.searchTableData &&
@@ -304,7 +312,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.selectedRowIndices === next.selectedRowIndices &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
-    prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
     prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&

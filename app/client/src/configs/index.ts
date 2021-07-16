@@ -96,7 +96,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
         | "debug"
         | "error"
-        | undefined) || "debug",
+        | undefined) || "error",
     google: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
