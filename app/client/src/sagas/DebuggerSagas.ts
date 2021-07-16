@@ -22,7 +22,11 @@ import {
 } from "redux-saga/effects";
 import { get, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -81,8 +85,13 @@ function* onEntityDeleteSaga(payload: Message) {
     yield put(debuggerLog(payload));
     return;
   }
+  const currentPageId = yield select(getCurrentPageId);
+  let pluginName: string = yield select(
+    getPluginNameFromId,
+    payload?.analytics?.pluginId,
+  );
 
-  const errors = yield select(getDebuggerErrors);
+  const errors: Record<string, Message> = yield select(getDebuggerErrors);
   const errorIds = Object.keys(errors);
   const updatedErrors: any = {};
 
@@ -91,6 +100,29 @@ function* onEntityDeleteSaga(payload: Message) {
 
     if (!includes) {
       updatedErrors[e] = errors[e];
+    } else {
+      // If the error is being removed here
+      // need to send an analytics event for the same
+      const error = errors[e];
+      pluginName = pluginName.replace(/ /g, "");
+
+      if (source.type === ENTITY_TYPE.ACTION) {
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: pluginName,
+          propertyPath: `${pluginName}.${error.source?.propertyPath ?? ""}`,
+          errorMessages: error.messages,
+          pageId: currentPageId,
+        });
+      } else if (source.type === ENTITY_TYPE.WIDGET) {
+        const widgetType = error?.analytics?.widgetType;
+
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: widgetType,
+          propertyPath: `${widgetType}.${error.source?.propertyPath ?? ""}`,
+          errorMessages: error.messages,
+          pageId: currentPageId,
+        });
+      }
     }
   });
 

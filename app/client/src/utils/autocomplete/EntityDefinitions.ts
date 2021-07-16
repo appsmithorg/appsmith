@@ -63,6 +63,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    currencyCountryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency type input",
+    },
   },
   TABLE_WIDGET: (widget: any) => ({
     "!doc":
