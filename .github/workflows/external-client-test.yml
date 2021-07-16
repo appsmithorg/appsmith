@@ -83,6 +83,13 @@ jobs:
             -DprocessAllModules=true
           mvn --batch-mode package
 
+       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/         
+
   build:
     runs-on: ubuntu-latest
     if: github.event_name == 'repository_dispatch' &&
@@ -294,56 +301,27 @@ jobs:
           name: build
           path: app/client/build
 
-      - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'|| github.event.pull_request.head.ref == 'release'
-        shell: bash
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
+
+      # Start server
+      - name: start server
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            ./scripts/start-dev-server.sh > /dev/null 2>&1 &
 
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
-
-      - name: Pull release-frozen server docker container and start it locally
-        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
-        shell: bash
-        run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
-
-      - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master'
-        shell: bash
-        run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+      - name: Wait for 30 seconds for server to start
+        run: sleep 30s
+        shell: bash            
 
       - name: Installing Yarn serve
         run: |
