@@ -46,6 +46,15 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
   }
 
+  .CodeMirror-command-header {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+    color: #716e6e;
+    pointer-events: none !important;
+    font-family: ${(props) => props.theme.fonts.text};
+    ${(props) => getTypographyByKey(props, "p3")}
+    font-weight: 600;
+  }
+
   .CodeMirror-commands {
     color: #4b4848;
     position: relative;
@@ -78,6 +87,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         margin-right: 7px;
       }
       svg {
+        height: 12px;
+        width: 12px;
         margin-right: 7px;
       }
     }

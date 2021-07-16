@@ -6,6 +6,7 @@ import { generateQuickCommands } from "./generateQuickCommands";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export const commandsHelper: HintHelper = (editor, data: any) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -19,21 +20,15 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       {
         datasources,
         executeCommand,
-        mutedHinting,
         pluginIdToImageLocation,
         recentEntities,
-        updatePropertyValue,
+        update,
       }: {
-        mutedHinting?: boolean;
         datasources: Datasource[];
         executeCommand: (payload: { actionType: string; args?: any }) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        updatePropertyValue: (
-          value: string,
-          cursor?: number,
-          preventAutoComplete?: boolean,
-        ) => void;
+        update: (value: string) => void;
       },
     ): boolean => {
       const currentEntityType = data[entityName]?.ENTITY_TYPE || "ACTION";
@@ -45,7 +40,8 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding = (!value && !mutedHinting) || slashIndex > -1;
+      const shouldShowBinding =
+        slashIndex > -1 || (!value && currentEntityType === ENTITY_TYPE.WIDGET);
       if (!cursorBetweenBinding && shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(
@@ -81,16 +77,19 @@ export const commandsHelper: HintHelper = (editor, data: any) => {
               selectedHint: 1,
             };
             CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
-              const updatedValue = value.slice(
-                0,
-                value.length - searchText.length - 1,
-              );
-              if (selected.action && typeof selected.action === "function") {
-                updatePropertyValue(updatedValue, updatedValue.length, true);
-                selected.action();
-              } else {
-                updatePropertyValue(updatedValue + selected.text);
-              }
+              update(value.slice(0, slashIndex) + selected.text);
+              setTimeout(() => {
+                editor.focus();
+                editor.setCursor({
+                  line: editor.lineCount() - 1,
+                  ch: editor.getLine(editor.lineCount() - 1).length - 2,
+                });
+                if (selected.action && typeof selected.action === "function") {
+                  selected.action();
+                } else {
+                  CodeMirror.signal(editor, "postPick");
+                }
+              });
               try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { data, render, ...rest } = selected;
