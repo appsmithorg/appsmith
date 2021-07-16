@@ -169,7 +169,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
@@ -182,13 +184,21 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(application.getId(), commentThreadPolicyMap, true));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT4();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.zip(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                Mono.just(updatedOrganization),
+                updatedThreadsFlux.collectList()
+        )
+        .flatMap(tuple -> {
+            //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+            Organization updatedOrgBeforeSave = tuple.getT4();
+            return organizationRepository.save(updatedOrgBeforeSave);
+        });
     }
 
     @Override
