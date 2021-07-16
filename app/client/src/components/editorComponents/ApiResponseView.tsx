@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
@@ -34,6 +34,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -211,7 +212,8 @@ function ApiResponseView(props: Props) {
     setSelectedIndex(1);
   }, []);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const messages = response?.messages;
   const tabs = [
     {
