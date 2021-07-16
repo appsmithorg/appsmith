@@ -240,12 +240,13 @@
                                   "top": 11,
                                   "left": 12
                                 },
-                                "type": "FORM_BUTTON_WIDGET",
+                                "type": "BUTTON_WIDGET",
                                 "props": {
                                   "resetFormOnClick": false,
                                   "disabledWhenInvalid": true,
                                   "buttonStyle": "PRIMARY_BUTTON",
-                                  "text": "Submit"
+                                  "text": "Submit",
+                                  "onClick": "{{resetWidget(\"Form1\", true)}}"
                                 }
                               },
                               {
@@ -257,12 +258,13 @@
                                   "top": 11,
                                   "left": 8
                                 },
-                                "type": "FORM_BUTTON_WIDGET",
+                                "type": "BUTTON_WIDGET",
                                 "props": {
                                   "resetFormOnClick": true,
                                   "disabledWhenInvalid": false,
                                   "buttonStyle": "SECONDARY_BUTTON",
-                                  "text": "Reset"
+                                  "text": "Reset",
+                                  "onClick": "{{resetWidget(\"Form1\", true)}}"
                                 }
                               }
                             ]
@@ -318,12 +320,13 @@
                               "top": 11,
                               "left": 12
                             },
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "props": {
                               "resetFormOnClick": false,
                               "disabledWhenInvalid": true,
                               "buttonStyle": "PRIMARY_BUTTON",
-                              "text": "Submit"
+                              "text": "Submit",
+                              "onClick": "{{resetWidget(\"Form1\", true)}}"
                             }
                           },
                           {
@@ -335,12 +338,13 @@
                               "top": 11,
                               "left": 8
                             },
-                            "type": "FORM_BUTTON_WIDGET",
+                            "type": "BUTTON_WIDGET",
                             "props": {
                               "resetFormOnClick": true,
                               "disabledWhenInvalid": false,
                               "buttonStyle": "SECONDARY_BUTTON",
-                              "text": "Reset"
+                              "text": "Reset",
+                              "onClick": "{{resetWidget(\"Form1\", true)}}"
                             }
                           }
                         ]
@@ -366,7 +370,7 @@
                         },
                         {
                           "resetFormOnClick": false,
-                          "widgetName": "FormButton1",
+                          "widgetName": "Button1",
                           "rightColumn": 16,
                           "isDefaultClickDisabled": true,
                           "widgetId": "tf20n9k4z2",
@@ -374,16 +378,17 @@
                           "topRow": 11,
                           "bottomRow": 12,
                           "isVisible": true,
-                          "type": "FORM_BUTTON_WIDGET",
+                          "type": "BUTTON_WIDGET",
                           "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": true,
                           "leftColumn": 12,
-                          "text": "Submit"
+                          "text": "Submit",
+                          "onClick": "{{resetWidget(\"Form1\", true)}}"
                         },
                         {
                           "resetFormOnClick": true,
-                          "widgetName": "FormButton2",
+                          "widgetName": "Button2",
                           "rightColumn": 12,
                           "isDefaultClickDisabled": true,
                           "widgetId": "6xnpe13jie",
@@ -391,12 +396,13 @@
                           "topRow": 11,
                           "bottomRow": 12,
                           "isVisible": true,
-                          "type": "FORM_BUTTON_WIDGET",
+                          "type": "BUTTON_WIDGET",
                           "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": false,
                           "leftColumn": 8,
-                          "text": "Reset"
+                          "text": "Reset",
+                          "onClick": "{{resetWidget(\"Form1\", true)}}"
                         }
                       ]
                     }

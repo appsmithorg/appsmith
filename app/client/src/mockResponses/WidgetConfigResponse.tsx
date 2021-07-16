@@ -719,10 +719,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     ) => {
                       const updatedWidgetsProperty: any = [];
                       widget.children?.map((child) => {
-                        if (
-                          child.type === "BUTTON_WIDGET" &&
-                          child.text == "Reset"
-                        ) {
+                        if (child.type === "BUTTON_WIDGET") {
                           updatedWidgetsProperty.push({
                             widgetId: child.widgetId,
                             propertyName: "onClick",
