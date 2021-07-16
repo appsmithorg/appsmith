@@ -11,13 +11,15 @@ export const generateDataTreeJSAction = (
   const data: Record<string, unknown> = {};
   const meta: Record<string, unknown> = {};
   const dynamicBindingPathList = [];
-  let result: any = {};
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  let result: any = {};
   const variables = js?.config?.variables;
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
       result[variable.name] = variable.value;
+      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      dynamicBindingPathList.push({ key: variable.name });
     }
   }
   const actions = js?.config?.actions;
@@ -30,8 +32,6 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };
-      bindingPaths[action.name] = EvaluationSubstitutionType.TEMPLATE;
-      dynamicBindingPathList.push({ key: action.name });
     }
   }
   result = {
