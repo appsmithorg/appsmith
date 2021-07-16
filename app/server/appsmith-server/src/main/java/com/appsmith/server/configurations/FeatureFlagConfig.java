@@ -1,20 +1,18 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.featureflags.FeatureFlag;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import org.ff4j.FF4j;
 import org.ff4j.conf.FF4jConfiguration;
 import org.ff4j.core.Feature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 public class FeatureFlagConfig {
-
-    @Autowired
-    FeatureFlag featureFlag;
 
     @Bean
     public FF4j getFF4j() {
@@ -28,14 +26,15 @@ public class FeatureFlagConfig {
     }
 
     private Map<String, Feature> init() {
-        Feature jsEditorFeature = new Feature("jsEditor");
-        jsEditorFeature.setEnable(true);
-        jsEditorFeature.setFlippingStrategy(new FeatureFlag().new JSEditorFeature());
+        Map<String, Feature> featureMap = new HashMap<>();
+        EnumSet.allOf(FeatureFlagEnum.class)
+                .forEach(feat -> {
+                    Feature feature = new Feature(feat.name());
+                    feature.setEnable(true);
+                    feature.setFlippingStrategy(feat.getStrategy());
+                    featureMap.put(feat.name(), feature);
+                });
 
-        Feature weightage = new Feature("weightage");
-        weightage.setEnable(true);
-        weightage.setFlippingStrategy(new FeatureFlag().new WeightageFeature());
-
-        return Map.of("jsEditor", jsEditorFeature, "weightage", weightage);
+        return featureMap;
     }
 }

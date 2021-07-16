@@ -18,7 +18,7 @@ import reactor.util.function.Tuple2;
 import java.util.Map;
 
 @Component
-public class FeatureFlag {
+public class FeatureFlagService {
 
     @Autowired
     SessionUserService sessionUserService;
