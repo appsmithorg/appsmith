@@ -16,6 +16,12 @@ export type PopperProps = {
   targetNode?: Element;
   children: JSX.Element | null;
   renderDragBlock?: JSX.Element;
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  };
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
@@ -83,6 +89,7 @@ export default (props: PopperProps) => {
     renderDragBlock,
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
+    renderDragBlockPositions,
   } = props;
   // Meomoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
@@ -146,6 +153,7 @@ export default (props: PopperProps) => {
           _popper.popper,
           onPositionChange,
           position,
+          renderDragBlockPositions,
           () =>
             !!renderDragBlock ? (
               renderDragBlock

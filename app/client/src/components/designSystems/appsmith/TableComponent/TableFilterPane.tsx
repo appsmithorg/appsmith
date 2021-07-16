@@ -92,6 +92,9 @@ class TableFilterPane extends Component<Props> {
               <span>Move</span>
             </DragBlock>
           }
+          renderDragBlockPositions={{
+            left: "0px",
+          }}
           targetNode={el}
           themeMode={this.getPopperTheme()}
           zIndex={Layers.tableFilterPane}
