@@ -229,17 +229,13 @@ public class PolicyUtils {
                 commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
-                    if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
-                    } else {
-                        if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
-                            thread.getSubscribers().remove(username);
-                        }
-                        return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
                     if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
                         if (addPolicyToObject) {
                             return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
                         } else {
+                            if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
+                                thread.getSubscribers().remove(username);
+                            }
                             return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
                         }
                     }
