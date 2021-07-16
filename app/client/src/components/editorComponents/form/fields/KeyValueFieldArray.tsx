@@ -136,7 +136,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
-                    showLightningMenu={false}
                     theme={props.theme}
                   />
                 </Flex>

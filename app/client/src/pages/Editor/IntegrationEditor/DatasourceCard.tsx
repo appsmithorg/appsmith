@@ -1,12 +1,12 @@
 import { Datasource } from "entities/Datasource";
-import { isStoredDatasource } from "entities/Action";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import React from "react";
-import { isNil } from "lodash";
+import { isStoredDatasource, PluginType } from "entities/Action";
+import Button, { Category } from "components/ads/Button";
+import React, { useCallback, useMemo, useState } from "react";
+import { isNil, keyBy } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
-
+import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
   getQueryActionsForCurrentPage,
@@ -18,18 +18,29 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 const Wrapper = styled.div`
-  border: 2px solid #d6d6d6;
   padding: 18px;
-  margin-top: 18px;
+  /* margin-top: 18px; */
+
+  &:hover {
+    background: ${Colors.Gallery};
+    .bp3-collapse-body {
+      background: ${Colors.Gallery};
+    }
+  }
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 120px;
+    //max-width: 120px;
     width: auto;
+  }
+  span > svg > path {
+    stroke: white;
   }
 `;
 
@@ -38,11 +49,12 @@ const DatasourceImage = styled.img`
   width: auto;
 `;
 
-const EditDatasourceButton = styled(BaseButton)`
+const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
     max-width: 160px;
-    border: 1px solid ${Colors.GEYSER_LIGHT};
+    border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
@@ -64,6 +76,10 @@ const DatasourceNameWrapper = styled.div`
   display: flex;
 `;
 
+const DatasourceInfo = styled.div`
+  padding: 0 10px;
+`;
+
 const Queries = styled.div`
   color: ${Colors.DOVE_GRAY};
   font-size: 14px;
@@ -78,14 +94,16 @@ const ButtonsWrapper = styled.div`
 
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource) => void;
+  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
+  isCreating?: boolean;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
+  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource } = props;
+  const { datasource, isCreating } = props;
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -99,20 +117,47 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const editDatasource = useCallback(() => {
+    const plugin = pluginGroups[datasource.pluginId];
+    if (plugin && plugin.type === PluginType.SAAS) {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          params.applicationId,
+          params.pageId,
+          plugin.packageName,
+          datasource.id,
+          {
+            from: "datasources",
+          },
+        ),
+      );
+    } else {
+      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
+      history.push(
+        DATA_SOURCES_EDITOR_ID_URL(
+          params.applicationId,
+          params.pageId,
+          datasource.id,
+          {
+            from: "datasources",
+          },
+        ),
+      );
+    }
+  }, [datasource.id, params]);
 
-  const editDatasource = () => {
-    dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
-    history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
-        params.pageId,
-        datasource.id,
-      ),
-    );
-  };
+  const onCreateNewQuery = useCallback(() => {
+    setIsSelected(true);
+    const plugin = pluginGroups[datasource.pluginId];
+    props.onCreateQuery(datasource, plugin.type);
+  }, []);
 
   return (
-    <Wrapper>
+    <Wrapper className="t--datasource">
       <DatasourceCardHeader className="t--datasource-name">
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
@@ -129,26 +174,29 @@ function DatasourceCard(props: DatasourceCardProps) {
               : "No query is using this datasource"}
           </Queries>
         </div>
-        <ButtonsWrapper>
+        <ButtonsWrapper className="action-wrapper">
           <EditDatasourceButton
+            category={Category.tertiary}
             className="t--edit-datasource"
-            icon={"edit"}
             onClick={editDatasource}
-            text="Edit Datasource"
+            text="Edit"
           />
           <ActionButton
-            accent="primary"
             className="t--create-query"
-            filled
-            icon={"plus"}
-            onClick={() => props.onCreateQuery(datasource)}
+            icon="plus"
+            isLoading={isCreating && isSelected}
+            onClick={onCreateNewQuery}
             text="New Query"
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig)
-        ? renderDatasourceSection(currentFormConfig[0], datasource)
-        : undefined}
+      {!isNil(currentFormConfig) && (
+        <CollapseComponent title="Show More">
+          <DatasourceInfo>
+            {renderDatasourceSection(currentFormConfig[0], datasource)}
+          </DatasourceInfo>
+        </CollapseComponent>
+      )}
     </Wrapper>
   );
 }

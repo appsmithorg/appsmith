@@ -51,7 +51,7 @@ const AccentColorMap: Record<ButtonStyleName, string> = {
 };
 
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
-  <Button {..._.omit(props, ["accent", "filled"])} />
+  <Button {..._.omit(props, ["accent", "filled", "disabled"])} />
 ))<ButtonStyleProps>`
   &&&& {
     ${ButtonColorStyles};
@@ -131,7 +131,10 @@ type ButtonStyleProps = {
 
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {
-  return <ButtonWrapper {...props} />;
+  const className = props.disabled
+    ? `${props.className} bp3-disabled`
+    : props.className;
+  return <ButtonWrapper {...props} className={className} />;
 }
 
 BaseButton.defaultProps = {
