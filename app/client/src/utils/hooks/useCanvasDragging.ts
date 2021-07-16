@@ -4,7 +4,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { debounce, defer, throttle } from "lodash";
+import { debounce, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
@@ -124,7 +124,7 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
-        const onMouseMove = (e: any, scroll = false) => {
+        const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
@@ -157,7 +157,6 @@ export const useCanvasDragging = (
             if (rowDelta && canvasRef.current) {
               isUpdatingRows = true;
               renderNewRows(delta);
-              canScroll.current = false;
             } else if (!isUpdatingRows) {
               renderBlocks();
             }
@@ -277,26 +276,22 @@ export const useCanvasDragging = (
             lastMouseMoveEvent &&
             Number.isInteger(lastScrollHeight) &&
             Number.isInteger(lastScrollTop) &&
-            scrollParent &&
-            canScroll.current
+            scrollParent
           ) {
             const delta =
               scrollParent?.scrollHeight +
               scrollParent?.scrollTop -
               (lastScrollHeight + lastScrollTop);
-            onMouseMove(
-              {
-                offsetX: lastMouseMoveEvent.offsetX,
-                offsetY: lastMouseMoveEvent.offsetY + delta,
-              },
-              true,
-            );
+            onMouseMove({
+              offsetX: lastMouseMoveEvent.offsetX,
+              offsetY: lastMouseMoveEvent.offsetY + delta,
+            });
           }
         };
         const initializeListeners = () => {
           canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
-          scrollParent?.addEventListener("scroll", onScroll, false);
+          // scrollParent?.addEventListener("scroll", onScroll, false);
           canvasRef.current?.addEventListener(
             "mouseover",
             onFirstMoveOnCanvas,
