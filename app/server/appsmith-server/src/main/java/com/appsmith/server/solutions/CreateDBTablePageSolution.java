@@ -26,7 +26,6 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
@@ -69,8 +68,6 @@ public class CreateDBTablePageSolution {
     private final ApplicationPageService applicationPageService;
     private final PluginService pluginService;
     
-    private final String DATABASE_TABLE = "database table";
-    
     private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
     private final String TEMPLATE_TABLE_NAME = "public.template_table";
@@ -87,6 +84,8 @@ public class CreateDBTablePageSolution {
     // uniformity across different datasources
     private final String DEFAULT_SEARCH_COLUMN = "col3";
 
+    private final String TEMPLATE_S3_BUCKET = "assets-test.appsmith.com";
+
     private final long MIN_TABLE_COLUMNS = 2;
 
     // These fields contain the widget fields those need to be mapped between template DB table and DB table in
@@ -95,27 +94,8 @@ public class CreateDBTablePageSolution {
         "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible"
     );
 
-    // Map to select page from the template application for specific datasource
-    private final Map<String, String> templatePluginPackageToPageNamesMap = ImmutableMap.<String, String> builder()
-        .put("postgres-plugin", "SQL")
-        .put("mongo-plugin", "Mongo")
-        .put("mysql-plugin", "SQL")
-        .put("elasticsearch-plugin", "Elasticsearch")
-        .put("dynamo-plugin","Dynamo")
-        .put("redis-plugin","Redis")
-        .put("mssql-plugin", "SQL")
-        .put("firestore-plugin", "Firestore")
-        .put("redshift-plugin", "SQL")
-        .put("amazons3-plugin", "S3Assets")
-        .put("google-sheets-plugin", "GSheets")
-        .put("snowflake-plugin", "Snowflake")
-        .build();
-
     // Pattern to break string in separate words
     final static Pattern wordPattern = Pattern.compile("[^\\W]+");
-
-    // Pattern to get string between "_" and ._} : "templateTableColumnName" => templateTableColumnName mapped to tableColumnName
-    final static Pattern fieldNamePattern = Pattern.compile("(?<=[\".])([^ ,.{}]*?)(?=[\"}])");
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -134,6 +114,18 @@ public class CreateDBTablePageSolution {
             5. Clone layout from template application page and update using the column map created in step 4
             6. Clone and update actions in page from the template application
          */
+
+        // All SQL datasources will be mapped to postgresql as actionBody will be same and the same logic is used
+        // in template application resource file : CRUD-DB-Table-Template-Application.json
+        final Set<String> sqlPackageNames = Set.of("postgres-plugin",
+                                                    "mysql-plugin",
+                                                    "mssql-plugin",
+                                                    "redshift-plugin",
+                                                    "snowflake-plugin");
+
+        // SQL datasources which don't support ilike operator for case insensitive filter
+        final Set<String> caseInsensitiveSqlDB = Set.of("mysql-plugin", "mssql-plugin");
+
         AtomicReference<String> savedPageId = new AtomicReference<>(pageId);
         if (pageResourceDTO.getTableName() == null || pageResourceDTO.getDatasourceId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ", tableName and datasourceId must be present"));
@@ -146,6 +138,7 @@ public class CreateDBTablePageSolution {
         final String applicationId = pageResourceDTO.getApplicationId();
         final String searchColumn = pageResourceDTO.getSearchColumn();
         final Set<String> columns = pageResourceDTO.getColumns();
+        final Map<String, String> pluginSpecificParams = pageResourceDTO.getPluginSpecificParams();
 
         //Mapped columns along with table name between template and concerned DB table
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
@@ -163,32 +156,18 @@ public class CreateDBTablePageSolution {
                     .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                     )
-                    .filter(datasource -> datasource.getStructure() != null
-                        && !CollectionUtils.isEmpty(datasource.getStructure().getTables()))
-                    .filter(datasource -> datasource.getStructure().getTables().stream()
-                        .anyMatch(table -> StringUtils.equals(table.getName(), tableName)))
-                    .switchIfEmpty(Mono.error(
-                        new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND,
-                            FieldName.DATASOURCE_STRUCTURE,
-                            "containing table with name " + tableName
-                        ))
-                    )
             );
 
-        
         return datasourceMono
             .zipWhen(datasource -> Mono.zip(
-                    getTable(datasource, tableName),
                     pageMono,
                     pluginService.findById(datasource.getPluginId())
                 )
             )
             .flatMap(tuple -> {
                 Datasource datasource = tuple.getT1();
-                Table table = tuple.getT2().getT1();
-                NewPage page = tuple.getT2().getT2();
-                Plugin plugin = tuple.getT2().getT3();
+                NewPage page = tuple.getT2().getT1();
+                Plugin plugin = tuple.getT2().getT2();
                 String layoutId = page.getUnpublishedPage().getLayouts().get(0).getId();
 
                 ApplicationJson applicationJson = new ApplicationJson();
@@ -204,9 +183,9 @@ public class CreateDBTablePageSolution {
                 }
 
                 NewPage templatePage = pageList.stream()
-                    .filter(newPage -> StringUtils.equals(
+                    .filter(newPage -> StringUtils.equalsIgnoreCase(
                             newPage.getUnpublishedPage().getName(),
-                            templatePluginPackageToPageNamesMap.get(plugin.getPackageName())
+                            plugin.getGenerateCRUDPageComponent()
                         )
                     )
                     .findAny()
@@ -218,22 +197,26 @@ public class CreateDBTablePageSolution {
                     );
                 }
 
-                Layout layout = templatePage.getUnpublishedPage()
-                    .getLayouts()
-                    .get(0);
+                Layout layout = templatePage.getUnpublishedPage().getLayouts().get(0);
 
                 if (layout == null) {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE));
                 }
                 layout.setId(null);
-                // onLoadActions will be set after it's stored in DB
+                // onLoadActions will be set after actions are stored in DB
                 layout.setLayoutOnLoadActions(null);
 
                 final String templateTableRef =  TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
                 Datasource templateDatasource = applicationJson
                     .getDatasourceList()
                     .stream()
-                    .filter(datasource1 -> StringUtils.equals(datasource1.getPluginId(), plugin.getPackageName()))
+                    .filter(datasource1 ->
+                        StringUtils.equals(datasource1.getPluginId(), plugin.getPackageName())
+                            // In template resource we have used Postgresql as a representative of all sql datasource
+                            // as the actionBodies will be same
+                        || (StringUtils.equals(datasource1.getPluginId(), "postgres-plugin")
+                            && sqlPackageNames.contains(plugin.getPackageName()))
+                    )
                     .findAny()
                     .orElse(null);
 
@@ -244,16 +227,49 @@ public class CreateDBTablePageSolution {
                 }
 
                 DatasourceStructure templateStructure = templateDatasource.getStructure();
-                Table templateTable = templateStructure.getTables()
-                    .stream()
-                    .filter(table1 -> StringUtils.contains(table1.getName(), templateTableRef))
-                    .findAny()
-                    .orElse(null);
+                if (templateStructure != null && !CollectionUtils.isEmpty(templateStructure.getTables())) {
+                    Table templateTable = templateStructure.getTables()
+                        .stream()
+                        .filter(table1 -> StringUtils.contains(table1.getName(), templateTableRef))
+                        .findAny()
+                        .orElse(null);
 
-                mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
+                    Table table = getTable(datasource, tableName);
+                    if (table == null) {
+                        return Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasource.getName())
+                        );
+                    }
+                    mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
+                    // Some SQL databases doesn't support ilike operator
+                    if (caseInsensitiveSqlDB.contains(plugin.getPackageName())) {
+                        mappedColumnsAndTableName.put("ilike", "like");
+                    }
+                } else {
+                    int colCount = 1;
+                    // If the structure and tables not present in the template datasource then map the columns from
+                    // template application where we are following the nomenclature of col1, col2, ...
+                    if (!CollectionUtils.isEmpty(columns)) {
+                        for (String column : columns) {
+                            mappedColumnsAndTableName.put("col" + colCount, column);
+                            colCount++;
+                        }
+                        // In template application we have used col1 - col5 so if users tables have less number of
+                        // columns these fields need to be deleted
+                        if (colCount <= 5) {
+                            for (String column : columns) {
+                                mappedColumnsAndTableName.put("col" + colCount, DELETE_FIELD);
+                                colCount++;
+                            }
+                        }
+                    }
+                }
+
+                // Map table names : public.templateTable => <"templateTable","userTable">
                 mappedColumnsAndTableName.put(
                     templateTableRef,
                     tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName);
+
 
                 Set<String> deletedWidgets = new HashSet<>();
                 layout.setDsl(
@@ -262,10 +278,9 @@ public class CreateDBTablePageSolution {
 
                 List<NewAction> templateActionList = applicationJson.getActionList()
                     .stream()
-                    .filter(newAction -> StringUtils.equals(
-                            newAction.getUnpublishedAction().getPageId(),
-                            templatePluginPackageToPageNamesMap.get(plugin.getPackageName())
-                        )
+                    .filter(newAction -> StringUtils.equalsIgnoreCase(
+                        newAction.getUnpublishedAction().getPageId(),
+                        plugin.getGenerateCRUDPageComponent())
                     )
                     .collect(Collectors.toList());
 
@@ -283,8 +298,14 @@ public class CreateDBTablePageSolution {
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
                 log.debug("Going to clone actions from template application");
-                return cloneActionsFromTemplateApplication(
-                    datasource, tableName, savedPageId.get(), templateActionList, mappedColumnsAndTableName, deletedWidgets)
+                return cloneActionsFromTemplateApplication(datasource,
+                                                            tableName,
+                                                            savedPageId.get(),
+                                                            templateActionList,
+                                                            mappedColumnsAndTableName,
+                                                            deletedWidgets,
+                                                            pluginSpecificParams)
+
                     .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY)
                         || StringUtils.equals(actionDTO.getName(), FIND_QUERY) ?
                             layoutActionService.setExecuteOnLoad(actionDTO.getId(), true)
@@ -295,12 +316,18 @@ public class CreateDBTablePageSolution {
 
 
     /**
-     * @param applicationId
-     * @param pageId
-     * @param tableName
+     * @param applicationId application from which the page should be fetched
+     * @param pageId ref to page which is going to be fetched
+     * @param tableName if page is not present then name of the page name should include tableName
      * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
      */
     private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName) {
+
+        /*
+            1. Check if the page is already available
+            2. If present return the same page
+            3. If page is not present create new page and return
+        */
 
         log.debug("Fetching page from application {}", applicationId);
         if(pageId != null) {
@@ -336,32 +363,40 @@ public class CreateDBTablePageSolution {
             .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), AclPermission.MANAGE_PAGES));
     }
 
-    private Mono<Table> getTable(Datasource datasource, String tableName) {
+    /**
+     * @param datasource resource from which table has to be filtered
+     * @param tableName to filter the available tables in the datasource
+     * @return Table from the provided datasource if structure is present
+     */
+    private Table getTable(Datasource datasource, String tableName) {
+        /*
+            1. Get structure from datasource
+            2. Filter by tableName
+        */
         DatasourceStructure datasourceStructure = datasource.getStructure();
         if (datasourceStructure != null) {
-            return Mono.justOrEmpty(getTable(datasourceStructure, tableName))
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)));
+            return datasourceStructure.getTables()
+                .stream()
+                .filter(table1 -> StringUtils.equals(table1.getName(),tableName))
+                .findAny()
+                .orElse(null);
         }
-        return datasourceStructureSolution.getStructure(datasource.getId(), true)
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, DATABASE_TABLE, tableName)))
-            .map(datasourceStructure1 -> getTable(datasourceStructure1, tableName));
-    }
-    
-    private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
-        return datasourceStructure.getTables()
-            .stream()
-            .filter(table1 -> StringUtils.equals(table1.getName(),tableName))
-            .findAny()
-            .orElse(null);
+        return null;
     }
 
     /**
+     * This will fetch the template application resource which then act as a reference to clone layouts and actions
      * @param filePath template application path
-     * @return application resource
+     * @return
      * @throws IOException
      */
     private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
 
+        /*
+            1. Fetch the content from the template json file
+            2. De-Serialise data from the file
+            3. Store the data in the application resource format
+         */
         log.debug("Going to fetch template application");
         final String jsonContent = StreamUtils.copyToString(
             new DefaultResourceLoader().getResource(filePath).getInputStream(),
@@ -390,8 +425,15 @@ public class CreateDBTablePageSolution {
                                                                 String pageId,
                                                                 List<NewAction> templateActionList,
                                                                 Map<String, String> mappedColumns,
-                                                                Set<String> deletedWidgetNames
+                                                                Set<String> deletedWidgetNames,
+                                                                Map<String, String> pluginSpecificTemplateParams
     ) {
+        /*
+            1. Clone actions from the template pages
+            2. Update actionConfiguration to replace the template table fields with users datasource fields
+            stored in mapped columns
+            3. Create new action
+         */
         log.debug("Cloning actions from template application for pageId {}", pageId);
         return Flux.fromIterable(templateActionList)
             .flatMap(templateAction -> {
@@ -408,22 +450,29 @@ public class CreateDBTablePageSolution {
                 ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
 
                 List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
-                // SQL
                 if (actionBody != null) {
                     String body = actionBody.replaceFirst(TEMPLATE_TABLE_NAME, tableName);
-                    final Matcher matcher = fieldNamePattern.matcher(body);
+                    final Matcher matcher = wordPattern.matcher(body);
                     actionConfiguration.setBody(matcher.replaceAll(key ->
                         mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                     );
                 }
 
-                if ( pluginSpecifiedTemplates != null) {
+                log.debug("Cloning plugin specified templates for action {}", actionDTO.getId());
+                if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
-                            final Matcher matcher = wordPattern.matcher(property.getValue().toString());
-                            property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                            );
+                            if (StringUtils.equals(property.getValue().toString(), TEMPLATE_S3_BUCKET)) {
+                                property.setValue(tableName);
+                            } else if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
+                                && pluginSpecificTemplateParams.get(property.getKey()) != null){
+                                property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
+                            } else {
+                                final Matcher matcher = wordPattern.matcher(property.getValue().toString());
+                                property.setValue(matcher.replaceAll(key ->
+                                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
+                                );
+                            }
                         }
                     });
                 }
@@ -434,11 +483,12 @@ public class CreateDBTablePageSolution {
     }
 
     /**
+     * This function maps the column names between the template datasource table and the user's table
      * @param sourceTable provides keys for Map from column names
      * @param destTable provides values for Map from column names
      * @param searchColumn specific column provided to implement the filter for Select and Find query
      * @param tableColumns Specific columns provided by higher order function to act as values for Map
-     * @return Map of sourceColumnNames to tableColumns
+     * @return
      */
     private Map<String, String> mapTableColumnNames(Table sourceTable,
                                                     Table destTable,
@@ -447,23 +497,23 @@ public class CreateDBTablePageSolution {
 
         /*
             1. Fetch and map primary keys for source and destination columns if available
-            2. Map remaining column names
+            2. Map remaining column names between the sourceTable(key) and destinationTable(value)
          */
         log.debug("Mapping column names with template application for table {}", destTable.getName());
         Map<String, String> mappedTableColumns = new HashMap<>();
 
         if (searchColumn != null && !searchColumn.isEmpty()) {
             mappedTableColumns.put(DEFAULT_SEARCH_COLUMN, searchColumn);
-            sourceTable.getColumns().removeIf(column -> column.getName().equals(DEFAULT_SEARCH_COLUMN));
-            destTable.getColumns().removeIf(column -> column.getName().equals(searchColumn));
+            sourceTable.getColumns().removeIf(column -> DEFAULT_SEARCH_COLUMN.equals(column.getName()));
+            destTable.getColumns().removeIf(column -> searchColumn.equals(column.getName()));
         }
+        mappedTableColumns.putAll(mapKeys(sourceTable, destTable));
         List<Column> sourceTableColumns = sourceTable.getColumns(), destTableColumns = destTable.getColumns();
         if (!CollectionUtils.isEmpty(tableColumns) && tableColumns.size() > MIN_TABLE_COLUMNS) {
             destTableColumns = destTableColumns.stream()
                 .filter(column -> tableColumns.contains(column.getName()))
                 .collect(Collectors.toList());
         }
-        mappedTableColumns.putAll(mapKeys(sourceTable, destTable));
         sourceTableColumns = sourceTableColumns.stream()
             .filter(key -> !mappedTableColumns.containsKey(key.toString()))
             .collect(Collectors.toList());
@@ -489,15 +539,25 @@ public class CreateDBTablePageSolution {
         }
         return mappedTableColumns;
     }
-    
+
+    /**
+     * This function maps the primary key names between the template datasource table and the user's table
+     * @param sourceTable Template table whose pKey will act as key for the MAP
+     * @param destTable Table from the users datasource whose keys will act as values for the MAP
+     * @return Map of <sourceKeyColumnName, destinationKeyColumnName>
+     */
+
     private Map<String, String> mapKeys(Table sourceTable, Table destTable) {
+
+        /*
+            1. Get pKey for source table and destination table
+            2. Map column names from source pKey to destination pKey
+        */
         Map<String, String> primaryKeyNameMap = new HashMap<>();
-        //keyType vs keyName
         List<String> sourceKeys = new ArrayList<>();
         List<String> destKeys = new ArrayList<>();
         
-        if (sourceTable.getKeys() == null || sourceTable.getKeys().isEmpty()
-            || destTable.getKeys() == null || destTable.getKeys().isEmpty()) {
+        if (CollectionUtils.isEmpty(sourceTable.getKeys()) || CollectionUtils.isEmpty(destTable.getKeys())) {
             return primaryKeyNameMap;
         }
         sourceTable.getKeys().forEach(key -> {
@@ -517,9 +577,10 @@ public class CreateDBTablePageSolution {
     }
 
     /**
+     * This function updates the dsl of current node and recursively iterate over it's children
      * @param dsl
-     * @param mappedColumnsAndTableNames map to replace column names
-     * @param deletedWidgets return the widgets those are deleted from the dsl
+     * @param mappedColumnsAndTableNames map to replace column names and update dsl
+     * @param deletedWidgets store the widgets those are deleted from the dsl
      * @return updated dsl for the widget
      */
     private JSONObject extractAndUpdateAllWidgetFromDSL(JSONObject dsl,
@@ -527,8 +588,10 @@ public class CreateDBTablePageSolution {
                                                         Set<String> deletedWidgets) {
 
         /*
-            1. Fetch the children of the current node in the DSL and recursively iterate over them
-            2. Delete unwanted children and update dsl
+            1. Update dsl : Replace names of template columns with the user connected datasource columns
+            2. Fetch the children of the current node in the DSL and recursively iterate over them
+            3. Delete unwanted children
+            4. Save and return updated dsl
          */
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isn't a valid widget configuration. No need to traverse this.
@@ -578,6 +641,11 @@ public class CreateDBTablePageSolution {
      */
     private JSONObject updateTemplateWidgets(JSONObject widgetDsl, Map<String, String> mappedColumnsAndTableNames) {
 
+        /*
+            1. Check the keys in widget dsl if needs to be changed
+            2. Replace the template column names with the user connected datasource column names
+            using mappedColumnsAndTableNames
+        */
         List<String> keys = widgetDsl.keySet().stream().filter(WIDGET_FIELDS::contains).collect(Collectors.toList());
         for (String key : keys) {
             if (FieldName.PRIMARY_COLUMNS.equals(key)) {
@@ -611,13 +679,22 @@ public class CreateDBTablePageSolution {
     }
 
     /**
-     * This will delete widget names from body when template datasource have more number of columns
-     * @param actionConfiguration
-     * @param deletedWidgetNames widgets for which references to be removed from the actions
+     * This will delete widget names from body when template datasource have more number of columns than the user
+     * connected datasource. Also it will replace the template column names with the user connected datasource column names
+     * @param actionConfiguration resource which needs to be updated
+     * @param deletedWidgetNames widgets for which references to be removed from the actionConfiguration
      * @return updated ActionConfiguration with deleteWidgets ref removed
      */
-    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(ActionConfiguration actionConfiguration, Set<String> deletedWidgetNames) {
+    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(
+                                                                        ActionConfiguration actionConfiguration,
+                                                                        Set<String> deletedWidgetNames) {
 
+
+        /*
+            1. Check for any delete widget reference within actionConfiguration
+            2. Remove the fields related to delete widget from actionBody and pluginSpecifiedTemplates
+            3. Return updated actionConfiguration
+         */
         // We need to check this for insertQuery for SQL
         if (StringUtils.containsIgnoreCase(actionConfiguration.getBody(), "VALUES")) {
 
@@ -631,9 +708,9 @@ public class CreateDBTablePageSolution {
 
         // When the connected datasource have less number of columns than template datasource, delete the unwanted fields
         // \n"DELETE_FIELD" : '{{Widget.property}}',\n => "" : As mapping is not present
-        final String regex = "[\"\n].*" + DELETE_FIELD + ".*[,\n]";
+        final String regex = "[\"\n{].*" + DELETE_FIELD + ".*[,\n}]";
         if (actionConfiguration.getBody() != null) {
-            actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(regex, ""));
+            actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(regex, "\n"));
             // This will remove the unwanted comma after fields deletion if present at the end of body
             // "field1\","field2\",\n\t\"field3" \n,{non-word-characters})\n => insertQuery
             if (actionConfiguration.getBody().matches("(?s).*,[\\W]*?\\).*")) {
