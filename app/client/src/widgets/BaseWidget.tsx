@@ -313,6 +313,7 @@ abstract class BaseWidget<
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
+          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
         return content;
