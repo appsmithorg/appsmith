@@ -134,11 +134,11 @@ class ContainerWidget extends BaseWidget<
               snapRows={snapRows}
               widgetId={props.widgetId}
             />
-            <CanvasSelectionArena
+            {/* <CanvasSelectionArena
               {...this.getSnapSpaces()}
               snapRows={snapRows}
               widgetId={props.widgetId}
-            />
+            /> */}
           </>
         )}
         <WidgetsMultiSelectBox

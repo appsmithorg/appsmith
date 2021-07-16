@@ -3,8 +3,10 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import { useCanvasDragging } from "utils/hooks/useCanvasDragging";
+import { useEffect } from "react";
+import { getNearestParentCanvas } from "utils/generators";
 
-const StyledSelectionCanvas = styled.canvas<{ paddingBottom: number }>`
+const StyledSelectionCanvas = styled.div<{ paddingBottom: number }>`
   position: absolute;
   top: 0px;
   left: 0px;
@@ -43,21 +45,29 @@ export function CanvasDraggingArena({
     return widgetId === MAIN_CONTAINER_WIDGET_ID;
   }, [widgetId]);
 
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const { showCanvas } = useCanvasDragging(canvasRef, {
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const canvasDrawRef = React.useRef<HTMLCanvasElement>(null);
+  const { showCanvas } = useCanvasDragging(canvasRef, canvasDrawRef, {
     noPad,
     snapColumnSpace,
     snapRows,
     snapRowSpace,
     widgetId,
   });
+
   return showCanvas ? (
-    <StyledSelectionCanvas
-      data-testid={`canvas-dragging-${widgetId}`}
-      id={`canvas-dragging-${widgetId}`}
-      paddingBottom={needsPadding ? theme.canvasBottomPadding : 0}
-      ref={canvasRef}
-    />
+    <>
+      <canvas
+        ref={canvasDrawRef}
+        style={{ position: "absolute", left: "0px" }}
+      />
+      <StyledSelectionCanvas
+        data-testid={`canvas-dragging-${widgetId}`}
+        id={`canvas-dragging-${widgetId}`}
+        paddingBottom={needsPadding ? 0 : 0}
+        ref={canvasRef}
+      />
+    </>
   ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
