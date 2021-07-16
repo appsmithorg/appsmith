@@ -37,7 +37,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
@@ -51,11 +50,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
 
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const {
+    occupiedSpaces: occupiedSpacesBySiblingWidgets,
+    persistDropTargetRows,
+    updateDropTargetRows,
+  } = useContext(DropTargetContext);
 
   const isCommentMode = useSelector(commentModeSelector);
 
@@ -78,11 +78,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -303,4 +298,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
+
+ResizableComponent.displayName = "ResizableComponent";
+
 export default ResizableComponent;

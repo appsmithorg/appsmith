@@ -28,7 +28,7 @@ export interface WithMeta {
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  return class MetaHOC extends React.Component<WidgetProps, any> {
+  return class MetaHOC extends React.PureComponent<WidgetProps, any> {
     static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
