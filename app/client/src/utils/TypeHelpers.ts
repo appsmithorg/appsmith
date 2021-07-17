@@ -14,10 +14,7 @@ export enum Types {
 }
 
 export const getType = (value: unknown) => {
-  if (_.isString(value)) {
-    if (isURL(value)) return Types.URL;
-    else return Types.STRING;
-  }
+  if (_.isString(value)) return Types.STRING;
   if (_.isNumber(value)) return Types.NUMBER;
   if (_.isBoolean(value)) return Types.BOOLEAN;
   if (Array.isArray(value)) return Types.ARRAY;
@@ -28,7 +25,7 @@ export const getType = (value: unknown) => {
   return Types.UNKNOWN;
 };
 
-function isURL(str: string) {
+export function isURL(str: string) {
   const pattern = new RegExp(
     "^(https?:\\/\\/)?" + // protocol
     "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name

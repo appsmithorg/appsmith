@@ -81,7 +81,7 @@ import {
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import Axios from "axios";
-import { getType, Types } from "utils/TypeHelpers";
+import { getType, isURL, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
@@ -265,7 +265,11 @@ async function downloadSaga(
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
-    } else if (dataType === Types.URL && type === "application/zip") {
+    } else if (
+      dataType === Types.STRING &&
+      isURL(data) &&
+      type === "application/zip"
+    ) {
       // Requires a special handling for the use case when the user is trying to download a zipped file from a URL
       // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
       // using axios with the arraybuffer header and then pass it to the downloadjs library.
