@@ -131,15 +131,16 @@ class ContainerWidget extends BaseWidget<
           <>
             <CanvasDraggingArena
               {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
               noPad={this.props.noPad}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />
-            {/* <CanvasSelectionArena
+            <CanvasSelectionArena
               {...this.getSnapSpaces()}
               snapRows={snapRows}
               widgetId={props.widgetId}
-            /> */}
+            />
           </>
         )}
         <WidgetsMultiSelectBox
