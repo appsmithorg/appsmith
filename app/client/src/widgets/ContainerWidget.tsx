@@ -17,6 +17,8 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -122,10 +124,24 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
-        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
-          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        {props.type === "CANVAS_WIDGET" && (
+          <>
+            <CanvasDraggingArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              noPad={this.props.noPad}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+            <CanvasSelectionArena
+              {...this.getSnapSpaces()}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+          </>
         )}
         <WidgetsMultiSelectBox
           widgetId={this.props.widgetId}

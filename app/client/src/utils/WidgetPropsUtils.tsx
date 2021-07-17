@@ -1069,16 +1069,15 @@ export const noCollision = (
   clientOffset: XYCoord,
   colWidth: number,
   rowHeight: number,
-  widget: WidgetProps & Partial<WidgetConfigProps>,
   dropTargetOffset: XYCoord,
+  widgetWidth: number,
+  widgetHeight: number,
+  widgetId: string,
   occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
 ): boolean => {
-  if (clientOffset && dropTargetOffset && widget) {
-    if (widget.detachFromLayout) {
-      return true;
-    }
+  if (clientOffset && dropTargetOffset) {
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
@@ -1088,12 +1087,6 @@ export const noCollision = (
     if (left < 0 || top < 0) {
       return false;
     }
-    const widgetWidth = widget.columns
-      ? widget.columns
-      : widget.rightColumn - widget.leftColumn;
-    const widgetHeight = widget.rows
-      ? widget.rows
-      : widget.bottomRow - widget.topRow;
     const currentOffset = {
       left,
       right: left + widgetWidth,
@@ -1101,7 +1094,7 @@ export const noCollision = (
       bottom: top + widgetHeight,
     };
     return (
-      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isDropZoneOccupied(currentOffset, widgetId, occupiedSpaces) &&
       !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
     );
   }
