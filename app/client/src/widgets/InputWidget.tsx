@@ -1,5 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
@@ -129,6 +131,26 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter tooltip text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
             helpText:
               "Adds a validation to the input which displays an error on failure",
             propertyName: "regex",
@@ -151,6 +173,16 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isRequired",
@@ -191,6 +223,30 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
+          },
+        ],
+      },
+      {
+        sectionName: "Icon Options",
+        children: [
+          {
+            propertyName: "iconName",
+            label: "Icon",
+            helpText: "Sets the icon to be used in input field",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Icon alignment",
+            helpText: "Sets the icon alignment of input field",
+            controlType: "ICON_ALIGN",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
+            hidden: (props: InputWidgetProps) => !props.iconName,
           },
         ],
       },
@@ -372,22 +428,39 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+    const minInputSingleLineHeight =
+      this.props.label || this.props.tooltip
+        ? // adjust height for label | tooltip extra div
+          GRID_DENSITY_MIGRATION_V1 + 2
+        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
+          GRID_DENSITY_MIGRATION_V1;
+
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
+        autoFocus={this.props.autoFocus}
+        // show label and Input side by side if true
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+              1 && this.props.inputType === "TEXT"
+          )
+        }
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
+        iconAlign={this.props.iconAlign}
+        iconName={this.props.iconName}
         inputType={this.props.inputType}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
         multiline={
-          // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           (this.props.bottomRow - this.props.topRow) /
-            GRID_DENSITY_MIGRATION_V1 >
+            minInputSingleLineHeight >
             1 && this.props.inputType === "TEXT"
         }
         onCurrencyTypeChange={this.onCurrencyTypeChange}
@@ -397,6 +470,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
+        tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
         {...conditionalProps}
@@ -433,6 +507,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   defaultText?: string;
+  tooltip?: string;
   isDisabled?: boolean;
   text: string;
   regex?: string;
@@ -450,6 +525,9 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+  autoFocus?: boolean;
+  iconName?: IconName;
+  iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
 }
 

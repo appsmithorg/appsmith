@@ -70,10 +70,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      label: "",
+      label: "Label",
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      iconAlign: "left",
+      autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
       isDisabled: false,
