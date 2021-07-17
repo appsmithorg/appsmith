@@ -27,7 +27,7 @@ export enum EditorSize {
 
 export type EditorConfig = {
   theme: EditorTheme;
-  mode: EditorModes;
+  mode: any;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
   hinting: Array<HintHelper>;

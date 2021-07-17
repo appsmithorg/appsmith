@@ -12,6 +12,8 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSAction } from "entities/JSAction";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -106,6 +108,9 @@ export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
+
+export const getJSActions = (state: AppState): JSActionDataState =>
+  state.entities.jsActions;
 
 export const getDatasource = (
   state: AppState,
@@ -229,6 +234,15 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getJSActionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getJSActions,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter((a) => a.config.pageId === pageId);
+  },
+);
+
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
@@ -259,11 +273,33 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getJSAction = (
+  state: AppState,
+  actionId: string,
+): JSAction | undefined => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction ? jsaction.config : undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
 ): string {
   const action = state.entities.actions.find((action) => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getCurrentPageNameByJSActionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.jsActions.find((action) => {
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";

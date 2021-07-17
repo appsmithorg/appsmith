@@ -22,6 +22,7 @@ type ExplorerPageGroupProps = {
   datasources: Record<string, Datasource[]>;
   plugins: Plugin[];
   showWidgetsSidebar: (pageId: string) => void;
+  jsActions: Record<string, any[]>;
 };
 
 const pageGroupEqualityCheck = (
@@ -31,6 +32,7 @@ const pageGroupEqualityCheck = (
   return (
     prev.widgets === next.widgets &&
     prev.actions === next.actions &&
+    prev.jsActions === next.jsActions &&
     prev.datasources === next.datasources &&
     prev.searchKeyword === next.searchKeyword
   );
@@ -58,6 +60,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
+    const pageJSActions = props.jsActions[page.pageId] || [];
     const datasources = props.datasources[page.pageId] || [];
     if (!pageWidgets && pageActions.length === 0 && datasources.length === 0)
       return null;
@@ -65,6 +68,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       <ExplorerPageEntity
         actions={pageActions}
         datasources={datasources}
+        jsActions={pageJSActions}
         key={page.pageId}
         page={page}
         plugins={props.plugins}

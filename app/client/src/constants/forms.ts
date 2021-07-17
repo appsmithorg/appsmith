@@ -22,3 +22,5 @@ export const SAAS_EDITOR_FORM = "SaaSEditorForm";
 export const DATASOURCE_DB_FORM = "DatasourceDBForm";
 export const DATASOURCE_REST_API_FORM = "DatasourceRestAPIForm";
 export const DATASOURCE_SAAS_FORM = "DatasourceSaaSForm";
+
+export const JS_EDITOR_FORM = "jsEditorForm";

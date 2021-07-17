@@ -344,9 +344,22 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
+// js actions
+export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
+  `${actionName} js collection copied to page ${pageName} successfully`;
+export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
+  `Error while copying js collection ${actionName}`;
+export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
+  `${actionName} js collection deleted successfully`;
+export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
+  `${actionName} js collection created successfully`;
+export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
+  `${actionName} js collection moved to page ${pageName} successfully`;
+export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
+  `Error while moving js collection ${actionName}`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
-
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;

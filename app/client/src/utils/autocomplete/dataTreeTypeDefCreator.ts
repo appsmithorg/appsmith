@@ -45,6 +45,28 @@ export const dataTreeTypeDefCreator = (
         def[key] = value;
       }
     }
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+      const result: any = _.omit(entity, [
+        "ENTITY_TYPE",
+        "actionId",
+        "pluginType",
+      ]);
+      const dataObj = entity.data;
+      const jsOptions: any = {};
+      for (const key in result) {
+        if (dataObj.hasOwnProperty(key)) {
+          jsOptions[key] =
+            "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+        } else {
+          jsOptions[key] = generateTypeDef(entity[key]);
+        }
+      }
+      def[entityName] = jsOptions;
+      const flattenedjsObjects = flattenObjKeys(jsOptions, entityName);
+      for (const [key, value] of Object.entries(flattenedjsObjects)) {
+        def[key] = value;
+      }
+    }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
       const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
       def.appsmith = options;
@@ -96,6 +118,34 @@ export const flattenObjKeys = (
   for (const [key, value] of Object.entries(options)) {
     if (!skipProperties.includes(key)) {
       r[parentKey + "." + key] = value;
+    }
+  }
+  return r;
+};
+
+const skipJSProps = [
+  "ENTITY_TYPE",
+  "name",
+  "meta",
+  "body",
+  "pluginType",
+  "dynamicBindingPathList",
+  "bindingPaths",
+];
+export const getPropsForJsAction = (
+  options: any,
+  parentKey: any = "",
+  results: any = {},
+): any => {
+  const r: any = results;
+  for (const [key, value] of Object.entries(options)) {
+    if (!skipJSProps.includes(key)) {
+      const keyToPass = parentKey ? parentKey + "." + key : key;
+      if (!_.isObject(value) || Array.isArray(value)) {
+        r[keyToPass] = value;
+      } else {
+        getPropsForJsAction(value, keyToPass, r);
+      }
     }
   }
   return r;

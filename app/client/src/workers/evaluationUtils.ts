@@ -17,12 +17,12 @@ import {
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { Severity } from "entities/AppsmithConsole";
-
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -88,6 +88,7 @@ export function getEntityNameAndPropertyPath(
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
+  unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
@@ -100,6 +101,9 @@ export const translateDiffEventToDataTreeDiffEvent = (
     return result;
   }
   const propertyPath = convertPathToString(difference.path);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
+  const entity = unEvalDataTree[entityName];
+  const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
       result.event = DataTreeDiffEvent.NEW;
@@ -114,11 +118,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      const rhsChange =
-        typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
+      let rhsChange, lhsChange;
+      if (isJsAction) {
+        rhsChange = typeof difference.rhs === "string";
+        lhsChange = typeof difference.lhs === "string";
+      } else {
+        rhsChange =
+          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
 
-      const lhsChange =
-        typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+        lhsChange =
+          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+      }
 
       if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
@@ -176,10 +186,13 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      return translateDiffEventToDataTreeDiffEvent({
-        ...difference.item,
-        path: [...difference.path, difference.index],
-      });
+      return translateDiffEventToDataTreeDiffEvent(
+        {
+          ...difference.item,
+          path: [...difference.path, difference.index],
+        },
+        unEvalDataTree,
+      );
     }
     default: {
       break;
@@ -227,6 +240,14 @@ export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
     entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
+
+export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
 
@@ -372,7 +393,7 @@ export const getAllPaths = (
 ): Record<string, true> => {
   // Add the key if it exists
   if (curKey) result[curKey] = true;
-
+  // add all js action paths
   if (Array.isArray(records)) {
     for (let i = 0; i < records.length; i++) {
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
@@ -551,6 +572,32 @@ export function getSafeToRenderDataTree(
     );
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
+}
+
+export function getParams(func: any) {
+  let str = func.toString();
+  str = str
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/(.)*/g, "")
+    .replace(/{[\s\S]*}/, "")
+    .replace(/=>/g, "")
+    .trim();
+  const start = str.indexOf("(") + 1;
+  const end = str.length - 1;
+  const result = str.substring(start, end).split(", ");
+  const params: any = [];
+  result.forEach((element: any) => {
+    // Removing any default value
+    element = element.split("=");
+    if (element.length > 0 && element[0].length > 0) {
+      const result = {
+        name: element[0],
+        value: element[1] ? JSON.parse(element[1]) : null,
+      };
+      params.push(result);
+    }
+  });
+  return params;
 }
 
 export const addErrorToEntityProperty = (

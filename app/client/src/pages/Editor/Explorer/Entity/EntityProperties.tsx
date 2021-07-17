@@ -10,6 +10,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getPropsForJsAction } from "utils/autocomplete/dataTreeTypeDefCreator";
 import _ from "lodash";
 
 export const EntityProperties = memo(
@@ -30,6 +32,7 @@ export const EntityProperties = memo(
       );
     });
     let entity: any;
+    const dataTree = useSelector(getDataTree);
     const widgetEntity = useSelector((state: AppState) => {
       const pageWidgets = state.ui.pageWidgets[props.pageId];
       if (pageWidgets) {
@@ -44,10 +47,35 @@ export const EntityProperties = memo(
     } else {
       return null;
     }
-
     let config: any;
     let entityProperties: Array<EntityPropertyProps> = [];
     switch (props.entityType) {
+      case ENTITY_TYPE.JSACTION:
+        const jsAction = entity.config;
+        const properties = getPropsForJsAction(dataTree[jsAction.name]);
+        if (properties) {
+          const jsEntity = dataTree[jsAction.name];
+          let funcData: any;
+          if ("data" in jsEntity) {
+            funcData = jsEntity && jsEntity.data;
+          }
+          entityProperties = Object.keys(properties).map(
+            (actionProperty: string) => {
+              let value = properties[actionProperty];
+              if (actionProperty in funcData) {
+                actionProperty = actionProperty + "()";
+                value = "Function";
+              }
+              return {
+                propertyName: actionProperty,
+                entityName: jsAction.name,
+                value: value,
+                step: props.step,
+              };
+            },
+          );
+        }
+        break;
       case ENTITY_TYPE.ACTION:
         config = entityDefinitions.ACTION(entity as DataTreeAction);
         if (config) {

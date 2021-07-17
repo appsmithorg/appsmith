@@ -45,6 +45,8 @@ import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
 import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
+import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
+import { JSActionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 
@@ -90,6 +92,7 @@ export interface AppState {
     websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
+    jsPane: JsPaneReduxState;
     notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
   };
@@ -102,6 +105,7 @@ export interface AppState {
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
+    jsActions: JSActionDataState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

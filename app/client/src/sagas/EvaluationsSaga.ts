@@ -456,6 +456,17 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   });
 }
 
+export function* parseJSAction(body: string) {
+  const parsedObject = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
+    {
+      body,
+    },
+  );
+  return parsedObject;
+}
+
 /**
  * clears all cache keys of a widget
  *
@@ -503,6 +514,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
   ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
   ReduxActionTypes.CREATE_ACTION_SUCCESS,
+  ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
   ReduxActionTypes.UPDATE_ACTION_PROPERTY,
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
@@ -511,6 +523,14 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  // JS Actions
+  ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+  ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
+  ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
+  ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

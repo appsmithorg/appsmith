@@ -6,6 +6,7 @@ export enum PluginType {
   API = "API",
   DB = "DB",
   SAAS = "SAAS",
+  JS = "JS",
 }
 
 export enum PaginationType {
@@ -65,19 +66,19 @@ export interface StoredDatasource {
   id: string;
 }
 
-interface BaseAction {
+export interface BaseAction {
   id: string;
   name: string;
   organizationId: string;
   pageId: string;
   collectionId?: string;
   pluginId: string;
-  executeOnLoad: boolean;
-  dynamicBindingPathList: DynamicPath[];
-  isValid: boolean;
-  invalids: string[];
-  jsonPathKeys: string[];
-  cacheResponse: string;
+  executeOnLoad?: boolean;
+  dynamicBindingPathList?: DynamicPath[];
+  isValid?: boolean;
+  invalids?: string[];
+  jsonPathKeys?: string[];
+  cacheResponse?: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
 }

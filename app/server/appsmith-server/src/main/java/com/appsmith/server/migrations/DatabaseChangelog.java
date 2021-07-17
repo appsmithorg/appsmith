@@ -2262,6 +2262,7 @@ public class DatabaseChangelog {
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
 
+
     @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
     public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
 
@@ -2492,7 +2493,6 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-
     }
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
@@ -2798,5 +2798,26 @@ public class DatabaseChangelog {
 
             mongoTemplate.save(plugin);
         }
+    }
+
+    @ChangeSet(order = "079", id = "add-js-plugin", author = "")
+    public void addJSPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("JS Functions");
+        plugin.setType(PluginType.JS);
+        plugin.setPackageName("js-plugin");
+        plugin.setUiComponent("JsEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/JSFile.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/js-reference/using-js");
+        plugin.setDefaultInstall(true);
+        
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }

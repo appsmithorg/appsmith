@@ -87,6 +87,11 @@ export const QUERIES_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
 
+export const JS_FUNCTION_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsCollections`;
+
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
   NEW: "NEW",
@@ -138,6 +143,19 @@ export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     applicationId,
     pageId,
   )}/api?importTo=${selectedPageId}`;
+};
+
+export const JS_FUNCTION_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  functionId = ":functionId",
+  params = {},
+): string => {
+  const queryParams = convertToQueryParams(params);
+  return `${JS_FUNCTION_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${functionId}${queryParams}`;
 };
 
 export const APP_VIEW_URL = `/applications/:applicationId`;
@@ -209,4 +227,6 @@ export const matchApiPath = match(API_EDITOR_ID_URL());
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
 export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
 export const matchBuilderPath = match(BUILDER_URL);
+
+export const matchJsFunctionPath = match(JS_FUNCTION_ID_URL());
 export const matchViewerPath = match(getApplicationViewerPageURL());

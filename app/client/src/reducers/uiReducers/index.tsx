@@ -30,6 +30,7 @@ import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
+import jsPaneReducer from "./jsPaneReducer";
 import notificationsReducer from "./notificationsReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 
@@ -65,6 +66,7 @@ const uiReducer = combineReducers({
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
+  jsPane: jsPaneReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
 });

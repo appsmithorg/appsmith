@@ -11,8 +11,10 @@ import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 
 export type ActionDescription<T> = {
   type: string;
@@ -27,6 +29,7 @@ export enum ENTITY_TYPE {
   ACTION = "ACTION",
   WIDGET = "WIDGET",
   APPSMITH = "APPSMITH",
+  JSACTION = "JSACTION",
 }
 
 export type RunActionPayload = {
@@ -49,7 +52,7 @@ export interface DataTreeAction
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run:
+  run?:
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
@@ -57,6 +60,18 @@ export interface DataTreeAction
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
+}
+
+export interface DataTreeJSAction {
+  data: Record<string, any>;
+  pluginType: PluginType;
+  name: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  body: string;
+  [propName: string]: any;
+  meta: Record<string, any>;
+  dynamicBindingPathList: DynamicPath[];
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
 }
 
 export interface DataTreeWidget extends WidgetProps {
@@ -71,9 +86,9 @@ export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
 }
-
 export type DataTreeObjectEntity =
   | DataTreeAction
+  | DataTreeJSAction
   | DataTreeWidget
   | DataTreeAppsmith;
 
@@ -94,6 +109,7 @@ type DataTreeSeed = {
   widgetsMeta: MetaState;
   pageList: PageListPayload;
   appData: AppDataState;
+  jsActions: JSActionDataState;
 };
 
 export class DataTreeFactory {
@@ -101,6 +117,7 @@ export class DataTreeFactory {
     actions,
     appData,
     editorConfigs,
+    jsActions,
     pageList,
     pluginDependencyConfig,
     widgets,
@@ -115,6 +132,9 @@ export class DataTreeFactory {
         editorConfig,
         dependencyConfig,
       );
+    });
+    jsActions.forEach((js) => {
+      dataTree[js.config.name] = generateDataTreeJSAction(js);
     });
     Object.values(widgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(

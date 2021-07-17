@@ -94,7 +94,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
@@ -224,7 +224,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 20px;
   flex: 0;
 `;
@@ -321,7 +321,7 @@ const StyledOpenDocsIcon = styled(Icon)`
   }
 `;
 
-const TabContainerView = styled.div`
+export const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
