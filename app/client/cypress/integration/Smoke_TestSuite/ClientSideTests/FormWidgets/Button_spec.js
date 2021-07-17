@@ -41,6 +41,10 @@ describe("Button Widget Functionality", function() {
 
     //Changing the text on the Button
     cy.testCodeMirror(this.data.ButtonLabel);
+    cy.get(commonlocators.evaluatedTypeTitle)
+      .first()
+      .find("span")
+      .click();
     cy.EvaluateDataType("string");
     cy.EvaluateCurrentValue(this.data.ButtonLabel);
 

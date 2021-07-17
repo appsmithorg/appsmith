@@ -279,7 +279,10 @@ const views = {
           <InputText
             additionalAutocomplete={props.additionalAutoComplete}
             evaluatedValue={props.get(props.value, false) as string}
-            expected={"string"}
+            expected={{
+              type: "string",
+              example: "showMessage('Hello World!', 'info')",
+            }}
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {

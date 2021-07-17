@@ -9,8 +9,10 @@ import React from "react";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -40,6 +42,51 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
     return sectionOrControlConfig;
   });
 };
+
+function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
+  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+    if (sectionOrControlConfig.children) {
+      sectionOrControlConfig.children = sectionOrControlConfig.children.map(
+        validatePropertyControl,
+      );
+    }
+    return sectionOrControlConfig;
+  });
+}
+
+function validatePropertyControl(
+  config: PropertyPaneConfig,
+): PropertyPaneConfig {
+  const _config = config as PropertyPaneControlConfig;
+  if (_config.validation !== undefined) {
+    _config.validation = validateValidationStructure(_config.validation);
+  }
+  if (_config.children) {
+    _config.children = _config.children.map(validatePropertyControl);
+  }
+  return _config;
+}
+
+function validateValidationStructure(
+  config: ValidationConfig,
+): ValidationConfig {
+  // Todo(abhinav): This only checks for top level params. Throwing nothing here.
+  if (
+    config.type === ValidationTypes.FUNCTION &&
+    config.params &&
+    config.params.fn
+  ) {
+    config.params.fnString = config.params.fn.toString();
+    if (!config.params.expected)
+      console.error(
+        `Error in configuration ${JSON.stringify(config)}: For a ${
+          ValidationTypes.FUNCTION
+        } type validation, expected type and example are mandatory`,
+      );
+    delete config.params.fn;
+  }
+  return config;
+}
 class WidgetFactory {
   static widgetMap: Map<
     WidgetType,
@@ -76,11 +123,16 @@ class WidgetFactory {
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
+    if (propertyPaneConfig) {
+      const validatedPropertyPaneConfig = validatePropertyPaneConfig(
+        propertyPaneConfig,
+      );
+
       this.propertyPaneConfigsMap.set(
         widgetType,
-        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
+        Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
       );
+    }
   }
 
   static createWidget(

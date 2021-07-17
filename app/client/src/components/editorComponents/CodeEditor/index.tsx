@@ -62,6 +62,7 @@ import Button from "components/ads/Button";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { getPluginIdToImageLocation } from "sagas/selectors";
+import { ExpectedValueExample } from "utils/validation/common";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -95,7 +96,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: { type: string; example: ExpectedValueExample };
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -386,7 +387,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const expected = this.props.expected ? this.props.expected : "";
+    const expected = this.props.expected ? this.props.expected.type : "";
     const { entityName } = getEntityNameAndPropertyPath(
       this.props.dataTreePath || "",
     );

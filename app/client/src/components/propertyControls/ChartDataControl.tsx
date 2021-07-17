@@ -91,6 +91,17 @@ type RenderComponentProps = {
   theme: EditorTheme;
 };
 
+const expectedSeriesName = { type: "string", example: "series1" };
+const expectedSeriesData = {
+  type: "Array<{ x: string, y: string | number }>",
+  example: [
+    {
+      x: "Mon",
+      y: 10000,
+    },
+  ],
+};
+
 function DataControlComponent(props: RenderComponentProps) {
   const {
     dataTreePath,
@@ -120,7 +131,7 @@ function DataControlComponent(props: RenderComponentProps) {
         <CodeEditor
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
-          expected={"string"}
+          expected={expectedSeriesName}
           input={{
             value: item.seriesName,
             onChange: (
@@ -147,7 +158,7 @@ function DataControlComponent(props: RenderComponentProps) {
         <CodeEditor
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
-          expected={`Array<x:string, y:number>`}
+          expected={expectedSeriesData}
           input={{
             value: item.data,
             onChange: (

@@ -82,6 +82,11 @@ const FlexContainer = styled.div`
   }
 `;
 
+const expected = {
+  type: FIELD_VALUES.API_ACTION.params,
+  example: "",
+};
+
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 2 rows
@@ -146,7 +151,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.BOTTOM_SIDE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
-                      expected={FIELD_VALUES.API_ACTION.params}
+                      expected={expected}
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
@@ -166,7 +171,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
-                      expected={FIELD_VALUES.API_ACTION.params}
+                      expected={expected}
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder

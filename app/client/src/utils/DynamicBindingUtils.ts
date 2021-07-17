@@ -253,6 +253,10 @@ export const unsafeFunctionForEval = [
   "fetch",
   "setInterval",
   "Promise",
+  "setImmediate",
+  "XMLHttpRequest",
+  "importScripts",
+  "Navigator",
 ];
 
 export const isChildPropertyPath = (
