@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "appsmith.name" . }}-server
+  labels:
+    app: {{ template "appsmith.fullname" . }}
+    chart: {{ template "appsmith.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ template "appsmith.name" . }}-server
+  ports:
+  - port: {{ .Values.server.port }}
+    targetPort: {{ .Values.server.targetPort }}

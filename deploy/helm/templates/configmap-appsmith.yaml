@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "appsmith.name" . }}-application-config
+  labels:
+    app: {{ template "appsmith.fullname" . }}
+    chart: {{ template "appsmith.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{- range $key, $value := .Values.AppsmithConfiguration }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+  APPSMITH_REDIS_URL: "redis://:{{- .Values.redis.password }}@{{ template "appsmith.name" . }}-redis-master:6379"
+  APPSMITH_MONGODB_URI: "mongodb://{{- .Values.mongodb.auth.username }}:{{- .Values.mongodb.auth.password }}@{{ template "appsmith.name" . }}-mongodb/{{- .Values.mongodb.auth.database }}"
