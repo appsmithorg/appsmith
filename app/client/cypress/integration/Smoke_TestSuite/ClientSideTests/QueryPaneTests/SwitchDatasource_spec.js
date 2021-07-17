@@ -76,7 +76,10 @@ describe("Switch datasource", function() {
     );
 
     cy.get(".t--switch-datasource").click();
-    cy.contains(".t--datasource-option", mongoDatasourceName).click();
+    cy.wait(1000);
+    cy.get(".t--datasource-option")
+      .contains(mongoDatasourceName)
+      .click({ force: true });
 
     cy.get(".CodeMirror")
       .first()
