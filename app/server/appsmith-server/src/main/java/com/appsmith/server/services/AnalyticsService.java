@@ -1,15 +1,15 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -18,22 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
-
-    // Is this instance hosted on Appsmith cloud?
-    // isCloudHosted should be true only for our cloud instance
-    @Value("${is.cloud-hosted:false}")
-    private boolean isCloudHosted;
-
-    @Autowired
-    public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
-        this.analytics = analytics;
-        this.sessionUserService = sessionUserService;
-    }
+    private final CommonConfig commonConfig;
 
     public boolean isActive() {
         return analytics != null;
@@ -72,7 +63,7 @@ public class AnalyticsService {
             return;
         }
 
-        if (!isCloudHosted) {
+        if (!commonConfig.isCloudHosted()) {
             userId = DigestUtils.sha256Hex(userId);
             if (properties.containsKey("username")) {
                 properties.put("username", userId);
@@ -117,13 +108,6 @@ public class AnalyticsService {
                     }
 
                     String username = (object instanceof User ? (User) object : user).getUsername();
-
-                    if (!isCloudHosted) {
-                        username = DigestUtils.sha256Hex(username);
-                        if (extraProperties != null && extraProperties.containsKey("username")) {
-                            extraProperties.put("username", username);
-                        }
-                    }
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);

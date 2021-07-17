@@ -41,6 +41,15 @@ public class CommonConfig {
     @Value("${signup.allowed-domains}")
     private String allowedDomainsString;
 
+    // Is this instance hosted on Appsmith cloud?
+    // isCloudHosted should be true only for our cloud instance
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
+
+    @Value("${github_repo}")
+    private String repo;
+
+
     private List<String> allowedDomains;
 
     @Bean
