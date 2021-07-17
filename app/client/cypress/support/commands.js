@@ -1515,6 +1515,36 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
+Cypress.Commands.add("onRowSelectedAction", () => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .first()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
+Cypress.Commands.add("onPageChangeAction", () => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .eq(1)
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
+Cypress.Commands.add("onPageSizeChangeAction", () => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .eq(2)
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
 Cypress.Commands.add("selectShowMsg", (value) => {
   cy.get(commonlocators.chooseAction)
     .children()
@@ -2074,6 +2104,16 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.get(selector)
+    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("mousemove", x, y, { force: true });
+  cy.get(explorer.dropHere)
+    .trigger("mousemove", x, y)
+    .trigger("mouseup", x, y);
+});
+
+Cypress.Commands.add("resizeTablePage", (widgetType, { x, y }) => {
+  const selector = `.t--draggable-tablewidget > div:nth-child(2) > div:nth-child(4)`;
   cy.get(selector)
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
