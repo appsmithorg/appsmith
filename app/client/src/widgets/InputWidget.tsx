@@ -3,7 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
-  getCurrencyOptions,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -15,6 +14,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { ISDCodeDropdownOptions } from "components/ads/ISDCodeDropdown";
+import { CurrencyDropdownOptions } from "components/ads/CurrencyCodeDropdown";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -54,6 +55,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Currency",
                 value: "CURRENCY",
               },
+              {
+                label: "Phone Number",
+                value: "PHONE_NUMBER",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -72,6 +77,21 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             },
           },
           {
+            helpText: "Changes the country code",
+            propertyName: "phoneNumberCountryCode",
+            label: "Default Country Code",
+            enableSearch: true,
+            dropdownHeight: "195px",
+            controlType: "DROP_DOWN",
+            placeholderText: "Search by code or country name",
+            options: ISDCodeDropdownOptions,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.PHONE_NUMBER;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             helpText: "Changes the type of currency",
             propertyName: "currencyCountryCode",
             label: "Currency",
@@ -79,7 +99,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or name",
-            options: getCurrencyOptions(),
+            options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
@@ -116,7 +136,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: VALIDATION_TYPES.INPUT_DEFAULT_VALUE,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -295,6 +315,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isFocused: false,
       isDirty: false,
       selectedCurrencyType: undefined,
+      selectedCountryCode: undefined,
     };
   }
 
@@ -319,6 +340,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedCurrencyCountryCode",
         currencyCountryCode,
+      );
+    }
+  };
+
+  onISDCodeChange = (code?: string) => {
+    const countryCode = code;
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("phoneNumberCountryCode", countryCode);
+    } else {
+      this.props.updateWidgetMetaProperty(
+        "selectedPhoneNumberCountryCode",
+        countryCode,
       );
     }
   };
@@ -362,8 +395,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const currencyCountryCode =
-      this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
+    const currencyCountryCode = this.props.selectedCurrencyCountryCode
+      ? this.props.selectedCurrencyCountryCode
+      : this.props.currencyCountryCode;
+    const phoneNumberCountryCode = this.props.selectedPhoneNumberCountryCode
+      ? this.props.selectedPhoneNumberCountryCode
+      : this.props.phoneNumberCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -392,8 +429,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         }
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
+        onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
+        phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
@@ -431,8 +470,9 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   currencyCountryCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
+  phoneNumberCountryCode?: string;
   decimalsInCurrency?: number;
-  defaultText?: string;
+  defaultText?: string | number;
   isDisabled?: boolean;
   text: string;
   regex?: string;

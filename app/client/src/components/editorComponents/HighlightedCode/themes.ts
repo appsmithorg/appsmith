@@ -11,7 +11,7 @@ export const LIGHT = css`
     text-align: left;
     white-space: pre;
     word-spacing: normal;
-    word-break: normal;
+    word-break: break-word;
     word-wrap: normal;
     line-height: 1.5;
 

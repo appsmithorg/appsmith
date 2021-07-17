@@ -68,7 +68,6 @@ export const DropdownContainer = styled.div<{ width: string; height: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -124,6 +123,10 @@ const Selected = styled.div<{
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: calc(100% - 10px);
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
@@ -252,6 +255,7 @@ const HeaderWrapper = styled.div`
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 
 const SelectedIcon = styled(Icon)`
@@ -405,7 +409,6 @@ export default function Dropdown(props: DropdownProps) {
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={props.height || "38px"}
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -416,7 +419,7 @@ export default function Dropdown(props: DropdownProps) {
       bgColor={props.bgColor}
       className={props.className}
       disabled={props.disabled}
-      height={props.height || "38px"}
+      height={props.height || "32px"}
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -432,7 +435,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "32px"}
       tabIndex={0}
       width={props.width || "260px"}
     >

@@ -51,6 +51,15 @@ export function validateDateString(
   return isValid;
 }
 
+function isNumberInputType(inputType: string) {
+  return (
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
+  );
+}
+
 const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
@@ -1131,5 +1140,49 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       };
     }
     return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.INPUT_DEFAULT_VALUE]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    if (isNumberInputType(props.inputType)) {
+      if (isNil(value) || value === "") {
+        return {
+          isValid: true,
+          parsed: 0,
+        };
+      }
+      const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+        value,
+        props,
+      );
+      if (!isValid) {
+        return {
+          isValid: false,
+          parsed: 0,
+          message: "This value must be a number",
+        };
+      }
+      return {
+        isValid,
+        parsed,
+      };
+    } else {
+      const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](
+        value,
+        props,
+      );
+      if (!isValid) {
+        return {
+          isValid: false,
+          parsed: "",
+          message: "This value must be text",
+        };
+      }
+      return {
+        isValid,
+        parsed,
+      };
+    }
   },
 };

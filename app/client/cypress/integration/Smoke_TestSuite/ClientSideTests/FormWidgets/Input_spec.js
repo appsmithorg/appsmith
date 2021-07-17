@@ -164,7 +164,20 @@ describe("Input Widget Functionality", function() {
         expect(text).to.equal("13,242.2");
       });
   });
-});
-afterEach(() => {
-  // put your clean up code if any
+
+  it("Input Functionality To check phone number input type", function() {
+    // cy.openPropertyPane("inputwidget");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
+    cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
+    cy.get(commonlocators.inputCountryCodeChangeType)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("🇺🇸+1");
+      });
+  });
+  afterEach(() => {
+    // put your clean up code if any
+  });
 });
