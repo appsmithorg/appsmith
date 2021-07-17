@@ -27,7 +27,8 @@ public class IndexController {
     @Autowired
     public IndexController(SessionUserService service,
                            ReactiveRedisTemplate<String, String> reactiveTemplate,
-                           ChannelTopic topic) {
+                           ChannelTopic topic
+                           ) {
         this.service = service;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;

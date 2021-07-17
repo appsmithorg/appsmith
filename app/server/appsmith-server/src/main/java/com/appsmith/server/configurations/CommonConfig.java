@@ -81,5 +81,4 @@ public class CommonConfig {
 
         return allowedDomains;
     }
-
 }
