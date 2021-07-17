@@ -39,6 +39,7 @@ export const Layers = {
   // Sidebar needs to be more than modal so that u can use side bar whilst u have the modal showing up on the canvas.
   sideBar: Indices.Layer3,
   propertyPane: Indices.Layer3,
+  tableFilterPane: Indices.Layer6,
 
   help: Indices.Layer4,
   contextMenu: Indices.Layer4,

@@ -101,6 +101,15 @@ export const closePropertyPane = () => {
   };
 };
 
+export const closeTableFilterPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
 export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,

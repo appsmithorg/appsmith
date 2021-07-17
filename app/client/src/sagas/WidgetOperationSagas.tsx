@@ -91,6 +91,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   closePropertyPane,
+  closeTableFilterPane,
   forceOpenPropertyPane,
 } from "actions/widgetActions";
 import {
@@ -514,6 +515,7 @@ export function* deleteAllSelectedWidgetsSaga(
     if (saveStatus && !disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
+      yield put(closeTableFilterPane());
       Toaster.show({
         text: createMessage(WIDGET_BULK_DELETE, `${selectedWidgets.length}`),
         hideProgressBar: false,

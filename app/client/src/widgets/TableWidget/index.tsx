@@ -1,4 +1,9 @@
 import React, { lazy, Suspense } from "react";
+import log from "loglevel";
+import moment from "moment";
+import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
+import * as Sentry from "@sentry/react";
+
 import BaseWidget, { WidgetState } from "../BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -11,14 +16,10 @@ import {
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
-import moment from "moment";
-import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
-import * as Sentry from "@sentry/react";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import log from "loglevel";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 
