@@ -14,7 +14,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { getNearestParentCanvas } from "utils/generators";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -54,9 +53,6 @@ export function CanvasSelectionArena({
   );
   const mainContainer = useSelector((state: AppState) =>
     getWidget(state, widgetId),
-  );
-  const scrollParent: Element | null = getNearestParentCanvas(
-    canvasRef.current,
   );
   const currentPageId = useSelector(getCurrentPageId);
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -226,9 +222,6 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseMove = (e: any) => {
-        const { height = 0, width = 0 } =
-          scrollParent?.getBoundingClientRect() || {};
-
         if (isDragging && canvasRef.current) {
           selectionRectangle.width =
             e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
@@ -265,7 +258,6 @@ export function CanvasSelectionArena({
     snapRows,
     // mainContainer.minHeight,
   ]);
-  const { height = 0, width = 0 } = scrollParent?.getBoundingClientRect() || {};
 
   return appMode === APP_MODE.EDIT && !isDragging ? (
     <>

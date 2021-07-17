@@ -2,12 +2,10 @@ import { getSnappedXY } from "components/editorComponents/Dropzone";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect } from "react";
-import { height } from "styled-system";
 import { getNearestParentCanvas } from "utils/generators";
 import { noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
@@ -21,6 +19,7 @@ export const useCanvasDragging = (
   canvasRef: React.RefObject<HTMLDivElement>,
   canvasDrawRef: React.RefObject<HTMLCanvasElement>,
   {
+    canExtend,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -43,6 +42,7 @@ export const useCanvasDragging = (
     rowRef,
     updateRows,
   } = useBlocksToBeDraggedOnCanvas({
+    canExtend,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -54,22 +54,23 @@ export const useCanvasDragging = (
     setDraggingNewWidget,
     setDraggingState,
   } = useWidgetDragResize();
+
   const updateCanvasPosition = () => {
-    const scrollParent: Element | null = getNearestParentCanvas(
+    const parentCanvas: Element | null = getNearestParentCanvas(
       canvasRef.current,
     );
-    if (scrollParent && canvasDrawRef.current) {
-      const { devicePixelRatio: scale = 1 } = window;
-      const { height, width } = scrollParent.getBoundingClientRect();
+    if (parentCanvas && canvasDrawRef.current && canvasRef.current) {
+      const { height } = parentCanvas.getBoundingClientRect();
+      const { width } = canvasRef.current.getBoundingClientRect();
       canvasDrawRef.current.style.width = width + "px";
+      canvasDrawRef.current.style.position = canExtend ? "absolute" : "sticky";
+      canvasDrawRef.current.style.left = "0px";
       canvasDrawRef.current.style.height = height + "px";
-      canvasDrawRef.current.width = width * scale;
-      canvasDrawRef.current.height = height * scale;
-      canvasDrawRef.current.style.top = scrollParent.scrollTop + "px";
-      const canvasCtx: any = canvasDrawRef.current.getContext("2d");
-      canvasCtx.scale(scale, scale);
+      canvasDrawRef.current.style.top =
+        (canExtend ? parentCanvas.scrollTop : 0) + "px";
     }
   };
+
   const canScroll = useCanvasDragToScroll(
     canvasRef,
     isCurrentDraggedCanvas,
@@ -90,7 +91,6 @@ export const useCanvasDragging = (
       // const scale = 1;
       let canvasIsDragging = false;
       let isUpdatingRows = false;
-      let animationFrameId: number;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
 
@@ -203,10 +203,6 @@ export const useCanvasDragging = (
               };
             });
             canvasCtx.save();
-            // canvasRef.current.style.height =
-            //   (rowRef.current * snapRowSpace +
-            //     (widgetId === MAIN_CONTAINER_WIDGET_ID ? 200 : 0)) *
-            //   scale;
             canvasCtx.scale(scale, scale);
             canvasCtx.clearRect(
               0,
@@ -258,8 +254,6 @@ export const useCanvasDragging = (
             canScroll.current = false;
             debouncedFn.cancel();
             canScroll.current = true;
-
-            // debouncedFn();
           },
           50,
           {
@@ -272,6 +266,7 @@ export const useCanvasDragging = (
           if (
             canvasRef.current &&
             isCurrentDraggedCanvas &&
+            canvasIsDragging &&
             canvasDrawRef.current
           ) {
             const canvasCtx: any = canvasDrawRef.current.getContext("2d");
@@ -289,25 +284,20 @@ export const useCanvasDragging = (
               });
             }
             canvasCtx.restore();
-            animationFrameId = window.requestAnimationFrame(renderBlocks);
           }
         };
 
         const drawBlockOnCanvas = (blockDimensions: WidgetDraggingBlock) => {
-          if (canvasDrawRef.current && canvasRef.current && scrollParent) {
+          if (
+            canvasDrawRef.current &&
+            canvasRef.current &&
+            scrollParent &&
+            isCurrentDraggedCanvas &&
+            canvasIsDragging
+          ) {
             const canvasCtx: any = canvasDrawRef.current.getContext("2d");
-            const { top } = canvasRef.current.getBoundingClientRect();
-            const {
-              height: parentHeight,
-              top: parentTop,
-            } = scrollParent.getBoundingClientRect();
-            const offSetCozOfPadding =
-              parentHeight + parentTop + scrollParent.scrollTop >
-              scrollParent.scrollHeight
-                ? scrollParent.scrollHeight -
-                  (parentHeight + parentTop + scrollParent.scrollTop)
-                : 0;
-            const topOffset = scrollParent.scrollTop;
+            const topOffset = canExtend ? scrollParent.scrollTop : 0;
+            const misplacedCozOfScroll = topOffset % snapRowSpace;
             const snappedXY = getSnappedXY(
               snapColumnSpace,
               snapRowSpace,
@@ -340,7 +330,10 @@ export const useCanvasDragging = (
             canvasCtx.strokeStyle = "rgb(104,	113,	239)";
             canvasCtx.strokeRect(
               snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
-              snappedXY.Y + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              snappedXY.Y -
+                misplacedCozOfScroll +
+                strokeWidth +
+                (noPad ? 0 : CONTAINER_GRID_PADDING),
               blockDimensions.width - strokeWidth,
               blockDimensions.height - strokeWidth,
             );
@@ -397,8 +390,12 @@ export const useCanvasDragging = (
           window.addEventListener("mouseup", onMouseUp, false);
         };
         const startDragging = () => {
-          if (canvasRef.current && canvasDrawRef.current) {
+          if (canvasRef.current && canvasDrawRef.current && scrollParent) {
+            const { height } = scrollParent.getBoundingClientRect();
+            const { width } = canvasRef.current.getBoundingClientRect();
             const canvasCtx: any = canvasDrawRef.current.getContext("2d");
+            canvasDrawRef.current.width = width * scale;
+            canvasDrawRef.current.height = height * scale;
             canvasCtx.scale(scale, scale);
             updateCanvasPosition();
             initializeListeners();
@@ -415,7 +412,6 @@ export const useCanvasDragging = (
         startDragging();
 
         return () => {
-          window.cancelAnimationFrame(animationFrameId);
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
