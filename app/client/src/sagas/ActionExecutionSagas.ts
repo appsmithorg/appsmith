@@ -268,9 +268,9 @@ async function downloadSaga(
     } else if (
       dataType === Types.STRING &&
       isURL(data) &&
-      type === "application/zip"
+      type === "application/x-binary"
     ) {
-      // Requires a special handling for the use case when the user is trying to download a zipped file from a URL
+      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
       // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
       // using axios with the arraybuffer header and then pass it to the downloadjs library.
       Axios.get(data, { responseType: "arraybuffer" })
