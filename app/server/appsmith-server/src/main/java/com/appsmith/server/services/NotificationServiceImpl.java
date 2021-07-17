@@ -6,7 +6,6 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,6 +28,8 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -117,12 +119,21 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public Mono<Notification> createNotification(CommentThread commentThread, String forUsername, User authorUser) {
-        final CommentThreadNotification notification = new CommentThreadNotification();
-        notification.setCommentThread(commentThread);
-        notification.setForUsername(forUsername);
-        notification.setIsRead(false);
-        return repository.save(notification);
+    public Flux<Notification> createNotification(CommentThread commentThread, String authorUserName) {
+        if(!CollectionUtils.isEmpty(commentThread.getSubscribers())) {
+            List<Notification> notificationMonoList = new ArrayList<>(commentThread.getSubscribers().size());
+            for(String subscriberUserName: commentThread.getSubscribers()) {
+                if(!subscriberUserName.equals(authorUserName)) {
+                    CommentThreadNotification commentThreadNotification = new CommentThreadNotification();
+                    commentThreadNotification.setCommentThread(commentThread);
+                    commentThreadNotification.setForUsername(subscriberUserName);
+                    commentThreadNotification.setIsRead(false);
+                    notificationMonoList.add(commentThreadNotification);
+                }
+            }
+            return repository.saveAll(notificationMonoList);
+        }
+        return Flux.empty();
     }
 
     @Override
