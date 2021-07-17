@@ -80,6 +80,7 @@ import {
 } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
+import Axios from "axios";
 import { getType, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -264,6 +265,16 @@ async function downloadSaga(
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
+    } else if (dataType === Types.URL && type === "application/zip") {
+      Axios.get(data, { responseType: "arraybuffer" })
+        .then((res) => {
+          console.log("download", res.data);
+          downloadjs(res.data, name, type);
+          AppsmithConsole.info({
+            text: `download('${data}', '${name}', '${type}') was triggered`,
+          });
+        })
+        .catch((error) => console.error(error));
     } else {
       downloadjs(data, name, type);
       AppsmithConsole.info({
