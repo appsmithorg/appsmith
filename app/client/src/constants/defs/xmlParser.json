@@ -1,5 +1,5 @@
 {
-  "!name": "xmlParser",
+  "!name": "LIB/xmlParser",
   "xmlParser": {
     "parse": {
       "!doc": "converts xml string to json object",

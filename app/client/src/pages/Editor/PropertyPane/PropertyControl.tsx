@@ -282,7 +282,6 @@ const PropertyControl = memo((props: Props) => {
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
-      delete config.expected;
     }
 
     const isDynamic: boolean = isPathADynamicProperty(

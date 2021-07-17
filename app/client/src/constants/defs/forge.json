@@ -1,5 +1,5 @@
 {
-  "!name": "../../node-forge/lib/aes.js",
+  "!name": "LIB/node-forge",
   "!define": {
     "forge.aes.Algorithm.prototype.initialize.!0": {
       "key": {
