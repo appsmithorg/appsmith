@@ -154,6 +154,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
       columns: 9 * GRID_DENSITY_MIGRATION_V1,
+      defaultSelectedRow: 0,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
