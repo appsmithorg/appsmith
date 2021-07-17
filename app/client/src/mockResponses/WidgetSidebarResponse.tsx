@@ -40,6 +40,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "MULTI_SELECT_WIDGET",
+    widgetCardName: "MultiSelect",
+    key: generateReactKey(),
+  },
+  {
     type: "FILE_PICKER_WIDGET",
     widgetCardName: "FilePicker",
     key: generateReactKey(),

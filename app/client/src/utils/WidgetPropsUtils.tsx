@@ -793,12 +793,33 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
   if (currentDSL.version === 27) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 27;
   }
 
+  if (currentDSL.version === 27) {
+    currentDSL = migrateToNewMultiSelect(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
   return currentDSL;
 };
 
+export const migrateToNewMultiSelect = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "DROP_DOWN_WIDGET") {
+    if (currentDSL.selectionType === "MULTI_SELECT") {
+      currentDSL.type = "MULTI_SELECT_WIDGET";
+      delete currentDSL.isFilterable;
+    }
+    delete currentDSL.selectionType;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateToNewMultiSelect(child),
+    );
+  }
+  return currentDSL;
+};
 const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {

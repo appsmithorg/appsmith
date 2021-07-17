@@ -3,45 +3,57 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
+const pages = require("../../../../locators/Pages.json");
 const data = require("../../../../fixtures/example.json");
 
-describe("Dropdown Widget Functionality", function() {
+describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Selects value with invalid default value", () => {
-    cy.openPropertyPane("dropdownwidget");
-
+    cy.openPropertyPane("multiselectwidget");
     cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultoption", "{{ undefined }}");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.testJsontext("defaultvalue", "{{ undefined }}");
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".multi-select-dropdown")
       .contains("Option 3")
       .click({ force: true });
-
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-item-content")
+      .first()
       .should("have.text", "Option 3");
   });
   it("Selects value with enter in default value", () => {
-    cy.testJsontext("defaultoption", "3\n");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
+    cy.testJsontext("defaultvalue", "3\n");
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-item-content")
+      .first()
       .should("have.text", "Option 3");
+  });
+  it("Dropdown Functionality To Validate Options", function() {
+    cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
+    cy.get(formWidgetsPage.mulitiselectInput).type("Option");
+    cy.dropdownMultiSelectDynamic("Option 2");
   });
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("not.exist");
+    cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
+      "not.exist",
+    );
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("multiselectwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("be.visible");
+    cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
+      "be.visible",
+    );
     cy.get(publish.backToEditor).click();
   });
 });
