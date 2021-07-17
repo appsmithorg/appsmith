@@ -80,7 +80,8 @@ import {
 } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
-import { getType, Types } from "utils/TypeHelpers";
+import Axios from "axios";
+import { getType, isURL, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
@@ -259,6 +260,29 @@ async function downloadSaga(
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
+    } else if (
+      dataType === Types.STRING &&
+      isURL(data) &&
+      type === "application/x-binary"
+    ) {
+      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
+      // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
+      // using axios with the arraybuffer header and then pass it to the downloadjs library.
+      Axios.get(data, { responseType: "arraybuffer" })
+        .then((res) => {
+          downloadjs(res.data, name, type);
+          AppsmithConsole.info({
+            text: `download('${data}', '${name}', '${type}') was triggered`,
+          });
+        })
+        .catch((error) => {
+          log.error(error);
+          Toaster.show({
+            text: createMessage(ERROR_WIDGET_DOWNLOAD, error),
+            variant: Variant.danger,
+          });
+          if (event.callback) event.callback({ success: false });
+        });
     } else {
       downloadjs(data, name, type);
       AppsmithConsole.info({
