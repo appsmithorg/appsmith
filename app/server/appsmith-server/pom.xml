@@ -235,7 +235,11 @@
             <artifactId>ff4j-store-mongodb</artifactId>
             <version>${ff4j.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-config-yaml</artifactId>
+            <version>${ff4j.version}</version>
+        </dependency>
 
     </dependencies>
 

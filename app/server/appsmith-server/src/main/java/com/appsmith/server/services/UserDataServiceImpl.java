@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -43,7 +42,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final ReleaseNotesService releaseNotesService;
 
-    private final FeatureFlagService featureFlag;
+    private final FeatureFlagService featureFlagService;
 
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
@@ -58,13 +57,13 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                SessionUserService sessionUserService,
                                AssetService assetService,
                                ReleaseNotesService releaseNotesService,
-                               FeatureFlagService featureFlag) {
+                               FeatureFlagService featureFlagService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
-        this.featureFlag = featureFlag;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -236,6 +235,6 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
-        return featureFlag.getFeatureFlagsForUser();
+        return featureFlagService.getAllFeatureFlagsForUser();
     }
 }
