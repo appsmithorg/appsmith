@@ -23,10 +23,10 @@ ff4j:
             value: requiredValue
 
     - uid: WEIGHTAGE
-      enable: false
+      enable: true
       description: Enable this feature based on weight. It's randomized.
       flipstrategy:
         class: org.ff4j.strategy.PonderationStrategy
         param:
           - name: threshold
-            value: 0
+            value: 1

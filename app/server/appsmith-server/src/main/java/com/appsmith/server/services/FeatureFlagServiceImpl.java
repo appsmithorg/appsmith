@@ -16,14 +16,15 @@ import java.util.Map;
 @Component
 public class FeatureFlagServiceImpl implements FeatureFlagService {
 
-    @Autowired
-    SessionUserService sessionUserService;
+    private final SessionUserService sessionUserService;
+
+    private final FF4j ff4j;
 
     @Autowired
-    FF4j ff4j;
-
-    private Boolean check(String featureName, User user) {
-        return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
+    public FeatureFlagServiceImpl(SessionUserService sessionUserService,
+                                  FF4j ff4j) {
+        this.sessionUserService = sessionUserService;
+        this.ff4j = ff4j;
     }
 
     @Override
@@ -35,6 +36,10 @@ public class FeatureFlagServiceImpl implements FeatureFlagService {
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
         return sessionUserService.getCurrentUser()
                 .map(user -> check(featureEnum, user));
+    }
+
+    private Boolean check(String featureName, User user) {
+        return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
     }
 
     @Override
