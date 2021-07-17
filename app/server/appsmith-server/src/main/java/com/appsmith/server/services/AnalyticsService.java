@@ -107,7 +107,7 @@ public class AnalyticsService {
                         return object;
                     }
 
-                    String username = (object instanceof User ? (User) object : user).getUsername();
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);

@@ -770,14 +770,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (actionExecutionRequest != null) {
             // Do a deep copy of request to not edit
             request = new ActionExecutionRequest(
-                actionExecutionRequest.getQuery(),
-                actionExecutionRequest.getBody(),
-                actionExecutionRequest.getHeaders(),
-                actionExecutionRequest.getHttpMethod(),
-                actionExecutionRequest.getUrl(),
-                actionExecutionRequest.getProperties(),
-                actionExecutionRequest.getExecutionParameters(),
-                null
+                    actionExecutionRequest.getQuery(),
+                    actionExecutionRequest.getBody(),
+                    actionExecutionRequest.getHeaders(),
+                    actionExecutionRequest.getHttpMethod(),
+                    actionExecutionRequest.getUrl(),
+                    actionExecutionRequest.getProperties(),
+                    actionExecutionRequest.getExecutionParameters(),
+                    null
             );
         } else {
             request = new ActionExecutionRequest();
