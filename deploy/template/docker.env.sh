@@ -64,9 +64,4 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_RECAPTCHA_SECRET_KEY=
 # APPSMITH_RECAPTCHA_ENABLED=
 # ************************************
-
-# ***** Intercom ******
-APPSMITH_INTERCOM_APP_ID=y10e7138
-# ************************************
-
 EOF
