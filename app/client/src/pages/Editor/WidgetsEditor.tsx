@@ -14,7 +14,7 @@ import { Spinner } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
-import { flashElementById } from "utils/helpers";
+import { flashElementsById } from "utils/helpers";
 import { useParams } from "react-router";
 import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
@@ -92,7 +92,7 @@ function WidgetsEditor() {
   useEffect(() => {
     if (!isFetchingPage && window.location.hash.length > 0) {
       const widgetIdFromURLHash = window.location.hash.substr(1);
-      flashElementById(widgetIdFromURLHash);
+      flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }

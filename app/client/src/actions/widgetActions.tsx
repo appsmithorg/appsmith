@@ -110,9 +110,12 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = () => {
+export const pasteWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: {
+      groupWidgets: groupWidgets,
+    },
   };
 };
 
@@ -139,5 +142,17 @@ export const addTableWidgetFromQuery = (queryName: string) => {
   return {
     type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
     payload: queryName,
+  };
+};
+
+/**
+ * action to group selected widgets into container
+ *
+ * @param queryName
+ * @returns
+ */
+export const groupWidgets = () => {
+  return {
+    type: ReduxActionTypes.GROUP_WIDGETS_INIT,
   };
 };

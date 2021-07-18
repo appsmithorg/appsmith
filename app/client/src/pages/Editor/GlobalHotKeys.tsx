@@ -8,6 +8,7 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
 import {
@@ -32,6 +33,7 @@ type Props = {
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
+  groupSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
   openDebugger: () => void;
@@ -213,6 +215,17 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
+        <Hotkey
+          combo="mod + g"
+          global
+          group="Canvas"
+          label="Cut Widgets for grouping"
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.groupSelectedWidget();
+            }
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -234,6 +247,7 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
+    groupSelectedWidget: () => dispatch(groupWidgets()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
