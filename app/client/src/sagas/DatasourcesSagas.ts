@@ -83,6 +83,8 @@ import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { VALID_PLUGINS_FOR_TEMPLATE } from "../pages/Editor/GeneratePage/components/constants";
 
+import { executeDatasourceQueryReduxAction } from "../actions/datasourceActions";
+
 function* fetchDatasourcesSaga() {
   try {
     const orgId = yield select(getCurrentOrgId);
@@ -889,6 +891,39 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
   }
 }
 
+function* executeDatasourceQuerySaga(
+  action: executeDatasourceQueryReduxAction,
+) {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
+        payload: {
+          data: response.data,
+          datasourceId: action.payload.datasourceId,
+        },
+      });
+    }
+    if (action.onSuccessCallback) {
+      action.onSuccessCallback(response);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.EXECUTE_DATASOURCE_QUERY_ERROR,
+      payload: {
+        error,
+      },
+    });
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -934,6 +969,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
       refreshDatasourceStructure,
+    ),
+    takeEvery(
+      ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
+      executeDatasourceQuerySaga,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

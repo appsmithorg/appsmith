@@ -6,6 +6,8 @@ import {
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 import { PluginType } from "entities/Action";
+import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
+import { ResponseMeta } from "../api/ApiResponses";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
@@ -194,6 +196,40 @@ export const getOAuthAccessToken = (datasourceId: string) => {
   return {
     type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
     payload: { datasourceId },
+  };
+};
+
+export type executeDatasourceQuerySuccessPayload = {
+  responseMeta: ResponseMeta;
+  data: {
+    body: Array<{ id: string; name: string }>;
+    headers: Record<string, string[]>;
+    statusCode: string;
+    isExecutionSuccess: boolean;
+  };
+};
+type errorPayload = unknown;
+
+export type executeDatasourceQueryReduxAction = ReduxActionWithCallbacks<
+  executeDatasourceQueryRequest,
+  executeDatasourceQuerySuccessPayload,
+  errorPayload
+>;
+
+export const executeDatasourceQuery = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: {
+  onErrorCallback?: (payload: errorPayload) => void;
+  onSuccessCallback?: (payload: executeDatasourceQuerySuccessPayload) => void;
+  payload: executeDatasourceQueryRequest;
+}): executeDatasourceQueryReduxAction => {
+  return {
+    type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
   };
 };
 

@@ -111,6 +111,13 @@ export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 
+export const getIsFetchingSinglePluginForm = (
+  state: AppState,
+  pluginId: string,
+): boolean => {
+  return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
+};
+
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };

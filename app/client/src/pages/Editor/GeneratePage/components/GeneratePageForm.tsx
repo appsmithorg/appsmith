@@ -9,7 +9,7 @@ import {
   getDatasources,
   getIsFetchingDatasourceStructure,
 } from "../../../../selectors/entitiesSelector";
-import { Datasource, DatasourceTable } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "selectors/entitiesSelector";
 import { fetchPage, generateTemplateToUpdatePage } from "actions/pageActions";
@@ -28,7 +28,13 @@ import DataSourceOption, {
 } from "./DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
-import { VALID_PLUGINS_FOR_TEMPLATE, PLUGIN_ID } from "./constants";
+import GoogleSheetForm from "./GoogleSheetForm";
+import {
+  VALID_PLUGINS_FOR_TEMPLATE,
+  PLUGIN_ID,
+  DropdownOptions,
+  DatasourceTableDropdownOption,
+} from "./constants";
 
 export const PluginFormInputFieldMap: Record<
   string,
@@ -142,10 +148,6 @@ const Title = styled.p`
   font-size: 24px;
 `;
 // ---------- Types ----------
-interface DatasourceTableDropdownOption extends DropdownOption {
-  data: DatasourceTable;
-}
-type DropdownOptions = Array<DropdownOption>;
 
 // ---------- GeneratePageForm Component ----------
 
@@ -157,10 +159,12 @@ const GENERATE_PAGE_MODE = {
 function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
+
   const {
     applicationId: currentApplicationId,
     pageId: currentPageId,
   } = useParams<ExplorerURLParams>();
+
   const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -225,6 +229,7 @@ function GeneratePageForm() {
       dispatch,
     ],
   );
+
   const onSelectTable = useCallback(
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
       if (table && TableObj) {
@@ -272,9 +277,9 @@ function GeneratePageForm() {
 
   useEffect(() => {
     // On mount of component and on change of datasources, Update the list.
-    const unSupportedDatasourceOptions: Array<DropdownOption> = [];
-    const supportedDatasourceOptions: Array<DropdownOption> = [];
-    let newDataSourceOptions: Array<DropdownOption> = [];
+    const unSupportedDatasourceOptions: DropdownOptions = [];
+    const supportedDatasourceOptions: DropdownOptions = [];
+    let newDataSourceOptions: DropdownOptions = [];
     newDataSourceOptions.push(
       FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
     );
@@ -459,6 +464,9 @@ function GeneratePageForm() {
     }
   }
 
+  const isGoogleSheetPlugin =
+    selectedDatasourcePluginId === PLUGIN_ID.GOOGLE_SHEET;
+
   return (
     <div>
       <Wrapper>
@@ -489,55 +497,78 @@ function GeneratePageForm() {
             width={DROPDOWN_DIMENSION.WIDTH}
           />
         </SelectWrapper>
-        {selectedDatasource.value ? (
-          <SelectWrapper>
-            <Label>
-              Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
-            </Label>
-            <Dropdown
-              errorMsg={tableDropdownErrorMsg}
-              height={DROPDOWN_DIMENSION.HEIGHT}
-              isLoading={isFetchingDatasourceStructure}
-              onSelect={onSelectTable}
-              optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              optionWrapperHeight={"300px"}
-              options={datasourceTableOptions}
-              selected={selectedTable}
-              showLabelOnly
-              width={DROPDOWN_DIMENSION.WIDTH}
-            />
-          </SelectWrapper>
-        ) : null}
-        {!isFetchingDatasourceStructure &&
-          selectedDatasourceIsInvalid &&
-          selectedDatasource.value &&
-          isValidDatasourceConfig && (
-            <EditDatasourceButton
-              category={Category.tertiary}
-              onClick={goToEditDatasource}
-              size={Size.medium}
-              text="Edit Datasource"
-              type="button"
-            />
-          )}
-        {selectedTable.value ? (
-          <SelectWrapper>
-            <Label>
-              Select a searchable {columnLabel} from
-              <Bold> {selectedTable.label} </Bold>
-            </Label>
-            <Dropdown
-              height={DROPDOWN_DIMENSION.HEIGHT}
-              onSelect={onSelectColumn}
-              optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              optionWrapperHeight={"300px"}
-              options={selectedTableColumnOptions}
-              selected={selectedColumn}
-              showLabelOnly
-              width={DROPDOWN_DIMENSION.WIDTH}
-            />
-          </SelectWrapper>
-        ) : null}
+        {!isGoogleSheetPlugin ? (
+          <>
+            {selectedDatasource.value ? (
+              <SelectWrapper>
+                <Label>
+                  Select {tableLabel} from{" "}
+                  <Bold>{selectedDatasource.label}</Bold>
+                </Label>
+                <Dropdown
+                  errorMsg={tableDropdownErrorMsg}
+                  height={DROPDOWN_DIMENSION.HEIGHT}
+                  isLoading={isFetchingDatasourceStructure}
+                  onSelect={onSelectTable}
+                  optionWidth={DROPDOWN_DIMENSION.WIDTH}
+                  optionWrapperHeight={"300px"}
+                  options={datasourceTableOptions}
+                  selected={selectedTable}
+                  showLabelOnly
+                  width={DROPDOWN_DIMENSION.WIDTH}
+                />
+              </SelectWrapper>
+            ) : null}
+            {!isFetchingDatasourceStructure &&
+              selectedDatasourceIsInvalid &&
+              selectedDatasource.value &&
+              isValidDatasourceConfig && (
+                <EditDatasourceButton
+                  category={Category.tertiary}
+                  onClick={goToEditDatasource}
+                  size={Size.medium}
+                  text="Edit Datasource"
+                  type="button"
+                />
+              )}
+            {selectedTable.value ? (
+              <SelectWrapper>
+                <Label>
+                  Select a searchable {columnLabel} from
+                  <Bold> {selectedTable.label} </Bold>
+                </Label>
+                <Dropdown
+                  height={DROPDOWN_DIMENSION.HEIGHT}
+                  onSelect={onSelectColumn}
+                  optionWidth={DROPDOWN_DIMENSION.WIDTH}
+                  optionWrapperHeight={"300px"}
+                  options={selectedTableColumnOptions}
+                  selected={selectedColumn}
+                  showLabelOnly
+                  width={DROPDOWN_DIMENSION.WIDTH}
+                />
+              </SelectWrapper>
+            ) : null}
+          </>
+        ) : (
+          <GoogleSheetForm
+            columnLabel={columnLabel}
+            datasourceTableOptions={datasourceTableOptions}
+            isFetchingDatasourceStructure={isFetchingDatasourceStructure}
+            onSelectColumn={onSelectColumn}
+            onSelectTable={onSelectTable}
+            selectedColumn={selectedColumn}
+            selectedDatasource={selectedDatasource}
+            selectedTable={selectedTable}
+            selectedTableColumnOptions={selectedTableColumnOptions}
+            setSelectedDatasourceTableOptions={
+              setSelectedDatasourceTableOptions
+            }
+            tableDropdownErrorMsg={tableDropdownErrorMsg}
+            tableLabel={tableLabel}
+          />
+        )}
+
         {showSubmitButton ? (
           <FormSubmitButton
             category={Category.tertiary}
