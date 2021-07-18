@@ -675,7 +675,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     },
                   },
                   {
-                    type: "FORM_BUTTON_WIDGET",
+                    type: "BUTTON_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -687,14 +687,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
-                      disabledWhenInvalid: true,
-                      resetFormOnClick: true,
                       recaptchaV2: false,
                       version: 1,
                     },
                   },
                   {
-                    type: "FORM_BUTTON_WIDGET",
+                    type: "BUTTON_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -706,10 +704,33 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Reset",
                       buttonStyle: "SECONDARY_BUTTON",
-                      disabledWhenInvalid: false,
-                      resetFormOnClick: true,
                       recaptchaV2: false,
                       version: 1,
+                    },
+                  },
+                ],
+                operations: [
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const updatedWidgetsProperty: any = [];
+                      widget.children?.map((child) => {
+                        if (
+                          child.type === "BUTTON_WIDGET" &&
+                          child.text == "Reset"
+                        ) {
+                          updatedWidgetsProperty.push({
+                            widgetId: child.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{resetWidget("${parent?.widgetName}", true)}}`,
+                          });
+                        }
+                      });
+                      return updatedWidgetsProperty;
                     },
                   },
                 ],
