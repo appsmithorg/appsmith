@@ -31,7 +31,7 @@ describe("Add widget", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(".t--add-widget").click();
+    cy.get(queryEditor.suggestedTableWidget).click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {

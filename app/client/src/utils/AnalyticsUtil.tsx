@@ -129,7 +129,9 @@ export type EventName =
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
-  | "DEBUGGER_RESOLVED_ERROR";
+  | "DEBUGGER_RESOLVED_ERROR"
+  | "SELECT_IN_CANVAS_CLICK"
+  | "WIDGET_SELECTED_VIA_SNIPING_MODE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

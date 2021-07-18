@@ -14,5 +14,6 @@
     "queryNameField": ".t--action-name-edit-field input",
     "settings": "li:contains('Settings')",
     "query": "li:contains('Query')",
-    "switch": ".t--form-control-SWITCH input"
+    "switch": ".t--form-control-SWITCH input",
+    "suggestedTableWidget": ".t--suggested-widget-TABLE_WIDGET"
 }

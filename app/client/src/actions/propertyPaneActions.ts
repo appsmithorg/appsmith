@@ -14,3 +14,19 @@ export const hidePropertyPane = () => {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
   };
 };
+
+export const bindDataToWidget = (payload: { widgetId: string }) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_TO_WIDGET,
+    payload,
+  };
+};
+
+export const setSnipingMode = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SNIPING_MODE,
+  payload,
+});
+
+export const resetSnipingMode = () => ({
+  type: ReduxActionTypes.RESET_SNIPING_MODE,
+});
