@@ -132,6 +132,12 @@ function getLatestEvalPropertyErrors(
           );
         }
 
+        const analyticsData = isWidget(entity)
+          ? {
+              widgetType: entity.type,
+            }
+          : {};
+
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
@@ -150,6 +156,7 @@ function getLatestEvalPropertyErrors(
           state: {
             [propertyPath]: evaluatedValue,
           },
+          analytics: analyticsData,
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
         store.dispatch(
