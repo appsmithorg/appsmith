@@ -20,11 +20,11 @@ import {
   DatasourceTableDropdownOption,
 } from "./constants";
 
-const GOOGLE_SHEET_METHODS = {
-  GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
-  GET_ALL_SHEETS: "INFO", // fetch all the sub-sheets
-  GET_ALL_COLUMNS: "GET", // Get column names
-};
+// const GOOGLE_SHEET_METHODS = {
+//   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
+//   GET_ALL_SHEETS: "INFO", // fetch all the sub-sheets
+//   GET_ALL_COLUMNS: "GET", // Get column names
+// };
 
 const DEMO_LIST_DATA = [
   {

@@ -13,7 +13,7 @@ export const VALID_PLUGINS_FOR_TEMPLATE: Record<string, string> = {
   "5f16c4be93f44d4622f487e2": "Mysql",
   "5f92f2628c11891d27ff0f1f": "MsSQL",
   "5ff5af0851d64d5127abc597": "Redshift",
-  "6023b4a070eb652de19476d3": "S3",
+  // "6023b4a070eb652de19476d3": "S3",
   // [PLUGIN_ID.GOOGLE_SHEET]: "Google Sheets",
   "60cb22feef0bd0550e175f3d": "Snowflake",
   // "5ca385dc81b37f0004b4db85": "REST API",
