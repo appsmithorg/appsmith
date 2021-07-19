@@ -21,8 +21,6 @@
 // import { uniqueId } from "lodash";
 // import { WidgetTypes } from "constants/WidgetConstants";
 
-import { assert } from "console";
-
 // let container: any = null;
 // describe("Comment threads", () => {
 //   beforeEach(async () => {
