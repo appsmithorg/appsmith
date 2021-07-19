@@ -214,7 +214,7 @@ function ActionSidebar({
         />
       )}
       {hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Select Existing Widgets">
+        <Collapsible label="Connect Widget">
           <div className="description">Go to canvas and select widgets</div>
           <SnipingWrapper>
             <Button
@@ -223,7 +223,7 @@ function ActionSidebar({
               onClick={handleBindData}
               size={Size.medium}
               tag="button"
-              text="Select In Canvas"
+              text="Select Widget"
               type="button"
               variant={Variant.info}
             />

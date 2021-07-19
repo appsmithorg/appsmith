@@ -19,7 +19,7 @@ const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   top: ${(props) =>
     props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  ${(props) => (props.isSnipingMode ? "left: 0" : "right: 0")};
+  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
   display: flex;
   padding: 0 4px;
   cursor: pointer;
@@ -49,6 +49,7 @@ type WidgetNameComponentProps = {
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   const dispatch = useDispatch();
+  const isSnipingMode = useSelector(snipingModeSelector);
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
   const propertyPaneState: PropertyPaneReduxState = useSelector(
@@ -110,12 +111,16 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
-  const showWidgetName =
-    props.showControls ||
-    ((focusedWidget === props.widgetId || showAsSelected) &&
-      !isDragging &&
-      !isResizing) ||
-    !!props.errorCount;
+  // in sniping mode we only show the widget name tag if it's focused.
+  // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
+  // with sniping mode.
+  const showWidgetName = isSnipingMode
+    ? focusedWidget === props.widgetId
+    : props.showControls ||
+      ((focusedWidget === props.widgetId || showAsSelected) &&
+        !isDragging &&
+        !isResizing) ||
+      !!props.errorCount;
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET
@@ -129,7 +134,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     propertyPaneState.widgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
-  const isSnipingMode = useSelector(snipingModeSelector);
+
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
