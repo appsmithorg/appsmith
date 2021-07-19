@@ -48,15 +48,27 @@ describe("evaluate", () => {
       errors: [
         {
           errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "return wrongJS",
+          errorSegment: "    const result = wrongJS",
           errorType: "LINT",
-          raw: "return wrongJS",
+          raw: `
+  function closedFunction () {
+    const result = wrongJS
+    return result;
+  }
+  closedFunction()
+  `,
           severity: "warning",
         },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",
-          raw: "return wrongJS",
+          raw: `
+  function closedFunction () {
+    const result = wrongJS
+    return result;
+  }
+  closedFunction()
+  `,
           severity: "error",
         },
       ],
@@ -69,7 +81,13 @@ describe("evaluate", () => {
         {
           errorMessage: "TypeError: {}.map is not a function",
           errorType: "PARSE",
-          raw: "return {}.map()",
+          raw: `
+  function closedFunction () {
+    const result = {}.map()
+    return result;
+  }
+  closedFunction()
+  `,
           severity: "error",
         },
       ],
@@ -82,7 +100,7 @@ describe("evaluate", () => {
   });
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, undefined, true);
     expect(response.result).toBe(undefined);
     expect(response.triggers).toStrictEqual([
       {
@@ -104,7 +122,13 @@ describe("evaluate", () => {
         {
           errorMessage: "TypeError: setTimeout is not a function",
           errorType: "PARSE",
-          raw: "return setTimeout(() => {}, 100)",
+          raw: `
+  function closedFunction () {
+    const result = setTimeout(() => {}, 100)
+    return result;
+  }
+  closedFunction()
+  `,
           severity: "error",
         },
       ],

@@ -30,6 +30,9 @@ describe("<InputComponent />", () => {
               isLoading={false}
               label="label"
               multiline
+              onCurrencyTypeChange={(code?: string) => {
+                console.log(code);
+              }}
               onFocusChange={(state: boolean) => {
                 console.log(state);
               }}
