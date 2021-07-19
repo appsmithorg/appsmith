@@ -404,9 +404,10 @@ public class RestApiPlugin extends BasePlugin {
 
                             // Now add a new header which specifies the data type of the response as per Appsmith
                             JsonNode headersJsonNode = result.getHeaders();
-                            ObjectNode updatedHeaders = ((ObjectNode) headersJsonNode).put(RESPONSE_DATA_TYPE,
-                                    String.valueOf(responseDataType));
-                            result.setHeaders(updatedHeaders);
+                            ObjectNode headersObjectNode = (ObjectNode) headersJsonNode;
+                            headersObjectNode.putArray(RESPONSE_DATA_TYPE)
+                                    .add(String.valueOf(responseDataType));
+                            result.setHeaders(headersObjectNode);
 
                         }
 
