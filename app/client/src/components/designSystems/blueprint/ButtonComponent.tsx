@@ -51,7 +51,7 @@ const AccentColorMap: Record<ButtonStyleName, string> = {
 };
 
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
-  <Button {..._.omit(props, ["accent", "filled", "disabled"])} />
+  <Button {..._.omit(props, ["accent", "filled"])} />
 ))<ButtonStyleProps>`
   &&&& {
     ${ButtonColorStyles};
