@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import Text, { TextType } from "components/ads/Text";
 import { useState } from "react";
+import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { WidgetType } from "constants/WidgetConstants";
 import { ReactNode } from "react";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -64,6 +74,25 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 `;
 
+const Placeholder = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  padding: ${(props) => props.theme.spaces[8]}px;
+  text-align: center;
+`;
+
+const BackButton = styled.div`
+  display: flex;
+  cursor: pointer;
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  .${Classes.TEXT} {
+    margin-left: ${(props) => props.theme.spaces[4] + 1}px;
+  }
+`;
+
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
@@ -103,13 +132,50 @@ function ActionSidebar({
   hasResponse: boolean;
   suggestedWidgets?: WidgetType[];
 }) {
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+
+  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const entityDependencies = useMemo(
+    () =>
+      getDependenciesFromInverseDependencies(
+        deps.inverseDependencyMap,
+        actionName,
+      ),
+    [actionName, deps.inverseDependencyMap],
+  );
+  const hasConnections =
+    entityDependencies &&
+    (entityDependencies?.directDependencies.length > 0 ||
+      entityDependencies?.inverseDependencies.length > 0);
+  const showSuggestedWidgets =
+    hasResponse && suggestedWidgets && !!suggestedWidgets.length;
+
+  if (!hasConnections && !showSuggestedWidgets) {
+    return <Placeholder>No connections to show here</Placeholder>;
+  }
+
+  const navigeteToCanvas = () => {
+    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+  };
+
   return (
     <SideBar>
-      <Connections actionName={actionName} />
-      {hasResponse && suggestedWidgets && (
+      <BackButton onClick={navigeteToCanvas}>
+        <Icon keepColors name="chevron-left" size={IconSize.XXS} />
+        <Text type={TextType.H6}>Back to canvas</Text>
+      </BackButton>
+
+      {hasConnections && (
+        <Connections
+          actionName={actionName}
+          entityDependencies={entityDependencies}
+        />
+      )}
+      {showSuggestedWidgets && (
         <SuggestedWidgets
           actionName={actionName}
-          suggestedWidgets={suggestedWidgets}
+          suggestedWidgets={suggestedWidgets as WidgetType[]}
         />
       )}
     </SideBar>
