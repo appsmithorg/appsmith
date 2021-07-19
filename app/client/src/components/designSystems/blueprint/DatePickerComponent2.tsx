@@ -16,7 +16,6 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { get } from "lodash";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -239,11 +238,17 @@ class DatePickerComponent extends React.Component<
 
   closePicker = (e: any) => {
     const { closeOnSelection } = this.props;
-    // check user click on shortcuts or out side widget
-    const clickedContent = get(e, "target.innerText");
-    // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-    const showPicker = clickedContent ? !closeOnSelection : false;
-    this.setState({ showPicker });
+    try {
+      // check user click on shortcuts or out side widget
+      const $parent = document.getElementsByClassName(
+        "bp3-daterangepicker-shortcuts",
+      )[0];
+      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
+      const showPicker = $parent.contains(e.target) ? !closeOnSelection : false;
+      this.setState({ showPicker });
+    } catch (error) {
+      this.setState({ showPicker: false });
+    }
   };
 }
 
