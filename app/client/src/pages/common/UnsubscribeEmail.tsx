@@ -55,7 +55,7 @@ function UnsubscribeEmail() {
               corresponding comment thread.
             </p>
             <p>
-              Please note that you&apos;ll be subscribed again if someone tags
+              Please note that you&apos;ll be subscribed again if someone tags you
               in a comment or you reply to a comment.
             </p>
             <p>Are you sure you want to unsubscribe?</p>
