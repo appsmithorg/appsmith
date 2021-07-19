@@ -4,6 +4,14 @@ import { useParams } from "react-router-dom";
 import { unsubscribeCommentThreadAction } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { isUnsubscribedSelector } from "selectors/commentsSelectors";
+import {
+  createMessage,
+  UNSUBSCRIBE_EMAIL_SUCCESS,
+  UNSUBSCRIBE_EMAIL_MSG_1,
+  UNSUBSCRIBE_EMAIL_MSG_2,
+  UNSUBSCRIBE_EMAIL_CONFIRM_MSG,
+  UNSUBSCRIBE_BUTTON_LABEL,
+} from "constants/messages";
 
 const Wrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.headerHeight});
@@ -44,24 +52,15 @@ function UnsubscribeEmail() {
       <div>
         <p className="bold-text">Unsubscribe</p>
         {isUnsubscribed ? (
-          <p>
-            You have successfully unsubscribed from the corresponding comment
-            thread
-          </p>
+          <p>{createMessage(UNSUBSCRIBE_EMAIL_SUCCESS)}</p>
         ) : (
           <>
-            <p>
-              You will not receive any more email notifications for the
-              corresponding comment thread.
-            </p>
-            <p>
-              Please note that you will be subscribed again if someone tags you
-              in a comment or you reply to a comment.
-            </p>
-            <p>Are you sure you want to unsubscribe?</p>
+            <p>{createMessage(UNSUBSCRIBE_EMAIL_MSG_1)}</p>
+            <p>{createMessage(UNSUBSCRIBE_EMAIL_MSG_2)}</p>
+            <p>{createMessage(UNSUBSCRIBE_EMAIL_CONFIRM_MSG)}</p>
 
             <UnsubscribeButton onClick={unsubscribeCommentThread}>
-              {"Unsubscribe me"}
+              {createMessage(UNSUBSCRIBE_BUTTON_LABEL)}
             </UnsubscribeButton>
           </>
         )}
