@@ -108,9 +108,13 @@ class DatePickerComponent extends React.Component<
           .clone()
           .set({ month: 11, date: 31, year: year + 20 })
           .toDate();
-    const isValid = this.state.selectedDate
-      ? this.isValidDate(this.parseDate(this.state.selectedDate))
-      : true;
+    const parsedDate = this.state.selectedDate
+      ? this.parseDate(this.state.selectedDate)
+      : null;
+    const isValid =
+      this.state.selectedDate && parsedDate
+        ? this.isValidDate(parsedDate)
+        : true;
     const value =
       isValid && this.state.selectedDate
         ? this.parseDate(this.state.selectedDate)
@@ -192,12 +196,16 @@ class DatePickerComponent extends React.Component<
     return moment(date).format(dateFormat);
   };
 
-  parseDate = (dateStr: string): Date => {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    const date = moment(dateStr, dateFormat);
+  parseDate = (dateStr: string): Date | null => {
+    if (!dateStr) {
+      return null;
+    } else {
+      const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+      const date = moment(dateStr, dateFormat);
 
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-    else return moment().toDate();
+      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+      else return moment().toDate();
+    }
   };
 
   /**
@@ -207,7 +215,7 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+  onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
     if (isUserChange) {
       const { onDateSelected } = this.props;
 

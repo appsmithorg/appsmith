@@ -25,7 +25,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
-  width: 60%;
+  width: 90%;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -65,7 +65,6 @@ class DynamicTextControl extends BaseControl<
       configProperty,
       evaluationSubstitutionType,
       label,
-      mutedHinting,
       placeholderText,
       responseType,
     } = this.props;
@@ -105,7 +104,6 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={dataTreePath}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
-            mutedHinting={mutedHinting}
             name={this.props.configProperty}
             placeholder={placeholderText}
             size={EditorSize.EXTENDED}

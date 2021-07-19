@@ -286,7 +286,10 @@ abstract class BaseWidget<
    */
   addOverlayComments(content: ReactNode) {
     return (
-      <OverlayCommentsWrapper refId={this.props.widgetId}>
+      <OverlayCommentsWrapper
+        refId={this.props.widgetId}
+        widgetType={this.props.type}
+      >
         {content}
       </OverlayCommentsWrapper>
     );
