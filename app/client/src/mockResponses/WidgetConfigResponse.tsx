@@ -1212,7 +1212,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisible: true,
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 1 * GRID_DENSITY_MIGRATION_V1,
-      widgetName: "Icon Button",
+      widgetName: "IconButton",
       version: 1,
     },
   },
