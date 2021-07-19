@@ -354,7 +354,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <SaveButtonContainer>
         <ActionButton
-          accent="error"
+          // accent="error"
+          buttonStyle="DANGER"
+          buttonVariant="SOLID"
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}

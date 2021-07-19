@@ -27,9 +27,8 @@ class FilePickerComponent extends React.Component<
     }
     return (
       <BaseButton
-        accent="primary"
+        buttonStyle="PRIMARY"
         disabled={this.props.isDisabled}
-        filled
         loading={this.props.isLoading}
         onClick={this.openModal}
         text={label}

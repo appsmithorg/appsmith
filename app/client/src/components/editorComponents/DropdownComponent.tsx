@@ -45,8 +45,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       const renderItems = props.items.map(props.renderItem).filter(Boolean);
       const displayMode = (
         <BaseButton
-          accent="primary"
-          filled
+          buttonStyle="PRIMARY"
           icon-right="plus"
           onClick={this.showTextBox}
           text={this.props.addItem.displayText}
@@ -56,7 +55,6 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         <ControlGroup fill>
           <InputGroup inputRef={this.setNewItemTextInput} />
           <BaseButton
-            filled
             onClick={this.handleAddItem}
             text={this.props.addItem.displayText}
           />
@@ -131,7 +129,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       >
         {this.props.toggle || (
           <BaseButton
-            accent="secondary"
+            buttonStyle="PRIMARY"
+            buttonVariant="OUTLINE"
             rightIcon="chevron-down"
             text={this.getSelectedDisplayText()}
           />

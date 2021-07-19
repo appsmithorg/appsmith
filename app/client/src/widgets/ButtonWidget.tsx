@@ -6,6 +6,8 @@ import { IconName } from "@blueprintjs/icons";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
+  ButtonBorderRadius,
+  ButtonStyle,
   ButtonType,
   ButtonVariant,
 } from "components/designSystems/blueprint/ButtonComponent";
@@ -42,6 +44,36 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            controlType: "DROP_DOWN",
+            helpText: "Changes the style of the button",
+            options: [
+              {
+                label: "Primary",
+                value: "PRIMARY",
+              },
+              {
+                label: "Warning",
+                value: "WARNING",
+              },
+              {
+                label: "Danger",
+                value: "DANGER",
+              },
+              {
+                label: "Info",
+                value: "INFO",
+              },
+              {
+                label: "Secondary",
+                value: "SECONDARY",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
             label: "Background Color",
@@ -54,32 +86,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets the text color of the widget",
             label: "Text Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the button",
-            options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
-              {
-                label: "Text Button",
-                value: "TEXT_BUTTON",
-              },
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -258,16 +264,17 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return (
       <ButtonComponent
         backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
         buttonStyle={this.props.buttonStyle}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
-        disabled={this.props.isDisabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
         iconAlign={this.props.iconAlign}
         iconColor={this.props.iconColor}
         iconName={this.props.iconName}
+        isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
@@ -286,16 +293,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 }
 
-export type ButtonStyle =
-  | "PRIMARY_BUTTON"
-  | "SECONDARY_BUTTON"
-  | "SUCCESS_BUTTON"
-  | "DANGER_BUTTON"
-  | "TEXT_BUTTON";
+// export type ButtonStyle =
+//   | "PRIMARY_BUTTON"
+//   | "SECONDARY_BUTTON"
+//   | "SUCCESS_BUTTON"
+//   | "DANGER_BUTTON";
 
 export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
-  buttonStyle?: ButtonStyle;
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
@@ -303,7 +308,9 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
   textColor?: string;
+  buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
+  borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   iconName?: IconName;

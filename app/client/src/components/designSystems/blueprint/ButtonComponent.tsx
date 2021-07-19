@@ -9,7 +9,6 @@ import {
   Icon,
 } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -18,7 +17,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "constants/messages";
-import { Variant } from "components/ads/common";
+import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import ReCAPTCHA from "react-google-recaptcha";
 import {
@@ -26,44 +25,61 @@ import {
   ButtonBoxShadowTypes,
 } from "components/propertyControls/BoxShadowOptionsControl";
 
+export enum ButtonStyleTypes {
+  PRIMARY = "PRIMARY",
+  WARNING = "WARNING",
+  DANGER = "DANGER",
+  INFO = "INFO",
+  SECONDARY = "SECONDARY",
+  CUSTOM = "CUSTOM",
+}
+export type ButtonStyle = keyof typeof ButtonStyleTypes;
+
 export enum ButtonVariantTypes {
-  CONTAINED = "CONTAINED",
-  OUTLINED = "OUTLINED",
-  TEXT = "TEXT",
+  SOLID = "SOLID",
+  OUTLINE = "OUTLINE",
+  GHOST = "GHOST",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
 
-const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
-  if (props.textColor) return props.textColor;
-  if (props.filled) return props.theme.colors.textOnDarkBG;
-  if (props.accent) {
-    if (props.accent === "secondary" || props.accent === "text") {
-      return props.theme.colors[AccentColorMap["primary"]];
-    }
-    return props.theme.colors[AccentColorMap[props.accent]];
-  }
-};
+export enum ButtonBorderRadiusTypes {
+  SHARP = "SHARP",
+  ROUNDED = "ROUNDED",
+  CIRCLE = "CIRCLE",
+}
+export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
-const getButtonIconColorStyles = (
-  props: { theme: Theme } & ButtonStyleProps,
-) => {
-  if (props.iconColor) return props.iconColor;
-  if (props.textColor) return props.textColor;
-  if (props.filled) return props.theme.colors.textOnDarkBG;
-  if (props.accent) {
-    if (props.accent === "secondary" || props.accent === "text") {
-      return props.theme.colors[AccentColorMap["primary"]];
-    }
-    return props.theme.colors[AccentColorMap[props.accent]];
-  }
-};
+// const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
+//   if (props.textColor) return props.textColor;
+//   if (props.filled) return props.theme.colors.textOnDarkBG;
+//   if (props.accent) {
+//     if (props.accent === "secondary" || props.accent === "text") {
+//       return props.theme.colors[AccentColorMap["primary"]];
+//     }
+//     return props.theme.colors[AccentColorMap[props.accent]];
+//   }
+// };
 
-const ButtonColorStyles = css<ButtonStyleProps>`
-  color: ${getButtonColorStyles};
-  svg {
-    fill: ${getButtonIconColorStyles};
-  }
-`;
+// const getButtonIconColorStyles = (
+//   props: { theme: Theme } & ButtonStyleProps,
+// ) => {
+//   if (props.iconColor) return props.iconColor;
+//   if (props.textColor) return props.textColor;
+//   if (props.filled) return props.theme.colors.textOnDarkBG;
+//   if (props.accent) {
+//     if (props.accent === "secondary" || props.accent === "text") {
+//       return props.theme.colors[AccentColorMap["primary"]];
+//     }
+//     return props.theme.colors[AccentColorMap[props.accent]];
+//   }
+// };
+
+// const ButtonColorStyles = css<ButtonStyleProps>`
+//   color: ${getButtonColorStyles};
+//   svg {
+//     fill: ${getButtonIconColorStyles};
+//   }
+// `;
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -72,162 +88,281 @@ const RecaptchaWrapper = styled.div`
   }
 `;
 
-const AccentColorMap: Record<ButtonStyleName, string> = {
-  primary: "primaryOld",
-  secondary: "secondaryOld",
-  error: "error",
-  text: "text",
-};
+// const AccentColorMap: Record<ButtonStyleName, string> = {
+//   primary: "primaryOld",
+//   secondary: "secondaryOld",
+//   error: "error",
+//   text: "text",
+// };
 
-const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
-  <Button {..._.omit(props, ["accent", "filled"])} />
-))<ButtonStyleProps>`
-  &&&& {
-    ${ButtonColorStyles};
-    width: 100%;
-    height: 100%;
-    background-image: none !important;
-    transition: background-color 0.2s;
+// const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
+//   <Button {..._.omit(props, ["accent", "filled"])} />
+// ))<ButtonStyleProps>`
+//   &&&& {
+//     ${ButtonColorStyles};
+//     width: 100%;
+//     height: 100%;
+//     background-image: none !important;
+//     transition: background-color 0.2s;
 
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      boxShadow === ButtonBoxShadowTypes.VARIANT1
-        ? `0px 0px 4px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-        : boxShadow === ButtonBoxShadowTypes.VARIANT2
-        ? `3px 3px 4px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-        : boxShadow === ButtonBoxShadowTypes.VARIANT3
-        ? `0px 1px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.5)"}`
-        : boxShadow === ButtonBoxShadowTypes.VARIANT4
-        ? `2px 2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-        : boxShadow === ButtonBoxShadowTypes.VARIANT5
-        ? `-2px -2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-        : "none"} !important;
+//     box-shadow: ${({ boxShadow, boxShadowColor }) =>
+//       boxShadow === ButtonBoxShadowTypes.VARIANT1
+//         ? `0px 0px 4px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
+//         : boxShadow === ButtonBoxShadowTypes.VARIANT2
+//         ? `3px 3px 4px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
+//         : boxShadow === ButtonBoxShadowTypes.VARIANT3
+//         ? `0px 1px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.5)"}`
+//         : boxShadow === ButtonBoxShadowTypes.VARIANT4
+//         ? `2px 2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
+//         : boxShadow === ButtonBoxShadowTypes.VARIANT5
+//         ? `-2px -2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
+//         : "none"} !important;
 
-    background-color: ${(props) =>
-      props.backgroundColor
-        ? props.filled && props.backgroundColor
-        : props.filled &&
-          props.accent &&
-          (props.theme.colors[AccentColorMap[props.accent]] ||
-            props.theme.colors[AccentColorMap.primary])};
+//     background-color: ${(props) =>
+//       props.backgroundColor
+//         ? props.filled && props.backgroundColor
+//         : props.filled &&
+//           props.accent &&
+//           (props.theme.colors[AccentColorMap[props.accent]] ||
+//             props.theme.colors[AccentColorMap.primary])};
 
-    border: ${(props) =>
-      props.accent !== "text" &&
-      (props.backgroundColor
-        ? `1px solid ${props.backgroundColor}`
-        : props.accent
-        ? `1px solid ${props.theme.colors[AccentColorMap[props.accent]] ||
-            props.textColor ||
-            props.theme.colors[AccentColorMap["primary"]]}`
-        : `1px solid ${props.theme.colors.primary}`)};
-    border-radius: 0;
+//     border: ${(props) =>
+//       props.accent !== "text" &&
+//       (props.backgroundColor
+//         ? `1px solid ${props.backgroundColor}`
+//         : props.accent
+//         ? `1px solid ${props.theme.colors[AccentColorMap[props.accent]] ||
+//             props.textColor ||
+//             props.theme.colors[AccentColorMap["primary"]]}`
+//         : `1px solid ${props.theme.colors.primary}`)};
+//     border-radius: 0;
 
-    font-weight: ${(props) => props.theme.fontWeights[2]};
-    outline: none;
-    &.bp3-button {
-      padding: 0px 10px;
+//     font-weight: ${(props) => props.theme.fontWeights[2]};
+//     outline: none;
+//     &.bp3-button {
+//       padding: 0px 10px;
+//     }
+//     && .bp3-button-text {
+//       max-width: 99%;
+//       text-overflow: ellipsis;
+//       overflow: hidden;
+//       display: -webkit-box;
+//       -webkit-line-clamp: 1;
+//       -webkit-box-orient: vertical;
+
+//       max-height: 100%;
+//       overflow: hidden;
+//     }
+//     &&:hover,
+//     &&:focus {
+//       ${ButtonColorStyles};
+//       background-color: ${(props) => {
+//         if (!props.filled) return props.theme.colors.secondaryDarker;
+//         if (props.backgroundColor) return darkenHover(props.backgroundColor);
+//         if (props.accent !== "secondary" && props.accent) {
+//           return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
+//         }
+//       }};
+//       border-color: ${(props) => {
+//         if (!props.filled) return;
+//         if (props.backgroundColor) return darkenHover(props.backgroundColor);
+//         if (props.accent !== "secondary" && props.accent) {
+//           return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
+//         }
+//       }};
+//     }
+//     &&:active {
+//       ${ButtonColorStyles};
+//       background-color: ${(props) => {
+//         if (!props.filled) return props.theme.colors.secondaryDarkest;
+//         if (props.backgroundColor) return darkenActive(props.backgroundColor);
+//         if (props.accent !== "secondary" && props.accent) {
+//           return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
+//         }
+//       }};
+//       border-color: ${(props) => {
+//         if (!props.filled) return;
+//         if (props.backgroundColor) return darkenActive(props.backgroundColor);
+//         if (props.accent !== "secondary" && props.accent) {
+//           return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
+//         }
+//       }};
+//     }
+//     &&.bp3-disabled {
+//       background-color: #d0d7dd;
+//       border: none;
+//     }
+//   }
+// `;
+
+const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+  background-image: none !important;
+
+  ${({ buttonStyle, buttonVariant, theme }) => `
+    &:enabled {
+      background: ${
+        buttonStyle === ButtonStyleTypes.WARNING
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.warning.solid.bgColor
+            : "none"
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.danger.solid.bgColor
+            : "none"
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.info.solid.bgColor
+            : "none"
+          : buttonStyle === ButtonStyleTypes.SECONDARY
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.secondary.solid.bgColor
+            : "none"
+          : buttonVariant === ButtonVariantTypes.SOLID
+          ? theme.colors.button.primary.solid.bgColor
+          : "none"
+      } !important;
     }
-    && .bp3-button-text {
-      max-width: 99%;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
 
-      max-height: 100%;
-      overflow: hidden;
+    &:hover:enabled, &:active:enabled {
+      background: ${
+        buttonStyle === ButtonStyleTypes.WARNING
+          ? buttonVariant === ButtonVariantTypes.OUTLINE
+            ? theme.colors.button.warning.outline.hoverColor
+            : buttonVariant === ButtonVariantTypes.GHOST
+            ? theme.colors.button.warning.ghost.hoverColor
+            : theme.colors.button.warning.solid.hoverColor
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.danger.solid.hoverColor
+            : theme.colors.button.danger.outline.hoverColor
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? buttonVariant === ButtonVariantTypes.SOLID
+            ? theme.colors.button.info.solid.hoverColor
+            : theme.colors.button.info.outline.hoverColor
+          : buttonStyle === ButtonStyleTypes.SECONDARY
+          ? buttonVariant === ButtonVariantTypes.OUTLINE
+            ? theme.colors.button.secondary.outline.hoverColor
+            : buttonVariant === ButtonVariantTypes.GHOST
+            ? theme.colors.button.secondary.ghost.hoverColor
+            : theme.colors.button.secondary.solid.hoverColor
+          : buttonVariant === ButtonVariantTypes.OUTLINE
+          ? theme.colors.button.primary.outline.hoverColor
+          : buttonVariant === ButtonVariantTypes.GHOST
+          ? theme.colors.button.primary.ghost.hoverColor
+          : theme.colors.button.primary.solid.hoverColor
+      } !important;
     }
-    &&:hover,
-    &&:focus {
-      ${ButtonColorStyles};
-      background-color: ${(props) => {
-        if (!props.filled) return props.theme.colors.secondaryDarker;
-        if (props.backgroundColor) return darkenHover(props.backgroundColor);
-        if (props.accent !== "secondary" && props.accent) {
-          return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
-        }
-      }};
-      border-color: ${(props) => {
-        if (!props.filled) return;
-        if (props.backgroundColor) return darkenHover(props.backgroundColor);
-        if (props.accent !== "secondary" && props.accent) {
-          return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
-        }
-      }};
+
+    &:disabled {
+      background-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
     }
-    &&:active {
-      ${ButtonColorStyles};
-      background-color: ${(props) => {
-        if (!props.filled) return props.theme.colors.secondaryDarkest;
-        if (props.backgroundColor) return darkenActive(props.backgroundColor);
-        if (props.accent !== "secondary" && props.accent) {
-          return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
-        }
-      }};
-      border-color: ${(props) => {
-        if (!props.filled) return;
-        if (props.backgroundColor) return darkenActive(props.backgroundColor);
-        if (props.accent !== "secondary" && props.accent) {
-          return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
-        }
-      }};
+
+    border: ${
+      buttonVariant === ButtonVariantTypes.OUTLINE
+        ? buttonStyle === ButtonStyleTypes.WARNING
+          ? `1px solid ${theme.colors.button.warning.outline.borderColor}`
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? `1px solid ${theme.colors.button.danger.outline.borderColor}`
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? `1px solid ${theme.colors.button.info.outline.borderColor}`
+          : buttonStyle === ButtonStyleTypes.SECONDARY
+          ? `1px solid ${theme.colors.button.secondary.outline.borderColor}`
+          : `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        : "none"
+    } !important;
+
+    & > span {
+      color: ${
+        buttonVariant === ButtonVariantTypes.SOLID
+          ? `${theme.colors.button.primary.solid.textColor}`
+          : buttonStyle === ButtonStyleTypes.WARNING
+          ? `${theme.colors.button.warning.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? `${theme.colors.button.danger.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? `${theme.colors.button.info.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.SECONDARY
+          ? `${theme.colors.button.secondary.outline.textColor}`
+          : `${theme.colors.button.primary.outline.textColor}`
+      } !important;
     }
-    &&.bp3-disabled {
-      background-color: #d0d7dd;
-      border: none;
-    }
-  }
+  `}
+
+
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === ButtonBorderRadiusTypes.CIRCLE
+      ? "50%"
+      : borderRadius === ButtonBorderRadiusTypes.ROUNDED
+      ? "10px"
+      : 0};
+
+  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
+    boxShadow === ButtonBoxShadowTypes.VARIANT1
+      ? `0px 0px 4px 3px ${boxShadowColor ||
+          theme.colors.button.boxShadow.default.variant1}`
+      : boxShadow === ButtonBoxShadowTypes.VARIANT2
+      ? `3px 3px 4px ${boxShadowColor ||
+          theme.colors.button.boxShadow.default.variant2}`
+      : boxShadow === ButtonBoxShadowTypes.VARIANT3
+      ? `0px 1px 3px ${boxShadowColor ||
+          theme.colors.button.boxShadow.default.variant3}`
+      : boxShadow === ButtonBoxShadowTypes.VARIANT4
+      ? `2px 2px 0px ${boxShadowColor ||
+          theme.colors.button.boxShadow.default.variant4}`
+      : boxShadow === ButtonBoxShadowTypes.VARIANT5
+      ? `-2px -2px 0px ${boxShadowColor ||
+          theme.colors.button.boxShadow.default.variant5}`
+      : "none"} !important;
 `;
 
-export type ButtonStyleName = "primary" | "secondary" | "error" | "text";
+// export type ButtonStyleName = "primary" | "secondary" | "error" | "text";
 
 type ButtonStyleProps = {
-  accent?: ButtonStyleName;
-  filled?: boolean;
   backgroundColor?: string;
   textColor?: string;
+  buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  iconName?: IconName;
   iconAlign?: Alignment;
   iconColor?: string;
-  iconName?: IconName;
 };
 
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {
-  // const className = props.disabled
-  //   ? `${props.className} bp3-disabled`
-  //   : props.className;
   const {
-    accent,
     backgroundColor,
     boxShadow,
     boxShadowColor,
+    buttonStyle,
     className,
     disabled,
-    filled,
+    icon,
     iconAlign,
     iconColor,
     iconName,
+    rightIcon,
     text,
     textColor,
   } = props;
 
   if (iconAlign === Alignment.RIGHT) {
     return (
-      <ButtonWrapper
-        accent={accent}
+      <StyledButton
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
         backgroundColor={backgroundColor}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
+        buttonStyle={buttonStyle}
         className={className}
         disabled={disabled}
         fill
-        filled={filled}
+        icon={icon}
         iconColor={iconColor}
-        rightIcon={<Icon color={iconColor} icon={iconName} />}
+        rightIcon={<Icon color={iconColor} icon={iconName} /> || rightIcon}
         text={text}
         textColor={textColor}
       />
@@ -235,26 +370,26 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   }
 
   return (
-    <ButtonWrapper
-      accent={accent}
+    <StyledButton
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
       backgroundColor={backgroundColor}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
+      buttonStyle={buttonStyle}
       className={className}
       disabled={disabled}
       fill
-      filled={filled}
-      icon={<Icon color={iconColor} icon={iconName} />}
+      icon={<Icon color={iconColor} icon={iconName} /> || icon}
+      rightIcon={rightIcon}
       text={text}
       textColor={textColor}
     />
   );
-  // return <ButtonWrapper {...props} className={className} />;
 }
 
 BaseButton.defaultProps = {
-  accent: "secondary",
+  // accent: "secondary",
+  buttonStyle: "SECONDARY",
   disabled: false,
   text: "Button Text",
   minimal: true,
@@ -272,11 +407,11 @@ interface RecaptchaProps {
   recaptchaV2?: boolean;
 }
 
-interface ButtonContainerProps extends ComponentProps {
+interface ButtonComponentProps extends ComponentProps {
   text?: string;
-  icon?: MaybeElement;
+  icon?: IconName | MaybeElement;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-  disabled?: boolean;
+  isDisabled?: boolean;
   buttonStyle?: ButtonStyle;
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
@@ -284,27 +419,13 @@ interface ButtonContainerProps extends ComponentProps {
   backgroundColor?: string;
   textColor?: string;
   buttonVariant?: ButtonVariant;
+  borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
   iconColor?: string;
 }
-
-const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
-  switch (buttonStyle) {
-    case "PRIMARY_BUTTON":
-      return "primary";
-    case "SECONDARY_BUTTON":
-      return "secondary";
-    case "DANGER_BUTTON":
-      return "error";
-    case "TEXT_BUTTON":
-      return "text";
-    default:
-      return undefined;
-  }
-};
 
 function RecaptchaV2Component(
   props: {
@@ -435,9 +556,7 @@ function BtnWrapper(
 }
 
 // To be used with the canvas
-function ButtonContainer(
-  props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
-) {
+function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   return (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
@@ -446,18 +565,12 @@ function ButtonContainer(
       recaptchaV2={props.recaptchaV2}
     >
       <BaseButton
-        accent={mapButtonStyleToStyleName(props.buttonStyle)}
         backgroundColor={props.backgroundColor}
         boxShadow={props.boxShadow}
         boxShadowColor={props.boxShadowColor}
+        buttonStyle={props.buttonStyle}
         buttonVariant={props.buttonVariant}
-        disabled={props.disabled}
-        filled={
-          !(
-            props.buttonStyle === "SECONDARY_BUTTON" ||
-            props.buttonStyle === "TEXT_BUTTON"
-          )
-        }
+        disabled={props.isDisabled}
         icon={props.icon}
         iconAlign={props.iconAlign}
         iconColor={props.iconColor}
@@ -472,4 +585,4 @@ function ButtonContainer(
   );
 }
 
-export default ButtonContainer;
+export default ButtonComponent;

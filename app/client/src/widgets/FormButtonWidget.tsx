@@ -2,6 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
+  ButtonStyle,
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import {
@@ -194,8 +195,8 @@ class FormButtonWidget extends BaseWidget<
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
-        disabled={disabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isDisabled={disabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!disabled ? this.onButtonClickBound : undefined}
@@ -213,11 +214,11 @@ class FormButtonWidget extends BaseWidget<
   }
 }
 
-export type ButtonStyle =
-  | "PRIMARY_BUTTON"
-  | "SECONDARY_BUTTON"
-  | "SUCCESS_BUTTON"
-  | "DANGER_BUTTON";
+// export type ButtonStyle =
+//   | "PRIMARY_BUTTON"
+//   | "SECONDARY_BUTTON"
+//   | "SUCCESS_BUTTON"
+//   | "DANGER_BUTTON";
 
 export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
