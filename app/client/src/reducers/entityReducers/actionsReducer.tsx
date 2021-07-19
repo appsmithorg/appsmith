@@ -10,6 +10,7 @@ import _ from "lodash";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 import produce from "immer";
+import { getType, Types } from "utils/TypeHelpers";
 
 export interface ActionData {
   isLoading: boolean;
@@ -30,6 +31,10 @@ export interface PartialActionData {
   isLoading: boolean;
   config: { id: string };
   data?: ActionResponse;
+}
+
+enum ActionResponseDataTypes {
+  BINARY = "BINARY",
 }
 
 const initialState: ActionDataState = [];
@@ -222,6 +227,17 @@ const actionsReducer = createReducer(initialState, {
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ): ActionDataState => {
     const actionId = Object.keys(action.payload)[0];
+    if (
+      action.payload[actionId].headers.hasOwnProperty("X-APPSMITH-DATATYPE") &&
+      action.payload[actionId].headers["X-APPSMITH-DATATYPE"].length > 0 &&
+      action.payload[actionId].headers["X-APPSMITH-DATATYPE"][0] ===
+        ActionResponseDataTypes.BINARY &&
+      getType(action.payload[actionId].body) === Types.STRING
+    ) {
+      action.payload[actionId].body = atob(
+        action.payload[actionId].body as string,
+      );
+    }
     return state.map((a) => {
       if (a.config.id === actionId) {
         return { ...a, isLoading: false, data: action.payload[actionId] };
