@@ -38,6 +38,7 @@ class ContainerWidget extends BaseWidget<
             propertyName: "backgroundColor",
             label: "Background Color",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

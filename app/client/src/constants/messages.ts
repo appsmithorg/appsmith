@@ -321,7 +321,7 @@ export const MARK_ALL_AS_READ = () => "Mark all as read";
 export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
 export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
-export const ONE_UNREAD_MESSAGE = () => "1 unread conversation";
+export const UNREAD_MESSAGE = () => "Unread conversation";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
