@@ -51,12 +51,12 @@ function UnsubscribeEmail() {
         ) : (
           <>
             <p>
-              You won't receive any more email notifications for the
+              You will not receive any more email notifications for the
               corresponding comment thread.
             </p>
             <p>
-              Please note that you&apos;ll be subscribed again if someone tags you
-              in a comment or you reply to a comment.
+              Please note that you&apos;ll be subscribed again if someone tags
+              you in a comment or you reply to a comment.
             </p>
             <p>Are you sure you want to unsubscribe?</p>
 
