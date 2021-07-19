@@ -25,6 +25,7 @@ import {
   ADD_COMMENT_PLACEHOLDER,
   CANCEL,
   POST,
+  INVALID_EMAIL,
 } from "constants/messages";
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
@@ -48,6 +49,8 @@ import { getCanManage } from "utils/helpers";
 import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const { appsmithSupportEmail } = getAppsmithConfigs();
 
@@ -280,6 +283,11 @@ function AddCommentInput({
       const email = mention.isSupport ? mention.user?.username : mention.name;
       dispatch(setShowAppInviteUsersDialog(true));
       dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", email));
+    } else if (mention.isInviteTrigger && !isEmail(mention.name)) {
+      Toaster.show({
+        text: createMessage(INVALID_EMAIL),
+        variant: Variant.danger,
+      });
     }
   };
 
