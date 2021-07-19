@@ -142,7 +142,7 @@ type DraggingGroupCenter = {
   top?: number;
   left?: number;
 };
-type DragDetails = {
+export type DragDetails = {
   dragGroupActualParent?: string;
   draggingGroupCenter?: DraggingGroupCenter;
   newWidget?: any;

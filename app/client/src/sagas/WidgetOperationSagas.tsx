@@ -9,7 +9,6 @@ import {
   WidgetAddChild,
   WidgetAddChildren,
   WidgetDelete,
-  WidgetMove,
   WidgetResize,
 } from "actions/pageActions";
 import {
@@ -22,10 +21,7 @@ import {
   getWidget,
   getWidgets,
 } from "./selectors";
-import {
-  generateWidgetProps,
-  updateWidgetPosition,
-} from "utils/WidgetPropsUtils";
+import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import {
   all,
   call,
@@ -855,70 +851,6 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       yield put(forceOpenPropertyPane(action.payload.widgetId));
     }
     yield flushDeletedWidgets(action.payload.widgetId);
-  }
-}
-
-export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
-  try {
-    Toaster.clear();
-    const start = performance.now();
-    const {
-      leftColumn,
-      newParentId,
-      parentId,
-      topRow,
-      widgetId,
-    } = moveAction.payload;
-    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    let widget = Object.assign({}, stateWidget);
-    // Get all widgets from DSL/Redux Store
-    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const widgets = Object.assign({}, stateWidgets);
-    // Get parent from DSL/Redux Store
-    const stateParent: FlattenedWidgetProps = yield select(getWidget, parentId);
-    const parent = {
-      ...stateParent,
-      children: [...(stateParent.children || [])],
-    };
-    // Update position of widget
-    const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
-    widget = { ...widget, ...updatedPosition };
-
-    // Replace widget with update widget props
-    widgets[widgetId] = widget;
-    // If the parent has changed i.e parentWidgetId is not parent.widgetId
-    if (parent.widgetId !== newParentId && widgetId !== newParentId) {
-      // Remove from the previous parent
-
-      if (parent.children && Array.isArray(parent.children)) {
-        const indexOfChild = parent.children.indexOf(widgetId);
-        if (indexOfChild > -1) delete parent.children[indexOfChild];
-        parent.children = parent.children.filter(Boolean);
-      }
-
-      // Add to new parent
-
-      widgets[parent.widgetId] = parent;
-      const newParent = {
-        ...widgets[newParentId],
-        children: widgets[newParentId].children
-          ? [...(widgets[newParentId].children || []), widgetId]
-          : [widgetId],
-      };
-      widgets[widgetId].parentId = newParentId;
-      widgets[newParentId] = newParent;
-    }
-    log.debug("move computations took", performance.now() - start, "ms");
-
-    yield put(updateAndSaveLayout(widgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: ReduxActionTypes.WIDGET_MOVE,
-        error,
-      },
-    });
   }
 }
 
@@ -1908,7 +1840,6 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.WIDGET_BULK_DELETE,
       deleteAllSelectedWidgetsSaga,
     ),
-    takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
     takeLatest(ReduxActionTypes.WIDGET_RESIZE, resizeSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,

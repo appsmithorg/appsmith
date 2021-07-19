@@ -201,6 +201,18 @@ export const useCanvasDragging = (
                 ...each,
                 left: each.left + delta.left,
                 top: each.top + delta.top,
+                isNotColliding: noCollision(
+                  { x: each.left + delta.left, y: each.top + delta.top },
+                  snapColumnSpace,
+                  snapRowSpace,
+                  { x: 0, y: 0 },
+                  each.columnWidth,
+                  each.rowHeight,
+                  each.widgetId,
+                  occSpaces,
+                  rowRef.current,
+                  GridDefaults.DEFAULT_GRID_COLUMNS,
+                ),
               };
             });
             canvasCtx.save();

@@ -9,16 +9,23 @@ import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/editorConstants";
-import { getWidgets } from "sagas/selectors";
+import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
+  WidgetOperationParams,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { XYCoord } from "react-dnd";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { isEmpty } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+
+export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
+  updateWidgetParams: WidgetOperationParams;
+}
 
 export type WidgetDraggingBlock = {
   left: number;
@@ -38,10 +45,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
   snapRowSpace,
   widgetId,
 }: CanvasDraggingArenaProps) => {
+  const dispatch = useDispatch();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
-  const dragDetails = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
-  );
+  const dragDetails = useSelector(getDragDetails);
   const defaultHandlePositions = {
     top: 20,
     left: 20,
@@ -62,6 +68,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const { updateWidget } = useContext(EditorContext);
 
   const allWidgets = useSelector(getWidgets);
   const getDragCenterSpace = () => {
@@ -121,19 +128,18 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
-  const { updateWidget } = useContext(EditorContext);
 
   const onDrop = (drawingBlocks: WidgetDraggingBlock[]) => {
     const cannotDrop = drawingBlocks.some((each) => {
       return !each.isNotColliding;
     });
     if (!cannotDrop) {
-      drawingBlocks
+      const draggedBlocksToUpdate = drawingBlocks
         .sort(
           (each1, each2) =>
             each1.top + each1.height - (each2.top + each2.height),
         )
-        .forEach((each) => {
+        .map((each) => {
           const widget = newWidget ? newWidget : allWidgets[each.widgetId];
           const updateWidgetParams = widgetOperationParams(
             widget,
@@ -151,15 +157,44 @@ export const useBlocksToBeDraggedOnCanvas = ({
           persistDropTargetRows &&
             persistDropTargetRows(widget.widgetId, widgetBottomRow);
 
-          /* Finally update the widget */
-          updateWidget &&
-            updateWidget(
-              updateWidgetParams.operation,
-              updateWidgetParams.widgetId,
-              updateWidgetParams.payload,
-            );
+          return {
+            ...each,
+            updateWidgetParams,
+          };
         });
+      dispatchDrop(draggedBlocksToUpdate);
     }
+  };
+
+  const dispatchDrop = (
+    draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
+  ) => {
+    if (isNewWidget) {
+      addNewWidget(draggedBlocksToUpdate[0]);
+    } else {
+      bulkMoveWidgets(draggedBlocksToUpdate);
+    }
+  };
+
+  const bulkMoveWidgets = (
+    draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
+  ) => {
+    dispatch({
+      type: ReduxActionTypes.WIDGETS_MOVE,
+      payload: {
+        draggedBlocksToUpdate,
+      },
+    });
+  };
+
+  const addNewWidget = (newWidget: WidgetDraggingUpdateParams) => {
+    const { updateWidgetParams } = newWidget;
+    updateWidget &&
+      updateWidget(
+        updateWidgetParams.operation,
+        updateWidgetParams.widgetId,
+        updateWidgetParams.payload,
+      );
   };
   const updateRows = (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
     if (drawingBlocks.length) {
