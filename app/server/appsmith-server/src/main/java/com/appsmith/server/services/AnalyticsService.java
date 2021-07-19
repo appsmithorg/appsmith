@@ -7,9 +7,9 @@ import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -18,13 +18,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
+
+    @Autowired
+    public AnalyticsService(@Autowired(required = false) Analytics analytics,
+                            SessionUserService sessionUserService,
+                            CommonConfig commonConfig) {
+        this.analytics = analytics;
+        this.sessionUserService = sessionUserService;
+        this.commonConfig = commonConfig;
+    }
 
     public boolean isActive() {
         return analytics != null;
