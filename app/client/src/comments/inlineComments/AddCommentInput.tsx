@@ -25,10 +25,11 @@ import {
   ADD_COMMENT_PLACEHOLDER,
   CANCEL,
   POST,
+  INVALID_EMAIL,
 } from "constants/messages";
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { change } from "redux-form";
 
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -41,6 +42,17 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import useOrg from "utils/hooks/useOrg";
+import { getCanManage } from "utils/helpers";
+
+import { getAppsmithConfigs } from "configs";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+
+const { appsmithSupportEmail } = getAppsmithConfigs();
 
 const StyledInputContainer = styled.div`
   width: 100%;
@@ -116,18 +128,35 @@ const resetEditorState = (editorState: EditorState) => {
   return editorState;
 };
 
-const otherSuggestions = [{ name: "appsmith" }];
+const appsmithSupport = {
+  name: "appsmith",
+  user: { username: appsmithSupportEmail, name: "appsmith" },
+  isSupport: true,
+};
 
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
+  currentUser?: User,
 ) => {
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanManage(currentOrg);
+
   useEffect(() => {
-    setSuggestions([
-      ...otherSuggestions,
-      ...users.map((user) => ({ name: user.name || user.username, user })),
-    ]);
-  }, [users]);
+    const result = [] as Array<MentionData>;
+    users.forEach((user) => {
+      if (user?.username !== currentUser?.username)
+        result.push({
+          name: user.name || user.username,
+          user,
+        });
+    });
+
+    if (canManage) result.unshift(appsmithSupport);
+
+    setSuggestions(result);
+  }, [users, canManage]);
 };
 
 function AddCommentInput({
@@ -152,7 +181,8 @@ function AddCommentInput({
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   const [trigger, setTrigger] = useState<Trigger>();
-  useUserSuggestions(users, setSuggestions);
+  const currentUser = useSelector(getCurrentUser);
+  useUserSuggestions(users, setSuggestions, currentUser);
   const [editorState, setEditorStateInState] = useState(
     initialEditorState || EditorState.createEmpty(),
   );
@@ -209,27 +239,55 @@ function AddCommentInput({
     let suggestionResults = suggestions;
     if (!suggestionsQuery) return suggestionResults;
     else {
-      suggestionResults = suggestions.filter((suggestion) => {
-        const name = suggestion.name.toLowerCase();
-        const username = suggestion.user?.username.toLowerCase() || "";
-        const filter = suggestionsQuery.toLowerCase();
-        return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
-      });
+      const filter = suggestionsQuery.toLowerCase();
+      suggestionResults = suggestions
+        .filter((suggestion) => {
+          const name = suggestion.name.toLowerCase();
+          const username = suggestion.user?.username.toLowerCase() || "";
+          return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
+        })
+        .sort((a: MentionData, b: MentionData) => {
+          const nameIndexA = a.name?.toLowerCase().indexOf(filter);
+          const nameIndexB = b.name?.toLowerCase().indexOf(filter);
+
+          const usernameIndexA = a.user?.username
+            ?.toLowerCase()
+            .indexOf(filter);
+          const usernameIndexB = b.user?.username
+            ?.toLowerCase()
+            .indexOf(filter);
+
+          const indexA =
+            nameIndexA < usernameIndexA && nameIndexA !== -1
+              ? nameIndexA
+              : usernameIndexA;
+          const indexB =
+            nameIndexB < usernameIndexB && nameIndexB !== -1
+              ? nameIndexB
+              : usernameIndexB;
+
+          return indexA - indexB;
+        });
     }
 
     if (suggestionResults.length !== 0) return suggestionResults;
 
-    if (isEmail(suggestionsQuery)) {
-      return [{ name: suggestionsQuery, isInviteTrigger: true }];
-    }
-
-    return [];
+    return [{ name: suggestionsQuery, isInviteTrigger: true }];
   }, [suggestionsQuery, suggestions, trigger]);
 
   const onAddMention = (mention: MentionData) => {
-    if (isEmail(mention.name) && mention.isInviteTrigger) {
+    if (
+      (isEmail(mention.name) && mention.isInviteTrigger) ||
+      mention.isSupport
+    ) {
+      const email = mention.isSupport ? mention.user?.username : mention.name;
       dispatch(setShowAppInviteUsersDialog(true));
-      dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", mention.name));
+      dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", email));
+    } else if (mention.isInviteTrigger && !isEmail(mention.name)) {
+      Toaster.show({
+        text: createMessage(INVALID_EMAIL),
+        variant: Variant.danger,
+      });
     }
   };
 
