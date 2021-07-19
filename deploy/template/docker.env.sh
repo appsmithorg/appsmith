@@ -64,4 +64,5 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_RECAPTCHA_SECRET_KEY=
 # APPSMITH_RECAPTCHA_ENABLED=
 # ************************************
+
 EOF
