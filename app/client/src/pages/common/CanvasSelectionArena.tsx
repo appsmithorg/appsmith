@@ -303,14 +303,7 @@ export function CanvasSelectionArena({
         canvasRef.current?.removeEventListener("click", onClick);
       };
     }
-  }, [
-    appLayout,
-    currentPageId,
-    mainContainer,
-    isDragging,
-    snapRows,
-    // mainContainer.minHeight,
-  ]);
+  }, [appLayout, currentPageId, mainContainer, isDragging, snapRows]);
 
   return appMode === APP_MODE.EDIT && !isDragging ? (
     <StyledSelectionCanvas

@@ -26,6 +26,8 @@ export interface SelectedArenaDimensions {
 
 export interface CanvasDraggingArenaProps {
   canExtend: boolean;
+  detachFromLayout?: boolean;
+  dropDisabled?: boolean;
   noPad?: boolean;
   snapColumnSpace: number;
   snapRows: number;
@@ -35,6 +37,7 @@ export interface CanvasDraggingArenaProps {
 
 export function CanvasDraggingArena({
   canExtend,
+  dropDisabled = false,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -49,6 +52,7 @@ export function CanvasDraggingArena({
   const canvasDrawRef = React.useRef<HTMLCanvasElement>(null);
   const { showCanvas } = useCanvasDragging(canvasRef, canvasDrawRef, {
     canExtend,
+    dropDisabled,
     noPad,
     snapColumnSpace,
     snapRows,

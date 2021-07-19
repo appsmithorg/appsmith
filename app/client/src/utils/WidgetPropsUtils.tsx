@@ -1081,7 +1081,11 @@ export const noCollision = (
   occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
+  detachFromLayout = false,
 ): boolean => {
+  if (detachFromLayout) {
+    return true;
+  }
   if (clientOffset && dropTargetOffset) {
     const [left, top] = getDropZoneOffsets(
       colWidth,

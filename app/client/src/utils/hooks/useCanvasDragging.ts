@@ -20,6 +20,7 @@ export const useCanvasDragging = (
   canvasDrawRef: React.RefObject<HTMLCanvasElement>,
   {
     canExtend,
+    dropDisabled,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -164,18 +165,21 @@ export const useCanvasDragging = (
             rowRef.current = newRows ? newRows : rowRef.current;
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
-              isNotColliding: noCollision(
-                { x: each.left, y: each.top },
-                snapColumnSpace,
-                snapRowSpace,
-                { x: 0, y: 0 },
-                each.columnWidth,
-                each.rowHeight,
-                each.widgetId,
-                occSpaces,
-                rowRef.current,
-                GridDefaults.DEFAULT_GRID_COLUMNS,
-              ),
+              isNotColliding:
+                !dropDisabled &&
+                noCollision(
+                  { x: each.left, y: each.top },
+                  snapColumnSpace,
+                  snapRowSpace,
+                  { x: 0, y: 0 },
+                  each.columnWidth,
+                  each.rowHeight,
+                  each.widgetId,
+                  occSpaces,
+                  rowRef.current,
+                  GridDefaults.DEFAULT_GRID_COLUMNS,
+                  each.detachFromLayout,
+                ),
             }));
             if (rowDelta && canvasRef.current) {
               isUpdatingRows = true;
@@ -201,18 +205,21 @@ export const useCanvasDragging = (
                 ...each,
                 left: each.left + delta.left,
                 top: each.top + delta.top,
-                isNotColliding: noCollision(
-                  { x: each.left + delta.left, y: each.top + delta.top },
-                  snapColumnSpace,
-                  snapRowSpace,
-                  { x: 0, y: 0 },
-                  each.columnWidth,
-                  each.rowHeight,
-                  each.widgetId,
-                  occSpaces,
-                  rowRef.current,
-                  GridDefaults.DEFAULT_GRID_COLUMNS,
-                ),
+                isNotColliding:
+                  !dropDisabled &&
+                  noCollision(
+                    { x: each.left + delta.left, y: each.top + delta.top },
+                    snapColumnSpace,
+                    snapRowSpace,
+                    { x: 0, y: 0 },
+                    each.columnWidth,
+                    each.rowHeight,
+                    each.widgetId,
+                    occSpaces,
+                    rowRef.current,
+                    GridDefaults.DEFAULT_GRID_COLUMNS,
+                    each.detachFromLayout,
+                  ),
               };
             });
             canvasCtx.save();

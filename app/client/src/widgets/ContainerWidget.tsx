@@ -132,6 +132,7 @@ class ContainerWidget extends BaseWidget<
             <CanvasDraggingArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
+              dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               snapRows={snapRows}
               widgetId={props.widgetId}

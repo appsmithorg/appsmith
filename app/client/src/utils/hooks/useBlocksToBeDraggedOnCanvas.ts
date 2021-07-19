@@ -36,6 +36,7 @@ export type WidgetDraggingBlock = {
   rowHeight: number;
   widgetId: string;
   isNotColliding: boolean;
+  detachFromLayout?: boolean;
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
@@ -101,6 +102,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           columnWidth: newWidget.columns,
           rowHeight: newWidget.rows,
           widgetId: newWidget.widgetId,
+          detachFromLayout: newWidget.detachFromLayout,
           isNotColliding: true,
         },
       ];
