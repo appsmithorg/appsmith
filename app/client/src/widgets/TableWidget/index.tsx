@@ -84,12 +84,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPropertyValue = (value: any, index: number, preserveCase = false) => {
+    if (value && Array.isArray(value) && isBoolean(value[index])) {
+      return value[index];
+    }
     if (value && Array.isArray(value) && value[index]) {
       return preserveCase
         ? value[index].toString()
         : value[index].toString().toUpperCase();
-    } else if (value && isBoolean(value)) {
-      return value;
     } else if (value) {
       return preserveCase ? value.toString() : value.toString().toUpperCase();
     } else {
@@ -131,10 +132,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
       isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
-      isDisabled: this.getPropertyValue(
-        columnProperties.isDisabled || false,
-        rowIndex,
-      ),
+      isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
       displayText: this.getPropertyValue(
         columnProperties.displayText,
         rowIndex,

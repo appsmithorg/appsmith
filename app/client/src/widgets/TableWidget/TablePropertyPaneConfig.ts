@@ -239,26 +239,6 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "isDisabled",
-                  label: "Disabled",
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "button";
-                  },
-                  defaultValue: false,
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: VALIDATION_TYPES.BOOLEAN,
-                },
-                {
                   propertyName: "isVisible",
                   label: "Visible",
                   updateHook: updateDerivedColumnsHook,
@@ -645,6 +625,17 @@ export default [
                 return columnType !== "button";
               },
               children: [
+                {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
                 {
                   propertyName: "buttonLabel",
                   label: "Label",
