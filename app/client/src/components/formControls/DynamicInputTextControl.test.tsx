@@ -5,6 +5,7 @@ import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/dom";
+import { EditorSize } from "components/editorComponents/CodeEditor/EditorConfig";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
@@ -38,9 +39,9 @@ describe("DynamicInputTextControl", () => {
       {},
     );
 
-    const input = screen.getAllByText("My test value")[0];
-    userEvent.type(input, "New text");
     waitFor(async () => {
+      const input = screen.getAllByText("My test value")[0];
+      userEvent.type(input, "New text");
       await expect(screen.getAllByText("New text")).toHaveLength(2);
       await expect(screen.findByText("My test value")).toBeNull();
     });
