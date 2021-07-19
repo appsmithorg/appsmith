@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -94,7 +95,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PutMapping("/{applicationId}/page/{pageId}/reorder")
-    public Mono<ResponseDTO<Application>> reorderPage(
+    public Mono<ResponseDTO<ApplicationPagesDTO>> reorderPage(
             @PathVariable String applicationId,
             @PathVariable String pageId,
             @RequestParam Integer order
