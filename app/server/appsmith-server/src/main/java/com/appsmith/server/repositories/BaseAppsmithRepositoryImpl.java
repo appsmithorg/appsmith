@@ -160,7 +160,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
                     return mongoOperations.query(this.genericDomain)
-                            .matching(createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission))
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
                             .one()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
