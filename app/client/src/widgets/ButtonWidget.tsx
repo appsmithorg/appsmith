@@ -58,7 +58,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "PRIMARY_BUTTON",
+                  "SECONDARY_BUTTON",
+                  "DANGER_BUTTON",
+                ],
+              },
+            },
           },
           {
             propertyName: "isVisible",
