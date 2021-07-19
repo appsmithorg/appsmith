@@ -38,6 +38,9 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
+  isWidget,
+  isAction,
+  isJSAction,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -1273,16 +1276,4 @@ function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
     return false;
   }
   return "ENTITY_TYPE" in entity;
-}
-
-function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
-  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
-}
-
-function isAction(entity: DataTreeEntity): entity is DataTreeAction {
-  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
-}
-
-export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
-  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION;
 }

@@ -7,6 +7,17 @@ import { Def } from "tern";
 
 let extraDefs: any = {};
 const skipProperties = ["!doc", "!url", "!type"];
+export const skipJSProps = [
+  "ENTITY_TYPE",
+  "name",
+  "meta",
+  "body",
+  "pluginType",
+  "dynamicBindingPathList",
+  "bindingPaths",
+  "actionId",
+  "__evaluation__",
+];
 
 export const dataTreeTypeDefCreator = (
   entity: DataTreeEntity,
@@ -46,11 +57,7 @@ export const dataTreeTypeDefCreator = (
       }
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
-      const result: any = _.omit(entity, [
-        "ENTITY_TYPE",
-        "actionId",
-        "pluginType",
-      ]);
+      const result: any = _.omit(entity, skipJSProps);
       const dataObj = entity.data;
       const jsOptions: any = {};
       for (const key in result) {
@@ -123,15 +130,6 @@ export const flattenObjKeys = (
   return r;
 };
 
-const skipJSProps = [
-  "ENTITY_TYPE",
-  "name",
-  "meta",
-  "body",
-  "pluginType",
-  "dynamicBindingPathList",
-  "bindingPaths",
-];
 export const getPropsForJsAction = (
   options: any,
   parentKey: any = "",

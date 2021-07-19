@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -11,9 +11,7 @@ import { AppState } from "reducers";
 import { JSAction } from "entities/JSAction";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
-import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { Classes } from "@blueprintjs/core";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
 import { Action } from "entities/Action";
 
@@ -56,15 +54,14 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
-  const dispatch = useDispatch();
   if (!params.functionId) {
     log.error("No API id or Query id found in the url.");
   }
 
   // For onboarding
-  const hideEditIcon = useSelector((state: AppState) =>
-    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
-  );
+  // const hideEditIcon = useSelector((state: AppState) =>
+  //   checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
+  // );
 
   const jsActions: JSAction[] = useSelector((state: AppState) =>
     state.entities.jsActions.map((action) => action.config),
