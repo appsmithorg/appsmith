@@ -184,15 +184,14 @@ class MultiSelectWidget extends BaseWidget<
 
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
-    if (value.length) {
-      super.executeAction({
-        triggerPropertyName: "onFilterUpdate",
-        dynamicString: this.props.onFilterUpdate,
-        event: {
-          type: EventType.ON_FILTER_UPDATE,
-        },
-      });
-    }
+
+    super.executeAction({
+      triggerPropertyName: "onFilterUpdate",
+      dynamicString: this.props.onFilterUpdate,
+      event: {
+        type: EventType.ON_FILTER_UPDATE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
