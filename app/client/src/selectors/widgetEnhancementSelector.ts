@@ -10,7 +10,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { getWidgets } from "sagas/selectors";
 
 /*
-TODO(abhinav/pawan): Write unit tests for the following functions
 Note:
 Signature for enhancements in WidgetConfigResponse is as follows:
 enhancements: {
@@ -32,6 +31,8 @@ export enum WidgetEnhancementType {
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
   UPDATE_DATA_TREE_PATH = "child.updateDataTreePath",
 }
+
+const getEvaluationTree = (state: AppState) => state.evaluations.tree;
 
 export function getParentWithEnhancementFn(
   widgetId: string,
@@ -91,8 +92,6 @@ export const getPropsFromTree = (
   return get(tree, widgetName, undefined);
 };
 
-const getEvaluationTree = (state: AppState) => state.evaluations.tree;
-
 type EnhancementFns = {
   enhancementFns: {
     updateDataTreePathFn: any;
@@ -101,7 +100,7 @@ type EnhancementFns = {
     customJSControlEnhancementFn: any;
     hideEvaluatedValueEnhancementFn: any;
   };
-  parentWithEnhancementFn: any;
+  parentIdWithEnhancementFn: any;
 };
 
 export const getWidgetEnhancementFns = (widgetId: string) => {
@@ -168,7 +167,7 @@ export const getWidgetEnhancementFns = (widgetId: string) => {
 
       return {
         enhancementFns: enhancementFns,
-        parentWithEnhancementFn: parentWithEnhancementFn,
+        parentIdWithEnhancementFn: get(parentWithEnhancementFn, "widgetId", ""),
       };
     },
   );

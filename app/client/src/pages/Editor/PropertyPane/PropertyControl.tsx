@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get } from "lodash";
+import _ from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -26,7 +26,7 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyPaneforProperty } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyName } from "selectors/propertyPaneSelectors";
 import { getWidgetEnhancementFns } from "selectors/widgetEnhancementSelector";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -47,7 +47,7 @@ const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
   const propsSelector = useCallback(
-    getWidgetPropsForPropertyPaneforProperty(props.propertyName),
+    getWidgetPropsForPropertyName(props.propertyName),
     [props.propertyName],
   );
 
@@ -58,10 +58,10 @@ const PropertyControl = memo((props: Props) => {
     [widgetProperties.widgetId],
   );
 
-  const {
-    enhancementFns,
-    parentWithEnhancementFn: parentWithEnhancement,
-  } = useSelector(enhancementSelector, isEqual);
+  const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
+    enhancementSelector,
+    isEqual,
+  );
 
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
@@ -179,7 +179,7 @@ const PropertyControl = memo((props: Props) => {
 
           onBatchUpdatePropertiesOfWidget(
             allUpdates,
-            get(parentWithEnhancement, "widgetId", ""),
+            parentIdWithEnhancementFn,
             triggerPaths,
           );
         }
