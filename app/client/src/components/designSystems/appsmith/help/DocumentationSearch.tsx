@@ -331,12 +331,15 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
-  {
+];
+
+if (intercomAppID) {
+  HELP_MENU_ITEMS.push({
     icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
-  },
-];
+  });
+}
 
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
