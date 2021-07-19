@@ -660,8 +660,10 @@ export const isSelectedWidgetsColliding = function*(
   });
 
   const widgetsArray = Object.values(widgetsWithSameParent).filter(
-    (widget) => widget.parentId === parentId,
+    (widget) =>
+      widget.parentId === parentId && widget.type !== WidgetTypes.MODAL_WIDGET,
   );
+
   let isColliding = false;
 
   for (let i = 0; i < widgetsArray.length; i++) {

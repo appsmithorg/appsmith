@@ -1451,6 +1451,7 @@ export function calculateNewWidgetPosition(
   parentBottomRow?: number,
   shouldPersistColumnPosition = false,
   isThereACollision = false,
+  shouldGroup = false,
 ): {
   topRow: number;
   bottomRow: number;
@@ -1465,16 +1466,18 @@ export function calculateNewWidgetPosition(
     rightColumn: shouldPersistColumnPosition
       ? widget.rightColumn
       : widget.rightColumn - widget.leftColumn,
-    topRow: !isThereACollision
-      ? widget.topRow
-      : parentBottomRow
-      ? nextAvailableRow + widget.topRow
-      : nextAvailableRow,
-    bottomRow: !isThereACollision
-      ? widget.bottomRow
-      : parentBottomRow
-      ? nextAvailableRow + widget.bottomRow
-      : nextAvailableRow + (widget.bottomRow - widget.topRow),
+    topRow:
+      !isThereACollision && shouldGroup
+        ? widget.topRow
+        : parentBottomRow
+        ? nextAvailableRow + widget.topRow
+        : nextAvailableRow,
+    bottomRow:
+      !isThereACollision && shouldGroup
+        ? widget.bottomRow
+        : parentBottomRow
+        ? nextAvailableRow + widget.bottomRow
+        : nextAvailableRow + (widget.bottomRow - widget.topRow),
   };
 }
 
@@ -1602,6 +1605,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           nextAvailableRow,
           true,
           isThereACollision,
+          shouldGroup,
         );
 
         // Get a flat list of all the widgets to be updated
