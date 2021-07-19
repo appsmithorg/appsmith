@@ -50,7 +50,7 @@ public class DataUtils {
     }
 
     public BodyInserter<?, ?> buildBodyInserter(Object body, String contentType, Boolean encodeParamsToggle) {
-        if (body == null) {
+        if (body == null || ((String) body).isEmpty()) {
             return BodyInserters.fromValue(new byte[0]);
         }
         switch (contentType) {
