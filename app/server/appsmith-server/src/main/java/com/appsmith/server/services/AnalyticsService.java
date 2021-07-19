@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ public class AnalyticsService {
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
     }
-
     public boolean isActive() {
         return analytics != null;
     }
