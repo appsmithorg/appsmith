@@ -405,7 +405,7 @@ function PopoverContent(props: PopoverContentProps) {
 
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
-  // const [timeoutId, setTimeoutId] = useState(0);
+  const [timeoutId, setTimeoutId] = useState(0);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -434,12 +434,12 @@ function EvaluatedValuePopup(props: Props) {
           hasError={props.hasError}
           hideEvaluatedValue={props.hideEvaluatedValue}
           onMouseEnter={() => {
-            // clearTimeout(timeoutId);
+            clearTimeout(timeoutId);
             setContentHovered(true);
           }}
           onMouseLeave={() => {
-            setContentHovered(false);
-            // setTimeoutId(timeoutId);
+            const id = setTimeout(() => setContentHovered(false), 500);
+            setTimeoutId(id);
           }}
           preparedStatementViewer={
             props.evaluationSubstitutionType
