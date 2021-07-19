@@ -22,4 +22,8 @@ export const PortalStyles = createGlobalStyle`
   .file-picker-dialog.bp3-dialog .${Classes.DIALOG_BODY} {
     padding: 0;
   }
+
+  .bp3-portal.inline-comment-thread {
+    z-index: ${Layers.appComments};
+  }
 `;
