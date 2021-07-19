@@ -128,7 +128,8 @@ export type EventName =
   | "BINDING_SUCCESS"
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
-  | "DEBUGGER_RESOLVED_ERROR";
+  | "DEBUGGER_RESOLVED_ERROR"
+  | "WIDGET_GROUP";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

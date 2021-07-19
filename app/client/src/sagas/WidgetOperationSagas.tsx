@@ -129,10 +129,10 @@ import {
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
-  getTopMostSelectedWidget,
   createSelectedWidgetsAsCopiedWidgets,
   filterOutSelectedWidgets,
   isSelectedWidgetsColliding,
+  getBoundaryWidgetsFromCopiedGroups,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
@@ -1514,13 +1514,15 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
+  const shouldGroup: boolean = action.payload.groupWidgets;
 
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
-    selectedWidget,
+    shouldGroup
+      ? canvasWidgets[copiedWidgetGroups[0].parentId]
+      : selectedWidget,
   );
 
-  const shouldGroup: boolean = action.payload.groupWidgets;
   let isThereACollision: boolean = yield isSelectedWidgetsColliding(
     widgets,
     copiedWidgetGroups,
@@ -1529,7 +1531,10 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
-    widgets = yield filterOutSelectedWidgets(copiedWidgetGroups[0].parentId);
+    widgets = yield filterOutSelectedWidgets(
+      copiedWidgetGroups[0].parentId,
+      copiedWidgetGroups,
+    );
     isThereACollision = yield isSelectedWidgetsColliding(
       widgets,
       copiedWidgetGroups,
@@ -1541,7 +1546,9 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     );
   }
 
-  const topMostWidget = getTopMostSelectedWidget(copiedWidgetGroups);
+  const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
+    copiedWidgetGroups,
+  );
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
@@ -1560,17 +1567,25 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
             ? topMostWidget.topRow
             : 0
           : topMostWidget.topRow;
+
         const copiedWidget = {
           ...unUpdatedCopyOfWidget,
           topRow: unUpdatedCopyOfWidget.topRow - newTopRow,
           bottomRow: unUpdatedCopyOfWidget.bottomRow - newTopRow,
         };
 
-        // Log the paste event.
-        AnalyticsUtil.logEvent("WIDGET_PASTE", {
-          widgetName: copiedWidget.widgetName,
-          widgetType: copiedWidget.type,
-        });
+        // Log the paste or group event.
+        if (shouldGroup) {
+          AnalyticsUtil.logEvent("WIDGET_GROUP", {
+            widgetName: copiedWidget.widgetName,
+            widgetType: copiedWidget.type,
+          });
+        } else {
+          AnalyticsUtil.logEvent("WIDGET_PASTE", {
+            widgetName: copiedWidget.widgetName,
+            widgetType: copiedWidget.type,
+          });
+        }
 
         // Compute the new widget's positional properties
         const newWidgetPosition = calculateNewWidgetPosition(
@@ -1581,9 +1596,6 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           true,
           isThereACollision,
         );
-
-        // goToNextAvailableRow = true,
-        // persistColumnPosition = false,
 
         // Get a flat list of all the widgets to be updated
         const widgetList = copiedWidgets.list;
@@ -1909,7 +1921,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
  *
  * @param action
  */
-export function* groupWidgetsSaga(action: ReduxAction<{ modalName: string }>) {
+export function* groupWidgetsSaga() {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
 
