@@ -684,6 +684,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
+        }
+
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
@@ -694,10 +699,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
-
-        if(FALSE.equals(viewMode)) {
-            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
-        }
 
         return result;
     }
