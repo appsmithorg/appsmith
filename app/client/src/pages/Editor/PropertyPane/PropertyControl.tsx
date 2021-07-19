@@ -26,7 +26,8 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPaneforProperty } from "selectors/propertyPaneSelectors";
+import { getWidgetEnhancementFns } from "selectors/widgetEnhancementSelector";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
@@ -34,11 +35,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-
-import {
-  useChildWidgetEnhancementFns,
-  useParentWithEnhancementFn,
-} from "sagas/WidgetEnhancementHelpers";
+import { isEqual } from "lodash";
 import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
@@ -48,19 +45,31 @@ type Props = PropertyPaneControlConfig & {
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const parentWithEnhancement = useParentWithEnhancementFn(
-    widgetProperties.widgetId,
+
+  const propsSelector = useCallback(
+    getWidgetPropsForPropertyPaneforProperty(props.propertyName),
+    [props.propertyName],
   );
 
-  /** get all child enhancements functions */
+  const widgetProperties: any = useSelector(propsSelector, isEqual);
+
+  const enhancementSelector = useCallback(
+    getWidgetEnhancementFns(widgetProperties.widgetId),
+    [widgetProperties.widgetId],
+  );
+
+  const {
+    enhancementFns,
+    parentWithEnhancementFn: parentWithEnhancement,
+  } = useSelector(enhancementSelector, isEqual);
+
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
     propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
-  } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
+  } = enhancementFns;
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -79,7 +88,6 @@ const PropertyControl = memo((props: Props) => {
       );
     },
     [
-      dispatch,
       widgetProperties.widgetId,
       widgetProperties.type,
       widgetProperties.widgetName,
@@ -90,7 +98,7 @@ const PropertyControl = memo((props: Props) => {
     (propertyPaths: string[]) => {
       dispatch(deleteWidgetProperty(widgetProperties.widgetId, propertyPaths));
     },
-    [dispatch, widgetProperties.widgetId],
+    [widgetProperties.widgetId],
   );
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
@@ -99,7 +107,7 @@ const PropertyControl = memo((props: Props) => {
           modify: allUpdates,
         }),
       ),
-    [widgetProperties.widgetId, dispatch],
+    [widgetProperties.widgetId],
   );
   // this function updates the properties of widget passed
   const onBatchUpdatePropertiesOfWidget = useCallback(
@@ -115,7 +123,7 @@ const PropertyControl = memo((props: Props) => {
         }),
       );
     },
-    [dispatch],
+    [],
   );
 
   /**
@@ -222,7 +230,7 @@ const PropertyControl = memo((props: Props) => {
         });
       }
     },
-    [dispatch, widgetProperties],
+    [widgetProperties],
   );
 
   const openPanel = useCallback(

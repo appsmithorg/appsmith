@@ -50,6 +50,45 @@ export const getWidgetPropsForPropertyPane = createSelector(
   },
 );
 
+export const getWidgetPropsForPropertyPaneforProperty = (
+  propertyName: string,
+) => {
+  return createSelector(
+    getCurrentWidgetProperties,
+    getDataTree,
+    (
+      widget: WidgetProps | undefined,
+      evaluatedTree: DataTree,
+    ): any | undefined => {
+      if (!widget) return undefined;
+      const evaluatedWidget = find(evaluatedTree, {
+        widgetId: widget.widgetId,
+      }) as DataTreeWidget;
+      const widgetProperties = {
+        type: widget.type,
+        widgetName: widget.widgetName,
+        widgetId: widget.widgetId,
+        [propertyName]: widget[propertyName],
+      };
+
+      if (evaluatedWidget) {
+        widgetProperties[EVALUATION_PATH] = {
+          errors: {
+            [propertyName]:
+              evaluatedWidget[EVALUATION_PATH]?.errors[propertyName],
+          },
+          evaluatedValues: {
+            [propertyName]: evaluatedWidget[EVALUATION_PATH]?.evaluatedValues
+              ? evaluatedWidget[EVALUATION_PATH]?.evaluatedValues![propertyName]
+              : [],
+          },
+        };
+      }
+      return widgetProperties;
+    },
+  );
+};
+
 const isResizingorDragging = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
