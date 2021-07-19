@@ -45,7 +45,7 @@ function UnsubscribeEmail() {
         <p className="bold-text">Unsubscribe</p>
         {isUnsubscribed ? (
           <p>
-            You&apos;ve successfully unsubscribed from the corresponding comment
+            You have successfully unsubscribed from the corresponding comment
             thread
           </p>
         ) : (
@@ -55,8 +55,8 @@ function UnsubscribeEmail() {
               corresponding comment thread.
             </p>
             <p>
-              Please note that you&apos;ll be subscribed again if someone tags
-              you in a comment or you reply to a comment.
+              Please note that you will be subscribed again if someone tags you
+              in a comment or you reply to a comment.
             </p>
             <p>Are you sure you want to unsubscribe?</p>
 
