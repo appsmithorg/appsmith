@@ -3,9 +3,10 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
 import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener;
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
-import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
+import com.appsmith.server.converters.StringToInstantConverter;
+import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.SpringBootMongock;
 import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +22,14 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
@@ -57,7 +60,12 @@ public class MongoConfig {
 
     @Bean
     public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
-        return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
+        MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, mappingMongoConverter);
+        MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
+        // tell mongodb to use the custom converters
+        conv.setCustomConversions(mongoCustomConversions());
+        conv.afterPropertiesSet();
+        return mongoTemplate;
     }
 
     // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for sub-classes
@@ -73,9 +81,15 @@ public class MongoConfig {
     }
 
     @Bean
+    public MongoCustomConversions mongoCustomConversions() {
+        return new MongoCustomConversions(Collections.singletonList(new StringToInstantConverter()));
+    }
+
+    @Bean
     public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
+        converter.setCustomConversions(mongoCustomConversions());
         return converter;
     }
 
