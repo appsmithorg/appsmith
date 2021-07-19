@@ -322,6 +322,15 @@ export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
 export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
 export const UNREAD_MESSAGE = () => "Unread conversation";
+export const UNSUBSCRIBE_EMAIL_SUCCESS = () =>
+  "You have successfully unsubscribed from the corresponding comment thread";
+export const UNSUBSCRIBE_EMAIL_MSG_1 = () =>
+  "You will not receive any more email notifications for the corresponding comment thread.";
+export const UNSUBSCRIBE_EMAIL_MSG_2 = () =>
+  "Please note that you will be subscribed again if someone tags you in a comment or you reply to a comment.";
+export const UNSUBSCRIBE_EMAIL_CONFIRM_MSG = () =>
+  "Are you sure you want to unsubscribe?";
+export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";

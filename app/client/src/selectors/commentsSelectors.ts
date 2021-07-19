@@ -29,6 +29,9 @@ export const commentModeSelector = (state: AppState) => {
   return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
 };
 
+export const isUnsubscribedSelector = (state: AppState) =>
+  state.ui.comments?.unsubscribed;
+
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
