@@ -25,7 +25,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
-  width: 60%;
+  width: 90%;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
