@@ -91,7 +91,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
     .first()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -241,6 +241,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   );
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -251,8 +262,11 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
+
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -272,8 +286,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   );
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
 
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -374,12 +389,12 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser").should(
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-
   initLocalstorage();
 });
 
@@ -799,6 +814,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--property-control-dateformat .bp3-popover-target")
     .last()
     .click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
@@ -2439,9 +2464,9 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] a`;
-  const hrefVal = cy.get(selector).invoke("attr", "href");
-  return hrefVal;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
+  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  return bgUrl;
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {

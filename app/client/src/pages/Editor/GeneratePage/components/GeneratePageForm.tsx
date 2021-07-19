@@ -459,7 +459,7 @@ function GeneratePageForm() {
     if (datasourceTableOptions.length === 0) {
       tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
     }
-    if (selectedDatasourceIsInvalid && isValidDatasourceConfig) {
+    if (selectedDatasourceIsInvalid || !isValidDatasourceConfig) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
@@ -478,10 +478,10 @@ function GeneratePageForm() {
         <SelectWrapper>
           <Label>Select Datasource</Label>
           <Dropdown
+            dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            optionWrapperHeight={"300px"}
             options={dataSourceOptions}
             renderOption={({ isSelectedNode, option, optionClickHandler }) => (
               <DataSourceOption
@@ -506,12 +506,12 @@ function GeneratePageForm() {
                   <Bold>{selectedDatasource.label}</Bold>
                 </Label>
                 <Dropdown
+                  dropdownMaxHeight={"300px"}
                   errorMsg={tableDropdownErrorMsg}
                   height={DROPDOWN_DIMENSION.HEIGHT}
                   isLoading={isFetchingDatasourceStructure}
                   onSelect={onSelectTable}
                   optionWidth={DROPDOWN_DIMENSION.WIDTH}
-                  optionWrapperHeight={"300px"}
                   options={datasourceTableOptions}
                   selected={selectedTable}
                   showLabelOnly
@@ -520,9 +520,8 @@ function GeneratePageForm() {
               </SelectWrapper>
             ) : null}
             {!isFetchingDatasourceStructure &&
-              selectedDatasourceIsInvalid &&
-              selectedDatasource.value &&
-              isValidDatasourceConfig && (
+              (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
+              selectedDatasource.value && (
                 <EditDatasourceButton
                   category={Category.tertiary}
                   onClick={goToEditDatasource}
@@ -538,10 +537,10 @@ function GeneratePageForm() {
                   <Bold> {selectedTable.label} </Bold>
                 </Label>
                 <Dropdown
+                  dropdownMaxHeight={"300px"}
                   height={DROPDOWN_DIMENSION.HEIGHT}
                   onSelect={onSelectColumn}
                   optionWidth={DROPDOWN_DIMENSION.WIDTH}
-                  optionWrapperHeight={"300px"}
                   options={selectedTableColumnOptions}
                   selected={selectedColumn}
                   showLabelOnly

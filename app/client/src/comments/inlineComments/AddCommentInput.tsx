@@ -34,6 +34,13 @@ import { change } from "redux-form";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 
 import { isEmail } from "utils/formhelpers";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
+import { TourType } from "entities/Tour";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
 
 const StyledInputContainer = styled.div`
   width: 100%;
@@ -61,8 +68,6 @@ const Row = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
-// Trigger tests
 
 const insertCharacter = (
   characterToInsert: string,
@@ -136,14 +141,26 @@ function AddCommentInput({
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
 }) {
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.SAY_HELLO,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.SAY_HELLO,
+  });
+
   const dispatch = useDispatch();
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   const [trigger, setTrigger] = useState<Trigger>();
   useUserSuggestions(users, setSuggestions);
-  const [editorState, setEditorState] = useState(
+  const [editorState, setEditorStateInState] = useState(
     initialEditorState || EditorState.createEmpty(),
   );
+
+  const setEditorState = useCallback((editorState: EditorState) => {
+    setEditorStateInState(editorState);
+  }, []);
+
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
 
   const clearEditor = useCallback(() => {
@@ -166,6 +183,7 @@ function AddCommentInput({
       const rawContent = convertToRaw(contentState);
       clearEditor();
       onSave(rawContent);
+      proceedToNextTourStep();
     },
     [editorState],
   );
@@ -216,44 +234,53 @@ function AddCommentInput({
   };
 
   return (
-    <PaddingContainer removePadding={removePadding}>
-      <Row>
-        <StyledInputContainer>
-          <MentionsInput
-            autoFocus
-            editorState={editorState}
-            onAddMention={onAddMention}
-            onSearchSuggestions={onSearchChange}
-            onSubmit={onSaveComment}
-            placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
-            setEditorState={setEditorState}
-            suggestions={filteredSuggestions}
-          />
-        </StyledInputContainer>
-      </Row>
-      <Row>
-        <StyledEmojiTrigger>
-          <EmojiPicker onSelectEmoji={handleEmojiClick} />
-        </StyledEmojiTrigger>
+    <TourTooltipWrapper
+      activeStepConfig={{
+        [TourType.COMMENTS_TOUR_EDIT_MODE]:
+          commentsTourStepsEditModeTypes.SAY_HELLO,
+        [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+          commentsTourStepsPublishedModeTypes.SAY_HELLO,
+      }}
+    >
+      <PaddingContainer removePadding={removePadding}>
         <Row>
-          <Button
-            category={Category.tertiary}
-            className={"cancel-button"}
-            onClick={_onCancel}
-            text={createMessage(CANCEL)}
-            type="button"
-          />
-          <Button
-            category={Category.primary}
-            data-cy="add-comment-submit"
-            disabled={!editorState.getCurrentContent().hasText()}
-            onClick={handleSubmit}
-            text={createMessage(POST)}
-            type="button"
-          />
+          <StyledInputContainer>
+            <MentionsInput
+              autoFocus
+              editorState={editorState}
+              onAddMention={onAddMention}
+              onSearchSuggestions={onSearchChange}
+              onSubmit={onSaveComment}
+              placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
+              setEditorState={setEditorState}
+              suggestions={filteredSuggestions}
+            />
+          </StyledInputContainer>
         </Row>
-      </Row>
-    </PaddingContainer>
+        <Row>
+          <StyledEmojiTrigger>
+            <EmojiPicker onSelectEmoji={handleEmojiClick} />
+          </StyledEmojiTrigger>
+          <Row>
+            <Button
+              category={Category.tertiary}
+              className={"cancel-button"}
+              onClick={_onCancel}
+              text={createMessage(CANCEL)}
+              type="button"
+            />
+            <Button
+              category={Category.primary}
+              data-cy="add-comment-submit"
+              disabled={!editorState.getCurrentContent().hasText()}
+              onClick={handleSubmit}
+              text={createMessage(POST)}
+              type="button"
+            />
+          </Row>
+        </Row>
+      </PaddingContainer>
+    </TourTooltipWrapper>
   );
 }
 

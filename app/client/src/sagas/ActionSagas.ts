@@ -347,7 +347,9 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
-    const action = yield select(getAction, id);
+    const action: Action | undefined = yield select(getAction, id);
+
+    if (!action) return;
 
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
@@ -403,7 +405,11 @@ export function* deleteActionSaga(
           name: response.data.name,
           id: response.data.id,
         },
+        analytics: {
+          pluginId: action.pluginId,
+        },
       });
+
       yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
@@ -745,7 +751,7 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
-    case "NEW_DATASOURCE":
+    case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );

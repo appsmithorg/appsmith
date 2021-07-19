@@ -211,6 +211,7 @@ function GoogleSheetForm(props: Props) {
             Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
           </Label>
           <Dropdown
+            dropdownMaxHeight={"300px"}
             errorMsg={tableDropdownErrorMsg}
             height={DROPDOWN_DIMENSION.HEIGHT}
             isLoading={
@@ -218,7 +219,6 @@ function GoogleSheetForm(props: Props) {
             }
             onSelect={onSelectTable}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            optionWrapperHeight={"300px"}
             options={datasourceTableOptions}
             selected={selectedTable}
             showLabelOnly
@@ -234,10 +234,10 @@ function GoogleSheetForm(props: Props) {
             <Bold> {selectedTable.label} </Bold>
           </Label>
           <Dropdown
+            dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectColumn}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            optionWrapperHeight={"300px"}
             options={selectedTableColumnOptions}
             selected={selectedColumn}
             showLabelOnly

@@ -96,6 +96,7 @@ import {
   generateTemplateError,
   generateTemplateSuccess,
 } from "../actions/pageActions";
+import { getAppMode } from "selectors/applicationSelectors";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -468,7 +469,10 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put(saveLayout(action.payload.isRetry));
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+    if (appMode === APP_MODE.EDIT) {
+      yield put(saveLayout(action.payload.isRetry));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
