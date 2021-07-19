@@ -221,7 +221,7 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
-    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(
+    public Flux<CommentThread> updateCommentThreadPermissions(
             String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
 
         return

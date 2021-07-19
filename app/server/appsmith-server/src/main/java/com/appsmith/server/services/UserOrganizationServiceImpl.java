@@ -185,7 +185,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(application.getId(), commentThreadPolicyMap, true));
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(application.getId(), commentThreadPolicyMap, user.getUsername(), true));
 
         return Mono.zip(
                 updatedDatasourcesFlux.collectList(),
@@ -268,7 +268,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, user.getUsername(), false
                         ));
 
@@ -444,7 +444,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
                 ));
 
