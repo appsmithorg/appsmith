@@ -16,7 +16,7 @@ services:
       - appsmith
 
   mongo:
-    image: mongo
+    image: mongo:4.4.6
     environment:
       - MONGO_INITDB_DATABASE=appsmith
     volumes:
