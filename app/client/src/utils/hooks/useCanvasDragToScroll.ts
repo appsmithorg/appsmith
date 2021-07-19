@@ -4,7 +4,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { getScrollByPixels } from "utils/helpers";
 
 export const useCanvasDragToScroll = (
-  canvasRef: RefObject<HTMLDivElement>,
+  canvasRef: RefObject<HTMLElement>,
   isCurrentDraggedCanvas: boolean,
   isDragging: boolean,
   snapRows: number,
@@ -93,6 +93,6 @@ export const useCanvasDragToScroll = (
         canvasRef.current?.removeEventListener("mousemove", checkIfNeedsScroll);
       };
     }
-  }, [isCurrentDraggedCanvas, snapRows, canExtend]);
+  }, [isCurrentDraggedCanvas, isDragging, snapRows, canExtend]);
   return canScroll;
 };

@@ -14,6 +14,8 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { getNearestParentCanvas } from "utils/generators";
+import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -36,10 +38,12 @@ export interface SelectedArenaDimensions {
 }
 
 export function CanvasSelectionArena({
+  canExtend,
   snapRows,
   snapRowSpace,
   widgetId,
 }: {
+  canExtend: boolean;
   widgetId: string;
   snapRows: number;
   snapRowSpace: number;
@@ -81,6 +85,19 @@ export function CanvasSelectionArena({
     ),
     [widgetId],
   );
+  const isDraggingForSelection = useSelector((state: AppState) => {
+    return state.ui.canvasSelection.isDraggingForSelection;
+  });
+  const isCurrentWidgetDrawing = useSelector((state: AppState) => {
+    return state.ui.canvasSelection.widgetId === widgetId;
+  });
+  useCanvasDragToScroll(
+    canvasRef,
+    isCurrentWidgetDrawing,
+    isDraggingForSelection,
+    snapRows,
+    canExtend,
+  );
   useEffect(() => {
     if (appMode === APP_MODE.EDIT && !isDragging && canvasRef.current) {
       // ToDo: Needs a repositioning canvas window to limit the highest number of pixels rendered for an application of any height.
@@ -88,6 +105,10 @@ export function CanvasSelectionArena({
       // https://on690.codesandbox.io/ to check the number of pixels limit supported for a canvas
       // const { devicePixelRatio: scale = 1 } = window;
       const scale = 1;
+      const scrollParent: Element | null = getNearestParentCanvas(
+        canvasRef.current,
+      );
+      const scrollObj: any = {};
 
       let canvasCtx: any = canvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
@@ -116,6 +137,7 @@ export function CanvasSelectionArena({
           canvasRef.current.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current.addEventListener("mouseleave", onMouseLeave, false);
           canvasRef.current.addEventListener("mouseenter", onMouseEnter, false);
+          scrollParent?.addEventListener("scroll", onScroll, false);
         }
       };
 
@@ -239,6 +261,34 @@ export function CanvasSelectionArena({
           const selectionDimensions = getSelectionDimensions();
           drawRectangle(selectionDimensions);
           selectWidgetsInit(selectionDimensions, isMultiSelect);
+          scrollObj.lastMouseMoveEvent = e;
+          scrollObj.lastScrollTop = scrollParent?.scrollTop;
+          scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+        }
+      };
+      const onScroll = () => {
+        const {
+          lastMouseMoveEvent,
+          lastScrollHeight,
+          lastScrollTop,
+        } = scrollObj;
+        if (
+          lastMouseMoveEvent &&
+          Number.isInteger(lastScrollHeight) &&
+          Number.isInteger(lastScrollTop) &&
+          scrollParent
+        ) {
+          const delta =
+            scrollParent?.scrollHeight +
+            scrollParent?.scrollTop -
+            (lastScrollHeight + lastScrollTop);
+          if (delta) {
+            console.count("onScroll");
+          }
+          onMouseMove({
+            offsetX: lastMouseMoveEvent.offsetX,
+            offsetY: lastMouseMoveEvent.offsetY + delta,
+          });
         }
       };
       if (appMode === APP_MODE.EDIT) {

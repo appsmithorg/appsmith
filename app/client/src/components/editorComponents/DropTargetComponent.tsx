@@ -196,7 +196,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
-        {(isDragging || isResizing) && draggedOn === props.widgetId && (
+        {((isDragging && draggedOn === props.widgetId) || isResizing) && (
           <DragLayerComponent
             noPad={props.noPad || false}
             parentColumnWidth={props.snapColumnSpace}

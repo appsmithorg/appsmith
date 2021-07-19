@@ -138,6 +138,7 @@ class ContainerWidget extends BaseWidget<
             />
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />
