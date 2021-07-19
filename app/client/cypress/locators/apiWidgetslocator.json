@@ -25,7 +25,7 @@
   "marketPlaceapi": ".t--eachProviderCard p",
   "addPageButton": ".t--addToPageBtn",
   "apidocumentaionLink": ".t--apiDocumentationLink",
-  "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[1]",
+  "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[2]",
   "paginationTab": "li:contains('Pagination')",
   "apiInputTab": "li:contains('API Input')",
   "paginationOption": ".t--apiFormPaginationType div>input",
