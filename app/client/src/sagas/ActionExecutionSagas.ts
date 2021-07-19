@@ -10,6 +10,7 @@ import {
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
   PageAction,
+  RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import {
@@ -118,6 +119,10 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+
+enum ActionResponseDataTypes {
+  BINARY = "BINARY",
+}
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -861,6 +866,22 @@ function* runActionSaga(
       }
       if (actionObject.pluginType === PluginType.SAAS) {
         eventName = "RUN_SAAS_API";
+      }
+
+      if (
+        actionObject.pluginType === PluginType.API &&
+        payload.statusCode === "200 OK"
+      ) {
+        const respHeaders = payload.headers;
+        if (
+          respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+          respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
+          respHeaders[RESP_HEADER_DATATYPE][0] ===
+            ActionResponseDataTypes.BINARY &&
+          getType(payload.body) === Types.STRING
+        ) {
+          payload.body = atob(payload.body as string);
+        }
       }
 
       AnalyticsUtil.logEvent(eventName, {
