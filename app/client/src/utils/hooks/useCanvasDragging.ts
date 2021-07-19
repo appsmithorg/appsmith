@@ -27,6 +27,8 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
+  const { devicePixelRatio: scale = 1 } = window;
+
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -55,7 +57,7 @@ export const useCanvasDragging = (
     setDraggingState,
   } = useWidgetDragResize();
 
-  const updateCanvasPosition = () => {
+  const updateCanvasStyles = () => {
     const parentCanvas: Element | null = getNearestParentCanvas(
       canvasRef.current,
     );
@@ -76,6 +78,7 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
     snapRows,
+    canExtend,
   );
   useEffect(() => {
     if (
@@ -87,8 +90,6 @@ export const useCanvasDragging = (
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
       );
-      const { devicePixelRatio: scale = 1 } = window;
-      // const scale = 1;
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
@@ -368,7 +369,7 @@ export const useCanvasDragging = (
         const initializeListeners = () => {
           canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
-          scrollParent?.addEventListener("scroll", updateCanvasPosition, false);
+          scrollParent?.addEventListener("scroll", updateCanvasStyles, false);
           scrollParent?.addEventListener("scroll", onScroll, false);
 
           canvasRef.current?.addEventListener(
@@ -397,7 +398,7 @@ export const useCanvasDragging = (
             canvasDrawRef.current.width = width * scale;
             canvasDrawRef.current.height = height * scale;
             canvasCtx.scale(scale, scale);
-            updateCanvasPosition();
+            updateCanvasStyles();
             initializeListeners();
             if (canvasIsDragging) {
               blocksToDraw.forEach((each) => {
@@ -414,6 +415,7 @@ export const useCanvasDragging = (
         return () => {
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
+          scrollParent?.removeEventListener("scroll", updateCanvasStyles);
           scrollParent?.removeEventListener("scroll", onScroll);
           canvasRef.current?.removeEventListener(
             "mouseover",
@@ -431,7 +433,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, blocksToDraw, snapRows]);
+  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
   return {
     showCanvas: isDragging && !isResizing,
   };

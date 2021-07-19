@@ -144,6 +144,7 @@ class ContainerWidget extends BaseWidget<
           </>
         )}
         <WidgetsMultiSelectBox
+          {...this.getSnapSpaces()}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />

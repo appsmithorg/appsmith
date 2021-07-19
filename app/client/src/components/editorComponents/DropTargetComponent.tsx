@@ -99,6 +99,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     rowRef.current = snapRows;
     updateHeight();
+    if (canDropTargetExtend) {
+      updateCanvasSnapRows(props.widgetId, snapRows);
+    }
   }, [props.bottomRow, props.canExtend]);
 
   const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
@@ -130,7 +133,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         dropTargetRef.current.style.height = height;
       }
     }),
-    [],
+    [canDropTargetExtend],
   );
 
   /* Update the rows of the main container based on the current widget's (dragging/resizing) bottom row */

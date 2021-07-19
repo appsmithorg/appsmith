@@ -158,6 +158,8 @@ interface OffsetBox {
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
   widgetType: string;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 }): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
@@ -201,12 +203,10 @@ function WidgetsMultiSelectBox(props: {
     e.stopPropagation();
     if (draggableRef.current) {
       const bounds = draggableRef.current.getBoundingClientRect();
-      const parentRowSpace = get(selectedWidgets, "0.parentRowSpace");
-      const parentColumnSpace = get(selectedWidgets, "0.parentColumnSpace");
       const parentId = get(selectedWidgets, "0.parentId");
       const startPoints = {
-        top: (e.clientY - bounds.top) / parentRowSpace,
-        left: (e.clientX - bounds.left) / parentColumnSpace,
+        top: (e.clientY - bounds.top) / props.snapRowSpace,
+        left: (e.clientX - bounds.left) / props.snapColumnSpace,
       };
       const top = minBy(selectedWidgets, (rect) => rect.topRow)?.topRow;
       const left = minBy(selectedWidgets, (rect) => rect.leftColumn)
