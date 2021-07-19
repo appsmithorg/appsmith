@@ -83,6 +83,9 @@ export function CanvasSelectionArena({
   );
   useEffect(() => {
     if (appMode === APP_MODE.EDIT && !isDragging && canvasRef.current) {
+      // ToDo: Needs a repositioning canvas window to limit the highest number of pixels rendered for an application of any height.
+      // as of today (Pixels rendered by canvas) ∝ (Application height) so as height increases will run into to dead renders.
+      // https://on690.codesandbox.io/ to check the number of pixels limit supported for a canvas
       // const { devicePixelRatio: scale = 1 } = window;
       const scale = 1;
 
@@ -260,14 +263,11 @@ export function CanvasSelectionArena({
   ]);
 
   return appMode === APP_MODE.EDIT && !isDragging ? (
-    <>
-      <StyledSelectionCanvas
-        data-testid={`canvas-${widgetId}`}
-        id={`canvas-${widgetId}`}
-        ref={canvasRef}
-      />
-      {/* <canvas height={height} width={width} /> */}
-    </>
+    <StyledSelectionCanvas
+      data-testid={`canvas-${widgetId}`}
+      id={`canvas-${widgetId}`}
+      ref={canvasRef}
+    />
   ) : null;
 }
 CanvasSelectionArena.displayName = "CanvasSelectionArena";
