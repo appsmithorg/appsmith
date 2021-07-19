@@ -1,4 +1,3 @@
-import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { makeFactory } from "factory.ts";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -7,7 +6,7 @@ import { WidgetTypeFactories } from "./Widgets/WidgetTypeFactories";
 const defaultMainContainer: ContainerWidgetProps<WidgetProps> = {
   ...(defaultTemplate as any),
   renderMode: "PAGE",
-  version: LATEST_PAGE_VERSION,
+  version: 1,
   isLoading: false,
 };
 
