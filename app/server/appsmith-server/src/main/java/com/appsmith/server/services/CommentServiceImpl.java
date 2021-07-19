@@ -222,7 +222,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             } else {
                 return publishEmail.thenReturn(savedComment);
             }
-        });
+        })
+        .flatMap(createdComment ->
+                analyticsService.sendCreateEvent(createdComment, Map.of("tagged", CommentUtils.isAnyoneMentioned(createdComment)))
+        );
     }
 
     @Override
