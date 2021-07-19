@@ -166,7 +166,7 @@ class CodeEditor extends Component<Props, State> {
         tabSize: 2,
         autoCloseBrackets: true,
         indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
-        lineWrapping: this.props.size !== EditorSize.COMPACT,
+        lineWrapping: true,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
         matchBrackets: false,
@@ -259,9 +259,7 @@ class CodeEditor extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
         if (!!inputValue || inputValue === "") {
-          if (this.props.size === EditorSize.COMPACT) {
-            this.editor.setValue(removeNewLineChars(inputValue));
-          } else if (inputValue !== editorValue) {
+          if (inputValue !== editorValue) {
             this.editor.setValue(inputValue);
           }
         }
@@ -325,14 +323,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.operation(() => {
-        const inputValue = this.props.input.value;
-        this.editor.setOption("lineWrapping", true);
-        this.editor.setValue(inputValue);
-        this.editor.setCursor(inputValue.length);
-      });
-    }
     if (this.editor.getValue().length === 0)
       this.handleAutocompleteVisibility(this.editor);
   };
@@ -340,9 +330,6 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.setOption("lineWrapping", false);
-    }
     this.editor.setOption("matchBrackets", false);
   };
 
