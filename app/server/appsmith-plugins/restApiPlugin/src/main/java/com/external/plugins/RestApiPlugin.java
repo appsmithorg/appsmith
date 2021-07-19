@@ -88,7 +88,11 @@ public class RestApiPlugin extends BasePlugin {
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
         private final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
-        private final Set binaryDataTypes = Set.of("application/zip", "application/octet-stream", "application/pdf", "application/pkcs8", "application/x-binary");
+        private final Set binaryDataTypes = Set.of("application/zip",
+                "application/octet-stream",
+                "application/pdf",
+                "application/pkcs8",
+                "application/x-binary");
 
         private final SharedConfig sharedConfig;
         private final DataUtils dataUtils;
@@ -354,9 +358,11 @@ public class RestApiPlugin extends BasePlugin {
                                     )
                             );
                         }
-                        ResponseDataType responseDataType = ResponseDataType.UNDEFINED;
 
                         if (body != null) {
+
+                            ResponseDataType responseDataType = ResponseDataType.UNDEFINED;
+
                             /**TODO
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
@@ -395,12 +401,14 @@ public class RestApiPlugin extends BasePlugin {
                                 result.setBody(bodyString.trim());
                                 responseDataType = ResponseDataType.TEXT;
                             }
+
+                            // Now add a new header which specifies the data type of the response as per Appsmith
+                            JsonNode headersJsonNode = result.getHeaders();
+                            ObjectNode updatedHeaders = ((ObjectNode) headersJsonNode).put(RESPONSE_DATA_TYPE,
+                                    String.valueOf(responseDataType));
+                            result.setHeaders(updatedHeaders);
+
                         }
-
-                        JsonNode headersJsonNode = result.getHeaders();
-                        ObjectNode updatedHeaders = ((ObjectNode) headersJsonNode).put(RESPONSE_DATA_TYPE, String.valueOf(responseDataType));
-                        result.setHeaders(updatedHeaders);
-
 
                         result.setMessages(hintMessages);
                         return result;
