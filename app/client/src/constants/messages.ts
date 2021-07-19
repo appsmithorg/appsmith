@@ -214,7 +214,6 @@ export const ERROR_API_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
-export const ACTION_RUN_SUCCESS = () => `Action ran successfully`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
 export const ACTION_DELETE_SUCCESS = (actionName: string) =>
