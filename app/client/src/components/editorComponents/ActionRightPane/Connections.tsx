@@ -105,34 +105,42 @@ function Connections(props: ConnectionsProps) {
     props.actionName,
   );
 
-  return (
-    <Collapsible label="Relationships">
-      <span className="description">See all connected entities</span>
-      <ConnectionType className="icon-text">
-        <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
-        <span className="connection-type">Incoming entities</span>
-      </ConnectionType>
-      {/* Direct Dependencies */}
-      <Dependencies
-        dependencies={entityDependencies?.directDependencies ?? []}
-        placeholder="No incoming entities"
-      />
-      <ConnectionFlow>
-        <img src={LongArrowSVG} />
-        {props.actionName}
-        <img src={LongArrowSVG} />
-      </ConnectionFlow>
-      <ConnectionType className="icon-text">
-        <span className="connection-type">Outgoing entities</span>
-        <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
-      </ConnectionType>
-      {/* Inverse dependencies */}
-      <Dependencies
-        dependencies={entityDependencies?.inverseDependencies ?? []}
-        placeholder="No outgoing entities"
-      />
-    </Collapsible>
-  );
+  if (
+    entityDependencies &&
+    (entityDependencies?.directDependencies.length > 0 ||
+      entityDependencies?.inverseDependencies.length > 0)
+  ) {
+    return (
+      <Collapsible label="Relationships">
+        <span className="description">See all connected entities</span>
+        <ConnectionType className="icon-text">
+          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+          <span className="connection-type">Incoming entities</span>
+        </ConnectionType>
+        {/* Direct Dependencies */}
+        <Dependencies
+          dependencies={entityDependencies?.directDependencies ?? []}
+          placeholder="No incoming entities"
+        />
+        <ConnectionFlow>
+          <img src={LongArrowSVG} />
+          {props.actionName}
+          <img src={LongArrowSVG} />
+        </ConnectionFlow>
+        <ConnectionType className="icon-text">
+          <span className="connection-type">Outgoing entities</span>
+          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+        </ConnectionType>
+        {/* Inverse dependencies */}
+        <Dependencies
+          dependencies={entityDependencies?.inverseDependencies ?? []}
+          placeholder="No outgoing entities"
+        />
+      </Collapsible>
+    );
+  } else {
+    return null;
+  }
 }
 
 export default Connections;
