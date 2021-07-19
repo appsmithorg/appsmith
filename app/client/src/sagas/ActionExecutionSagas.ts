@@ -870,7 +870,8 @@ function* runActionSaga(
 
       if (
         actionObject.pluginType === PluginType.API &&
-        payload.statusCode === "200 OK"
+        payload.statusCode === "200 OK" &&
+        payload.hasOwnProperty("headers")
       ) {
         const respHeaders = payload.headers;
         if (
@@ -880,6 +881,9 @@ function* runActionSaga(
             ActionResponseDataTypes.BINARY &&
           getType(payload.body) === Types.STRING
         ) {
+          // Decoding from base64 to handle the binary files because direct
+          // conversion of binary files to string causes corruption in the final output
+          // this is to only handle the download of binary files
           payload.body = atob(payload.body as string);
         }
       }
