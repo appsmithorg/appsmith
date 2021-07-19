@@ -309,8 +309,9 @@ jobs:
             nohup ./scripts/start-dev-server.sh 2>&1 &
 
       - name: Wait for 30 seconds for server to start
-        run: sleep 30s ; ps -ef |grep java
-        shell: bash
+        run: |
+            sleep 30s 
+            ps -ef | grep server-1.0-SNAPSHOT
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
