@@ -98,6 +98,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "status",
           computedValue:
@@ -173,7 +174,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: "BOOLEAN",
         "primaryColumns.createdAt.isVisible": "BOOLEAN",
         "primaryColumns.name.isVisible": "BOOLEAN",
-        "primaryColumns.status.isDisabled": "BOOLEAN",
         "primaryColumns.status.isVisible": "BOOLEAN",
         tableData: "TABLE_DATA",
       },
