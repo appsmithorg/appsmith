@@ -5,7 +5,6 @@ import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/dom";
-import { EditorSize } from "components/editorComponents/CodeEditor/EditorConfig";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
