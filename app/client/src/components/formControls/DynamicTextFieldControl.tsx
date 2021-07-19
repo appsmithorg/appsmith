@@ -65,7 +65,6 @@ class DynamicTextControl extends BaseControl<
       configProperty,
       evaluationSubstitutionType,
       label,
-      mutedHinting,
       placeholderText,
       responseType,
     } = this.props;
@@ -105,7 +104,6 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={dataTreePath}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
-            mutedHinting={mutedHinting}
             name={this.props.configProperty}
             placeholder={placeholderText}
             size={EditorSize.EXTENDED}
