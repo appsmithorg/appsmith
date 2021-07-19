@@ -1,4 +1,5 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { RawDraftContentState } from "draft-js";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 
@@ -40,6 +41,7 @@ export type CreateCommentThreadRequest = {
   };
   isViewed?: boolean;
   mode?: APP_MODE;
+  widgetType?: WidgetType;
 };
 
 export type Reaction = {

@@ -352,12 +352,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                     if (Boolean.TRUE.equals(updatedThread.getIsPrivate())) {
                                         return triggerBotThreadResolved(threadFromDb, user).thenReturn(updatedThread);
                                     } else {
-                                        return emailEventHandler.publish(
+                                        Mono<Boolean> publishEmailMono = emailEventHandler.publish(
                                                 user.getUsername(),
                                                 updatedThread.getApplicationId(),
                                                 updatedThread,
                                                 originHeader
-                                        ).thenReturn(updatedThread);
+                                        );
+                                        return notificationService.createNotification(updatedThread, user.getUsername())
+                                                .then(publishEmailMono).thenReturn(updatedThread);
                                     }
                                 }
                                 return Mono.just(updatedThread);
