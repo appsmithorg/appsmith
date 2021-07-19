@@ -228,6 +228,7 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState => {
     const actionId = Object.keys(action.payload)[0];
     if (
+      action.payload[actionId].statusCode === "200" &&
       action.payload[actionId].headers.hasOwnProperty("X-APPSMITH-DATATYPE") &&
       action.payload[actionId].headers["X-APPSMITH-DATATYPE"].length > 0 &&
       action.payload[actionId].headers["X-APPSMITH-DATATYPE"][0] ===
