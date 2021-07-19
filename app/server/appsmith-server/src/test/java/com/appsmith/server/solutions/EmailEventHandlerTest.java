@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -44,6 +45,8 @@ public class EmailEventHandlerTest {
     private OrganizationRepository organizationRepository;
     @MockBean
     private ApplicationRepository applicationRepository;
+    @MockBean
+    private EmailConfig emailConfig;
 
     @MockBean
     private PolicyUtils policyUtils;
@@ -61,7 +64,7 @@ public class EmailEventHandlerTest {
     @Before
     public void setUp() {
         emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher, emailSender, organizationRepository, applicationRepository, policyUtils
+                applicationEventPublisher, emailSender, organizationRepository, applicationRepository, policyUtils, emailConfig
         );
         application = new Application();
         application.setName("Test application for comment");
