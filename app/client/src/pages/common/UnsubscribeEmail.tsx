@@ -51,7 +51,7 @@ function UnsubscribeEmail() {
         ) : (
           <>
             <p>
-              You&apos;ll no more receive email notifications for the
+              You won't receive any more email notifications for the
               corresponding comment thread.
             </p>
             <p>
