@@ -201,7 +201,7 @@ function* evalErrorHandler(
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
-          const { entityType, node } = error.context;
+          const { dependencyMap, diffs, entityType, node } = error.context;
           Toaster.show({
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
@@ -214,6 +214,10 @@ function* evalErrorHandler(
             tags: {
               node,
               entityType,
+            },
+            extra: {
+              dependencyMap,
+              diffs,
             },
             // Level is warning because it could be a user error
             level: Sentry.Severity.Warning,

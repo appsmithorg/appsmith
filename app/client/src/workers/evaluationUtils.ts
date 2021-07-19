@@ -35,7 +35,7 @@ export enum DataTreeDiffEvent {
   NOOP = "NOOP",
 }
 
-type DataTreeDiff = {
+export type DataTreeDiff = {
   payload: {
     propertyPath: string;
     value?: string;
