@@ -155,7 +155,7 @@ export const appCommentsFilter = (state: AppState) =>
 export const showUnreadIndicator = (state: AppState) =>
   state.ui.comments.unreadCommentThreadsCount > 0;
 
-export const visibleCommentThread = (state: AppState) =>
+export const visibleCommentThreadSelector = (state: AppState) =>
   state.ui.comments.visibleCommentThreadId;
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>

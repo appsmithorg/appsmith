@@ -99,7 +99,6 @@ import {
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 import {
-  ACTION_RUN_SUCCESS,
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_API_EXECUTE,
@@ -914,10 +913,6 @@ function* runActionSaga(
             response: payload.body,
             request: response.data.request,
           },
-        });
-        Toaster.show({
-          text: createMessage(ACTION_RUN_SUCCESS),
-          variant: Variant.success,
         });
       } else {
         AppsmithConsole.error({
