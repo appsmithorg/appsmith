@@ -45,9 +45,12 @@ const evaluationScripts: Record<
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
     debugger;
-    const result = ${script}
+    return ${script}
   }
-  closedFunction()
+  const result = closedFunction();
+  if(result instanceof Promise) {
+    self.triggers.push(result.action)
+  }
   `,
 };
 
@@ -137,16 +140,13 @@ export default function evaluate(
           const actionPayload = action(...payload);
           if (actionPayload instanceof AppsmithPromise) {
             GLOBAL_DATA.triggers.push(actionPayload.action);
+            return actionPayload;
           }
-          debugger;
-
-          return actionPayload;
         };
         GLOBAL_DATA.actionPaths.forEach((path: string) => {
           const action = _.get(GLOBAL_DATA, path);
-          const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
           if (action) {
-            _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
+            _.set(GLOBAL_DATA, path, pusher.bind(data, action));
           }
         });
       }

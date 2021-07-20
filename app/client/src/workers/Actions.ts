@@ -36,11 +36,7 @@
  *
  * */
 
-import {
-  ActionDescription,
-  DataTree,
-  DataTreeAction,
-} from "entities/DataTree/dataTreeFactory";
+import { ActionDescription, DataTree } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction } from "./evaluationUtils";
 
@@ -107,7 +103,6 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
     const entity = withFunction[entityName];
     if (isAction(entity)) {
       const runFunction = function(
-        this: DataTreeAction,
         onSuccess: Function,
         onError: Function,
         params = "",
@@ -116,7 +111,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
           {
             type: "RUN_ACTION",
             payload: {
-              actionId: this.actionId,
+              actionId: entity.actionId,
               params,
             },
           },
