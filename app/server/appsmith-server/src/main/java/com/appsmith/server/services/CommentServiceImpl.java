@@ -222,7 +222,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             } else {
                 return publishEmail.thenReturn(savedComment);
             }
-        });
+        })
+        .flatMap(createdComment ->
+                analyticsService.sendCreateEvent(createdComment, Map.of("tagged", CommentUtils.isAnyoneMentioned(createdComment)))
+        );
     }
 
     @Override
@@ -584,6 +587,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         block.setDepth(0);
         body.setEntityMap(entityMap);
         return repository.save(comment);
+    }
+
+    @Override
+    public Mono<Boolean> unsubscribeThread(String threadId) {
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> threadRepository.removeSubscriber(threadId, user.getUsername()))
+                .map(result -> result.getModifiedCount() == 1L);
     }
 
     @Override

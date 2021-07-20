@@ -358,7 +358,7 @@ export default {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
 
-          return _a.length === _a.indexOf(_b) + _b.length;
+          return _a.length === _a.lastIndexOf(_b) + _b.length;
         } catch (e) {
           return false;
         }
