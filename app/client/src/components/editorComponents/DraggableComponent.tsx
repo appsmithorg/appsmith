@@ -5,7 +5,10 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import {
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -67,7 +70,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
-
+  const showTableFilterPane = useShowTableFilterPane();
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
@@ -160,6 +163,7 @@ function DraggableComponent(props: DraggableComponentProps) {
         top: (e.clientY - bounds.top) / props.parentRowSpace,
         left: (e.clientX - bounds.left) / props.parentColumnSpace,
       };
+      showTableFilterPane();
       setDraggingCanvas(props.parentId);
       setDraggingState(
         true,
