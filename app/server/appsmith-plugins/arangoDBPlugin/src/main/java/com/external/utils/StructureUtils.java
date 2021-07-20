@@ -23,6 +23,7 @@ public class StructureUtils {
             final String name = ((Map.Entry<String, Object>) entry).getKey();
             final Object value = ((Map.Entry<String, Object>) entry).getValue();
             String type;
+            boolean autogenerate = false;
 
             if (value instanceof Integer) {
                 type = "Integer";
@@ -35,6 +36,7 @@ public class StructureUtils {
             } else if (value instanceof String) {
                 type = "String";
             } else if (value instanceof ObjectId) {
+                autogenerate = true;
                 type = "ObjectId";
             } else if (value instanceof Collection) {
                 type = "Array";
@@ -44,7 +46,7 @@ public class StructureUtils {
                 type = "Object";
             }
 
-            columns.add(new DatasourceStructure.Column(name, type, null));
+            columns.add(new DatasourceStructure.Column(name, type, null, autogenerate));
         }
 
         columns.sort(Comparator.naturalOrder());

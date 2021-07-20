@@ -279,15 +279,15 @@ public class ArangoDBPluginTest {
                     assertEquals(DatasourceStructure.TableType.COLLECTION, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("_id", "String", null),
-                                    new DatasourceStructure.Column("_key", "String", null),
-                                    new DatasourceStructure.Column("_rev", "String", null),
-                                    new DatasourceStructure.Column("age", "Long", null),
-                                    new DatasourceStructure.Column("dob", "Object", null),
-                                    new DatasourceStructure.Column("gender", "String", null),
-                                    new DatasourceStructure.Column("luckyNumber", "Long", null),
-                                    new DatasourceStructure.Column("name", "String", null),
-                                    new DatasourceStructure.Column("netWorth", "String", null),
+                                    new DatasourceStructure.Column("_id", "String", null, false),
+                                    new DatasourceStructure.Column("_key", "String", null, false),
+                                    new DatasourceStructure.Column("_rev", "String", null, false),
+                                    new DatasourceStructure.Column("age", "Long", null, false),
+                                    new DatasourceStructure.Column("dob", "Object", null, false),
+                                    new DatasourceStructure.Column("gender", "String", null, false),
+                                    new DatasourceStructure.Column("luckyNumber", "Long", null, false),
+                                    new DatasourceStructure.Column("name", "String", null, false),
+                                    new DatasourceStructure.Column("netWorth", "String", null, false),
                             },
                             possessionsTable.getColumns().toArray()
                     );

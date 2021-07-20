@@ -357,8 +357,8 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
-                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
+                                    new DatasourceStructure.Column("id", "timestamptz", "now()", false),
+                                    new DatasourceStructure.Column("name", "timestamptz", "now()", false)
                             },
                             campusTable.getColumns().toArray()
                     );
@@ -369,10 +369,13 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('jsontest_id_seq" +
-                                            "'::regclass)"),
-                                    new DatasourceStructure.Column("item", "json", null),
-                                    new DatasourceStructure.Column("origin", "jsonb", null)
+                                    new DatasourceStructure.Column(
+                                        "id",
+                                        "int4",
+                                        "nextval('jsontest_id_seq'::regclass)",
+                                        true),
+                                    new DatasourceStructure.Column("item", "json", null, false),
+                                    new DatasourceStructure.Column("origin", "jsonb", null, false)
                             },
                             jsonTestTable.getColumns().toArray()
                     );
@@ -383,9 +386,9 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('possessions_id_seq'::regclass)"),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int4", null),
+                                    new DatasourceStructure.Column("id", "int4", "nextval('possessions_id_seq'::regclass)", true),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int4", null, false),
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -422,19 +425,19 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)"),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("time_tz", "timetz", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
-                                    new DatasourceStructure.Column("interval1", "interval", null),
-                                    new DatasourceStructure.Column("numbers", "_int4", null),
-                                    new DatasourceStructure.Column("texts", "_varchar", null),
+                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)",true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null, false),
+                                    new DatasourceStructure.Column("dob", "date", null, false),
+                                    new DatasourceStructure.Column("time1", "time", null, false),
+                                    new DatasourceStructure.Column("time_tz", "timetz", null, false),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null, false),
+                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null, false),
+                                    new DatasourceStructure.Column("interval1", "interval", null, false),
+                                    new DatasourceStructure.Column("numbers", "_int4", null, false),
+                                    new DatasourceStructure.Column("texts", "_varchar", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );

@@ -44,8 +44,8 @@ public class DatasourceStructure {
     public static class Column implements Comparable<Column> {
         String name;
         String type;
-        Object metadata;
         String defaultValue;
+        Boolean autogenerate;
 
         @Override
         public int compareTo(Column other) {

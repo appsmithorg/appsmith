@@ -94,9 +94,9 @@ public class CreateDBTablePageSolutionTests {
         DatasourceStructure structure = new DatasourceStructure();
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
         List<Column> columns = List.of(
-            new Column("testId", "type1", null),
-            new Column("testField1", "type2", null),
-            new Column("testField2", "type3", null)
+            new Column("testId", "type1", null, true),
+            new Column("testField1", "type2", null, false),
+            new Column("testField2", "type3", null, false)
         );
         List<Table> tables = List.of(new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()));
         structure.setTables(tables);
