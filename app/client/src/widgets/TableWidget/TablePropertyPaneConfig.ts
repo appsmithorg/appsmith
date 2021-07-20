@@ -737,6 +737,14 @@ export default [
         isBindProperty: true,
         isTriggerProperty: true,
       },
+      {
+        propertyName: "onSort",
+        label: "onSort",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {

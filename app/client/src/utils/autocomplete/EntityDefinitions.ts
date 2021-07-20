@@ -76,6 +76,11 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    sortOrder: {
+      column: "string",
+      asc: "bool",
+      order: "string",
+    },
   }),
   VIDEO_WIDGET: {
     "!doc":
