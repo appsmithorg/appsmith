@@ -8,6 +8,11 @@ import Dialog from "components/ads/DialogComponent";
 import Icon, { IconSize } from "components/ads/Icon";
 import { IconProps } from "../../../constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "../../../constants/messages";
+import {
+  UNSUPPORTED_PLUGIN_DIALOG_TITLE,
+  UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
+} from "../../../constants/messages";
 
 type Props = {
   isModalOpen: boolean;
@@ -100,8 +105,8 @@ const Header = withTheme(
             className="default_cursor"
             name="warning-triangle"
             size={IconSize.XL}
-          />{" "}
-          Heads Up
+          />
+          {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
         </Heading>
         <HeaderRight>
           <CloseIconContainer
@@ -138,15 +143,10 @@ function UnsupportedPluginDialog(props: Props) {
       setModalClose={handleClose}
     >
       <Content>
-        <Text type={TextType.H5}>
-          This Datasource is not currently supported to generate template page
-        </Text>
+        <Text type={TextType.H5}>{UNSUPPORTED_PLUGIN_DIALOG_TITLE()}</Text>
         <br />
         <br />
-        <Text type={TextType.P1}>
-          Select another datasource to generate CRUD interface or continue to
-          manually build the application
-        </Text>
+        <Text type={TextType.P1}>{UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE()}</Text>
       </Content>
 
       <ActionButtonWrapper>
@@ -156,7 +156,7 @@ function UnsupportedPluginDialog(props: Props) {
             handleClose();
           }}
           size={Size.medium}
-          text="SELECT OTHER DATASOURCE"
+          text="BACK"
         />
         <ActionButton
           category={Category.primary}
@@ -165,7 +165,7 @@ function UnsupportedPluginDialog(props: Props) {
             onContinue();
           }}
           size={Size.medium}
-          text="CONTINUE"
+          text="CONTINUE BUILDING"
         />
       </ActionButtonWrapper>
     </Dialog>

@@ -49,7 +49,7 @@ export const fetchActionsForView = (
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,

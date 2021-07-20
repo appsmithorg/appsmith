@@ -284,11 +284,11 @@ class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
 > {
-  onContinueAction: () => void;
+  unsupportedPluginContinueAction: () => void;
 
   constructor(props: Props) {
     super(props);
-    this.onContinueAction = () => null;
+    this.unsupportedPluginContinueAction = () => null;
     this.state = {
       page: 1,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
@@ -401,7 +401,7 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({
       unsupportedPluginDialogVisible: true,
     });
-    this.onContinueAction = callback;
+    this.unsupportedPluginContinueAction = callback;
   };
 
   render() {
@@ -490,7 +490,7 @@ class IntegrationsHomeScreen extends React.Component<
           onClose={() =>
             this.setState({ unsupportedPluginDialogVisible: false })
           }
-          onContinue={this.onContinueAction}
+          onContinue={this.unsupportedPluginContinueAction}
         />
         <ApiHomePage
           className="t--integrationsHomePage"

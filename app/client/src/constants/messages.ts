@@ -350,3 +350,13 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+// Generate page from DB Messages
+
+export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
+  `Couldn't auto generate a page from this datasource.`;
+
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
+  `You can continue building your app with it using our Drag & Drop
+  Builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads Up`;

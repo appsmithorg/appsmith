@@ -165,7 +165,6 @@ function GeneratePageForm() {
     pageId: currentPageId,
   } = useParams<ExplorerURLParams>();
 
-  const [newDatasourceId, setNewDatasourceId] = useState<string>("");
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
   const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
@@ -349,28 +348,21 @@ function GeneratePageForm() {
     setSelectedDatasourceTableOptions,
   ]);
 
-  useEffect(() => {
+  const onSelectNewDatasource = (newDatasourceId: string) => {
     if (newDatasourceId) {
-      let isNewDatasource = false;
-      let isDatasourceOfSupportedPlugin = false;
       if (selectedDatasource.id !== newDatasourceId) {
-        isNewDatasource = true;
         for (let i = 0; i < dataSourceOptions.length; i++) {
           if (dataSourceOptions[i].id === newDatasourceId) {
-            isDatasourceOfSupportedPlugin = true;
             onSelectDataSource(
               dataSourceOptions[i].value,
               dataSourceOptions[i],
             );
-            setNewDatasourceId("");
             break;
           }
         }
       }
-      if (isNewDatasource && !isDatasourceOfSupportedPlugin) {
-      }
     }
-  }, [newDatasourceId]);
+  };
 
   useEffect(() => {
     if (querySearch) {
@@ -383,7 +375,7 @@ function GeneratePageForm() {
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
         }
-        setNewDatasourceId(datasourceId);
+        onSelectNewDatasource(datasourceId);
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =

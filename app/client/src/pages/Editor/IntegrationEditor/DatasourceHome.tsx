@@ -152,10 +152,20 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     const queryParams = getQueryParams();
     const { initiator } = queryParams;
+
+    /* When initiator is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
+        If YES => continue creating datasource
+        If NO => 
+          Show user a UnsupportedPluginDialog to choose 
+            1. "create unsupported datasource" 
+            2. "continue" generate page flow by selecting other supported datasource
+        goToCreateDatasource function is passed as a callback with params.skipValidPluginCheck = true.
+        Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.
+    */
     if (
-      !params?.skipValidPluginCheck &&
       initiator &&
-      initiator === "generate-page"
+      initiator === "generate-page" &&
+      !params?.skipValidPluginCheck
     ) {
       if (!VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
         // show modal informing user that this will break the generate flow.

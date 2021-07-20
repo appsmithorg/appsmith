@@ -185,11 +185,9 @@ function* handleFetchedPage({
   fetchPageResponse,
   isFirstLoad = false,
   pageId,
-  onFinishCallback = () => null,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
-  onFinishCallback?: () => void;
   isFirstLoad?: boolean;
 }) {
   const isValidResponse = yield validateResponse(fetchPageResponse);
@@ -225,9 +223,7 @@ function* handleFetchedPage({
     if (willPageBeMigrated) {
       yield put(saveLayout());
     }
-    if (onFinishCallback) {
-      onFinishCallback();
-    }
+    return isValidResponse;
   }
 }
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
@@ -245,16 +241,17 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    yield handleFetchedPage({
+    const isValidResponse: boolean = yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
       isFirstLoad,
-      onFinishCallback: () => {
-        PerformanceTracker.stopAsyncTracking(
-          PerformanceTransactionName.FETCH_PAGE_API,
-        );
-      },
     });
+
+    if (isValidResponse) {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_API,
+      );
+    }
   } catch (error) {
     log.error(error);
     PerformanceTracker.stopAsyncTracking(
@@ -613,7 +610,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
         },
       });
 
-      yield put(fetchActionsForPage(response.data.id, []));
+      yield put(fetchActionsForPage(response.data.id));
 
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
@@ -785,7 +782,7 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
-  yield put(fetchActionsForPage(pageId, []));
+  yield put(fetchActionsForPage(pageId));
 }
 
 export function* setDataUrl() {
