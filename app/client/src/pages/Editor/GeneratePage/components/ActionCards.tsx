@@ -6,6 +6,14 @@ import { BUILDER_PAGE_URL, getGenerateTemplateFormURL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
+import {
+  GENERATE_PAGE_ACTION_SUBTITLE,
+  GENERATE_PAGE_ACTION_TITLE,
+} from "../../../../constants/messages";
+import {
+  BUILD_FROM_SCRATCH_ACTION_TITLE,
+  BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
+} from "constants/messages";
 
 type routeId = {
   applicationId: string;
@@ -31,8 +39,8 @@ function ActionCards() {
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
         onClick={() => routeToEmptyEditorFromGenPage({ applicationId, pageId })}
-        subTitle="Start from scratch and create your custom UI"
-        title="Build with Drag & Drop"
+        subTitle={BUILD_FROM_SCRATCH_ACTION_SUBTITLE()}
+        title={BUILD_FROM_SCRATCH_ACTION_TITLE()}
       />
 
       <ActionCard
@@ -45,8 +53,8 @@ function ActionCards() {
           />
         )}
         onClick={() => goToGenPageForm({ applicationId, pageId })}
-        subTitle="Start with a simple CRUD UI and customize it"
-        title="Generate from a Data Table"
+        subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
+        title={GENERATE_PAGE_ACTION_TITLE()}
       />
     </>
   );

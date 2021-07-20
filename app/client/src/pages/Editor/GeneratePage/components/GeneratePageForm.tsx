@@ -29,6 +29,7 @@ import DataSourceOption, {
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
+import { GENERATE_PAGE_FORM_TITLE } from "../../../../constants/messages";
 import {
   VALID_PLUGINS_FOR_TEMPLATE,
   PLUGIN_ID,
@@ -463,7 +464,7 @@ function GeneratePageForm() {
     <div>
       <Wrapper>
         <DescWrapper>
-          <Title>Generate from Data</Title>
+          <Title>{GENERATE_PAGE_FORM_TITLE()}</Title>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
