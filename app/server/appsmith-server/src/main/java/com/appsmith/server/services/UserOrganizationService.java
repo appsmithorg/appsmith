@@ -16,8 +16,6 @@ public interface UserOrganizationService {
 
     Mono<User> leaveOrganization(String orgId);
 
-    Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user);
-
     Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader);
 
     Mono<Organization> bulkAddUsersToOrganization(Organization organization, List<User> users, String roleName);

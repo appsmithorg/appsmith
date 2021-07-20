@@ -217,8 +217,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 });
     }
 
-    @Override
-    public Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
+    private Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
         List<UserRole> userRoles = organization.getUserRoles();
         if (userRoles == null) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", organization.getName()));
