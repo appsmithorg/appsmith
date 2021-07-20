@@ -218,7 +218,6 @@ class DatePickerComponent extends React.Component<
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
-    console.log({ selectedDate, isUserChange });
     if (isUserChange) {
       const { onDateSelected } = this.props;
 
