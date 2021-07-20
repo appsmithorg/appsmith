@@ -38,9 +38,9 @@ describe("DynamicInputTextControl", () => {
       {},
     );
 
-    const input = screen.getAllByText("My test value")[0];
-    userEvent.type(input, "New text");
     waitFor(async () => {
+      const input = screen.getAllByText("My test value")[0];
+      userEvent.type(input, "New text");
       await expect(screen.getAllByText("New text")).toHaveLength(2);
       await expect(screen.findByText("My test value")).toBeNull();
     });
