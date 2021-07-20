@@ -59,7 +59,7 @@ import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
-import { WidgetType } from "constants/WidgetConstants";
+import { SuggestedWidget } from "api/ActionAPI";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -359,7 +359,7 @@ type QueryFormProps = {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
-    suggestedWidgets?: WidgetType[];
+    suggestedWidgets?: SuggestedWidget[];
   };
   runErrorMessage: string | undefined;
   location: {
