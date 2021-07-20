@@ -45,6 +45,7 @@ import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
 import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
+import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSActionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
@@ -64,6 +65,7 @@ export interface AppState {
     widgetSidebar: WidgetSidebarReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
+    tableFilterPane: TableFilterPaneReduxState;
     errors: ErrorReduxState;
     appView: AppViewReduxState;
     applications: ApplicationsReduxState;

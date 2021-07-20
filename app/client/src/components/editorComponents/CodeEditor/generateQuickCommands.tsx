@@ -7,7 +7,13 @@ import { PluginType } from "entities/Action";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as JsIcon } from "assets/icons/menu/js.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
+import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
+import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 
+enum Shortcuts {
+  PLUS = "PLUS",
+  BINDING = "BINDING",
+}
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
   currentEntityType: string,
@@ -26,19 +32,20 @@ export const generateQuickCommands = (
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+  recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "New Binding",
-    shortcut: "{{}}",
+    shortcut: Shortcuts.BINDING,
   });
-  const newDatasource: CommandsCompletion = generateCreateNewCommand({
+  const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
     action: () =>
       executeCommand({
-        actionType: "NEW_DATASOURCE",
+        actionType: "NEW_INTEGRATION",
       }),
-    shortcut: "datasource.new",
+    shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
     const name = suggestion.name || suggestion.widgetName;
@@ -46,7 +53,6 @@ export const generateQuickCommands = (
       text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
-      shortcut: "{{}}",
       data: suggestion,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
@@ -66,7 +72,6 @@ export const generateQuickCommands = (
       text: "",
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
-      shortcut: `${action.name}.new`,
       data: action,
       action: () =>
         executeCommand({
@@ -89,7 +94,7 @@ export const generateQuickCommands = (
     suggestions,
     searchText,
     recentEntities,
-    currentEntityType === "WIDGET" ? 2 : 3,
+    5,
   );
   suggestionsMatchingSearchText.push(
     ...matchingCommands([newBinding], searchText, []),
@@ -106,7 +111,7 @@ export const generateQuickCommands = (
   );
   if (currentEntityType === "WIDGET") {
     createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newDatasource], searchText, []),
+      ...matchingCommands([newIntegration], searchText, []),
     );
   }
   let list: CommandsCompletion[] = [];
@@ -124,13 +129,12 @@ const matchingCommands = (
   list: any,
   searchText: string,
   recentEntities: string[] = [],
-  limit = 2,
+  limit = 5,
 ) => {
   list = list.filter((action: any) => {
-    return (
-      action.displayText.toLowerCase().startsWith(searchText.toLowerCase()) ||
-      action.shortcut.toLowerCase().startsWith(searchText.toLowerCase())
-    );
+    return action.displayText
+      .toLowerCase()
+      .startsWith(searchText.toLowerCase());
   });
   list = sortBy(list, (a: any) => {
     return (
@@ -172,7 +176,11 @@ const generateCreateNewCommand = ({
   action: action,
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
-      <Command name={data.displayText} shortcut={data.shortcut} />,
+      <Command
+        customText={data.customText}
+        name={data.displayText}
+        shortcut={data.shortcut}
+      />,
       element,
     );
   },
@@ -182,7 +190,8 @@ function Command(props: {
   pluginType?: PluginType;
   imgSrc?: string;
   name: string;
-  shortcut: string;
+  shortcut: Shortcuts;
+  customText?: string;
 }) {
   return (
     <div className="command-container">
@@ -195,9 +204,12 @@ function Command(props: {
             JS: <JsIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
+        {props.shortcut &&
+          { [Shortcuts.BINDING]: <Binding />, [Shortcuts.PLUS]: <NewPlus /> }[
+            props.shortcut
+          ]}
         <span>{props.name}</span>
       </div>
-      <span className="shortcut">{props.shortcut}</span>
     </div>
   );
 }
