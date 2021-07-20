@@ -164,7 +164,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           {
             propertyName: "shortcuts",
             label: "Show Shortcuts",
-            helpText: "Decide to show shortcuts menu",
+            helpText: "Choose to show shortcut menu",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,

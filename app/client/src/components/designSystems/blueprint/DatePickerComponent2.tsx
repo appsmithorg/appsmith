@@ -78,6 +78,8 @@ class DatePickerComponent extends React.Component<
     };
   }
 
+  pickerRef: HTMLElement | null = null;
+
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
       this.props.selectedDate !== this.state.selectedDate &&
@@ -93,6 +95,11 @@ class DatePickerComponent extends React.Component<
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
+  };
+
+  handlePopoverRef = (ref: any) => {
+    // get popover ref as callback
+    this.pickerRef = ref as HTMLElement;
   };
 
   render() {
@@ -156,6 +163,7 @@ class DatePickerComponent extends React.Component<
               popoverProps={{
                 isOpen: this.state.showPicker,
                 onClose: this.closePicker,
+                popoverRef: this.handlePopoverRef,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -239,12 +247,11 @@ class DatePickerComponent extends React.Component<
   closePicker = (e: any) => {
     const { closeOnSelection } = this.props;
     try {
-      // check user click on shortcuts or out side widget
-      const $parent = document.getElementsByClassName(
-        "bp3-daterangepicker-shortcuts",
-      )[0];
       // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-      const showPicker = $parent.contains(e.target) ? !closeOnSelection : false;
+      const showPicker =
+        this.pickerRef && this.pickerRef.contains(e.target)
+          ? !closeOnSelection
+          : false;
       this.setState({ showPicker });
     } catch (error) {
       this.setState({ showPicker: false });
