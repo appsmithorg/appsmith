@@ -158,6 +158,21 @@ class CodeEditor extends Component<Props, State> {
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    if (
+      this.state.isFocused !== nextState.isFocused ||
+      this.state.isOpened !== nextState.isOpened ||
+      this.state.autoCompleteVisible !== nextState.autoCompleteVisible
+    )
+      return true;
+
+    return (
+      this.state.isFocused ||
+      this.state.isOpened ||
+      this.state.autoCompleteVisible
+    );
+  }
+
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
