@@ -15,14 +15,13 @@ import pulsatingDot from "assets/lottie/pulse-dot.json";
 import { Indices } from "constants/Layers";
 
 type Props = {
-  children: React.ReactNode;
+  children: React.ReactElement<any>;
   hasOverlay?: boolean;
-  tourType: TourType;
-  tourIndex: number;
   modifiers?: Modifiers;
   onClick?: () => void;
   pulseStyles?: CSSProperties;
   showPulse?: boolean;
+  activeStepConfig: { [key in TourType]?: any };
 };
 
 const Overlay = styled.div`
@@ -47,16 +46,18 @@ const Container = styled.div`
 `;
 
 function TourTooltipWrapper(props: Props) {
-  const { children, tourIndex, tourType } = props;
+  const { activeStepConfig, children } = props;
+
+  const activeTourType = useSelector(getActiveTourType) as TourType;
+  const expectedActiveStep = activeStepConfig[activeTourType];
+
   const isCurrentStepActive = useSelector(
-    (state: AppState) => getActiveTourIndex(state) === tourIndex,
+    (state: AppState) => getActiveTourIndex(state) === expectedActiveStep,
   );
-  const isCurrentTourActive = useSelector(
-    (state: AppState) => getActiveTourType(state) === tourType,
-  );
-  const tourStepsConfig = TourStepsByType[tourType as TourType];
-  const tourStepConfig = tourStepsConfig[tourIndex];
-  const isOpen = isCurrentStepActive && isCurrentTourActive;
+
+  const tourStepsConfig = TourStepsByType[activeTourType as TourType];
+  const tourStepConfig = tourStepsConfig && tourStepsConfig[expectedActiveStep];
+  const isOpen = isCurrentStepActive;
   const dotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,14 +74,13 @@ function TourTooltipWrapper(props: Props) {
     };
   }, [isOpen, dotRef?.current]);
 
+  if (!isOpen) return children;
+
   return (
     <>
       {/* A crude overlay which won't work with containers having overflow hidden */}
       {isOpen && props.hasOverlay && <Overlay />}
       <Container onClick={props.onClick ? props.onClick : noop}>
-        {isOpen && props.showPulse && (
-          <PulseDot ref={dotRef} style={props.pulseStyles} />
-        )}
         <TooltipComponent
           boundary={"viewport"}
           content={
@@ -99,9 +99,13 @@ function TourTooltipWrapper(props: Props) {
           isOpen={!!isOpen}
           modifiers={props.modifiers}
           position={Position.BOTTOM}
+          {...tourStepConfig?.data.tooltipProps}
         >
           {children}
         </TooltipComponent>
+        {isOpen && props.showPulse && (
+          <PulseDot ref={dotRef} style={props.pulseStyles} />
+        )}
       </Container>
     </>
   );
