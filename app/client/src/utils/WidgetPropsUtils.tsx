@@ -790,16 +790,19 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 26) {
     currentDSL = migrateDatePickerMinMaxDate(currentDSL);
-  }
-  if (currentDSL.version === 27) {
-    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = 27;
   }
 
   if (currentDSL.version === 27) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = 28;
+  }
+
+  if (currentDSL.version === 28) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 
