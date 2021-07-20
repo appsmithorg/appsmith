@@ -121,11 +121,6 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     }
 
     @Override
-    public Mono<User> saveUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
     public Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole) {
         Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
