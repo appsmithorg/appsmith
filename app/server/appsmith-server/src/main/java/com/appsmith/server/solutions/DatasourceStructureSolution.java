@@ -3,9 +3,13 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -22,7 +26,10 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+
+import static com.appsmith.external.models.AuthenticationDTO.AuthenticationStatus.SUCCESS;
 
 @Component
 @RequiredArgsConstructor
@@ -124,5 +131,48 @@ public class DatasourceStructureSolution {
                         ? Mono.empty()
                         : datasourceRepository.saveStructure(datasource.getId(), structure).thenReturn(structure)
                 );
+    }
+
+    /**
+     * This function will be used to execute queries on datasource without creating the new action
+     * e.g. get all spreadsheets from google drive, fetch 1st row from the table etc
+     * @param datasourceId
+     * @param pluginSpecifiedTemplates
+     * @return
+     */
+    public Mono<ActionExecutionResult> getDatasourceMetadata(String datasourceId, List<Property> pluginSpecifiedTemplates) {
+
+        /*
+            1. Check if the datasource is present
+            2. Check plugin is present
+            3. Execute DB query from the information provided present in pluginSpecifiedTemplates
+         */
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+            .switchIfEmpty(Mono.error(new AppsmithException(
+                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
+            )));
+
+        return datasourceMono.flatMap(datasource -> {
+
+            AuthenticationDTO auth = datasource.getDatasourceConfiguration() == null
+                || datasource.getDatasourceConfiguration().getAuthentication() == null ?
+                null : datasource.getDatasourceConfiguration().getAuthentication();
+            if (auth == null || !SUCCESS.equals(auth.getAuthenticationStatus())) {
+                // Don't attempt to run query for invalid datasources.
+                return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_DATASOURCE,
+                    datasource.getName(),
+                    "Authentication failure for datasource, please re-authenticate and try again!"
+                ));
+            }
+            // check if the plugin is present and call method from plugin executor
+            return pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
+                .flatMap(pluginExecutor ->
+                    pluginExecutor.getDatasourceMetadata(pluginSpecifiedTemplates, datasource.getDatasourceConfiguration())
+                )
+                .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS));
+        });
     }
 }
