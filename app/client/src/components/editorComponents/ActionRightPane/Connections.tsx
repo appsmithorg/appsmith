@@ -12,6 +12,7 @@ import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import { useCallback } from "react";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -92,6 +93,13 @@ function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
   const getEntityType = useGetEntityType();
 
+  const onClick = (entityName: string) => {
+    navigateToEntity(entityName);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      screen: "INTEGRATION",
+    });
+  };
+
   return props.dependencies.length ? (
     <ConnectionsContainer>
       {props.dependencies.map((entityName: string) => {
@@ -105,10 +113,7 @@ function Dependencies(props: any) {
             key={entityName}
           >
             <ConnectionWrapper>
-              <span
-                className="connection"
-                onClick={() => navigateToEntity(entityName)}
-              >
+              <span className="connection" onClick={() => onClick(entityName)}>
                 {entityName}
               </span>
             </ConnectionWrapper>

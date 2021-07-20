@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
 import Tooltip from "components/ads/Tooltip";
 import { addSuggestedWidget } from "actions/widgetActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -143,6 +144,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
   const addWidget = (widgetType: WidgetType, widgetInfo: WidgetBindingInfo) => {
     const payload = getWidgetProps(widgetType, widgetInfo, props.actionName);
+
+    AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
+      widget: widgetType,
+    });
 
     dispatch(addSuggestedWidget(payload));
   };
