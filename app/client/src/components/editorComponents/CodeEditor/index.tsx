@@ -121,6 +121,7 @@ type State = {
   isFocused: boolean;
   isOpened: boolean;
   autoCompleteVisible: boolean;
+  hinterOpen: boolean;
 };
 
 const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
@@ -153,6 +154,7 @@ class CodeEditor extends Component<Props, State> {
       isFocused: false,
       isOpened: false,
       autoCompleteVisible: false,
+      hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -166,7 +168,7 @@ class CodeEditor extends Component<Props, State> {
         tabSize: 2,
         autoCloseBrackets: true,
         indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
-        lineWrapping: this.props.size !== EditorSize.COMPACT,
+        lineWrapping: true,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
         matchBrackets: false,
@@ -259,9 +261,7 @@ class CodeEditor extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
         if (!!inputValue || inputValue === "") {
-          if (this.props.size === EditorSize.COMPACT) {
-            this.editor.setValue(removeNewLineChars(inputValue));
-          } else if (inputValue !== editorValue) {
+          if (inputValue !== editorValue) {
             this.editor.setValue(inputValue);
           }
         }
@@ -325,14 +325,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.operation(() => {
-        const inputValue = this.props.input.value;
-        this.editor.setOption("lineWrapping", true);
-        this.editor.setValue(inputValue);
-        this.editor.setCursor(inputValue.length);
-      });
-    }
     if (this.editor.getValue().length === 0)
       this.handleAutocompleteVisibility(this.editor);
   };
@@ -340,9 +332,6 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.setOption("lineWrapping", false);
-    }
     this.editor.setOption("matchBrackets", false);
   };
 
@@ -407,6 +396,7 @@ class CodeEditor extends Component<Props, State> {
       });
       if (hinterOpen) break;
     }
+    this.setState({ hinterOpen });
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -427,10 +417,10 @@ class CodeEditor extends Component<Props, State> {
     cursor?: number,
     preventAutoComplete = false,
   ) {
+    this.editor.focus();
     if (value) {
       this.editor.setValue(value);
     }
-    this.editor.focus();
     this.editor.setCursor({
       line: cursor || this.editor.lineCount() - 1,
       ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
@@ -578,8 +568,11 @@ class CodeEditor extends Component<Props, State> {
               <BindingPrompt
                 editorTheme={this.props.theme}
                 isOpen={
-                  showBindingPrompt(showEvaluatedValue, input.value) &&
-                  !_.get(this.editor, "state.completionActive")
+                  showBindingPrompt(
+                    showEvaluatedValue,
+                    input.value,
+                    this.state.hinterOpen,
+                  ) && !_.get(this.editor, "state.completionActive")
                 }
                 promptMessage={this.props.promptMessage}
                 showLightningMenu={this.props.showLightningMenu}

@@ -2,6 +2,7 @@ import { AppState } from "reducers";
 import { get } from "lodash";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -21,8 +22,15 @@ export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
 
-export const commentModeSelector = (state: AppState) =>
-  state.ui.comments?.isCommentMode;
+export const commentModeSelector = (state: AppState) => {
+  const pathName = window.location.pathname;
+  const onEditorOrViewerPage =
+    matchBuilderPath(pathName) || matchViewerPath(pathName);
+  return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
+};
+
+export const isUnsubscribedSelector = (state: AppState) =>
+  state.ui.comments?.unsubscribed;
 
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,

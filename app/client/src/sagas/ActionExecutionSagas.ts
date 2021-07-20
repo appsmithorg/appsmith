@@ -10,6 +10,7 @@ import {
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
   PageAction,
+  RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import {
@@ -80,7 +81,8 @@ import {
 } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
-import { getType, Types } from "utils/TypeHelpers";
+import Axios from "axios";
+import { getType, isURL, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
@@ -117,6 +119,10 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+
+enum ActionResponseDataTypes {
+  BINARY = "BINARY",
+}
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -264,6 +270,29 @@ async function downloadSaga(
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
+    } else if (
+      dataType === Types.STRING &&
+      isURL(data) &&
+      type === "application/x-binary"
+    ) {
+      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
+      // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
+      // using axios with the arraybuffer header and then pass it to the downloadjs library.
+      Axios.get(data, { responseType: "arraybuffer" })
+        .then((res) => {
+          downloadjs(res.data, name, type);
+          AppsmithConsole.info({
+            text: `download('${data}', '${name}', '${type}') was triggered`,
+          });
+        })
+        .catch((error) => {
+          log.error(error);
+          Toaster.show({
+            text: createMessage(ERROR_WIDGET_DOWNLOAD, error),
+            variant: Variant.danger,
+          });
+          if (event.callback) event.callback({ success: false });
+        });
     } else {
       downloadjs(data, name, type);
       AppsmithConsole.info({
@@ -837,6 +866,26 @@ function* runActionSaga(
       }
       if (actionObject.pluginType === PluginType.SAAS) {
         eventName = "RUN_SAAS_API";
+      }
+
+      if (
+        actionObject.pluginType === PluginType.API &&
+        payload.statusCode === "200 OK" &&
+        payload.hasOwnProperty("headers")
+      ) {
+        const respHeaders = payload.headers;
+        if (
+          respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+          respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
+          respHeaders[RESP_HEADER_DATATYPE][0] ===
+            ActionResponseDataTypes.BINARY &&
+          getType(payload.body) === Types.STRING
+        ) {
+          // Decoding from base64 to handle the binary files because direct
+          // conversion of binary files to string causes corruption in the final output
+          // this is to only handle the download of binary files
+          payload.body = atob(payload.body as string);
+        }
       }
 
       AnalyticsUtil.logEvent(eventName, {

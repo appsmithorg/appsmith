@@ -135,6 +135,11 @@
       "color": "7057ff",
       "description": "Good for newcomers"
     },
+    "Google Sheets": {
+      "name": "Google Sheets",
+      "color": "7057ff",
+      "description": "Issues related to Google Sheets"
+    },
     "Generate Page": {
       "name": "Generate Page",
       "color": "7057ff",
@@ -501,6 +506,11 @@
               {
                 "type": "hasLabel",
                 "label": "Datasources",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Google Sheets",
                 "value": true
               },
               {
