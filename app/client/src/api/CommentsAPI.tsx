@@ -62,6 +62,10 @@ class CommentsApi extends Api {
     return Api.delete(`${CommentsApi.getThreadsAPI}/${threadId}`);
   }
 
+  static unsubscribeCommentThread(threadId: string): AxiosPromise<ApiResponse> {
+    return Api.post(`${CommentsApi.getThreadsAPI}/${threadId}/unsubscribe`);
+  }
+
   static addCommentReaction(
     commentId: string,
     request: { emoji: string },
