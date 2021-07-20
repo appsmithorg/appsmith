@@ -87,8 +87,10 @@ class UserOrganizationServiceTest {
         userRole.setUsername(username);
         userRole.setUserId(userId);
         userRole.setName(username);
-        userRole.setRoleName(role.getName());
-        userRole.setRole(role);
+        if(role != null) {
+            userRole.setRoleName(role.getName());
+            userRole.setRole(role);
+        }
         return userRole;
     }
 
@@ -109,7 +111,6 @@ class UserOrganizationServiceTest {
         User currentUser = userRepository.findByEmail("api_user").block();
         currentUser.getOrganizationIds().remove(organization.getId());
         userRepository.save(currentUser);
-
         organizationRepository.deleteById(organization.getId()).block();
     }
 
@@ -201,14 +202,22 @@ class UserOrganizationServiceTest {
         ).verifyComplete();
     }
 
-    @Test
-    @WithUserDetails("api_user")
-    public void updateRoleForMember_WhenCommentThreadExists_ThreadPoliciesUnchanged() {
+    private Application createTestApplicationForCommentThreadTests() {
         // add a two roles to the organization
+        User devUser = new User();
+        devUser.setEmail("test_developer");
+        userRepository.findByEmail("test_developer")
+                .switchIfEmpty(userRepository.save(devUser))
+                .block();
+
         UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
         UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
 
-        addRolesToOrg(List.of(adminRole, devRole));
+        List<UserRole> userRoles = new ArrayList<>(2);
+        userRoles.add(adminRole);
+        userRoles.add(devRole);
+
+        addRolesToOrg(userRoles);
 
         // create a test application
         Application application = new Application();
@@ -218,15 +227,19 @@ class UserOrganizationServiceTest {
                 organization.getPolicies(), Organization.class, Application.class
         );
         application.setPolicies(documentPolicies);
+        return application;
+    }
 
-        Mono<CommentThread> commentThreadMono = applicationRepository.save(application)
+    @Test
+    @WithUserDetails("api_user")
+    public void updateRoleForMember_WhenCommentThreadExists_ThreadPoliciesUnchanged() {
+        // create a test application
+        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
                 .flatMap(savedApplication -> {
                     CommentThread commentThread = new CommentThread();
                     commentThread.setApplicationId(savedApplication.getId());
                     commentThread.setPolicies(policyGenerator.getAllChildPolicies(
-                            application.getPolicies(),
-                            Application.class,
-                            CommentThread.class
+                            savedApplication.getPolicies(), Application.class, CommentThread.class
                     ));
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
@@ -243,6 +256,78 @@ class UserOrganizationServiceTest {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+            )).isTrue();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+            )).isTrue();
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateRoleForMember_WhenCommentThreadExistsAndUserRemoved_UserRemovedFromThreadPolicies() {
+        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
+                .flatMap(savedApplication -> {
+                    CommentThread commentThread = new CommentThread();
+                    commentThread.setApplicationId(savedApplication.getId());
+                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
+                            savedApplication.getPolicies(), Application.class, CommentThread.class
+                    ));
+                    return commentThreadRepository.save(commentThread);
+                }).flatMap(commentThread -> {
+                    // remove the test_developer user from the organization
+                    UserRole updatedRole = createUserRole("test_developer", "test_developer", null);
+                    return userOrganizationService.updateRoleForMember(organization.getId(), updatedRole, null)
+                            .thenReturn(commentThread);
+                }).flatMap(commentThread ->
+                        commentThreadRepository.findById(commentThread.getId())
+                );
+
+        StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
+            Set<Policy> policies = commentThread.getPolicies();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+            )).isFalse();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+            )).isTrue();
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void bulkAddUsersToOrganization_WhenNewUserAdded_ThreadPolicyUpdated() {
+        // create a new user
+        User user = new User();
+        user.setEmail("new_test_user");
+        Mono<User> saveUserMono = userRepository.save(user);
+
+        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
+                .flatMap(savedApplication -> {
+                    CommentThread commentThread = new CommentThread();
+                    commentThread.setApplicationId(savedApplication.getId());
+                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
+                            savedApplication.getPolicies(), Application.class, CommentThread.class
+                    ));
+                    return commentThreadRepository.save(commentThread);
+                }).flatMap(commentThread -> {
+                    // add the new user to the organization
+                    List<User> users = new ArrayList<>(1);
+                    users.add(user);
+                    return userOrganizationService
+                            .bulkAddUsersToOrganization(organization, users, ORGANIZATION_DEVELOPER.getName())
+                            .thenReturn(commentThread);
+                }).flatMap(commentThread ->
+                        commentThreadRepository.findById(commentThread.getId())
+                );
+
+        StepVerifier.create(saveUserMono.then(commentThreadMono)).assertNext(commentThread -> {
+            Set<Policy> policies = commentThread.getPolicies();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+            )).isTrue();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "new_test_user"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREAD.getValue(), "api_user"
