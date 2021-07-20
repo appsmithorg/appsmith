@@ -157,10 +157,10 @@ function NewApiScreen(props: Props) {
   };
   const handleCreateOAuthDatasource = useCallback(() => {
     const plugin = plugins.find((p) => p.name === "REST API");
-    // dispatch(storeAsDatasource());
     plugin &&
       props.createDatasourceFromForm({
         pluginId: plugin.id,
+        // Following obj is the only difference between REST API creation and OAuth
         datasourceConfiguration: {
           authentication: {
             authenticationType: "oAuth2",
