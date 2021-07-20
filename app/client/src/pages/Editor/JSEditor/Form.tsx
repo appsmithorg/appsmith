@@ -162,7 +162,9 @@ function JSEditorForm() {
     (js) => js.id === params.functionId,
   );
   const handleOnChange = (event: string) => {
-    dispatch(updateJSAction(event));
+    if (currentJSAction) {
+      dispatch(updateJSAction(event, currentJSAction.id));
+    }
   };
   const { pageId } = useParams<ExplorerURLParams>();
 

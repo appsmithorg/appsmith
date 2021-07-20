@@ -10,9 +10,10 @@ export const createNewJSAction = (
 
 export const updateJSAction = (
   body: string,
-): ReduxAction<{ body: string }> => ({
+  id: string,
+): ReduxAction<{ body: string; id: string }> => ({
   type: ReduxActionTypes.UPDATE_JS_ACTION_INIT,
-  payload: { body },
+  payload: { body, id },
 });
 
 export const updateJSActionSuccess = (payload: { data: JSAction }) => {

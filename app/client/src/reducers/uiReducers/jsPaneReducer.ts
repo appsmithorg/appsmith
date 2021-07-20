@@ -58,6 +58,16 @@ const jsPaneReducer = createReducer(initialState, {
     ...state,
     isCreating: false,
   }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_INIT]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.id]: true,
+    },
+  }),
   [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ data: JSAction }>,
