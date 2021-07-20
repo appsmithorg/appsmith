@@ -50,7 +50,13 @@ public class PolicyUtils {
         // TODO: Investigate a solution without using deep-copy.
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            policyMap1.put(entry.getKey(), entry.getValue());
+            Policy entryValue = entry.getValue();
+            Policy policy = Policy.builder()
+                    .users(new HashSet<>(entryValue.getUsers()))
+                    .permission(entryValue.getPermission())
+                    .groups(new HashSet<>(entryValue.getGroups()))
+                    .build();
+            policyMap1.put(entry.getKey(), policy);
         }
 
         // Append the user to the existing permission policy if it already exists.

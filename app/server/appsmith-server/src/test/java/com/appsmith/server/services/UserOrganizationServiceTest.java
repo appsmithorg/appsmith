@@ -1,11 +1,19 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +30,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_VIEWER;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
@@ -46,6 +56,21 @@ class UserOrganizationServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PolicyUtils policyUtils;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private CommentThreadRepository commentThreadRepository;
+
+    @Autowired
+    private PolicyGenerator policyGenerator;
+
     private Organization organization;
     private User user;
 
@@ -53,19 +78,30 @@ class UserOrganizationServiceTest {
     public void setup() {
         Organization org = new Organization();
         org.setName("Test org");
-
-        UserRole userRole = new UserRole();
-        userRole.setUsername("dummy_username");
-        userRole.setUserId("dummy_user_id");
-        userRole.setName("dummy_username");
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
-        userRole.setRole(AppsmithRole.ORGANIZATION_DEVELOPER);
-
-        List<UserRole> userRoles = new ArrayList<>();
-        userRoles.add(userRole);
-        org.setUserRoles(userRoles);
-
+        org.setUserRoles(new ArrayList<>());
         this.organization = organizationRepository.save(org).block();
+    }
+
+    private UserRole createUserRole(String username, String userId, AppsmithRole role) {
+        UserRole userRole = new UserRole();
+        userRole.setUsername(username);
+        userRole.setUserId(userId);
+        userRole.setName(username);
+        userRole.setRoleName(role.getName());
+        userRole.setRole(role);
+        return userRole;
+    }
+
+    private void addRolesToOrg(List<UserRole> roles) {
+        this.organization.setUserRoles(roles);
+        for (UserRole userRole : roles) {
+            Set<AclPermission> rolePermissions = userRole.getRole().getPermissions();
+            Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(
+                    rolePermissions, userRole.getUsername()
+            );
+            this.organization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
+        }
+        this.organization = organizationRepository.save(organization).block();
     }
 
     @AfterEach
@@ -88,11 +124,7 @@ class UserOrganizationServiceTest {
         currentUser.getOrganizationIds().add(organization.getId());
         userRepository.save(currentUser).block();
 
-        UserRole userRole = new UserRole();
-        userRole.setUsername(currentUser.getUsername());
-        userRole.setUserId(currentUser.getId());
-        userRole.setName(currentUser.getName());
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
 
         Organization updatedOrganization = userOrganizationService.addUserToOrganizationGivenUserObject(
                 this.organization, currentUser, userRole
@@ -130,10 +162,7 @@ class UserOrganizationServiceTest {
     public void updateRoleForMember_WhenAdminRoleRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the organization first
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = new UserRole();
-        userRole.setUsername(currentUser.getUsername());
-        userRole.setRole(AppsmithRole.ORGANIZATION_DEVELOPER);
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
 
         userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
 
@@ -151,23 +180,13 @@ class UserOrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateRoleForMember_WhenAdminRoleRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the organization
-        UserRole adminRole = new UserRole();
-        adminRole.setUsername("dummy_username2");
-        adminRole.setUserId("dummy_user_id2");
-        adminRole.setName("dummy_username2");
-        adminRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        adminRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
         this.organization.getUserRoles().add(adminRole);
-
         this.organization = organizationRepository.save(this.organization).block();
 
         // add the current user as an admin to the organization
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = new UserRole();
-        userRole.setUsername(currentUser.getUsername());
-        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
         userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
 
         // try to remove the user from org
@@ -180,5 +199,54 @@ class UserOrganizationServiceTest {
                     assertEquals(currentUser.getUsername(), userRole1.getUsername());
                 }
         ).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateRoleForMember_WhenCommentThreadExists_ThreadPoliciesUnchanged() {
+        // add a two roles to the organization
+        UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
+        UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
+
+        addRolesToOrg(List.of(adminRole, devRole));
+
+        // create a test application
+        Application application = new Application();
+        application.setOrganizationId(this.organization.getId());
+        application.setName("Test application");
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
+                organization.getPolicies(), Organization.class, Application.class
+        );
+        application.setPolicies(documentPolicies);
+
+        Mono<CommentThread> commentThreadMono = applicationRepository.save(application)
+                .flatMap(savedApplication -> {
+                    CommentThread commentThread = new CommentThread();
+                    commentThread.setApplicationId(savedApplication.getId());
+                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
+                            application.getPolicies(),
+                            Application.class,
+                            CommentThread.class
+                    ));
+                    return commentThreadRepository.save(commentThread);
+                }).flatMap(commentThread -> {
+                    // update an user's role
+                    UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
+                    return userOrganizationService.updateRoleForMember(
+                            organization.getId(), updatedRole, null
+                    ).thenReturn(commentThread);
+                }).flatMap(commentThread ->
+                    commentThreadRepository.findById(commentThread.getId())
+                );
+
+        StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
+            Set<Policy> policies = commentThread.getPolicies();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+            )).isTrue();
+            assertThat(policyUtils.isPermissionPresentForUser(
+                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+            )).isTrue();
+        }).verifyComplete();
     }
 }
