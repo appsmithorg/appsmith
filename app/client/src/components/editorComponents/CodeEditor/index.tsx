@@ -18,6 +18,7 @@ import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
@@ -30,6 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
+  HintEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -55,7 +57,7 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
@@ -168,7 +170,7 @@ class CodeEditor extends Component<Props, State> {
         tabSize: 2,
         autoCloseBrackets: true,
         indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
-        lineWrapping: this.props.size !== EditorSize.COMPACT,
+        lineWrapping: true,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
         matchBrackets: false,
@@ -261,9 +263,7 @@ class CodeEditor extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
         if (!!inputValue || inputValue === "") {
-          if (this.props.size === EditorSize.COMPACT) {
-            this.editor.setValue(removeNewLineChars(inputValue));
-          } else if (inputValue !== editorValue) {
+          if (inputValue !== editorValue) {
             this.editor.setValue(inputValue);
           }
         }
@@ -327,14 +327,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.operation(() => {
-        const inputValue = this.props.input.value;
-        this.editor.setOption("lineWrapping", true);
-        this.editor.setValue(inputValue);
-        this.editor.setCursor(inputValue.length);
-      });
-    }
     if (this.editor.getValue().length === 0)
       this.handleAutocompleteVisibility(this.editor);
   };
@@ -342,9 +334,6 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.setOption("lineWrapping", false);
-    }
     this.editor.setOption("matchBrackets", false);
   };
 
@@ -386,13 +375,27 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const expected = this.props.expected ? this.props.expected : "";
-    const { entityName } = getEntityNameAndPropertyPath(
-      this.props.dataTreePath || "",
-    );
+    const { dataTreePath, dynamicData, expected } = this.props;
+    const entityInformation: HintEntityInformation = {
+      expectedType: expected,
+    };
+    if (dataTreePath) {
+      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      entityInformation.entityName = entityName;
+      const entity = dynamicData[entityName];
+      if (entity && "ENTITY_TYPE" in entity) {
+        const entityType = entity.ENTITY_TYPE;
+        if (
+          entityType === ENTITY_TYPE.WIDGET ||
+          entityType === ENTITY_TYPE.ACTION
+        ) {
+          entityInformation.entityType = entityType;
+        }
+      }
+    }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,

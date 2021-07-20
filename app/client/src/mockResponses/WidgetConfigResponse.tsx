@@ -1194,7 +1194,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
-      widgetName: "Menu Button",
+      widgetName: "MenuButton",
     },
   },
   configVersion: 1,
