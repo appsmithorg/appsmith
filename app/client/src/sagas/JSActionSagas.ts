@@ -25,7 +25,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { JS_FUNCTION_ID_URL } from "constants/routes";
+import { JS_FUNCTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSActionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -39,6 +39,8 @@ import {
   ERROR_JS_ACTION_MOVE_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
+import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import { isUndefined } from "lodash";
 
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -184,6 +186,27 @@ function* moveJSActionSaga(
   }
 }
 
+export const getIndexToBeRedirected = (
+  jsActions: Array<DataTreeJSAction>,
+  id: string,
+): any => {
+  let resultIndex = undefined;
+  let redirectIndex = undefined;
+  if (jsActions.length > 1) {
+    for (let i = 0; i < jsActions.length; i++) {
+      if (id === jsActions[i].config.id) {
+        resultIndex = i;
+      }
+    }
+  }
+  if (resultIndex && resultIndex > 0) {
+    redirectIndex = resultIndex - 1;
+  } else if (resultIndex === 0 && jsActions.length > 1) {
+    redirectIndex = resultIndex + 1;
+  }
+  return redirectIndex;
+};
+
 export function* deleteJSActionSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -201,9 +224,18 @@ export function* deleteJSActionSaga(
         variant: Variant.success,
       });
       if (jsActions.length > 0) {
-        const jsAction = jsActions[jsActions.length - 1];
-        const id = jsAction.config.id;
-        history.push(JS_FUNCTION_ID_URL(applicationId, pageId, id));
+        const getIndex = getIndexToBeRedirected(
+          jsActions,
+          actionPayload.payload.id,
+        );
+        if (getIndex) {
+          const jsAction = jsActions[getIndex];
+          history.push(
+            JS_FUNCTION_ID_URL(applicationId, pageId, jsAction.config.id),
+          );
+        } else {
+          history.push(BUILDER_PAGE_URL(applicationId, pageId));
+        }
       }
       yield put(deleteJSActionSuccess({ id }));
     }
