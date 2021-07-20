@@ -119,10 +119,10 @@ public class CreateDBTablePageSolutionTests {
             "LIMIT {{Table1.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field1\" = '{{update_col_1.text}}',\n" +
-            "    \"field2\" = '{{update_col_2.text}}',\n" +
-            "    \"field3\" = '{{update_col_3.text}}',\n" +
-            "\t\t\"field4\" = '{{update_col_4.text}}'\n" +
+            "\t\t\"field1\" = '{{update_col_2.text}}',\n" +
+            "    \"field2\" = '{{update_col_3.text}}',\n" +
+            "    \"field3\" = '{{update_col_4.text}}',\n" +
+            "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};"
     );
 
@@ -637,7 +637,7 @@ public class CreateDBTablePageSolutionTests {
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("DELETE")) {
                         assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }"
+                            .contains("ObjectId('{{data_table.selectedRow.primaryKey}}'"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("FIND")) {
                         assertThat(pluginSpecifiedTemplate.get(4).getValue().toString().replaceAll(specialCharactersRegex, ""))
