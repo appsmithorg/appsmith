@@ -117,14 +117,12 @@ public class CreateDBTablePageSolution {
 
         // All SQL datasources will be mapped to postgresql as actionBody will be same and the same logic is used
         // in template application resource file : CRUD-DB-Table-Template-Application.json
-        final Set<String> sqlPackageNames = Set.of("postgres-plugin",
-                                                    "mysql-plugin",
-                                                    "mssql-plugin",
-                                                    "redshift-plugin",
-                                                    "snowflake-plugin");
-
-        // SQL datasources which don't support ilike operator for case insensitive filter
-        final Set<String> caseInsensitiveSqlDB = Set.of("mysql-plugin", "mssql-plugin");
+        final Set<String> sqlPackageNames = Set.of(
+            "mysql-plugin",
+            "mssql-plugin",
+            "redshift-plugin",
+            "snowflake-plugin"
+        );
 
         AtomicReference<String> savedPageId = new AtomicReference<>(pageId);
         if (pageResourceDTO.getTableName() == null || pageResourceDTO.getDatasourceId() == null) {
@@ -241,10 +239,6 @@ public class CreateDBTablePageSolution {
                         );
                     }
                     mappedColumnsAndTableName.putAll(mapTableColumnNames(templateTable, table, searchColumn, columns));
-                    // Some SQL databases doesn't support ilike operator
-                    if (caseInsensitiveSqlDB.contains(plugin.getPackageName())) {
-                        mappedColumnsAndTableName.put("ilike", "like");
-                    }
                 } else {
                     int colCount = 1;
                     // If the structure and tables not present in the template datasource then map the columns from
@@ -560,12 +554,11 @@ public class CreateDBTablePageSolution {
         if (CollectionUtils.isEmpty(sourceTable.getKeys()) || CollectionUtils.isEmpty(destTable.getKeys())) {
             return primaryKeyNameMap;
         }
-        sourceTable.getKeys().forEach(key -> {
-            if (key instanceof PrimaryKey) {
-                PrimaryKey pKey = (PrimaryKey) key;
-                sourceKeys.addAll(pKey.getColumnNames());
-            }
-        });
+        if (DatasourceStructure.TableType.TABLE.equals(sourceTable.getType())) {
+            sourceKeys.add("col1");
+        } else if (DatasourceStructure.TableType.COLLECTION.equals(sourceTable.getType())) {
+            sourceKeys.add("_id");
+        }
         destTable.getKeys().forEach(key -> {
             if (key instanceof PrimaryKey) {
                 PrimaryKey pKey = (PrimaryKey) key;

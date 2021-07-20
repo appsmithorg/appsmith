@@ -2817,11 +2817,12 @@ public class DatabaseChangelog {
     public void createPluginReferenceForGenerateCRUDPage(MongockTemplate mongoTemplate) {
 
         final String templatePageNameForSQLDatasource = "SQL";
-        final Set<String> sqlPackageNames = Set.of("postgres-plugin", "mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
+        final Set<String> sqlPackageNames = Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
         Set<String> validPackageNames = new HashSet<>(sqlPackageNames);
         validPackageNames.add("mongo-plugin");
         validPackageNames.add("amazons3-plugin");
         validPackageNames.add("google-sheets-plugin");
+        validPackageNames.add("postgres-plugin");
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
         for (Plugin plugin : plugins) {
@@ -2829,7 +2830,7 @@ public class DatabaseChangelog {
                 if (sqlPackageNames.contains(plugin.getPackageName())) {
                     plugin.setGenerateCRUDPageComponent(templatePageNameForSQLDatasource);
                 } else {
-                    plugin.setGenerateCRUDPageComponent(plugin.getName().toUpperCase());
+                    plugin.setGenerateCRUDPageComponent(plugin.getName());
                 }
             }
             mongoTemplate.save(plugin);

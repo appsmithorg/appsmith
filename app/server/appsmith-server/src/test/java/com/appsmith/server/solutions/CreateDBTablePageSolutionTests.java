@@ -113,10 +113,10 @@ public class CreateDBTablePageSolutionTests {
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field2\" ilike '%{{Table1.searchText || \"\"}}%'\n" +
+            "WHERE \"field2\" like '%{{Table1.searchText || \"\"}}%'\n" +
             "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
-            "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}} \n" +
-            "LIMIT {{Table1.pageSize}};",
+            "LIMIT {{Table1.pageSize}}" +
+            "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
             "\t\t\"field1\" = '{{update_col_2.text}}',\n" +
@@ -217,7 +217,7 @@ public class CreateDBTablePageSolutionTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createPageWithValidPageIdForPostgresDS() {
+    public void createPageWithValidPageIdForPostgresqlDS() {
 
         resource.setApplicationId(testApp.getId());
         PageDTO newPage = new PageDTO();
@@ -246,7 +246,8 @@ public class CreateDBTablePageSolutionTests {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
-                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
+                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
+                        .replace("like", "ilike");
                     assertThat(actionBody).isEqualTo(templateActionBody);
                 }
             })
@@ -296,8 +297,7 @@ public class CreateDBTablePageSolutionTests {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
-                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
-                        .replace("ilike", "like");
+                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
                     if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
@@ -405,8 +405,7 @@ public class CreateDBTablePageSolutionTests {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
-                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
-                        .replace("ilike", "like");;
+                        .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "");
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
                     if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
