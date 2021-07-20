@@ -40,7 +40,6 @@ import {
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { isUndefined } from "lodash";
 
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
