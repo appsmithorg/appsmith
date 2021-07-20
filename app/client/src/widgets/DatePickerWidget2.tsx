@@ -214,6 +214,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
+        closeOnSelection
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
         isDisabled={this.props.isDisabled}
