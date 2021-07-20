@@ -169,7 +169,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     );
   }
 
-  getWidgetType(): WidgetType {
+  static getWidgetType(): WidgetType {
     return "RATE_WIDGET";
   }
 }

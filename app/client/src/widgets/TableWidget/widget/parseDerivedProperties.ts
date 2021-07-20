@@ -2,7 +2,6 @@
 //@ts-ignore
 import widgetPropertyFns from "!!raw-loader!./derived.js";
 
-console.log("Register", { widgetPropertyFns });
 // TODO(abhinav):
 // Add unit test cases
 // Handle edge cases

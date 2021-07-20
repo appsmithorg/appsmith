@@ -195,8 +195,8 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
 WidgetEntity.displayName = "WidgetEntity";
 
-(WidgetEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
+// (WidgetEntity as any).whyDidYouRender = {
+//   logOnDifferentValues: false,
+// };
 
 export default WidgetEntity;

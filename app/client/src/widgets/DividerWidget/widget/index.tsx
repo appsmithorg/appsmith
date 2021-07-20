@@ -164,7 +164,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
     );
   }
 
-  getWidgetType(): WidgetType {
+  static getWidgetType(): WidgetType {
     return "DIVIDER_WIDGET";
   }
 }

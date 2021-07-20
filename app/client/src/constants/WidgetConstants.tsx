@@ -119,4 +119,21 @@ export const TEXT_SIZES = {
   PARAGRAPH2: "12px",
 };
 
+export const WIDGET_STATIC_PROPS = {
+  leftColumn: true,
+  rightColumn: true,
+  topRow: true,
+  bottomRow: true,
+  minHeight: true,
+  parentColumnSpace: true,
+  parentRowSpace: true,
+  children: true,
+  type: true,
+  widgetId: true,
+  widgetName: true,
+  parentId: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
+};
+
 export type TextSize = keyof typeof TextSizes;

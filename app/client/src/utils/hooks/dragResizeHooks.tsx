@@ -7,11 +7,11 @@ export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
 
+  // TODO(abhinav/Satish): Performance bottleneck
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
       if (isCommentMode) return;
-
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
         // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -66,6 +66,7 @@ export const useCanvasSnapRowsUpdateHook = () => {
 
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
+  // TODO(abhinav/Satish): Performance bottleneck
   return {
     setIsDragging: useCallback(
       (isDragging: boolean) => {

@@ -6,10 +6,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import {
-  useShowPropertyPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -59,14 +56,15 @@ export const canDrag = (
 };
 
 function DraggableComponent(props: DraggableComponentProps) {
-  // Dispatch hook handy to toggle property pane
-  const showPropertyPane = useShowPropertyPane();
-
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
 
   const isCommentMode = useSelector(commentModeSelector);
 
+  const isFocused = useSelector(
+    (state: AppState) =>
+      state.ui.widgetDragResize.focusedWidget === props.widgetId,
+  );
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setIsDragging } = useWidgetDragResize();
@@ -125,11 +123,11 @@ function DraggableComponent(props: DraggableComponentProps) {
       // of the property pane is taken into account.
       // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
-      if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-      }
+      // if (didDrop) {
+      //   showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
+      // }
       // Take this to the bottom of the stack. So that it runs last.
-      // We do this because, we don't want erroraneous mouse clicks to propagate.
+      // We do this because, we don't want unwanted mouse clicks to propagate.
       setTimeout(() => setIsDragging && setIsDragging(false), 0);
       AnalyticsUtil.logEvent("WIDGET_DROP", {
         widgetName: props.widgetName,
@@ -138,7 +136,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       });
     },
     canDrag: () => {
-      // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
+      // Don't allow drag if we're resizing or the drag of `DraggableComponent` is disabled
       return canDrag(isResizing, isDraggingDisabled, props, isCommentMode);
     },
   });
@@ -148,7 +146,10 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
-    focusWidget && !isResizingOrDragging && focusWidget(props.widgetId);
+    focusWidget &&
+      !isResizingOrDragging &&
+      !isFocused &&
+      focusWidget(props.widgetId);
     e.stopPropagation();
   };
   const shouldRenderComponent = !(

@@ -15,11 +15,14 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   RenderModes,
+  WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import { findKey } from "lodash";
 import produce from "immer";
 import { getAppMode } from "./applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+
+const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -155,13 +158,30 @@ export const makeGetWidgetProps = () => {
       canvasWidth: number,
       canvasWidget: WidgetProps,
       dataTreeWidget?: WidgetProps,
-    ): WidgetProps => {
-      console.log("Connected Widgets, Widget Props selector", {
-        widget: dataTreeWidget || canvasWidget,
-      });
-      const props: WidgetProps = dataTreeWidget || canvasWidget;
+    ): WidgetProps | undefined => {
+      if (dataTreeWidget && canvasWidget) {
+        const widget = produce(dataTreeWidget, (draft) => {
+          draft.canvasWidth = canvasWidth;
+          delete draft.defaultProps;
+          delete draft.defaultMetaProps;
+          delete draft.logBlackList;
+          delete draft.bindingPaths;
+          delete draft.validationPaths;
+          delete draft.triggerPaths;
+          STATIC_PROPS_LIST.forEach((key) => {
+            draft[key] = canvasWidget[key];
+          });
+        });
+        return widget;
+      }
+      if (canvasWidget) {
+        const widget = produce(canvasWidget, (draft) => {
+          draft.canvasWidth = canvasWidth;
+        });
+        return widget;
+      }
+
       // TODO(abhinav): Get static props from canvas widget and others from dataTree widget
-      return { ...props, canvasWidth: canvasWidth };
     },
   );
 };

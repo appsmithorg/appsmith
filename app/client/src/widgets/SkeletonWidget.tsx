@@ -24,7 +24,6 @@ class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
 export const CONFIG = {
   type: SkeletonWidget.getWidgetType(),
   name: "Skeleton",
-  iconSVG: "",
   hideCard: true,
   defaults: {
     isLoading: true,

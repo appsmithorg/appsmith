@@ -1232,15 +1232,17 @@ function* batchUpdateWidgetPropertySaga(
     widget = yield removeWidgetProperties(widget, remove);
   }
 
-  // const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  // const widgets = { ...stateWidgets, [widgetId]: widget };
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = produce(stateWidgets, (draft) => {
+    draft[widgetId] = widget;
+  });
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
     "ms",
   );
   // Save the layout
-  // yield put(updateAndSaveLayout(widgets));
+  yield put(updateAndSaveLayout(widgets));
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {

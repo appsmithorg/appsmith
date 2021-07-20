@@ -710,7 +710,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * returns type of the widget
    */
-  getWidgetType(): WidgetType {
+  static getWidgetType(): WidgetType {
     return "LIST_WIDGET";
   }
 }

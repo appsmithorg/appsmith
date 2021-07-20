@@ -199,4 +199,8 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   ) : null;
 });
 
+PropertyPaneTitle.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
+
 export default PropertyPaneTitle;

@@ -10,15 +10,6 @@ export const fetchOrg = (orgId: string) => {
   };
 };
 
-export const changeOrgName = (name: string) => {
-  return {
-    type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,
-    payload: {
-      name,
-    },
-  };
-};
-
 export const changeOrgUserRole = (
   orgId: string,
   role: string,

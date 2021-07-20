@@ -40,7 +40,10 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { disableDragAction, executeAction } from "actions/widgetActions";
 import { updateWidget } from "actions/pageActions";
-import { resetChildrenMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getDisplayName } from "./WidgetUtils";
 import { makeGetWidgetProps } from "selectors/editorSelectors";
@@ -66,10 +69,6 @@ abstract class BaseWidget<
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
-  }
-
-  static getWidgetType(): string {
-    return "SKELETON_WIDGET";
   }
 }
 
@@ -238,9 +237,6 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
             content = this.addOverlayComments(content);
             content = this.addErrorBoundary(content);
             if (!this.props.detachFromLayout) {
-              content = this.makeResizable(content);
-              content = this.showWidgetName(content);
-              content = this.makeDraggable(content);
               content = this.makePositioned(content);
             }
             return content;
@@ -349,24 +345,6 @@ export interface WidgetPositionProps extends WidgetRowCols {
   noContainerOffset?: boolean; // This won't offset the child in parent
 }
 
-export const WIDGET_STATIC_PROPS = {
-  leftColumn: true,
-  rightColumn: true,
-  topRow: true,
-  bottomRow: true,
-  minHeight: true,
-  parentColumnSpace: true,
-  parentRowSpace: true,
-  children: true,
-  type: true,
-  widgetId: true,
-  widgetName: true,
-  parentId: true,
-  renderMode: true,
-  detachFromLayout: true,
-  noContainerOffset: false,
-};
-
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
   isLoading: true,
@@ -468,6 +446,13 @@ export const mapDispatchToProps = (
   },
   resetChildrenMetaProperty: (widgetId: string) => {
     dispatch(resetChildrenMetaProperty(widgetId));
+  },
+  updateWidgetMetaProperty: (
+    widgetId: string,
+    propertyPath: string,
+    propertyValue: any,
+  ) => {
+    dispatch(updateWidgetMetaProperty(widgetId, propertyPath, propertyValue));
   },
   showPropertyPane: (
     widgetId?: string,

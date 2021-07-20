@@ -214,8 +214,8 @@ export const Entity = forwardRef(
 );
 
 Entity.displayName = "Entity";
-(Entity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
+// (Entity as any).whyDidYouRender = {
+//   logOnDifferentValues: false,
+// };
 
 export default Entity;

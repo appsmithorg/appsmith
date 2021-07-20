@@ -36,7 +36,7 @@ export const registerWidget = (
         const ProfiledWidget = Sentry.withProfiler(
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          withMeta(withWidgetAPI(Widget)),
+          withWidgetAPI(withMeta(Widget)),
         );
         return <ProfiledWidget {...widgetData} />;
       },
@@ -53,7 +53,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
   const _config = {
     ...config.defaults,
     type: config.type,
-    hideCard: !!config.hideCard,
+    hideCard: !!config.hideCard || !config.iconSVG,
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,

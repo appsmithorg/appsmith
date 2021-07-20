@@ -104,7 +104,7 @@ class TabsMigratorWidget extends BaseWidget<
       });
     }
   }
-  getWidgetType(): WidgetType {
+  static getWidgetType(): WidgetType {
     return "TABS_MIGRATOR_WIDGET";
   }
 }

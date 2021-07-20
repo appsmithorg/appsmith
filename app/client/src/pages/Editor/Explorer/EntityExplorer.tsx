@@ -113,8 +113,8 @@ function EntityExplorer(props: IPanelProps) {
 
 EntityExplorer.displayName = "EntityExplorer";
 
-EntityExplorer.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
+// EntityExplorer.whyDidYouRender = {
+//   logOnDifferentValues: false,
+// };
 
 export default EntityExplorer;

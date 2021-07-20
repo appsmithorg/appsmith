@@ -1,12 +1,11 @@
 import React from "react";
-import BaseWidget, { mapDispatchToProps, WidgetProps } from "./BaseWidget";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { fromPairs, isEqual, debounce } from "lodash";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { connect } from "react-redux";
 
 type DebouncedExecuteActionPayload = Omit<
   WidgetExecuteActionPayload,
@@ -197,9 +196,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
   MetaHOC.displayName = "WidgetMetaHOC";
 
-  // TODO(abhinav): This mapDispatchToProps only uses a subset of the dispatch available in BaseWidget
-  // Clean this.
-  return connect(null, mapDispatchToProps)(MetaHOC);
+  return MetaHOC;
 };
 
 export default withMeta;
