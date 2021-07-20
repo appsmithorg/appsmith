@@ -72,6 +72,7 @@ export interface DataTreeJSAction {
   meta: Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  listVariables: Array<string>;
 }
 
 export interface DataTreeWidget extends WidgetProps {

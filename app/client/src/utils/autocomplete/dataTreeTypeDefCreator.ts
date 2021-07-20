@@ -17,7 +17,10 @@ export const skipJSProps = [
   "bindingPaths",
   "actionId",
   "__evaluation__",
+  "variables",
 ];
+
+export const partProps = ["meta", "data", "variables"];
 
 export const dataTreeTypeDefCreator = (
   entity: DataTreeEntity,
@@ -58,15 +61,14 @@ export const dataTreeTypeDefCreator = (
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
       const result: any = _.omit(entity, skipJSProps);
-      const dataObj = entity.data;
+      const metaObj: any = entity.meta;
       const jsOptions: any = {};
+      for (const key in metaObj) {
+        jsOptions[key] =
+          "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+      }
       for (const key in result) {
-        if (dataObj.hasOwnProperty(key)) {
-          jsOptions[key] =
-            "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
-        } else {
-          jsOptions[key] = generateTypeDef(entity[key]);
-        }
+        jsOptions[key] = generateTypeDef(entity[key]);
       }
       def[entityName] = jsOptions;
       const flattenedjsObjects = flattenObjKeys(jsOptions, entityName);
@@ -130,21 +132,26 @@ export const flattenObjKeys = (
   return r;
 };
 
-export const getPropsForJsAction = (
-  options: any,
-  parentKey: any = "",
-  results: any = {},
-): any => {
-  const r: any = results;
-  for (const [key, value] of Object.entries(options)) {
-    if (!skipJSProps.includes(key)) {
-      const keyToPass = parentKey ? parentKey + "." + key : key;
-      if (!_.isObject(value) || Array.isArray(value)) {
-        r[keyToPass] = value;
-      } else {
-        getPropsForJsAction(value, keyToPass, r);
-      }
+export const getPropsForJSActionEntity = (entity: any): any => {
+  const result: any = {};
+  const metaObj = entity.meta;
+  for (const key in metaObj) {
+    if (metaObj.hasOwnProperty(key)) {
+      result[key] =
+        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
     }
   }
-  return r;
+  const dataObj = entity.data;
+  for (const key in dataObj) {
+    if (dataObj.hasOwnProperty(key)) {
+      result["data." + key] = dataObj[key];
+    }
+  }
+  const variables = entity.variables;
+  if (variables.length > 0) {
+    for (let i = 0; i < variables.length; i++) {
+      result[variables[i]] = entity[variables[i]];
+    }
+  }
+  return result;
 };

@@ -11,7 +11,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getPropsForJsAction } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { getPropsForJSActionEntity } from "utils/autocomplete/dataTreeTypeDefCreator";
 import _ from "lodash";
 
 export const EntityProperties = memo(
@@ -52,7 +52,7 @@ export const EntityProperties = memo(
     switch (props.entityType) {
       case ENTITY_TYPE.JSACTION:
         const jsAction = entity.config;
-        const properties = getPropsForJsAction(dataTree[jsAction.name]);
+        const properties = getPropsForJSActionEntity(dataTree[jsAction.name]);
         if (properties) {
           const jsEntity = dataTree[jsAction.name];
           let funcData: any;
