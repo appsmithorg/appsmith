@@ -431,11 +431,11 @@ public class PageServiceTest {
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(application.getPages().size()).isEqualTo(4);
-                    assertThat(application.getPages().get(0).getId().equals(pageIds[0]));
-                    assertThat(application.getPages().get(1).getId().equals(pageIds[3]));
-                    assertThat(application.getPages().get(2).getId().equals(pageIds[1]));
-                    assertThat(application.getPages().get(3).getId().equals(pageIds[2]));
+                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
+                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
+                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
+                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[2]);
                 } )
                 .verifyComplete();
     }
@@ -482,11 +482,11 @@ public class PageServiceTest {
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(application.getPages().size()).isEqualTo(4);
-                    assertThat(application.getPages().get(3).getId().equals(pageIds[0]));
-                    assertThat(application.getPages().get(0).getId().equals(pageIds[1]));
-                    assertThat(application.getPages().get(1).getId().equals(pageIds[2]));
-                    assertThat(application.getPages().get(2).getId().equals(pageIds[3]));
+                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
+                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
+                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
+                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[3]);
                 } )
                 .verifyComplete();
     }

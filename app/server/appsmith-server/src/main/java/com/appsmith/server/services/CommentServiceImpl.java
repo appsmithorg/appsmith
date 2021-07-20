@@ -590,6 +590,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
+    public Mono<Boolean> unsubscribeThread(String threadId) {
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> threadRepository.removeSubscriber(threadId, user.getUsername()))
+                .map(result -> result.getModifiedCount() == 1L);
+    }
+
+    @Override
     public Mono<Long> getUnreadCount(String applicationId) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->

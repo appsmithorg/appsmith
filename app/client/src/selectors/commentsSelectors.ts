@@ -29,6 +29,9 @@ export const commentModeSelector = (state: AppState) => {
   return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
 };
 
+export const isUnsubscribedSelector = (state: AppState) =>
+  state.ui.comments?.unsubscribed;
+
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
@@ -152,7 +155,7 @@ export const appCommentsFilter = (state: AppState) =>
 export const showUnreadIndicator = (state: AppState) =>
   state.ui.comments.unreadCommentThreadsCount > 0;
 
-export const visibleCommentThread = (state: AppState) =>
+export const visibleCommentThreadSelector = (state: AppState) =>
   state.ui.comments.visibleCommentThreadId;
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>
