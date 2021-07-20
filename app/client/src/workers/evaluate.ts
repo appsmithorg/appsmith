@@ -1,5 +1,4 @@
 import { ActionDescription, DataTree } from "entities/DataTree/dataTreeFactory";
-import { addFunctions } from "workers/evaluationUtils";
 import _ from "lodash";
 import {
   EvaluationError,
@@ -10,6 +9,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
+import { addFunctions, AppsmithPromise } from "./Actions";
 
 export type EvalResult = {
   result: any;
@@ -44,6 +44,7 @@ const evaluationScripts: Record<
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
+    debugger;
     const result = ${script}
   }
   closedFunction()
@@ -134,7 +135,12 @@ export default function evaluate(
           ...payload: any[]
         ) {
           const actionPayload = action(...payload);
-          GLOBAL_DATA.triggers.push(actionPayload);
+          if (actionPayload instanceof AppsmithPromise) {
+            GLOBAL_DATA.triggers.push(actionPayload.action);
+          }
+          debugger;
+
+          return actionPayload;
         };
         GLOBAL_DATA.actionPaths.forEach((path: string) => {
           const action = _.get(GLOBAL_DATA, path);

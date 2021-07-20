@@ -117,6 +117,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+import { AppsmithPromisePayload } from "../workers/Actions";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -642,12 +643,26 @@ export function* executeActionSaga(
   }
 }
 
+function* executePromiseSaga(
+  trigger: AppsmithPromisePayload,
+  event: ExecuteActionPayloadEvent,
+) {
+  // DO something here
+  console.log({ trigger });
+  if (event.callback) {
+    event.callback({ success: true });
+  }
+}
+
 function* executeActionTriggers(
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {
   try {
     switch (trigger.type) {
+      case "PROMISE":
+        yield call(executePromiseSaga, trigger.payload, event);
+        break;
       case "RUN_ACTION":
         yield call(executeActionSaga, trigger.payload, event);
         break;

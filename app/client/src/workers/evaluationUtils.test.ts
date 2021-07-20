@@ -1,6 +1,7 @@
-import { addFunctions, getAllPaths } from "./evaluationUtils";
+import { getAllPaths } from "./evaluationUtils";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
+import { addFunctions } from "./Actions";
 
 describe("getAllPaths", () => {
   it("getsAllPaths", () => {
