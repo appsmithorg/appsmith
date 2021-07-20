@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -139,20 +139,34 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    public Mono<UpdateResult> updateById(String id, Update updateObj, AclPermission permission) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    User user = (User) principal;
+                    Query query = new Query(Criteria.where("id").is(id));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
+                    return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+                });
+    }
+
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
                     return mongoOperations.query(this.genericDomain)
-                            .matching(createQueryWithPermission(criterias, auth,aclPermission))
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
                             .one()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
     }
 
-    private Query createQueryWithPermission(List<Criteria> criterias, Authentication auth, AclPermission aclPermission) {
-        User user = (User) auth.getPrincipal();
+    protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
                 .forEach(criteria -> query.addCriteria(criteria));
@@ -169,7 +183,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth ->
                     mongoOperations.count(
-                            createQueryWithPermission(criterias, auth, aclPermission), this.genericDomain
+                            createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission), this.genericDomain
                     )
                 );
     }
@@ -183,7 +197,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Query query = createQueryWithPermission(criterias, auth, aclPermission);
+                    Query query = createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission);
                     if (sort != null) {
                         query.with(sort);
                     }
