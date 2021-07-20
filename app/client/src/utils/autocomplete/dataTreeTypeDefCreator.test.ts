@@ -1,7 +1,7 @@
 import {
   generateTypeDef,
   dataTreeTypeDefCreator,
-  flattenObjKeys,
+  flattenDef,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
   DataTreeWidget,
@@ -72,26 +72,37 @@ describe("dataTreeTypeDefCreator", () => {
     expect(objType).toStrictEqual(expected);
   });
 
-  it("flatten object", () => {
-    const options = {
-      someNumber: "number",
-      someString: "string",
-      someBool: "bool",
-      nested: {
-        someExtraNested: "string",
+  it("flatten def", () => {
+    const def = {
+      entity1: {
+        someNumber: "number",
+        someString: "string",
+        someBool: "bool",
+        nested: {
+          someExtraNested: "string",
+        },
       },
     };
 
     const expected = {
+      entity1: {
+        someNumber: "number",
+        someString: "string",
+        someBool: "bool",
+        nested: {
+          someExtraNested: "string",
+        },
+      },
       "entity1.someNumber": "number",
       "entity1.someString": "string",
       "entity1.someBool": "bool",
       "entity1.nested": {
         someExtraNested: "string",
       },
+      "entity1.nested.someExtraNested": "string",
     };
 
-    const value = flattenObjKeys(options, "entity1");
+    const value = flattenDef(def, "entity1");
     expect(value).toStrictEqual(expected);
   });
 });
