@@ -222,7 +222,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 1000));
+        editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("change", this.handleAutocompleteVisibility);
         editor.on("change", this.onChangeTrigger);
         editor.on("keyup", this.handleAutocompleteHide);
