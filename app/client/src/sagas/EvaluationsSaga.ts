@@ -357,7 +357,6 @@ function* evaluateTreeSaga(
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
-  console.log(unevalTree);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
