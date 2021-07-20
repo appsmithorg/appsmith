@@ -24,7 +24,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
-import { closePropertyPane } from "actions/widgetActions";
+import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const EditorWrapper = styled.div`
@@ -102,6 +102,7 @@ function WidgetsEditor() {
     focusWidget && focusWidget();
     deselectAll && deselectAll();
     dispatch(closePropertyPane());
+    dispatch(closeTableFilterPane());
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (
