@@ -1,12 +1,15 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,13 +24,16 @@ public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
+    private final CommonConfig commonConfig;
 
     @Autowired
-    public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
+    public AnalyticsService(@Autowired(required = false) Analytics analytics,
+                            SessionUserService sessionUserService,
+                            CommonConfig commonConfig) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
+        this.commonConfig = commonConfig;
     }
-
     public boolean isActive() {
         return analytics != null;
     }
@@ -63,6 +69,16 @@ public class AnalyticsService {
     public void sendEvent(String event, String userId, Map<String, Object> properties) {
         if (!isActive()) {
             return;
+        }
+
+        if (!commonConfig.isCloudHosted()) {
+            userId = DigestUtils.sha256Hex(userId);
+            if (properties.containsKey("username")) {
+                properties.put("username", userId);
+            }
+            if (properties.containsKey("request")) {
+                properties.remove("request");
+            }
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
