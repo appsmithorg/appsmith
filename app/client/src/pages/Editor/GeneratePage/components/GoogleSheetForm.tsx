@@ -14,11 +14,7 @@ import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
 } from "../../../../actions/datasourceActions";
-import {
-  DropdownOptions,
-  PLUGIN_ID,
-  DatasourceTableDropdownOption,
-} from "./constants";
+import { DropdownOptions, DatasourceTableDropdownOption } from "./constants";
 
 // const GOOGLE_SHEET_METHODS = {
 //   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
@@ -101,6 +97,7 @@ const Bold = styled.span`
 type Props = {
   columnLabel: string;
   datasourceTableOptions: DropdownOptions;
+  googleSheetPluginId: string;
   isFetchingDatasourceStructure: boolean;
   onSelectColumn: (
     table: string | undefined,
@@ -127,6 +124,7 @@ function GoogleSheetForm(props: Props) {
   const {
     columnLabel,
     datasourceTableOptions,
+    googleSheetPluginId,
     isFetchingDatasourceStructure,
     onSelectColumn,
     onSelectTable,
@@ -142,11 +140,11 @@ function GoogleSheetForm(props: Props) {
   const dispatch = useDispatch();
 
   const googleSheetEditorConfig = useSelector((state: AppState) =>
-    getEditorConfig(state, PLUGIN_ID.GOOGLE_SHEET),
+    getEditorConfig(state, googleSheetPluginId),
   );
 
   const isFetchingSheetPluginForm = useSelector((state: AppState) =>
-    getIsFetchingSinglePluginForm(state, PLUGIN_ID.GOOGLE_SHEET),
+    getIsFetchingSinglePluginForm(state, googleSheetPluginId),
   );
 
   // TODO :- Create loading state and set Loading state false on success or error
@@ -179,13 +177,11 @@ function GoogleSheetForm(props: Props) {
     //    if YES, Get all spreadsheets
 
     if (!googleSheetEditorConfig) {
-      if (selectedDatasource.data?.pluginId === PLUGIN_ID.GOOGLE_SHEET) {
-        dispatch(
-          fetchPluginFormConfig({
-            pluginId: selectedDatasource.data?.pluginId,
-          }),
-        );
-      }
+      dispatch(
+        fetchPluginFormConfig({
+          pluginId: selectedDatasource.data?.pluginId,
+        }),
+      );
     } else {
       // Get all the spreadsheets
       if (selectedDatasource.id) {

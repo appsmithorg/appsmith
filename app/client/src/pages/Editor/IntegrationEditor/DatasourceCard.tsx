@@ -20,7 +20,6 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/constants";
 import { getGenerateTemplateFormURL } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
@@ -28,8 +27,12 @@ import { IconSize } from "../../../components/ads/Icon";
 import Icon from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "../../../actions/datasourceActions";
-import { getIsDeletingDatasource } from "../../../selectors/entitiesSelector";
+import {
+  getIsDeletingDatasource,
+  getPluginIdGenerateCRUDPageEnabled,
+} from "../../../selectors/entitiesSelector";
 import TooltipComponent from "components/ads/Tooltip";
+import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -144,10 +147,16 @@ function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
   const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
+
+  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
+    getPluginIdGenerateCRUDPageEnabled,
+  );
+
   const params = useParams<{ applicationId: string; pageId: string }>();
   const { datasource, isCreating } = props;
-  const supportTemplateGeneration =
-    VALID_PLUGINS_FOR_TEMPLATE[datasource.pluginId];
+  const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
+    datasource.pluginId
+  ];
 
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,

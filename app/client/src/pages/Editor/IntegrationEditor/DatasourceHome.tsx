@@ -12,7 +12,8 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/constants";
+import { getPluginIdGenerateCRUDPageEnabled } from "../../../selectors/entitiesSelector";
+import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -129,6 +130,7 @@ interface ReduxStateProps {
   currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
   isSaving: boolean;
+  generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
@@ -141,6 +143,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
   ) => {
     const {
       currentApplication,
+      generateCRUDSupportedPlugin,
       history,
       showUnsupportedPluginDialog,
     } = this.props;
@@ -167,7 +170,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
       initiator === "generate-page" &&
       !params?.skipValidPluginCheck
     ) {
-      if (!VALID_PLUGINS_FOR_TEMPLATE[pluginId]) {
+      if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
           const URL =
@@ -227,6 +230,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     plugins: getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
+    generateCRUDSupportedPlugin: getPluginIdGenerateCRUDPageEnabled(state),
   };
 };
 
