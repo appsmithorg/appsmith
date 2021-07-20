@@ -3,10 +3,15 @@ import { Collapsible } from ".";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow.svg";
+import Tooltip from "components/ads/Tooltip";
 import { useEntityLink } from "../Debugger/hooks";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { useSelector } from "store";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { isAction, isWidget } from "workers/evaluationUtils";
+import { useCallback } from "react";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -69,18 +74,45 @@ const ConnectionsContainer = styled.span`
   }
 `;
 
+const useGetEntityType = () => {
+  const dataTree = useSelector(getDataTree);
+
+  const getEntityType = useCallback((name) => {
+    if (isWidget(dataTree[name])) {
+      return "widget";
+    } else if (isAction(dataTree[name])) {
+      return "integration";
+    }
+  }, []);
+
+  return getEntityType;
+};
+
 function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
+  const getEntityType = useGetEntityType();
 
   return props.dependencies.length ? (
     <ConnectionsContainer>
-      {props.dependencies.map((e: any) => {
+      {props.dependencies.map((entityName: string) => {
+        const entityType = getEntityType(entityName);
+
         return (
-          <ConnectionWrapper key={e}>
-            <span className="connection" onClick={() => navigateToEntity(e)}>
-              {e}
-            </span>
-          </ConnectionWrapper>
+          <Tooltip
+            content={`Open ${entityType}`}
+            disabled={!entityType}
+            hoverOpenDelay={1000}
+            key={entityName}
+          >
+            <ConnectionWrapper>
+              <span
+                className="connection"
+                onClick={() => navigateToEntity(entityName)}
+              >
+                {entityName}
+              </span>
+            </ConnectionWrapper>
+          </Tooltip>
         );
       })}
     </ConnectionsContainer>
