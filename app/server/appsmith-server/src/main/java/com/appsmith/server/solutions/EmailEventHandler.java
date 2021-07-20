@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -43,6 +45,7 @@ public class EmailEventHandler {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
+    private final EmailConfig emailConfig;
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
@@ -78,7 +81,7 @@ public class EmailEventHandler {
     @Async
     @EventListener
     public void handle(CommentAddedEvent event) {
-        this.sendEmailForComment(
+        this.sendEmailForCommentAdded(
                 event.getAuthorUserName(),
                 event.getOrganization(),
                 event.getApplication(),
@@ -92,7 +95,7 @@ public class EmailEventHandler {
     @Async
     @EventListener
     public void handle(CommentThreadClosedEvent event) {
-        this.sendEmailForComment(
+        this.sendEmailForCommentThreadResolved(
                 event.getAuthorUserName(),
                 event.getOrganization(),
                 event.getApplication(),
@@ -104,9 +107,9 @@ public class EmailEventHandler {
         .subscribe();
     }
 
-    private String getCommentThreadLink(Application application, String pageId, String threadId, UserRole userRole, String originHeader) {
+    private String getCommentThreadLink(Application application, String pageId, String threadId, String username, String originHeader) {
         Boolean canManageApplication = policyUtils.isPermissionPresentForUser(
-                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), userRole.getUsername()
+                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
         );
         String urlPostfix = "/edit";
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application
@@ -115,6 +118,10 @@ public class EmailEventHandler {
         return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
                 originHeader, application.getId(), pageId, urlPostfix, threadId
         );
+    }
+
+    private String getUnsubscribeThreadLink(String threadId, String originHeader) {
+        return String.format("%s/unsubscribe/discussion/%s", originHeader, threadId);
     }
 
     private Mono<Boolean> getResolveThreadEmailSenderMono(UserRole receiverUserRole, CommentThread commentThread,
@@ -131,9 +138,10 @@ public class EmailEventHandler {
                 application,
                 commentThread.getPageId(),
                 commentThread.getId(),
-                receiverUserRole,
+                receiverUserRole.getUsername(),
                 originHeader)
         );
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(commentThread.getId(), originHeader));
         templateParams.put("Resolved", true);
 
         String emailSubject = String.format(
@@ -157,9 +165,10 @@ public class EmailEventHandler {
                 application,
                 comment.getPageId(),
                 comment.getThreadId(),
-                receiverUserRole,
+                receiverUserRole.getUsername(),
                 originHeader)
         );
+        templateParams.put("UnsubscribeLink", getUnsubscribeThreadLink(comment.getThreadId(), originHeader));
 
         String emailSubject = String.format(
                 "New comment from %s in %s", comment.getAuthorName(), comment.getApplicationName()
@@ -177,17 +186,48 @@ public class EmailEventHandler {
         return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
-    private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Organization organization, Application application, E commentDomain, String originHeader, Set<String> subscribers) {
+    private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("App_User_Name", CommentConstants.APPSMITH_BOT_NAME);
+        templateParams.put("Commenter_Name", comment.getAuthorName());
+        templateParams.put("Application_Name", comment.getApplicationName());
+        templateParams.put("Organization_Name", organization.getName());
+        templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
+        templateParams.put("commentUrl", getCommentThreadLink(
+                application,
+                comment.getPageId(),
+                comment.getThreadId(),
+                CommentConstants.APPSMITH_BOT_USERNAME,
+                originHeader)
+        );
+
+        templateParams.put("Mentioned", true);
+        String emailSubject = String.format("New comment for you from %s", comment.getAuthorName());
+
+        return emailSender.sendMail(
+                emailConfig.getSupportEmailAddress(), emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams
+        );
+    }
+
+    private Mono<Boolean> sendEmailForCommentAdded(String authorUserName, Organization organization, Application application, Comment comment, String originHeader, Set<String> subscribers) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
             if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
-                if(commentDomain instanceof Comment) {
-                    Comment comment = (Comment)commentDomain;
-                    emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, organization, application));
-                } else if(commentDomain instanceof CommentThread) {
-                    CommentThread commentThread = (CommentThread) commentDomain;
-                    emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, organization, application));
-                }
+                emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, organization, application));
+            }
+        }
+
+        if(CommentUtils.isUserMentioned(comment, CommentConstants.APPSMITH_BOT_USERNAME)) {
+            emailMonos.add(geBotEmailSenderMono(comment, originHeader, organization, application));
+        }
+        return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
+    }
+
+    private Mono<Boolean> sendEmailForCommentThreadResolved(String authorUserName, Organization organization, Application application, CommentThread commentThread, String originHeader, Set<String> subscribers) {
+        List<Mono<Boolean>> emailMonos = new ArrayList<>();
+        for (UserRole userRole : organization.getUserRoles()) {
+            if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
+                emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, organization, application));
             }
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));

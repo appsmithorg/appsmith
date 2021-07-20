@@ -12,8 +12,10 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -403,7 +405,7 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
                 .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
@@ -428,22 +430,12 @@ public class PageServiceTest {
         StepVerifier
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
-                    final List<ApplicationPage> pages = application.getPages();
-                    assertThat(application.getPages().size()).isEqualTo(4);
-                    for(ApplicationPage page : pages) {
-                        if(pageIds[0].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(0);
-                        }
-                        if(pageIds[1].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(2);
-                        }
-                        if(pageIds[2].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(3);
-                        }
-                        if(pageIds[3].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(1);
-                        }
-                    }
+                    final List<PageNameIdDTO> pages = application.getPages();
+                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
+                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
+                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
+                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[2]);
                 } )
                 .verifyComplete();
     }
@@ -464,7 +456,7 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<Application> applicationPageReOrdered = applicationPageService.createPage(testPage1)
+        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
                 .flatMap(pageDTO -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
@@ -489,25 +481,39 @@ public class PageServiceTest {
         StepVerifier
                 .create(applicationPageReOrdered)
                 .assertNext(application -> {
-                    final List<ApplicationPage> pages = application.getPages();
-                    assertThat(application.getPages().size()).isEqualTo(4);
-                    for(ApplicationPage page : pages) {
-                        if(pageIds[0].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(3);
-                        }
-                        if(pageIds[1].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(0);
-                        }
-                        if(pageIds[2].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(1);
-                        }
-                        if(pageIds[3].equals(page.getId())) {
-                            assertThat(page.getOrder()).isEqualTo(2);
-                        }
-                    }
+                    final List<PageNameIdDTO> pages = application.getPages();
+                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
+                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
+                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
+                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[3]);
                 } )
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addDuplicatePageToApplication() {
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageServiceTest TestApp");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(pageDTO -> {
+                    PageDTO testPage1 = new PageDTO();
+                    testPage1.setName("Page3");
+                    testPage1.setApplicationId(applicationId);
+                    testPage1.setId(pageDTO.getId());
+                    return applicationPageService.createPage(testPage1);
+                });
+        StepVerifier
+                .create(pageMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+                .verify();
+    }
+
 
     @After
     public void purgeAllPages() {
