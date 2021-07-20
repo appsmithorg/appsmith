@@ -593,3 +593,16 @@ export const isTrueObject = (
 ): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
 };
+
+export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+  const [entityName, ...propPathEls] = _.toPath(propertyPath);
+  // Framework feature: Top level items are never leaves
+  if (entityName === propertyPath) return false;
+  // Ignore if this was a delete op
+  if (!(entityName in unEvalTree)) return false;
+
+  const entity = unEvalTree[entityName];
+  if (!isAction(entity) && !isWidget(entity)) return false;
+  const relativePropertyPath = convertPathToString(propPathEls);
+  return relativePropertyPath in entity.bindingPaths;
+};

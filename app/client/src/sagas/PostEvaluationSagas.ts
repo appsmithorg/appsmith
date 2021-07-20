@@ -296,7 +296,6 @@ export function* postEvalActionDispatcher(
 export function* updateTernDefinitions(
   dataTree: DataTree,
   evaluationOrder: string[],
-  removedPaths: string[],
   isFirstEvaluation: boolean,
 ) {
   const updatedEntities: Set<string> = new Set();
@@ -318,10 +317,10 @@ export function* updateTernDefinitions(
       TernServer.updateDef(name, def);
     }
   });
-  removedPaths.forEach((path) => {
-    // No '.' means that the path is an entity name
-    if (path.split(".").length === 1) {
-      TernServer.removeDef(path);
-    }
-  });
+  // removedPaths.forEach((path) => {
+  //   // No '.' means that the path is an entity name
+  //   if (path.split(".").length === 1) {
+  //     TernServer.removeDef(path);
+  //   }
+  // });
 }

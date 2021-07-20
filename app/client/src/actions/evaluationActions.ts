@@ -6,6 +6,7 @@ import {
 import _ from "lodash";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "../utils/DynamicBindingUtils";
+import { Diff } from "deep-diff";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -61,10 +62,13 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   return true;
 };
 
-export const setEvaluatedTree = (dataTree: DataTree): ReduxAction<DataTree> => {
+export const setEvaluatedTree = (
+  dataTree: DataTree,
+  updates: Diff<DataTree, DataTree>[],
+): ReduxAction<{ dataTree: DataTree; updates: Diff<DataTree, DataTree>[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: dataTree,
+    payload: { dataTree, updates },
   };
 };
 

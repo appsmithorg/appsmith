@@ -13,7 +13,10 @@ import {
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -66,30 +69,37 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
-    removedPaths,
+    updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
-  yield fork(logSuccessfulBindings, unevalTree, dataTree, evaluationOrder);
-  yield fork(
-    updateTernDefinitions,
-    dataTree,
-    evaluationOrder,
-    removedPaths,
-    isFirstEvaluation,
-  );
-
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  yield put(setEvaluatedTree(dataTree));
+  yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
+  const updatedDataTree = yield select(getDataTree);
+
+  log.debug({ dataTree: updatedDataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  yield fork(
+    logSuccessfulBindings,
+    unevalTree,
+    updatedDataTree,
+    evaluationOrder,
+  );
+  yield fork(
+    updateTernDefinitions,
+    updatedDataTree,
+    evaluationOrder,
+    isFirstEvaluation,
+  );
+
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);

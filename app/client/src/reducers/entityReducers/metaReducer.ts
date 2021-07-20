@@ -22,6 +22,27 @@ export const metaReducer = createReducer(initialState, {
 
     return next;
   },
+  [ReduxActionTypes.TABLE_PANE_MOVED]: (
+    state: MetaState,
+    action: ReduxAction<TableFilterPanePositionConfig>,
+  ) => {
+    const next = { ...state };
+    let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
+    if (widgetMetaProps === undefined) {
+      widgetMetaProps = {
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
+    } else {
+      widgetMetaProps = {
+        ...widgetMetaProps,
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
+    }
+    next[action.payload.widgetId] = widgetMetaProps;
+    return next;
+  },
   [ReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
@@ -53,5 +74,14 @@ export const metaReducer = createReducer(initialState, {
     return initialState;
   },
 });
+
+interface TableFilterPanePositionConfig {
+  widgetId: string;
+  isMoved: boolean;
+  position: {
+    left: number;
+    top: number;
+  };
+}
 
 export default metaReducer;
