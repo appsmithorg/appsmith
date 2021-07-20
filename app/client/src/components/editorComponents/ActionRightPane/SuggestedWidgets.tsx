@@ -137,6 +137,7 @@ function getWidgetProps(
 type SuggestedWidgetProps = {
   actionName: string;
   suggestedWidgets: WidgetType[];
+  hasWidgets: boolean;
 };
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
@@ -152,8 +153,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     dispatch(addSuggestedWidget(payload));
   };
 
+  const label = props.hasWidgets ? "Add New Widget" : "Suggested widgets";
+
   return (
-    <Collapsible label="Add New Widget">
+    <Collapsible label={label}>
       <div className="description">
         This will add a new widget to the canvas.{" "}
       </div>

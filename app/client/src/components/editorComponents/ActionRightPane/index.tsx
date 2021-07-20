@@ -20,6 +20,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
+import { getWidgets } from "sagas/selectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -134,6 +135,8 @@ function ActionSidebar({
 }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const widgets = useSelector(getWidgets);
+  const hasWidgets = Object.keys(widgets).length > 1;
 
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const entityDependencies = useMemo(
@@ -150,8 +153,9 @@ function ActionSidebar({
       entityDependencies?.inverseDependencies.length > 0);
   const showSuggestedWidgets =
     hasResponse && suggestedWidgets && !!suggestedWidgets.length;
+  const showSnipingMode = hasResponse && hasWidgets;
 
-  if (!hasConnections && !showSuggestedWidgets) {
+  if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
     return <Placeholder>No connections to show here</Placeholder>;
   }
 
@@ -175,6 +179,7 @@ function ActionSidebar({
       {showSuggestedWidgets && (
         <SuggestedWidgets
           actionName={actionName}
+          hasWidgets={hasWidgets}
           suggestedWidgets={suggestedWidgets as WidgetType[]}
         />
       )}
