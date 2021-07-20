@@ -269,10 +269,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     }
                     if(Boolean.TRUE.equals(view)) {
                         Collections.sort(pageNameIdDTOList,
-                                Comparator.comparing(item -> publishedPages.indexOf(item)));
+                                Comparator.comparing(item -> publishedPagesOrder.get(item.getId())));
                     } else {
                         Collections.sort(pageNameIdDTOList,
-                                Comparator.comparing(item -> pages.indexOf(item)));
+                                Comparator.comparing(item -> pagesOrder.get(item.getId())));
                     }
                     return Mono.just(pageNameIdDTOList);
                 });
