@@ -138,6 +138,7 @@ interface RenderActionProps {
   backgroundColor: string;
   buttonLabelColor: string;
   isDisabled: boolean;
+  isButtonVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -157,6 +158,7 @@ export const renderActions = (
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            isButtonVisible={props.isButtonVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
             key={index}
@@ -174,6 +176,7 @@ function TableAction(props: {
   backgroundColor: string;
   buttonLabelColor: string;
   isDisabled: boolean;
+  isButtonVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -191,18 +194,20 @@ function TableAction(props: {
         }
       }}
     >
-      <Button
-        disabled={props.isDisabled}
-        filled
-        intent="PRIMARY_BUTTON"
-        loading={loading}
-        onClick={() => {
-          setLoading(true);
-          props.onCommandClick(props.action.dynamicTrigger, onComplete);
-        }}
-        size="small"
-        text={props.action.label}
-      />
+      {props.isButtonVisible ? (
+        <Button
+          disabled={props.isDisabled}
+          filled
+          intent="PRIMARY_BUTTON"
+          loading={loading}
+          onClick={() => {
+            setLoading(true);
+            props.onCommandClick(props.action.dynamicTrigger, onComplete);
+          }}
+          size="small"
+          text={props.action.label}
+        />
+      ) : null}
     </ActionWrapper>
   );
 }

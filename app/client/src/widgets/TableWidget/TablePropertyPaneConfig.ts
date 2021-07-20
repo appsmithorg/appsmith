@@ -247,6 +247,14 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: VALIDATION_TYPES.BOOLEAN,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const columnType = get(
+                      props,
+                      `${propertyPath}.columnType`,
+                      "",
+                    );
+                    return columnType === "button";
+                  },
                 },
                 {
                   propertyName: "inputFormat",
@@ -630,6 +638,17 @@ export default [
                   label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
                   defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isButtonVisible",
+                  label: "Visible",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
                   controlType: "SWITCH",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,

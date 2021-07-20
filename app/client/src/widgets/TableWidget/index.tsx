@@ -134,6 +134,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
       isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
       isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
+      isButtonVisible: this.getPropertyValue(
+        columnProperties.isButtonVisible,
+        rowIndex,
+      ),
       displayText: this.getPropertyValue(
         columnProperties.displayText,
         rowIndex,
@@ -193,6 +197,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
+              isButtonVisible: cellProperties.isButtonVisible || false,
               columnActions: [
                 {
                   id: columnProperties.id,
