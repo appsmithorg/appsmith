@@ -188,7 +188,10 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               renderBlocks();
             }
-            scrollObj.lastMouseMoveEvent = e;
+            scrollObj.lastMouseMoveEvent = {
+              offsetX: e.offsetX,
+              offsetY: e.offsetY,
+            };
             scrollObj.lastScrollTop = scrollParent?.scrollTop;
             scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
           } else {
@@ -234,7 +237,6 @@ export const useCanvasDragging = (
             renderBlocks();
             canScroll.current = false;
             endRenderRows.cancel();
-            console.count("endRenderRows");
             endRenderRows();
           }
         });
@@ -317,13 +319,12 @@ export const useCanvasDragging = (
           ) {
             const canvasCtx: any = canvasDrawRef.current.getContext("2d");
             const topOffset = canExtend ? scrollParent.scrollTop : 0;
-            const misplacedCozOfScroll = topOffset % snapRowSpace;
             const snappedXY = getSnappedXY(
               snapColumnSpace,
               snapRowSpace,
               {
                 x: blockDimensions.left,
-                y: blockDimensions.top - topOffset,
+                y: blockDimensions.top,
               },
               {
                 x: 0,
@@ -351,7 +352,7 @@ export const useCanvasDragging = (
             canvasCtx.strokeRect(
               snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
               snappedXY.Y -
-                misplacedCozOfScroll +
+                topOffset +
                 strokeWidth +
                 (noPad ? 0 : CONTAINER_GRID_PADDING),
               blockDimensions.width - strokeWidth,

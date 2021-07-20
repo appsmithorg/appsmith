@@ -1,4 +1,3 @@
-import { debounce } from "lodash";
 import { RefObject, useEffect, useRef } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { getScrollByPixels } from "utils/helpers";
@@ -52,7 +51,7 @@ export const useCanvasDragToScroll = (
           scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };
-      const checkIfNeedsScroll = debounce((e: any) => {
+      const checkIfNeedsScroll = (e: any) => {
         if (isDragging && isCurrentDraggedCanvas) {
           const scrollParent: Element | null = getNearestParentCanvas(
             canvasRef.current,
@@ -82,7 +81,7 @@ export const useCanvasDragToScroll = (
             }
           }
         }
-      });
+      };
       canvasRef.current?.addEventListener(
         "mousemove",
         checkIfNeedsScroll,
