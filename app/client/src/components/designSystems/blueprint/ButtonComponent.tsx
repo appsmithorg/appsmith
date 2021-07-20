@@ -271,10 +271,9 @@ function RecaptchaV3Component(
 
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
 
-  if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
+  if (validGoogleRecaptchaKey && !checkValidJson(validGoogleRecaptchaKey)) {
     validGoogleRecaptchaKey = undefined;
   }
-
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
