@@ -3834,6 +3834,7 @@
 "@types/react-google-recaptcha@^2.1.1":
   version "2.1.1"
   resolved "https://registry.npmjs.org/@types/react-google-recaptcha/-/react-google-recaptcha-2.1.1.tgz"
+  integrity sha512-xK9ckpiHJKLo92RIBlDRidpqM9Y+9W1L58jWJgHgaAzYOlxWNftnn55+Lg+F8U9mar20MxyI3dZCRIx9xyz8lA==
   dependencies:
     "@types/react" "*"
 

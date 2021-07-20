@@ -6,12 +6,14 @@ import {
   commentThreadsSelector,
   refCommentThreadsSelector,
   unpublishedCommentThreadSelector,
+  visibleCommentThreadSelector,
 } from "../../selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { useLocation } from "react-router";
+import { AppState } from "reducers";
 
 // TODO refactor application comment threads by page id to optimise
 // if lists turn out to be expensive
@@ -24,11 +26,18 @@ function InlinePageCommentPin({
 }) {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const currentPageId = useSelector(getCurrentPageId);
+  const isVisibleCommentThread = useSelector(
+    (state: AppState) =>
+      visibleCommentThreadSelector(state) === commentThreadId,
+  );
 
   if (commentThread && commentThread.pageId !== currentPageId) return null;
 
   return (
-    <InlineCommentPin commentThreadId={commentThreadId} focused={focused} />
+    <InlineCommentPin
+      commentThreadId={commentThreadId}
+      focused={focused || isVisibleCommentThread}
+    />
   );
 }
 

@@ -306,7 +306,6 @@ describe("substituteDynamicBindingWithValues", () => {
         "wrongBinding": undefined,
         "emptyBinding": null,
       }`;
-      debugger;
       const result = substituteDynamicBindingWithValues(
         binding,
         subBindings,

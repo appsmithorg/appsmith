@@ -97,7 +97,7 @@ interface DatePickerComponentProps {
   value: Date | null;
   onChange?: (selectedDate: Date, isUserChange: boolean) => void;
   formatDate?: (date: Date) => string;
-  parseDate?: (dateStr: string) => Date;
+  parseDate?: (dateStr: string) => Date | null;
 }
 
 function DatePickerComponent(props: DatePickerComponentProps) {
