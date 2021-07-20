@@ -1,12 +1,16 @@
-import React from "react";
-import { connect } from "react-redux";
+import React, { useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
-import { createDatasourceFromForm } from "actions/datasourceActions";
+import {
+  createDatasourceFromForm,
+  storeAsDatasource,
+} from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import OauthLogo from "assets/images/oauth-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -145,12 +149,25 @@ function NewApiScreen(props: Props) {
     pageId,
     plugins,
   } = props;
-
+  const dispatch = useDispatch();
   const handleCreateNew = () => {
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
+  const handleCreateOAuthDatasource = useCallback(() => {
+    const plugin = plugins.find((p) => p.name === "REST API");
+    // dispatch(storeAsDatasource());
+    plugin &&
+      props.createDatasourceFromForm({
+        pluginId: plugin.id,
+        datasourceConfiguration: {
+          authentication: {
+            authenticationType: "oAuth2",
+          },
+        },
+      });
+  }, [plugins, props.createDatasourceFromForm]);
   const curlImportURL =
     getCurlImportPageURL(applicationId, pageId) +
     "?from=datasources" +
@@ -193,6 +210,21 @@ function NewApiScreen(props: Props) {
               />
             </div>
             <p className="textBtn">CURL</p>
+          </CardContentWrapper>
+        </ApiCard>
+        <ApiCard
+          className="t--createBlankOAuthCard"
+          onClick={handleCreateOAuthDatasource}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="OAuth2"
+                className="oAuthImage t--oAuthImage content-icon"
+                src={OauthLogo}
+              />
+            </div>
+            <p className="textBtn">OAuth 2.0</p>
           </CardContentWrapper>
         </ApiCard>
         {plugins
