@@ -14,6 +14,7 @@ import { Diff } from "deep-diff";
 import {
   DataTree,
   DataTreeAction,
+  DataTreeAppsmith,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -35,7 +36,7 @@ export enum DataTreeDiffEvent {
   NOOP = "NOOP",
 }
 
-type DataTreeDiff = {
+export type DataTreeDiff = {
   payload: {
     propertyPath: string;
     value?: string;
@@ -227,6 +228,16 @@ export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
     entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
+
+export function isAppsmithEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeAppsmith {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
   );
 }
 
@@ -577,7 +588,9 @@ export const addErrorToEntityProperty = (
 
 // For the times when you need to know if something truly an object like { a: 1, b: 2}
 // typeof, lodash.isObject and others will return false positives for things like array, null, etc
-export const isTrueObject = (item: unknown): boolean => {
+export const isTrueObject = (
+  item: unknown,
+): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
 };
 
