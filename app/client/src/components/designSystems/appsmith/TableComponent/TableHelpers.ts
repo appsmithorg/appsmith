@@ -2,7 +2,7 @@ import { uniq, without } from "lodash";
 import { ColumnProperties } from "./Constants";
 
 const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\W+/;
+  const separatorRegex = /\s/;
   return value
     .split(separatorRegex)
     .join("_")
