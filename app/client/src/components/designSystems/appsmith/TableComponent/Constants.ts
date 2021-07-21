@@ -97,7 +97,7 @@ export interface CellLayoutProperties {
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
-  isButtonVisible?: boolean;
+  isButtonVisible: boolean;
 }
 
 export interface TableColumnMetaProps {

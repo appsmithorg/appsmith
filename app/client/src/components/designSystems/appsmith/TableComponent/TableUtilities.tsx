@@ -441,6 +441,7 @@ export function getDefaultColumnProperties(
     enableSort: true,
     isVisible: true,
     isDisabled: false,
+    isButtonVisible: true,
     isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived

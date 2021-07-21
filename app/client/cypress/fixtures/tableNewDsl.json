@@ -50,6 +50,7 @@
             "enableFilter": true,
             "enableSort": true,
             "isVisible": true,
+            "isButtonVisible": true,
             "isDerived": false,
             "label": "id",
             "computedValue": ""

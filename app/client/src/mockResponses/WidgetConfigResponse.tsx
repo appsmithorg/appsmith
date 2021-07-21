@@ -186,6 +186,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isButtonVisible: true,
           isDerived: false,
           label: "step",
           computedValue:
@@ -202,6 +203,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isButtonVisible: true,
           isDerived: false,
           label: "task",
           computedValue:
@@ -218,6 +220,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isButtonVisible: true,
           isDerived: false,
           label: "status",
           computedValue:

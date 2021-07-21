@@ -197,7 +197,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
-              isButtonVisible: cellProperties.isButtonVisible || false,
+              isButtonVisible: cellProperties.isButtonVisible ?? true,
               columnActions: [
                 {
                   id: columnProperties.id,
