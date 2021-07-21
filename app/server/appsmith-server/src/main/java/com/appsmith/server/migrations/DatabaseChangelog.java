@@ -42,7 +42,6 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -2801,7 +2800,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "" )
+    @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "")
     public void removePageOrderFieldFromApplicationPages(MongockTemplate mongoTemplate) {
         Query query = new Query();
         query.addCriteria(Criteria.where("pages").exists(TRUE));
@@ -2815,7 +2814,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "080", id = "add-js-plugin", author = "")
-    public void addJSPlugin(MongoTemplate mongoTemplate) {
+    public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
         plugin.setType(PluginType.JS);
