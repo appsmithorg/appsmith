@@ -18,6 +18,7 @@ import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
@@ -30,6 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
+  HintEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -55,7 +57,7 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
@@ -374,13 +376,27 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const expected = this.props.expected ? this.props.expected.type : "";
-    const { entityName } = getEntityNameAndPropertyPath(
-      this.props.dataTreePath || "",
-    );
+    const { dataTreePath, dynamicData, expected } = this.props;
+    const entityInformation: HintEntityInformation = {
+      expectedType: expected?.type,
+    };
+    if (dataTreePath) {
+      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      entityInformation.entityName = entityName;
+      const entity = dynamicData[entityName];
+      if (entity && "ENTITY_TYPE" in entity) {
+        const entityType = entity.ENTITY_TYPE;
+        if (
+          entityType === ENTITY_TYPE.WIDGET ||
+          entityType === ENTITY_TYPE.ACTION
+        ) {
+          entityInformation.entityType = entityType;
+        }
+      }
+    }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
-      hinterOpen = this.hinters[i].showHint(cm, expected, entityName, {
+      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,

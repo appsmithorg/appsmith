@@ -138,6 +138,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     border={CodeEditorBorder.BOTTOM_SIDE}
                     className={`t--${field}.key.${index}`}
                     dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    expected={expected}
                     hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
