@@ -26,6 +26,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorSize,
+  HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -219,7 +220,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  handleDatasourceHint = () => {
+  handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
     return () => {
       return {
@@ -271,7 +272,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           }
         },
         showHint: () => {
-          return;
+          return false;
         },
       };
     };
