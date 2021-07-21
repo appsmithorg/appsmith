@@ -1,11 +1,8 @@
 import React, { useCallback } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
-import {
-  createDatasourceFromForm,
-  storeAsDatasource,
-} from "actions/datasourceActions";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
@@ -149,7 +146,6 @@ function NewApiScreen(props: Props) {
     pageId,
     plugins,
   } = props;
-  const dispatch = useDispatch();
   const handleCreateNew = () => {
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
