@@ -94,7 +94,7 @@ public class WidgetSuggestionHelper {
                 }
             }
         } else {
-            if(data != null && !((ObjectNode)data).isEmpty()) {
+            if(data != null ) {
                 widgetTypeList.add(getTextWidget());
             }
         }
