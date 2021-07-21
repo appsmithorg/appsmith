@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CreateDBTablePageSolution {
 
-    private final DatasourceStructureSolution datasourceStructureSolution;
     private final DatasourceService datasourceService;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
@@ -79,6 +78,8 @@ public class CreateDBTablePageSolution {
     private final String SELECT_QUERY = "SelectQuery";
 
     private final String FIND_QUERY = "FindQuery";
+
+    private final String LIST_QUERY = "ListFiles";
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
@@ -301,9 +302,9 @@ public class CreateDBTablePageSolution {
                                                             pluginSpecificParams)
 
                     .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY)
-                        || StringUtils.equals(actionDTO.getName(), FIND_QUERY) ?
-                            layoutActionService.setExecuteOnLoad(actionDTO.getId(), true)
-                            : Mono.just(actionDTO))
+                        || StringUtils.equals(actionDTO.getName(), FIND_QUERY)
+                        || StringUtils.equals(actionDTO.getName(), LIST_QUERY)
+                        ? layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
                     .then(applicationPageService.getPage(savedPageId.get(), false));
             });
     }
@@ -640,6 +641,12 @@ public class CreateDBTablePageSolution {
             using mappedColumnsAndTableNames
         */
         List<String> keys = widgetDsl.keySet().stream().filter(WIDGET_FIELDS::contains).collect(Collectors.toList());
+
+        // This field will be used to check the default dropdown value for SelectWidget and only required SelectWidget's
+        // options will be updated
+        String defaultDropdownValue = widgetDsl.containsKey(FieldName.DEFAULT_OPTION)
+            ? widgetDsl.getAsString(FieldName.DEFAULT_OPTION) : "";
+
         for (String key : keys) {
             if (FieldName.PRIMARY_COLUMNS.equals(key)) {
                 Map primaryColumns = (Map) widgetDsl.get(FieldName.PRIMARY_COLUMNS);
@@ -659,6 +666,17 @@ public class CreateDBTablePageSolution {
                 if (updateRequired) {
                     widgetDsl.put(FieldName.PRIMARY_COLUMNS, newPrimaryColumns);
                 }
+            } else if (FieldName.DROP_DOWN_WIDGET.equals(widgetDsl.getAsString(FieldName.TYPE))
+                && FieldName.OPTIONS.equals(key)
+                && !defaultDropdownValue.toLowerCase().contains("asc")) {
+                // This will handle the options field in SelectWidget
+                    List<String> dropdownOptions = new ArrayList<>();
+                    mappedColumnsAndTableNames.forEach((colKey, colVal) -> {
+                        if (colKey.toLowerCase().contains("col")) {
+                            dropdownOptions.add("\n{\n\t\"label\": \"" + colVal + "\",\n\t\"value\": \"" + colVal + "\"\n}");
+                        }
+                    });
+                    widgetDsl.put(FieldName.OPTIONS, dropdownOptions.toString());
             } else {
                 //Get separate words and map to tableColumns from widgetDsl
                 Matcher matcher = wordPattern.matcher(widgetDsl.getAsString(key));

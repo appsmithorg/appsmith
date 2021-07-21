@@ -93,6 +93,8 @@ public class CreateDBTablePageSolutionTests {
 
     private final String FIND_QUERY = "FindQuery";
 
+    private final String LIST_QUERY = "ListFiles";
+
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
@@ -125,6 +127,12 @@ public class CreateDBTablePageSolutionTests {
             "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};"
     );
+
+    private final String dropdownOptions = "options -> [\n" +
+        "{\n\t\"label\": \"field3\",\n\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n" +
+        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1\",\n\t\"value\": \"field1\"\n" +
+        "}, \n{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
+        "\t\"value\": \"primaryKey\"\n}]";
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -211,6 +219,8 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(layout.getId()).isNotNull();
                 assertThat(layout.getWidgetNames()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
+                assertThat(layout.getDsl().get("children").toString().replaceAll(specialCharactersRegex, ""))
+                    .containsIgnoringCase(dropdownOptions.replaceAll(specialCharactersRegex, ""));
             })
             .verifyComplete();
     }
@@ -237,6 +247,9 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                    assertThat(actionDTO.getName()).isEqualTo(SELECT_QUERY);
+                });
                 assertThat(layout.getId()).isNotNull();
                 assertThat(layout.getWidgetNames()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
@@ -290,6 +303,9 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                    assertThat(actionDTO.getName()).isEqualTo(SELECT_QUERY);
+                });
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                 assertThat(actions).hasSize(4);
@@ -499,7 +515,11 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(page.getName()).containsIgnoringCase("Admin Page:");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
-                assertThat(layout.getActionsUsedInDynamicBindings()).isEmpty();
+                assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
+                assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                    assertThat(actionDTO.getName()).isEqualTo(LIST_QUERY);
+                });
 
                 assertThat(actions).hasSize(5);
                 for (NewAction action : actions) {
@@ -613,6 +633,9 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).hasSize(1);
+                layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                    assertThat(actionDTO.getName()).isEqualTo(FIND_QUERY);
+                });
 
                 assertThat(actions).hasSize(4);
                 for (NewAction action : actions) {
