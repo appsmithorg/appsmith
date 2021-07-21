@@ -220,7 +220,7 @@ function NewApiScreen(props: Props) {
                 src={OauthLogo}
               />
             </div>
-            <p className="textBtn">OAuth 2.0</p>
+            <p className="textBtn">Authenticated API</p>
           </CardContentWrapper>
         </ApiCard>
         {plugins
