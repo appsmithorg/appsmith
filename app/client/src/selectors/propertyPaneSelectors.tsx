@@ -5,7 +5,6 @@ import { createSelector } from "reselect";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { PropertyControlCommonDependencies } from "constants/WidgetPropertyMeta";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -54,10 +53,8 @@ export const getWidgetPropsForPropertyPane = createSelector(
 const populateWidgetProperties = (
   widget: WidgetProps,
   propertyName: string,
+  dependencies: string[],
 ) => {
-  const commonPropertyDependencies =
-    PropertyControlCommonDependencies[widget.type];
-
   const widgetProperties: any = {
     type: widget.type,
     widgetName: widget.widgetName,
@@ -67,9 +64,9 @@ const populateWidgetProperties = (
     [propertyName]: widget[propertyName],
   };
 
-  if (commonPropertyDependencies && commonPropertyDependencies.length > 0) {
-    for (const commonProperty of commonPropertyDependencies) {
-      widgetProperties[commonProperty] = widget[commonProperty];
+  if (dependencies && dependencies.length > 0) {
+    for (const dependentProperty of dependencies) {
+      widgetProperties[dependentProperty] = widget[dependentProperty];
     }
   }
 
@@ -98,7 +95,10 @@ const populateEvaluatedWidgetProperties = (
   return evaluatedProperties;
 };
 
-export const getWidgetPropsForPropertyName = (propertyName: string) => {
+export const getWidgetPropsForPropertyName = (
+  propertyName: string,
+  dependencies: string[] = [],
+) => {
   return createSelector(
     getCurrentWidgetProperties,
     getDataTree,
@@ -112,7 +112,11 @@ export const getWidgetPropsForPropertyName = (propertyName: string) => {
         widgetId: widget.widgetId,
       }) as DataTreeWidget;
 
-      const widgetProperties = populateWidgetProperties(widget, propertyName);
+      const widgetProperties = populateWidgetProperties(
+        widget,
+        propertyName,
+        dependencies,
+      );
 
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,

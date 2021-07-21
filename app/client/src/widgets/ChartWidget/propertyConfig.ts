@@ -78,6 +78,7 @@ export default [
         validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -90,6 +91,7 @@ export default [
         isTriggerProperty: false,
         hidden: (props: ChartWidgetProps) =>
           props.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
         children: [
           {
             helpText: "Series Name",
@@ -119,6 +121,7 @@ export default [
     sectionName: "Axis",
     hidden: (props: ChartWidgetProps) =>
       props.chartType === "CUSTOM_FUSION_CHART",
+    dependencies: ["chartType"],
     children: [
       {
         helpText: "Specifies the label of the x-axis",
@@ -148,6 +151,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
     ],
   },

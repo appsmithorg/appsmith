@@ -50,6 +50,7 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  dependencies?: string[];
 };
 
 export type PropertyPaneConfig =

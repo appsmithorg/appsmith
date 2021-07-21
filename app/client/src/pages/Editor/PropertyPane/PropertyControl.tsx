@@ -47,7 +47,7 @@ const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
   const propsSelector = useCallback(
-    getWidgetPropsForPropertyName(props.propertyName),
+    getWidgetPropsForPropertyName(props.propertyName, props.dependencies),
     [props.propertyName],
   );
 

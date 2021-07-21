@@ -90,6 +90,7 @@ const PropertyPaneConfig = [
             ),
           };
         },
+        dependencies: ["listData"],
       },
     ],
   },
