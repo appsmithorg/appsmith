@@ -1884,9 +1884,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
+  cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
 
@@ -1943,9 +1941,7 @@ Cypress.Commands.add("saveDatasource", () => {
 
 Cypress.Commands.add("testSaveDatasource", () => {
   cy.saveDatasource();
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
+  cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
   cy.testDatasource();

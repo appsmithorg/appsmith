@@ -282,6 +282,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               text="New Query"
             />
             <MenuWrapper
+              className="t--datasource-menu-option"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -300,12 +301,18 @@ function DatasourceCard(props: DatasourceCardProps) {
                 }
               >
                 <MenuItem
+                  className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}
                   onSelect={deleteAction}
                   text="Delete"
                 />
-                <MenuItem icon="edit" onSelect={editDatasource} text="Edit" />
+                <MenuItem
+                  className="t--datasource-option-edit"
+                  icon="edit"
+                  onSelect={editDatasource}
+                  text="Edit"
+                />
               </MenuComponent>
             </MenuWrapper>
           </ButtonsWrapper>
