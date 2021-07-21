@@ -7,7 +7,6 @@ import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,26 +70,30 @@ public class AnalyticsService {
             return;
         }
 
+        // Can't update the properties directly as it's throwing ImmutableCollection error
+        // java.lang.UnsupportedOperationException: null
+        // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
+        // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
+        Map<String, Object> analyticsProperties = new HashMap<>(properties);
+
         if (!commonConfig.isCloudHosted()) {
             userId = DigestUtils.sha256Hex(userId);
-            if (properties.containsKey("username")) {
-                properties.put("username", userId);
+            if (analyticsProperties.containsKey("username")) {
+                analyticsProperties.put("username", userId);
             }
-            if (properties.containsKey("request")) {
-                properties.remove("request");
-            }
+            analyticsProperties.remove("request");
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
-        if (!CollectionUtils.isEmpty(properties)) {
+        if (!CollectionUtils.isEmpty(analyticsProperties)) {
             // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
                 if (entry.getValue() == null) {
-                    properties.put(entry.getKey(), "");
+                    analyticsProperties.put(entry.getKey(), "");
                 }
             }
-            messageBuilder = messageBuilder.properties(properties);
+            messageBuilder = messageBuilder.properties(analyticsProperties);
         }
 
         analytics.enqueue(messageBuilder);

@@ -300,12 +300,19 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-            ./scripts/start-dev-server.sh > /dev/null 2>&1 &
+            ls -l
+            ls -l scripts/
+            ls -l dist/
+            nohup ./scripts/start-dev-server.sh 2>&1 &
 
       - name: Wait for 30 seconds for server to start
-        run: sleep 30s
-        shell: bash
+        run: |
+            sleep 30s 
+            ps -ef | grep server-1.0-SNAPSHOT
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
