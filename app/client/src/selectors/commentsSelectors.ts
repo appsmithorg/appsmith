@@ -26,6 +26,9 @@ export const commentModeSelector = (state: AppState) => {
   const pathName = window.location.pathname;
   const onEditorOrViewerPage =
     matchBuilderPath(pathName) || matchViewerPath(pathName);
+
+  if ((window as any).isCommentModeForced) return true;
+
   return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
 };
 
