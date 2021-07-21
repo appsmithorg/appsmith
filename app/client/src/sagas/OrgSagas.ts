@@ -60,11 +60,12 @@ export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   try {
     const request: FetchOrgRequest = action.payload;
     const response: FetchOrgResponse = yield call(OrgApi.fetchOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield request.skipValidation ||
+      validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ORG_SUCCESS,
-        payload: response.data,
+        payload: response.data || {},
       });
     }
   } catch (error) {
