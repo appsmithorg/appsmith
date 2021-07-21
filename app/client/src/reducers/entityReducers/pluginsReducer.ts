@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Plugin, PluginIdGenerateCRUDPageEnabled } from "api/PluginApi";
+import { Plugin } from "api/PluginApi";
 import {
   PluginFormPayloadWithId,
   PluginFormsPayload,
@@ -20,7 +20,6 @@ export interface PluginDataState {
   settingConfigs: Record<string, any[]>;
   dependencies: Record<string, DependencyMap>;
   fetchingSinglePluginForm: Record<string, boolean>;
-  pluginIdGenerateCRUDPageEnabled: PluginIdGenerateCRUDPageEnabled;
 }
 
 const initialState: PluginDataState = {
@@ -31,7 +30,6 @@ const initialState: PluginDataState = {
   settingConfigs: {},
   dependencies: {},
   fetchingSinglePluginForm: {},
-  pluginIdGenerateCRUDPageEnabled: {},
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -42,19 +40,10 @@ const pluginsReducer = createReducer(initialState, {
     state: PluginDataState,
     action: ReduxAction<Plugin[]>,
   ) => {
-    const list = action.payload;
-
-    const pluginIdGenerateCRUDPageEnabled: PluginIdGenerateCRUDPageEnabled = {};
-    list.map((plugin) => {
-      if (plugin.generateCRUDPageComponent) {
-        pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
-      }
-    });
     return {
       ...state,
       loading: false,
-      list,
-      pluginIdGenerateCRUDPageEnabled,
+      list: action.payload,
     };
   },
   [ReduxActionErrorTypes.FETCH_PLUGINS_ERROR]: (state: PluginDataState) => {

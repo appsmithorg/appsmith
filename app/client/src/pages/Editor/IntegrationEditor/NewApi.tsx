@@ -14,8 +14,8 @@ import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
-import { getPluginIdGenerateCRUDPageEnabled } from "../../../selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 
 const StyledContainer = styled.div`
@@ -156,8 +156,8 @@ function NewApiScreen(props: Props) {
     plugins,
   } = props;
 
-  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
-    getPluginIdGenerateCRUDPageEnabled,
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
   );
 
   const handleCreateNew = () => {

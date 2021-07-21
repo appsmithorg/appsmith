@@ -12,8 +12,8 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { getPluginIdGenerateCRUDPageEnabled } from "../../../selectors/entitiesSelector";
-import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -130,7 +130,7 @@ interface ReduxStateProps {
   currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
   isSaving: boolean;
-  generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled;
+  generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
@@ -230,7 +230,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     plugins: getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
-    generateCRUDSupportedPlugin: getPluginIdGenerateCRUDPageEnabled(state),
+    generateCRUDSupportedPlugin: getGenerateCRUDEnabledPluginMap(state),
   };
 };
 

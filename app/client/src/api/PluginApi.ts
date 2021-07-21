@@ -6,10 +6,7 @@ import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export type PluginId = string;
 export type PluginPackageName = string;
-export type PluginIdGenerateCRUDPageEnabled = Record<
-  PluginId,
-  PluginPackageName
->;
+export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
 
 export interface Plugin {
   id: string;

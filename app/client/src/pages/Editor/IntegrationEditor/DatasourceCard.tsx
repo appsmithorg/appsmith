@@ -29,10 +29,10 @@ import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "../../../actions/datasourceActions";
 import {
   getIsDeletingDatasource,
-  getPluginIdGenerateCRUDPageEnabled,
+  getGenerateCRUDEnabledPluginMap,
 } from "../../../selectors/entitiesSelector";
 import TooltipComponent from "components/ads/Tooltip";
-import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
+import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -148,8 +148,8 @@ function DatasourceCard(props: DatasourceCardProps) {
   const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
 
-  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
-    getPluginIdGenerateCRUDPageEnabled,
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
   );
 
   const params = useParams<{ applicationId: string; pageId: string }>();

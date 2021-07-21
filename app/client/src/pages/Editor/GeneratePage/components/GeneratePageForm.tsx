@@ -30,8 +30,8 @@ import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import { GENERATE_PAGE_FORM_TITLE } from "../../../../constants/messages";
-import { PluginIdGenerateCRUDPageEnabled } from "../../../../api/PluginApi";
-import { getPluginIdGenerateCRUDPageEnabled } from "../../../../selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "../../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "../../../../selectors/entitiesSelector";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -152,8 +152,8 @@ function GeneratePageForm() {
     getIsFetchingDatasourceStructure,
   );
 
-  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
-    getPluginIdGenerateCRUDPageEnabled,
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
   );
 
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(

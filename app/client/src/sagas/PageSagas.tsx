@@ -223,7 +223,6 @@ function* handleFetchedPage({
     if (willPageBeMigrated) {
       yield put(saveLayout());
     }
-    return isValidResponse;
   }
 }
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
@@ -241,17 +240,15 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    const isValidResponse: boolean = yield handleFetchedPage({
+    yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
       isFirstLoad,
     });
 
-    if (isValidResponse) {
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
-    }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+    );
   } catch (error) {
     log.error(error);
     PerformanceTracker.stopAsyncTracking(
