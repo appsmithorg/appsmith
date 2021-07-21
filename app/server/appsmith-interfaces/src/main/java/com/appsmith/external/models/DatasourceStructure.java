@@ -45,6 +45,7 @@ public class DatasourceStructure {
         String name;
         String type;
         String defaultValue;
+        // This field will be true for columns with auto-increment, default-expr with next value method etc.
         Boolean autogenerate;
 
         @Override

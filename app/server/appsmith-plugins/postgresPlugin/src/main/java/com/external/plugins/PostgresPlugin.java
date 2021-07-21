@@ -604,13 +604,16 @@ public class PostgresPlugin extends BasePlugin {
                                 ));
                             }
                             final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                            boolean autoIncrement = StringUtils.isEmpty(columnsResultSet.getString("default_expr"))
-                                ? false : columnsResultSet.getString("default_expr").toLowerCase().contains("nextval");
+                            final String defaultExpr = columnsResultSet.getString("default_expr");
+                            boolean autogenerate = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("nextval");
+
                             table.getColumns().add(new DatasourceStructure.Column(
                                     columnsResultSet.getString("name"),
                                     columnsResultSet.getString("column_type"),
-                                    columnsResultSet.getString("default_expr"),
-                                    autoIncrement));
+                                    defaultExpr,
+                                    autogenerate
+                                )
+                            );
                         }
                     }
 

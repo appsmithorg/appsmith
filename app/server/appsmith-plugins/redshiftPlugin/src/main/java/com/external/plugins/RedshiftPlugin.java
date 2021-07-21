@@ -489,7 +489,7 @@ public class RedshiftPlugin extends BasePlugin {
                 final String tableName = columnsResultSet.getString("table_name");
                 final String fullTableName = schemaName + "." + tableName;
                 final String defaultExpr = columnsResultSet.getString("default_expr");
-                boolean autogenerate = StringUtils.isEmpty(defaultExpr) ? false : defaultExpr.contains("identity");
+                boolean autogenerate = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("identity");
                 if (!tablesByName.containsKey(fullTableName)) {
                     tablesByName.put(fullTableName, new DatasourceStructure.Table(
                             kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
