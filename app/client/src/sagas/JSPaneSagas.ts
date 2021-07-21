@@ -51,13 +51,15 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
       (a: JSActionData) => a.config.pageId === pageId,
     );
     const newJSActionName = createNewJSFunctionName(pageJSActions, pageId);
+    const sampleBody =
+      "{\n\t\tresults: [],\n\t\trun: () => {\n\t\t\t//write code here\n\t}\n}";
     yield put(
       createJSActionRequest({
         name: newJSActionName,
         pageId,
         organizationId,
         pluginId,
-        body: "",
+        body: sampleBody,
         variables: [],
         actions: [],
         applicationId,

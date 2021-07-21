@@ -70,14 +70,6 @@ const ActionButtons = styled.div`
   }
 `;
 
-const SettingsWrapper = styled.div`
-  padding: 16px 30px;
-  height: 100%;
-  ${FormLabel} {
-    padding: 0px;
-  }
-`;
-
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -214,22 +206,9 @@ function JSEditorForm() {
                       showLightningMenu={false}
                       showLineNumbers
                       size={EditorSize.EXTENDED}
-                      tabBehaviour={TabBehaviour.INPUT}
+                      tabBehaviour={TabBehaviour.INDENT}
                       theme={theme}
                     />
-                  ),
-                },
-                {
-                  key: "settings",
-                  title: "Settings",
-                  panelComponent: (
-                    <SettingsWrapper>
-                      {/* <ActionSettings
-                        actionSettingsConfig={{}}
-                        formName={JS_EDITOR_FORM}
-                        theme={theme}
-                      /> */}
-                    </SettingsWrapper>
                   ),
                 },
               ]}
