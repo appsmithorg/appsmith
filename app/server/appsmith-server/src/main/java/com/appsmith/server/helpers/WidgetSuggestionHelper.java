@@ -5,7 +5,6 @@ import com.appsmith.external.models.WidgetType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -39,57 +38,64 @@ public class WidgetSuggestionHelper {
 
         if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
             if(!((ArrayNode) data).isEmpty()) {
+                ArrayNode array = null;
                 try {
-                    ArrayNode array = (ArrayNode) data;
-                    int length = array.size();
-                    JsonNode node = array.get(0);
-                    JsonNodeType nodeType = node.getNodeType();
-                    List<String> fields = new ArrayList<>();
-                    List<String> numericField = new ArrayList<>();
-
-                    for(Iterator<Map.Entry<String, JsonNode>> jsonFields = node.fields(); jsonFields.hasNext();) {
-                        Map.Entry<String, JsonNode> jsonField = jsonFields.next();
-                        if(JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
-                            fields.add(jsonField.getKey());
-                        }
-                        if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
-                            numericField.add(jsonField.getKey());
-                        }
-                    }
-
-                    if(JsonNodeType.STRING.equals(nodeType)) {
-                        if (length > 1 && !fields.isEmpty()) {
-                            widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
-                        }
-                        else {
-                            widgetTypeList.add(getTextWidget());
-                            widgetTypeList.add(getInputWidget());
-                        }
-                    }
-
-                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
-                        if(!fields.isEmpty()) {
-                            if(fields.size() < 2) {
-                                widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
-                            } else {
-                                widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(1)));
-                            }
-                            if(!numericField.isEmpty()) {
-                                widgetTypeList.add(getChartWidget(fields.get(0), numericField.get(0)));
-                            }
-                        }
-                        widgetTypeList.add(getTableWidget());
-                        widgetTypeList.add(getListWidget());
-                        widgetTypeList.add(getTextWidget());
-                    }
-
-                    if(JsonNodeType.NUMBER.equals(nodeType)) {
-                        widgetTypeList.add(getInputWidget());
-                        widgetTypeList.add(getTextWidget());
-                    }
-
+                    array = (ArrayNode) data;
                 } catch(ClassCastException e) {
                     log.warn("Error while casting data to suggest widget.", e);
+                    widgetTypeList.add(getTextWidget());
+                }
+                int length = array.size();
+                JsonNode node = array.get(0);
+                JsonNodeType nodeType = node.getNodeType();
+                List<String> fields = new ArrayList<>();
+                List<String> numericField = new ArrayList<>();
+
+                /*
+                *In order to form the binding query for the widgets the name of fields are required
+                * In the below piece of code, we are trying to group the fields based on their type and store them in a list
+                * Wrt to the widgets we show as part of suggestion we need only string and number/integer types
+                 */
+                Iterator<Map.Entry<String, JsonNode>> jsonFields = node.fields();
+                while(jsonFields.hasNext()) {
+                    Map.Entry<String, JsonNode> jsonField = jsonFields.next();
+                    if(JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
+                        fields.add(jsonField.getKey());
+                    }
+                    if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
+                        numericField.add(jsonField.getKey());
+                    }
+                }
+
+                if(JsonNodeType.STRING.equals(nodeType)) {
+                    if (length > 1 && !fields.isEmpty()) {
+                        //widgetTypeList.add();
+                        widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
+                    }
+                    else {
+                        widgetTypeList.add(getTextWidget());
+                        widgetTypeList.add(getInputWidget());
+                    }
+                }
+
+                if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
+                    if(!fields.isEmpty()) {
+                        if(fields.size() < 2) {
+                            widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
+                        } else {
+                            widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(1)));
+                        }
+                        if(!numericField.isEmpty()) {
+                            widgetTypeList.add(getChartWidget(fields.get(0), numericField.get(0)));
+                        }
+                    }
+                    widgetTypeList.add(getTableWidget());
+                    widgetTypeList.add(getListWidget());
+                    widgetTypeList.add(getTextWidget());
+                }
+
+                if(JsonNodeType.NUMBER.equals(nodeType)) {
+                    widgetTypeList.add(getInputWidget());
                     widgetTypeList.add(getTextWidget());
                 }
             }
@@ -140,6 +146,4 @@ public class WidgetSuggestionHelper {
         widgetSuggestionDTO.setBindingQuery(inputWidgetQuery);
         return widgetSuggestionDTO;
     }
-
-
 }
