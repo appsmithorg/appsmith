@@ -147,8 +147,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                     log.debug("Failed to create action with name {} for collection: {}", action.getName(), collection.getName());
                                     log.error(throwable.getMessage());
                                     return Mono.empty();
-                                })
-                                .retry(2);
+                                });
                     }
                     // This would occur when the new collection is created by grouping existing actions
                     // This could be a future enhancement for js editor templates,
@@ -464,8 +463,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                     log.debug("Failed to create action with name {} for collection: {}", actionDTO.getName(), actionCollectionDTO.getName());
                                     log.error(throwable.getMessage());
                                     return Mono.empty();
-                                })
-                                .retry(2);
+                                });
                     } else {
                         return layoutActionService.updateAction(actionDTO.getId(), actionDTO);
                     }
