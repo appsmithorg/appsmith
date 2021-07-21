@@ -121,11 +121,6 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     }
 
     @Override
-    public Mono<User> saveUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
     public Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole) {
         Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
@@ -169,7 +164,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
@@ -182,13 +179,21 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(application.getId(), commentThreadPolicyMap, user.getUsername(), true));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT4();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.zip(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                Mono.just(updatedOrganization),
+                updatedThreadsFlux.collectList()
+        )
+        .flatMap(tuple -> {
+            //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+            Organization updatedOrgBeforeSave = tuple.getT4();
+            return organizationRepository.save(updatedOrgBeforeSave);
+        });
     }
 
     @Override
@@ -212,8 +217,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 });
     }
 
-    @Override
-    public Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
+    private Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
         List<UserRole> userRoles = organization.getUserRoles();
         if (userRoles == null) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", organization.getName()));
@@ -258,7 +262,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, user.getUsername(), false
                         ));
 
@@ -434,7 +438,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsCommentThreads(
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
                 ));
 
