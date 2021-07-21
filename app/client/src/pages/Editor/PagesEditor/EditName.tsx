@@ -99,7 +99,7 @@ function EditName(props: Props) {
       {!isEditing && (
         <div className="page-list-item-edit-icon">
           <EditIcon
-            color={get(theme, "colors.propertyPane.iconColor")}
+            color={get(theme, "colors.pagesEditor.iconColor")}
             height={14}
             onClick={enterEditMode}
             width={14}

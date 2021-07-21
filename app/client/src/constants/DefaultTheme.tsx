@@ -1079,6 +1079,9 @@ type ColorType = {
     border: string;
     actionActiveBg: string;
   };
+  pagesEditor: {
+    iconColor: string;
+  };
 };
 
 const notifications = {
@@ -1113,6 +1116,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1703,6 +1710,7 @@ export const dark: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  pagesEditor,
 };
 
 export const light: ColorType = {
@@ -2173,6 +2181,7 @@ export const light: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  pagesEditor,
 };
 
 export const theme: Theme = {

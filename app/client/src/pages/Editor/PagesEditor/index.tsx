@@ -26,7 +26,6 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   padding: 20px;
-  background-color: ${(props) => props.theme.colors.artboard};
   height: 100%;
   overflow: auto;
 `;

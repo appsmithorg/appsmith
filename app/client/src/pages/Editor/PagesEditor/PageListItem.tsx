@@ -113,7 +113,7 @@ function PageListItem(props: PageListItemProps) {
     <Container>
       <ListItem>
         <DragIcon
-          color={get(theme, "colors.propertyPane.iconColor")}
+          color={get(theme, "colors.pagesEditor.iconColor")}
           cursor="move"
           height={20}
           width={20}
@@ -132,7 +132,7 @@ function PageListItem(props: PageListItemProps) {
           {item.isHidden && (
             <Action disabled title="Hidden">
               <HideIcon
-                color={get(theme, "colors.propertyPane.iconColor")}
+                color={get(theme, "colors.pagesEditor.iconColor")}
                 height={16}
                 width={16}
               />
@@ -148,7 +148,7 @@ function PageListItem(props: PageListItemProps) {
           />
           <Action title="Clone" type="button">
             <CopyIcon
-              color={get(theme, "colors.propertyPane.iconColor")}
+              color={get(theme, "colors.pagesEditor.iconColor")}
               height={16}
               onClick={() => clonePageCallback(item.pageId)}
               width={16}
@@ -159,7 +159,7 @@ function PageListItem(props: PageListItemProps) {
               color={
                 item.isDefault
                   ? get(theme, "colors.propertyPane.deleteIconColor")
-                  : get(theme, "colors.propertyPane.iconColor")
+                  : get(theme, "colors.pagesEditor.iconColor")
               }
               disabled={item.isDefault}
               height={16}
