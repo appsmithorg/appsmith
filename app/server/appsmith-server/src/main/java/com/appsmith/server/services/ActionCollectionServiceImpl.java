@@ -378,7 +378,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         }
 
         Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
         return actionCollectionMono
