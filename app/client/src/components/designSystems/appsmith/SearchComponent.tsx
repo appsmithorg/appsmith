@@ -8,6 +8,7 @@ interface SearchProps {
   onSearch: (value: any) => void;
   placeholder: string;
   value: string;
+  className?: string;
 }
 
 const SearchInputWrapper = styled(InputGroup)`
@@ -56,7 +57,7 @@ class SearchComponent extends React.Component<
   render() {
     return (
       <SearchInputWrapper
-        className="t--search-input"
+        className={`${this.props.className} t--search-input`}
         leftIcon="search"
         onChange={this.handleSearch}
         placeholder={this.props.placeholder}

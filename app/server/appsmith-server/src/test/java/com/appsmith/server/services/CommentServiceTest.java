@@ -10,11 +10,15 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -28,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,6 +60,15 @@ public class CommentServiceTest {
 
     @Autowired
     PolicyUtils policyUtils;
+
+    @MockBean
+    private Analytics analytics;
+
+    @Before
+    public void setUp() {
+        Mockito.doNothing().when(analytics).enqueue(any());
+        Mockito.doNothing().when(analytics).flush();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")

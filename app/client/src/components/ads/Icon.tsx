@@ -67,6 +67,7 @@ import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as UpArrow } from "assets/icons/ads/upper_arrow.svg";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
@@ -155,6 +156,7 @@ export const IconCollection = [
   "warning",
   "warning-triangle",
   "downArrow",
+  "upArrow",
   "context-menu",
   "duplicate",
   "logout",
@@ -326,6 +328,9 @@ const Icon = forwardRef(
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
+        break;
+      case "upArrow":
+        returnIcon = <UpArrow />;
         break;
       case "share":
         returnIcon = <ShareIcon />;
