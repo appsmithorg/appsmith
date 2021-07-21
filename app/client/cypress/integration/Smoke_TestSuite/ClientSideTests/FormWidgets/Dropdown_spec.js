@@ -44,6 +44,22 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(publish.dropdownWidget + " " + ".bp3-button").should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+  it("Dropdown Functionality To Check disabled Widget", function() {
+    cy.openPropertyPane("dropdownwidget");
+    cy.togglebar(commonlocators.disableCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("be.disabled");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Dropdown Functionality To UnCheck disabled Widget", function() {
+    cy.openPropertyPane("dropdownwidget");
+    cy.togglebarDisable(commonlocators.disableCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.dropdownWidget + " " + ".bp3-button").should(
+      "not.be.disabled",
+    );
+    cy.get(publish.backToEditor).click();
+  });
 });
 afterEach(() => {
   // put your clean up code if any
