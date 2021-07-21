@@ -2579,3 +2579,7 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("skipGenerateCRUDPage", () => {
+  cy.get(generatePage.buildFromScratchActionCard).click();
+});
