@@ -14,7 +14,7 @@
         "type": "CANVAS_WIDGET",
         "canExtend": true,
         "version": 29,
-        "minHeight": 200,
+        "minHeight": 360,
         "parentColumnSpace": 1,
         "dynamicBindingPathList": [],
         "leftColumn": 0,
@@ -103,7 +103,6 @@
                                 "options": "",
                                 "isDisabled": false
                             },
-                            null,
                             {
                                 "widgetName": "Button1",
                                 "rightColumn": 12,
@@ -263,30 +262,27 @@
                                 "isDisabled": false
                             },
                             {
-                                "isVisible": true,
-                                "label": "",
-                                "options": "",
-                                "widgetName": "MultiSelect2",
-                                "defaultOptionValue": [
-                                    "First",
-                                    "Seventh"
-                                ],
-                                "version": 1,
                                 "isRequired": false,
-                                "isDisabled": false,
-                                "placeholderText": "select option(s)",
-                                "type": "MULTI_SELECT_WIDGET",
-                                "isLoading": false,
-                                "parentColumnSpace": 13.662109375,
-                                "parentRowSpace": 10,
-                                "leftColumn": 37,
+                                "widgetName": "MultiSelect2",
                                 "rightColumn": 62,
+                                "widgetId": "p6qkmj8uo1",
                                 "topRow": 49,
                                 "bottomRow": 60,
+                                "parentRowSpace": 10,
+                                "isVisible": true,
+                                "label": "",
+                                "type": "MULTI_SELECT_WIDGET",
+                                "version": 1,
                                 "parentId": "e3tq9qwta6",
-                                "widgetId": "p6qkmj8uo1",
+                                "isLoading": false,
+                                "defaultOptionValue": "",
+                                "parentColumnSpace": 13.662109375,
+                                "dynamicTriggerPathList": [],
+                                "leftColumn": 37,
                                 "dynamicBindingPathList": [],
-                                "dynamicTriggerPathList": []
+                                "options": "",
+                                "placeholderText": "select option(s)",
+                                "isDisabled": false
                             }
                         ]
                     }
