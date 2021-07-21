@@ -310,6 +310,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
 
     const updateBottomRow =
+      stateParent.type === WidgetTypes.CANVAS_WIDGET &&
       newWidget.bottomRow * newWidget.parentRowSpace > stateParent.bottomRow;
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []

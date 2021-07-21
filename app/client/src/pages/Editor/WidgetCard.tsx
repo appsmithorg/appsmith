@@ -4,7 +4,10 @@ import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import {
+  useShowPropertyPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
@@ -74,6 +77,9 @@ export const IconLabel = styled.h5`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget } = useWidgetSelection();
+
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());
   const [, drag, preview] = useDrag({
@@ -87,7 +93,7 @@ function WidgetCard(props: CardProps) {
         setDraggingNewWidget(true, { ...props.details, widgetId });
       deselectAll();
     },
-    end: (widget, monitor) => {
+    end: (widget: any, monitor) => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
         widgetType: props.details.type,
         widgetName: props.details.widgetCardName,
@@ -96,6 +102,8 @@ function WidgetCard(props: CardProps) {
       // We've finished dragging, generate a new widgetId to be used for next drag.
       setWidgetId(generateReactKey());
       setDraggingNewWidget && setDraggingNewWidget(false, undefined);
+      selectWidget(widget.widgetId);
+      showPropertyPane(widget.widgetId);
     },
   });
 
