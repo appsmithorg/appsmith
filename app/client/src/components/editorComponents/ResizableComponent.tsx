@@ -16,6 +16,7 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
@@ -62,6 +63,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -258,6 +260,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
+    // Make sure that this tableFilterPane should close
+    showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,

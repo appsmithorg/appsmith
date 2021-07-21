@@ -5,6 +5,7 @@ import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
   closePropertyPane,
+  closeTableFilterPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
@@ -38,6 +39,7 @@ type Props = {
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
+  closeTableFilterProppane: () => void;
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
@@ -192,6 +194,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
+            this.props.closeTableFilterProppane();
             e.preventDefault();
           }}
         />
@@ -246,6 +249,7 @@ const mapDispatchToProps = (dispatch: any) => {
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
+    closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
