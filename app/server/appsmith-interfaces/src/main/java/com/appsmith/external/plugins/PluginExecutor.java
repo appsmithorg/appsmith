@@ -8,10 +8,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,6 +92,19 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * @return
      */
     default Mono<DatasourceStructure> getStructure(C connection, DatasourceConfiguration datasourceConfiguration) {
+        return Mono.empty();
+    }
+
+    /**
+     * This function executes the DB query to fetch details about the datasource when we don't want to create new action
+     * just to get the information about the datasource
+     * e.g. Get Spreadsheets from Google Drive, Get first row in datasource etc.
+     *
+     * @param pluginSpecifiedTemplates
+     * @param datasourceConfiguration
+     * @return
+     */
+    default Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates, DatasourceConfiguration datasourceConfiguration) {
         return Mono.empty();
     }
 

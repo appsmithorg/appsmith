@@ -500,24 +500,29 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   const renderEachConfig = (formName: string) => (section: any): any => {
-    return section.children.map((formControlOrSection: ControlProps) => {
-      if (isHidden(props.formData, section.hidden)) return null;
-      if (formControlOrSection.hasOwnProperty("children")) {
-        return renderEachConfig(formName)(formControlOrSection);
-      } else {
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={configProperty}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (isHidden(props.formData, section.hidden)) return null;
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfig(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
         }
-      }
-      return null;
-    });
+        return null;
+      },
+    );
   };
 
   const responseTabs = [

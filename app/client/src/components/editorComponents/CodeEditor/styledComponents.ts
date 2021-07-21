@@ -232,6 +232,25 @@ export const EditorWrapper = styled.div<{
   }
   .CodeEditorTarget {
     width: 100%;
+    ${(props) =>
+      props.size === EditorSize.COMPACT
+        ? `
+        position: absolute;
+        left: 0;
+        right: 0;
+      `
+        : `
+          position: relative;
+        `}
+    ${(props) => (props.isFocused ? `z-index: 3;` : `z-index: 0;`)}
+
+    ${(props) => {
+      let height = props.height || "auto";
+      if (props.size === EditorSize.COMPACT && !props.isFocused) {
+        height = props.height || "32px";
+      }
+      return `height: ${height}`;
+    }}
   }
 `;
 
