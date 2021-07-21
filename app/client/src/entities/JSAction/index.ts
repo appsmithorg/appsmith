@@ -1,7 +1,5 @@
 import { BaseAction } from "../Action";
-export enum PluginType {
-  JS = "JS",
-}
+import { PluginType } from "entities/Action";
 
 export enum PaginationType {
   NONE = "NONE",

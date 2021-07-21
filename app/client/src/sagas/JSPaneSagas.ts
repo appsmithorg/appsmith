@@ -34,6 +34,7 @@ import {
 } from "../actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
+import { PluginType } from "entities/Action";
 
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
@@ -63,6 +64,7 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
         variables: [],
         actions: [],
         applicationId,
+        pluginType: PluginType.JS,
       }),
     );
   }
