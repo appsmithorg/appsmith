@@ -25,6 +25,7 @@ import {
   getDatasource,
   getDatasourceDraft,
   getPluginForm,
+  getPluginIdGenerateCRUDPageEnabled,
 } from "selectors/entitiesSelector";
 import {
   changeDatasource,
@@ -34,6 +35,7 @@ import {
   setDatsourceEditorMode,
   updateDatasourceSuccess,
   UpdateDatasourceSuccessAction,
+  executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -81,9 +83,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../pages/Editor/GeneratePage/components/constants";
-
-import { executeDatasourceQueryReduxAction } from "../actions/datasourceActions";
+import { PluginIdGenerateCRUDPageEnabled } from "../api/PluginApi";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -744,6 +744,9 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string = yield select(getCurrentPageId);
+  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = yield select(
+    getPluginIdGenerateCRUDPageEnabled,
+  );
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -751,7 +754,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   if (
     queryParams.initiator === "generate-page" &&
     updatedDatasource.pluginId &&
-    VALID_PLUGINS_FOR_TEMPLATE[updatedDatasource.pluginId]
+    generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
       `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${

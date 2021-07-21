@@ -30,38 +30,14 @@ import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import { GENERATE_PAGE_FORM_TITLE } from "../../../../constants/messages";
+import { PluginIdGenerateCRUDPageEnabled } from "../../../../api/PluginApi";
+import { getPluginIdGenerateCRUDPageEnabled } from "../../../../selectors/entitiesSelector";
 import {
-  VALID_PLUGINS_FOR_TEMPLATE,
-  PLUGIN_ID,
   DropdownOptions,
   DatasourceTableDropdownOption,
+  PluginFormInputFieldMap,
+  PLUGIN_PACKAGE_NAME,
 } from "./constants";
-
-export const PluginFormInputFieldMap: Record<
-  string,
-  { DATASOURCE: string; TABLE: string; COLUMN: string }
-> = {
-  "5e687c18fb01e64e6a3f873f": {
-    DATASOURCE: "MongoDB",
-    TABLE: "collection",
-    COLUMN: "field",
-  },
-  "6023b4a070eb652de19476d3": {
-    DATASOURCE: "S3",
-    TABLE: "bucket",
-    COLUMN: "keys",
-  },
-  [PLUGIN_ID.GOOGLE_SHEET]: {
-    DATASOURCE: "Google Sheets",
-    TABLE: "spreadsheet",
-    COLUMN: "keys",
-  },
-  DEFAULT: {
-    DATASOURCE: "SQL Based",
-    TABLE: "table",
-    COLUMN: "column",
-  },
-};
 
 const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
@@ -174,6 +150,10 @@ function GeneratePageForm() {
 
   const isFetchingDatasourceStructure = useSelector(
     getIsFetchingDatasourceStructure,
+  );
+
+  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
+    getPluginIdGenerateCRUDPageEnabled,
   );
 
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
@@ -290,11 +270,11 @@ function GeneratePageForm() {
         value: name,
         data: {
           pluginId,
-          isSupportedForTemplate: VALID_PLUGINS_FOR_TEMPLATE[pluginId],
+          isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
           isValid,
         },
       };
-      if (VALID_PLUGINS_FOR_TEMPLATE[pluginId])
+      if (generateCRUDSupportedPlugin[pluginId])
         supportedDatasourceOptions.push(datasourceObject);
       else {
         unSupportedDatasourceOptions.push(datasourceObject);
@@ -305,7 +285,7 @@ function GeneratePageForm() {
       unSupportedDatasourceOptions,
     );
     setDataSourceOptions(newDataSourceOptions);
-  }, [datasources, setDataSourceOptions]);
+  }, [datasources, setDataSourceOptions, generateCRUDSupportedPlugin]);
 
   useEffect(() => {
     if (
@@ -436,13 +416,15 @@ function GeneratePageForm() {
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
   const isValidDatasourceConfig = selectedDatasource.data?.isValid;
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
+  const selectedDatasourcePluginPackageName: string =
+    generateCRUDSupportedPlugin[selectedDatasourcePluginId];
   const pluginField: {
     TABLE: string;
     COLUMN: string;
   } =
-    selectedDatasourcePluginId &&
-    PluginFormInputFieldMap[selectedDatasourcePluginId]
-      ? PluginFormInputFieldMap[selectedDatasourcePluginId]
+    selectedDatasourcePluginPackageName &&
+    PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
+      ? PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
       : PluginFormInputFieldMap.DEFAULT;
   const tableLabel = pluginField.TABLE;
   const columnLabel = pluginField.COLUMN;
@@ -458,7 +440,7 @@ function GeneratePageForm() {
   }
 
   const isGoogleSheetPlugin =
-    selectedDatasourcePluginId === PLUGIN_ID.GOOGLE_SHEET;
+    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
 
   return (
     <div>
@@ -546,6 +528,7 @@ function GeneratePageForm() {
           <GoogleSheetForm
             columnLabel={columnLabel}
             datasourceTableOptions={datasourceTableOptions}
+            googleSheetPluginId={selectedDatasourcePluginId}
             isFetchingDatasourceStructure={isFetchingDatasourceStructure}
             onSelectColumn={onSelectColumn}
             onSelectTable={onSelectTable}

@@ -13,8 +13,10 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
-import { VALID_PLUGINS_FOR_TEMPLATE } from "../GeneratePage/components/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
+import { PluginIdGenerateCRUDPageEnabled } from "../../../api/PluginApi";
+import { getPluginIdGenerateCRUDPageEnabled } from "../../../selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -154,6 +156,10 @@ function NewApiScreen(props: Props) {
     plugins,
   } = props;
 
+  const generateCRUDSupportedPlugin: PluginIdGenerateCRUDPageEnabled = useSelector(
+    getPluginIdGenerateCRUDPageEnabled,
+  );
+
   const handleCreateNew = () => {
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
@@ -166,7 +172,7 @@ function NewApiScreen(props: Props) {
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
-      !VALID_PLUGINS_FOR_TEMPLATE[params?.pluginId]
+      !generateCRUDSupportedPlugin[params?.pluginId]
     ) {
       // show modal informing user that this will break the generate flow.
       props?.showUnsupportedPluginDialog(() =>
