@@ -74,17 +74,14 @@ public class AnalyticsService {
         // java.lang.UnsupportedOperationException: null
         // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
-        Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.putAll(properties);
+        Map<String, Object> analyticsProperties = new HashMap<>(properties);
 
         if (!commonConfig.isCloudHosted()) {
             userId = DigestUtils.sha256Hex(userId);
             if (analyticsProperties.containsKey("username")) {
                 analyticsProperties.put("username", userId);
             }
-            if (analyticsProperties.containsKey("request")) {
-                analyticsProperties.remove("request");
-            }
+            analyticsProperties.remove("request");
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
