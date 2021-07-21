@@ -4,6 +4,7 @@ import { Icon } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -28,10 +29,7 @@ function BackButton() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
-    const params: string = location.search;
-    const searchParamsInstance = new URLSearchParams(params);
-    const initiator = searchParamsInstance.get("initiator");
-    const isGeneratePageInitiator = initiator === "generate-page";
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
       ? getGenerateTemplateFormURL(applicationId, pageId)
       : BUILDER_PAGE_URL(applicationId, pageId);

@@ -14,6 +14,7 @@ import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -153,8 +154,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
       plugin: pluginName,
     });
 
-    const queryParams = getQueryParams();
-    const { initiator } = queryParams;
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
 
     /* When initiator is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
         If YES => continue creating datasource
@@ -165,11 +165,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
         goToCreateDatasource function is passed as a callback with params.skipValidPluginCheck = true.
         Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.
     */
-    if (
-      initiator &&
-      initiator === "generate-page" &&
-      !params?.skipValidPluginCheck
-    ) {
+    if (isGeneratePageInitiator && !params?.skipValidPluginCheck) {
       if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {

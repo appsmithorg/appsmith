@@ -84,6 +84,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -169,7 +170,8 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const applicationId: string = yield select(getCurrentApplicationId);
       const pageId: string = yield select(getCurrentPageId);
-      if (initiator && initiator === "generate-page") {
+      const isGeneratePageInitiator = getIsGeneratePageInitiator(initiator);
+      if (isGeneratePageInitiator) {
         history.push(
           `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
             response.data.id
@@ -751,8 +753,11 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
 
   const { queryParams = {} } = action;
 
+  const isGeneratePageInitiator = getIsGeneratePageInitiator(
+    queryParams.initiator,
+  );
   if (
-    queryParams.initiator === "generate-page" &&
+    isGeneratePageInitiator &&
     updatedDatasource.pluginId &&
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {

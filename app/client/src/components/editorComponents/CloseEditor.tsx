@@ -14,6 +14,7 @@ import {
 import { useSelector } from "react-redux";
 import { getQueryParams } from "../../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../../constants/routes";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -37,8 +38,7 @@ function CloseEditor() {
 
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
-  const initiator = searchParamsInstance.get("initiator");
-  const isGeneratePageInitiator = initiator === "generate-page";
+  const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
   if (isGeneratePageInitiator) {
     integrationTab = INTEGRATION_TABS.NEW;

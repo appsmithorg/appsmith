@@ -25,6 +25,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -322,8 +323,8 @@ class IntegrationsHomeScreen extends React.Component<
 
     const queryParams = getQueryParams();
     const redirectMode = queryParams.mode;
-    const initiator = queryParams.initiator;
-    if (initiator === "generate-page") {
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
+    if (isGeneratePageInitiator) {
       if (redirectMode === INTEGRATION_EDITOR_MODES.AUTO) {
         delete queryParams.mode;
         delete queryParams.from;
@@ -416,8 +417,8 @@ class IntegrationsHomeScreen extends React.Component<
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen = null;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
-    const queryParams = getQueryParams();
-    const isGeneratePageInitiator = queryParams.initiator === "generate-page";
+
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
     // Avoid user to switch tabs when in generate page flow by hiding the tabs itself.
     const showTabs = !isGeneratePageInitiator;
     const mockDataSection =

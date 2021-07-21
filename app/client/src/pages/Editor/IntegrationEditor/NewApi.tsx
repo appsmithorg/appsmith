@@ -17,6 +17,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -168,7 +169,9 @@ function NewApiScreen(props: Props) {
 
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
-    const isGeneratePageInitiator = queryParams.initiator === "generate-page";
+    const isGeneratePageInitiator = getIsGeneratePageInitiator(
+      queryParams.initiator,
+    );
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
