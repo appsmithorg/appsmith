@@ -37,11 +37,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     letter-spacing: -0.24px;
     &:hover {
       background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
+        props.editorTheme === EditorTheme.LIGHT ? "#E8E8E8" : "#157A96"};
       border-radius: 0px;
-      color: #fff;
+      color: #090707;
       &:after {
-        color: #fff;
+        color: #090707;
       }
     }
   }
@@ -52,6 +52,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     pointer-events: none !important;
     font-family: ${(props) => props.theme.fonts.text};
     ${(props) => getTypographyByKey(props, "p3")}
+    font-weight: 600;
   }
 
   .CodeMirror-commands {
@@ -86,6 +87,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         margin-right: 7px;
       }
       svg {
+        height: 12px;
+        width: 12px;
         margin-right: 7px;
       }
     }
@@ -136,7 +139,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
+        props.editorTheme === EditorTheme.LIGHT ? "#E8E8E8" : "#157A96"};
+      color: #090707;
+      &:after {
+        color: #090707;
+      }
     }
   }
   .CodeMirror-Tern-completion:before {
@@ -210,6 +217,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     color: #fff;
     &:after {
       color: #fff;
+    }
+    &:hover {
+      background: #6A86CE;
+      color: #fff;
+      &:after {
+        color: #fff;
+      }
     }
   }
   .CodeMirror-Tern-hint-doc {

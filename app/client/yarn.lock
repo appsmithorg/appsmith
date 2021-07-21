@@ -16771,10 +16771,6 @@ tiny-warning@^1.0.0, tiny-warning@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/tiny-warning/-/tiny-warning-1.0.3.tgz"
 
-tinycolor2@^1.4.1:
-  version "1.4.2"
-  resolved "https://registry.npmjs.org/tinycolor2/-/tinycolor2-1.4.2.tgz"
-
 tinycolor2@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.2.tgz#3f6a4d1071ad07676d7fa472e1fac40a719d8803"

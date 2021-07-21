@@ -129,8 +129,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: "GHOST",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
           },
           {
             propertyName: "borderRadius",

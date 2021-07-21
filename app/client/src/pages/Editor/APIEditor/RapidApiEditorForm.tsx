@@ -182,14 +182,12 @@ function RapidApiEditorForm(props: Props) {
           <DynamicTextField
             disabled
             leftImage={providerImage}
-            mutedHinting
             name="provider.name"
             placeholder="Provider name"
           />
           <DynamicTextField
             disabled
             leftIcon={FormIcons.SLASH_ICON}
-            mutedHinting
             name="actionConfiguration.path"
             placeholder="v1/method"
           />

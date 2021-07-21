@@ -1,8 +1,9 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
+  getCurrencyOptions,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -49,7 +50,60 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Email",
                 value: "EMAIL",
               },
+              {
+                label: "Currency",
+                value: "CURRENCY",
+              },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "allowCurrencyChange",
+            label: "Allow currency change",
+            helpText: "Search by currency or country",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+          },
+          {
+            helpText: "Changes the type of currency",
+            propertyName: "currencyCountryCode",
+            label: "Currency",
+            enableSearch: true,
+            dropdownHeight: "195px",
+            controlType: "DROP_DOWN",
+            placeholderText: "Search by code or name",
+            options: getCurrencyOptions(),
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "No. of decimals in currency input",
+            propertyName: "decimalsInCurrency",
+            label: "Decimals",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1",
+                value: 1,
+              },
+              {
+                label: "2",
+                value: 2,
+              },
+            ],
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -240,6 +294,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       text: undefined,
       isFocused: false,
       isDirty: false,
+      selectedCurrencyType: undefined,
     };
   }
 
@@ -253,6 +308,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     });
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+  };
+
+  onCurrencyTypeChange = (code?: string) => {
+    const currencyCountryCode = code;
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
+    } else {
+      this.props.updateWidgetMetaProperty(
+        "selectedCurrencyCountryCode",
+        currencyCountryCode,
+      );
     }
   };
 
@@ -295,7 +362,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-
+    const currencyCountryCode =
+      this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -304,9 +372,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
-
     return (
       <InputComponent
+        allowCurrencyChange={this.props.allowCurrencyChange}
+        currencyCountryCode={currencyCountryCode}
+        decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
@@ -320,6 +390,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             GRID_DENSITY_MIGRATION_V1 >
             1 && this.props.inputType === "TEXT"
         }
+        onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
@@ -357,6 +428,10 @@ export interface InputValidator {
 }
 export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
+  currencyCountryCode?: string;
+  noOfDecimals?: number;
+  allowCurrencyChange?: boolean;
+  decimalsInCurrency?: number;
   defaultText?: string;
   isDisabled?: boolean;
   text: string;

@@ -139,13 +139,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        Integer order = application.getPages() != null ? application.getPages().size() : 0;
-        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, order)
-                .doOnSuccess(result -> {
-                    if (result.getModifiedCount() != 1) {
-                        log.error("Add page to application didn't update anything, probably because application wasn't found.");
-                    }
-                });
+        if(isDuplicatePage(application, page.getId())) {
+            return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
+                    .doOnSuccess(result -> {
+                        if (result.getModifiedCount() != 1) {
+                            log.error("Add page to application didn't update anything, probably because application wasn't found.");
+                        }
+                    });
+        } else{
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id "+page.getId()));
+        }
+
+    }
+
+    private Boolean isDuplicatePage(Application application, String pageId) {
+        if( application.getPages() != null) {
+            int count = (int) application.getPages().stream().filter(
+                    applicationPage -> applicationPage.getId().equals(pageId)).count();
+            if (count > 0) {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
     }
 
     @Override
@@ -676,12 +691,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Application object with the latest order
      **/
     @Override
-    public Mono<Application> reorderPage(String applicationId, String pageId, Integer order) {
+    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order) {
         return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.
-                    final List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getPages();
 
                     ApplicationPage foundPage = null;
                     for (final ApplicationPage page : pages) {
@@ -690,32 +705,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         }
                     }
 
-                    /* there are two cases where page is re-ordered. Lets assume there are five pages 1,2,3,4,5
-                     * Case 1(isMovingUp == true): p5 to p2, order of p2,p3,p4 increases by 1.
-                     *
-                     * Case 2(isMovingUp == false): p2 to p5, order of p3,p4,p5 decreases by 1.
-                     **/
                     if(foundPage != null) {
-                        boolean isMovingUp = order < foundPage.getOrder();
-                        if(isMovingUp) {
-                            for (final ApplicationPage page : pages) {
-                                if (page.getOrder() < foundPage.getOrder() && page.getOrder() >= order) {
-                                    page.setOrder(page.getOrder()+1);
-                                }
-                            }
-                        } else {
-                            for (final ApplicationPage page : pages) {
-                                if (page.getOrder() > foundPage.getOrder() && page.getOrder() <= order) {
-                                    page.setOrder(page.getOrder()-1);
-                                }
-                            }
-                        }
-                        //set the selected page order to the given order
-                        foundPage.setOrder(order);
+                        pages.remove(foundPage);
+                        pages.add(order, foundPage);
                     }
+
                     return applicationRepository
                             .setPages(applicationId, pages)
-                            .then(applicationService.getById(applicationId));
+                            .then(newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId,Boolean.FALSE));
                 });
     }
 
