@@ -85,6 +85,9 @@ public class ActionCollectionDTO {
         if (this.pluginId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID));
         }
+        if (this.pluginType == null) {
+            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID));
+        }
         return validationErrors;
     }
 

@@ -138,6 +138,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                         action.getDatasource().setName("UNUSED_DATASOURCE");
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setPageId(collection.getPageId());
+                        action.setPluginType(collection.getPluginType());
                         // Action doesn't exist. Create now.
                         return layoutActionService
                                 .createAction(action)

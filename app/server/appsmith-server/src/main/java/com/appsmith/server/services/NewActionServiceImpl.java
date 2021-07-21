@@ -918,11 +918,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // fetch the published actions by applicationId
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
                     actionViewDTO.setId(action.getId());
-                    actionViewDTO.setName(action.getPublishedAction().getName());
+                    actionViewDTO.setName(action.getPublishedAction().getValidName());
                     actionViewDTO.setPageId(action.getPublishedAction().getPageId());
                     actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
@@ -998,7 +997,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // function call is made which takes care of returning only the essential fields of an action
             return repository
                     .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
