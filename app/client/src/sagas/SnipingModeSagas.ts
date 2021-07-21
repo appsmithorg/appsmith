@@ -161,7 +161,7 @@ function* resetSnipingModeSaga() {
   });
 }
 
-export default function* propertyPaneSagas() {
+export default function* snipingModeSagas() {
   yield all([
     takeLeading(ReduxActionTypes.BIND_DATA_TO_WIDGET, bindDataToWidgetSaga),
     takeLeading(ReduxActionTypes.RESET_SNIPING_MODE, resetSnipingModeSaga),

@@ -6,7 +6,7 @@ import orgSagas from "../src/sagas/OrgSagas";
 import importedCollectionsSagas from "../src/sagas/CollectionSagas";
 import providersSagas from "../src/sagas/ProvidersSaga";
 import curlImportSagas from "../src/sagas/CurlImportSagas";
-import propertyPaneSagas from "../src/sagas/PropertyPaneSagas";
+import snipingModeSagas from "../src/sagas/SnipingModeSagas";
 import queryPaneSagas from "../src/sagas/QueryPaneSagas";
 import modalSagas from "../src/sagas/ModalSagas";
 import batchSagas from "../src/sagas/BatchSagas";
@@ -44,7 +44,7 @@ export const sagasToRunForTests = [
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
-  propertyPaneSagas,
+  snipingModeSagas,
   queryPaneSagas,
   modalSagas,
   batchSagas,
