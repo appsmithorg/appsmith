@@ -849,7 +849,9 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
-        payload: action.payload,
+        payload: {
+          pages: response.data.pages,
+        },
       });
     }
   } catch (error) {

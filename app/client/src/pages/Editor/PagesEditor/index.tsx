@@ -1,9 +1,14 @@
-import { get, sortBy } from "lodash";
+import { get } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useParams, useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback } from "react";
 
+import {
+  createPage,
+  setPageOrder,
+  setPageAsDefault,
+} from "actions/pageActions";
 import { AppState } from "reducers";
 import { Action } from "./PageListItem";
 import PageListItem from "./PageListItem";
@@ -15,20 +20,15 @@ import { Page } from "constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { createPage, setPageOrder } from "actions/pageActions";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   padding: 20px;
-  margin-left: 250px;
-  position: absolute;
-  left: 0;
-  width: calc(100% - 250px);
-  z-index: 2;
-  height: calc(100% - 35px);
-  overflow-y: scroll;
   background-color: ${(props) => props.theme.colors.artboard};
+  height: 100%;
+  overflow: auto;
 `;
 
 const Header = styled.div`
@@ -75,11 +75,6 @@ function PagesEditor() {
     return state.entities.pageList.pages;
   });
 
-  const sortedPages = useMemo(() => {
-    return sortBy(pages, (page) => !page.isDefault);
-  }, [pages]);
-
-  // log page load
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
       appName: currentApp?.name,
@@ -104,19 +99,25 @@ function PagesEditor() {
    */
   const setPageOrderCallback = useCallback(
     (pageId: string, newOrder: number) => {
-      console.log({ pageId, newOrder });
-      // dispatch(setPageOrder(params.applicationId, pageId, newOrder));
+      dispatch(setPageOrder(params.applicationId, pageId, newOrder));
     },
     [dispatch, params.applicationId],
   );
 
+  /**
+   * sets the page as default
+   */
+  const setPageAsDefaultCallback = useCallback(
+    (pageId: string, applicationId?: string): void => {
+      dispatch(setPageAsDefault(pageId, applicationId));
+    },
+    [dispatch],
+  );
+
   // closes the pages editor
   const onClose = useCallback(() => {
-    history.push(location.pathname);
+    history.push(BUILDER_PAGE_URL(params.applicationId, params.pageId));
   }, []);
-
-  // if there is no edit-pages in url, don't render the pages editor
-  if (location.hash.includes("#edit-pages") === false) return null;
 
   return (
     <Wrapper>
@@ -147,9 +148,16 @@ function PagesEditor() {
           <PageListItem applicationId={params.applicationId} item={item} />
         )}
         itemHeight={70}
-        items={sortedPages}
+        items={pages}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
-          setPageOrderCallback(sortedPages[originalIndex].pageName, newIndex);
+          if (newIndex === 0) {
+            setPageAsDefaultCallback(
+              pages[originalIndex].pageId,
+              params.applicationId,
+            );
+          }
+
+          setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}
       />
     </Wrapper>

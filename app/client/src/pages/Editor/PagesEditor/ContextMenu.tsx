@@ -15,6 +15,7 @@ import EditName from "./EditName";
 // render over popover portals
 const Container = styled.div`
   padding: 12px;
+  padding-top: 6px;
   width: 280px;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
 

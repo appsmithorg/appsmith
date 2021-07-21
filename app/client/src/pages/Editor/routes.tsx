@@ -23,6 +23,7 @@ import {
   getCurlImportPageURL,
   INTEGRATION_EDITOR_URL,
   getProviderTemplatesURL,
+  PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -37,6 +38,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PagesEditor from "./PagesEditor";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -152,6 +154,11 @@ class EditorsRouter extends React.Component<
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
             ))}
+            <SentryRoute
+              component={PagesEditor}
+              exact
+              path={PAGE_LIST_EDITOR_URL()}
+            />
             <SentryRoute
               component={DataSourceEditor}
               exact

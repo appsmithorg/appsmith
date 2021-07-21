@@ -6,7 +6,6 @@ import { Route, Switch } from "react-router";
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import { BUILDER_URL } from "constants/routes";
-import PagesEditor from "pages/Editor/PagesEditor";
 import Sidebar from "components/editorComponents/Sidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -26,7 +25,6 @@ function MainContainer() {
   return (
     <Container>
       <Sidebar />
-      <PagesEditor />
       <EditorContainer>
         <Switch>
           <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />

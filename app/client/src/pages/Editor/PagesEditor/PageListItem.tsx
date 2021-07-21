@@ -20,6 +20,12 @@ export const Container = styled.div`
   display: flex;
   width: 100%;
   align-items: center;
+  cursor: grab;
+
+  &:focus,
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 export const ListItem = styled.div`

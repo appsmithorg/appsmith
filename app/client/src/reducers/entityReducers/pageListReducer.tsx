@@ -1,10 +1,11 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { sortBy } from "lodash";
 import {
   ReduxAction,
   ReduxActionTypes,
   PageListPayload,
   ClonePageSuccessPayload,
 } from "constants/ReduxActionConstants";
+import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -101,7 +102,23 @@ export const pageListReducer = createReducer(initialState, {
       updatedPage.pageName = action.payload.name;
       updatedPage.isHidden = !!action.payload.isHidden;
     }
+
     return { ...state, pages };
+  },
+  [ReduxActionTypes.SET_PAGE_ORDER_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{
+      pages: {
+        id: string;
+      }[];
+    }>,
+  ) => {
+    const sortingOrder = action.payload.pages.map((page) => page.id);
+    const sortedPages = sortBy(state.pages, (page) => {
+      return sortingOrder.indexOf(page.pageId);
+    });
+
+    return { ...state, pages: sortedPages };
   },
 });
 

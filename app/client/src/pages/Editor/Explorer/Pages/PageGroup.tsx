@@ -13,6 +13,7 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -81,7 +82,9 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
-      action={() => history.push(`${location.pathname}#edit-pages`)}
+      action={() =>
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
+      }
       className="group pages"
       disabled
       entityId="Pages"
