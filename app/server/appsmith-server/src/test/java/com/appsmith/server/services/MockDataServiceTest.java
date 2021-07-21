@@ -97,7 +97,7 @@ public class MockDataServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
-                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock");
+                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock (2)");
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))
                             .build();
