@@ -50,6 +50,9 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     min-height: 32px;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   }
+  &&&&& .${Classes.DISABLED} {
+    background-color: ${Colors.SELECT_DISABLED};
+  }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
     text-align: left;

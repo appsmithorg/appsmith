@@ -81,6 +81,6 @@ export const Colors: Record<string, string> = {
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
   RATE_INACTIVE: "#F2F2F2",
+  SELECT_DISABLED: "#ced9e080",
 };
-
 export type Color = typeof Colors[keyof typeof Colors];
