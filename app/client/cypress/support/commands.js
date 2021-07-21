@@ -269,6 +269,9 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
 
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
+
+  cy.get(generatePage.buildFromScratchActionCard).click();
+
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
