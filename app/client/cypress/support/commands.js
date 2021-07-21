@@ -21,6 +21,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
+const generatePage = require("../locators/GeneratePage.json");
 
 let pageidcopy = " ";
 
@@ -295,6 +296,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  cy.get(generatePage.buildFromScratchActionCard).click();
+
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here

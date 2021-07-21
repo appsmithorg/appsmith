@@ -64,12 +64,13 @@ type actionCardProps = {
   onClick: (e: React.MouseEvent) => void;
   subTitle: string;
   title: string;
+  className: string;
 };
 
 function ActionCard(props: actionCardProps) {
-  const { Icon, onClick } = props;
+  const { className, Icon, onClick } = props;
   return (
-    <CardWrapper onClick={onClick}>
+    <CardWrapper className={className} onClick={onClick}>
       <IconWrapper>
         <RoundBg>
           <Icon color={Colors.GRAY2} height={22} width={22} />

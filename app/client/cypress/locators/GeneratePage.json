@@ -1,0 +1,4 @@
+{
+  "buildFromScratchActionCard": ".t--BuildFromScratch",
+  "generateCRUDPageActionCard": "t--GenerateCRUDPage"
+}

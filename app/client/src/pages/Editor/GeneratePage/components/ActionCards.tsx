@@ -38,6 +38,7 @@ function ActionCards() {
     <>
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
+        className="t--BuildFromScratch"
         onClick={() => routeToEmptyEditorFromGenPage({ applicationId, pageId })}
         subTitle={BUILD_FROM_SCRATCH_ACTION_SUBTITLE()}
         title={BUILD_FROM_SCRATCH_ACTION_TITLE()}
@@ -52,6 +53,7 @@ function ActionCards() {
             size={IconSize.LARGE}
           />
         )}
+        className="t--GenerateCRUDPage"
         onClick={() => goToGenPageForm({ applicationId, pageId })}
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
