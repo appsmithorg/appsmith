@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
@@ -7,7 +7,6 @@ import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import OauthLogo from "assets/images/oauth-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -146,24 +145,26 @@ function NewApiScreen(props: Props) {
     pageId,
     plugins,
   } = props;
+
+  const [authApiPlugin, setAuthAPiPlugin] = useState<Plugin | undefined>();
+
+  useEffect(() => {
+    const plugin = plugins.find((p) => p.name === "REST API");
+    setAuthAPiPlugin(plugin);
+  }, [plugins]);
+
+  const handleCreateAuthApiDatasource = useCallback(() => {
+    authApiPlugin &&
+      props.createDatasourceFromForm({
+        pluginId: authApiPlugin.id,
+      });
+  }, [authApiPlugin, props.createDatasourceFromForm]);
+
   const handleCreateNew = () => {
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
-  const handleCreateOAuthDatasource = useCallback(() => {
-    const plugin = plugins.find((p) => p.name === "REST API");
-    plugin &&
-      props.createDatasourceFromForm({
-        pluginId: plugin.id,
-        // Following obj is the only difference between REST API creation and OAuth
-        datasourceConfiguration: {
-          authentication: {
-            authenticationType: "oAuth2",
-          },
-        },
-      });
-  }, [plugins, props.createDatasourceFromForm]);
   const curlImportURL =
     getCurlImportPageURL(applicationId, pageId) +
     "?from=datasources" +
@@ -208,21 +209,23 @@ function NewApiScreen(props: Props) {
             <p className="textBtn">CURL</p>
           </CardContentWrapper>
         </ApiCard>
-        <ApiCard
-          className="t--createBlankOAuthCard"
-          onClick={handleCreateOAuthDatasource}
-        >
-          <CardContentWrapper>
-            <div className="content-icon-wrapper">
-              <img
-                alt="OAuth2"
-                className="oAuthImage t--oAuthImage content-icon"
-                src={OauthLogo}
-              />
-            </div>
-            <p className="textBtn">Authenticated API</p>
-          </CardContentWrapper>
-        </ApiCard>
+        {authApiPlugin && (
+          <ApiCard
+            className="t--createAuthApiDatasource"
+            onClick={handleCreateAuthApiDatasource}
+          >
+            <CardContentWrapper>
+              <div className="content-icon-wrapper">
+                <img
+                  alt="OAuth2"
+                  className="authApiImage t--authApiImage content-icon"
+                  src={authApiPlugin.iconLocation}
+                />
+              </div>
+              <p className="textBtn">Authenticated API</p>
+            </CardContentWrapper>
+          </ApiCard>
+        )}
         {plugins
           .filter((p) => p.type === PluginType.SAAS)
           .map((p) => (
