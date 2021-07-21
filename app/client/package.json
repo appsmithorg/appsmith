@@ -144,7 +144,7 @@
     "styled-components": "^5.2.0",
     "styled-system": "^5.1.5",
     "tern": "^0.21.0",
-    "tinycolor2": "^1.4.1",
+    "tinycolor2": "^1.4.2",
     "toposort": "^2.0.2",
     "ts-loader": "^6.0.4",
     "tslib": "^2.1.0",

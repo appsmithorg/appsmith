@@ -8,6 +8,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonBorderRadius,
   ButtonStyle,
+  ButtonStyleTypes,
   ButtonType,
   ButtonVariant,
 } from "components/designSystems/blueprint/ButtonComponent";
@@ -69,25 +70,45 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 label: "Secondary",
                 value: "SECONDARY",
               },
+              {
+                label: "Custom",
+                value: "CUSTOM",
+              },
             ],
+            updateHook: (
+              props: ButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              let propertiesToUpdate = [
+                { propertyPath, propertyValue },
+                { propertyPath: "prevButtonStyle", propertyValue },
+              ];
+
+              if (propertyValue === "CUSTOM") {
+                propertiesToUpdate = [{ propertyPath, propertyValue }];
+              }
+
+              propertiesToUpdate.push({
+                propertyPath: "backgroundColor",
+                propertyValue: "",
+              });
+
+              return propertiesToUpdate;
+            },
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background Color",
+            propertyName: "buttonColor",
+            helpText:
+              "Sets the custom color preset based on the button variant",
+            label: "Button Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
-          },
-          {
-            propertyName: "textColor",
-            helpText: "Sets the text color of the widget",
-            label: "Text Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
+            hidden: (props: ButtonWidgetProps) =>
+              props.buttonStyle !== ButtonStyleTypes.CUSTOM,
           },
           {
             propertyName: "buttonVariant",
@@ -96,20 +117,30 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets the variant of the icon button",
             options: [
               {
-                label: "Contained",
-                value: "CONTAINED",
+                label: "Solid",
+                value: "SOLID",
               },
               {
-                label: "Outlined",
-                value: "OUTLINED",
+                label: "Outline",
+                value: "OUTLINE",
               },
               {
-                label: "Text",
-                value: "TEXT",
+                label: "Ghost",
+                value: "GHOST",
               },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "boxShadow",
@@ -214,6 +245,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     ];
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      prevButtonStyle: "buttonStyle",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
@@ -263,10 +300,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   getPageView() {
     return (
       <ButtonComponent
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
+        buttonColor={this.props.buttonColor}
         buttonStyle={this.props.buttonStyle}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
@@ -278,6 +315,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        prevButtonStyle={this.props.prevButtonStyle}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         textColor={this.props.textColor}
@@ -293,12 +331,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 }
 
-// export type ButtonStyle =
-//   | "PRIMARY_BUTTON"
-//   | "SECONDARY_BUTTON"
-//   | "SUCCESS_BUTTON"
-//   | "DANGER_BUTTON";
-
 export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
   onClick?: string;
@@ -309,7 +341,9 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   googleRecaptchaKey?: string;
   textColor?: string;
   buttonStyle?: ButtonStyle;
+  prevButtonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
+  buttonColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;

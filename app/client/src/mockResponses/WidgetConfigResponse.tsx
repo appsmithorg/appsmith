@@ -22,6 +22,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     BUTTON_WIDGET: {
       text: "Submit",
       buttonStyle: "PRIMARY",
+      buttonVariant: "SOLID",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",

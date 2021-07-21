@@ -53,6 +53,8 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
+import { ReactComponent as BorderRadiusSharpIcon } from "assets/icons/control/border-radius-sharp.svg";
+import { ReactComponent as BorderRadiusRoundedIcon } from "assets/icons/control/border-radius-rounded.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -332,6 +334,16 @@ export const ControlIcons: {
   BOX_SHADOW_VARIANT5: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_SHARP: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusSharpIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_ROUNDED: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusRoundedIcon />
     </IconWrapper>
   ),
 };

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-import styled, { css } from "styled-components";
-import _ from "lodash";
+import styled from "styled-components";
+import tinycolor from "tinycolor2";
+
 import {
   IButtonProps,
   MaybeElement,
@@ -9,7 +10,7 @@ import {
   Icon,
 } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import {
@@ -49,37 +50,88 @@ export enum ButtonBorderRadiusTypes {
 }
 export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
-// const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
-//   if (props.textColor) return props.textColor;
-//   if (props.filled) return props.theme.colors.textOnDarkBG;
-//   if (props.accent) {
-//     if (props.accent === "secondary" || props.accent === "text") {
-//       return props.theme.colors[AccentColorMap["primary"]];
-//     }
-//     return props.theme.colors[AccentColorMap[props.accent]];
-//   }
-// };
+const getCustomTextColor = (
+  theme: Theme,
+  backgroundColor?: string,
+  prevButtonStyle?: ButtonStyle,
+) => {
+  if (!backgroundColor)
+    return theme.colors.button[
+      (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
+    ].solid.textColor;
+  const isDark = tinycolor(backgroundColor).isDark();
+  if (isDark) {
+    return theme.colors.button.primary.solid.textColor;
+  }
+  return theme.colors.button.disabled.bgColor;
+};
 
-// const getButtonIconColorStyles = (
-//   props: { theme: Theme } & ButtonStyleProps,
-// ) => {
-//   if (props.iconColor) return props.iconColor;
-//   if (props.textColor) return props.textColor;
-//   if (props.filled) return props.theme.colors.textOnDarkBG;
-//   if (props.accent) {
-//     if (props.accent === "secondary" || props.accent === "text") {
-//       return props.theme.colors[AccentColorMap["primary"]];
-//     }
-//     return props.theme.colors[AccentColorMap[props.accent]];
-//   }
-// };
+const getCustomHoverColor = (
+  theme: Theme,
+  prevButtonStyle?: ButtonStyle,
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  if (!backgroundColor) {
+    return theme.colors.button[
+      (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
+    ][(buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()].hoverColor;
+  }
+  switch (buttonVariant) {
+    case ButtonVariantTypes.OUTLINE:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .lighten(40)
+            .toString()
+        : theme.colors.button.primary.outline.hoverColor;
+      break;
+    case ButtonVariantTypes.GHOST:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .lighten(40)
+            .toString()
+        : theme.colors.button.primary.ghost.hoverColor;
+      break;
 
-// const ButtonColorStyles = css<ButtonStyleProps>`
-//   color: ${getButtonColorStyles};
-//   svg {
-//     fill: ${getButtonIconColorStyles};
-//   }
-// `;
+    default:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .darken(10)
+            .toString()
+        : theme.colors.button.primary.solid.hoverColor;
+      break;
+  }
+};
+
+const getCustomBackgroundColor = (
+  theme: Theme,
+  prevButtonStyle?: ButtonStyle,
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  return buttonVariant === ButtonVariantTypes.SOLID
+    ? backgroundColor
+      ? backgroundColor
+      : theme.colors.button[
+          (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
+        ].solid.bgColor
+    : "none";
+};
+
+const getCustomBorderColor = (
+  theme: Theme,
+  prevButtonStyle?: ButtonStyle,
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  return buttonVariant === ButtonVariantTypes.OUTLINE
+    ? backgroundColor
+      ? backgroundColor
+      : theme.colors.button[
+          (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
+        ].outline.borderColor
+    : "none";
+};
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -88,117 +140,25 @@ const RecaptchaWrapper = styled.div`
   }
 `;
 
-// const AccentColorMap: Record<ButtonStyleName, string> = {
-//   primary: "primaryOld",
-//   secondary: "secondaryOld",
-//   error: "error",
-//   text: "text",
-// };
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 
-// const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
-//   <Button {..._.omit(props, ["accent", "filled"])} />
-// ))<ButtonStyleProps>`
-//   &&&& {
-//     ${ButtonColorStyles};
-//     width: 100%;
-//     height: 100%;
-//     background-image: none !important;
-//     transition: background-color 0.2s;
-
-//     box-shadow: ${({ boxShadow, boxShadowColor }) =>
-//       boxShadow === ButtonBoxShadowTypes.VARIANT1
-//         ? `0px 0px 4px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-//         : boxShadow === ButtonBoxShadowTypes.VARIANT2
-//         ? `3px 3px 4px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-//         : boxShadow === ButtonBoxShadowTypes.VARIANT3
-//         ? `0px 1px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.5)"}`
-//         : boxShadow === ButtonBoxShadowTypes.VARIANT4
-//         ? `2px 2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-//         : boxShadow === ButtonBoxShadowTypes.VARIANT5
-//         ? `-2px -2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`
-//         : "none"} !important;
-
-//     background-color: ${(props) =>
-//       props.backgroundColor
-//         ? props.filled && props.backgroundColor
-//         : props.filled &&
-//           props.accent &&
-//           (props.theme.colors[AccentColorMap[props.accent]] ||
-//             props.theme.colors[AccentColorMap.primary])};
-
-//     border: ${(props) =>
-//       props.accent !== "text" &&
-//       (props.backgroundColor
-//         ? `1px solid ${props.backgroundColor}`
-//         : props.accent
-//         ? `1px solid ${props.theme.colors[AccentColorMap[props.accent]] ||
-//             props.textColor ||
-//             props.theme.colors[AccentColorMap["primary"]]}`
-//         : `1px solid ${props.theme.colors.primary}`)};
-//     border-radius: 0;
-
-//     font-weight: ${(props) => props.theme.fontWeights[2]};
-//     outline: none;
-//     &.bp3-button {
-//       padding: 0px 10px;
-//     }
-//     && .bp3-button-text {
-//       max-width: 99%;
-//       text-overflow: ellipsis;
-//       overflow: hidden;
-//       display: -webkit-box;
-//       -webkit-line-clamp: 1;
-//       -webkit-box-orient: vertical;
-
-//       max-height: 100%;
-//       overflow: hidden;
-//     }
-//     &&:hover,
-//     &&:focus {
-//       ${ButtonColorStyles};
-//       background-color: ${(props) => {
-//         if (!props.filled) return props.theme.colors.secondaryDarker;
-//         if (props.backgroundColor) return darkenHover(props.backgroundColor);
-//         if (props.accent !== "secondary" && props.accent) {
-//           return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
-//         }
-//       }};
-//       border-color: ${(props) => {
-//         if (!props.filled) return;
-//         if (props.backgroundColor) return darkenHover(props.backgroundColor);
-//         if (props.accent !== "secondary" && props.accent) {
-//           return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
-//         }
-//       }};
-//     }
-//     &&:active {
-//       ${ButtonColorStyles};
-//       background-color: ${(props) => {
-//         if (!props.filled) return props.theme.colors.secondaryDarkest;
-//         if (props.backgroundColor) return darkenActive(props.backgroundColor);
-//         if (props.accent !== "secondary" && props.accent) {
-//           return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
-//         }
-//       }};
-//       border-color: ${(props) => {
-//         if (!props.filled) return;
-//         if (props.backgroundColor) return darkenActive(props.backgroundColor);
-//         if (props.accent !== "secondary" && props.accent) {
-//           return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
-//         }
-//       }};
-//     }
-//     &&.bp3-disabled {
-//       background-color: #d0d7dd;
-//       border: none;
-//     }
-//   }
-// `;
+  & > button {
+    height: 100%;
+  }
+`;
 
 const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+  height: 100%;
   background-image: none !important;
+  font-weight: ${(props) => props.theme.fontWeights[2]};
+  outline: none;
+  padding: 0px 10px;
 
-  ${({ buttonStyle, buttonVariant, theme }) => `
+  ${({ buttonColor, buttonStyle, buttonVariant, prevButtonStyle, theme }) => `
     &:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
@@ -217,6 +177,13 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
           ? buttonVariant === ButtonVariantTypes.SOLID
             ? theme.colors.button.secondary.solid.bgColor
             : "none"
+          : buttonStyle === ButtonStyleTypes.CUSTOM
+          ? getCustomBackgroundColor(
+              theme,
+              prevButtonStyle,
+              buttonVariant,
+              buttonColor,
+            )
           : buttonVariant === ButtonVariantTypes.SOLID
           ? theme.colors.button.primary.solid.bgColor
           : "none"
@@ -245,6 +212,13 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
             : buttonVariant === ButtonVariantTypes.GHOST
             ? theme.colors.button.secondary.ghost.hoverColor
             : theme.colors.button.secondary.solid.hoverColor
+          : buttonStyle === ButtonStyleTypes.CUSTOM
+          ? getCustomHoverColor(
+              theme,
+              prevButtonStyle,
+              buttonVariant,
+              buttonColor,
+            )
           : buttonVariant === ButtonVariantTypes.OUTLINE
           ? theme.colors.button.primary.outline.hoverColor
           : buttonVariant === ButtonVariantTypes.GHOST
@@ -268,14 +242,32 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
           ? `1px solid ${theme.colors.button.info.outline.borderColor}`
           : buttonStyle === ButtonStyleTypes.SECONDARY
           ? `1px solid ${theme.colors.button.secondary.outline.borderColor}`
+          : buttonStyle === ButtonStyleTypes.CUSTOM
+          ? `1px solid ${getCustomBorderColor(
+              theme,
+              prevButtonStyle,
+              buttonVariant,
+              buttonColor,
+            )}`
           : `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
     } !important;
 
     & > span {
+      max-width: 99%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+
+      max-height: 100%;
+      overflow: hidden;
       color: ${
         buttonVariant === ButtonVariantTypes.SOLID
-          ? `${theme.colors.button.primary.solid.textColor}`
+          ? buttonStyle === ButtonStyleTypes.CUSTOM
+            ? getCustomTextColor(theme, buttonColor, prevButtonStyle)
+            : `${theme.colors.button.primary.solid.textColor}`
           : buttonStyle === ButtonStyleTypes.WARNING
           ? `${theme.colors.button.warning.outline.textColor}`
           : buttonStyle === ButtonStyleTypes.DANGER
@@ -284,6 +276,13 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
           ? `${theme.colors.button.info.outline.textColor}`
           : buttonStyle === ButtonStyleTypes.SECONDARY
           ? `${theme.colors.button.secondary.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.CUSTOM
+          ? getCustomBackgroundColor(
+              theme,
+              prevButtonStyle,
+              ButtonVariantTypes.SOLID,
+              buttonColor,
+            )
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
     }
@@ -291,11 +290,7 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
 
 
   border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.CIRCLE
-      ? "50%"
-      : borderRadius === ButtonBorderRadiusTypes.ROUNDED
-      ? "10px"
-      : 0};
+    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "10px" : 0};
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1
@@ -316,12 +311,11 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
       : "none"} !important;
 `;
 
-// export type ButtonStyleName = "primary" | "secondary" | "error" | "text";
-
 type ButtonStyleProps = {
-  backgroundColor?: string;
+  buttonColor?: string;
   textColor?: string;
   buttonStyle?: ButtonStyle;
+  prevButtonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
@@ -334,16 +328,19 @@ type ButtonStyleProps = {
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   const {
-    backgroundColor,
+    borderRadius,
     boxShadow,
     boxShadowColor,
+    buttonColor,
     buttonStyle,
+    buttonVariant,
     className,
     disabled,
     icon,
     iconAlign,
     iconColor,
     iconName,
+    prevButtonStyle,
     rightIcon,
     text,
     textColor,
@@ -353,15 +350,18 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     return (
       <StyledButton
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        backgroundColor={backgroundColor}
+        borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
+        buttonColor={buttonColor}
         buttonStyle={buttonStyle}
+        buttonVariant={buttonVariant}
         className={className}
         disabled={disabled}
         fill
         icon={icon}
         iconColor={iconColor}
+        prevButtonStyle={prevButtonStyle}
         rightIcon={<Icon color={iconColor} icon={iconName} /> || rightIcon}
         text={text}
         textColor={textColor}
@@ -372,14 +372,17 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   return (
     <StyledButton
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
-      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
+      buttonColor={buttonColor}
       buttonStyle={buttonStyle}
+      buttonVariant={buttonVariant}
       className={className}
       disabled={disabled}
       fill
       icon={<Icon color={iconColor} icon={iconName} /> || icon}
+      prevButtonStyle={prevButtonStyle}
       rightIcon={rightIcon}
       text={text}
       textColor={textColor}
@@ -388,8 +391,8 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 }
 
 BaseButton.defaultProps = {
-  // accent: "secondary",
   buttonStyle: "SECONDARY",
+  buttonVariant: "SOLID",
   disabled: false,
   text: "Button Text",
   minimal: true,
@@ -413,10 +416,11 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   buttonStyle?: ButtonStyle;
+  prevButtonStyle?: ButtonStyle;
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
-  backgroundColor?: string;
+  buttonColor?: string;
   textColor?: string;
   buttonVariant?: ButtonVariant;
   borderRadius?: ButtonBorderRadius;
@@ -564,23 +568,27 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick={props.onClick}
       recaptchaV2={props.recaptchaV2}
     >
-      <BaseButton
-        backgroundColor={props.backgroundColor}
-        boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
-        buttonStyle={props.buttonStyle}
-        buttonVariant={props.buttonVariant}
-        disabled={props.isDisabled}
-        icon={props.icon}
-        iconAlign={props.iconAlign}
-        iconColor={props.iconColor}
-        iconName={props.iconName}
-        loading={props.isLoading}
-        rightIcon={props.rightIcon}
-        text={props.text}
-        textColor={props.textColor}
-        type={props.type}
-      />
+      <ButtonContainer>
+        <BaseButton
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          boxShadowColor={props.boxShadowColor}
+          buttonColor={props.buttonColor}
+          buttonStyle={props.buttonStyle}
+          buttonVariant={props.buttonVariant}
+          disabled={props.isDisabled}
+          icon={props.icon}
+          iconAlign={props.iconAlign}
+          iconColor={props.iconColor}
+          iconName={props.iconName}
+          loading={props.isLoading}
+          prevButtonStyle={props.prevButtonStyle}
+          rightIcon={props.rightIcon}
+          text={props.text}
+          textColor={props.textColor}
+          type={props.type}
+        />
+      </ButtonContainer>
     </BtnWrapper>
   );
 }

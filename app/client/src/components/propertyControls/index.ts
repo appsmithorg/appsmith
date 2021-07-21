@@ -46,6 +46,7 @@ import CustomFusionChartControl from "./CustomFusionChartControl";
 import IconSelectControl from "./IconSelectControl";
 import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
+import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -71,6 +72,7 @@ export const PropertyControls = {
   IconSelectControl,
   IconAlignControl,
   BoxShadowOptionsControl,
+  ButtonBorderRadiusOptionsControl,
 };
 
 export type PropertyControlPropsType =
