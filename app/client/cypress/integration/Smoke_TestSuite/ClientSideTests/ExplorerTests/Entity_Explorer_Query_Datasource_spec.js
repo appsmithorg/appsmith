@@ -128,9 +128,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.get(pages.integrationActiveTab)
       .should("be.visible")
       .click({ force: true });
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(".t--edit-datasource")
-      .click();
+    cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
