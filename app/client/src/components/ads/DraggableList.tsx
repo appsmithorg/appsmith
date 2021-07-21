@@ -80,8 +80,6 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
     updateSpringStyles(order.current, itemHeight),
   );
 
-  console.log({ order: order.current });
-
   const bind: any = useDrag<any>((props: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
@@ -110,7 +108,6 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
     }
   });
 
-  console.log({ items });
   return (
     <DraggableListWrapper
       className="content"
