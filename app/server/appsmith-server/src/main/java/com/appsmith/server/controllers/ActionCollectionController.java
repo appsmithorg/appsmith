@@ -2,6 +2,9 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +51,19 @@ public class ActionCollectionController {
         return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, false)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @PutMapping("/move")
+    public Mono<ResponseDTO<ActionCollectionDTO>> moveActionCollection(@RequestBody @Valid ActionCollectionMoveDTO actionCollectionMoveDTO) {
+        log.debug("Going to move action collection with id {} to page {}", actionCollectionMoveDTO.getCollectionId(), actionCollectionMoveDTO.getDestinationPageId());
+        return actionCollectionService.moveCollection(actionCollectionMoveDTO)
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+    }
+
+    @PutMapping("/refactor")
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionCollectionName(@RequestBody RefactorActionCollectionNameDTO refactorActionCollectionNameDTO) {
+        return actionCollectionService.refactorCollectionName(refactorActionCollectionNameDTO)
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @GetMapping("/view")

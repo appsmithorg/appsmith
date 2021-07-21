@@ -19,6 +19,8 @@ public interface LayoutActionService {
 
     Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO);
 
+    Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName);
+
     Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName);
 
     Mono<ActionDTO> updateAction(String id, ActionDTO action);

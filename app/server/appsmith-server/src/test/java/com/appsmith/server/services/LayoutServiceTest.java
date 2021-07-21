@@ -91,7 +91,6 @@ public class LayoutServiceTest {
 
     Datasource datasource;
 
-
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -360,6 +359,16 @@ public class LayoutServiceTest {
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("aCollectionAction");
+                    action.setFullyQualifiedName("Collection.aCollectionAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
+                    action.setPluginType(PluginType.DB);
+                    monos.add(layoutActionService.createAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -385,18 +394,20 @@ public class LayoutServiceTest {
                             "dynamicGet", "some dynamic {{aGetAction.data}}",
                             "dynamicPost", "some dynamic {{aPostAction.data}}",
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
-                            "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
+                            "dynamicDelete", "some dynamic {{aDeleteAction.data}}",
+                            "collectionKey", "some dynamic {{Collection.data.aCollectionAction}}"
                     ));
-                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.irrelevant}}")));
-                    obj.put("dynamicDB2", List.of("{{ anotherDBAction.optional }}"));
+                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data.irrelevant}}")));
+                    obj.put("dynamicDB2", List.of("{{ anotherDBAction.data.optional }}"));
                     obj.put("tableWidget", new JSONObject(
                             Map.of("test",
                                     List.of(
                                             Map.of("content",
-                                                    Map.of("child", "{{aTableAction.child}}"))))));
+                                                    Map.of("child", "{{aTableAction.data.child}}"))))));
                     JSONArray dynamicBindingsPathList = new JSONArray();
                     dynamicBindingsPathList.addAll(List.of(
                             new JSONObject(Map.of("key", "dynamicGet")),
+                            new JSONObject(Map.of("key", "collectionKey")),
                             new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
                             new JSONObject(Map.of("key", "dynamicDB.test")),
                             new JSONObject(Map.of("key", "dynamicDB2.0")),
@@ -416,9 +427,9 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(5);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(6);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction", "anotherDBAction"));
+                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction", "anotherDBAction", "Collection.aCollectionAction"));
                     assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));
@@ -444,7 +455,6 @@ public class LayoutServiceTest {
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
                     assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
-
                 })
                 .verifyComplete();
     }

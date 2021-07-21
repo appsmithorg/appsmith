@@ -24,6 +24,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -164,18 +165,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query();
-                    criterias.stream()
-                            .forEach(criteria -> query.addCriteria(criteria));
-                    if (aclPermission == null) {
-                        query.addCriteria(new Criteria().andOperator(notDeleted()));
-                    } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    Criteria andCriteria = new Criteria();
+
+                    criteriaList.add(notDeleted());
+                    if (aclPermission != null) {
+                        criteriaList.add(userAcl(user, aclPermission));
                     }
+
+                    andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+
+                    query.addCriteria(andCriteria);
                     if (sort != null) {
                         query.with(sort);
                     }

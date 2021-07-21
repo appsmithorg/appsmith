@@ -1,9 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,4 +32,12 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
 
     Mono<ActionCollectionDTO> generateActionCollectionByViewMode(ActionCollection actionCollection, Boolean viewMode);
+
+    Mono<ActionCollection> findById(String id, AclPermission aclPermission);
+
+    Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
+
+    Mono<LayoutDTO> refactorCollectionName(RefactorActionCollectionNameDTO refactorActionCollectionNameDTO);
+
+    Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO);
 }
