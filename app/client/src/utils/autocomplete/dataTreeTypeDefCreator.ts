@@ -69,10 +69,8 @@ export const dataTreeTypeDefCreator = (
       jsOptions[key] = generateTypeDef(entity[key]);
     }
     def[entityName] = jsOptions;
-    const flattenedjsObjects = flattenDef(jsOptions, entityName);
-    for (const [key, value] of Object.entries(flattenedjsObjects)) {
-      def[key] = value;
-    }
+    flattenDef(def, entityName);
+    def["!name"] = `DATA_TREE.JSACTION.${entityName}`;
   }
   if (Object.keys(extraDefs)) {
     def["!define"] = { ...extraDefs };
