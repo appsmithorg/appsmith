@@ -159,6 +159,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
+        onSort: true,
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
       },
