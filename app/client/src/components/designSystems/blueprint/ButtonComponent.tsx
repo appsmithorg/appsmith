@@ -234,7 +234,7 @@ function RecaptchaV3Component(
   const checkValidJson = (inputString: string): boolean => {
     try {
       JSON.parse(inputString);
-      return true;
+      return !inputString.includes('"');
     } catch (err) {
       return false;
     }
@@ -270,7 +270,6 @@ function RecaptchaV3Component(
   };
 
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
-
   if (validGoogleRecaptchaKey && !checkValidJson(validGoogleRecaptchaKey)) {
     validGoogleRecaptchaKey = undefined;
   }
