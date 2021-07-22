@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
@@ -77,16 +79,26 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
                 : handleRedirect(webFilterExchange, isFromSignup);
 
+        final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userDataService.ensureViewedCurrentVersionReleaseNotes(user).thenReturn(user))
-                // TODO: Need a better way to identify if this is the user's first-login.
-                .filter(user -> user.getExamplesOrganizationId() == null)
                 .flatMap(user -> {
-                    final boolean isFromInvite = user.getInviteToken() != null;
-                    return Mono.whenDelayError(
-                            analyticsService.sendObjectEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
-                            examplesOrganizationCloner.cloneExamplesOrganization()
-                    );
+                    List<Mono<?>> monos = new ArrayList<>();
+                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(user));
+
+                    if (isFromSignupFinal) {
+                        final boolean isFromInvite = user.getInviteToken() != null;
+                        String modeOfLogin = "FormSignUp";
+                        if(authentication instanceof OAuth2AuthenticationToken) {
+                            modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                        }
+                        monos.add(analyticsService.sendObjectEvent(
+                                AnalyticsEvents.FIRST_LOGIN,
+                                user,
+                                Map.of("isFromInvite", isFromInvite, "modeOfLogin", modeOfLogin)));
+                        monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
+                    }
+
+                    return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
     }

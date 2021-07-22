@@ -49,7 +49,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
-                                                         @RequestHeader(name = "Origin") String originHeader) {
+                                                         @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.createThread(resource, originHeader)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -106,4 +106,10 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
 
+    @PostMapping("/threads/{threadId}/unsubscribe")
+    public Mono<ResponseDTO<Boolean>> unsubscribeThread(@PathVariable String threadId) {
+        log.debug("Going to unsubscribe user from thread {}", threadId);
+        return service.unsubscribeThread(threadId)
+                .map(updated -> new ResponseDTO<>(HttpStatus.OK.value(), updated, null));
+    }
 }

@@ -19,30 +19,30 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.constants.ResponseDataType;
+import com.external.helpers.BufferingFilter;
+import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonSyntaxException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.data.util.StreamUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -52,7 +52,6 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -88,8 +87,15 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+        private final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
+        private final Set binaryDataTypes = Set.of("application/zip",
+                "application/octet-stream",
+                "application/pdf",
+                "application/pkcs8",
+                "application/x-binary");
 
         private final SharedConfig sharedConfig;
+        private final DataUtils dataUtils;
 
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
@@ -97,6 +103,7 @@ public class RestApiPlugin extends BasePlugin {
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
+            this.dataUtils = DataUtils.getInstance();
             this.EXCHANGE_STRATEGIES = ExchangeStrategies
                     .builder()
                     .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
@@ -173,12 +180,11 @@ public class RestApiPlugin extends BasePlugin {
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
-            if (actionConfiguration != null &&
-                    actionConfiguration.getPaginationType() != null &&
+            if (actionConfiguration.getPaginationType() != null &&
                     PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
                     executeActionDTO.getPaginationField() != null) {
-                datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
-                actionConfiguration = updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
             }
             // Filter out any empty headers
             if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
@@ -201,6 +207,9 @@ public class RestApiPlugin extends BasePlugin {
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
             errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
+
+            // Set of hint messages that can be returned to the user.
+            Set<String> hintMessages = new HashSet();
 
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -273,9 +282,7 @@ public class RestApiPlugin extends BasePlugin {
 
                 if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                         || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                    requestBodyObj = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
-                            reqContentType,
-                            encodeParamsToggle);
+                    requestBodyObj = actionConfiguration.getBodyFormData();
                 }
             }
 
@@ -303,6 +310,12 @@ public class RestApiPlugin extends BasePlugin {
             // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
             if (apiConnection != null) {
                 webClientBuilder.filter(apiConnection);
+            }
+
+            requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
+
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                webClientBuilder.filter(new BufferingFilter());
             }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
@@ -347,6 +360,9 @@ public class RestApiPlugin extends BasePlugin {
                         }
 
                         if (body != null) {
+
+                            ResponseDataType responseDataType = ResponseDataType.UNDEFINED;
+
                             /**TODO
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
@@ -354,29 +370,48 @@ public class RestApiPlugin extends BasePlugin {
                             if (MediaType.APPLICATION_JSON.equals(contentType) ||
                                     MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
                                 try {
-                                    String jsonBody = new String(body);
+                                    String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
+                                    responseDataType = ResponseDataType.JSON;
                                 } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    new String(body),
-                                                    e.getMessage()
-                                            )
-                                    );
+                                    System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                    String bodyString = new String(body, StandardCharsets.UTF_8);
+                                    result.setBody(bodyString.trim());
+
+                                    // Warn user that the API response is not a valid JSON.
+                                    hintMessages.add("The response returned by this API is not a valid JSON. Please " +
+                                            "be careful when using the API response anywhere a valid JSON is required" +
+                                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                                            "Header to indicate a non-JSON response or by modifying the API response " +
+                                            "to return a valid JSON.");
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
                                     MediaType.IMAGE_PNG.equals(contentType)) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
+                                responseDataType = ResponseDataType.IMAGE;
+                            } else if (binaryDataTypes.contains(contentType.toString())) {
+                                String encode = Base64.encode(body);
+                                result.setBody(encode);
+                                responseDataType = ResponseDataType.BINARY;
                             } else {
                                 // If the body is not of JSON type, just set it as is.
-                                String bodyString = new String(body);
+                                String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
+                                responseDataType = ResponseDataType.TEXT;
                             }
+
+                            // Now add a new header which specifies the data type of the response as per Appsmith
+                            JsonNode headersJsonNode = result.getHeaders();
+                            ObjectNode headersObjectNode = (ObjectNode) headersJsonNode;
+                            headersObjectNode.putArray(RESPONSE_DATA_TYPE)
+                                    .add(String.valueOf(responseDataType));
+                            result.setHeaders(headersObjectNode);
+
                         }
 
+                        result.setMessages(hintMessages);
                         return result;
                     })
                     .onErrorResume(error -> {
@@ -415,54 +450,6 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         /**
-         * This function converts the list of properties in bodyFormData to an appropriate data structure for WebClient
-         * to consume. Based on the data type, WebClient creates appropriate logic for making the HTTP request.
-         * This is especially required for data type multipart/form-data
-         * @param bodyFormData
-         * @param reqContentType
-         * @param encodeParamsToggle
-         * @return Object
-         */
-        public Object convertPropertyListToReqBody(List<Property> bodyFormData,
-                                                   String reqContentType,
-                                                   Boolean encodeParamsToggle) {
-            if (bodyFormData == null || bodyFormData.isEmpty()) {
-                return "";
-            }
-
-            Object requestBody = null;
-
-            switch (reqContentType) {
-                case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
-                    // The request body should be a urlEncoded string of key-value pairs
-                    requestBody = bodyFormData.stream()
-                            .map(property -> {
-                                String key = property.getKey();
-                                String value = (String) property.getValue();
-
-                                if (encodeParamsToggle == true) {
-                                    try {
-                                        value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-                                    } catch (UnsupportedEncodingException e) {
-                                        throw new UnsupportedOperationException(e);
-                                    }
-                                }
-
-                                return key + "=" + value;
-                            })
-                            .collect(Collectors.joining("&"));
-                    break;
-                    
-                case MediaType.MULTIPART_FORM_DATA_VALUE:
-                    // The request body should be of type MultiValueMap for WebClient to function properly
-                    requestBody = bodyFormData.stream()
-                            .collect(StreamUtils.toMultiMap(Property::getKey, Property::getValue));
-                    break;
-            }
-            return requestBody;
-        }
-
-        /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
          *
@@ -497,39 +484,13 @@ public class RestApiPlugin extends BasePlugin {
                 ));
             }
 
-            if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
-                try {
-                    if (requestBody instanceof String) {
-                        Object objectFromJson = objectFromJson((String) requestBody);
-                        if (objectFromJson != null) {
-                            requestBody = objectFromJson;
-                        }
-                    }
-                } catch (JsonSyntaxException | ParseException e) {
-                    return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            requestBody,
-                            "Malformed JSON: " + e.getMessage()
-                    ));
-                }
-            }
-
-            if (requestBody == "") {
-                // Setting the requestBody to an empty byte array here
-                // since the an empty string causes issues with a signed request.
-                // If the content of the SignableRequest is null, the query string parameters 
-                // will be encoded and used as the contentSha256 segment of the canonical request string.
-                // This causes a SignatureMatch Error for signed urls like those generated by AWS S3.
-                // More detail here - https://github.com/aws/aws-sdk-java/issues/2205
-                requestBody = new byte[0];
-            }
-
-            Object finalRequestBody = requestBody;
+            assert requestBody instanceof BodyInserter<?, ?>;
+            BodyInserter<?, ?> finalRequestBody = (BodyInserter<?, ?>) requestBody;
 
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromValue(requestBody))
+                    .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
@@ -553,40 +514,6 @@ public class RestApiPlugin extends BasePlugin {
                         }
                         return Mono.just(response);
                     });
-        }
-
-        /**
-         * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
-         * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
-         * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
-         * map / list.
-         *
-         * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
-         * @return An object of type `Map`, `List`, if applicable, or `null`.
-         */
-        private static Object objectFromJson(String jsonString) throws ParseException {
-            Class<?> type;
-            String trimmed = jsonString.trim();
-
-            if (trimmed.startsWith("{")) {
-                type = Map.class;
-            } else if (trimmed.startsWith("[")) {
-                type = List.class;
-            } else {
-                return null;
-            }
-
-            JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-            Object parsedJson = null;
-
-            if (type.equals(List.class)) {
-                parsedJson = (JSONArray) jsonParser.parse(jsonString);
-            } else {
-                parsedJson = (JSONObject) jsonParser.parse(jsonString);
-            }
-
-            return parsedJson;
-
         }
 
         @Override

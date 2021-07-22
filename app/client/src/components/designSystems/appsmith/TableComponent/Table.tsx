@@ -1,22 +1,29 @@
 import React, { useRef } from "react";
+import { reduce } from "lodash";
 import {
   useTable,
   usePagination,
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
+  Row,
 } from "react-table";
 import {
   TableWrapper,
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
-import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
+import {
+  TableHeaderCell,
+  renderEmptyRows,
+  renderCheckBoxCell,
+  renderCheckBoxHeaderCell,
+} from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
+  ReactTableFilter,
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
@@ -31,7 +38,6 @@ interface TableProps {
   width: number;
   height: number;
   pageSize: number;
-  tablePageSize: number;
   widgetId: string;
   widgetName: string;
   searchKey: string;
@@ -39,8 +45,6 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
-  defaultPageSize?: number;
-  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -50,6 +54,7 @@ interface TableProps {
   }) => void;
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
+  multiRowSelection?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -57,6 +62,10 @@ interface TableProps {
   selectedRowIndices: number[];
   disableDrag: () => void;
   enableDrag: () => void;
+  toggleAllRowSelect: (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => void;
   triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -116,10 +125,7 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount =
-    props.defaultPageSize && props.totalRecordsCount
-      ? Math.ceil(props.totalRecordsCount / props.defaultPageSize)
-      : Math.ceil(props.data.length / props.pageSize);
+  const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -161,10 +167,7 @@ export function Table(props: TableProps) {
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
-  if (
-    props.serverSidePaginationEnabled ||
-    (props.defaultPageSize && props.totalRecordsCount)
-  ) {
+  if (props.serverSidePaginationEnabled) {
     startIndex = 0;
     endIndex = props.data.length;
   }
@@ -175,6 +178,29 @@ export function Table(props: TableProps) {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const rowSelectionState = React.useMemo(() => {
+    // return : 0; no row selected | 1; all row selected | 2: some rows selected
+    if (!props.multiRowSelection) return null;
+    const selectedRowCount = reduce(
+      subPage,
+      (count, row) => {
+        return selectedRowIndices.includes(row.index) ? count + 1 : count;
+      },
+      0,
+    );
+    const result =
+      selectedRowCount === 0 ? 0 : selectedRowCount === subPage.length ? 1 : 2;
+    return result;
+  }, [selectedRowIndices, subPage]);
+  const handleAllRowSelectClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    // if all / some rows are selected we remove selection on click
+    // else select all rows
+    props.toggleAllRowSelect(!Boolean(rowSelectionState), subPage);
+    // loop over subPage rows and toggleRowSelected if required
+    e.stopPropagation();
+  };
   const isHeaderVisible =
     props.isVisibleSearch ||
     props.isVisibleFilters ||
@@ -216,8 +242,6 @@ export function Table(props: TableProps) {
                 columns={tableHeadercolumns}
                 compactMode={props.compactMode}
                 currentPageIndex={currentPageIndex}
-                defaultPageSize={props.defaultPageSize}
-                editMode={props.editMode}
                 filters={props.filters}
                 isVisibleCompactMode={props.isVisibleCompactMode}
                 isVisibleDownload={props.isVisibleDownload}
@@ -235,9 +259,9 @@ export function Table(props: TableProps) {
                 tableColumns={columns}
                 tableData={props.data}
                 tableSizes={tableSizes}
-                totalRecordsCount={props.totalRecordsCount}
                 updateCompactMode={props.updateCompactMode}
                 updatePageNo={props.updatePageNo}
+                widgetId={props.widgetId}
                 widgetName={props.widgetName}
               />
             </TableHeaderInnerWrapper>
@@ -261,30 +285,37 @@ export function Table(props: TableProps) {
               onMouseLeave={props.enableDrag}
               onMouseOver={props.disableDrag}
             >
-              {headerGroups.map((headerGroup: any, index: number) => (
-                <div
-                  {...headerGroup.getHeaderGroupProps()}
-                  className="tr"
-                  key={index}
-                >
-                  {headerGroup.headers.map(
-                    (column: any, columnIndex: number) => {
-                      return (
-                        <TableHeaderCell
-                          column={column}
-                          columnIndex={columnIndex}
-                          columnName={column.Header}
-                          isAscOrder={column.isAscOrder}
-                          isHidden={column.isHidden}
-                          isResizingColumn={isResizingColumn.current}
-                          key={columnIndex}
-                          sortTableColumn={props.sortTableColumn}
-                        />
-                      );
-                    },
-                  )}
-                </div>
-              ))}
+              {headerGroups.map((headerGroup: any, index: number) => {
+                const headerRowProps = {
+                  ...headerGroup.getHeaderGroupProps(),
+                  style: { display: "flex" },
+                };
+                return (
+                  <div {...headerRowProps} className="tr" key={index}>
+                    {props.multiRowSelection &&
+                      renderCheckBoxHeaderCell(
+                        handleAllRowSelectClick,
+                        rowSelectionState,
+                      )}
+                    {headerGroup.headers.map(
+                      (column: any, columnIndex: number) => {
+                        return (
+                          <TableHeaderCell
+                            column={column}
+                            columnIndex={columnIndex}
+                            columnName={column.Header}
+                            isAscOrder={column.isAscOrder}
+                            isHidden={column.isHidden}
+                            isResizingColumn={isResizingColumn.current}
+                            key={columnIndex}
+                            sortTableColumn={props.sortTableColumn}
+                          />
+                        );
+                      },
+                    )}
+                  </div>
+                );
+              })}
               {headerGroups.length === 0 &&
                 renderEmptyRows(
                   1,
@@ -292,29 +323,29 @@ export function Table(props: TableProps) {
                   props.width,
                   subPage,
                   prepareRow,
+                  props.multiRowSelection,
                 )}
             </div>
             <div
               {...getTableBodyProps()}
               className={`tbody ${
-                props.tablePageSize > subPage.length ? "no-scroll" : ""
+                props.pageSize > subPage.length ? "no-scroll" : ""
               }`}
               ref={tableBodyRef}
             >
               {subPage.map((row, rowIndex) => {
                 prepareRow(row);
+                const rowProps = {
+                  ...row.getRowProps(),
+                  style: { display: "flex" },
+                };
+                const isRowSelected =
+                  row.index === selectedRowIndex ||
+                  selectedRowIndices.includes(row.index);
                 return (
                   <div
-                    {...row.getRowProps()}
-                    className={
-                      "tr" +
-                      `${
-                        row.index === selectedRowIndex ||
-                        selectedRowIndices.includes(row.index)
-                          ? " selected-row"
-                          : ""
-                      }`
-                    }
+                    {...rowProps}
+                    className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
                     key={rowIndex}
                     onClick={(e) => {
                       row.toggleRowSelected();
@@ -322,6 +353,8 @@ export function Table(props: TableProps) {
                       e.stopPropagation();
                     }}
                   >
+                    {props.multiRowSelection &&
+                      renderCheckBoxCell(isRowSelected)}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -338,13 +371,14 @@ export function Table(props: TableProps) {
                   </div>
                 );
               })}
-              {props.tablePageSize > subPage.length &&
+              {props.pageSize > subPage.length &&
                 renderEmptyRows(
-                  props.tablePageSize - subPage.length,
+                  props.pageSize - subPage.length,
                   props.columns,
                   props.width,
                   subPage,
                   prepareRow,
+                  props.multiRowSelection,
                 )}
             </div>
           </div>

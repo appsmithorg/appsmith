@@ -49,7 +49,6 @@ describe("Radio Widget Functionality", function() {
     cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
       .get(commonlocators.dropdownSelectButton)
       .click({ force: true })
-      .type(this.data.command)
       .type("2");
     cy.PublishtheApp();
   });

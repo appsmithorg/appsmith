@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,25 +140,53 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    public Mono<UpdateResult> updateById(String id, Update updateObj, AclPermission permission) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    User user = (User) principal;
+                    Query query = new Query(Criteria.where("id").is(id));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
+                    return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+                });
+    }
+
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Query query = new Query();
-                    criterias.stream()
-                            .forEach(criteria -> query.addCriteria(criteria));
-                    if (aclPermission == null) {
-                        query.addCriteria(new Criteria().andOperator(notDeleted()));
-                    } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
-                    }
-
                     return mongoOperations.query(this.genericDomain)
-                            .matching(query)
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
                             .one()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
+    }
+
+    protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
+        Query query = new Query();
+        criterias.stream()
+                .forEach(criteria -> query.addCriteria(criteria));
+        if (aclPermission == null) {
+            query.addCriteria(new Criteria().andOperator(notDeleted()));
+        } else {
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+        }
+        return query;
+    }
+
+    protected Mono<Long> count(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth ->
+                    mongoOperations.count(
+                            createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission), this.genericDomain
+                    )
+                );
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {

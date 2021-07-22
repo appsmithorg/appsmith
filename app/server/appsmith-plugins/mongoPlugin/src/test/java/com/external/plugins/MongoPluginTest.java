@@ -234,6 +234,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -274,6 +279,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -315,6 +325,11 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -358,6 +373,11 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -389,6 +409,11 @@ public class MongoPluginTest {
                 "      find: \"users\",\n" +
                 "      limit: 1,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -734,6 +759,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -768,6 +798,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -802,6 +837,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -834,6 +874,8 @@ public class MongoPluginTest {
                 "    }");
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

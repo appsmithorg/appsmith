@@ -60,9 +60,6 @@ public class ActionConfiguration implements AppsmithDomain {
     List<JSValue> jsArguments;
     Boolean isAsync;
 
-    // Is the JS function sync or async.
-    boolean isSyncJsFunction = true;
-
     /*
      * Future plugins could require more fields that are not covered above.
      * They will have to represented in a key-value format where the plugin

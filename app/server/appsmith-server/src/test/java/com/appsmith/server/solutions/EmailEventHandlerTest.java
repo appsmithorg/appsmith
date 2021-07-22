@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -7,6 +9,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -33,8 +36,6 @@ import static org.mockito.ArgumentMatchers.eq;
 public class EmailEventHandlerTest {
 
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
-    private static final String USER_MENTIONED_EMAIL_TEMPLATE = "email/userTaggedInCommentTemplate.html";
-    private static final String THREAD_RESOLVED_EMAIL_TEMPLATE = "email/commentResolvedTemplate.html";
 
     @MockBean
     private ApplicationEventPublisher applicationEventPublisher;
@@ -44,6 +45,11 @@ public class EmailEventHandlerTest {
     private OrganizationRepository organizationRepository;
     @MockBean
     private ApplicationRepository applicationRepository;
+    @MockBean
+    private EmailConfig emailConfig;
+
+    @MockBean
+    private PolicyUtils policyUtils;
 
     EmailEventHandler emailEventHandler;
     private Application application;
@@ -58,7 +64,7 @@ public class EmailEventHandlerTest {
     @Before
     public void setUp() {
         emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher, emailSender, organizationRepository, applicationRepository
+                applicationEventPublisher, emailSender, organizationRepository, applicationRepository, policyUtils, emailConfig
         );
         application = new Application();
         application.setName("Test application for comment");
@@ -68,6 +74,7 @@ public class EmailEventHandlerTest {
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
+        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
         organization.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
@@ -210,6 +217,9 @@ public class EmailEventHandlerTest {
         Comment sampleComment = new Comment();
         sampleComment.setAuthorUsername(authorUserName);
         sampleComment.setAuthorName("Test Author");
+        sampleComment.setApplicationId("test-app-id");
+        sampleComment.setPageId("test-page-id");
+        sampleComment.setThreadId("test-thread-id");
         Set<String> subscribers = Set.of(emailReceiverUsername);
 
         // mention the emailReceiverUsername in the sample comment
@@ -229,7 +239,7 @@ public class EmailEventHandlerTest {
 
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(USER_MENTIONED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 
@@ -259,7 +269,7 @@ public class EmailEventHandlerTest {
         );
         // check email sender was called with expected template and subject
         Mockito.verify(emailSender, Mockito.times(1)).sendMail(
-                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(THREAD_RESOLVED_EMAIL_TEMPLATE), Mockito.anyMap()
+                eq(emailReceiverUsername), eq(expectedEmailSubject), eq(COMMENT_ADDED_EMAIL_TEMPLATE), Mockito.anyMap()
         );
     }
 }

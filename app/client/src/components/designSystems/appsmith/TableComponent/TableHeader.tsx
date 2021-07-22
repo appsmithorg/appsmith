@@ -9,11 +9,10 @@ import {
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 // import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import TableFilters, {
-  ReactTableFilter,
-} from "components/designSystems/appsmith/TableComponent/TableFilters";
+import TableFilters from "components/designSystems/appsmith/TableComponent/TableFilters";
 import {
   ReactTableColumnProps,
+  ReactTableFilter,
   CompactMode,
   TableSizes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
@@ -93,8 +92,6 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
-  defaultPageSize?: number;
-  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
@@ -103,12 +100,12 @@ interface TableHeaderProps {
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   widgetName: string;
+  widgetId: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
@@ -137,8 +134,8 @@ function TableHeader(props: TableHeaderProps) {
             <TableFilters
               applyFilter={props.applyFilter}
               columns={props.columns}
-              editMode={props.editMode}
               filters={props.filters}
+              widgetId={props.widgetId}
             />
           )}
 
@@ -163,7 +160,7 @@ function TableHeader(props: TableHeaderProps) {
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
-            disabled={props.pageNo === 0}
+            disabled={false}
             onClick={() => {
               props.prevPageClick();
             }}
@@ -175,7 +172,7 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={props.pageNo === props.pageCount - 1}
+            disabled={false}
             onClick={() => {
               props.nextPageClick();
             }}
@@ -187,10 +184,7 @@ function TableHeader(props: TableHeaderProps) {
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
-            {props.totalRecordsCount
-              ? props.totalRecordsCount
-              : props.tableData?.length}{" "}
-            Records
+            {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"

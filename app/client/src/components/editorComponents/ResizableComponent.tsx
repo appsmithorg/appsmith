@@ -16,6 +16,7 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
@@ -60,6 +61,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isCommentMode = useSelector(commentModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -256,6 +258,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
+    // Make sure that this tableFilterPane should close
+    showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
@@ -290,6 +294,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       ref={resizableRef}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      // Used only for performance tracking, can be removed after optimization.
+      zWidgetId={props.widgetId}
+      zWidgetType={props.type}
     >
       <VisibilityContainer
         padding={props.paddingOffset}
@@ -300,5 +307,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-
 export default ResizableComponent;

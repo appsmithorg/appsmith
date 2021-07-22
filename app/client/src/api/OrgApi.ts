@@ -24,6 +24,7 @@ export interface FetchAllRolesResponse extends ApiResponse {
 
 export interface FetchOrgRequest {
   orgId: string;
+  skipValidation?: boolean;
 }
 
 export interface FetchAllUsersRequest {

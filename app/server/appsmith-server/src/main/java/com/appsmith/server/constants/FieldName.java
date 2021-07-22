@@ -68,6 +68,9 @@ public class FieldName {
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
     public static String TABLE_WIDGET = "TABLE_WIDGET";
+    public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
+    public static String CANVAS_WIDGET = "CANVAS_WIDGET";
+    public static String FORM_WIDGET = "FORM_WIDGET";
     public static String PRIMARY_COLUMNS = "primaryColumns";
     public static String MONGO_ESCAPE_ID = "appsmith_mongo_escape_id";
     public static String MONGO_ESCAPE_CLASS = "appsmith_mongo_escape_class";

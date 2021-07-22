@@ -32,6 +32,11 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       200,
     );
     cy.get(commonlocators.toastAction).should("be.visible");
+
+    //Check after copying new table widget should not have any warnings
+    cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
+      "not.exist",
+    );
     /*
     cy.get(commonlocators.toastAction)
       .contains("UNDO")
@@ -42,7 +47,7 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       .last()
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(10);
+      expect($lis).to.have.length(8);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });

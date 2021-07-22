@@ -18,7 +18,7 @@ import {
   setAreCommentsEnabled,
   setCommentMode,
   fetchUnreadCommentThreadsCountSuccess,
-  fetchUnreadCommentThreadsCountRequest,
+  decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -47,6 +47,9 @@ import { get } from "lodash";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { AppState } from "reducers";
+import { TourType } from "entities/Tour";
+import { getActiveTourType } from "selectors/tourSelectors";
+import { resetActiveTour } from "actions/tourActions";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -127,7 +130,6 @@ function* fetchApplicationComments() {
 
     if (isValidResponse) {
       yield put(fetchApplicationCommentsSuccess(response.data));
-      yield put(fetchUnreadCommentThreadsCountRequest());
     }
   } catch (error) {
     yield put({
@@ -197,14 +199,31 @@ function* deleteComment(
   }
 }
 
+function* unsubscribeCommentThread(action: ReduxAction<string>) {
+  try {
+    const threadId = action.payload;
+    const response = yield CommentsApi.unsubscribeCommentThread(threadId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
+        payload: null,
+      });
+    }
+  } catch (error) {}
+}
+
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread({}, threadId);
+    const response = yield CommentsApi.updateCommentThread(
+      { isViewed: true },
+      threadId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
-      yield put(fetchUnreadCommentThreadsCountRequest());
+      yield put(decrementThreadUnreadCount());
     }
   } catch (error) {
     yield put({
@@ -303,19 +322,34 @@ function* deleteCommentReaction(
   }
 }
 
-function* fetchUnreadCommentsCount() {
-  try {
-    const applicationId = yield select(getCurrentApplicationId);
-    const response = yield call(
-      CommentsApi.fetchUnreadCommentThreads,
-      applicationId,
+function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
+  const type = action.type;
+  let unreadCommentsCount = yield select(
+    (state: AppState) => state.ui.comments.unreadCommentThreadsCount,
+  );
+  if (type === ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount += 1;
+  } else if (type === ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT) {
+    unreadCommentsCount -= 1;
+  }
+  yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
+}
+
+function* handleSetCommentMode(action: ReduxAction<boolean>) {
+  const { payload } = action;
+  if (!payload) {
+    const activeTourType: TourType | undefined = yield select(
+      getActiveTourType,
     );
-    // const isValidResponse = yield validateResponse(response);
-    // if (isValidResponse) {
-    yield put(fetchUnreadCommentThreadsCountSuccess(response.data.count > 0));
-    // }
-  } catch (e) {
-    console.log(e, "handle error");
+    if (
+      activeTourType &&
+      [
+        TourType.COMMENTS_TOUR_EDIT_MODE,
+        TourType.COMMENTS_TOUR_PUBLISHED_MODE,
+      ].indexOf(activeTourType) !== -1
+    ) {
+      yield put(resetActiveTour());
+    }
   }
 }
 
@@ -344,14 +378,22 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
+    takeLatest(
+      ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_REQUEST,
+      unsubscribeCommentThread,
+    ),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
     fork(setIfCommentsAreEnabled),
     takeLatest(
-      ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_REQUEST,
-      fetchUnreadCommentsCount,
+      [
+        ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
+        ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
+      ],
+      updateCommentThreadUnreadCount,
     ),
+    takeLatest(ReduxActionTypes.SET_COMMENT_MODE, handleSetCommentMode),
   ]);
 }

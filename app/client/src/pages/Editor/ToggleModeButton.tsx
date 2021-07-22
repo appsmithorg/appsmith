@@ -24,15 +24,44 @@ import { useLocation } from "react-router";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
-import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import useProceedToNextTourStep, {
+  useIsTourStepActive,
+} from "utils/hooks/useProceedToNextTourStep";
 import { getCommentsIntroSeen } from "utils/storage";
-import { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 
-import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import {
+  AUTH_LOGIN_URL,
+  matchBuilderPath,
+  matchViewerPath,
+} from "constants/routes";
 
-const ModeButton = styled.div<{ active: boolean }>`
+import { createMessage, UNREAD_MESSAGE } from "constants/messages";
+
+import localStorage from "utils/localStorage";
+
+import { getAppMode } from "selectors/applicationSelectors";
+
+import { noop } from "lodash";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
+
+const getShowCommentsButtonToolTip = () => {
+  const flag = localStorage.getItem("ShowCommentsButtonToolTip");
+  return flag === null || !!flag;
+};
+const setShowCommentsButtonToolTip = (value = "") =>
+  localStorage.setItem("ShowCommentsButtonToolTip", value);
+
+const ModeButton = styled.div<{
+  active: boolean;
+  showSelectedMode: boolean;
+  type: string;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -42,18 +71,37 @@ const ModeButton = styled.div<{ active: boolean }>`
   height: ${(props) => props.theme.smallHeaderHeight};
   width: ${(props) => props.theme.smallHeaderHeight};
   background: ${(props) =>
-    props.active
+    props.active && props.showSelectedMode
       ? props.theme.colors.comments.activeModeBackground
       : "transparent"};
 
   svg path {
     fill: ${(props) =>
+      props.type !== "fill"
+        ? "transparent"
+        : props.active
+        ? props.theme.colors.comments.activeModeIcon
+        : props.theme.colors.comments.modeIcon};
+    stroke: ${(props) =>
+      props.type !== "stroke"
+        ? "transparent"
+        : props.active
+        ? props.theme.colors.comments.activeModeIcon
+        : props.theme.colors.comments.modeIcon};
+  }
+
+  svg rect:not(:first-child) {
+    fill: ${(props) =>
       props.active
         ? props.theme.colors.comments.activeModeIcon
         : props.theme.colors.comments.modeIcon};
   }
+
   svg circle {
-    stroke: transparent;
+    stroke: ${(props) =>
+      props.active
+        ? props.theme.colors.comments.activeModeIconCircleStroke
+        : props.theme.colors.comments.modeIconCircleStroke};
   }
 `;
 
@@ -61,6 +109,7 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
+  margin-left: ${(props) => props.theme.smallHeaderHeight};
 `;
 
 /**
@@ -80,10 +129,24 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   );
 
   const handleLocationUpdate = async () => {
+    if (!currentUser) return;
+
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
     const isCommentsIntroSeen = await getCommentsIntroSeen();
     const updatedIsCommentMode = isCommentMode === "true" ? true : false;
+
+    const notLoggedId = currentUser?.username === ANONYMOUS_USERNAME;
+
+    if (notLoggedId && updatedIsCommentMode) {
+      const currentUrl = window.location.href;
+      const path = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+        currentUrl,
+      )}`;
+      history.push(path);
+
+      return;
+    }
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
@@ -97,7 +160,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     if (window.location.href) {
       handleLocationUpdate();
     }
-  }, [location]);
+  }, [location, !!currentUser]);
 
   // fetch applications comments when comment mode is turned on
   useEffect(() => {
@@ -156,21 +219,107 @@ function ViewModeReset() {
   );
 }
 
-function ToggleCommentModeButton() {
-  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
-  const isCommentMode = useSelector(commentModeSelector);
-  const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
-  const currentUser = useSelector(getCurrentUser);
+const tourToolTipProps = {
+  hasOverlay: true,
+  modifiers: {
+    offset: { enabled: true, offset: "3, 20" },
+    arrow: {
+      enabled: true,
+      fn: (data: any) => ({
+        ...data,
+        offsets: {
+          ...data.offsets,
+          arrow: {
+            top: -8,
+            left: 80,
+          },
+        },
+      }),
+    },
+  },
+  pulseStyles: {
+    top: 20,
+    left: 28,
+    height: 30,
+    width: 30,
+  },
+  showPulse: true,
+  activeStepConfig: {
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.ENTER_COMMENTS_MODE,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.ENTER_COMMENTS_MODE,
+  },
+};
 
-  useUpdateCommentMode(currentUser);
-  const proceedToNextTourStep = useProceedToNextTourStep(
-    TourType.COMMENTS_TOUR,
-    0,
+function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
+  return mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />;
+}
+
+function CommentModeBtn({
+  handleSetCommentModeButton,
+  isCommentMode,
+  showSelectedMode,
+  showUnreadIndicator,
+}: {
+  handleSetCommentModeButton: () => void;
+  isCommentMode: boolean;
+  showUnreadIndicator: boolean;
+  showSelectedMode: boolean;
+}) {
+  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+
+  return (
+    <ModeButton
+      active={isCommentMode}
+      className="t--switch-comment-mode-on"
+      onClick={handleSetCommentModeButton}
+      showSelectedMode={showSelectedMode}
+      type="stroke"
+    >
+      <TooltipComponent
+        content={
+          <>
+            Comment Mode
+            <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+          </>
+        }
+        hoverOpenDelay={1000}
+        position={Position.BOTTOM}
+      >
+        <CommentModeIcon />
+      </TooltipComponent>
+    </ModeButton>
   );
+}
 
-  const mode = useSelector((state: AppState) => state.entities.app.mode);
+const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
+  const currentUser = useSelector(getCurrentUser);
+  const appMode = useSelector(getAppMode);
 
-  // Show comment mode button only on the canvas editor and viewer
+  const initShowCommentButtonDiscoveryTooltip =
+    getShowCommentsButtonToolTip() &&
+    appMode === APP_MODE.PUBLISHED &&
+    currentUser?.username !== ANONYMOUS_USERNAME;
+
+  const [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ] = useState(initShowCommentButtonDiscoveryTooltip);
+
+  useEffect(() => {
+    setShowCommentButtonDiscoveryTooltipInState(
+      initShowCommentButtonDiscoveryTooltip,
+    );
+  }, [appMode, currentUser]);
+
+  return [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ];
+};
+
+const useShouldHide = () => {
   const [shouldHide, setShouldHide] = useState(false);
   const location = useLocation();
   useEffect(() => {
@@ -178,69 +327,82 @@ function ToggleCommentModeButton() {
     const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
     setShouldHide(!shouldShow);
   }, [location]);
-  if (shouldHide) return null;
 
-  if (!commentsEnabled) return null;
+  return shouldHide;
+};
 
-  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+type ToggleCommentModeButtonProps = {
+  showSelectedMode?: boolean;
+};
+
+function ToggleCommentModeButton({
+  showSelectedMode = true,
+}: ToggleCommentModeButtonProps) {
+  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
+  const isCommentMode = useSelector(commentModeSelector);
+  const currentUser = useSelector(getCurrentUser);
+
+  const [
+    showCommentButtonDiscoveryTooltip,
+    setShowCommentButtonDiscoveryTooltipInState,
+  ] = useShowCommentDiscoveryTooltip();
+
+  const showUnreadIndicator =
+    useSelector(showUnreadIndicatorSelector) ||
+    showCommentButtonDiscoveryTooltip;
+
+  useUpdateCommentMode(currentUser);
+
+  const activeStepConfig = {
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.ENTER_COMMENTS_MODE,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.ENTER_COMMENTS_MODE,
+  };
+
+  const proceedToNextTourStep = useProceedToNextTourStep(activeStepConfig);
+
+  const isTourStepActive = useIsTourStepActive(activeStepConfig);
+
+  const mode = useSelector((state: AppState) => state.entities.app.mode);
+
+  const handleSetCommentModeButton = useCallback(() => {
+    setCommentModeInUrl(true);
+    proceedToNextTourStep();
+    setShowCommentButtonDiscoveryTooltipInState(false);
+    setShowCommentsButtonToolTip();
+  }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
+
+  // Show comment mode button only on the canvas editor and viewer
+  const shouldHide = useShouldHide();
+
+  if (!commentsEnabled || shouldHide) return null;
 
   return (
     <Container>
-      <TourTooltipWrapper
-        hasOverlay
-        modifiers={{
-          offset: { enabled: true, offset: "3, 20" },
-          arrow: {
-            enabled: true,
-            fn: (data) => ({
-              ...data,
-              offsets: {
-                ...data.offsets,
-                arrow: {
-                  top: -8,
-                  left: 80,
-                },
-              },
-            }),
-          },
-        }}
-        pulseStyles={{
-          top: 20,
-          left: 28,
-          height: 30,
-          width: 30,
-        }}
-        showPulse
-        tourIndex={0}
-        tourType={TourType.COMMENTS_TOUR}
-      >
+      <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
             onClick={() => setCommentModeInUrl(false)}
+            showSelectedMode={showSelectedMode}
+            type="fill"
           >
-            {mode === APP_MODE.EDIT ? <EditModeReset /> : <ViewModeReset />}
+            <ViewOrEditMode mode={mode} />
           </ModeButton>
-          <ModeButton
-            active={isCommentMode}
-            onClick={() => {
-              setCommentModeInUrl(true);
-              proceedToNextTourStep();
-            }}
+          <TooltipComponent
+            content={createMessage(UNREAD_MESSAGE)}
+            isOpen={showCommentButtonDiscoveryTooltip}
           >
-            <TooltipComponent
-              content={
-                <>
-                  Comment Mode
-                  <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-                </>
-              }
-              hoverOpenDelay={1000}
-              position={Position.BOTTOM}
-            >
-              <CommentModeIcon />
-            </TooltipComponent>
-          </ModeButton>
+            <CommentModeBtn
+              {...{
+                handleSetCommentModeButton,
+                isCommentMode: isCommentMode || isTourStepActive, // Highlight the button during the tour
+                showUnreadIndicator,
+                showSelectedMode,
+              }}
+            />
+          </TooltipComponent>
         </div>
       </TourTooltipWrapper>
     </Container>

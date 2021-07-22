@@ -1,5 +1,4 @@
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
-import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -7,6 +6,7 @@ import { AppState } from "reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+// import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
 export type PopperProps = {
@@ -15,6 +15,13 @@ export type PopperProps = {
   themeMode?: ThemeMode;
   targetNode?: Element;
   children: JSX.Element | null;
+  renderDragBlock?: JSX.Element;
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  };
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
@@ -24,6 +31,7 @@ export type PopperProps = {
     left: number;
   };
   onPositionChange?: (position: { top: number; left: number }) => void;
+  // DraggableNode?: any;
 };
 
 const PopperWrapper = styled.div<{ zIndex: number }>`
@@ -31,14 +39,36 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
   position: absolute;
 `;
 
+// const DragHandleBlock = styled.div`
+//   padding: 6px;
+//   height: 28px;
+//   background-color: ${(props) =>
+//     props.theme.colors?.propertyPane?.bg || Colors.BLACK};
+//   cursor: grab;
+//   box-shadow: 0px 0px 2px rgb(0 0 0 / 10%), 0px 2px 10px rgb(0 0 0 / 10%);
+//   clip-path: inset(-2px 0px -2px -2px);
+// `;
+
+// export function PopperDragHandle() {
+//   return (
+//     <DragHandleBlock>
+//       <DragHandleIcon />
+//     </DragHandleBlock>
+//   );
+// }
 const DragHandleBlock = styled.div`
-  padding: 6px;
-  height: 28px;
-  background-color: ${(props) =>
-    props.theme.colors?.propertyPane?.bg || Colors.BLACK};
   cursor: grab;
-  box-shadow: 0px 0px 2px rgb(0 0 0 / 10%), 0px 2px 10px rgb(0 0 0 / 10%);
-  clip-path: inset(-2px 0px -2px -2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 43px;
+  height: 28px;
+  z-index: 3;
+  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+
+  svg {
+    transform: rotate(90deg);
+  }
 `;
 
 export function PopperDragHandle() {
@@ -56,8 +86,10 @@ export default (props: PopperProps) => {
     isDraggable = false,
     disablePopperEvents = false,
     position,
+    renderDragBlock,
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
+    renderDragBlockPositions,
   } = props;
   // Meomoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
@@ -121,11 +153,15 @@ export default (props: PopperProps) => {
           _popper.popper,
           onPositionChange,
           position,
-          () => (
-            <ThemeProvider theme={popperTheme}>
-              <PopperDragHandle />
-            </ThemeProvider>
-          ),
+          renderDragBlockPositions,
+          () =>
+            !!renderDragBlock ? (
+              renderDragBlock
+            ) : (
+              <ThemeProvider theme={popperTheme}>
+                <PopperDragHandle />
+              </ThemeProvider>
+            ),
         );
       }
 

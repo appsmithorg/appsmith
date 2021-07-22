@@ -133,10 +133,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     border={CodeEditorBorder.BOTTOM_SIDE}
                     className={`t--${field}.key.${index}`}
                     dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    expected={FIELD_VALUES.API_ACTION.params}
                     hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
-                    showLightningMenu={false}
                     theme={props.theme}
                   />
                 </Flex>

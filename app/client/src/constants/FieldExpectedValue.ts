@@ -23,14 +23,14 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
-    // onDateSelected: "Function Call",
+    onDateSelected: "Function Call",
   },
   DATE_PICKER_WIDGET2: {
-    defaultDate: "string | null", //TODO:Vicky validate this property
+    defaultDate: "string", //TODO:Vicky validate this property
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
-    // onDateSelected: "Function Call",
+    onDateSelected: "Function Call",
   },
   TABLE_WIDGET: {
     tableData: "Array<Object>",
@@ -40,8 +40,8 @@ const FIELD_VALUES: Record<
     exportExcel: "boolean",
     exportCsv: "boolean",
     defaultSelectedRow: "string",
-    // onRowSelected: "Function Call",
-    // onPageChange: "Function Call",
+    onRowSelected: "Function Call",
+    onPageChange: "Function Call",
   },
   VIDEO_WIDGET: {
     url: "string",
@@ -59,7 +59,7 @@ const FIELD_VALUES: Record<
     defaultOptionValue: "string",
     isRequired: "boolean",
     isVisible: "boolean",
-    // onSelectionChange: "Function Call",
+    onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
     selectedTab: "string",
@@ -86,7 +86,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
-    // onTextChanged: "Function Call",
+    onTextChanged: "Function Call",
   },
   DROP_DOWN_WIDGET: {
     label: "string",
@@ -95,7 +95,7 @@ const FIELD_VALUES: Record<
     defaultOptionValue: "string",
     isRequired: "boolean",
     isVisible: "boolean",
-    // onOptionChange: "Function Call",
+    onOptionChange: "Function Call",
   },
   FORM_BUTTON_WIDGET: {
     text: "string",
@@ -103,7 +103,7 @@ const FIELD_VALUES: Record<
     disabledWhenInvalid: "boolean",
     resetFormOnClick: "boolean",
     isVisible: "boolean",
-    // onClick: "Function Call",
+    onClick: "Function Call",
   },
   MAP_WIDGET: {
     mapCenter: "{ lat: number, long: number }",
@@ -112,30 +112,29 @@ const FIELD_VALUES: Record<
     enablePickLocation: "boolean",
     enableCreateMarker: "boolean",
     isVisible: "boolean",
-    // onMarkerClick: "Function Call",
-    // onCreateMarker: "Function Call",
+    onMarkerClick: "Function Call",
+    onCreateMarker: "Function Call",
   },
   BUTTON_WIDGET: {
     text: "string",
     buttonStyle: "PRIMARY_BUTTON | SECONDARY_BUTTON | DANGER_BUTTON",
     isVisible: "boolean",
-    // onClick: "Function Call",
+    onClick: "Function Call",
   },
   RICH_TEXT_EDITOR_WIDGET: {
     defaultText: "string",
     isVisible: "boolean",
     isDisabled: "boolean",
-    // onTextChange: "Function Call",
+    onTextChange: "Function Call",
   },
   FILE_PICKER_WIDGET: {
     label: "string",
     maxNumFiles: "number",
     maxFileSize: "number",
-
     allowedFileTypes: "Array<string>",
     isRequired: "boolean",
     isVisible: "boolean",
-    // onFilesSelected: "Function Call",
+    onFilesSelected: "Function Call",
   },
   CHECKBOX_WIDGET: {
     label: "string",
@@ -143,7 +142,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
-    // onCheckChange: "Function Call",
+    onCheckChange: "Function Call",
   },
   SWITCH_WIDGET: {
     label: "string",
@@ -151,7 +150,7 @@ const FIELD_VALUES: Record<
     isDisabled: "boolean",
     isVisible: "boolean",
     alignWidget: "LEFT | RIGHT",
-    // onChange: "Function Call",
+    onChange: "Function Call",
   },
   FORM_WIDGET: {
     backgroundColor: "string",
@@ -169,11 +168,34 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     gridGap: "number",
   },
+  RATE_WIDGET: {
+    maxCount: "number",
+    defaultRate: "number",
+    activeColor: "string",
+    inactiveColor: "string",
+    size: "RATE_SMALL | RATE_MEDIUM | RATE_LARGE",
+    tooltips: "Array<string>",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+  },
   IFRAME_WIDGET: {
     source: "string",
     title: "string",
     borderOpacity: "number",
     borderWidth: "number",
+  },
+  DIVIDER_WIDGET: {
+    orientation: "string",
+    capType: "string",
+    capSide: "number",
+    isVisible: "boolean",
+    strokeStyle: "solid | dashed | dotted",
+    dividerColor: "string",
+    thickness: "number",
+  },
+  MENU_BUTTON_WIDGET: {
+    isVisible: "boolean",
+    label: "string",
   },
 };
 
