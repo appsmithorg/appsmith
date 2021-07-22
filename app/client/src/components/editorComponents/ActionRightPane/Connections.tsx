@@ -2,7 +2,7 @@ import React from "react";
 import { Collapsible } from ".";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
-import LongArrowSVG from "assets/images/long-arrow.svg";
+import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import Tooltip from "components/ads/Tooltip";
 import { useEntityLink } from "../Debugger/hooks";
 import Text, { TextType } from "components/ads/Text";
