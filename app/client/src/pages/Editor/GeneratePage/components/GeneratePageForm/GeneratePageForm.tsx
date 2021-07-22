@@ -134,6 +134,9 @@ function GeneratePageForm() {
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
   const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
 
+  const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
+    string
+  >("");
   const datasourcesStructure = useSelector(getDatasourcesStructure);
 
   const isFetchingDatasourceStructure = useSelector(
@@ -287,21 +290,23 @@ function GeneratePageForm() {
     setSelectedDatasourceTableOptions,
   ]);
 
-  const onSelectNewDatasource = (newDatasourceId: string) => {
-    if (newDatasourceId) {
-      if (selectedDatasource.id !== newDatasourceId) {
+  useEffect(() => {
+    // If there is any datasource id passed in queryParams which needs to be selected
+    if (datasourceIdToBeSelected) {
+      if (selectedDatasource.id !== datasourceIdToBeSelected) {
         for (let i = 0; i < dataSourceOptions.length; i++) {
-          if (dataSourceOptions[i].id === newDatasourceId) {
+          if (dataSourceOptions[i].id === datasourceIdToBeSelected) {
             onSelectDataSource(
               dataSourceOptions[i].value,
               dataSourceOptions[i],
             );
+            setDatasourceIdToBeSelected("");
             break;
           }
         }
       }
     }
-  };
+  }, [dataSourceOptions, datasourceIdToBeSelected, onSelectDataSource]);
 
   useEffect(() => {
     if (querySearch) {
@@ -314,7 +319,7 @@ function GeneratePageForm() {
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
         }
-        onSelectNewDatasource(datasourceId);
+        setDatasourceIdToBeSelected(datasourceId);
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =

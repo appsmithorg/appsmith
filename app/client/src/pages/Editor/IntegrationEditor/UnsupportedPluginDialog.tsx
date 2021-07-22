@@ -65,9 +65,6 @@ export const StyledSeparator = styled.div`
 
 const StyledIcon = styled(Icon)<IconProps>`
   margin: 0px 8px;
-  .default_cursor {
-    cursor: default;
-  }
   svg {
     .triangle {
       fill: #efa903;
@@ -103,6 +100,7 @@ const Header = withTheme(
         <Heading>
           <StyledIcon
             className="default_cursor"
+            clickable={false}
             name="warning-triangle"
             size={IconSize.XL}
           />

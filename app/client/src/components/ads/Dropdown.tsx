@@ -468,7 +468,7 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  const disabled = props.disabled || isLoading;
+  const disabled = props.disabled || isLoading || !!errorMsg;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
 
   const dropdownTrigger = props.dropdownTriggerIcon ? (
@@ -510,7 +510,7 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg && !isOpen && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
     </DropdownSelect>
   );
   return (

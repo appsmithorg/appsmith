@@ -145,6 +145,7 @@ const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
+  AUTH_API: "AUTH_API",
 };
 
 function NewApiScreen(props: Props) {
@@ -184,6 +185,8 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
+  // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
@@ -219,6 +222,10 @@ function NewApiScreen(props: Props) {
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
         props.createDatasourceFromForm({ pluginId: params.pluginId });
+        break;
+      }
+      case API_ACTION.AUTH_API: {
+        handleCreateAuthApiDatasource();
         break;
       }
       default:
@@ -262,7 +269,7 @@ function NewApiScreen(props: Props) {
         {authApiPlugin && (
           <ApiCard
             className="t--createAuthApiDatasource"
-            onClick={handleCreateAuthApiDatasource}
+            onClick={() => handleOnClick(API_ACTION.AUTH_API)}
           >
             <CardContentWrapper>
               <div className="content-icon-wrapper">

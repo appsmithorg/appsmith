@@ -241,19 +241,7 @@ export const IconWrapper = styled.span<IconProps>`
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
-    cursor: pointer;
-    ${(props) =>
-      !props.keepColors
-        ? `
-    path {
-      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
-    }
-    `
-        : ""}
-  }
-
-  &:hover {
-    cursor: pointer;
+    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
     ${(props) =>
       !props.keepColors
         ? `
@@ -275,6 +263,7 @@ export type IconProps = {
   hoverFillColor?: string;
   keepColors?: boolean;
   loaderWithIconWrapper?: boolean;
+  clickable?: boolean;
 };
 
 const Icon = forwardRef(
@@ -553,10 +542,12 @@ const Icon = forwardRef(
         break;
     }
 
+    const clickable = props.clickable === undefined ? true : props.clickable;
+
     let loader = <Spinner size={props.size} />;
     if (props.loaderWithIconWrapper) {
       loader = (
-        <IconWrapper className={Classes.ICON} {...props}>
+        <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>
           <Spinner size={props.size} />
         </IconWrapper>
       );
@@ -565,6 +556,7 @@ const Icon = forwardRef(
     return returnIcon && !props.isLoading ? (
       <IconWrapper
         className={Classes.ICON}
+        clickable={clickable}
         data-cy={props.cypressSelector}
         ref={ref}
         {...props}
