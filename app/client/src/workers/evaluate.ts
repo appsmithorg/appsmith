@@ -110,7 +110,6 @@ export default function evaluate(
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
   const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
-
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
