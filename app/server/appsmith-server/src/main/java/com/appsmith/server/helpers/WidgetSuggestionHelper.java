@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,18 +15,6 @@ import java.util.Map;
 
 @Slf4j
 public class WidgetSuggestionHelper {
-
-    private static final String chartWidgetQuery = "data.map( (obj) =>{ return  {x: obj.%s, y: obj.%s} } )";
-
-    private static final String tableWidgetQuery = "data";
-
-    private static final String listWidgetQuery = "data";
-
-    private static final String selectWidgetQuery = "data.map( (obj) =>{ return  {label: obj.%s, value: obj.%s} } )";
-
-    private static final String textWidgetQuery = "data";
-
-    private static final String inputWidgetQuery = "data";
 
     /**
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
@@ -43,19 +32,19 @@ public class WidgetSuggestionHelper {
                     array = (ArrayNode) data;
                 } catch(ClassCastException e) {
                     log.warn("Error while casting data to suggest widget.", e);
-                    widgetTypeList.add(getTextWidget());
+                    widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                 }
                 int length = array.size();
                 JsonNode node = array.get(0);
                 JsonNodeType nodeType = node.getNodeType();
-                List<String> fields = new ArrayList<>();
-                List<String> numericField = new ArrayList<>();
 
                 /*
-                *In order to form the binding query for the widgets the name of fields are required
-                * In the below piece of code, we are trying to group the fields based on their type and store them in a list
-                * Wrt to the widgets we show as part of suggestion we need only string and number/integer types
-                 */
+                * We support only TEXT, CHART, DROPDOWN, TABLE, INPUT and LIST widgets as part of the suggestion
+                * We need string and number type fields to construct the query to bind data to the above widgets
+                */
+
+                List<String> fields = new ArrayList<>();
+                List<String> numericFields = new ArrayList<>();
                 Iterator<Map.Entry<String, JsonNode>> jsonFields = node.fields();
                 while(jsonFields.hasNext()) {
                     Map.Entry<String, JsonNode> jsonField = jsonFields.next();
@@ -63,87 +52,55 @@ public class WidgetSuggestionHelper {
                         fields.add(jsonField.getKey());
                     }
                     if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
-                        numericField.add(jsonField.getKey());
+                        numericFields.add(jsonField.getKey());
                     }
                 }
 
                 if(JsonNodeType.STRING.equals(nodeType)) {
                     if (length > 1 && !fields.isEmpty()) {
-                        //widgetTypeList.add();
-                        widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
+                        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
                     }
                     else {
-                        widgetTypeList.add(getTextWidget());
-                        widgetTypeList.add(getInputWidget());
+                        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                        widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
                     }
                 }
 
                 if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
                     if(!fields.isEmpty()) {
                         if(fields.size() < 2) {
-                            widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(0)));
+                            widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
                         } else {
-                            widgetTypeList.add(getSelectWidget(fields.get(0), fields.get(1)));
+                            widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
                         }
-                        if(!numericField.isEmpty()) {
-                            widgetTypeList.add(getChartWidget(fields.get(0), numericField.get(0)));
+                        if(!numericFields.isEmpty()) {
+                            widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET,fields.get(0), numericFields.get(0)));
                         }
                     }
-                    widgetTypeList.add(getTableWidget());
-                    widgetTypeList.add(getListWidget());
-                    widgetTypeList.add(getTextWidget());
+                    widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+                    widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+                    widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                 }
 
                 if(JsonNodeType.NUMBER.equals(nodeType)) {
-                    widgetTypeList.add(getInputWidget());
-                    widgetTypeList.add(getTextWidget());
+                    widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                    widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
                 }
             }
         } else {
             if(data != null ) {
-                widgetTypeList.add(getTextWidget());
+                widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
             }
         }
         return widgetTypeList;
     }
 
-    private static WidgetSuggestionDTO getChartWidget(String field1, String field2) {
+    private static WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.CHART_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(String.format(chartWidgetQuery, field1, field2));
-        return widgetSuggestionDTO;    }
-
-    private static WidgetSuggestionDTO getTableWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.TABLE_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(tableWidgetQuery);
-        return widgetSuggestionDTO;    }
-
-    private static WidgetSuggestionDTO getListWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.LIST_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(listWidgetQuery);
-        return widgetSuggestionDTO;
+        widgetSuggestionDTO.setType(widgetType);
+        widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(),args));
+        return  widgetSuggestionDTO;
     }
 
-    private static WidgetSuggestionDTO getSelectWidget(String field1, String field2) {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.DROP_DOWN_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(String.format(selectWidgetQuery, field1, field2));
-        return widgetSuggestionDTO;
-    }
 
-    private static WidgetSuggestionDTO getTextWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.TEXT_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(textWidgetQuery);
-        return widgetSuggestionDTO;
-    }
-
-    private static WidgetSuggestionDTO getInputWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.INPUT_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(inputWidgetQuery);
-        return widgetSuggestionDTO;
-    }
 }
