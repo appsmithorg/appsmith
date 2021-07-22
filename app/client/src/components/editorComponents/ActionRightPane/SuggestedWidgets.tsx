@@ -70,18 +70,22 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
   },
   [WidgetTypes.DROP_DOWN_WIDGET]: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/Dropdown.svg",
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/dropdown.svg",
   },
   [WidgetTypes.TEXT_WIDGET]: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
   },
   [WidgetTypes.INPUT_WIDGET]: {
     label: "text",
@@ -174,7 +178,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
               key={widgetType}
               onClick={() => addWidget(widgetType, widgetInfo)}
             >
-              <div>{widgetInfo.widgetName} Widget</div>
               <Tooltip content="Add to canvas">
                 <div className="image-wrapper">
                   {widgetInfo.image && <img src={widgetInfo.image} />}
