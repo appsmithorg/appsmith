@@ -131,7 +131,8 @@ export type EventName =
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
   | "SUGGESTED_WIDGET_CLICK"
-  | "ASSOCIATED_ENTITY_CLICK";
+  | "ASSOCIATED_ENTITY_CLICK"
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
