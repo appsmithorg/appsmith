@@ -355,17 +355,17 @@ export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
 // js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} js collection copied to page ${pageName} successfully`;
+  `${actionName} copied to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
-  `Error while copying js collection ${actionName}`;
+  `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
-  `${actionName} js collection deleted successfully`;
+  `${actionName} deleted successfully`;
 export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} js collection created successfully`;
+  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} js collection moved to page ${pageName} successfully`;
+  `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
-  `Error while moving js collection ${actionName}`;
+  `Error while moving ${actionName}`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";

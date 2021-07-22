@@ -18,6 +18,7 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import ExplorerJSActionGroup from "../JSActions/JSActionGroup";
+import { JSAction } from "entities/JSAction";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -28,7 +29,7 @@ type ExplorerPageEntityProps = {
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: (pageId: string) => void;
-  jsActions: any[];
+  jsActions: Array<JSAction>;
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {

@@ -101,7 +101,7 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   );
 
   const handleJSFunctionNameChange = () => {
-    console.log("js function name change");
+    //To DO collection name change;
   };
 
   const isInvalidJSActionName = useCallback(

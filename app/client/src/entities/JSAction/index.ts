@@ -1,12 +1,6 @@
 import { BaseAction } from "../Action";
 import { PluginType } from "entities/Action";
 
-export enum PaginationType {
-  NONE = "NONE",
-  PAGE_NO = "PAGE_NO",
-  URL = "URL",
-}
-
 export type variable = {
   name: string;
   value: any;

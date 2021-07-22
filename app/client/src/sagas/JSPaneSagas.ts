@@ -171,7 +171,7 @@ export default function* root() {
       handleJSActionCreatedSaga,
     ),
     debounce(
-      2000,
+      1000,
       ReduxActionTypes.UPDATE_JS_ACTION_INIT,
       handleUpdateJSAction,
     ),

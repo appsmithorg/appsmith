@@ -52,7 +52,7 @@ export interface DataTreeAction
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run?:
+  run:
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
@@ -63,7 +63,7 @@ export interface DataTreeAction
 }
 
 export interface DataTreeJSAction {
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   pluginType: PluginType;
   name: string;
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;

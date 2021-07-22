@@ -61,7 +61,7 @@ export default class DataTreeEvaluator {
   sortedDependencies: Array<string> = [];
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
-  evalTree: Readonly<DataTree> = {};
+  evalTree: DataTree = {};
   allKeys: Record<string, true> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
