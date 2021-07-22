@@ -32,3 +32,4 @@ phases:
 cache:
   paths:
     - '/root/.m2/**/*'  # Server dependencies.
+    - '/var/lib/docker'

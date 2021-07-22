@@ -25,7 +25,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.editColumn("customColumn1");
     cy.readTabledataPublish("1", "2").then(() => {
       cy.updateComputedValue(testdata.currentRowWithIdOutside);
-      cy.readTabledataPublish("1", "0").then((tabData) => {
+      cy.readTabledataPublish("1", "1").then((tabData) => {
         expect(tabData).to.be.equal("#lindsay.ferguson@reqres.in");
         cy.log("computed value of plain text " + tabData);
       });

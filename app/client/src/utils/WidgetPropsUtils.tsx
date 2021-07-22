@@ -29,6 +29,7 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
+  migrateTablePrimaryColumnsComputedValue,
 } from "utils/migrations/TableWidget";
 import { formWidgetButtonWidgetMigrations } from "utils/migrations/FormWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
@@ -794,10 +795,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
   if (currentDSL.version === 27) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
-    currentDSL.version = 27;
+    currentDSL.version = 28;
   }
-  if (currentDSL.version === 27) {
+  if (currentDSL.version === 28) {
     currentDSL = formWidgetButtonWidgetMigrations(currentDSL);
+    currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
