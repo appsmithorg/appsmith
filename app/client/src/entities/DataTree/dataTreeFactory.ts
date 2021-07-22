@@ -64,7 +64,7 @@ export interface DataTreeAction
 
 export interface DataTreeJSAction {
   data: Record<string, unknown>;
-  pluginType: PluginType;
+  pluginType: PluginType.JS;
   name: string;
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   body: string;

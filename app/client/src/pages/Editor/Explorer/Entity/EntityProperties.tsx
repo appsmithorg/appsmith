@@ -11,7 +11,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getPropsForJSActionEntity } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
 import _ from "lodash";
 
 export const EntityProperties = memo(

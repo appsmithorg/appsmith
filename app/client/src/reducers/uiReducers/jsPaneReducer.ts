@@ -8,7 +8,6 @@ import { JSAction } from "entities/JSAction";
 export interface JsPaneReduxState {
   isCreating: boolean; // RR
   isFetching: boolean; // RR
-  isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
@@ -18,7 +17,6 @@ export interface JsPaneReduxState {
 const initialState: JsPaneReduxState = {
   isCreating: false,
   isFetching: false,
-  isRunning: {},
   isSaving: {},
   isDeleting: {},
   isDirty: {},

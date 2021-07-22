@@ -171,7 +171,6 @@ export default class DataTreeEvaluator {
     );
 
     const calculateSortOrderStop = performance.now();
-    this.resolveJSActions(translatedDiffs, localUnEvalTree);
 
     // Evaluate
     const evalStart = performance.now();
@@ -182,13 +181,12 @@ export default class DataTreeEvaluator {
       // So that the actual uneval value can be evaluated
       if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(localUnEvalTree, propertyPath);
-        if (!_.isFunction(_.get(this.evalTree, propertyPath))) {
-          _.set(this.evalTree, propertyPath, unEvalPropValue);
-        }
+        _.set(this.evalTree, propertyPath, unEvalPropValue);
         return true;
       }
       return false;
     });
+    this.resolveJSActions(translatedDiffs, localUnEvalTree);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,

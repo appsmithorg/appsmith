@@ -339,3 +339,27 @@ export const GLOBAL_FUNCTIONS = {
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
 };
+
+export const getPropsForJSActionEntity = (entity: any): any => {
+  const result: any = {};
+  const metaObj = entity.meta;
+  for (const key in metaObj) {
+    if (metaObj.hasOwnProperty(key)) {
+      result[key] =
+        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+    }
+  }
+  const dataObj = entity.data;
+  for (const key in dataObj) {
+    if (dataObj.hasOwnProperty(key)) {
+      result["data." + key] = dataObj[key];
+    }
+  }
+  const variables = entity.variables;
+  if (variables.length > 0) {
+    for (let i = 0; i < variables.length; i++) {
+      result[variables[i]] = entity[variables[i]];
+    }
+  }
+  return result;
+};

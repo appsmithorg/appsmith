@@ -13,6 +13,7 @@ import {
   isJSAction,
 } from "workers/evaluationUtils";
 import forge from "node-forge";
+import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type DependencyMap = Record<string, Array<string>>;
 
@@ -69,7 +70,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: any,
+  entity?: DataTreeEntity,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {

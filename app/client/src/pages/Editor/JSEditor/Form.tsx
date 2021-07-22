@@ -127,8 +127,8 @@ function JSEditorForm() {
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "CONSOLE",
-      title: "Console",
+      key: "LOGS",
+      title: "Logs",
       panelComponent: <DebuggerLogs searchQuery={""} />,
     },
   ];
@@ -165,7 +165,7 @@ function JSEditorForm() {
       <CloseEditor />
       <Form>
         <FormRow className="form-row-header">
-          <NameWrapper className="t--nameOfApi">
+          <NameWrapper className="t--nameOfJSCollection">
             <JSActionNameEditor page="JS_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
