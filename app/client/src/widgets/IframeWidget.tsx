@@ -6,7 +6,7 @@ import IframeComponent from "components/designSystems/blueprint/IframeComponent"
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-
+const URLREGEX = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -128,6 +128,8 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       title,
       widgetId,
     } = this.props;
+    let _source = "";
+    if (source.startsWith("http") && URLREGEX.test(source)) _source = source;
     return (
       <IframeComponent
         borderColor={borderColor}
@@ -135,7 +137,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderWidth={borderWidth}
         onMessageReceived={this.messageReceivedHandler}
         onURLChanged={this.urlChangedHandler}
-        source={source}
+        source={_source}
         title={title}
         widgetId={widgetId}
       />
