@@ -103,7 +103,7 @@ const TabContainerView = styled.div`
   position: relative;
 `;
 interface JSFormProps {
-  jsAction: JSAction | undefined;
+  jsAction: JSAction;
   settingsConfig: any;
 }
 
@@ -145,13 +145,13 @@ function JSEditorForm() {
 
     setSelectedIndex(index);
   };
-  const params = useParams<{ functionId: string }>();
+  const params = useParams<{ collectionId: string }>();
 
   const jsActions: JSAction[] = useSelector((state: AppState) =>
     state.entities.jsActions.map((js) => js.config),
   );
   const currentJSAction: JSAction | undefined = jsActions.find(
-    (js) => js.id === params.functionId,
+    (js) => js.id === params.collectionId,
   );
   const handleOnChange = (event: string) => {
     if (currentJSAction) {
@@ -197,6 +197,7 @@ function JSEditorForm() {
                   panelComponent: (
                     <CodeEditor
                       className={"js-editor"}
+                      height={"400px"}
                       input={{
                         value: currentJSAction?.body,
                         onChange: (event: any) => handleOnChange(event),

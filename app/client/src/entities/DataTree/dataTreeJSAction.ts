@@ -51,5 +51,5 @@ export const generateDataTreeJSAction = (
     variables: listVariables,
   };
 
-  return { ...result, ...subActionsObject };
+  return Object.assign(result, subActionsObject);
 };

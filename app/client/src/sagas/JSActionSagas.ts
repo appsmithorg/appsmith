@@ -25,7 +25,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { JS_FUNCTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
+import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSActionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -136,7 +136,9 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSAction = yield select(getJSAction, id);
   const applicationId = yield select(getCurrentApplicationId);
-  history.push(JS_FUNCTION_ID_URL(applicationId, jsAction.pageId, jsAction.id));
+  history.push(
+    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
+  );
 }
 
 function* moveJSActionSaga(
@@ -230,7 +232,7 @@ export function* deleteJSActionSaga(
         if (getIndex) {
           const jsAction = jsActions[getIndex];
           history.push(
-            JS_FUNCTION_ID_URL(applicationId, pageId, jsAction.config.id),
+            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           );
         } else {
           history.push(BUILDER_PAGE_URL(applicationId, pageId));

@@ -2,7 +2,7 @@ import React, { ReactNode, memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { JS_FUNCTION_ID_URL } from "constants/routes";
+import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
@@ -26,7 +26,7 @@ export const ExplorerJSActionEntity = memo(
     const params = useParams<ExplorerURLParams>();
     const navigateToJSAction = useCallback(() => {
       history.push(
-        JS_FUNCTION_ID_URL(
+        JS_COLLECTION_ID_URL(
           params.applicationId,
           props.pageId,
           props.action.config.id,

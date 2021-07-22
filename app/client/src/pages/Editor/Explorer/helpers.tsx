@@ -4,7 +4,7 @@ import {
   API_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  JS_FUNCTION_ID_URL,
+  JS_COLLECTION_ID_URL,
 } from "constants/routes";
 import {
   SAAS_EDITOR_API_ID_URL,
@@ -52,14 +52,14 @@ export const getActionIdFromURL = () => {
 };
 
 export const getJSActionIdFromURL = () => {
-  const functionMatch = matchPath<{ functionId: string }>(
+  const functionMatch = matchPath<{ collectionId: string }>(
     window.location.pathname,
     {
-      path: JS_FUNCTION_ID_URL(),
+      path: JS_COLLECTION_ID_URL(),
     },
   );
-  if (functionMatch?.params?.functionId) {
-    return functionMatch?.params?.functionId;
+  if (functionMatch?.params?.collectionId) {
+    return functionMatch?.params?.collectionId;
   }
 };
 

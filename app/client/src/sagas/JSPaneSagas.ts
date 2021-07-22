@@ -20,7 +20,7 @@ import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { JSAction } from "entities/JSAction";
 import { createJSActionRequest } from "actions/jsActionActions";
-import { JS_FUNCTION_ID_URL } from "constants/routes";
+import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { parseJSAction } from "./EvaluationsSaga";
 import { getJSActionIdFromURL } from "../pages/Editor/Explorer/helpers";
@@ -74,7 +74,7 @@ function* handleJSActionCreatedSaga(actionPayload: ReduxAction<JSAction>) {
   const { id } = actionPayload.payload;
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
-  history.push(JS_FUNCTION_ID_URL(applicationId, pageId, id, {}));
+  history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
 function* handleParseUpdateJSAction(actionPayload: { body: string }) {

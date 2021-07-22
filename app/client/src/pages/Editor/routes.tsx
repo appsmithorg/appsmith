@@ -24,8 +24,8 @@ import {
   getCurlImportPageURL,
   INTEGRATION_EDITOR_URL,
   getProviderTemplatesURL,
-  JS_FUNCTION_EDITOR_URL,
-  JS_FUNCTION_ID_URL,
+  JS_COLLECTION_EDITOR_URL,
+  JS_COLLECTION_ID_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -150,12 +150,12 @@ class EditorsRouter extends React.Component<
             <SentryRoute
               component={JSEditor}
               exact
-              path={JS_FUNCTION_EDITOR_URL()}
+              path={JS_COLLECTION_EDITOR_URL()}
             />
             <SentryRoute
               component={JSEditor}
               exact
-              path={JS_FUNCTION_ID_URL()}
+              path={JS_COLLECTION_ID_URL()}
             />
 
             <SentryRoute

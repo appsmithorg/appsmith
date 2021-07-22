@@ -58,9 +58,9 @@ export const getIsPageSaving = (state: AppState) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
   });
 
-  Object.keys(savingJSCollections).forEach((functionId) => {
+  Object.keys(savingJSCollections).forEach((collectionId) => {
     areJsCollectionsSaving =
-      savingJSCollections[functionId] || areJsCollectionsSaving;
+      savingJSCollections[collectionId] || areJsCollectionsSaving;
   });
 
   return (
@@ -284,7 +284,7 @@ const createLoadingWidget = (
 };
 
 export const getJSActionById = createSelector(
-  [getJSActions, (state: any, props: any) => props.match.params.functionId],
+  [getJSActions, (state: any, props: any) => props.match.params.collectionId],
   (jsActions, id) => {
     const action = jsActions.find((action) => action.config.id === id);
     if (action) {

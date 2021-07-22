@@ -50,11 +50,11 @@ type ActionNameEditorProps = {
 };
 
 export function JSActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ functionId?: string; queryId?: string }>();
+  const params = useParams<{ collectionId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
-  if (!params.functionId) {
+  if (!params.collectionId) {
     log.error("No API id or Query id found in the url.");
   }
 
@@ -68,7 +68,7 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   );
 
   const currentJSActionConfig: JSAction | undefined = jsActions.find(
-    (action) => action.id === params.functionId,
+    (action) => action.id === params.collectionId,
   );
 
   const existingWidgetNames: string[] = useSelector((state: AppState) =>
