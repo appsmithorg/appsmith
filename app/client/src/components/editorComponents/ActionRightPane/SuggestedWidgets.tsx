@@ -64,7 +64,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "tableData",
     widgetName: "Table",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table+1.svg",
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table.svg",
   },
   [WidgetTypes.CHART_WIDGET]: {
     label: "chart-series-data-control",
