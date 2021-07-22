@@ -31,7 +31,7 @@ if [[ "$ssl_enable" == "true" ]]; then
             backend:
               serviceName: appsmith-backend-service
               servicePort: 8080
-          - path: /oauth
+          - path: /oauth2
             pathType: Prefix
             backend:
               serviceName: appsmith-backend-service
@@ -74,7 +74,7 @@ else
             backend:
               serviceName: appsmith-backend-service
               servicePort: 8080
-          - path: /oauth
+          - path: /oauth2
             pathType: Prefix
             backend:
               serviceName: appsmith-backend-service

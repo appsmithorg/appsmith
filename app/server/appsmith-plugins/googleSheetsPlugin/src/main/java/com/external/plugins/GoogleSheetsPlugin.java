@@ -183,5 +183,13 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // This plugin would not have the option to test
             return Mono.just(new DatasourceTestResult());
         }
+
+        @Override
+        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
+                                                                 DatasourceConfiguration datasourceConfiguration) {
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return execute(null, datasourceConfiguration, actionConfiguration);
+        }
     }
 }

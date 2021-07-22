@@ -14,4 +14,5 @@ export interface CommentsReduxState {
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
   areCommentsEnabled?: boolean;
+  unsubscribed: boolean;
 }

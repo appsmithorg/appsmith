@@ -19,10 +19,13 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.constants.ResponseDataType;
 import com.external.helpers.BufferingFilter;
 import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +87,12 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+        private final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
+        private final Set binaryDataTypes = Set.of("application/zip",
+                "application/octet-stream",
+                "application/pdf",
+                "application/pkcs8",
+                "application/x-binary");
 
         private final SharedConfig sharedConfig;
         private final DataUtils dataUtils;
@@ -198,6 +207,9 @@ public class RestApiPlugin extends BasePlugin {
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
             errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
+
+            // Set of hint messages that can be returned to the user.
+            Set<String> hintMessages = new HashSet();
 
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -348,6 +360,9 @@ public class RestApiPlugin extends BasePlugin {
                         }
 
                         if (body != null) {
+
+                            ResponseDataType responseDataType = ResponseDataType.UNDEFINED;
+
                             /**TODO
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
@@ -355,25 +370,48 @@ public class RestApiPlugin extends BasePlugin {
                             if (MediaType.APPLICATION_JSON.equals(contentType) ||
                                     MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
                                 try {
-                                    String jsonBody = new String(body);
+                                    String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
+                                    responseDataType = ResponseDataType.JSON;
                                 } catch (IOException e) {
                                     System.out.println("Unable to parse response JSON. Setting response body as string.");
-                                    String bodyString = new String(body);
+                                    String bodyString = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(bodyString.trim());
+
+                                    // Warn user that the API response is not a valid JSON.
+                                    hintMessages.add("The response returned by this API is not a valid JSON. Please " +
+                                            "be careful when using the API response anywhere a valid JSON is required" +
+                                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                                            "Header to indicate a non-JSON response or by modifying the API response " +
+                                            "to return a valid JSON.");
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
                                     MediaType.IMAGE_PNG.equals(contentType)) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
+                                responseDataType = ResponseDataType.IMAGE;
+                            } else if (binaryDataTypes.contains(contentType.toString())) {
+                                String encode = Base64.encode(body);
+                                result.setBody(encode);
+                                responseDataType = ResponseDataType.BINARY;
                             } else {
                                 // If the body is not of JSON type, just set it as is.
-                                String bodyString = new String(body);
+                                String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
+                                responseDataType = ResponseDataType.TEXT;
                             }
+
+                            // Now add a new header which specifies the data type of the response as per Appsmith
+                            JsonNode headersJsonNode = result.getHeaders();
+                            ObjectNode headersObjectNode = (ObjectNode) headersJsonNode;
+                            headersObjectNode.putArray(RESPONSE_DATA_TYPE)
+                                    .add(String.valueOf(responseDataType));
+                            result.setHeaders(headersObjectNode);
+
                         }
 
+                        result.setMessages(hintMessages);
                         return result;
                     })
                     .onErrorResume(error -> {

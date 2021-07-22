@@ -350,6 +350,8 @@ export type Theme = {
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
+  navbarMenuHeight: string;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -607,6 +609,14 @@ type ColorType = {
       color: string;
       bg: string;
     };
+  };
+  navigationMenu: {
+    contentActive: string;
+    backgroundActive: string;
+    contentInactive: string;
+    backgroundInactive: string;
+    label: string;
+    warning: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -1019,6 +1029,11 @@ type ColorType = {
     ctaTextColor: string;
     ctaBackgroundColor: string;
     ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -1065,6 +1080,10 @@ type ColorType = {
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
   notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
 };
 
 const notifications = {
@@ -1220,6 +1239,15 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const navigationMenu = {
+  contentActive: "#F0F0F0",
+  backgroundActive: "#222222",
+  contentInactive: "#858282",
+  backgroundInactive: "#090707",
+  label: "#A9A7A7",
+  warning: "#F22B2B",
+};
+
 export const dark: ColorType = {
   overlayColor: "#090707cc",
   notifications,
@@ -1231,6 +1259,7 @@ export const dark: ColorType = {
   helpModal,
   globalSearch,
   comments,
+  navigationMenu,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1637,6 +1666,11 @@ export const dark: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -1675,6 +1709,10 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
 };
 
 export const light: ColorType = {
@@ -1695,6 +1733,7 @@ export const light: ColorType = {
     modeIconCircleStroke: "#fff",
     activeModeIconCircleStroke: "#EBEBEB",
   },
+  navigationMenu,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2102,6 +2141,11 @@ export const light: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -2139,6 +2183,10 @@ export const light: ColorType = {
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
+  },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
   },
 };
 
@@ -2393,6 +2441,7 @@ export const theme: Theme = {
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2447,6 +2496,7 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

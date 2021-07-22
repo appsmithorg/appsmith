@@ -111,6 +111,7 @@ export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
+export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {
   "Content-Type": "application/json",
 };

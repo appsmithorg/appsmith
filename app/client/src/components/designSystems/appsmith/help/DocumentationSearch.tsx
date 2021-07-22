@@ -25,12 +25,7 @@ import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 
-const {
-  algolia,
-  appVersion,
-  cloudHosting,
-  intercomAppID,
-} = getAppsmithConfigs();
+const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -116,7 +111,7 @@ function DefaultHelpMenuItem(props: {
         onClick={() => {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
-            if (cloudHosting && intercomAppID && window.Intercom) {
+            if (intercomAppID && window.Intercom) {
               window.Intercom("show");
             }
           }
@@ -332,23 +327,18 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
-    label: "Chat with us",
-    link: "https://github.com/appsmithorg/appsmith/discussions",
-  },
-  {
     icon: <StyledDiscordIcon height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
 ];
 
-if (cloudHosting) {
-  HELP_MENU_ITEMS[2] = {
+if (intercomAppID) {
+  HELP_MENU_ITEMS.push({
     icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
-  };
+  });
 }
 
 class DocumentationSearch extends React.Component<Props, State> {
@@ -360,7 +350,7 @@ class DocumentationSearch extends React.Component<Props, State> {
   }
   componentDidMount() {
     const { user } = this.props;
-    if (cloudHosting && intercomAppID && window.Intercom) {
+    if (intercomAppID && window.Intercom) {
       window.Intercom("boot", {
         app_id: intercomAppID,
         user_id: user?.username,
