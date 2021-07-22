@@ -2,7 +2,7 @@ import React from "react";
 import { Collapsible } from ".";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
-import LongArrowSVG from "assets/images/long-arrow.svg";
+import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import Tooltip from "components/ads/Tooltip";
 import { useEntityLink } from "../Debugger/hooks";
 import Text, { TextType } from "components/ads/Text";
@@ -12,6 +12,7 @@ import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import { useCallback } from "react";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -92,6 +93,13 @@ function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
   const getEntityType = useGetEntityType();
 
+  const onClick = (entityName: string) => {
+    navigateToEntity(entityName);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      screen: "INTEGRATION",
+    });
+  };
+
   return props.dependencies.length ? (
     <ConnectionsContainer>
       {props.dependencies.map((entityName: string) => {
@@ -105,10 +113,7 @@ function Dependencies(props: any) {
             key={entityName}
           >
             <ConnectionWrapper>
-              <span
-                className="connection"
-                onClick={() => navigateToEntity(entityName)}
-              >
+              <span className="connection" onClick={() => onClick(entityName)}>
                 {entityName}
               </span>
             </ConnectionWrapper>

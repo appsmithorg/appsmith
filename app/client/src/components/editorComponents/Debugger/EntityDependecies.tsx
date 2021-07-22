@@ -1,53 +1,103 @@
 /* eslint-disable prefer-const */
-import { Collapse } from "@blueprintjs/core";
-import React, { memo, ReactNode, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
-import { SourceEntity } from "entities/AppsmithConsole";
+import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useEntityLink, useSelectedEntity } from "./hooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { isAction, isWidget } from "workers/evaluationUtils";
+import Tooltip from "components/ads/Tooltip";
+import Text, { TextType } from "components/ads/Text";
 
-const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
-  margin-left: ${(props) => props.step * 10}px;
-  padding-top: ${(props) => props.theme.spaces[3]}px;
+const ConnectionType = styled.span`
+  span:nth-child(2) {
+    padding-left: ${(props) => props.theme.spaces[2] - 1}px;
+  }
+  padding-bottom: ${(props) => props.theme.spaces[2]}px;
+`;
 
-  .label-wrapper {
+const ConnectionWrapper = styled.div`
+  margin: ${(props) => props.theme.spaces[1]}px
+    ${(props) => props.theme.spaces[0] + 2}px;
+`;
+
+const ConnectionsContainer = styled.span`
+  background-color: ${(props) =>
+    props.theme.colors.actionSidePane.noConnections};
+  display: flex;
+  flex-wrap: wrap;
+  padding: ${(props) => props.theme.spaces[2] + 1.5}px
+    ${(props) => props.theme.spaces[2] + 1}px;
+  .connection {
+    border: 1px solid
+      ${(props) => props.theme.colors.actionSidePane.connectionBorder};
+    padding: ${(props) => props.theme.spaces[0] + 2}px
+      ${(props) => props.theme.spaces[1]}px;
+    ${(props) => getTypographyByKey(props, "p3")}
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+
+    :hover {
+      border: 1px solid
+        ${(props) => props.theme.colors.actionSidePane.connectionHover};
+      color: ${(props) => props.theme.colors.actionSidePane.connectionHover};
+    }
+  }
+`;
+
+const NoConnections = styled.div`
+  background-color: ${(props) =>
+    props.theme.colors.actionSidePane.noConnections};
+  padding: ${(props) => props.theme.spaces[4] + 1}px
+    ${(props) => props.theme.spaces[3]}px;
+
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.actionSidePane.noConnectionsText};
+  }
+`;
+
+const ConnectionFlow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 24px;
+
+  svg {
+    margin: 0px 4px;
+  }
+
+  span {
+    margin: 0px 4px;
+  }
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 100px;
+  .icon-text {
     display: flex;
-    flex-direction: row;
-    font-weight: ${(props) => props.theme.fontWeights[2]};
+    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
-    span {
-      margin-left: ${(props) => props.theme.spaces[3] - 1}px;
+    .connection-type {
+      ${(props) => getTypographyByKey(props, "p1")}
     }
   }
 
-  .${Classes.ICON} {
-    ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
+  .icon-text:nth-child(2) {
+    padding-top: ${(props) => props.theme.spaces[7]}px;
   }
-`;
-
-const DependenciesWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[7]}px
-    ${(props) => props.theme.spaces[13] + 1}px;
-  color: ${(props) => props.theme.colors.debugger.inspectElement.color};
-
-  .no-dependencies {
-    margin-left: ${(props) => props.theme.spaces[4]}px;
-  }
-`;
-
-const StyledSpan = styled.div<{ step: number }>`
-  padding-top: ${(props) => props.theme.spaces[3]}px;
-  padding-left: ${(props) => props.theme.spaces[6] + 1}px;
-  margin-left: ${(props) => props.theme.spaces[4]}px;
-  border-left: solid 1px rgba(147, 144, 144, 0.7);
-  text-decoration-line: underline;
-  cursor: pointer;
 `;
 
 const BlankStateContainer = styled.div`
@@ -64,41 +114,31 @@ const BlankStateContainer = styled.div`
   }
 `;
 
-function EntityDeps() {
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const selectedEntity = useSelectedEntity();
+const ConnectionContainer = styled.div`
+  width: 100%;
+`;
 
-  const entityDependencies: {
-    directDependencies: string[];
+type ConnectionsProps = {
+  entityName: string;
+  entityDependencies: {
     inverseDependencies: string[];
-  } | null = useMemo(
-    () =>
-      getDependenciesFromInverseDependencies(
-        deps.inverseDependencyMap,
-        selectedEntity ? selectedEntity.name : null,
-      ),
-    [selectedEntity, deps.inverseDependencyMap],
-  );
+    directDependencies: string[];
+  } | null;
+};
 
-  if (!selectedEntity || !entityDependencies) return <BlankState />;
+const useGetEntityType = () => {
+  const dataTree = useSelector(getDataTree);
 
-  return (
-    <div>
-      <MemoizedDependencyHierarchy
-        dependencies={entityDependencies.directDependencies}
-        entityName={`Dependencies of ${selectedEntity.name}`}
-        selectedEntity={selectedEntity}
-        type="dependencies"
-      />
-      <MemoizedDependencyHierarchy
-        dependencies={entityDependencies.inverseDependencies}
-        entityName={`References of ${selectedEntity.name}`}
-        selectedEntity={selectedEntity}
-        type="references"
-      />
-    </div>
-  );
-}
+  const getEntityType = useCallback((name) => {
+    if (isWidget(dataTree[name])) {
+      return "widget";
+    } else if (isAction(dataTree[name])) {
+      return "integration";
+    }
+  }, []);
+
+  return getEntityType;
+};
 
 function BlankState() {
   return (
@@ -109,68 +149,98 @@ function BlankState() {
   );
 }
 
-function DependencyHierarchy(props: {
-  dependencies: string[];
-  entityName: string;
-  selectedEntity: SourceEntity;
-  type: string;
-}) {
+function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
-  const label = props.dependencies.length
-    ? props.entityName
-    : `No ${props.type} exist for ${props.selectedEntity.name}`;
+  const getEntityType = useGetEntityType();
 
-  return (
-    <DependenciesWrapper>
-      {props.dependencies.length ? (
-        <Collapsible label={label} step={0}>
-          {props.dependencies.map((item) => {
-            return (
-              <StyledSpan
-                className={`t--${props.type}-item`}
-                key={`${props.selectedEntity.id}-${item}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateToEntity(item);
-                }}
-                step={2}
-              >
-                {item}
-              </StyledSpan>
-            );
-          })}
-        </Collapsible>
-      ) : (
-        <span className="no-dependencies">{label}</span>
-      )}
-    </DependenciesWrapper>
-  );
-}
-const MemoizedDependencyHierarchy = memo(DependencyHierarchy);
+  const onClick = (entityName: string) => {
+    navigateToEntity(entityName);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      screen: "INTEGRATION",
+    });
+  };
 
-function Collapsible(props: {
-  label: string;
-  step: number;
-  children: ReactNode;
-}) {
-  const [isOpen, setIsOpen] = useState(true);
+  return props.dependencies.length ? (
+    <ConnectionsContainer>
+      {props.dependencies.map((entityName: string) => {
+        const entityType = getEntityType(entityName);
 
-  return (
-    <CollapsibleWrapper
-      isOpen={isOpen}
-      onClick={(e) => {
-        e.stopPropagation();
-        setIsOpen(!isOpen);
-      }}
-      step={props.step}
-    >
-      <div className="label-wrapper">
-        <Icon name={"downArrow"} size={IconSize.XXS} />
-        <span>{props.label}</span>
-      </div>
-      <Collapse isOpen={isOpen}>{props.children}</Collapse>
-    </CollapsibleWrapper>
+        return (
+          <Tooltip
+            content={`Open ${entityType}`}
+            disabled={!entityType}
+            hoverOpenDelay={1000}
+            key={entityName}
+          >
+            <ConnectionWrapper>
+              <span className="connection" onClick={() => onClick(entityName)}>
+                {entityName}
+              </span>
+            </ConnectionWrapper>
+          </Tooltip>
+        );
+      })}
+    </ConnectionsContainer>
+  ) : (
+    <NoConnections>
+      <Text type={TextType.P1}>{props.placeholder}</Text>
+    </NoConnections>
   );
 }
 
-export default EntityDeps;
+function EntityDeps(props: ConnectionsProps) {
+  return (
+    <Wrapper>
+      <ConnectionContainer>
+        <ConnectionType className="icon-text">
+          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+          <span className="connection-type">Incoming entities</span>
+        </ConnectionType>
+        <Dependencies
+          dependencies={props.entityDependencies?.directDependencies ?? []}
+          placeholder="No incoming entities"
+        />
+      </ConnectionContainer>
+      <ConnectionFlow>
+        <LongArrowSVG />
+        <span>{props.entityName}</span>
+        <LongArrowSVG />
+      </ConnectionFlow>
+      <ConnectionContainer>
+        <ConnectionType className="icon-text">
+          <span className="connection-type">Outgoing entities</span>
+          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+        </ConnectionType>
+        {/* Inverse dependencies */}
+        <Dependencies
+          dependencies={props.entityDependencies?.inverseDependencies ?? []}
+          placeholder="No outgoing entities"
+        />
+      </ConnectionContainer>
+    </Wrapper>
+  );
+}
+
+function InspectEntity() {
+  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const selectedEntity = useSelectedEntity();
+  const entityDependencies = useMemo(
+    () =>
+      getDependenciesFromInverseDependencies(
+        deps.inverseDependencyMap,
+        selectedEntity?.name ?? "",
+      ),
+    [selectedEntity?.name, deps.inverseDependencyMap],
+  );
+
+  if (!selectedEntity || !entityDependencies) return <BlankState />;
+
+  return (
+    <EntityDeps
+      entityDependencies={entityDependencies}
+      entityName={selectedEntity?.name ?? ""}
+    />
+  );
+}
+
+export default InspectEntity;

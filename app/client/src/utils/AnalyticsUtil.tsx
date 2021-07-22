@@ -131,7 +131,9 @@ export type EventName =
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
   | "SELECT_IN_CANVAS_CLICK"
-  | "WIDGET_SELECTED_VIA_SNIPING_MODE";
+  | "WIDGET_SELECTED_VIA_SNIPING_MODE"
+  | "SUGGESTED_WIDGET_CLICK"
+  | "ASSOCIATED_ENTITY_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

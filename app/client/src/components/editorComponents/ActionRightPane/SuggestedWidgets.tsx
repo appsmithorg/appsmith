@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
 import Tooltip from "components/ads/Tooltip";
 import { addSuggestedWidget } from "actions/widgetActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -63,24 +64,28 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "tableData",
     widgetName: "Table",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table+1.svg",
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table.svg",
   },
   [WidgetTypes.CHART_WIDGET]: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
   },
   [WidgetTypes.DROP_DOWN_WIDGET]: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/Dropdown.svg",
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/dropdown.svg",
   },
   [WidgetTypes.TEXT_WIDGET]: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
   },
   [WidgetTypes.INPUT_WIDGET]: {
     label: "text",
@@ -136,6 +141,7 @@ function getWidgetProps(
 type SuggestedWidgetProps = {
   actionName: string;
   suggestedWidgets: WidgetType[];
+  hasWidgets: boolean;
 };
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
@@ -144,11 +150,17 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   const addWidget = (widgetType: WidgetType, widgetInfo: WidgetBindingInfo) => {
     const payload = getWidgetProps(widgetType, widgetInfo, props.actionName);
 
+    AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
+      widget: widgetType,
+    });
+
     dispatch(addSuggestedWidget(payload));
   };
 
+  const label = props.hasWidgets ? "Add New Widget" : "Suggested widgets";
+
   return (
-    <Collapsible label="Add New Widget">
+    <Collapsible label={label}>
       <div className="description">
         This will add a new widget to the canvas.
       </div>
@@ -165,7 +177,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
               key={widgetType}
               onClick={() => addWidget(widgetType, widgetInfo)}
             >
-              <div>{widgetInfo.widgetName} Widget</div>
               <Tooltip content="Add to canvas">
                 <div className="image-wrapper">
                   {widgetInfo.image && <img src={widgetInfo.image} />}
