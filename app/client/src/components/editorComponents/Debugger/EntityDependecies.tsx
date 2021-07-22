@@ -172,7 +172,7 @@ function Dependencies(props: any) {
             hoverOpenDelay={1000}
             key={entityName}
           >
-            <ConnectionWrapper>
+            <ConnectionWrapper className="t--dependencies-item">
               <span className="connection" onClick={() => onClick(entityName)}>
                 {entityName}
               </span>

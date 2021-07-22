@@ -149,7 +149,8 @@ const DocumentationLink = styled.a`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: calc(100% - ${(props) => props.theme.actionSidePane.width}px);
+  flex: 1;
+  overflow: hidden;
 `;
 
 const HelpSection = styled.div``;
@@ -341,11 +342,13 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: calc(100% - 50px);
+  width: 100%;
 `;
 
-const SidebarWrapper = styled.div`
-  width: ${(props) => props.theme.actionSidePane.width}px;
+const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  display: ${(props) => (props.show ? "flex" : "none")};
+  width: ${(props) => props.theme.actionSidePane.width}px;
 `;
 
 type QueryFormProps = {
@@ -761,7 +764,7 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper>
+          <SidebarWrapper show={!!output}>
             <ActionRightPane
               actionName={actionName}
               hasResponse={!!output}

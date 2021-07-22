@@ -124,7 +124,7 @@ function getWidgetProps(
               data: `{{${actionName}.data}}`,
             },
           },
-          dynamicBindingPathList: [{ key: `chart.${reactKey}.data` }],
+          dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
     default:
