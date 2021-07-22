@@ -154,10 +154,14 @@ function NewApiScreen(props: Props) {
   }, [plugins]);
 
   const handleCreateAuthApiDatasource = useCallback(() => {
-    authApiPlugin &&
+    if (authApiPlugin) {
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
+        pluginId: authApiPlugin.id,
+      });
       props.createDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
+    }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
   const handleCreateNew = () => {
