@@ -42,7 +42,6 @@ export const useCanvasDragToScroll = (
             (scrollByPixels < 0 && scrollParent.scrollTop > 0) ||
             scrollByPixels > 0
           ) {
-            console.count("scrollFn");
             scrollParent.scrollBy({
               top: scrollByPixels,
               behavior: "smooth",

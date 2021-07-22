@@ -22,6 +22,9 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { useShowPropertyPane } from "./dragResizeHooks";
+import { useWidgetSelection } from "./useWidgetSelection";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -47,6 +50,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
   const dragDetails = useSelector(getDragDetails);
   const defaultHandlePositions = {
@@ -197,6 +202,13 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams.widgetId,
         updateWidgetParams.payload,
       );
+    selectWidget(updateWidgetParams.payload.newWidgetId);
+    showPropertyPane(updateWidgetParams.payload.newWidgetId);
+    AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
+      widgetType: dragDetails.newWidget.type,
+      widgetName: dragDetails.newWidget.widgetCardName,
+      didDrop: true,
+    });
   };
   const updateRows = (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
     if (drawingBlocks.length) {
@@ -224,6 +236,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
   }, [snapRows, isDragging]);
 
   const isChildOfCanvas = dragParent === widgetId;
+  const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
+  const isNewWidgetInitialTargetCanvas =
+    isNewWidget && widgetId === MAIN_CONTAINER_WIDGET_ID;
   const parentDiff = isDragging
     ? {
         top:
@@ -255,11 +270,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
             2 * containerPadding,
         }
       : defaultHandlePositions;
-  const currentOccSpaces = occupiedSpaces[widgetId];
+  const currentOccSpaces = occupiedSpaces[widgetId] || [];
   const occSpaces: OccupiedSpace[] = isChildOfCanvas
     ? filteredChildOccupiedSpaces
     : currentOccSpaces;
-  const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
   return {
     blocksToDraw,
     defaultHandlePositions,
@@ -267,6 +281,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
+    isNewWidgetInitialTargetCanvas,
     isResizing,
     occSpaces,
     onDrop,

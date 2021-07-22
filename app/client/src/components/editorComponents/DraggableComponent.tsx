@@ -12,7 +12,6 @@ import {
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { useEffect } from "react";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -145,11 +144,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   );
   const className = `${classNameForTesting}`;
   const dispatch = useDispatch();
-  const mightBeDragging = useRef(false);
   const draggableRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    mightBeDragging.current = false;
-  }, [isResizing]);
 
   const onDragStart = (e: any) => {
     e.preventDefault();

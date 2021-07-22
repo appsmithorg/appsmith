@@ -3,7 +3,6 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
-require("@4tw/cypress-drag-drop");
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -2076,7 +2075,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.get(selector)
-    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })

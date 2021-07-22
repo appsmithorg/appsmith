@@ -37,6 +37,7 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
+    isNewWidgetInitialTargetCanvas,
     isResizing,
     occSpaces,
     onDrop,
@@ -52,6 +53,7 @@ export const useCanvasDragging = (
     snapRowSpace,
     widgetId,
   });
+
   const {
     setDraggingCanvas,
     setDraggingNewWidget,
@@ -118,6 +120,7 @@ export const useCanvasDragging = (
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
           resetCanvasState();
+
           if (isCurrentDraggedCanvas) {
             if (isNewWidget) {
               setDraggingNewWidget(false, undefined);
@@ -136,8 +139,10 @@ export const useCanvasDragging = (
             canvasRef.current
           ) {
             if (!isNewWidget) {
-              startPoints.left = relativeStartPoints.left;
-              startPoints.top = relativeStartPoints.top;
+              startPoints.left =
+                relativeStartPoints.left || defaultHandlePositions.left;
+              startPoints.top =
+                relativeStartPoints.top || defaultHandlePositions.top;
             }
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
@@ -241,40 +246,8 @@ export const useCanvasDragging = (
           }
         });
 
-        const debouncedFn = debounce(
-          () => {
-            console.count("debouncedFn");
-            if (scrollParent) {
-              const {
-                lastMouseMoveEvent,
-                lastScrollHeight,
-                lastScrollTop,
-              } = scrollObj;
-              const delta =
-                scrollParent?.scrollHeight +
-                scrollParent?.scrollTop -
-                (lastScrollHeight + lastScrollTop);
-              if (delta) {
-                scrollParent.scrollBy({ top: delta, behavior: "smooth" });
-              }
-              onMouseMove({
-                offsetX: lastMouseMoveEvent.offsetX,
-                offsetY: lastMouseMoveEvent.offsetY + delta,
-              });
-              canScroll.current = true;
-            }
-          },
-          50,
-          {
-            leading: false,
-            trailing: true,
-          },
-        );
-
         const endRenderRows = throttle(
           () => {
-            canScroll.current = false;
-            debouncedFn.cancel();
             canScroll.current = true;
           },
           50,
@@ -377,9 +350,6 @@ export const useCanvasDragging = (
               scrollParent?.scrollHeight +
               scrollParent?.scrollTop -
               (lastScrollHeight + lastScrollTop);
-            if (delta) {
-              console.count("onScroll");
-            }
             onMouseMove({
               offsetX: lastMouseMoveEvent.offsetX,
               offsetY: lastMouseMoveEvent.offsetY + delta,
@@ -420,12 +390,10 @@ export const useCanvasDragging = (
             canvasCtx.scale(scale, scale);
             updateCanvasStyles();
             initializeListeners();
-            if (canvasIsDragging) {
-              blocksToDraw.forEach((each) => {
-                drawBlockOnCanvas(each);
-              });
-            }
-            if (isChildOfCanvas && canvasRef.current) {
+            if (
+              (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
+              canvasRef.current
+            ) {
               canvasRef.current.style.zIndex = "2";
             }
           }

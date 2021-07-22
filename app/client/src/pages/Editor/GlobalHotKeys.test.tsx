@@ -23,7 +23,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 describe("Select all hotkey", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
-  Element.prototype.scrollIntoView = jest.fn();
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
