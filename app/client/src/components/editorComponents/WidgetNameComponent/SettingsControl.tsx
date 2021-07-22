@@ -150,8 +150,8 @@ export function SettingsControl(props: SettingsControlProps) {
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
+        {!isSnipingMode && settingsIcon}
       </SettingsWrapper>
-      {!isSnipingMode && settingsIcon}
     </StyledTooltip>
   );
 }
