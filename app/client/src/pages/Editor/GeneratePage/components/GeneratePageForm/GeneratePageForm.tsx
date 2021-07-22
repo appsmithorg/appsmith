@@ -2,19 +2,19 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import { getTypographyByKey } from "../../../../constants/DefaultTheme";
+import { getTypographyByKey } from "../../../../../constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
   getIsFetchingDatasourceStructure,
-} from "../../../../selectors/entitiesSelector";
+} from "../../../../../selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
-import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
+import { fetchDatasourceStructure } from "../../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "selectors/entitiesSelector";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "../../Explorer/helpers";
+import { ExplorerURLParams } from "../../../Explorer/helpers";
 import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
@@ -23,21 +23,20 @@ import {
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import DataSourceOption, {
-  CONNECT_NEW_DATASOURCE_OPTION_ID,
-} from "./DataSourceOption";
+import DataSourceOption from "../DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
-import GoogleSheetForm from "./GoogleSheetForm";
-import { GENERATE_PAGE_FORM_TITLE } from "../../../../constants/messages";
-import { GenerateCRUDEnabledPluginMap } from "../../../../api/PluginApi";
-import { getGenerateCRUDEnabledPluginMap } from "../../../../selectors/entitiesSelector";
+import GoogleSheetForm from "../GoogleSheetForm";
+import { GENERATE_PAGE_FORM_TITLE } from "../../../../../constants/messages";
+import { GenerateCRUDEnabledPluginMap } from "../../../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "../../../../../selectors/entitiesSelector";
+import { useDatasourceOptions } from "./hooks";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
   PLUGIN_PACKAGE_NAME,
-} from "./constants";
+} from "../constants";
 
 const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
@@ -50,17 +49,6 @@ const DEFAULT_DROPDOWN_OPTION = {
   value: "",
   onSelect: () => null,
   data: {},
-};
-
-const FAKE_DATASOURCE_OPTION = {
-  CONNECT_NEW_DATASOURCE_OPTION: {
-    id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-    label: "Connect New Datasource",
-    value: "Connect New Datasource",
-    data: {
-      pluginId: "",
-    },
-  },
 };
 
 const ALLOWED_SEARCH_DATATYPE = [
@@ -156,9 +144,6 @@ function GeneratePageForm() {
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
-    [],
-  );
   const [datasourceTableOptions, setSelectedDatasourceTableOptions] = useState<
     DropdownOptions
   >([]);
@@ -255,37 +240,10 @@ function GeneratePageForm() {
     [selectColumn],
   );
 
-  useEffect(() => {
-    // On mount of component and on change of datasources, Update the list.
-    const unSupportedDatasourceOptions: DropdownOptions = [];
-    const supportedDatasourceOptions: DropdownOptions = [];
-    let newDataSourceOptions: DropdownOptions = [];
-    newDataSourceOptions.push(
-      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
-    );
-    datasources.forEach(({ id, isValid, name, pluginId }) => {
-      const datasourceObject = {
-        id,
-        label: name,
-        value: name,
-        data: {
-          pluginId,
-          isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid,
-        },
-      };
-      if (generateCRUDSupportedPlugin[pluginId])
-        supportedDatasourceOptions.push(datasourceObject);
-      else {
-        unSupportedDatasourceOptions.push(datasourceObject);
-      }
-    });
-    newDataSourceOptions = newDataSourceOptions.concat(
-      supportedDatasourceOptions,
-      unSupportedDatasourceOptions,
-    );
-    setDataSourceOptions(newDataSourceOptions);
-  }, [datasources, setDataSourceOptions, generateCRUDSupportedPlugin]);
+  const dataSourceOptions = useDatasourceOptions({
+    datasources,
+    generateCRUDSupportedPlugin,
+  });
 
   useEffect(() => {
     if (
