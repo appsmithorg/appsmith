@@ -9,7 +9,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { addFunctions, AppsmithPromise } from "./Actions";
+import { addFunctions, AppsmithPromise, pusher } from "./Actions";
 
 export type EvalResult = {
   result: any;
@@ -44,13 +44,9 @@ const evaluationScripts: Record<
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
-    debugger;
-    return ${script}
+    const result = ${script};
   }
-  const result = closedFunction();
-  if(result instanceof Promise) {
-    self.triggers.push(result.action)
-  }
+  closedFunction();
   `,
 };
 
@@ -132,23 +128,17 @@ export default function evaluate(
       ///// Fixing action paths and capturing their execution response
       if (dataTreeWithFunctions.actionPaths) {
         GLOBAL_DATA.triggers = [];
-        const pusher = function(
-          this: DataTree,
-          action: any,
-          ...payload: any[]
-        ) {
-          const actionPayload = action(...payload);
-          if (actionPayload instanceof AppsmithPromise) {
-            GLOBAL_DATA.triggers.push(actionPayload.action);
-            return actionPayload;
-          }
-        };
         GLOBAL_DATA.actionPaths.forEach((path: string) => {
           const action = _.get(GLOBAL_DATA, path);
           if (action) {
-            _.set(GLOBAL_DATA, path, pusher.bind(data, action));
+            _.set(
+              GLOBAL_DATA,
+              path,
+              pusher.bind({ triggers: GLOBAL_DATA.triggers }, action),
+            );
           }
         });
+        GLOBAL_DATA.Promise = AppsmithPromise;
       }
     } else {
       ///// Adding Data tree
