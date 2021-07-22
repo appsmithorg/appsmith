@@ -86,6 +86,7 @@ const ApiCard = styled.div`
     width: 40px;
     height: 40px;
     border-radius: 20px;
+    padding: 6px 0;
     margin: 0 8px;
     background: #f0f0f0;
     display: flex;
@@ -96,7 +97,6 @@ const ApiCard = styled.div`
       width: auto;
       margin: 0 auto;
       max-width: 100%;
-      margin-bottom: 2px;
     }
   }
 
