@@ -120,7 +120,9 @@ public class ActionController {
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all actions with params : {}", params);
-        return newActionService.getUnpublishedActions(params).collectList()
+        // We handle JS actions as part of the collections request, so that all the contextual variables are also picked up
+        return newActionService.getUnpublishedActionsExceptJs(params)
+                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

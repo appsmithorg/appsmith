@@ -118,4 +118,12 @@ public class ActionDTO {
         }
         return datasource;
     }
+
+    public String getValidName() {
+        if (this.fullyQualifiedName == null) {
+            return this.name;
+        } else {
+            return this.fullyQualifiedName;
+        }
+    }
 }

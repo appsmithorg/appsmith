@@ -61,22 +61,18 @@ public class PageLoadActionsUtil {
                 .flatMap(unpublishedAction -> {
 
                     // If the user has explicitly set an action to not run on page load, this action should be ignored
-                    if (isUserSetNonPageLoad(unpublishedAction) || isAsyncJSFunction(unpublishedAction)) {
+                    if (isUserSetOnPageLoad(unpublishedAction) || isAsyncJSFunction(unpublishedAction)) {
                         return Mono.empty();
                     }
 
-                    String name = unpublishedAction.getFullyQualifiedName();
+                    String name = unpublishedAction.getValidName();
                     actionsUsedInDSL.add(name);
                     extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, unpublishedAction);
                     return Mono.just(unpublishedAction);
                 })
                 .collectMap(
-                        action -> {
-                            return action.getFullyQualifiedName();
-                        },
-                        action -> {
-                            return action;
-                        }
+                        ActionDTO::getValidName,
+                        action -> action
                 )
                 // Now add to the map, vertices, and edges the explicitly set user on load actions
                 .flatMap(onLoadActionsMap -> findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, actionNames, edges, dynamicBindingNames, onLoadActionsMap))
@@ -113,14 +109,14 @@ public class PageLoadActionsUtil {
 
     private boolean isAsyncJSFunction(ActionDTO unpublishedAction) {
         if (PluginType.JS.equals(unpublishedAction.getPluginType())
-                && !unpublishedAction.getActionConfiguration().isSyncJsFunction()) {
+                && Boolean.TRUE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
             return true;
         }
 
         return false;
     }
 
-    private boolean isUserSetNonPageLoad(ActionDTO unpublishedAction) {
+    private boolean isUserSetOnPageLoad(ActionDTO unpublishedAction) {
         if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad())
                 && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
             return true;
@@ -134,7 +130,6 @@ public class PageLoadActionsUtil {
                                                                                             Set<ActionDependencyEdge> edges,
                                                                                             Set<String> dynamicBindingNames,
                                                                                             Map<String, ActionDTO> onLoadActionsInMap) {
-
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
@@ -144,12 +139,8 @@ public class PageLoadActionsUtil {
                     return actionDTO;
                 })
                 .collectMap(
-                        action -> {
-                            return action.getFullyQualifiedName();
-                        },
-                        action -> {
-                            return action;
-                        }
+                        ActionDTO::getValidName,
+                        action -> action
                 )
                 .map(newActionsMap -> {
                     onLoadActionsInMap.putAll(newActionsMap);
@@ -193,12 +184,8 @@ public class PageLoadActionsUtil {
                     return Mono.just(action);
                 })
                 .collectMap(
-                        action -> {
-                            return action.getFullyQualifiedName();
-                        },
-                        action -> {
-                            return action;
-                        }
+                        ActionDTO::getValidName,
+                        action -> action
                 )
                 .map(newActionsMap -> {
                     onLoadActionsInMap.putAll(newActionsMap);
@@ -220,7 +207,7 @@ public class PageLoadActionsUtil {
         dslActionDTO.setId(actionDTO.getId());
         dslActionDTO.setPluginType(actionDTO.getPluginType());
         dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
-        dslActionDTO.setName(actionDTO.getFullyQualifiedName());
+        dslActionDTO.setName(actionDTO.getValidName());
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
         }
@@ -237,7 +224,7 @@ public class PageLoadActionsUtil {
             return;
         }
 
-        String name = action.getFullyQualifiedName();
+        String name = action.getValidName();
 
         // Check if the action has already been found (and exists in the global action names set of actionNames
         // If yes, then we might have circular dependency scenario. Don't add the actions' bindings in the edges
@@ -257,7 +244,7 @@ public class PageLoadActionsUtil {
             // If the action refers to itself in the json path keys, remove the same to circumvent
             // supposed circular dependency. This is possible in case of pagination with response url
             // where the action refers to its own data to find the next and previous URLs.
-            dynamicBindingNamesInAction.remove(action.getFullyQualifiedName());
+            dynamicBindingNamesInAction.remove(name);
 
             // The relationship is represented as follows :
             // If A depends on B aka B exists in the dynamic bindings of A,

@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -165,8 +166,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         String layoutId = refactorActionNameDTO.getLayoutId();
         String oldName = refactorActionNameDTO.getOldName();
         String newName = refactorActionNameDTO.getNewName();
+        String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+                newName :
+                refactorActionNameDTO.getCollectionName() + "." + newName;
         String actionId = refactorActionNameDTO.getActionId();
-        return isNameAllowed(pageId, layoutId, newName)
+        return isNameAllowed(pageId, layoutId, newFullyQualifiedName)
                 .flatMap(allowed -> {
                     if (!allowed) {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
@@ -192,7 +196,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param newName
      * @return
      */
-    private Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName) {
+    @Override
+    public Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName) {
         String regexPattern = preWord + oldName + postWord;
         Pattern oldNamePattern = Pattern.compile(regexPattern);
 
@@ -451,14 +456,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
-                .map(action -> {
-                    // For actions that do not belong to a collection, fully qualified name will not exist
-                    if (action.getFullyQualifiedName() != null) {
-                        return action.getFullyQualifiedName();
-                    } else {
-                        return action.getName();
-                    }
-                })
+                .map(ActionDTO::getValidName)
                 .collect(toSet());
 
         /*
@@ -800,10 +798,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return pageMono
                 .flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                    String name = action.getFullyQualifiedName();
-                    if (name == null) {
-                        name = action.getName();
-                    }
+                    String name = action.getValidName();
                     return isNameAllowed(page.getId(), layout.getId(), name);
                 })
                 .flatMap(nameAllowed -> {
@@ -811,8 +806,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     if (Boolean.TRUE.equals(nameAllowed)) {
                         return pageMono;
                     }
+                    String name = action.getValidName();
                     // Throw an error since the new action's name matches an existing action or widget name.
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, name, FieldName.NAME));
                 })
                 .flatMap(page -> {
                     // Inherit the action policies from the page.

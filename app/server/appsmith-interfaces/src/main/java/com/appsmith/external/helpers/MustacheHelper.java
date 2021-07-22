@@ -352,6 +352,8 @@ public class MustacheHelper {
                 /* Extract JS function names e.g. getTrimmedDate in transform.data.getTrimmedData */
                 String potentialJsActionString = matcher.group(3);
                 if (!StringUtils.isEmpty(potentialJsActionString)) {
+                    // In case the sequence has more references (potentialJsActionString = func1.key1.key2)
+                    // We want to return with only func1
                     String potentialJsAction = potentialJsActionString.split("\\.")[0];
                     String fullyQualifiedActionName =
                             getFullyQualifiedActionName(topLevelActionOrJsObject, potentialJsAction);

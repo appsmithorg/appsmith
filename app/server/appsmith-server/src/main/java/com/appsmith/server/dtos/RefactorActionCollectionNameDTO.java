@@ -5,11 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RefactorActionNameDTO {
-    String actionId;
+public class RefactorActionCollectionNameDTO {
+    String actionCollectionId;
     String pageId;
     String layoutId;
     String oldName;
     String newName;
-    String collectionName;
 }
