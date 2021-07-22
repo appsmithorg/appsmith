@@ -83,7 +83,9 @@ const populateEvaluatedWidgetProperties = (
 
   const evaluatedProperties = {
     errors: {
-      [propertyName]: evaluatedWidgetPath?.errors[propertyName],
+      [propertyName]: evaluatedWidgetPath?.errors
+        ? evaluatedWidgetPath?.errors[propertyName]
+        : [],
     },
     evaluatedValues: {
       [propertyName]: evaluatedWidgetPath?.evaluatedValues

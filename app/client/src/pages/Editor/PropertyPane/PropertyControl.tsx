@@ -27,7 +27,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { getWidgetPropsForPropertyName } from "selectors/propertyPaneSelectors";
-import { getWidgetEnhancementFns } from "selectors/widgetEnhancementSelector";
+import { getWidgetEnhancementFns } from "selectors/widgetEnhancementSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
@@ -46,16 +46,15 @@ type Props = PropertyPaneControlConfig & {
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
-  const propsSelector = useCallback(
-    getWidgetPropsForPropertyName(props.propertyName, props.dependencies),
-    [props.propertyName],
+  const propsSelector = getWidgetPropsForPropertyName(
+    props.propertyName,
+    props.dependencies,
   );
 
   const widgetProperties: any = useSelector(propsSelector, isEqual);
 
-  const enhancementSelector = useCallback(
-    getWidgetEnhancementFns(widgetProperties.widgetId),
-    [widgetProperties.widgetId],
+  const enhancementSelector = getWidgetEnhancementFns(
+    widgetProperties.widgetId,
   );
 
   const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
