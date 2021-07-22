@@ -115,7 +115,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter tooltips array",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.ARRAY },
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: { children: { type: ValidationTypes.TEXT } },
+            },
           },
           {
             propertyName: "size",
