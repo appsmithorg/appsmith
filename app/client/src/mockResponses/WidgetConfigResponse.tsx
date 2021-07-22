@@ -773,22 +773,27 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets } = getDynamicBindings(propertyValue);
-
-            const modifiedAction = jsSnippets.reduce(
-              (prev: string, next: string) => {
-                return `${prev}${next}`;
-              },
-              "",
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
             );
+
+            const js = stringSegments
+              .map((segment, index) => {
+                if (jsSnippets[index] && jsSnippets[index].length > 0) {
+                  return jsSnippets[index];
+                } else {
+                  return `'${segment}'`;
+                }
+              })
+              .join(" + ");
 
             value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
-                return  ${modifiedAction};
+                return  ${js};
               })();
             })}}`;
 
-            if (!modifiedAction) {
+            if (!js) {
               value = propertyValue;
             }
 
@@ -1001,6 +1006,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
                       const { jsSnippets } = getDynamicBindings(value);
+
+                      console.log({ jsSnippets });
 
                       const modifiedAction = jsSnippets.reduce(
                         (prev: string, next: string) => {
