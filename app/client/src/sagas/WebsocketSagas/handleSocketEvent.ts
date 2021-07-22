@@ -7,11 +7,15 @@ import {
   updateCommentThreadEvent,
   updateCommentEvent,
   incrementThreadUnreadCount,
+  decrementThreadUnreadCount,
 } from "actions/commentActions";
 
 import { newNotificationEvent } from "actions/notificationActions";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { commentThreadsSelector } from "selectors/commentsSelectors";
+import { AppState } from "reducers";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 export default function* handleSocketEvent(event: any) {
   const currentUser = yield select(getCurrentUser);
@@ -33,10 +37,25 @@ export default function* handleSocketEvent(event: any) {
     }
     case SOCKET_EVENTS.INSERT_COMMENT: {
       yield put(newCommentEvent(event.payload[0]));
+      const { comment } = event.payload[0];
       return;
     }
     case SOCKET_EVENTS.UPDATE_COMMENT_THREAD: {
-      yield put(updateCommentThreadEvent(event.payload[0].thread));
+      const { thread } = event.payload[0];
+      yield put(updateCommentThreadEvent(thread));
+
+      const threadInStore: CommentThread = yield select((state: AppState) =>
+        commentThreadsSelector(thread?._id)(state),
+      );
+
+      const isThreadInStoreViewed = threadInStore?.isViewed;
+      const isThreadFromEventViewed = thread?.isViewed;
+      if (isThreadInStoreViewed && !isThreadFromEventViewed) {
+        yield put(incrementThreadUnreadCount());
+      } else if (!isThreadInStoreViewed && isThreadFromEventViewed) {
+        yield put(decrementThreadUnreadCount());
+      }
+
       return;
     }
     case SOCKET_EVENTS.UPDATE_COMMENT: {
