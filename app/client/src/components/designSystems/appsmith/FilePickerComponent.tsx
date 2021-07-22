@@ -17,6 +17,9 @@ class FilePickerComponent extends React.Component<
   }
 
   openModal = () => {
+    if (this.props.isDisabled) {
+      return;
+    }
     this.props.uppy.getPlugin("Dashboard").openModal();
   };
 
