@@ -29,6 +29,7 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
+  migrateTablePrimaryColumnsComputedValue,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -798,9 +799,14 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 28;
   }
 
+  if (currentDSL.version === 27) {
+    currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
+    currentDSL.version = 28;
+  }
+
   if (currentDSL.version === 28) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 29;
   }
 
   return currentDSL;
