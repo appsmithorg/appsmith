@@ -16,10 +16,14 @@ import org.ff4j.strategy.time.OfficeHourStrategy;
  *
  */
 public enum FeatureFlagEnum {
+    // ------------------- These features are only for JUnit testing. DO NOT use these features in your code path.--- //
+    // ------------------- Couldn't find a better way to do this ---------------------------------------------------- //
+    TEST_FEATURE_1,
+    TEST_FEATURE_2,
+    // ------------------- End of features for testing -------------------------------------------------------------- //
 
+    // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
     JS_EDITOR,
-    // example feature flags
-    WEIGHTAGE,
     COMMENT;
 }
 

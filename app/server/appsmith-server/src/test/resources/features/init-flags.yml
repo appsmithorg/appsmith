@@ -13,16 +13,16 @@ ff4j:
 
   features:
 
-    - uid: JS_EDITOR
+    - uid: TEST_FEATURE_1
       enable: true
-      description: Should the JS Editor be visible?
+      description: The test feature should only be visible to Appsmith users
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
         param:
           - name: requiredKey
             value: requiredValue
 
-    - uid: WEIGHTAGE
+    - uid: TEST_FEATURE_2
       enable: true
       description: Enable this feature based on weight. It's randomized.
       flipstrategy:

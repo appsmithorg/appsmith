@@ -22,11 +22,11 @@ ff4j:
           - name: requiredKey
             value: requiredValue
 
-    - uid: WEIGHTAGE
+    - uid: COMMENT
       enable: false
       description: Enable this feature based on weight. It's randomized.
       flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
+        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
         param:
-          - name: threshold
-            value: 0
+          - name: requiredKey
+            value: requiredValue
