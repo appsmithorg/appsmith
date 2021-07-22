@@ -50,7 +50,7 @@ import DataSourceList from "./DatasourceList";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { isEmpty } from "lodash";
-import { SuggestedWidget } from "api/ActionAPI";
+import { WidgetType } from "constants/WidgetConstants";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -210,7 +210,7 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
-  suggestedWidgets?: SuggestedWidget[];
+  suggestedWidgets?: WidgetType[];
   updateDatasource: (datasource: Datasource) => void;
 }
 

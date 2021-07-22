@@ -1,5 +1,5 @@
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -8,7 +8,6 @@ import { Collapsible } from ".";
 import Tooltip from "components/ads/Tooltip";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { SuggestedWidget } from "api/ActionAPI";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -94,17 +93,17 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
 };
 
 function getWidgetProps(
-  suggestedWidget: SuggestedWidget,
+  widgetType: WidgetType,
   widgetInfo: WidgetBindingInfo,
   actionName: string,
 ) {
   const fieldName = widgetInfo.propertyName;
-  switch (suggestedWidget.type) {
+  switch (widgetType) {
     case WidgetTypes.TABLE_WIDGET:
       return {
         type: WidgetTypes.TABLE_WIDGET,
         props: {
-          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          [fieldName]: `{{${actionName}.data}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
         },
         parentRowSpace: 10,
@@ -113,12 +112,12 @@ function getWidgetProps(
       const reactKey = generateReactKey();
 
       return {
-        type: suggestedWidget.type,
+        type: widgetType,
         props: {
           [fieldName]: {
             [reactKey]: {
               seriesName: "Sales",
-              data: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+              data: `{{${actionName}.data}}`,
             },
           },
           dynamicBindingPathList: [{ key: `chart.${reactKey}.data` }],
@@ -126,9 +125,9 @@ function getWidgetProps(
       };
     default:
       return {
-        type: suggestedWidget.type,
+        type: widgetType,
         props: {
-          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          [fieldName]: `{{${actionName}.data}}`,
           dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
         },
       };
@@ -137,25 +136,18 @@ function getWidgetProps(
 
 type SuggestedWidgetProps = {
   actionName: string;
-  suggestedWidgets: SuggestedWidget[];
+  suggestedWidgets: WidgetType[];
   hasWidgets: boolean;
 };
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
 
-  const addWidget = (
-    suggestedWidget: SuggestedWidget,
-    widgetInfo: WidgetBindingInfo,
-  ) => {
-    const payload = getWidgetProps(
-      suggestedWidget,
-      widgetInfo,
-      props.actionName,
-    );
+  const addWidget = (widgetType: WidgetType, widgetInfo: WidgetBindingInfo) => {
+    const payload = getWidgetProps(widgetType, widgetInfo, props.actionName);
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
-      widget: suggestedWidget.type,
+      widget: widgetType,
     });
 
     dispatch(addSuggestedWidget(payload));
@@ -170,17 +162,17 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       </div>
 
       <WidgetList>
-        {props.suggestedWidgets.map((suggestedWidget) => {
+        {props.suggestedWidgets.map((widgetType) => {
           const widgetInfo: WidgetBindingInfo | undefined =
-            WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
+            WIDGET_DATA_FIELD_MAP[widgetType];
 
           if (!widgetInfo) return null;
 
           return (
             <div
-              className={`widget t--suggested-widget-${suggestedWidget.type}`}
-              key={suggestedWidget.type}
-              onClick={() => addWidget(suggestedWidget, widgetInfo)}
+              className={`widget t--suggested-widget-${widgetType}`}
+              key={widgetType}
+              onClick={() => addWidget(widgetType, widgetInfo)}
             >
               <div>{widgetInfo.widgetName} Widget</div>
               <Tooltip content="Add to canvas">

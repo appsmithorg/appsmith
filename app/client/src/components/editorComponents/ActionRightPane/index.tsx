@@ -9,6 +9,7 @@ import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
+import { WidgetType } from "constants/WidgetConstants";
 import { ReactNode } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -20,10 +21,6 @@ import {
 } from "selectors/editorSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { getWidgets } from "sagas/selectors";
-import {
-  SuggestedWidget,
-  SuggestedWidget as SuggestedWidgetsType,
-} from "api/ActionAPI";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -134,7 +131,7 @@ function ActionSidebar({
 }: {
   actionName: string;
   hasResponse: boolean;
-  suggestedWidgets?: SuggestedWidgetsType[];
+  suggestedWidgets?: WidgetType[];
 }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -183,7 +180,7 @@ function ActionSidebar({
         <SuggestedWidgets
           actionName={actionName}
           hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
+          suggestedWidgets={suggestedWidgets as WidgetType[]}
         />
       )}
     </SideBar>
