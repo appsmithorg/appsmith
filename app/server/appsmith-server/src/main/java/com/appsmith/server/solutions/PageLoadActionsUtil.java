@@ -60,7 +60,6 @@ public class PageLoadActionsUtil {
                 // First find all the actions directly used in the DSL and get the graph started
                 .flatMap(unpublishedAction -> {
 
-
                     // If the user has explicitly set an action to not run on page load, this action should be ignored
                     if (isUserSetOnPageLoad(unpublishedAction) || isAsyncJSFunction(unpublishedAction)) {
                         return Mono.empty();
@@ -110,7 +109,7 @@ public class PageLoadActionsUtil {
 
     private boolean isAsyncJSFunction(ActionDTO unpublishedAction) {
         if (PluginType.JS.equals(unpublishedAction.getPluginType())
-                && !unpublishedAction.getActionConfiguration().isSyncJsFunction()) {
+                && Boolean.TRUE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
             return true;
         }
 
