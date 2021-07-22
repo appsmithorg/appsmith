@@ -562,6 +562,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
+            closeOnSelection={false}
             dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
             enableTimePicker={false}
@@ -570,6 +571,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             label=""
             onDateSelected={onDateSelected}
             selectedDate={value}
+            shortcuts={false}
             widgetId=""
           />
         </DatePickerWrapper>
