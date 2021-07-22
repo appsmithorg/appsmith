@@ -17,7 +17,9 @@ describe("Test table columnType Image render", () => {
       930,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
-      return imageDiv.props.href;
+      return imageDiv.props.children.props.style.backgroundImage
+        .slice(4, -1)
+        .replace(/"/g, "");
     });
 
     expect(expected).toEqual(result);
@@ -38,7 +40,9 @@ describe("Test table columnType Image render", () => {
       930,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
-      return imageDiv.props.href;
+      return imageDiv.props.children.props.style.backgroundImage
+        .slice(4, -1)
+        .replace(/"/g, "");
     });
 
     expect(expected).toEqual(result);
@@ -61,7 +65,9 @@ describe("Test table columnType Image render", () => {
       930,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
-      return imageDiv.props.href;
+      return imageDiv.props.children.props.style.backgroundImage
+        .slice(4, -1)
+        .replace(/"/g, "");
     });
 
     expect(expected).toEqual(result);
@@ -83,7 +89,9 @@ describe("Test table columnType Image render", () => {
       930,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
-      return imageDiv.props.href;
+      return imageDiv.props.children.props.style.backgroundImage
+        .slice(4, -1)
+        .replace(/"/g, "");
     });
 
     expect(expected).toEqual(result);
@@ -105,7 +113,15 @@ describe("Test table columnType Image render", () => {
       930,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
-      return imageDiv.props.href;
+      // check and get img url if exist
+      const imageDivProps = imageDiv.props.children.props;
+      if (imageDivProps) {
+        return imageDivProps.style.backgroundImage
+          .slice(4, -1)
+          .replace(/"/g, "");
+      } else {
+        return undefined;
+      }
     });
 
     expect(expected).toEqual(result);

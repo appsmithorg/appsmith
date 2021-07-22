@@ -57,8 +57,8 @@ describe("Table Widget Functionality", function() {
 
     const index = 1;
     const imageVal = this.data.TableInput[index].image;
-    cy.readTableLinkPublish(index, "1").then((hrefVal) => {
-      expect(hrefVal).to.be.equal(imageVal);
+    cy.readTableLinkPublish(index, "1").then((bgUrl) => {
+      expect(bgUrl).to.be.equal(`url("${imageVal}")`);
     });
   });
 

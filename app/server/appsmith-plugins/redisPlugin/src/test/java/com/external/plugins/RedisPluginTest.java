@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.JedisPool;
 
+import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 public class RedisPluginTest {
     @ClassRule
-    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:5.0.3-alpine"))
+    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:6.2.0-alpine"))
             .withExposedPorts(6379);
     private static String host;
     private static Integer port;
@@ -72,7 +73,8 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        Assert.assertEquals(Set.of("Missing endpoint(s)"),
+        Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
+                        "desired endpoint."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -83,7 +85,8 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(Set.of("Missing host for endpoint"),
+        Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
+                        "desired endpoint."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -107,13 +110,12 @@ public class RedisPluginTest {
         endpoint.setHost("test-host");
 
         DBAuth invalidAuth = new DBAuth();
-        invalidAuth.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
-
+        invalidAuth.setUsername("username"); // skip password
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         Assert.assertEquals(
-                Set.of("Missing username for authentication.", "Missing password for authentication."),
+                Set.of("Could not find password. Please edit the 'Password' field to provide the password."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
     }
@@ -263,6 +265,51 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("value", node.get("result").asText());
+                }).verifyComplete();
+    }
+
+    @Test
+    public void testSelectedDatabase() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setDatabaseName("7"); // set database to select
+        datasourceConfiguration.setAuthentication(auth);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("CLIENT INFO");
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    Assert.assertNotNull(actionExecutionResult);
+                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertTrue(node.get("result").asText().contains("db=7"));
+                }).verifyComplete();
+    }
+
+    @Test
+    public void testDefaultDatabase() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        datasourceConfiguration.setAuthentication(auth);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("CLIENT INFO");
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    Assert.assertNotNull(actionExecutionResult);
+                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertTrue(node.get("result").asText().contains("db=0"));
                 }).verifyComplete();
     }
 }
