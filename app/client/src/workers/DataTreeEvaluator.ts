@@ -26,6 +26,7 @@ import {
   addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
+  DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
   getEntityNameAndPropertyPath,
@@ -483,7 +484,10 @@ export default class DataTreeEvaluator {
     }
   }
 
-  sortDependencies(dependencyMap: DependencyMap): Array<string> {
+  sortDependencies(
+    dependencyMap: DependencyMap,
+    diffs?: (DataTreeDiff | DataTreeDiff[])[],
+  ): Array<string> {
     const dependencyTree: Array<[string, string]> = [];
     Object.keys(dependencyMap).forEach((key: string) => {
       if (dependencyMap[key].length) {
@@ -519,6 +523,8 @@ export default class DataTreeEvaluator {
         context: {
           node,
           entityType,
+          dependencyMap,
+          diffs,
         },
       });
       console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
@@ -949,7 +955,10 @@ export default class DataTreeEvaluator {
     // global inverse dependency map
     if (didUpdateDependencyMap) {
       // This is being called purely to test for new circular dependencies that might have been added
-      this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+      this.sortedDependencies = this.sortDependencies(
+        this.dependencyMap,
+        translatedDiffs,
+      );
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }
 
