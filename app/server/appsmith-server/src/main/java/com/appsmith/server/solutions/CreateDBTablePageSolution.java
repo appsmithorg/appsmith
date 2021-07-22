@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Datasource;
@@ -15,17 +16,20 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.SessionUserService;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
@@ -66,6 +70,8 @@ public class CreateDBTablePageSolution {
     private final LayoutActionService layoutActionService;
     private final ApplicationPageService applicationPageService;
     private final PluginService pluginService;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
     
     private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -96,7 +102,7 @@ public class CreateDBTablePageSolution {
     );
 
     // Pattern to break string in separate words
-    final static Pattern wordPattern = Pattern.compile("[^\\W]+");
+    final static Pattern WORD_PATTERN = Pattern.compile("[^\\W]+");
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -226,6 +232,11 @@ public class CreateDBTablePageSolution {
                 }
 
                 DatasourceStructure templateStructure = templateDatasource.getStructure();
+                // We are supporting datasources for both with and without datasource sturcture. So if datasource
+                // structure is present then we can assign the mapping dynamically as per the template datasource tables.
+                // Those datasources for which we don't have structure like Google sheet etc we are following a
+                // protocol in template application that all the column headers should be named as col1, col2,.... colx
+
                 if (templateStructure != null && !CollectionUtils.isEmpty(templateStructure.getTables())) {
                     Table templateTable = templateStructure.getTables()
                         .stream()
@@ -284,7 +295,8 @@ public class CreateDBTablePageSolution {
                     .then(Mono.zip(
                         Mono.just(datasource),
                         Mono.just(templateActionList),
-                        Mono.just(deletedWidgets)
+                        Mono.just(deletedWidgets),
+                        Mono.just(plugin)
                     ));
             })
             .flatMap(tuple -> {
@@ -292,6 +304,7 @@ public class CreateDBTablePageSolution {
                 Datasource datasource = tuple.getT1();
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
+                Plugin plugin = tuple.getT4();
                 log.debug("Going to clone actions from template application");
                 return cloneActionsFromTemplateApplication(datasource,
                                                             tableName,
@@ -305,7 +318,9 @@ public class CreateDBTablePageSolution {
                         || StringUtils.equals(actionDTO.getName(), FIND_QUERY)
                         || StringUtils.equals(actionDTO.getName(), LIST_QUERY)
                         ? layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
-                    .then(applicationPageService.getPage(savedPageId.get(), false));
+                    .then(applicationPageService.getPage(savedPageId.get(), false)
+                        .flatMap(pageDTO -> sendGenerateCRUDPageAnalyticsEvent(pageDTO, datasource, plugin.getName()))
+                    );
             });
     }
 
@@ -447,7 +462,7 @@ public class CreateDBTablePageSolution {
                 List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
                 if (actionBody != null) {
                     String body = actionBody.replaceFirst(TEMPLATE_TABLE_NAME, tableName);
-                    final Matcher matcher = wordPattern.matcher(body);
+                    final Matcher matcher = WORD_PATTERN.matcher(body);
                     actionConfiguration.setBody(matcher.replaceAll(key ->
                         mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                     );
@@ -463,7 +478,7 @@ public class CreateDBTablePageSolution {
                                 && pluginSpecificTemplateParams.get(property.getKey()) != null){
                                 property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
                             } else {
-                                final Matcher matcher = wordPattern.matcher(property.getValue().toString());
+                                final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
                                 property.setValue(matcher.replaceAll(key ->
                                     mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                                 );
@@ -668,18 +683,20 @@ public class CreateDBTablePageSolution {
                 }
             } else if (FieldName.DROP_DOWN_WIDGET.equals(widgetDsl.getAsString(FieldName.TYPE))
                 && FieldName.OPTIONS.equals(key)
-                && !defaultDropdownValue.toLowerCase().contains("asc")) {
-                // This will handle the options field in SelectWidget
+                && !(defaultDropdownValue.toLowerCase().contains("asc") || defaultDropdownValue.equals("1"))) {
+                // This will update the options field to include all the column names as label and value
+                // in SelectWidget except for SelectWidget with DefaultOptionValue SQL(DefaultValue : "ASC")
+                // and Mongo(DefaultValue : "1") check template application layout for more details
                     List<String> dropdownOptions = new ArrayList<>();
                     mappedColumnsAndTableNames.forEach((colKey, colVal) -> {
-                        if (colKey.toLowerCase().contains("col")) {
+                        if (colKey.toLowerCase().contains("col") && !colVal.equals(DELETE_FIELD)) {
                             dropdownOptions.add("\n{\n\t\"label\": \"" + colVal + "\",\n\t\"value\": \"" + colVal + "\"\n}");
                         }
                     });
                     widgetDsl.put(FieldName.OPTIONS, dropdownOptions.toString());
             } else {
                 //Get separate words and map to tableColumns from widgetDsl
-                Matcher matcher = wordPattern.matcher(widgetDsl.getAsString(key));
+                Matcher matcher = WORD_PATTERN.matcher(widgetDsl.getAsString(key));
                 widgetDsl.put(key, matcher.replaceAll(field ->
                     mappedColumnsAndTableNames.get(field.group()) == null ?
                         field.group() : mappedColumnsAndTableNames.get(field.group())
@@ -711,7 +728,7 @@ public class CreateDBTablePageSolution {
 
             // Get separate words and map to tableColumns from widgetDsl
 
-            Matcher matcher = wordPattern.matcher(actionConfiguration.getBody());
+            Matcher matcher = WORD_PATTERN.matcher(actionConfiguration.getBody());
             actionConfiguration.setBody(matcher.replaceAll(field -> deletedWidgetNames.contains(field.group())
                 ? DELETE_FIELD : field.group()
             ));
@@ -747,4 +764,30 @@ public class CreateDBTablePageSolution {
         }
         return actionConfiguration;
     }
+
+    private Mono<PageDTO> sendGenerateCRUDPageAnalyticsEvent(PageDTO page, Datasource datasource, String pluginName) {
+        return Mono.zip(
+            sessionUserService.getCurrentUser(),
+            Mono.just(page)
+        )
+        .flatMap(tuple -> {
+            User currUser = tuple.getT1();
+            PageDTO pageDTO = tuple.getT2();
+            final Map<String, Object> data = Map.of(
+                "applicationId", pageDTO.getApplicationId(),
+                "pageId", pageDTO.getId(),
+                "pageName", pageDTO.getName(),
+                "pluginName", pluginName,
+                "datasourceId", datasource.getId(),
+                "organizationId", datasource.getOrganizationId()
+            );
+            analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currUser.getUsername(), data);
+            return Mono.just(page);
+        })
+        .onErrorResume(e -> {
+            log.warn("Error sending generate CRUD DB table page data point", e);
+            return Mono.just(page);
+        });
+    }
+
 }
