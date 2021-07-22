@@ -78,8 +78,9 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[5]}px;
-  padding-top: 0px;
+  overflow: hidden;
+  margin: ${(props) => props.theme.spaces[5]}px;
+  margin-top: 0px;
 `;
 
 export const FixedHeader = styled.div`

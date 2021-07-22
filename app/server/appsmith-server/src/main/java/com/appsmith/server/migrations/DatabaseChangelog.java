@@ -2813,7 +2813,31 @@ public class DatabaseChangelog {
         mongoTemplate.updateMulti(query(where("publishedPages").exists(TRUE)), update, Application.class);
     }
 
-    @ChangeSet(order = "080", id = "add-js-plugin", author = "")
+    @ChangeSet(order = "080", id = "create-plugin-reference-for-genarate-CRUD-page", author = "")
+    public void createPluginReferenceForGenerateCRUDPage(MongockTemplate mongoTemplate) {
+
+        final String templatePageNameForSQLDatasource = "SQL";
+        final Set<String> sqlPackageNames = Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
+        Set<String> validPackageNames = new HashSet<>(sqlPackageNames);
+        validPackageNames.add("mongo-plugin");
+        validPackageNames.add("amazons3-plugin");
+        validPackageNames.add("google-sheets-plugin");
+        validPackageNames.add("postgres-plugin");
+
+        List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
+        for (Plugin plugin : plugins) {
+            if (validPackageNames.contains(plugin.getPackageName())) {
+                if (sqlPackageNames.contains(plugin.getPackageName())) {
+                    plugin.setGenerateCRUDPageComponent(templatePageNameForSQLDatasource);
+                } else {
+                    plugin.setGenerateCRUDPageComponent(plugin.getName());
+                }
+            }
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "081", id = "add-js-plugin", author = "")
     public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");

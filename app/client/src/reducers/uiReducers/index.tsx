@@ -34,8 +34,10 @@ import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import jsPaneReducer from "./jsPaneReducer";
 import notificationsReducer from "./notificationsReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
+import actionTabsReducer from "./actionTabsReducer";
 
 const uiReducer = combineReducers({
+  actionTabs: actionTabsReducer,
   widgetSidebar: widgetSidebarReducer,
   editor: editorReducer,
   errors: errorReducer,

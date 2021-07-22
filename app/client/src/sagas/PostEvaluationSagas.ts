@@ -41,6 +41,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
+import { Diff } from "deep-diff";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -299,8 +300,8 @@ export function* postEvalActionDispatcher(
 // we will remove its def
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  evaluationOrder: string[],
   isFirstEvaluation: boolean,
+  updates: Diff<DataTree, DataTree>[],
 ) {
   const updatedEntities: Set<string> = new Set();
   // If it is the first evaluation, we want to add everything in the data tree
@@ -308,9 +309,10 @@ export function* updateTernDefinitions(
     TernServer.resetServer();
     Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
   } else {
-    evaluationOrder.forEach((path) => {
-      const { entityName } = getEntityNameAndPropertyPath(path);
-      updatedEntities.add(entityName);
+    updates.forEach((update) => {
+      if (update.kind === "N" && update.path) {
+        updatedEntities.add(update?.path[0]);
+      }
     });
   }
 
