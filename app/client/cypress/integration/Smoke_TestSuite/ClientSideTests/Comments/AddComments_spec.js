@@ -60,11 +60,11 @@ describe("Comments", function() {
           commentThreadId = response.response.body.data.id;
 
           cy.get(homePage.shareApp).click({ force: true });
-          cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
+          cy.shareApp(Cypress.env("TESTUSERNAME2"), homePage.adminRole);
 
           cy.LogintoApp(
-            Cypress.env("TESTUSERNAME1"),
-            Cypress.env("TESTPASSWORD1"),
+            Cypress.env("TESTUSERNAME2"),
+            Cypress.env("TESTPASSWORD2"),
           );
 
           cy.get(homePage.searchInput).type(appname);
