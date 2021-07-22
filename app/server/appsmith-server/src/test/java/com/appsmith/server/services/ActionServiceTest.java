@@ -140,18 +140,6 @@ public class ActionServiceTest {
 
     String orgId;
 
-    private final String chartWidgetQuery = "data.map( (obj) =>{ return  {x: obj.%s, y: obj.%s} } )";
-
-    private final String tableWidgetQuery = "data";
-
-    private final String listWidgetQuery = "data";
-
-    private final String selectWidgetQuery = "data.map( (obj) =>{ return  {label: obj.%s, value: obj.%s} } )";
-
-    private final String textWidgetQuery = "data";
-
-    private final String inputWidgetQuery = "data";
-
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -491,7 +479,7 @@ public class ActionServiceTest {
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(getTextWidget());
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -521,7 +509,7 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(getTextWidget());
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1904,43 +1892,4 @@ public class ActionServiceTest {
         return  widgetSuggestionDTO;
     }
 
-    private WidgetSuggestionDTO getChartWidget(String field1, String field2) {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.CHART_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(String.format(chartWidgetQuery, field1, field2));
-        return widgetSuggestionDTO;    }
-
-    private WidgetSuggestionDTO getTableWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.TABLE_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(tableWidgetQuery);
-        return widgetSuggestionDTO;    }
-
-    private WidgetSuggestionDTO getListWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.LIST_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(listWidgetQuery);
-        return widgetSuggestionDTO;
-    }
-
-    private WidgetSuggestionDTO getSelectWidget(String field1, String field2) {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.DROP_DOWN_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(String.format(selectWidgetQuery, field1, field2));
-        return widgetSuggestionDTO;
-    }
-
-    private WidgetSuggestionDTO getTextWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.TEXT_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(textWidgetQuery);
-        return widgetSuggestionDTO;
-    }
-
-    private WidgetSuggestionDTO getInputWidget() {
-        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
-        widgetSuggestionDTO.setType(WidgetType.INPUT_WIDGET);
-        widgetSuggestionDTO.setBindingQuery(inputWidgetQuery);
-        return widgetSuggestionDTO;
-    }
 }
