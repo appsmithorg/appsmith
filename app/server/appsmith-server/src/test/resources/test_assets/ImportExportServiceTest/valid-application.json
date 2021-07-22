@@ -142,7 +142,7 @@
                     "primaryColumns": {
                       "appsmith_mongo_escape_id": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow._id})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._id ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 4,
                         "isVisible": true,
@@ -157,7 +157,7 @@
                       },
                       "active": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.active})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.active ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 8,
                         "isVisible": true,
@@ -172,7 +172,7 @@
                       },
                       "username": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.username})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.username ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 7,
                         "isVisible": true,
