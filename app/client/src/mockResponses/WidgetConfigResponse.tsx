@@ -142,6 +142,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
       isRequired: false,
+      closeOnSelection: false,
+      shortcuts: false,
     },
     VIDEO_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
