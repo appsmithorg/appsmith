@@ -15,6 +15,7 @@
   "createQuerty": ".t--create-query",
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
+  "datasourceCardMenu": ".t--datasource-menu-option",
   "datasourceMenuOptionEdit": "t--datasource-option-edit",
   "datasourceMenuOptionDelete":"t--datasource-option-delete",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
