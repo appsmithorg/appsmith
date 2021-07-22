@@ -78,12 +78,23 @@ describe("Comments", function() {
             .click({ force: true });
           cy.get("#loading").should("not.exist");
 
+          // unread indicator should be visible
+          cy.get(commentsLocators.toggleCommentModeOnUnread).should("exist");
+          cy.get(commentsLocators.toggleCommentModeOn).should("not.exist");
+
           cy.get(commentsLocators.switchToCommentModeBtn).click({
             force: true,
           });
           cy.get(
             `${commentsLocators.inlineCommentThreadPin}${commentThreadId}`,
           ).click({ force: true });
+
+          // thread should be marked as read, unread indicator should not be visible
+          cy.get(commentsLocators.toggleCommentModeOnUnread).should(
+            "not.exist",
+          );
+          cy.get(commentsLocators.toggleCommentModeOn).should("exist");
+
           cy.contains(newCommentText1);
 
           cy.PublishtheApp();
