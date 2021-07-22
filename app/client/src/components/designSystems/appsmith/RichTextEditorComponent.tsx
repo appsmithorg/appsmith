@@ -59,7 +59,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       editorContent.current = content;
       props.onValueChange(content);
     }, 200);
-    const selector = `textarea#rte-${props.widgetId}`;
+
+    const editorId = `rte-${props.widgetId}`;
+    const selector = `textarea#${editorId}`;
+
     (window as any).tinyMCE.init({
       forced_root_block: false,
       height: "100%",
@@ -99,7 +102,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     });
 
     return () => {
-      (window as any).tinyMCE.EditorManager.remove(selector);
+      (window as any).tinyMCE.get(editorId).remove();
       editorInstance !== null && editorInstance.remove();
     };
   }, [status]);
