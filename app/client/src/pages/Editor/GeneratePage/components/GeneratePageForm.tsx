@@ -12,7 +12,7 @@ import {
 import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "../../../../actions/datasourceActions";
 import { getDatasourcesStructure } from "selectors/entitiesSelector";
-import { fetchPage, generateTemplateToUpdatePage } from "actions/pageActions";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
@@ -365,14 +365,6 @@ function GeneratePageForm() {
       }
     }
   }, [querySearch]);
-
-  useEffect(() => {
-    // On mount if currentPageId is defined then fetch page details and render canvas for it.
-    // Irrespective of it being an empty page.
-    if (currentPageId) {
-      dispatch(fetchPage(currentPageId));
-    }
-  }, [currentPageId]);
 
   const routeToCreateNewDatasource = () => {
     history.push(

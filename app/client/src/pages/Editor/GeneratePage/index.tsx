@@ -4,8 +4,8 @@ import PageContent from "./components/PageContent";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "../../../selectors/editorSelectors";
-import { updateCurrentPage } from "../../../actions/pageActions";
 import { getTypographyByKey } from "../../../constants/DefaultTheme";
+import { fetchPage } from "actions/pageActions";
 
 const Container = styled.div`
   display: flex;
@@ -48,7 +48,7 @@ function GeneratePage() {
   // Switch page
   useEffect(() => {
     if (currentPageId !== params.pageId && !!params.pageId) {
-      dispatch(updateCurrentPage(params.pageId));
+      dispatch(fetchPage(params.pageId));
     }
   }, [currentPageId, params.pageId, dispatch]);
   const isGenerateFormPage = window.location.pathname.includes("/form");

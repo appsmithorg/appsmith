@@ -62,9 +62,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.wait(2000);
     cy.NavigateToQueryEditor();
 
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.editDatasourceButton)
-      .click();
+    cy.contains(".t--datasource-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")
