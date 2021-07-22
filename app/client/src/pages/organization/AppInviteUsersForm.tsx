@@ -65,7 +65,7 @@ function AppInviteUsersForm(props: any) {
   };
 
   useEffect(() => {
-    if (currentUser?.name !== ANONYMOUS_USERNAME) {
+    if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToOrg) {
       fetchCurrentOrg(props.orgId);
     }
   }, [props.orgId, fetchCurrentOrg, currentUser?.name]);

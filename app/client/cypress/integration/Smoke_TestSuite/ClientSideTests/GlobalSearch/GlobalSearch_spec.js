@@ -13,17 +13,15 @@ describe("GlobalSearch", function() {
   });
 
   it("showsAndHidesUsingKeyboardShortcuts", () => {
+    // wait for the page to load
+    cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";
     if (isMac) {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
       cy.get(commonlocators.globalSearchModal).should("not.exist");
     } else {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
       cy.get("body").type("{ctrl}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
