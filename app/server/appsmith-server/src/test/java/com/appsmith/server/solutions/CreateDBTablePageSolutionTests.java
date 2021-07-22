@@ -40,10 +40,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -485,6 +483,7 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
@@ -595,6 +594,8 @@ public class CreateDBTablePageSolutionTests {
             })
             .verifyComplete();
     }
+
+    */
 
     @Test
     @WithUserDetails(value = "api_user")
