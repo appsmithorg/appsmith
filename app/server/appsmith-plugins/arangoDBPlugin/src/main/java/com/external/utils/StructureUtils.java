@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class StructureUtils {
 
@@ -19,6 +20,7 @@ public class StructureUtils {
                                                             ArrayList<DatasourceStructure.Column> columns,
                                                             ArrayList<DatasourceStructure.Template> templates) {
 
+        Set<String> autogenerateKeys = Set.of("_id", "_key", "_rev");
         for (Object entry : document.entrySet()) {
             final String name = ((Map.Entry<String, Object>) entry).getKey();
             final Object value = ((Map.Entry<String, Object>) entry).getValue();
@@ -36,7 +38,6 @@ public class StructureUtils {
             } else if (value instanceof String) {
                 type = "String";
             } else if (value instanceof ObjectId) {
-                autogenerate = true;
                 type = "ObjectId";
             } else if (value instanceof Collection) {
                 type = "Array";
@@ -44,6 +45,10 @@ public class StructureUtils {
                 type = "Date";
             } else {
                 type = "Object";
+            }
+
+            if (autogenerateKeys.contains(name)) {
+                autogenerate =  true;
             }
 
             columns.add(new DatasourceStructure.Column(name, type, null, autogenerate));

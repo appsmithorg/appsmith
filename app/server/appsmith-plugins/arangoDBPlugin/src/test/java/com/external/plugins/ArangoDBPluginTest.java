@@ -279,9 +279,9 @@ public class ArangoDBPluginTest {
                     assertEquals(DatasourceStructure.TableType.COLLECTION, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("_id", "String", null, false),
-                                    new DatasourceStructure.Column("_key", "String", null, false),
-                                    new DatasourceStructure.Column("_rev", "String", null, false),
+                                    new DatasourceStructure.Column("_id", "String", null, true),
+                                    new DatasourceStructure.Column("_key", "String", null, true),
+                                    new DatasourceStructure.Column("_rev", "String", null, true),
                                     new DatasourceStructure.Column("age", "Long", null, false),
                                     new DatasourceStructure.Column("dob", "Object", null, false),
                                     new DatasourceStructure.Column("gender", "String", null, false),
