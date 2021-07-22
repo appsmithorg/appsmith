@@ -69,6 +69,13 @@ export const fetchActionsForPageSuccess = (
   };
 };
 
+export const setActionTabsInitialIndex = (index: number) => {
+  return {
+    type: ReduxActionTypes.SET_ACTION_TABS_INITIAL_INDEX,
+    payload: index,
+  };
+};
+
 export const runActionViaShortcut = () => {
   return {
     type: ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
