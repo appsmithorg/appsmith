@@ -813,9 +813,6 @@ public class ActionServiceTest {
                     assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
                     assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
                     assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
-                    /*for(int i =0; i<expectedWidgets.size();i++) {
-                        assertThat(result.getSuggestedWidgets().contains(expectedWidgets.get(i)));
-                    }*/
                 })
                 .verifyComplete();
     }
