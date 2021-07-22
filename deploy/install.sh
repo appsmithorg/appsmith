@@ -75,7 +75,12 @@ install_docker() {
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
-        sudo yum-config-manager --add-repo "https://download.docker.com/linux/$os/docker-ce.repo"
+        os_in_repo_link="$os"
+        if [[ $os == rhel ]]; then
+            # For RHEL, there's no separate repo link. We can use the CentOS one though.
+            os_in_repo_link=centos
+        fi
+        sudo yum-config-manager --add-repo "https://download.docker.com/linux/$os_in_repo_link/docker-ce.repo"
         echo "Installing docker"
         $yum_cmd install docker-ce docker-ce-cli containerd.io
 
