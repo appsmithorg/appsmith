@@ -130,6 +130,7 @@ export type EventName =
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "PAGES_LIST_LOAD";
 
 function getApplicationId(location: Location) {

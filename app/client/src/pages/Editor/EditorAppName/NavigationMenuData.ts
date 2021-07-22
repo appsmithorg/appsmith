@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
@@ -9,10 +9,11 @@ import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
+import { ExplorerURLParams } from "../Explorer/helpers";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -31,6 +32,7 @@ export const GetNavigationMenuData = ({
   const dispatch = useDispatch();
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndApp);
   const history = useHistory();
+  const params = useParams<ExplorerURLParams>();
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
@@ -61,6 +63,14 @@ export const GetNavigationMenuData = ({
     {
       text: "Rename",
       onClick: editMode,
+      type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    {
+      text: "Pages",
+      onClick: () => {
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+      },
       type: MenuTypes.MENU,
       isVisible: true,
     },

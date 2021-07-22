@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
-import { pageGroupIcon } from "../ExplorerIcons";
+import { pageGroupIcon, settingsIcon } from "../ExplorerIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
@@ -85,13 +85,18 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       action={() =>
         history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
       }
+      alwaysShowRightIcon
       className="group pages"
       disabled
       entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded
       name="Pages"
+      onClickRightIcon={() => {
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+      }}
       onCreate={createPageCallback}
+      rightIcon={settingsIcon}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >

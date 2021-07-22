@@ -39,6 +39,8 @@ export const EntityItem = styled.div<{
   step: number;
   spaced: boolean;
   highlight: boolean;
+  rightIconClickable?: boolean;
+  alwaysShowRightIcon?: boolean;
 }>`
   position: relative;
   border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
@@ -81,9 +83,24 @@ export const EntityItem = styled.div<{
   }
 
   & .${EntityClassNames.RIGHT_ICON} {
-    visibility: hidden;
-    padding-right: ${(props) => props.theme.spaces[2]}px;
+    visibility: ${(props) =>
+      props.alwaysShowRightIcon ? "visible" : "hidden"};
+    height: 30px;
+    width: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  & .${EntityClassNames.RIGHT_ICON}:hover {
+    background: ${(props) =>
+      props.rightIconClickable ? Colors.SHARK2 : "initial"};
+  }
+
+  & .${EntityClassNames.RIGHT_ICON} svg {
+    cursor: ${(props) => (props.rightIconClickable ? "pointer" : "initial")};
+  }
+
   &:hover .${EntityClassNames.RIGHT_ICON} {
     visibility: visible;
   }
@@ -113,6 +130,8 @@ export type EntityProps = {
   runActionOnExpand?: boolean;
   onNameEdit?: (input: string, limit?: number) => string;
   onToggle?: (isOpen: boolean) => void;
+  alwaysShowRightIcon?: boolean;
+  onClickRightIcon?: () => void;
 };
 
 export const Entity = forwardRef(
@@ -188,10 +207,12 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
+          alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
         >
@@ -215,7 +236,10 @@ export const Entity = forwardRef(
             searchKeyword={props.searchKeyword}
             updateEntityName={updateNameCallback}
           />
-          <IconWrapper className={EntityClassNames.RIGHT_ICON}>
+          <IconWrapper
+            className={EntityClassNames.RIGHT_ICON}
+            onClick={props.onClickRightIcon}
+          >
             {props.rightIcon}
           </IconWrapper>
           <AddButton
