@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/newFormDsl.json");
+const dsl = require("../../../../fixtures/multiSelectDsl.json");
 const pages = require("../../../../locators/Pages.json");
 const data = require("../../../../fixtures/example.json");
 
@@ -22,8 +22,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".multi-select-dropdown")
       .contains("Option 3")
       .click({ force: true });
-    cy.get(formWidgetsPage.multiselectWidget)
-      .find(".rc-select-selection-item-content")
+    cy.wait(2000);
+    //Validating option inside multiselect widget
+    cy.get(".rc-select-selection-item-content")
       .first()
       .should("have.text", "Option 3");
   });
