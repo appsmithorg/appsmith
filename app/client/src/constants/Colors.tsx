@@ -105,7 +105,7 @@ export const Colors: Record<string, string> = {
   BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
 
-  BUTTON_CUSTOM_SOLID_LIGHT_TEXT_COLOR: "#333",
+  BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

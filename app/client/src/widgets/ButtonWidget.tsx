@@ -101,7 +101,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "buttonStyle",

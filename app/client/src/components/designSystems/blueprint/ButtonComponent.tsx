@@ -62,7 +62,7 @@ const getCustomTextColor = (
   if (isDark) {
     return theme.colors.button.custom.solid.light.textColor;
   }
-  return theme.colors.button.disabled.bgColor;
+  return theme.colors.button.custom.solid.dark.textColor;
 };
 
 const getCustomHoverColor = (

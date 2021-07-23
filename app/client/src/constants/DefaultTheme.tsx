@@ -700,6 +700,9 @@ type ColorType = {
      */
     custom: {
       solid: {
+        dark: {
+          textColor: Color;
+        };
         light: {
           textColor: Color;
         };
@@ -1504,8 +1507,11 @@ export const dark: ColorType = {
     },
     custom: {
       solid: {
+        dark: {
+          textColor: Colors.BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
         light: {
-          textColor: Colors.BUTTON_CUSTOM_SOLID_LIGHT_TEXT_COLOR,
+          textColor: Colors.WHITE,
         },
       },
     },
@@ -2073,8 +2079,11 @@ export const light: ColorType = {
     },
     custom: {
       solid: {
+        dark: {
+          textColor: Colors.BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
         light: {
-          textColor: Colors.BUTTON_CUSTOM_SOLID_LIGHT_TEXT_COLOR,
+          textColor: Colors.WHITE,
         },
       },
     },
