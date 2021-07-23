@@ -63,6 +63,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     const editorId = `rte-${props.widgetId}`;
     const selector = `textarea#${editorId}`;
 
+    (window as any).tinyMCE.get(editorId)?.remove();
+
     (window as any).tinyMCE.init({
       forced_root_block: false,
       height: "100%",
@@ -102,7 +104,6 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     });
 
     return () => {
-      (window as any).tinyMCE.get(editorId).remove();
       editorInstance !== null && editorInstance.remove();
     };
   }, [status]);
