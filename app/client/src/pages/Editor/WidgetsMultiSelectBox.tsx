@@ -305,6 +305,7 @@ function WidgetsMultiSelectBox(props: {
   return (
     <StyledSelectionBox
       className="t--multi-selection-box"
+      data-testid="t--selection-box"
       draggable
       key={`selection-box-${props.widgetId}`}
       onDragStart={onDragStart}

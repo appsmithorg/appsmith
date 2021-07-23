@@ -78,6 +78,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
+  const isCurrentWidgetSelected = selectedWidgets.includes(props.widgetId);
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -98,10 +99,8 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-  const isCurrentWidgetDragging =
-    isDragging && selectedWidgets.includes(props.widgetId);
-  const isCurrentWidgetResizing =
-    isResizing && selectedWidgets.includes(props.widgetId);
+  const isCurrentWidgetDragging = isDragging && isCurrentWidgetSelected;
+  const isCurrentWidgetResizing = isResizing && isCurrentWidgetSelected;
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -110,9 +109,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent = !(
-    selectedWidgets.includes(props.widgetId) && isDragging
-  );
+  const shouldRenderComponent = !(isCurrentWidgetSelected && isDragging);
   // Display this draggable based on the current drag state
   const style: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
@@ -150,7 +147,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     e.preventDefault();
     e.stopPropagation();
     if (draggableRef.current && !e.metaKey) {
-      if (!selectedWidgets.includes(props.widgetId)) {
+      if (!isCurrentWidgetSelected) {
         dispatch(selectWidgetInitAction(props.widgetId));
       }
       const bounds = draggableRef.current.getBoundingClientRect();
@@ -172,6 +169,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
+      data-testid={isCurrentWidgetSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
