@@ -49,7 +49,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
-                                                         @RequestHeader(name = "Origin") String originHeader) {
+                                                         @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.createThread(resource, originHeader)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));

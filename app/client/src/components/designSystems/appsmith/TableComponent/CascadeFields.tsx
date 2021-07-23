@@ -569,6 +569,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             label=""
             onDateSelected={onDateSelected}
             selectedDate={value}
+            shortcuts={false}
             widgetId=""
             withoutPortal
           />
