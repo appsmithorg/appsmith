@@ -111,11 +111,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets.includes(props.widgetId);
 
   const showWidgetName =
-    props.showControls ||
-    ((focusedWidget === props.widgetId || showAsSelected) &&
-      !isDragging &&
-      !isResizing) ||
-    !!props.errorCount;
+    selectedWidgets.length <= 1 &&
+    (props.showControls ||
+      ((focusedWidget === props.widgetId || showAsSelected) &&
+        !isDragging &&
+        !isResizing) ||
+      !!props.errorCount);
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET

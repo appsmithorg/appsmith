@@ -180,7 +180,7 @@ export function CanvasSelectionArena({
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
         const strokeWidth = 1;
         canvasCtx.setLineDash([5]);
-        canvasCtx.strokeStyle = "rgb(84, 132, 236)";
+        canvasCtx.strokeStyle = "rgba(125,188,255,1)";
         canvasCtx.strokeRect(
           selectionDimensions.left - strokeWidth,
           selectionDimensions.top - strokeWidth,
