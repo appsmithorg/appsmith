@@ -125,6 +125,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Menu Button",
     key: generateReactKey(),
   },
+  {
+    type: "CHECKBOX_GROUP_WIDGET",
+    widgetCardName: "Checkbox Group",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

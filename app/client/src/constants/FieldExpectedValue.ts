@@ -197,6 +197,9 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     label: "string",
   },
+  CHECKBOX_GROUP_WIDGET: {
+    isVisible: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

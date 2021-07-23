@@ -1194,6 +1194,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
     },
+    [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
+      isDisabled: false,
+      isVisible: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "CheckboxGroupWidget",
+      version: 1,
+    },
   },
   configVersion: 1,
 };

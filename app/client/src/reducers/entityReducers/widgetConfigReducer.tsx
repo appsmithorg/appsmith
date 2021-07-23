@@ -33,6 +33,7 @@ import { DividerWidgetProps } from "../../widgets/DividerWidget";
 import { RateWidgetProps } from "../../widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
+import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -90,6 +91,8 @@ export interface WidgetConfigReducerState {
     RATE_WIDGET: Partial<RateWidgetProps> & WidgetConfigProps;
     IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
     MENU_BUTTON_WIDGET: Partial<MenuButtonWidgetProps> & WidgetConfigProps;
+    CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
+      WidgetConfigProps;
   };
   configVersion: number;
 }

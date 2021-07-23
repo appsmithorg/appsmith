@@ -268,6 +268,12 @@ export const entityDefinitions = {
     isVisible: isVisible,
     label: "string",
   },
+  CHECKBOX_GROUP_WIDGET: {
+    "!doc":
+      "Checkbox group widget allows users to easily configure multiple checkboxes together.",
+    "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {
