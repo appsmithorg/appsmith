@@ -234,8 +234,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
-    childWidgetData.bottomRow =
-      this.props.bottomRow * this.props.parentRowSpace - 45;
+    childWidgetData.bottomRow = componentHeight;
     childWidgetData.shouldScrollContents = false;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
@@ -252,7 +251,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   ): ContainerWidgetProps<WidgetProps>[] => {
     const gridGap = this.props.gridGap || 0;
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
-      const gap = gridGap - 8;
+      const gap = gridGap;
 
       return {
         ...child,
