@@ -1005,18 +1005,24 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets } = getDynamicBindings(value);
-
-                      console.log({ jsSnippets });
-
-                      const modifiedAction = jsSnippets.reduce(
-                        (prev: string, next: string) => {
-                          return prev + `${next}`;
-                        },
-                        "",
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
                       );
 
-                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+                      const js = stringSegments
+                        .map((segment, index) => {
+                          if (
+                            jsSnippets[index] &&
+                            jsSnippets[index].length > 0
+                          ) {
+                            return jsSnippets[index];
+                          } else {
+                            return `'${segment}'`;
+                          }
+                        })
+                        .join(" + ");
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                       childWidget[key] = value;
 

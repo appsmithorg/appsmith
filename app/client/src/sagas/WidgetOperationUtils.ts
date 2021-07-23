@@ -76,16 +76,19 @@ export const handleIfParentIsListWidgetWhilePasting = (
         let value = currentWidget[key];
 
         if (isString(value) && value.indexOf("currentItem") > -1) {
-          const { jsSnippets } = getDynamicBindings(value);
+          const { jsSnippets, stringSegments } = getDynamicBindings(value);
 
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return prev + `${next}`;
-            },
-            "",
-          );
+          const js = stringSegments
+            .map((segment, index) => {
+              if (jsSnippets[index] && jsSnippets[index].length > 0) {
+                return jsSnippets[index];
+              } else {
+                return `'${segment}'`;
+              }
+            })
+            .join(" + ");
 
-          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
           currentWidget[key] = value;
 
