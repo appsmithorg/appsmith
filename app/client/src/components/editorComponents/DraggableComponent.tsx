@@ -12,8 +12,10 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -63,6 +65,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
@@ -103,6 +106,11 @@ function DraggableComponent(props: DraggableComponentProps) {
   // This flag resolves conflicting drag/drop triggers.
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
+  );
+
+  const parentWidgetToOpen = getParentToOpenIfAny(
+    props.widgetId,
+    canvasWidgets,
   );
 
   const [{ isCurrentWidgetDragging }, drag] = useDrag({
@@ -156,9 +164,16 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
+    if (parentWidgetToOpen) {
+      !isResizingOrDragging &&
+        focusedWidget !== props.widgetId &&
+        !props.resizeDisabled &&
+        selectWidget(parentWidgetToOpen.widgetId);
+    }
     focusWidget &&
       !isResizingOrDragging &&
       focusedWidget !== props.widgetId &&
+      !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };

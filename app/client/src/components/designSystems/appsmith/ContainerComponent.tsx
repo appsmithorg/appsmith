@@ -30,7 +30,6 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
-  z-index: ${(props) => (props.focused ? "3" : props.selected ? "2" : "1")};
   ${(props) =>
     props.shouldScrollContents === true
       ? scrollContents

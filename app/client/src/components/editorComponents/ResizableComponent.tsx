@@ -41,6 +41,9 @@ import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { focusWidget } from "actions/widgetActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -53,6 +56,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
@@ -79,6 +83,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const parentWidgetToSelect = getParentToOpenIfAny(
+    props.widgetId,
+    canvasWidgets,
   );
 
   const occupiedSpacesBySiblingWidgets =
@@ -237,7 +245,22 @@ export const ResizableComponent = memo(function ResizableComponent(
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
       selectedWidget !== props.widgetId &&
-      selectWidget(props.widgetId);
+      parentWidgetToSelect?.widgetId !== props.widgetId &&
+      selectWidget(
+        parentWidgetToSelect ? parentWidgetToSelect.widgetId : props.widgetId,
+      );
+
+    if (parentWidgetToSelect) {
+      selectWidget &&
+        selectedWidget !== parentWidgetToSelect.widgetId &&
+        selectWidget(parentWidgetToSelect.widgetId);
+      focusWidget(parentWidgetToSelect.widgetId);
+    } else {
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+    }
+
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.

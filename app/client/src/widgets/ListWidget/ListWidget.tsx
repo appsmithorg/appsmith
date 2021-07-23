@@ -198,6 +198,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           type: EventType.ON_ROW_SELECTED,
         },
       });
+    } else {
+      this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
     }
 
     if (!action) return;
