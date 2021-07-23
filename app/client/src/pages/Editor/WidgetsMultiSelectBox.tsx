@@ -26,6 +26,7 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
+  cursor: grab;
 `;
 
 const StyledActionsContainer = styled.div`
