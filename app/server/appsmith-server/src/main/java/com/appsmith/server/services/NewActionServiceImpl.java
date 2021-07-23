@@ -12,7 +12,6 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -39,8 +38,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -75,6 +72,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -686,7 +684,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
 
         if(FALSE.equals(viewMode)) {
-            result.setSuggestedWidgets(getSuggestedWidget(result.getBody()));
+            result.setSuggestedWidgets(getSuggestedWidgets(result.getBody()));
         }
 
         /*
@@ -701,54 +699,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
 
         return result;
-    }
-
-    /**
-     * Suggest the best widget to the query response. We currently planning to support List, Select, Table and Chart widgets
-     * @return List of Widgets
-     */
-    private List<WidgetType> getSuggestedWidget(Object data) {
-
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-
-        if(data instanceof ArrayNode && ((ArrayNode) data).isArray()) {
-            if(!((ArrayNode) data).isEmpty()) {
-                try {
-                    ArrayNode array = (ArrayNode) data;
-                    int length = array.size();
-                    JsonNode node = array.get(0);
-                    JsonNodeType nodeType = node.getNodeType();
-
-                    if(JsonNodeType.STRING.equals(nodeType)) {
-                        if (length > 1) {
-                            widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-                        }
-                        else {
-                            widgetTypeList.add(WidgetType.TEXT_WIDGET);
-                        }
-                    }
-
-                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
-                        widgetTypeList.add(WidgetType.CHART_WIDGET);
-                        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
-                        widgetTypeList.add(WidgetType.LIST_WIDGET);
-                        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-                    }
-
-                    if(JsonNodeType.NUMBER.equals(nodeType)) {
-                        widgetTypeList.add(WidgetType.INPUT_WIDGET);
-                        widgetTypeList.add(WidgetType.TEXT_WIDGET);
-                    }
-
-                } catch(ClassCastException e) {
-                    log.warn("Error while casting data to suggest widget.", e);
-                    widgetTypeList.add(WidgetType.TEXT_WIDGET);
-                }
-            }
-        } else {
-            widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        }
-        return widgetTypeList;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
