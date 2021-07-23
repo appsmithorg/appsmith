@@ -13,16 +13,13 @@ import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { AppsmithPromise } from "../../workers/Actions";
 
 export type ActionDescription<T> = {
   type: string;
   payload: T;
 };
 
-export type ActionDispatcher<T, A extends string[]> = (
-  ...args: A
-) => ActionDescription<T> | AppsmithPromise;
+export type ActionDispatcher<T, A extends string[]> = (...args: A) => void;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

@@ -9,7 +9,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { addFunctions, AppsmithPromise, pusher } from "./Actions";
+import { addFunctions, AppsmithPromise, pusherOverride } from "./Actions";
 
 export type EvalResult = {
   result: any;
@@ -44,6 +44,7 @@ const evaluationScripts: Record<
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
+    debugger;
     const result = ${script};
   }
   closedFunction();
@@ -129,14 +130,7 @@ export default function evaluate(
       if (dataTreeWithFunctions.actionPaths) {
         GLOBAL_DATA.triggers = [];
         GLOBAL_DATA.actionPaths.forEach((path: string) => {
-          const action = _.get(GLOBAL_DATA, path);
-          if (action) {
-            _.set(
-              GLOBAL_DATA,
-              path,
-              pusher.bind({ triggers: GLOBAL_DATA.triggers }, action),
-            );
-          }
+          pusherOverride(path);
         });
         GLOBAL_DATA.Promise = AppsmithPromise;
       }
@@ -176,6 +170,9 @@ export default function evaluate(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         triggers = [...self.triggers];
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        self.triggers = [];
       }
     } catch (e) {
       errors.push({

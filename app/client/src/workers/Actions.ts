@@ -38,7 +38,6 @@
 
 import {
   ActionDescription,
-  ActionDispatcher,
   DataTree,
   DataTreeAction,
 } from "entities/DataTree/dataTreeFactory";
@@ -52,8 +51,6 @@ export type AppsmithPromisePayload = {
   finally?: string;
 };
 
-let promiseTriggers: ActionDescription<any>[] = [];
-
 export const pusher = function(
   this: { triggers: ActionDescription<any>[] },
   action: any,
@@ -66,6 +63,29 @@ export const pusher = function(
   }
 };
 
+export const pusherOverride = (actionPath: string) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(actionPath);
+  const overrideThis = { triggers: promiseTriggers };
+  // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // // @ts-ignore
+  // const globalThis = { triggers: self.triggers };
+  if (entityName === actionPath) {
+    const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
+    if (action) {
+      _.set(self, actionPath, pusher.bind({ ...overrideThis }, action));
+    }
+  } else {
+    const entity = _.get(self, entityName);
+    const funcCreator = DATA_TREE_FUNCTIONS[propertyPath];
+    if (typeof funcCreator === "object" && "qualifier" in funcCreator) {
+      const func = funcCreator.func(entity);
+      _.set(self, actionPath, pusher.bind({ ...overrideThis }, func));
+    }
+  }
+};
+
+let promiseTriggers: ActionDescription<any>[] = [];
+
 export class AppsmithPromise {
   action: ActionDescription<AppsmithPromisePayload> = {
     type: "PROMISE",
@@ -74,6 +94,7 @@ export class AppsmithPromise {
       then: [],
     },
   };
+  triggerReference?: number;
 
   constructor(
     executor: ActionDescription<any>[] | (() => ActionDescription<any>[]),
@@ -81,48 +102,39 @@ export class AppsmithPromise {
     if (typeof executor === "function") {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      self.actionPaths.forEach(AppsmithPromise._pusherOverride);
       executor();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      self.actionPaths.forEach((actionPath) =>
-        AppsmithPromise._pusherOverride(actionPath, true),
-      );
       this.action.payload.executor = promiseTriggers;
       promiseTriggers = [];
+      // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // // @ts-ignore
+      // self.actionPaths.forEach((path: string) =>
+      //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //   // @ts-ignore
+      //   pusherOverride(path, self.triggers),
+      // );
     } else {
       this.action.payload.executor = executor;
+      debugger;
     }
+    this._attachToSelfTriggers();
     return this;
   }
 
-  static _pusherOverride(actionPath: string, revert = false) {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      actionPath,
-    );
-    const promiseThis = { triggers: promiseTriggers };
+  _attachToSelfTriggers() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const globalThis = { triggers: self.triggers };
-    if (entityName === actionPath) {
-      const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
-      if (action) {
-        _.set(
-          self,
-          actionPath,
-          pusher.bind(revert ? globalThis : promiseThis, action),
-        );
-      }
-    } else {
-      const entity = _.get(self, entityName);
-      const funcCreator = DATA_TREE_FUNCTIONS[propertyPath];
-      if (typeof funcCreator === "object" && "qualifier" in funcCreator) {
-        const func = funcCreator.func(entity);
-        _.set(
-          self,
-          actionPath,
-          pusher.bind(revert ? globalThis : promiseThis, func),
-        );
+    if (self.triggers) {
+      if (_.isNumber(this.triggerReference)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        self.triggers[this.triggerReference] = this.action;
+      } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        self.triggers.push(this.action);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.triggerReference = self.triggers.length - 1;
       }
     }
   }
@@ -132,6 +144,7 @@ export class AppsmithPromise {
       this.action.payload.then.push(
         `{{ new Promise(${executor.toString()}) }}`,
       );
+      this._attachToSelfTriggers();
     }
     return this;
   }
@@ -139,6 +152,7 @@ export class AppsmithPromise {
   catch(executor: Function) {
     if (executor) {
       this.action.payload.catch = `{{ new Promise(${executor.toString()}) }}`;
+      this._attachToSelfTriggers();
     }
     return this;
   }
@@ -146,6 +160,7 @@ export class AppsmithPromise {
   finally(executor: Function) {
     if (executor) {
       this.action.payload.finally = `{{ new Promise(${executor.toString()}) }}`;
+      this._attachToSelfTriggers();
     }
     return this;
   }
@@ -153,7 +168,8 @@ export class AppsmithPromise {
 
 const DATA_TREE_FUNCTIONS: Record<
   string,
-  ActionDispatcher<any, any> | { qualifier: Function; func: Function }
+  | ((...args: any[]) => AppsmithPromise)
+  | { qualifier: Function; func: Function }
 > = {
   navigateTo: function(
     pageNameOrUrl: string,
@@ -233,7 +249,7 @@ const DATA_TREE_FUNCTIONS: Record<
     qualifier: isAction,
     func: (entity: DataTreeAction) =>
       function(onSuccess: Function, onError: Function, params = "") {
-        return new AppsmithPromise([
+        const runActionPromise = new AppsmithPromise([
           {
             type: "RUN_ACTION",
             payload: {
@@ -241,9 +257,10 @@ const DATA_TREE_FUNCTIONS: Record<
               params,
             },
           },
-        ])
-          .then(onSuccess)
-          .catch(onError);
+        ]);
+        if (onSuccess) runActionPromise.then(onSuccess);
+        if (onError) runActionPromise.catch(onError);
+        return runActionPromise;
       },
   },
 };
