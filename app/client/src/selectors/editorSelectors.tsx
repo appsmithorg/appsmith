@@ -265,6 +265,9 @@ export const getActionById = createSelector(
   },
 );
 
+export const getActionTabsInitialIndex = (state: AppState) =>
+  state.ui.actionTabs.index;
+
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
