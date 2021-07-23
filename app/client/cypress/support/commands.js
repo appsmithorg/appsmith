@@ -1643,6 +1643,7 @@ Cypress.Commands.add("Createpage", (Pagename) => {
     .type(Pagename)
     .type("{Enter}");
   pageidcopy = Pagename;
+  cy.get(generatePage.buildFromScratchActionCard).click();
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
