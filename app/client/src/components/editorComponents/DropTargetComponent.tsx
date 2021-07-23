@@ -9,7 +9,6 @@ import React, {
   useMemo,
 } from "react";
 import styled from "styled-components";
-import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { isEqual } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
@@ -154,15 +153,16 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
           props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
           occupiedSpacesByChildren,
         );
-        if (rows < newRows) {
-          setRows(newRows);
-          return true;
+        if (rowRef.current < newRows) {
+          rowRef.current = newRows;
+          updateHeight();
+          return newRows;
         }
         return false;
       }
       return false;
     },
-    [props.minHeight, occupiedSpacesByChildren, canDropTargetExtend, rows],
+    [props.minHeight, occupiedSpacesByChildren, canDropTargetExtend],
   );
 
   const handleFocus = (e: any) => {
