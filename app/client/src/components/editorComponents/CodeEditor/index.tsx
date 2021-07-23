@@ -61,8 +61,6 @@ import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
