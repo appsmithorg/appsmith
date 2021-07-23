@@ -87,11 +87,11 @@ public class CreateDBTablePageSolution {
 
     private final String LIST_QUERY = "ListFiles";
 
+    private final String S3_PLUGIN_PACKAGE = "amazons3-plugin";
+
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
     private final String DEFAULT_SEARCH_COLUMN = "col3";
-
-    private final String TEMPLATE_S3_BUCKET = "assets-test.appsmith.com";
 
     private final long MIN_TABLE_COLUMNS = 2;
 
@@ -276,7 +276,6 @@ public class CreateDBTablePageSolution {
                     templateTableRef,
                     tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName);
 
-
                 Set<String> deletedWidgets = new HashSet<>();
                 layout.setDsl(
                     extractAndUpdateAllWidgetFromDSL(layout.getDsl(), mappedColumnsAndTableName, deletedWidgets)
@@ -290,7 +289,16 @@ public class CreateDBTablePageSolution {
                     )
                     .collect(Collectors.toList());
 
-                log.debug("Going to update layout for page {0} and layout {1}", savedPageId.get(), layoutId);
+                // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored at
+                // index 1 in plugin specified templates
+                if (S3_PLUGIN_PACKAGE.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
+                    mappedColumnsAndTableName.put(
+                        templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().get(1).getValue().toString(),
+                        tableName
+                    );
+                }
+
+                log.debug("Going to update layout for page {} and layout {}", savedPageId.get(), layoutId);
                 return layoutActionService.updateLayout(savedPageId.get(), layoutId, layout)
                     .then(Mono.zip(
                         Mono.just(datasource),
@@ -472,8 +480,10 @@ public class CreateDBTablePageSolution {
                 if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
-                            if (StringUtils.equals(property.getValue().toString(), TEMPLATE_S3_BUCKET)) {
-                                property.setValue(tableName);
+                            if (S3_PLUGIN_PACKAGE.equals(templateAction.getPluginId()) && mappedColumns.containsKey(property.getValue().toString())) {
+                                // Replace template S3 bucket with user's  bucket. Here we can't apply WORD_PATTERN
+                                // matcher as the bucket name can be test.appsmith etc
+                                property.setValue(mappedColumns.get(property.getValue().toString()));
                             } else if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
                                 && pluginSpecificTemplateParams.get(property.getKey()) != null){
                                 property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
