@@ -783,23 +783,22 @@ public class CreateDBTablePageSolution {
 
     private Mono<PageDTO> sendGenerateCRUDPageAnalyticsEvent(PageDTO page, Datasource datasource, String pluginName) {
         return sessionUserService.getCurrentUser()
-        .flatMap(currUser -> {
-
-            final Map<String, Object> data = Map.of(
-                "applicationId", page.getApplicationId(),
-                "pageId", page.getId(),
-                "pageName", page.getName(),
-                "pluginName", pluginName,
-                "datasourceId", datasource.getId(),
-                "organizationId", datasource.getOrganizationId()
-            );
-            analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currUser.getUsername(), data);
-            return Mono.just(page);
-        })
-        .onErrorResume(e -> {
-            log.warn("Error sending generate CRUD DB table page data point", e);
-            return Mono.just(page);
-        });
+            .map(currentUser -> {
+                try {
+                    final Map<String, Object> data = Map.of(
+                        "applicationId", page.getApplicationId(),
+                        "pageId", page.getId(),
+                        "pageName", page.getName(),
+                        "pluginName", pluginName,
+                        "datasourceId", datasource.getId(),
+                        "organizationId", datasource.getOrganizationId()
+                    );
+                    analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                } catch (Exception e) {
+                    log.warn("Error sending generate CRUD DB table page data point", e);
+                }
+                return page;
+            });
     }
 
 }
