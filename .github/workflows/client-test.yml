@@ -312,7 +312,15 @@ jobs:
       - name: Wait for 30 seconds for server to start
         run: |
             sleep 30s 
-            ps -ef | grep server-1.0-SNAPSHOT
+            
+      - name: Exit if Server hasnt started
+        run: |
+         if [[ `ps -ef | grep "server-1.0-SNAPSHOTwrong" | grep java |wc -l` == 0 ]]; then
+            echo "Server Not Started";
+            exit 1;
+          else
+            echo "Server Found";
+          fi
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
