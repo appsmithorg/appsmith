@@ -82,8 +82,6 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
         moveJSActionRequest({
           id: actionId,
           destinationPageId,
-          originalPageId: props.pageId,
-          name: nextEntityName(actionName, destinationPageId),
         }),
       ),
     [dispatch, nextEntityName, props.pageId],

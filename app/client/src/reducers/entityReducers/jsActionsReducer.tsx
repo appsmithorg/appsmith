@@ -206,7 +206,6 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<{
       id: string;
       destinationPageId: string;
-      name: string;
     }>,
   ): JSActionDataState =>
     state.map((a) => {
@@ -215,7 +214,6 @@ const jsActionsReducer = createReducer(initialState, {
           ...a,
           config: {
             ...a.config,
-            name: action.payload.name,
             pageId: action.payload.destinationPageId,
           },
         };

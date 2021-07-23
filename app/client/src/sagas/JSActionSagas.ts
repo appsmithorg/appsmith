@@ -145,18 +145,12 @@ function* moveJSActionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
-    originalPageId: string;
-    name: string;
   }>,
 ) {
   const actionObject: JSAction = yield select(getJSAction, action.payload.id);
   try {
     const response = yield JSActionAPI.moveJSAction({
-      action: {
-        ...actionObject,
-        pageId: action.payload.originalPageId,
-        name: action.payload.name,
-      },
+      collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
     });
 
@@ -181,7 +175,7 @@ function* moveJSActionSaga(
     yield put(
       moveJSActionError({
         id: action.payload.id,
-        originalPageId: action.payload.originalPageId,
+        originalPageId: actionObject.pageId,
       }),
     );
   }

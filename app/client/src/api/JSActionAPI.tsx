@@ -6,7 +6,7 @@ export interface JSActionCreateUpdateResponse extends ApiResponse {
   id: string;
 }
 export interface MoveJSActionRequest {
-  action: JSAction;
+  collectionId: string;
   destinationPageId: string;
 }
 

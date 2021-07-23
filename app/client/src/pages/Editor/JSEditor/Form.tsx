@@ -57,7 +57,6 @@ const NameWrapper = styled.div`
     margin: 0;
     box-sizing: border-box;
   }
-  margin: 20px;
 `;
 
 const ActionButtons = styled.div`
@@ -74,7 +73,6 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 50px);
-  margin-top: 20px;
 `;
 
 const TabContainerView = styled.div`
@@ -101,6 +99,12 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
+`;
+
+const MainConfiguration = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[10]}px 0px
+    ${(props) => props.theme.spaces[10]}px;
 `;
 interface JSFormProps {
   jsAction: JSAction;
@@ -164,27 +168,21 @@ function JSEditorForm() {
     <>
       <CloseEditor />
       <Form>
-        <FormRow className="form-row-header">
-          <NameWrapper className="t--nameOfJSCollection">
-            <JSActionNameEditor page="JS_PANE" />
-          </NameWrapper>
-          <ActionButtons className="t--formActionButtons">
-            <MoreJSActionsMenu
-              className="t--more-action-menu"
-              id={currentJSAction ? currentJSAction.id : ""}
-              name={currentJSAction ? currentJSAction.name : ""}
-              pageId={pageId}
-            />
-            <Button
-              className="t--apiFormRunBtn"
-              isLoading={false}
-              size={Size.medium}
-              tag="button"
-              text="Run"
-              type="button"
-            />
-          </ActionButtons>
-        </FormRow>
+        <MainConfiguration>
+          <FormRow className="form-row-header">
+            <NameWrapper className="t--nameOfJSCollection">
+              <JSActionNameEditor page="JS_PANE" />
+            </NameWrapper>
+            <ActionButtons className="t--formActionButtons">
+              <MoreJSActionsMenu
+                className="t--more-action-menu"
+                id={currentJSAction ? currentJSAction.id : ""}
+                name={currentJSAction ? currentJSAction.name : ""}
+                pageId={pageId}
+              />
+            </ActionButtons>
+          </FormRow>
+        </MainConfiguration>
         <SecondaryWrapper>
           <TabContainerView>
             <TabComponent

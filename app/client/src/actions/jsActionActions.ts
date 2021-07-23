@@ -63,8 +63,6 @@ export const copyJSActionError = (payload: {
 export const moveJSActionRequest = (payload: {
   id: string;
   destinationPageId: string;
-  originalPageId: string;
-  name: string;
 }) => {
   return {
     type: ReduxActionTypes.MOVE_JS_ACTION_INIT,

@@ -12,6 +12,7 @@ export interface JSAction extends BaseAction {
   variables: Array<variable>;
   actions: Array<JSSubAction>;
   organizationId: string;
+  pluginId: string;
 }
 export interface JSSubAction {
   id: string;
