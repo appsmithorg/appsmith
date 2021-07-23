@@ -330,7 +330,7 @@ jobs:
             
       - name: Exit if Server hasnt started
         run: |
-         if [[ `ps -ef | grep "server-1.0-SNAPSHOTwrong" | grep java |wc -l` == 0 ]]; then
+         if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
             echo "Server Not Started";
             exit 1;
           else
