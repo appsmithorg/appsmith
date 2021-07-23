@@ -92,7 +92,7 @@ export const getPropsFromTree = (
   return get(state.evaluations.tree, widgetName, undefined);
 };
 
-export function* getChildWidgetEnhancementFs(
+export function* getChildWidgetEnhancementF(
   widgetId: string,
   enhancementType: WidgetEnhancementType,
 ) {
