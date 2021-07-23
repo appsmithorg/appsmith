@@ -292,10 +292,14 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isEnabled =
     !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
-  const allowResize = selectedWidgets && selectedWidgets.length <= 1;
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
+
   return (
     <Resizable
-      allowResize={allowResize}
+      allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}

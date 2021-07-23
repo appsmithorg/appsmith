@@ -110,8 +110,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
   const showWidgetName =
-    selectedWidgets.length <= 1 &&
+    !isMultiSelectedWidget &&
     (props.showControls ||
       ((focusedWidget === props.widgetId || showAsSelected) &&
         !isDragging &&
