@@ -49,7 +49,10 @@ export const SearchItemContainer = styled.div<{
   align-items: center;
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
-  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  color: ${(props) =>
+    props.isActiveItem
+      ? "white"
+      : props.theme.colors.globalSearch.searchItemText};
   margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
     props.isActiveItem &&
@@ -78,6 +81,13 @@ export const SearchItemContainer = styled.div<{
       props.itemType !== SEARCH_ITEM_TYPES.placeholder
         ? props.theme.colors.globalSearch.activeSearchItemBackground
         : "unset"};
+    color: white;
+    .category-title {
+      color: white;
+    }
+    .category-desc {
+      color: white;
+    }
     ${StyledActionLink} {
       visibility: visible;
     }
@@ -289,6 +299,45 @@ function Placeholder({ item }: { item: SearchItem }) {
   return <div>{item.title}</div>;
 }
 
+const CategoryContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-item: center;
+  justify-content: space-between;
+  padding: 12px 10px;
+`;
+
+const CategoryListItem = styled.div<{ isActiveItem: boolean }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  .category-title {
+    ${(props) => getTypographyByKey(props, "h5")}
+    color: ${(props) => (props.isActiveItem ? "white" : "#4b4848")};
+  }
+  .category-desc {
+    ${(props) => getTypographyByKey(props, "p3")}
+    color: ${(props) => (props.isActiveItem ? "white" : "#a9a7a7")};
+  }
+`;
+
+function CategoryItem({
+  isActiveItem,
+  item,
+}: {
+  item: SearchItem;
+  isActiveItem: boolean;
+}) {
+  return (
+    <CategoryContainer>
+      <CategoryListItem isActiveItem={isActiveItem}>
+        <span className="category-title">{item.title}</span>
+        <span className="category-desc">{item.desc}</span>
+      </CategoryListItem>
+    </CategoryContainer>
+  );
+}
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
@@ -297,6 +346,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
+  [SEARCH_ITEM_TYPES.category]: CategoryItem,
 };
 
 type ItemProps = {
@@ -345,9 +395,9 @@ function SearchItemComponent(props: ItemProps) {
 }
 
 const SearchResultsContainer = styled.div`
-  padding: 0 ${(props) => props.theme.spaces[6]}px;
   overflow: auto;
-  width: 250px;
+  flex: 1;
+  background: white;
 `;
 
 function SearchResults({

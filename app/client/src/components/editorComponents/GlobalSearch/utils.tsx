@@ -16,6 +16,7 @@ export enum SEARCH_ITEM_TYPES {
   page = "page",
   sectionTitle = "sectionTitle",
   placeholder = "placeholder",
+  category = "category",
 }
 
 export type DocSearchItem = {
@@ -39,7 +40,8 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.document ||
     item.kind === SEARCH_ITEM_TYPES.page ||
     item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
-    item.kind === SEARCH_ITEM_TYPES.placeholder
+    item.kind === SEARCH_ITEM_TYPES.placeholder ||
+    item.kind === SEARCH_ITEM_TYPES.category
   )
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;

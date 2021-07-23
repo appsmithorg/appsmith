@@ -51,6 +51,34 @@ import Footer from "./Footer";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
 
+export enum SEARCH_CATEGORIES {
+  SNIPPETS = "Snippets",
+  DOCUMENTATION = "Documentation",
+  NAVIGATION = "Navigate",
+  INIT = "",
+}
+
+const filterCategories = [
+  {
+    title: "Navigate",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORIES.NAVIGATION,
+    desc: "Navigate to any page, widget or file across this project.",
+  },
+  {
+    title: "Use Snippets",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORIES.SNIPPETS,
+    desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
+  {
+    title: "Search Documentation",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORIES.DOCUMENTATION,
+    desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
+];
+
 const StyledContainer = styled.div`
   width: 750px;
   height: 60vh;
@@ -62,7 +90,8 @@ const StyledContainer = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
-    background-color: #383838;
+    background-color: #f0f0f0;
+    padding: 10px 16px;
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
@@ -158,6 +187,7 @@ function GlobalSearch() {
   }, []);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(1);
+  const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
     setActiveItemIndexInState(index);
@@ -262,7 +292,7 @@ function GlobalSearch() {
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
 
   const searchResults = useMemo(() => {
-    if (!query) {
+    if (query && category.id === SEARCH_CATEGORIES.INIT) {
       return [
         recentsSectionTitle,
         ...(recentEntities.length > 0
@@ -277,14 +307,19 @@ function GlobalSearch() {
         ...defaultDocs,
       ];
     }
+    if (category.id === SEARCH_CATEGORIES.INIT) {
+      return filterCategories;
+    }
 
     return getSortedResults(
       query,
-      filteredActions,
-      filteredWidgets,
-      filteredPages,
-      filteredDatasources,
-      documentationSearchResults,
+      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredActions : [],
+      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredWidgets : [],
+      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredPages : [],
+      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredDatasources : [],
+      category.id === SEARCH_CATEGORIES.DOCUMENTATION
+        ? documentationSearchResults
+        : [],
       currentPageId,
     );
   }, [
@@ -384,6 +419,7 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.page]: handlePageClick,
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
+    [SEARCH_ITEM_TYPES.category]: setCategory,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
@@ -422,29 +458,45 @@ function GlobalSearch() {
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
-              <SearchBox query={query} setQuery={setQuery} />
-              <div className="main">
-                <SetSearchResults
-                  setDocumentationSearchResults={setDocumentationSearchResults}
-                />
-                {searchResults.length > 0 ? (
-                  <>
-                    <SearchResults
-                      query={query}
-                      searchResults={searchResults}
-                    />
-                    <Separator />
-                    <Description
-                      activeItem={activeItem}
-                      activeItemType={activeItemType}
-                      query={query}
-                      scrollPositionRef={scrollPositionRef}
-                    />
-                  </>
-                ) : (
-                  <ResultsNotFound />
-                )}
-              </div>
+              <SearchBox
+                category={category}
+                query={query}
+                setCategory={setCategory}
+                setQuery={setQuery}
+              />
+              {
+                <div className="main">
+                  <SetSearchResults
+                    setDocumentationSearchResults={
+                      setDocumentationSearchResults
+                    }
+                  />
+                  {searchResults.length > 0 ? (
+                    <>
+                      <SearchResults
+                        query={query}
+                        searchResults={searchResults}
+                      />
+                      {/* {getCategoryId(category) !==
+                        SEARCH_CATEGORIES.SNIPPETS && <Separator />} */}
+                      {category.id in
+                        [
+                          SEARCH_CATEGORIES.SNIPPETS,
+                          SEARCH_CATEGORIES.DOCUMENTATION,
+                        ] && (
+                        <Description
+                          activeItem={activeItem}
+                          activeItemType={activeItemType}
+                          query={query}
+                          scrollPositionRef={scrollPositionRef}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <ResultsNotFound />
+                  )}
+                </div>
+              }
               {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>

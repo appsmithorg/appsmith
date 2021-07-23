@@ -3,10 +3,11 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   span {
-    color: white;
+    color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-variant: all-small-caps;
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-right: ${(props) => props.theme.spaces[1]}px;
+    font-weight: bold;
   }
   div {
     margin-right: ${(props) => props.theme.spaces[7]}px;
@@ -14,6 +15,7 @@ const Wrapper = styled.div`
     text-align: center;
   }
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  background: white;
   padding: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[6]}px;
   display: flex;

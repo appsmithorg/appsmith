@@ -15,9 +15,11 @@ type Props = {
 };
 
 const Container = styled.div`
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+  background: white;
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
@@ -41,7 +43,7 @@ const Container = styled.div`
   h2,
   h3,
   strong {
-    color: #fff;
+    color: #484848;
   }
 
   .documentation-cta {
@@ -168,6 +170,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
+  [SEARCH_ITEM_TYPES.category]: () => null,
 };
 
 function Description(props: Props) {
