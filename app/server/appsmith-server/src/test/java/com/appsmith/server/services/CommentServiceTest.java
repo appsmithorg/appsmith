@@ -10,6 +10,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.solutions.EmailEventHandler;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,10 +66,16 @@ public class CommentServiceTest {
     @MockBean
     private Analytics analytics;
 
+    @MockBean
+    private EmailEventHandler emailEventHandler;
+
     @Before
     public void setUp() {
         Mockito.doNothing().when(analytics).enqueue(any());
         Mockito.doNothing().when(analytics).flush();
+
+        Mockito.when(emailEventHandler.publish(any(), any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(emailEventHandler.publish(any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test
@@ -288,6 +296,40 @@ public class CommentServiceTest {
         StepVerifier.create(unreadCountMono).assertNext(aLong -> {
             assertThat(aLong).isEqualTo(1);
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
+        // create a thread first with resolved=true
+        Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.COMMENT_ON_THREAD),
+                "api_user"
+        ).values();
+
+        CommentThread commentThread = new CommentThread();
+        CommentThread.CommentThreadState commentThreadState = new CommentThread.CommentThreadState();
+        commentThreadState.setActive(true);
+        commentThread.setResolvedState(commentThreadState);
+        commentThread.setPolicies(Set.copyOf(threadPolicies));
+        commentThread.setViewedByUsers(Set.of("api_user", "test_user"));
+
+        Mono<CommentThread> commentThreadMono = commentThreadRepository.save(commentThread)
+                .flatMap(savedThread -> {
+                    Comment comment = makePlainTextComment("Test comment");
+                    comment.setThreadId(savedThread.getId());
+                    return commentService.create(savedThread.getId(), comment, null);
+                })
+                .flatMap(savedComment ->
+                        commentThreadRepository.findById(savedComment.getThreadId())
+                );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getResolvedState().getActive()).isFalse();
+            assertThat(thread.getViewedByUsers().size()).isEqualTo(1);
+            assertThat(thread.getViewedByUsers()).contains("api_user");
+        }).verifyComplete();
+
     }
 
 }
