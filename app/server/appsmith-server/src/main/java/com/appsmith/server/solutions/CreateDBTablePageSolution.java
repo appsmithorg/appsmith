@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Datasource;
@@ -16,7 +17,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -73,36 +73,40 @@ public class CreateDBTablePageSolution {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     
-    private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
+    private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
-    private final String TEMPLATE_TABLE_NAME = "public.template_table";
+    private static final String TEMPLATE_TABLE_NAME = "public.template_table";
 
-    private final String TEMPLATE_APPLICATION_FILE = "template application file";
+    private static final String TEMPLATE_APPLICATION_FILE = "template application file";
 
-    private final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
+    private static final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
 
-    private final String SELECT_QUERY = "SelectQuery";
+    private static final String SELECT_QUERY = "SelectQuery";
 
-    private final String FIND_QUERY = "FindQuery";
+    private static final String FIND_QUERY = "FindQuery";
 
-    private final String LIST_QUERY = "ListFiles";
+    private static final String LIST_QUERY = "ListFiles";
 
-    private final String S3_PLUGIN_PACKAGE = "amazons3-plugin";
+    // Default SelectWidget dropdown value for SQL and Postgres template pages which will be used in select query for sort operator
+    private static final String SQL_DEFAULT_DROPDOWN_VALUE = "asc";
+
+    // Default SelectWidget dropdown value for MongoDB template page which will be used in find query for sort operator
+    private static final String MONGO_DEFAULT_DROPDOWN_VALUE = "1";
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
-    private final String DEFAULT_SEARCH_COLUMN = "col3";
+    private static final String DEFAULT_SEARCH_COLUMN = "col3";
 
-    private final long MIN_TABLE_COLUMNS = 2;
+    private static final long MIN_TABLE_COLUMNS = 2;
 
     // These fields contain the widget fields those need to be mapped between template DB table and DB table in
     // current context
-    private final Set<String> WIDGET_FIELDS = Set.of(
+    private static final Set<String> WIDGET_FIELDS = Set.of(
         "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible"
     );
 
-    // Pattern to break string in separate words
-    final static Pattern WORD_PATTERN = Pattern.compile("[^\\W]+");
+    // Pattern to match all words in the text
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -291,7 +295,8 @@ public class CreateDBTablePageSolution {
 
                 // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored at
                 // index 1 in plugin specified templates
-                if (S3_PLUGIN_PACKAGE.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
+
+                if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
                     mappedColumnsAndTableName.put(
                         templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().get(1).getValue().toString(),
                         tableName
@@ -480,7 +485,7 @@ public class CreateDBTablePageSolution {
                 if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
-                            if (S3_PLUGIN_PACKAGE.equals(templateAction.getPluginId()) && mappedColumns.containsKey(property.getValue().toString())) {
+                            if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(templateAction.getPluginId()) && mappedColumns.containsKey(property.getValue().toString())) {
                                 // Replace template S3 bucket with user's  bucket. Here we can't apply WORD_PATTERN
                                 // matcher as the bucket name can be test.appsmith etc
                                 property.setValue(mappedColumns.get(property.getValue().toString()));
@@ -693,7 +698,8 @@ public class CreateDBTablePageSolution {
                 }
             } else if (FieldName.DROP_DOWN_WIDGET.equals(widgetDsl.getAsString(FieldName.TYPE))
                 && FieldName.OPTIONS.equals(key)
-                && !(defaultDropdownValue.toLowerCase().contains("asc") || defaultDropdownValue.equals("1"))) {
+                && !(SQL_DEFAULT_DROPDOWN_VALUE.equalsIgnoreCase(defaultDropdownValue)
+                    || MONGO_DEFAULT_DROPDOWN_VALUE.equals(defaultDropdownValue))) {
                 // This will update the options field to include all the column names as label and value
                 // in SelectWidget except for SelectWidget with DefaultOptionValue SQL(DefaultValue : "ASC")
                 // and Mongo(DefaultValue : "1") check template application layout for more details
@@ -776,17 +782,13 @@ public class CreateDBTablePageSolution {
     }
 
     private Mono<PageDTO> sendGenerateCRUDPageAnalyticsEvent(PageDTO page, Datasource datasource, String pluginName) {
-        return Mono.zip(
-            sessionUserService.getCurrentUser(),
-            Mono.just(page)
-        )
-        .flatMap(tuple -> {
-            User currUser = tuple.getT1();
-            PageDTO pageDTO = tuple.getT2();
+        return sessionUserService.getCurrentUser()
+        .flatMap(currUser -> {
+
             final Map<String, Object> data = Map.of(
-                "applicationId", pageDTO.getApplicationId(),
-                "pageId", pageDTO.getId(),
-                "pageName", pageDTO.getName(),
+                "applicationId", page.getApplicationId(),
+                "pageId", page.getId(),
+                "pageName", page.getName(),
                 "pluginName", pluginName,
                 "datasourceId", datasource.getId(),
                 "organizationId", datasource.getOrganizationId()
