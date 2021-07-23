@@ -7,7 +7,6 @@ import {
   MaybeElement,
   Button,
   Alignment,
-  Icon,
 } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { Theme } from "constants/DefaultTheme";
@@ -61,7 +60,7 @@ const getCustomTextColor = (
     ].solid.textColor;
   const isDark = tinycolor(backgroundColor).isDark();
   if (isDark) {
-    return theme.colors.button.primary.solid.textColor;
+    return theme.colors.button.custom.solid.light.textColor;
   }
   return theme.colors.button.disabled.bgColor;
 };
@@ -290,7 +289,7 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
 
 
   border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "10px" : 0};
+    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1
@@ -313,7 +312,6 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
 
 type ButtonStyleProps = {
   buttonColor?: string;
-  textColor?: string;
   buttonStyle?: ButtonStyle;
   prevButtonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
@@ -322,7 +320,6 @@ type ButtonStyleProps = {
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
-  iconColor?: string;
 };
 
 // To be used in any other part of the app
@@ -338,12 +335,10 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     disabled,
     icon,
     iconAlign,
-    iconColor,
     iconName,
     prevButtonStyle,
     rightIcon,
     text,
-    textColor,
   } = props;
 
   if (iconAlign === Alignment.RIGHT) {
@@ -360,11 +355,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         disabled={disabled}
         fill
         icon={icon}
-        iconColor={iconColor}
         prevButtonStyle={prevButtonStyle}
-        rightIcon={<Icon color={iconColor} icon={iconName} /> || rightIcon}
+        rightIcon={iconName || rightIcon}
         text={text}
-        textColor={textColor}
       />
     );
   }
@@ -381,11 +374,10 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       className={className}
       disabled={disabled}
       fill
-      icon={<Icon color={iconColor} icon={iconName} /> || icon}
+      icon={iconName || icon}
       prevButtonStyle={prevButtonStyle}
       rightIcon={rightIcon}
       text={text}
-      textColor={textColor}
     />
   );
 }
@@ -421,14 +413,12 @@ interface ButtonComponentProps extends ComponentProps {
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
-  textColor?: string;
   buttonVariant?: ButtonVariant;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
-  iconColor?: string;
 }
 
 function RecaptchaV2Component(
@@ -579,13 +569,11 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           disabled={props.isDisabled}
           icon={props.icon}
           iconAlign={props.iconAlign}
-          iconColor={props.iconColor}
           iconName={props.iconName}
           loading={props.isLoading}
           prevButtonStyle={props.prevButtonStyle}
           rightIcon={props.rightIcon}
           text={props.text}
-          textColor={props.textColor}
           type={props.type}
         />
       </ButtonContainer>

@@ -695,6 +695,16 @@ type ColorType = {
         textColor?: Color;
       };
     };
+    /**
+     * CUSTOM style
+     */
+    custom: {
+      solid: {
+        light: {
+          textColor: Color;
+        };
+      };
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -1487,6 +1497,13 @@ export const dark: ColorType = {
         hoverColor: Colors.MERCURY,
       },
     },
+    custom: {
+      solid: {
+        light: {
+          textColor: Colors.BUTTON_CUSTOM_SOLID_LIGHT_TEXT_COLOR,
+        },
+      },
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -2042,6 +2059,13 @@ export const light: ColorType = {
       },
       ghost: {
         hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        light: {
+          textColor: Colors.BUTTON_CUSTOM_SOLID_LIGHT_TEXT_COLOR,
+        },
       },
     },
   },
