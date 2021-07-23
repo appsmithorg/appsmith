@@ -52,4 +52,32 @@ describe("Binding the Table and input Widget", function() {
         .should("contain", tabValue);
     });
   });
+
+  it("validation of column id displayed in input widgets based on sorted column", function() {
+    cy.SearchEntityandOpen("Input1");
+    cy.get(".t--property-control-defaulttext .CodeMirror  textarea")
+      .first()
+      .focus()
+      .type("{ctrl}{shift}{downarrow}")
+      .then(($cm) => {
+        if ($cm.val() !== "") {
+          cy.get(".t--property-control-defaulttext .CodeMirror textarea")
+            .first()
+            .clear({
+              force: true,
+            });
+        }
+      });
+    cy.get(widgetsPage.defaultInput).type(testdata.sortedColumn);
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(publish.inputWidget + " " + "input")
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "id");
+  });
 });
