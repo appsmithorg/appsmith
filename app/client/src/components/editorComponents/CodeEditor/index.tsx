@@ -126,19 +126,6 @@ type State = {
   hinterOpen: boolean;
 };
 
-const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
-  position: absolute;
-  right: 1px;
-  height: 33px;
-  width: 33px;
-  top: 1px;
-  display: none;
-  transition: 0.3s all ease;
-  align-items: center;
-  justify-content: center;
-  background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
-  z-index: 2;
-`;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -525,23 +512,18 @@ class CodeEditor extends Component<Props, State> {
         theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
-          <CommandBtnContainer
-            className="slash-commands"
-            isFocused={this.state.isFocused}
-          >
-            <Button
-              className="commands-button"
-              onClick={() => {
-                const newValue =
-                  typeof this.props.input.value === "string"
-                    ? this.props.input.value + "/"
-                    : "/";
-                this.updatePropertyValue(newValue, newValue.length);
-              }}
-              tag="button"
-              text="/"
-            />
-          </CommandBtnContainer>
+          <Button
+            className="commands-button"
+            onClick={() => {
+              const newValue =
+                typeof this.props.input.value === "string"
+                  ? this.props.input.value + "/"
+                  : "/";
+              this.updatePropertyValue(newValue, newValue.length);
+            }}
+            tag="button"
+            text="/"
+          />
         )}
         <EvaluatedValuePopup
           errors={errors}
