@@ -31,6 +31,7 @@ export const Layers = {
   // Layers when dragging
   animatedSnappingDropZone: Indices.Layer2,
 
+  focusedWidget: Indices.Layer3,
   animatedDropZone: Indices.Layer3,
   // Must be higher than any widget
   widgetName: Indices.Layer3,
