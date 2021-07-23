@@ -26,7 +26,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { debounce } from "lodash";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -129,20 +128,14 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     [props.minHeight, props.widgetId, canDropTargetExtend],
   );
 
-  const updateHeight = useCallback(
-    debounce(() => {
-      if (dropTargetRef.current) {
-        const height = canDropTargetExtend
-          ? `${Math.max(
-              rowRef.current * props.snapRowSpace,
-              props.minHeight,
-            )}px`
-          : "100%";
-        dropTargetRef.current.style.height = height;
-      }
-    }),
-    [canDropTargetExtend],
-  );
+  const updateHeight = useCallback(() => {
+    if (dropTargetRef.current) {
+      const height = canDropTargetExtend
+        ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
+        : "100%";
+      dropTargetRef.current.style.height = height;
+    }
+  }, [canDropTargetExtend]);
   /* Update the rows of the main container based on the current widget's (dragging/resizing) bottom row */
   const updateDropTargetRows = useCallback(
     (widgetId: string, widgetBottomRow: number) => {
