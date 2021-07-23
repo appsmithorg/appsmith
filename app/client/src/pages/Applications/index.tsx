@@ -970,6 +970,7 @@ class Applications extends Component<
               search={{
                 placeholder: "Search for apps...",
                 queryFn: this.props.searchApplications,
+                defaultValue: this.props.searchKeyword,
               }}
             />
             <ApplicationsSection searchKeyword={this.props.searchKeyword} />
