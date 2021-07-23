@@ -6,7 +6,6 @@ import React, { useCallback, useState, useRef } from "react";
 
 import useClick from "utils/hooks/useClick";
 import { updatePage } from "actions/pageActions";
-import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -14,7 +13,6 @@ import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 
-const EditIcon = ControlIcons.EDIT_WHITE;
 const LinkIcon = MenuIcons.LINK_ICON;
 
 export const EditNameContainer = styled.div`
