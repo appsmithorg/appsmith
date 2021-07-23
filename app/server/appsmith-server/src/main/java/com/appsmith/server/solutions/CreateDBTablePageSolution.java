@@ -405,7 +405,7 @@ public class CreateDBTablePageSolution {
     /**
      * This will fetch the template application resource which then act as a reference to clone layouts and actions
      * @param filePath template application path
-     * @return
+     * @return template application file
      * @throws IOException
      */
     private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
@@ -430,9 +430,9 @@ public class CreateDBTablePageSolution {
     /**
      * This function will clone actions from the template application and update action configuration using mapped
      * columns between the template datasource and datasource in context
-     * @param datasource
-     * @param tableName
-     * @param pageId
+     * @param datasource datasource connected by user
+     * @param tableName Table name provided by the user
+     * @param pageId Page to which actions needs to be cloned
      * @param templateActionList Actions from the template application related to specific datasource
      * @param mappedColumns Mapped column names between template and resource table under consideration
      * @param deletedWidgetNames Deleted column ref when template application have more # of columns than the users table
