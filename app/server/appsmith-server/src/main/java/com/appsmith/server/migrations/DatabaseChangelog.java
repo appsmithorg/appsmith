@@ -2813,15 +2813,13 @@ public class DatabaseChangelog {
         mongoTemplate.updateMulti(query(where("publishedPages").exists(TRUE)), update, Application.class);
     }
 
-    @ChangeSet(order = "079", id = "create-plugin-reference-for-genarate-CRUD-page", author = "")
+    @ChangeSet(order = "080", id = "create-plugin-reference-for-genarate-CRUD-page", author = "")
     public void createPluginReferenceForGenerateCRUDPage(MongockTemplate mongoTemplate) {
 
         final String templatePageNameForSQLDatasource = "SQL";
         final Set<String> sqlPackageNames = Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
         Set<String> validPackageNames = new HashSet<>(sqlPackageNames);
         validPackageNames.add("mongo-plugin");
-        validPackageNames.add("amazons3-plugin");
-        validPackageNames.add("google-sheets-plugin");
         validPackageNames.add("postgres-plugin");
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
