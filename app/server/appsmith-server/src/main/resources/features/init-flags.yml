@@ -7,10 +7,6 @@ ff4j:
   autocreate: false
   audit: false
 
-  # -----------------------------
-  # Bloc features
-  # -----------------------------
-
   features:
 
     - uid: JS_EDITOR

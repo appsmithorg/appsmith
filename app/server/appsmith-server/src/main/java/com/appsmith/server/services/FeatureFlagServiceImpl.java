@@ -29,6 +29,9 @@ public class FeatureFlagServiceImpl implements FeatureFlagService {
 
     @Override
     public Boolean check(FeatureFlagEnum featureEnum, User user) {
+        if (featureEnum == null) {
+            return false;
+        }
         return check(featureEnum.toString(), user);
     }
 
