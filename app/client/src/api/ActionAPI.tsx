@@ -64,7 +64,7 @@ export interface ActionApiResponseReq {
 export interface ActionExecutionResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: Record<string, unknown>;
+    body: Record<string, unknown> | string;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -76,6 +76,11 @@ export interface ActionExecutionResponse {
   };
 }
 
+export interface SuggestedWidget {
+  type: WidgetType;
+  bindingQuery: string;
+}
+
 export interface ActionResponse {
   body: unknown;
   headers: Record<string, string[]>;
@@ -84,7 +89,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
-  suggestedWidgets?: WidgetType[];
+  suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
 }
 

@@ -120,7 +120,7 @@ export const getDatasourceInfo = (datasource: any): string => {
   return info.join(" | ");
 };
 
-export default function DataSourceList(props: any) {
+export default function ApiRightPane(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   useEffect(() => {
     if (!!props.hasResponse) setSelectedIndex(1);

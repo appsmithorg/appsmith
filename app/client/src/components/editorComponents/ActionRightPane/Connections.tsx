@@ -13,6 +13,14 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import { useCallback } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  createMessage,
+  INCOMING_ENTITIES,
+  NO_INCOMING_ENTITIES,
+  NO_OUTGOING_ENTITIES,
+  OUTGOING_ENTITIES,
+  SEE_CONNECTED_ENTITIES,
+} from "constants/messages";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -123,7 +131,7 @@ function Dependencies(props: any) {
     </ConnectionsContainer>
   ) : (
     <NoConnections>
-      <Text type={TextType.P1}>No incoming connections</Text>
+      <Text type={TextType.P1}>{props.placeholder}</Text>
     </NoConnections>
   );
 }
@@ -139,15 +147,19 @@ type ConnectionsProps = {
 function Connections(props: ConnectionsProps) {
   return (
     <Collapsible label="Relationships">
-      <span className="description">See all connected entities</span>
+      <span className="description">
+        {createMessage(SEE_CONNECTED_ENTITIES)}
+      </span>
       <ConnectionType className="icon-text">
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
-        <span className="connection-type">Incoming entities</span>
+        <span className="connection-type">
+          {createMessage(INCOMING_ENTITIES)}
+        </span>
       </ConnectionType>
       {/* Direct Dependencies */}
       <Dependencies
         dependencies={props.entityDependencies?.directDependencies ?? []}
-        placeholder="No incoming entities"
+        placeholder={createMessage(NO_INCOMING_ENTITIES)}
       />
       <ConnectionFlow>
         <img src={LongArrowSVG} />
@@ -155,13 +167,15 @@ function Connections(props: ConnectionsProps) {
         <img src={LongArrowSVG} />
       </ConnectionFlow>
       <ConnectionType className="icon-text">
-        <span className="connection-type">Outgoing entities</span>
+        <span className="connection-type">
+          {createMessage(OUTGOING_ENTITIES)}
+        </span>
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
       </ConnectionType>
       {/* Inverse dependencies */}
       <Dependencies
         dependencies={props.entityDependencies?.inverseDependencies ?? []}
-        placeholder="No outgoing entities"
+        placeholder={createMessage(NO_OUTGOING_ENTITIES)}
       />
     </Collapsible>
   );

@@ -7,7 +7,14 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
-import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
+import {
+  createMessage,
+  INCOMING_ENTITIES,
+  INSPECT_ENTITY_BLANK_STATE,
+  NO_INCOMING_ENTITIES,
+  NO_OUTGOING_ENTITIES,
+  OUTGOING_ENTITIES,
+} from "constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useEntityLink, useSelectedEntity } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -194,11 +201,13 @@ function EntityDeps(props: ConnectionsProps) {
       <ConnectionContainer>
         <ConnectionType className="icon-text">
           <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
-          <span className="connection-type">Incoming entities</span>
+          <span className="connection-type">
+            {createMessage(INCOMING_ENTITIES)}
+          </span>
         </ConnectionType>
         <Dependencies
           dependencies={props.entityDependencies?.directDependencies ?? []}
-          placeholder="No incoming entities"
+          placeholder={createMessage(NO_INCOMING_ENTITIES)}
         />
       </ConnectionContainer>
       <ConnectionFlow>
@@ -208,13 +217,15 @@ function EntityDeps(props: ConnectionsProps) {
       </ConnectionFlow>
       <ConnectionContainer>
         <ConnectionType className="icon-text">
-          <span className="connection-type">Outgoing entities</span>
+          <span className="connection-type">
+            {createMessage(OUTGOING_ENTITIES)}
+          </span>
           <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
         </ConnectionType>
         {/* Inverse dependencies */}
         <Dependencies
           dependencies={props.entityDependencies?.inverseDependencies ?? []}
-          placeholder="No outgoing entities"
+          placeholder={createMessage(NO_OUTGOING_ENTITIES)}
         />
       </ConnectionContainer>
     </Wrapper>

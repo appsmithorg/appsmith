@@ -9,7 +9,6 @@ import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
-import { WidgetType } from "constants/WidgetConstants";
 import { ReactNode } from "react";
 import { useEffect } from "react";
 import Button, { Category, Size } from "components/ads/Button";
@@ -22,12 +21,22 @@ import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 import { AppState } from "reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BACK_TO_CANVAS,
+  createMessage,
+  NO_CONNECTIONS,
+} from "constants/messages";
+import {
+  SuggestedWidget,
+  SuggestedWidget as SuggestedWidgetsType,
+} from "api/ActionAPI";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
     ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
   overflow: auto;
   height: 100%;
+  width: 100%;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -149,7 +158,7 @@ function ActionSidebar({
 }: {
   actionName: string;
   hasResponse: boolean;
-  suggestedWidgets?: WidgetType[];
+  suggestedWidgets?: SuggestedWidgetsType[];
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -189,7 +198,7 @@ function ActionSidebar({
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
-    return <Placeholder>No connections to show here</Placeholder>;
+    return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
   const navigeteToCanvas = () => {
@@ -200,7 +209,7 @@ function ActionSidebar({
     <SideBar>
       <BackButton onClick={navigeteToCanvas}>
         <Icon keepColors name="chevron-left" size={IconSize.XXS} />
-        <Text type={TextType.H6}>Back to canvas</Text>
+        <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
       </BackButton>
 
       {hasConnections && (
@@ -213,7 +222,7 @@ function ActionSidebar({
         <SuggestedWidgets
           actionName={actionName}
           hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as WidgetType[]}
+          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
         />
       )}
       {hasResponse && Object.keys(widgets).length > 1 && (

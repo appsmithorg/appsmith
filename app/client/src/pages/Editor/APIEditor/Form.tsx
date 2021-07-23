@@ -13,7 +13,7 @@ import {
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { PaginationField } from "api/ActionAPI";
+import { PaginationField, SuggestedWidget } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
@@ -48,11 +48,10 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
 import get from "lodash/get";
-import DataSourceList from "./DatasourceList";
+import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
-import { WidgetType } from "constants/WidgetConstants";
 
 const Form = styled.form`
   display: flex;
@@ -216,7 +215,7 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
-  suggestedWidgets?: WidgetType[];
+  suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
 }
 
