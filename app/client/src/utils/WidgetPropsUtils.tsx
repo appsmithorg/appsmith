@@ -229,7 +229,7 @@ export const getCanvasSnapRows = (
     bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
 
-  // Canvas Widgets do not need to accomodate for widget and container padding.
+  // Canvas Widgets do not need to accommodate for widget and container padding.
   // Only when they're extensible
   if (canExtend) {
     return totalRows;

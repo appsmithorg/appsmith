@@ -19,13 +19,19 @@ import {
 } from "@blueprintjs/core";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { InputType } from "../constants";
+import { InputType, InputTypes } from "../constants";
+import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
+
+// TODO(abhinav): All of the following imports should not be in widgets.
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import Icon, { IconSize } from "components/ads/Icon";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -39,9 +45,34 @@ const InputComponentWrapper = styled((props) => (
   numeric: boolean;
   multiline: string;
   hasError: boolean;
+  allowCurrencyChange?: boolean;
+  inputType: InputType;
 }>`
   &&&& {
+    .currency-type-filter {
+      width: 40px;
+      height: 32px;
+      position: absolute;
+      display: inline-block;
+      left: 0;
+      z-index: 16;
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.icon?.hover};
+        }
+      }
+    }
     .${Classes.INPUT} {
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        props.allowCurrencyChange &&
+        `
+      padding-left: 45px;`};
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        !props.allowCurrencyChange &&
+        `
+      padding-left: 35px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -93,6 +124,116 @@ const InputComponentWrapper = styled((props) => (
   }
 `;
 
+const DropdownTriggerIconWrapper = styled.div`
+  height: 19px;
+  padding: 9px 5px 9px 12px;
+  width: 40px;
+  height: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  color: #090707;
+`;
+
+const CurrencyIconWrapper = styled.span`
+  height: 100%;
+  padding: 6px 4px 6px 12px;
+  width: 28px;
+  position: absolute;
+  left: 0;
+  z-index: 16;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  color: #090707;
+`;
+
+interface CurrencyDropdownProps {
+  onCurrencyTypeChange: (code?: string) => void;
+  options: Array<DropdownOption>;
+  selected: DropdownOption;
+  allowCurrencyChange?: boolean;
+}
+
+function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
+  if (!props.allowCurrencyChange) {
+    return (
+      <CurrencyIconWrapper>
+        {getSelectedItem(props.selected.value).id}
+      </CurrencyIconWrapper>
+    );
+  }
+  const dropdownTriggerIcon = (
+    <DropdownTriggerIconWrapper className="t--input-currency-change">
+      {getSelectedItem(props.selected.value).id}
+      <Icon name="downArrow" size={IconSize.XXS} />
+    </DropdownTriggerIconWrapper>
+  );
+  return (
+    <Dropdown
+      containerClassName="currency-type-filter"
+      dropdownHeight="195px"
+      dropdownTriggerIcon={dropdownTriggerIcon}
+      enableSearch
+      onSelect={props.onCurrencyTypeChange}
+      optionWidth="260px"
+      options={props.options}
+      searchPlaceholder="Search by currency or country"
+      selected={props.selected}
+      showLabelOnly
+    />
+  );
+}
+
+const getSelectedItem = (currencyCountryCode?: string): DropdownOption => {
+  let selectedCurrency: CurrencyOptionProps | undefined = currencyCountryCode
+    ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
+        return item.code === currencyCountryCode;
+      })
+    : undefined;
+  if (!selectedCurrency) {
+    selectedCurrency = {
+      code: "US",
+      currency: "USD",
+      currency_name: "US Dollar",
+      label: "United States",
+      phone: "1",
+      symbol_native: "$",
+    };
+  }
+  return {
+    label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
+    searchText: selectedCurrency.label,
+    value: selectedCurrency.code,
+    id: selectedCurrency.symbol_native,
+  };
+};
+
+const countryToFlag = (isoCode: string) => {
+  return typeof String.fromCodePoint !== "undefined"
+    ? isoCode
+        .toUpperCase()
+        .replace(/./g, (char) =>
+          String.fromCodePoint(char.charCodeAt(0) + 127397),
+        )
+    : isoCode;
+};
+
+export const getCurrencyOptions = (): Array<DropdownOption> => {
+  return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
+    return {
+      leftElement: countryToFlag(item.code),
+      searchText: item.label,
+      label: `${item.currency} - ${item.currency_name}`,
+      value: item.code,
+      id: item.symbol_native,
+    };
+  });
+};
+
 class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
@@ -115,7 +256,35 @@ class InputComponent extends React.Component<
   };
 
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
-    this.props.onValueChange(valueAsString);
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const fractionDigits = this.props.decimalsInCurrency || 0;
+      const currentIndexOfDecimal = valueAsString.indexOf(".");
+      const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+      if (
+        valueAsString.includes(".") &&
+        currentIndexOfDecimal <= indexOfDecimal
+      ) {
+        let value = valueAsString.split(",").join("");
+        if (value) {
+          if (currentIndexOfDecimal !== indexOfDecimal) {
+            value = value.substr(0, currentIndexOfDecimal + fractionDigits + 1);
+          }
+          const locale = navigator.languages?.[0] || "en-US";
+          const formatter = new Intl.NumberFormat(locale, {
+            style: "decimal",
+            minimumFractionDigits: fractionDigits,
+          });
+          const formattedValue = formatter.format(parseFloat(value));
+          this.props.onValueChange(formattedValue);
+        } else {
+          this.props.onValueChange("");
+        }
+      } else {
+        this.props.onValueChange(valueAsString);
+      }
+    } else {
+      this.props.onValueChange(valueAsString);
+    }
   };
 
   isNumberInputType(inputType: InputType) {
@@ -167,28 +336,48 @@ class InputComponent extends React.Component<
     }
   };
 
-  private numericInputComponent = () => (
-    <NumericInput
-      allowNumericCharactersOnly
-      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-      disabled={this.props.disabled}
-      intent={this.props.intent}
-      leftIcon={
-        this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
-      }
-      max={this.props.maxNum}
-      maxLength={this.props.maxChars}
-      min={this.props.minNum}
-      onBlur={() => this.setFocusState(false)}
-      onFocus={() => this.setFocusState(true)}
-      onKeyDown={this.onKeyDown}
-      onValueChange={this.onNumberChange}
-      placeholder={this.props.placeholder}
-      stepSize={this.props.stepSize}
-      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-      value={this.props.value}
-    />
-  );
+  private numericInputComponent = () => {
+    const minorStepSize =
+      this.props.inputType === InputTypes.CURRENCY
+        ? this.props.decimalsInCurrency || 0
+        : 0;
+    return (
+      <NumericInput
+        allowNumericCharactersOnly
+        className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
+        disabled={this.props.disabled}
+        intent={this.props.intent}
+        leftIcon={
+          this.props.inputType === "PHONE_NUMBER"
+            ? "phone"
+            : this.props.inputType !== InputTypes.CURRENCY
+            ? this.props.leftIcon
+            : this.props.inputType === InputTypes.CURRENCY && (
+                <CurrencyTypeDropdown
+                  allowCurrencyChange={this.props.allowCurrencyChange}
+                  onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+                  options={getCurrencyOptions()}
+                  selected={getSelectedItem(this.props.currencyCountryCode)}
+                />
+              )
+        }
+        max={this.props.maxNum}
+        maxLength={this.props.maxChars}
+        min={this.props.minNum}
+        minorStepSize={
+          minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
+        }
+        onBlur={() => this.setFocusState(false)}
+        onFocus={() => this.setFocusState(true)}
+        onKeyDown={this.onKeyDown}
+        onValueChange={this.onNumberChange}
+        placeholder={this.props.placeholder}
+        stepSize={minorStepSize === 0 ? this.props.stepSize : undefined}
+        type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+        value={this.props.value}
+      />
+    );
+  };
   private textAreaInputComponent = () => (
     <TextArea
       className={this.props.isLoading ? "bp3-skeleton" : ""}
@@ -244,8 +433,10 @@ class InputComponent extends React.Component<
   render() {
     return (
       <InputComponentWrapper
+        allowCurrencyChange={this.props.allowCurrencyChange}
         fill
         hasError={this.props.isInvalid}
+        inputType={this.props.inputType}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
@@ -287,6 +478,10 @@ export interface InputComponentProps extends ComponentProps {
   disabled?: boolean;
   intent?: Intent;
   defaultValue?: string;
+  currencyCountryCode?: string;
+  noOfDecimals?: number;
+  allowCurrencyChange?: boolean;
+  decimalsInCurrency?: number;
   label: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
@@ -296,6 +491,7 @@ export interface InputComponentProps extends ComponentProps {
   maxNum?: number;
   minNum?: number;
   onValueChange: (valueAsString: string) => void;
+  onCurrencyTypeChange: (code?: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;

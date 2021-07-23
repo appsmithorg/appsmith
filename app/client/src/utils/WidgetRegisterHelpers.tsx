@@ -38,7 +38,7 @@ export const registerWidget = (
           // @ts-ignore
           withWidgetAPI(withMeta(Widget)),
         );
-        return <ProfiledWidget {...widgetData} />;
+        return <ProfiledWidget key={widgetData.widgetId} {...widgetData} />;
       },
     },
     config.properties.derived,

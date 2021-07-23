@@ -8,9 +8,13 @@ import {
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-// import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import TableFilters, { ReactTableFilter } from "./TableFilters";
-import { ReactTableColumnProps, CompactMode, TableSizes } from "./Constants";
+import TableFilters from "./TableFilters";
+import {
+  ReactTableColumnProps,
+  CompactMode,
+  TableSizes,
+  ReactTableFilter,
+} from "./Constants";
 import TableDataDownload from "./TableDataDownload";
 import TableCompactMode from "./TableCompactMode";
 import { Colors } from "constants/Colors";
@@ -95,12 +99,12 @@ interface TableHeaderProps {
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   widgetName: string;
+  widgetId: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
@@ -129,8 +133,8 @@ function TableHeader(props: TableHeaderProps) {
             <TableFilters
               applyFilter={props.applyFilter}
               columns={props.columns}
-              editMode={props.editMode}
               filters={props.filters}
+              widgetId={props.widgetId}
             />
           )}
 

@@ -13,7 +13,6 @@ import {
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import { ReactTableFilter } from "./TableFilters";
 import {
   TableHeaderCell,
   renderEmptyRows,
@@ -24,6 +23,7 @@ import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
+  ReactTableFilter,
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
@@ -242,7 +242,6 @@ export function Table(props: TableProps) {
                 columns={tableHeadercolumns}
                 compactMode={props.compactMode}
                 currentPageIndex={currentPageIndex}
-                editMode={props.editMode}
                 filters={props.filters}
                 isVisibleCompactMode={props.isVisibleCompactMode}
                 isVisibleDownload={props.isVisibleDownload}
@@ -262,6 +261,7 @@ export function Table(props: TableProps) {
                 tableSizes={tableSizes}
                 updateCompactMode={props.updateCompactMode}
                 updatePageNo={props.updatePageNo}
+                widgetId={props.widgetId}
                 widgetName={props.widgetName}
               />
             </TableHeaderInnerWrapper>

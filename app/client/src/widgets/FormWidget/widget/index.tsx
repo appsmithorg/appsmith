@@ -22,6 +22,7 @@ class FormWidget extends ContainerWidget {
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
+            isJSConvertible: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
           },

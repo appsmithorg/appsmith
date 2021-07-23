@@ -25,7 +25,7 @@ import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { AppState } from "reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import Debugger from "components/editorComponents/Debugger";
-import { closePropertyPane } from "actions/widgetActions";
+import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const EditorWrapper = styled.div`
@@ -69,16 +69,6 @@ function WidgetsEditor() {
     (state: AppState) =>
       state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
   );
-  console.log(
-    "Widgets",
-    "CanvasWidgets",
-    { widgets },
-    { currentApp },
-    { currentPageName },
-    { currentPageId },
-    { isFetchingPage },
-    { params },
-  );
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -117,6 +107,7 @@ function WidgetsEditor() {
     focusWidget && focusWidget();
     deselectAll && deselectAll();
     dispatch(closePropertyPane());
+    dispatch(closeTableFilterPane());
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (

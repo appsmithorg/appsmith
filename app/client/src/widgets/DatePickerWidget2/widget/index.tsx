@@ -195,8 +195,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
-      selectedDate: `{{ this.value ? moment(this.value).toISOString() : (this.defaultDate ? moment(this.defaultDate).toISOString() : "")}}`,
-      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : (this.defaultDate ? moment(this.defaultDate).format(this.dateFormat) : "")}}`,
+      selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
+      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
     };
   }
 

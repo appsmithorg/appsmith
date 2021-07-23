@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "../component/Constants";
-import { TableWidgetProps } from "./constants";
+import { TableWidgetProps } from "../constants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
@@ -441,6 +441,24 @@ export default [
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                },
+                {
+                  propertyName: "onClick",
+                  label: "onClick",
+                  controlType: "ACTION_SELECTOR",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "image";
+                  },
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
                 },
               ],
             },

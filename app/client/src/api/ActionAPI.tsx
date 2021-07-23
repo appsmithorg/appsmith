@@ -83,6 +83,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
+  messages?: Array<string>;
 }
 
 export interface MoveActionRequest {

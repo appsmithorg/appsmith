@@ -30,6 +30,7 @@ import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
 
 export const renderCell = (
   value: any,
@@ -37,6 +38,8 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  onClick: () => void = noop,
+  isSelected?: boolean,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -67,19 +70,21 @@ export const renderCell = (
             .map((item: string, index: number) => {
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
                 return (
-                  <a
+                  <div
                     className="image-cell-wrapper"
-                    href={item}
                     key={index}
-                    onClick={(e) => e.stopPropagation()}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                    onClick={(e) => {
+                      if (isSelected) {
+                        e.stopPropagation();
+                      }
+                      onClick();
+                    }}
                   >
                     <div
                       className="image-cell"
                       style={{ backgroundImage: `url("${item}")` }}
                     />
-                  </a>
+                  </div>
                 );
               } else {
                 return <div key={index}>Invalid Image</div>;

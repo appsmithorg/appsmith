@@ -47,15 +47,6 @@ const StyledHeader = styled.div`
     ${(props) => getTypographyByKey(props, "p1")};
     color: ${(props) => props.theme.colors.notifications.listHeaderTitle};
   }
-
-  & .mark-all-as-read {
-    border-color: ${(props) =>
-      props.theme.colors.notifications.markAllAsReadButtonBackground};
-    background-color: ${(props) =>
-      props.theme.colors.notifications.markAllAsReadButtonBackground};
-    color: ${(props) =>
-      props.theme.colors.notifications.markAllAsReadButtonText};
-  }
 `;
 
 const Label = styled.div`
@@ -81,7 +72,7 @@ function EmptyNotificationsState() {
   );
 }
 
-function NotificationsListHeader() {
+function NotificationsListHeader(props: { markAllAsReadDisabled: boolean }) {
   const dispatch = useDispatch();
 
   return (
@@ -90,6 +81,7 @@ function NotificationsListHeader() {
       <Button
         category={Category.primary}
         className={"mark-all-as-read"}
+        disabled={props.markAllAsReadDisabled}
         onClick={() => {
           dispatch(markAllNotificationsAsReadRequest());
         }}
@@ -111,11 +103,11 @@ function NotificationsList() {
   const dispatch = useDispatch();
   const notifications = useSelector(notificationsSelector);
   const fetchingNotifications = useSelector(fetchingNotificationsSelector);
-  const height = Math.min(4, notifications.length) * NOTIFICATION_HEIGHT;
+  const height = Math.min(3.5, notifications.length) * NOTIFICATION_HEIGHT;
 
   return (
     <Container>
-      <NotificationsListHeader />
+      <NotificationsListHeader markAllAsReadDisabled={!notifications.length} />
       {notifications.length > 0 ? (
         <Virtuoso
           components={{

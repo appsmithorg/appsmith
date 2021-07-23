@@ -104,8 +104,9 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
 
     render() {
       console.log(
-        "=====Connected Widget, Rendering Widget......",
+        "Connected Widgets, Rendering Widget......",
         this.props.widgetName,
+        { props: this.props },
       );
       return this.getWidgetView(<Widget {...this.props} />);
     }
@@ -204,7 +205,10 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
      */
     addOverlayComments(content: ReactNode) {
       return (
-        <OverlayCommentsWrapper refId={this.props.widgetId}>
+        <OverlayCommentsWrapper
+          refId={this.props.widgetId}
+          widgetType={this.props.type}
+        >
           {content}
         </OverlayCommentsWrapper>
       );
@@ -246,29 +250,6 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
           throw Error("RenderMode not defined");
       }
     }
-
-    // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
-    // This would involve making all widgets which have "states" to not have states,
-    // as they're extending this one.
-    // shouldComponentUpdate(nextProps: WidgetProps): boolean {
-    //   const start = performance.now();
-    //   const isDifferent =
-    //     JSON.stringify(nextProps) !== JSON.stringify(this.props);
-    //   console.log(
-    //     "Connected Widgets prop diff calculations took",
-    //     performance.now() - start,
-    //     "ms",
-    //     "widget",
-    //     this.props,
-    //     "are they different",
-    //     isDifferent,
-    //   );
-    //   return isDifferent;
-    //   // return (
-    //   //   !shallowequal(nextProps, this.props) ||
-    //   //   !shallowequal(nextState, this.state)
-    //   // );
-    // }
 
     /**
      * generates styles that positions the widget
@@ -399,7 +380,7 @@ export type WidgetSkeleton = {
 };
 
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
-// const mapStateToProps = getWidgetProps;
+
 const makeMapStateToProps = () => {
   const getWidgetProps = makeGetWidgetProps();
   const mapStateToProps = (state: AppState, props: { widgetId: string }) => {
@@ -408,63 +389,75 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export const mapDispatchToProps = (
-  dispatch: any,
-  ownProps: { widgetId: string },
-) => ({
-  executeAction: (actionPayload: WidgetExecuteActionPayload): void => {
-    dispatch(executeAction({ ...actionPayload, widgetId: ownProps.widgetId }));
+const resolver = (dispatch: any, ownProps: { widgetId: string }) =>
+  ownProps.widgetId;
+export const mapDispatchToProps = memoize(
+  (dispatch: any, ownProps: { widgetId: string }) => {
+    console.log(
+      "Connected Widgets, creating dispatch props....",
+      ownProps.widgetId,
+    );
+    return {
+      executeAction: (actionPayload: WidgetExecuteActionPayload): void => {
+        dispatch(
+          executeAction({ ...actionPayload, widgetId: ownProps.widgetId }),
+        );
+      },
+      disableDrag: (disable: boolean) => {
+        disable !== undefined && dispatch(disableDragAction(disable));
+      },
+      updateWidget: (
+        operationName: string,
+        widgetId: string,
+        widgetProperties: any,
+      ) => {
+        dispatch(updateWidget(operationName, widgetId, widgetProperties));
+      },
+      deleteWidgetProperty: (propertyPaths: string[]) => {
+        if (ownProps.widgetId) {
+          dispatch(deleteWidgetProperty(ownProps.widgetId, propertyPaths));
+        }
+      },
+      batchUpdateWidgetProperty: (updates: BatchPropertyUpdatePayload) => {
+        if (ownProps.widgetId) {
+          dispatch(batchUpdateWidgetProperty(ownProps.widgetId, updates));
+        }
+      },
+      updateWidgetProperty: (propertyName: string, propertyValue: any) => {
+        if (ownProps.widgetId) {
+          dispatch(
+            batchUpdateWidgetProperty(ownProps.widgetId, {
+              modify: { [propertyName]: propertyValue },
+            }),
+          );
+        }
+      },
+      resetChildrenMetaProperty: (widgetId: string) => {
+        dispatch(resetChildrenMetaProperty(widgetId));
+      },
+      updateWidgetMetaProperty: (
+        widgetId: string,
+        propertyPath: string,
+        propertyValue: any,
+      ) => {
+        dispatch(
+          updateWidgetMetaProperty(widgetId, propertyPath, propertyValue),
+        );
+      },
+      showPropertyPane: (
+        widgetId?: string,
+        callForDragOrResize?: boolean,
+        force = false,
+      ) => {
+        dispatch({
+          type:
+            widgetId || callForDragOrResize
+              ? ReduxActionTypes.SHOW_PROPERTY_PANE
+              : ReduxActionTypes.HIDE_PROPERTY_PANE,
+          payload: { widgetId, callForDragOrResize, force },
+        });
+      },
+    };
   },
-  disableDrag: (disable: boolean) => {
-    disable !== undefined && dispatch(disableDragAction(disable));
-  },
-  updateWidget: (
-    operationName: string,
-    widgetId: string,
-    widgetProperties: any,
-  ) => {
-    dispatch(updateWidget(operationName, widgetId, widgetProperties));
-  },
-  deleteWidgetProperty: (propertyPaths: string[]) => {
-    if (ownProps.widgetId) {
-      dispatch(deleteWidgetProperty(ownProps.widgetId, propertyPaths));
-    }
-  },
-  batchUpdateWidgetProperty: (updates: BatchPropertyUpdatePayload) => {
-    if (ownProps.widgetId) {
-      dispatch(batchUpdateWidgetProperty(ownProps.widgetId, updates));
-    }
-  },
-  updateWidgetProperty: (propertyName: string, propertyValue: any) => {
-    if (ownProps.widgetId) {
-      dispatch(
-        batchUpdateWidgetProperty(ownProps.widgetId, {
-          modify: { [propertyName]: propertyValue },
-        }),
-      );
-    }
-  },
-  resetChildrenMetaProperty: (widgetId: string) => {
-    dispatch(resetChildrenMetaProperty(widgetId));
-  },
-  updateWidgetMetaProperty: (
-    widgetId: string,
-    propertyPath: string,
-    propertyValue: any,
-  ) => {
-    dispatch(updateWidgetMetaProperty(widgetId, propertyPath, propertyValue));
-  },
-  showPropertyPane: (
-    widgetId?: string,
-    callForDragOrResize?: boolean,
-    force = false,
-  ) => {
-    dispatch({
-      type:
-        widgetId || callForDragOrResize
-          ? ReduxActionTypes.SHOW_PROPERTY_PANE
-          : ReduxActionTypes.HIDE_PROPERTY_PANE,
-      payload: { widgetId, callForDragOrResize, force },
-    });
-  },
-});
+  resolver,
+);

@@ -87,6 +87,7 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { getAppMode } from "selectors/applicationSelectors";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -441,7 +442,10 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put(saveLayout(action.payload.isRetry));
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+    if (appMode === APP_MODE.EDIT) {
+      yield put(saveLayout(action.payload.isRetry));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

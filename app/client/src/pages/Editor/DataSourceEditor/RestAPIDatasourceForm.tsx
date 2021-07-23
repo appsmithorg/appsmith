@@ -281,6 +281,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         text: "Unable to create API. Try adding a url to the datasource",
         variant: Variant.danger,
       });
+      return;
     }
     const newApiName = createNewApiName(actions, pageId || "");
 

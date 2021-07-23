@@ -30,7 +30,6 @@ class CanvasWidget extends ContainerWidget {
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
-    console.log("Connected Widgets Canvas Widget", { canvasProps });
     return (
       <DropTargetComponent
         {...canvasProps}
@@ -40,21 +39,6 @@ class CanvasWidget extends ContainerWidget {
       </DropTargetComponent>
     );
   }
-  // renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-  //   if (!childWidgetData) return null;
-  //   // For now, isVisible prop defines whether to render a detached widget
-  //   if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-  //     return null;
-  //   }
-  //   const snapSpaces = this.getSnapSpaces();
-
-  //   childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-  //   childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-  //   if (this.props.noPad) childWidgetData.noContainerOffset = true;
-  //   childWidgetData.parentId = this.props.widgetId;
-
-  //   return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
-  // }
 
   render() {
     if (this.props.renderMode === RenderModes.CANVAS) {

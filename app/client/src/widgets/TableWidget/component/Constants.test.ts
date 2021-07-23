@@ -49,6 +49,7 @@ describe("ConditionFunctions Constants", () => {
   it("works as expected for endsWith", () => {
     const conditionFunction = ConditionFunctions["endsWith"];
     expect(conditionFunction("subtest", "test")).toStrictEqual(true);
+    expect(conditionFunction("subtest", "t")).toStrictEqual(true);
   });
   it("works as expected for is", () => {
     const conditionFunction = ConditionFunctions["is"];

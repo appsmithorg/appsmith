@@ -16,7 +16,12 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidget,
+  getWidgets,
+} from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -81,6 +86,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   closePropertyPane,
+  closeTableFilterPane,
   forceOpenPropertyPane,
 } from "actions/widgetActions";
 import {
@@ -132,6 +138,8 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
+
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
@@ -524,6 +532,7 @@ export function* deleteAllSelectedWidgetsSaga(
     if (saveStatus && !disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
+      yield put(closeTableFilterPane());
       Toaster.show({
         text: createMessage(WIDGET_BULK_DELETE, `${selectedWidgets.length}`),
         hideProgressBar: false,
@@ -538,14 +547,16 @@ export function* deleteAllSelectedWidgetsSaga(
       setTimeout(() => {
         if (bulkDeleteKey) {
           flushDeletedWidgets(bulkDeleteKey);
-          AppsmithConsole.info({
-            logType: LOG_TYPE.ENTITY_DELETED,
-            text: `${selectedWidgets.length} were deleted`,
-            source: {
-              name: "Group Delete",
-              type: ENTITY_TYPE.WIDGET,
-              id: bulkDeleteKey,
-            },
+          falttendedWidgets.map((widget: any) => {
+            AppsmithConsole.info({
+              logType: LOG_TYPE.ENTITY_DELETED,
+              text: "Widget was deleted",
+              source: {
+                name: widget.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                id: widget.widgetId,
+              },
+            });
           });
         }
       }, WIDGET_DELETE_UNDO_TIMEOUT);
@@ -584,7 +595,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     let { parentId, widgetId } = deleteAction.payload;
     const { disallowUndo, isShortcut } = deleteAction.payload;
     if (!widgetId) {
-      const selectedWidget: FlattenedWidgetProps = yield select(
+      const selectedWidget: FlattenedWidgetProps | undefined = yield select(
         getSelectedWidget,
       );
       if (!selectedWidget) return;
@@ -656,17 +667,20 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             },
           },
         });
+
         setTimeout(() => {
           if (widgetId) {
             flushDeletedWidgets(widgetId);
-            AppsmithConsole.info({
-              logType: LOG_TYPE.ENTITY_DELETED,
-              text: "Widget was deleted",
-              source: {
-                name: widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                id: widgetId,
-              },
+            otherWidgetsToDelete.map((widget) => {
+              AppsmithConsole.info({
+                logType: LOG_TYPE.ENTITY_DELETED,
+                text: "Widget was deleted",
+                source: {
+                  name: widget.widgetName,
+                  type: ENTITY_TYPE.WIDGET,
+                  id: widget.widgetId,
+                },
+              });
             });
           }
         }, WIDGET_DELETE_UNDO_TIMEOUT);
@@ -941,6 +955,27 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
+    // update canvas child
+    // Check if widget has children
+    if (widget.children && widget.children.length) {
+      // Get the child props
+      let child = widgets[widget.children[0]];
+      // If child is a canvas widget
+      if (child.type === WidgetTypes.CANVAS_WIDGET) {
+        // Get widget dimensions
+        const { componentHeight, componentWidth } = getWidgetDimensions(widget);
+        // Update child canvas properties
+        child = produce(child, (canvas: WidgetProps) => {
+          canvas.rightColumn = componentWidth;
+          canvas.bottomRow = widget.shouldScrollContents
+            ? canvas.bottomRow
+            : componentHeight;
+        });
+        // Update child in canvas widgets
+        widgets[widget.children[0]] = child;
+      }
+    }
+
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
@@ -1519,10 +1554,13 @@ function* pasteWidgetSaga() {
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
   );
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
 
   selectedWidget = yield checkIfPastingIntoListWidget(
     stateWidgets,
-    selectedWidget,
+    selectedWidget || focusedWidget,
     copiedWidgetGroups,
   );
 

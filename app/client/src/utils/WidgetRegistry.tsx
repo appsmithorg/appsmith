@@ -67,6 +67,9 @@ import RateWidget, { CONFIG as RATE_WIDGET_CONFIG } from "widgets/RateWidget";
 import IframeWidget, {
   CONFIG as IFRAME_WIDGET_CONFIG,
 } from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  CONFIG as MENU_BUTTON_WIDGET_CONFIG,
+} from "widgets/MenuButtonWidget";
 import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
 import FormButtonWidget, {
   CONFIG as FORM_BUTTON_WIDGET_CONFIG,
@@ -104,5 +107,6 @@ export const registerWidgets = () => {
   registerWidget(IframeWidget, IFRAME_WIDGET_CONFIG);
   registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
   registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
+  registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

@@ -29,6 +29,7 @@ import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
+import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import notificationsReducer from "./notificationsReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 
@@ -36,6 +37,7 @@ const uiReducer = combineReducers({
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
+  tableFilterPane: tableFilterPaneReducer,
   appView: appViewReducer,
   applications: applicationsReducer,
   apiPane: apiPaneReducer,

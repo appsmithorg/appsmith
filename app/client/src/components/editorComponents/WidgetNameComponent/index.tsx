@@ -4,12 +4,16 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+import {
+  useShowPropertyPane,
+  useShowTableFilterPane,
+} from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
 
@@ -49,6 +53,7 @@ type WidgetNameComponentProps = {
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
   const propertyPaneState: PropertyPaneReduxState = useSelector(
@@ -71,6 +76,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
+  const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
+
   const togglePropertyEditor = (e: any) => {
     if (
       (!propertyPaneState.isVisible &&
@@ -87,6 +94,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         widgetType: props.type,
         widgetId: props.widgetId,
       });
+      // hide table filter pane if open
+      isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
       showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
       selectWidget && selectWidget(props.widgetId);
     } else {

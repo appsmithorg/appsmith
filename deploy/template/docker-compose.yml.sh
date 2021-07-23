@@ -55,7 +55,7 @@ services:
       - appsmith
 
   mongo:
-    image: mongo
+    image: mongo:4.4.6
     expose:
       - "27017"
     environment:

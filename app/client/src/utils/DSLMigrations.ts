@@ -861,6 +861,14 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 26) {
+    currentDSL = migrateDatePickerMinMaxDate(currentDSL);
+  }
+  if (currentDSL.version === 27) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
 };
 
@@ -1020,4 +1028,50 @@ export const checkIfMigrationIsNeeded = (
 ) => {
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
   return currentDSL.version !== LATEST_PAGE_VERSION;
+};
+
+export const migrateDatePickerMinMaxDate = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (
+    currentDSL.type === WidgetTypes.DATE_PICKER_WIDGET2 &&
+    currentDSL.version === 2
+  ) {
+    if (currentDSL.minDate === "2001-01-01 00:00") {
+      currentDSL.minDate = "1920-12-31T18:30:00.000Z";
+    }
+    if (currentDSL.maxDate === "2041-12-31 23:59") {
+      currentDSL.maxDate = "2121-12-31T18:29:00.000Z";
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.map(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateDatePickerMinMaxDate(eachWidgetDSL);
+      },
+    );
+  }
+  return currentDSL;
+};
+
+const addFilterDefaultValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    if (!currentDSL.hasOwnProperty("isFilterable")) {
+      currentDSL.isFilterable = true;
+    }
+  }
+  return currentDSL;
+};
+export const migrateFilterValueForDropDownWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addFilterDefaultValue(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateFilterValueForDropDownWidget(children);
+  });
+
+  return newDSL;
 };

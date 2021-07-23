@@ -32,6 +32,7 @@ import derivedProperties from "./parseDerivedProperties";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
 import { ListWidgetProps } from "../constants";
 import { DSLWidget } from "widgets/constants";
+import produce from "immer";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -218,23 +219,25 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  renderChild = (childWidgetData: WidgetProps) => {
+  renderChild = (props: WidgetProps) => {
     const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const childWidgetProps = produce(props, (childWidgetData) => {
+      childWidgetData.parentId = this.props.widgetId;
+      // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+      childWidgetData.canExtend =
+        childWidgetData.virtualizedEnabled && false
+          ? true
+          : this.props.shouldScrollContents;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.noPad = true;
+      childWidgetData.bottomRow =
+        this.props.bottomRow * this.props.parentRowSpace - 45;
+      childWidgetData.shouldScrollContents = false;
+    });
 
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
-    childWidgetData.canExtend =
-      childWidgetData.virtualizedEnabled && false
-        ? true
-        : this.props.shouldScrollContents;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.noPad = true;
-    childWidgetData.bottomRow =
-      this.props.bottomRow * this.props.parentRowSpace - 45;
-
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetProps);
   };
 
   /**
@@ -313,27 +316,31 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    // add default value
-    Object.keys(widget.defaultProps).map((key: string) => {
-      const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
+    if (widget.defaultProps) {
+      // add default value
+      Object.keys(widget.defaultProps).map((key: string) => {
+        const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
 
-      set(widget, `${key}`, defaultPropertyValue);
-    });
+        set(widget, `${key}`, defaultPropertyValue);
+      });
+    }
 
-    widget.defaultMetaProps.map((key: string) => {
-      const metaPropertyValue = get(
-        this.props.childMetaProperties,
-        `${widget.widgetName}.${key}.${itemIndex}`,
-        undefined,
-      );
+    if (widget.defaultMetaProps) {
+      widget.defaultMetaProps.map((key: string) => {
+        const metaPropertyValue = get(
+          this.props.childMetaProperties,
+          `${widget.widgetName}.${key}.${itemIndex}`,
+          undefined,
+        );
 
-      if (
-        typeof metaPropertyValue !== "undefined" &&
-        metaPropertyValue !== null
-      ) {
-        set(widget, key, metaPropertyValue);
-      }
-    });
+        if (
+          typeof metaPropertyValue !== "undefined" &&
+          metaPropertyValue !== null
+        ) {
+          set(widget, key, metaPropertyValue);
+        }
+      });
+    }
 
     if (
       Array.isArray(dynamicTriggerPathList) &&
@@ -564,28 +571,29 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const numberOfItemsInGrid = this.props.listData.length;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
-      const childCanvas = children[0];
-      let canvasChildren = childCanvas.children;
+      let childCanvas = children[0];
+      childCanvas = produce(childCanvas, (canvas: DSLWidget) => {
+        let canvasChildren = canvas.children;
+        if (canvasChildren) {
+          try {
+            // here we are duplicating the template for each items in the data array
+            // first item of the canvasChildren acts as a template
+            const template = canvasChildren.slice(0, 1).shift();
 
-      try {
-        // here we are duplicating the template for each items in the data array
-        // first item of the canvasChildren acts as a template
-        const template = canvasChildren.slice(0, 1).shift();
+            for (let i = 0; i < numberOfItemsInGrid; i++) {
+              canvasChildren[i] = JSON.parse(JSON.stringify(template));
+            }
 
-        for (let i = 0; i < numberOfItemsInGrid; i++) {
-          canvasChildren[i] = JSON.parse(JSON.stringify(template));
+            // TODO(pawan): This is recalculated everytime for not much reason
+            // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+            // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
+            // In particular useNewValues can be memoized, if others can't.
+            canvasChildren = this.updateGridChildrenProps(canvasChildren);
+          } catch (e) {
+            log.error(e);
+          }
         }
-
-        // TODO(pawan): This is recalculated everytime for not much reason
-        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
-        // In particular useNewValues can be memoized, if others can't.
-        canvasChildren = this.updateGridChildrenProps(canvasChildren);
-
-        childCanvas.children = canvasChildren;
-      } catch (e) {
-        log.error(e);
-      }
+      });
 
       return this.renderChild(childCanvas);
     }
@@ -641,6 +649,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     );
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    console.log(
+      "List Widget",
+      { templateHeight },
+      { templateBottomRow },
+      { perPage },
+      { shouldPaginate },
+      { componentHeight },
+      this.props.children,
+    );
 
     if (this.props.isLoading) {
       return (

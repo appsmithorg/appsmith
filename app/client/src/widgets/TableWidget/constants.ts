@@ -3,7 +3,7 @@ import {
   CompactMode,
   ReactTableFilter,
   TableStyles,
-} from "../component/Constants";
+} from "./component/Constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
 

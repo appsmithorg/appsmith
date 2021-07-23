@@ -12,15 +12,19 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { OccupiedSpace } from "constants/editorConstants";
 import { getActions } from "selectors/entitiesSelector";
 import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   RenderModes,
+  WIDGET_PADDING,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import { findKey } from "lodash";
 import produce from "immer";
 import { getAppMode } from "./applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
 
@@ -149,6 +153,26 @@ export const getWidgetFromCanvasWidgets = (
   });
 };
 
+export const getColumnSpace = (props: WidgetProps) => {
+  const { componentWidth } = getWidgetDimensions(props);
+  // For all widgets inside a container, we remove both container padding as well as widget padding from component width
+  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  if (
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    props.type === "CONTAINER_WIDGET"
+  ) {
+    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+    padding = CONTAINER_GRID_PADDING * 2;
+  }
+  if (props.noPad) {
+    // Widgets like ListWidget choose to have no container padding so will only have widget padding
+    padding = WIDGET_PADDING * 2;
+  }
+  let width = componentWidth;
+  width -= padding;
+  return componentWidth ? width / GridDefaults.DEFAULT_GRID_COLUMNS : 0;
+};
+
 export const makeGetWidgetProps = () => {
   return createSelector(
     getCanvasWidth,
@@ -222,24 +246,41 @@ export const getWidgetCards = createSelector(
 );
 
 function getChildren(
+  parentId: string,
   widgets: CanvasWidgetsReduxState,
   renderMode: RenderMode,
   children?: string[],
 ): WidgetSkeleton[] | undefined {
   if (!children) return undefined;
+  const parentProps: FlattenedWidgetProps = widgets[parentId];
+  const parentColumnSpace = getColumnSpace(parentProps);
   return children.map((child: string) => {
     const childProps: FlattenedWidgetProps = widgets[child];
+
     return {
       widgetId: child,
       type: childProps.type,
       parentId: childProps.parentId,
-      children: getChildren(widgets, renderMode, childProps.children),
+      children: getChildren(child, widgets, renderMode, childProps.children),
+      parentRowSpace:
+        childProps.type === "CANVAS_WIDGET"
+          ? 1
+          : GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      parentColumnSpace,
       renderMode,
       detachFromLayout: !!childProps.detachFromLayout,
-      isVisible: childProps.isVisible,
+      isVisible:
+        childProps.type === "CANVAS_WIDGET"
+          ? parentProps.isVisible
+          : childProps.isVisible,
+      canExtend:
+        childProps.type === "CANVAS_WIDGET"
+          ? parentProps.shouldScrollContents
+          : false,
     };
   });
 }
+
 export const getCanvasWidgetDsl = createSelector(
   getWidgets,
   getAppMode,
@@ -249,12 +290,17 @@ export const getCanvasWidgetDsl = createSelector(
         ? RenderModes.CANVAS
         : RenderModes.PAGE;
     const maincanvas: FlattenedWidgetProps = widgets["0"];
-    console.log("Connected Widgets Widget Tree", { maincanvas });
     //TODO(abhinav): Move to a redux reducer or useReducer in Canvas
     const tree = {
       widgetId: maincanvas.widgetId,
       type: maincanvas.type,
-      children: getChildren(widgets, renderMode, maincanvas.children),
+      children: getChildren(
+        maincanvas.widgetId,
+        widgets,
+        renderMode,
+        maincanvas.children,
+      ),
+      parentRowSpace: 1,
       renderMode,
       detachFromLayout: true,
       isVisible: true,

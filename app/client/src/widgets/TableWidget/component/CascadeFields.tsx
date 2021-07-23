@@ -1,21 +1,30 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, InputGroup } from "@blueprintjs/core";
+import { debounce } from "lodash";
+import { AnyStyledComponent } from "styled-components";
+
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { OperatorTypes, Condition, ColumnTypes, Operator } from "./Constants";
-import { DropdownOption, ReactTableFilter } from "./TableFilters";
+import {
+  OperatorTypes,
+  Condition,
+  ColumnTypes,
+  Operator,
+  ReactTableFilter,
+} from "./Constants";
+import { DropdownOption } from "./TableFilters";
 import { RenderOptionWrapper } from "./TableStyledWrappers";
-import { debounce } from "lodash";
+
+//TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 
 const StyledRemoveIcon = styled(
-  ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
+  ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
 )`
   padding: 0;
   position: relative;
@@ -26,8 +35,8 @@ const StyledRemoveIcon = styled(
 `;
 
 const LabelWrapper = styled.div`
-  width: 105px;
-  text-align: center;
+  width: 95px;
+  margin-left: 10px;
   color: ${Colors.BLUE_BAYOUX};
   font-size: 14px;
   font-weight: 500;
@@ -49,7 +58,7 @@ const StyledInputGroup = styled(InputGroup)`
   background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 2px;
   color: ${Colors.OXFORD_BLUE};
   height: 32px;
   width: 150px;
@@ -73,7 +82,7 @@ const DropdownTrigger = styled.div`
   background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 14px;
   padding: 5px 12px 7px;
   color: ${Colors.OXFORD_BLUE};
@@ -211,7 +220,7 @@ function RenderOptions(props: {
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon color={Colors.SLATE_GRAY} icon="chevron-down" iconSize={16} />
+          <Icon color={Colors.SLATE_GRAY} icon="caret-down" iconSize={16} />
         </DropdownTrigger>
       ),
     },
@@ -504,7 +513,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
-        color={Colors.RIVER_BED}
+        color={Colors.GRAY}
         height={16}
         onClick={handleRemoveFilter}
         width={16}

@@ -11,29 +11,39 @@ interface CanvasProps {
   width: number;
 }
 
-// TODO(abhinav): get the render mode from context
-const Canvas = memo((props: CanvasProps) => {
-  try {
+const Canvas = memo(
+  (props: CanvasProps) => {
+    try {
+      return (
+        <>
+          <PropertyPane />
+          <ArtBoard
+            className="t--canvas-artboard"
+            data-testid="t--canvas-artboard"
+            id="art-board"
+            width={props.width}
+          >
+            {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
+          </ArtBoard>
+        </>
+      );
+    } catch (error) {
+      log.error("Error rendering DSL", error);
+      Sentry.captureException(error);
+      return null;
+    }
+  },
+  (prevProps, nextProps) => {
     return (
-      <>
-        <PropertyPane />
-        <ArtBoard
-          className="t--canvas-artboard"
-          data-testid="t--canvas-artboard"
-          id="art-board"
-          width={props.width}
-        >
-          {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
-        </ArtBoard>
-      </>
+      prevProps.width === nextProps.width &&
+      JSON.stringify(prevProps.dsl) === JSON.stringify(nextProps.dsl)
     );
-  } catch (error) {
-    log.error("Error rendering DSL", error);
-    Sentry.captureException(error);
-    return null;
-  }
-});
+  },
+);
 
 Canvas.displayName = "Canvas";
+Canvas.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default Canvas;

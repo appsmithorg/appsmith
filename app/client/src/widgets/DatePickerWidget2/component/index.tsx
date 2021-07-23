@@ -194,11 +194,17 @@ class DatePickerComponent extends React.Component<
     return moment(date).format(dateFormat);
   };
 
-  parseDate = (dateStr: string): Date => {
-    const date = moment(dateStr);
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-    else return moment().toDate();
+  parseDate = (dateStr: string): Date | null => {
+    //when user clears date field the value of dateStr will be empty
+    //and that means user is clearing date field
+    if (!dateStr) {
+      return null;
+    } else {
+      const date = moment(dateStr);
+      const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+      else return moment().toDate();
+    }
   };
 
   /**
@@ -208,7 +214,8 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+  onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
+    console.log({ selectedDate, isUserChange });
     if (isUserChange) {
       const { onDateSelected } = this.props;
 

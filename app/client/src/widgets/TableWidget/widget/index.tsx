@@ -1,5 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import log from "loglevel";
+import moment from "moment";
+import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
+
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -11,13 +15,11 @@ import {
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
-import moment from "moment";
-import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
-import { retryPromise } from "utils/AppsmithUtils";
+import { noop, retryPromise } from "utils/AppsmithUtils";
+
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import log from "loglevel";
-import { ReactTableFilter } from "../component/TableFilters";
-import { TableWidgetProps } from "./constants";
+import { ReactTableFilter } from "../component/Constants";
+import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 
 import {
@@ -200,6 +202,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
+          } else if (columnProperties.columnType === "image") {
+            const isSelected = !!props.row.isSelected;
+            const onClick = columnProperties.onClick
+              ? () =>
+                  this.onCommandClick(rowIndex, columnProperties.onClick, noop)
+              : noop;
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              componentWidth,
+              onClick,
+              isSelected,
+            );
           } else {
             return renderCell(
               props.cell.value,

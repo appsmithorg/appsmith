@@ -42,7 +42,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final ReleaseNotesService releaseNotesService;
 
-    private static final int MAX_PROFILE_PHOTO_SIZE_KB = 250;
+    private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
