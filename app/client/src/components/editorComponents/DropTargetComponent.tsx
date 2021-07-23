@@ -6,8 +6,11 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 import styled from "styled-components";
+import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
+import { isEqual } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
@@ -22,7 +25,7 @@ import {
   useShowPropertyPane,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { debounce } from "lodash";
 
@@ -60,7 +63,6 @@ export const DropTargetContext: Context<{
     widgetBottomRow: number,
   ) => number | false;
   persistDropTargetRows?: (widgetId: string, row: number) => void;
-  rows?: number;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
@@ -68,7 +70,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -86,8 +87,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
   );
 
-  const occupiedSpacesByChildren =
-    occupiedSpaces && occupiedSpaces[props.widgetId];
+  const selectOccupiedSpaces = useCallback(
+    getOccupiedSpacesSelectorForContainer(props.widgetId),
+    [props.widgetId],
+  );
+
+  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, isEqual);
 
   const rowRef = useRef(snapRows);
 
@@ -104,23 +109,27 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   }, [props.bottomRow, props.canExtend]);
 
-  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
-    const newRows = calculateDropTargetRows(
-      widgetId,
-      widgetBottomRow,
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      occupiedSpacesByChildren,
-    );
-    const rowsToPersist = Math.max(
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      newRows,
-    );
-    rowRef.current = rowsToPersist;
-    updateHeight();
-    if (canDropTargetExtend) {
-      updateCanvasSnapRows(props.widgetId, rowsToPersist);
-    }
-  };
+  const persistDropTargetRows = useCallback(
+    (widgetId: string, widgetBottomRow: number) => {
+      const newRows = calculateDropTargetRows(
+        widgetId,
+        widgetBottomRow,
+        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+        occupiedSpacesByChildren,
+      );
+      const rowsToPersist = Math.max(
+        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+        newRows,
+      );
+      rowRef.current = rowsToPersist;
+      updateHeight();
+      if (canDropTargetExtend) {
+        updateCanvasSnapRows(props.widgetId, rowsToPersist);
+      }
+    },
+    [props.minHeight, props.widgetId, canDropTargetExtend],
+  );
+
   const updateHeight = useCallback(
     debounce(() => {
       if (dropTargetRef.current) {
@@ -135,26 +144,26 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }),
     [canDropTargetExtend],
   );
-
   /* Update the rows of the main container based on the current widget's (dragging/resizing) bottom row */
-  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
-    if (canDropTargetExtend) {
-      const newRows = calculateDropTargetRows(
-        widgetId,
-        widgetBottomRow,
-        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-        occupiedSpacesByChildren,
-      );
-
-      if (rowRef.current < newRows) {
-        rowRef.current = newRows;
-        updateHeight();
-        return newRows;
+  const updateDropTargetRows = useCallback(
+    (widgetId: string, widgetBottomRow: number) => {
+      if (canDropTargetExtend) {
+        const newRows = calculateDropTargetRows(
+          widgetId,
+          widgetBottomRow,
+          props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+          occupiedSpacesByChildren,
+        );
+        if (rows < newRows) {
+          setRows(newRows);
+          return true;
+        }
+        return false;
       }
       return false;
-    }
-    return false;
-  };
+    },
+    [props.minHeight, occupiedSpacesByChildren, canDropTargetExtend, rows],
+  );
 
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
@@ -176,13 +185,17 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       ? "0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
   const dropTargetRef = useRef<HTMLDivElement>(null);
+
+  // memoizing context values
+  const contextValue = useMemo(() => {
+    return {
+      updateDropTargetRows,
+      persistDropTargetRows,
+    };
+  }, [updateDropTargetRows, persistDropTargetRows, occupiedSpacesByChildren]);
+
   return (
-    <DropTargetContext.Provider
-      value={{
-        updateDropTargetRows,
-        persistDropTargetRows,
-      }}
-    >
+    <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
         className={"t--drop-target"}
         onClick={handleFocus}
