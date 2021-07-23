@@ -4,7 +4,6 @@ import { JS_EDITOR_FORM } from "constants/forms";
 import { JSAction } from "entities/JSAction";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSActionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import FormLabel from "components/editorComponents/FormLabel";
 import CodeEditor from "components/editorComponents/CodeEditor";
@@ -21,7 +20,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Resizable from "components/editorComponents/Debugger/Resizer";
 import { TabbedViewContainer } from "../QueryEditor/EditorJSONtoForm";
 import FormRow from "components/editorComponents/FormRow";
-import JSActionNameEditor from "./JSActionNameEditor";
+import JSCollectionNameEditor from "./JSCollectionNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -171,7 +170,7 @@ function JSEditorForm() {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSCollection">
-              <JSActionNameEditor page="JS_PANE" />
+              <JSCollectionNameEditor page="JS_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSActionsMenu

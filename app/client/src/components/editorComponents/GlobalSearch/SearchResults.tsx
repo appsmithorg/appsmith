@@ -20,6 +20,7 @@ import {
   homePageIcon,
   pageIcon,
   apiIcon,
+  jsIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -219,6 +220,32 @@ function ActionItem(props: {
   );
 }
 
+function JSActionItem(props: {
+  query: string;
+  item: SearchItem;
+  isActiveItem: boolean;
+}) {
+  const { item, query } = props;
+  const { config } = item || {};
+  const icon = jsIcon;
+  const title = getItemTitle(item);
+  const pageName = usePageName(config.pageId);
+  const subText = `${pageName}`;
+
+  return (
+    <>
+      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      <ItemTitle>
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </TextWrapper>
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
+      </ItemTitle>
+    </>
+  );
+}
+
 function DatasourceItem(props: {
   query: string;
   item: SearchItem;
@@ -297,6 +324,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
+  [SEARCH_ITEM_TYPES.jsAction]: JSActionItem,
 };
 
 type ItemProps = {

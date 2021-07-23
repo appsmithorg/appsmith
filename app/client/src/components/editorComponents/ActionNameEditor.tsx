@@ -9,6 +9,7 @@ import EditableText, {
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
+import { JSAction } from "entities/JSAction";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
@@ -77,6 +78,10 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
     state.entities.actions.map((action) => action.config),
   );
 
+  const jsActions: JSAction[] = useSelector((state: AppState) =>
+    state.entities.jsActions.map((action) => action.config),
+  );
+
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -103,7 +108,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
 
   const hasActionNameConflict = useCallback(
     (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
-    [existingPageNames, actions, existingWidgetNames],
+    [existingPageNames, actions, existingWidgetNames, jsActions],
   );
 
   const isInvalidActionName = useCallback(

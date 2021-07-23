@@ -101,6 +101,28 @@ export const deleteJSActionSuccess = (payload: { id: string }) => {
   };
 };
 
+export const saveJSCollectionName = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT,
+  payload: payload,
+});
+
+export const fetchJSActionsForPage = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
+    payload: { pageId },
+  };
+};
+
+export const fetchJSActionsForPageSuccess = (actions: JSAction[]) => {
+  return {
+    type: ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
+    payload: actions,
+  };
+};
+
 export default {
   fetchJSActions,
   deleteJSAction,

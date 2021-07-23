@@ -1,6 +1,7 @@
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
+import { PluginType } from "entities/Action";
 
 export type RecentEntity = {
   type: string;
@@ -16,6 +17,7 @@ export enum SEARCH_ITEM_TYPES {
   page = "page",
   sectionTitle = "sectionTitle",
   placeholder = "placeholder",
+  jsAction = "jsAction",
 }
 
 export type DocSearchItem = {
@@ -43,6 +45,8 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   )
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
+  else if (item.config?.pluginType === PluginType.JS)
+    type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else type = SEARCH_ITEM_TYPES.datasource;
 
@@ -54,6 +58,7 @@ export const getItemTitle = (item: SearchItem): string => {
 
   switch (type) {
     case SEARCH_ITEM_TYPES.action:
+    case SEARCH_ITEM_TYPES.jsAction:
       return item?.config?.name;
     case SEARCH_ITEM_TYPES.widget:
       return item?.widgetName;
@@ -75,6 +80,7 @@ export const getItemPage = (item: SearchItem): string => {
 
   switch (type) {
     case SEARCH_ITEM_TYPES.action:
+    case SEARCH_ITEM_TYPES.jsAction:
       return item?.config?.pageId;
     case SEARCH_ITEM_TYPES.widget:
     case SEARCH_ITEM_TYPES.page:

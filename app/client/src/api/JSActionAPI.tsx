@@ -9,7 +9,13 @@ export interface MoveJSActionRequest {
   collectionId: string;
   destinationPageId: string;
 }
-
+export interface UpdateJSCollectionNameRequest {
+  pageId: string;
+  actionCollectionId: string;
+  layoutId: string;
+  newName: string;
+  oldName: string;
+}
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
@@ -38,6 +44,21 @@ class JSActionAPI extends API {
 
   static moveJSAction(moveRequest: MoveJSActionRequest) {
     return API.put(JSActionAPI.url + "/move", moveRequest);
+  }
+
+  static fetchJSActionsByPageId(
+    pageId: string,
+  ): AxiosPromise<GenericApiResponse<JSAction[]>> {
+    return API.get(JSActionAPI.url, { pageId });
+  }
+
+  static updateJSCollectionName(
+    updateJSCollectionNameRequest: UpdateJSCollectionNameRequest,
+  ) {
+    return API.put(
+      JSActionAPI.url + "/refactor",
+      updateJSCollectionNameRequest,
+    );
   }
 }
 

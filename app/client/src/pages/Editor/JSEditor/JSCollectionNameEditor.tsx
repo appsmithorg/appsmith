@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -14,6 +14,7 @@ import { getExistingPageNames } from "sagas/selectors";
 import { Classes } from "@blueprintjs/core";
 import log from "loglevel";
 import { Action } from "entities/Action";
+import { saveJSCollectionName } from "actions/jsActionActions";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -49,7 +50,7 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export function JSActionNameEditor(props: ActionNameEditorProps) {
+export function JSCollectionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -57,17 +58,13 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   if (!params.collectionId) {
     log.error("No API id or Query id found in the url.");
   }
-
-  // For onboarding
-  // const hideEditIcon = useSelector((state: AppState) =>
-  //   checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
-  // );
+  const dispatch = useDispatch();
 
   const jsActions: JSAction[] = useSelector((state: AppState) =>
     state.entities.jsActions.map((action) => action.config),
   );
 
-  const currentJSActionConfig: JSAction | undefined = jsActions.find(
+  const currentJSCollectionConfig: JSAction | undefined = jsActions.find(
     (action) => action.id === params.collectionId,
   );
 
@@ -88,35 +85,46 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
     isSaving: boolean;
     error: boolean;
   } = useSelector((state: AppState) => {
-    const id = currentJSActionConfig ? currentJSActionConfig.id : "";
+    const id = currentJSCollectionConfig ? currentJSCollectionConfig.id : "";
     return {
       isSaving: state.ui.apiName.isSaving[id],
       error: state.ui.apiName.errors[id],
     };
   });
 
-  const hasActionNameConflict = useCallback(
+  const hasNameConflict = useCallback(
     (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
     [existingPageNames, jsActions, existingWidgetNames, actions],
   );
 
-  const handleJSFunctionNameChange = () => {
-    //To DO collection name change;
-  };
-
-  const isInvalidJSActionName = useCallback(
+  const isInvalidJSCollectionName = useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
         return "Please enter a valid name";
       } else if (
-        name !== currentJSActionConfig?.name &&
-        hasActionNameConflict(name)
+        name !== currentJSCollectionConfig?.name &&
+        hasNameConflict(name)
       ) {
         return `${name} is already being used.`;
       }
       return false;
     },
-    [currentJSActionConfig, hasActionNameConflict],
+    [currentJSCollectionConfig, hasNameConflict],
+  );
+
+  const handleJSCollectionNameChange = useCallback(
+    (name: string) => {
+      if (
+        currentJSCollectionConfig &&
+        name !== currentJSCollectionConfig?.name &&
+        !isInvalidJSCollectionName(name)
+      ) {
+        dispatch(
+          saveJSCollectionName({ id: currentJSCollectionConfig.id, name }),
+        );
+      }
+    },
+    [dispatch, isInvalidJSCollectionName, currentJSCollectionConfig],
   );
 
   useEffect(() => {
@@ -149,12 +157,14 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
       >
         <EditableText
           className="t--action-name-edit-field"
-          defaultValue={currentJSActionConfig ? currentJSActionConfig.name : ""}
+          defaultValue={
+            currentJSCollectionConfig ? currentJSCollectionConfig.name : ""
+          }
           editInteractionKind={EditInteractionKind.SINGLE}
           forceDefault={forceUpdate}
           isEditingDefault={isNew}
-          isInvalid={isInvalidJSActionName}
-          onTextChanged={handleJSFunctionNameChange}
+          isInvalid={isInvalidJSCollectionName}
+          onTextChanged={handleJSCollectionNameChange}
           placeholder="Name of the function in camelCase"
           type="text"
           updating={saveStatus.isSaving}
@@ -165,4 +175,4 @@ export function JSActionNameEditor(props: ActionNameEditorProps) {
   );
 }
 
-export default JSActionNameEditor;
+export default JSCollectionNameEditor;

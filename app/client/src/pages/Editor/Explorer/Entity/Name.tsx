@@ -117,6 +117,12 @@ export const EntityName = forwardRef(
       ),
     );
 
+    const existingJSActionNames: string[] = useSelector((state: AppState) =>
+      state.entities.jsActions.map(
+        (action: { config: { name: string } }) => action.config.name,
+      ),
+    );
+
     const hasNameConflict = useCallback(
       (
         newName: string,
@@ -126,13 +132,19 @@ export const EntityName = forwardRef(
           return !(
             existingPageNames.indexOf(newName) === -1 &&
             existingActionNames.indexOf(newName) === -1 &&
-            existingWidgetNames.indexOf(newName) === -1
+            existingWidgetNames.indexOf(newName) === -1 &&
+            existingJSActionNames.indexOf(newName)
           );
         } else {
           return tabs.findIndex((tab) => tab.label === newName) > -1;
         }
       },
-      [existingPageNames, existingActionNames, existingWidgetNames],
+      [
+        existingPageNames,
+        existingActionNames,
+        existingWidgetNames,
+        existingJSActionNames,
+      ],
     );
 
     const isInvalidName = useCallback(

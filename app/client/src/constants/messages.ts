@@ -366,6 +366,8 @@ export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving ${actionName}`;
+export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
+  `Unable to update js collection name to ${actionName}`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";

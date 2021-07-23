@@ -8,6 +8,7 @@ import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
 import JSActionEntityContextMenu from "./JSActionContextMenu";
 import { getJSActionIdFromURL } from "../helpers";
+import { saveJSCollectionName } from "actions/jsActionActions";
 
 type ExplorerJSActionEntityProps = {
   action: any;
@@ -17,8 +18,8 @@ type ExplorerJSActionEntityProps = {
   pageId: string;
 };
 
-const getUpdateJSActionName = () => {
-  console.log("update name");
+const getUpdateJSCollectionName = (id: string, name: string) => {
+  return saveJSCollectionName({ id, name });
 };
 
 export const ExplorerJSActionEntity = memo(
@@ -56,7 +57,7 @@ export const ExplorerJSActionEntity = memo(
         name={props.action.config.name}
         searchKeyword={props.searchKeyword}
         step={props.step}
-        updateEntityName={getUpdateJSActionName}
+        updateEntityName={getUpdateJSCollectionName}
       >
         <EntityProperties
           entity={props.action}

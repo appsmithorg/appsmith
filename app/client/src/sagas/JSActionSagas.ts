@@ -4,7 +4,14 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { all, put, takeEvery, takeLatest, select } from "redux-saga/effects";
+import {
+  all,
+  put,
+  takeEvery,
+  takeLatest,
+  select,
+  call,
+} from "redux-saga/effects";
 import { FetchActionsPayload } from "actions/actionActions";
 import { JSAction } from "entities/JSAction";
 import {
@@ -14,6 +21,8 @@ import {
   copyJSActionError,
   moveJSActionSuccess,
   moveJSActionError,
+  fetchJSActionsForPage,
+  fetchJSActionsForPageSuccess,
 } from "actions/jsActionActions";
 import {
   getJSAction,
@@ -37,9 +46,14 @@ import {
   JS_ACTION_CREATED_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
+  ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import PageApi from "api/PageApi";
+import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { GenericApiResponse } from "api/ApiResponses";
 
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -242,6 +256,104 @@ export function* deleteJSActionSaga(
   }
 }
 
+function* saveJSCollectionName(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
+  // Takes from state, checks if the name isValid, saves
+  const collectionId = action.payload.id;
+  const collection = yield select((state) =>
+    state.entities.jsActions.find(
+      (jsAction: JSActionData) => jsAction.config.id === collectionId,
+    ),
+  );
+  try {
+    yield refactorJSCollectionName(
+      collection.config.id,
+      collection.config.pageId,
+      collection.config.name,
+      action.payload.name,
+    );
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,
+      payload: {
+        actionId: action.payload.id,
+        oldName: collection.config.name,
+      },
+    });
+    Toaster.show({
+      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
+      variant: Variant.danger,
+    });
+    console.error(e);
+  }
+}
+
+export function* refactorJSCollectionName(
+  id: string,
+  pageId: string,
+  oldName: string,
+  newName: string,
+) {
+  const pageResponse = yield call(PageApi.fetchPage, {
+    id: pageId,
+  });
+  // check if page request is successful
+  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  if (isPageRequestSuccessful) {
+    // get the layoutId from the page response
+    const layoutId = pageResponse.data.layouts[0].id;
+    // call to refactor action
+    const refactorResponse = yield JSActionAPI.updateJSCollectionName({
+      layoutId,
+      actionCollectionId: id,
+      pageId: pageId,
+      oldName: oldName,
+      newName: newName,
+    });
+
+    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+
+    const currentPageId = yield select(getCurrentPageId);
+
+    if (isRefactorSuccessful) {
+      yield put({
+        type: ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
+        payload: {
+          actionId: id,
+        },
+      });
+      if (currentPageId === pageId) {
+        yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(fetchJSActionsForPage(pageId));
+      } else {
+        yield put(fetchJSActionsForPage(pageId));
+      }
+    }
+  }
+}
+
+export function* fetchJSActionsForPageSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  const { pageId } = action.payload;
+  try {
+    const response: GenericApiResponse<JSAction[]> = yield call(
+      JSActionAPI.fetchJSActionsByPageId,
+      pageId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(fetchJSActionsForPageSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_JS_ACTIONS_FOR_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* watchJSActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSActionsSaga),
@@ -254,5 +366,13 @@ export function* watchJSActionSagas() {
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSActionSaga),
+    takeLatest(
+      ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT,
+      saveJSCollectionName,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
+      fetchJSActionsForPageSaga,
+    ),
   ]);
 }

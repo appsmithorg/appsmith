@@ -5,6 +5,7 @@ import {
   takeEvery,
   debounce,
   call,
+  take,
 } from "redux-saga/effects";
 import {
   ReduxAction,
@@ -17,7 +18,7 @@ import {
 } from "selectors/editorSelectors";
 import { getJSAction, getJSActions } from "selectors/entitiesSelector";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
-import { createNewJSFunctionName } from "utils/AppsmithUtils";
+import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSAction } from "entities/JSAction";
 import { createJSActionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
@@ -35,6 +36,12 @@ import {
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  ERROR_JS_COLLECTION_RENAME_FAIL,
+} from "constants/messages";
 
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
@@ -160,6 +167,32 @@ function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
   }
 }
 
+function* handleJSCollectionNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getJSAction, actionId);
+  yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
+  if (!actionObj) {
+    // Error case, log to sentry
+    Toaster.show({
+      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
+      variant: Variant.danger,
+    });
+
+    return;
+  }
+  if (actionObj.pluginType === PluginType.API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, actionId, params));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -174,6 +207,10 @@ export default function* root() {
       1000,
       ReduxActionTypes.UPDATE_JS_ACTION_INIT,
       handleUpdateJSAction,
+    ),
+    takeEvery(
+      ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
+      handleJSCollectionNameChangeSuccessSaga,
     ),
   ]);
 }

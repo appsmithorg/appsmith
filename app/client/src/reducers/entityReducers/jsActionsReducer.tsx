@@ -5,6 +5,8 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { keyBy } from "lodash";
+
 const initialState: any = [];
 
 export interface JSActionData {
@@ -221,6 +223,40 @@ const jsActionsReducer = createReducer(initialState, {
 
       return a;
     }),
+  [ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction[]>,
+  ): JSActionDataState => {
+    if (action.payload.length > 0) {
+      const stateActionMap = keyBy(state, "config.id");
+      const result: JSActionDataState = [];
+
+      action.payload.forEach((actionPayload: JSAction) => {
+        const stateAction = stateActionMap[actionPayload.id];
+        if (stateAction) {
+          result.push({
+            data: stateAction.data,
+            isLoading: false,
+            config: actionPayload,
+          });
+
+          delete stateActionMap[actionPayload.id];
+        } else {
+          result.push({
+            isLoading: false,
+            config: actionPayload,
+          });
+        }
+      });
+
+      Object.keys(stateActionMap).forEach((stateActionKey) => {
+        result.push(stateActionMap[stateActionKey]);
+      });
+
+      return result;
+    }
+    return state;
+  },
   [ReduxActionTypes.MOVE_JS_ACTION_SUCCESS]: (
     state: JSActionDataState,
     action: ReduxAction<JSAction>,

@@ -19,7 +19,11 @@ import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
-import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getAllPageWidgets,
+  getJSActions,
+} from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
@@ -39,7 +43,11 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  DATA_SOURCES_EDITOR_ID_URL,
+  JS_COLLECTION_ID_URL,
+} from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
@@ -95,6 +103,7 @@ const getSectionTitle = (title: string, icon: any) => ({
 const getSortedResults = (
   query: string,
   filteredActions: Array<any>,
+  filteredJSActions: Array<any>,
   filteredWidgets: Array<any>,
   filteredPages: Array<any>,
   filteredDatasources: Array<any>,
@@ -103,6 +112,7 @@ const getSortedResults = (
 ) => {
   return [
     ...filteredActions,
+    ...filteredJSActions,
     ...filteredWidgets,
     ...filteredPages,
     ...filteredDatasources,
@@ -174,6 +184,7 @@ function GlobalSearch() {
     [allWidgets],
   );
   const actions = useSelector(getActions);
+  const jsActions = useSelector(getJSActions);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
@@ -246,6 +257,17 @@ function GlobalSearch() {
       return isActionNameMatching || isPageNameMatching;
     });
   }, [actions, query]);
+  const filteredJSActions = useMemo(() => {
+    if (!query) return actions;
+
+    return jsActions.filter((action: any) => {
+      const page = pageMap[action?.config?.pageId];
+      const isPageNameMatching = isMatching(page?.pageName, query);
+      const isActionNameMatching = isMatching(action?.config?.name, query);
+
+      return isActionNameMatching || isPageNameMatching;
+    });
+  }, [jsActions, query]);
   const filteredPages = useMemo(() => {
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
 
@@ -281,6 +303,7 @@ function GlobalSearch() {
     return getSortedResults(
       query,
       filteredActions,
+      filteredJSActions,
       filteredWidgets,
       filteredPages,
       filteredDatasources,
@@ -290,6 +313,7 @@ function GlobalSearch() {
   }, [
     filteredWidgets,
     filteredActions,
+    filteredJSActions,
     documentationSearchResults,
     filteredDatasources,
     query,
@@ -364,6 +388,13 @@ function GlobalSearch() {
     url && history.push(url);
   };
 
+  const handleJSActionClick = (item: SearchItem) => {
+    const { config } = item;
+    const { id, pageId } = config;
+    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    toggleShow();
+  };
+
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
@@ -380,6 +411,7 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.document]: handleDocumentationItemClick,
     [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
+    [SEARCH_ITEM_TYPES.jsAction]: handleJSActionClick,
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
     [SEARCH_ITEM_TYPES.page]: handlePageClick,
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
