@@ -29,7 +29,7 @@ const ConnectionType = styled.span`
   padding-bottom: ${(props) => props.theme.spaces[2]}px;
 `;
 
-const ConnectionWrapper = styled.span`
+const ConnectionWrapper = styled.div`
   margin: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[0] + 2}px;
 `;
