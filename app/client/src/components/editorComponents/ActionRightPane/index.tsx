@@ -21,6 +21,11 @@ import {
 } from "selectors/editorSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { getWidgets } from "sagas/selectors";
+import {
+  BACK_TO_CANVAS,
+  createMessage,
+  NO_CONNECTIONS,
+} from "constants/messages";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -156,7 +161,7 @@ function ActionSidebar({
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
-    return <Placeholder>No connections to show here</Placeholder>;
+    return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
   const navigeteToCanvas = () => {
@@ -167,7 +172,7 @@ function ActionSidebar({
     <SideBar>
       <BackButton onClick={navigeteToCanvas}>
         <Icon keepColors name="chevron-left" size={IconSize.XXS} />
-        <Text type={TextType.H6}>Back to canvas</Text>
+        <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
       </BackButton>
 
       {hasConnections && (

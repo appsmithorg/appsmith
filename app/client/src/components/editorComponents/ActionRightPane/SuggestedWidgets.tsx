@@ -8,6 +8,13 @@ import { Collapsible } from ".";
 import Tooltip from "components/ads/Tooltip";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  ADD_NEW_WIDGET,
+  createMessage,
+  SUGGESTED_WIDGETS,
+  SUGGESTED_WIDGET_DESCRIPTION,
+  SUGGESTED_WIDGET_TOOLTIP,
+} from "constants/messages";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -157,12 +164,14 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     dispatch(addSuggestedWidget(payload));
   };
 
-  const label = props.hasWidgets ? "Add New Widget" : "Suggested widgets";
+  const label = props.hasWidgets
+    ? createMessage(ADD_NEW_WIDGET)
+    : createMessage(SUGGESTED_WIDGETS);
 
   return (
     <Collapsible label={label}>
       <div className="description">
-        This will add a new widget to the canvas.{" "}
+        {createMessage(SUGGESTED_WIDGET_DESCRIPTION)}{" "}
       </div>
 
       <WidgetList>
@@ -178,7 +187,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
               key={widgetType}
               onClick={() => addWidget(widgetType, widgetInfo)}
             >
-              <Tooltip content="Add to canvas">
+              <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
                 <div className="image-wrapper">
                   {widgetInfo.image && <img src={widgetInfo.image} />}
                   <WidgetOverlay />
