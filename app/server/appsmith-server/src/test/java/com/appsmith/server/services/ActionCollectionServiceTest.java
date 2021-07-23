@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -139,6 +140,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setApplicationId("testApplicationId");
         actionCollectionDTO.setOrganizationId("testOrganizationId");
         actionCollectionDTO.setPluginId("testPluginId");
+        actionCollectionDTO.setPluginType(PluginType.JS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
@@ -178,6 +180,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setApplicationId("testApplicationId");
         actionCollectionDTO.setOrganizationId("testOrganizationId");
         actionCollectionDTO.setPluginId("testPluginId");
+        actionCollectionDTO.setPluginType(PluginType.JS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
@@ -218,6 +221,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setApplicationId("testApplicationId");
         actionCollectionDTO.setOrganizationId("testOrganizationId");
         actionCollectionDTO.setPluginId("testPluginId");
+        actionCollectionDTO.setPluginType(PluginType.JS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
@@ -272,6 +276,7 @@ public class ActionCollectionServiceTest {
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
         actionCollectionDTO.setActions(List.of(action));
+        actionCollectionDTO.setPluginType(PluginType.JS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);

@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -41,6 +42,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -623,7 +625,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         // dynamicBindingNames is a set of all words extracted from js snippets which could also contain the names
         // of the actions 
-        Set<String> dynamicBindingNames = new HashSet<>();
+        Map<String, DynamicBinding> dynamicBindingNames = new HashMap<>();
         if (!CollectionUtils.isEmpty(jsSnippetsInDynamicBindings)) {
             for (String mustacheKey : jsSnippetsInDynamicBindings) {
                 // Extract all the words in the dynamic bindings
