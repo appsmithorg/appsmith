@@ -4,7 +4,11 @@ import {
   MaybeElement,
   Button,
   IconName,
+  Position,
 } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+import { IconWrapper } from "constants/IconConstants";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
@@ -30,10 +34,27 @@ const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   }
 };
 
+const ToolTipContent = styled.div`
+  max-width: 350px;
+`;
+
+const ToolTipIcon = styled(IconWrapper)`
+  &&&:hover {
+    svg {
+      path {
+        fill: black !important;
+      }
+    }
+  }
+`;
+
 const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${getButtonColorStyles};
   svg {
     fill: ${getButtonColorStyles};
+    path {
+      fill: ${getButtonColorStyles};
+    }
   }
 `;
 
@@ -159,6 +180,7 @@ interface RecaptchaProps {
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
+  tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   buttonStyle?: ButtonStyle;
@@ -312,6 +334,21 @@ function BtnWrapper(
 function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
 ) {
+  const icon = props.icon ? (
+    props.icon
+  ) : props.tooltip ? (
+    <Tooltip
+      content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+      hoverOpenDelay={200}
+      position={Position.TOP}
+    >
+      <ToolTipIcon height={14} width={14}>
+        <HelpIcon />
+      </ToolTipIcon>
+    </Tooltip>
+  ) : (
+    undefined
+  );
   return (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
@@ -323,7 +360,7 @@ function ButtonContainer(
         accent={mapButtonStyleToStyleName(props.buttonStyle)}
         disabled={props.disabled}
         filled={props.buttonStyle !== "SECONDARY_BUTTON"}
-        icon={props.icon}
+        icon={icon}
         loading={props.isLoading}
         rightIcon={props.rightIcon}
         text={props.text}
