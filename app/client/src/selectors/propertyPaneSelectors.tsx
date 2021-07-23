@@ -10,6 +10,7 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -77,3 +78,14 @@ export const getIsPropertyPaneVisible = createSelector(
     );
   },
 );
+
+const getAllDependencies = (state: AppState) => state.evaluations.dependencies;
+
+export function getSelectorEntityDependenciesFromName(name: string) {
+  return createSelector(getAllDependencies, (deps) => {
+    return getDependenciesFromInverseDependencies(
+      deps.inverseDependencyMap,
+      name,
+    );
+  });
+}

@@ -1,22 +1,21 @@
-import React, { memo, useMemo } from "react";
-import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 import Dropdown, {
   DefaultDropDownValueNodeProps,
 } from "components/ads/Dropdown";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
 import Tooltip from "components/ads/Tooltip";
-import { AppState } from "reducers";
+import { useEntityLink } from "components/editorComponents/Debugger/hooks";
+import { isStoredDatasource } from "entities/Action";
+import { isEqual, keyBy } from "lodash";
+import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { AppState } from "reducers";
+import { getAction, getDatasource } from "selectors/entitiesSelector";
+import { getSelectorEntityDependenciesFromName } from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import { getPluginIcon, getWidgetIcon } from "../Explorer/ExplorerIcons";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
-import { keyBy } from "lodash";
-import { isStoredDatasource } from "entities/Action";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
-import { useEntityLink } from "components/editorComponents/Debugger/hooks";
-import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 
 const TopLayer = styled.div`
   display: flex;
@@ -109,16 +108,14 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
 };
 
 const useGetEntityInfo = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-
-  const entity = dataTree[name];
+  const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
   const action = useSelector((state: AppState) =>
     isAction(entity) ? getAction(state, entity.actionId) : undefined,
   );
 
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
-  });
+  }, isEqual);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
   const datasource = useSelector((state: AppState) =>
@@ -144,28 +141,27 @@ const useGetEntityInfo = (name: string) => {
 };
 
 const useDependencyList = (name: string) => {
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const entityDependencies = useMemo(() => {
-    return getDependenciesFromInverseDependencies(
-      deps.inverseDependencyMap,
-      name,
-    );
-  }, [name, deps.inverseDependencyMap]);
-  const dependencyOptions =
-    entityDependencies?.directDependencies.map((e) => ({
-      label: e,
-      value: e,
-    })) ?? [];
-  const inverseDependencyOptions =
-    entityDependencies?.inverseDependencies.map((e) => ({
-      label: e,
-      value: e,
-    })) ?? [];
+  const entityDependenciesSelector = getSelectorEntityDependenciesFromName(
+    name,
+  );
+  const entityDependencies = useSelector(entityDependenciesSelector, isEqual);
+  return useMemo(() => {
+    const dependencyOptions =
+      entityDependencies?.directDependencies.map((e) => ({
+        label: e,
+        value: e,
+      })) ?? [];
+    const inverseDependencyOptions =
+      entityDependencies?.inverseDependencies.map((e) => ({
+        label: e,
+        value: e,
+      })) ?? [];
 
-  return {
-    dependencyOptions,
-    inverseDependencyOptions,
-  };
+    return {
+      dependencyOptions,
+      inverseDependencyOptions,
+    };
+  }, [entityDependencies]);
 };
 
 function OptionNode(props: any) {
@@ -212,7 +208,6 @@ TriggerNode.displayName = "TriggerNode";
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
-
   return (
     <TopLayer>
       <Dropdown
