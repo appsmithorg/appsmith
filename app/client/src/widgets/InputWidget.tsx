@@ -110,6 +110,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText: "Sets maximum allowed text length",
+            propertyName: "maxChars",
+            label: "Max Chars",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter max allowed characters",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.NUMBER,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+          },
+          {
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
             propertyName: "defaultText",
