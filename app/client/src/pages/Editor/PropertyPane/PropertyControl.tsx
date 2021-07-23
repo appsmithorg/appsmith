@@ -27,7 +27,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { getWidgetPropsForPropertyName } from "selectors/propertyPaneSelectors";
-import { getWidgetEnhancementFns } from "selectors/widgetEnhancementSelectors";
+import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
@@ -53,7 +53,7 @@ const PropertyControl = memo((props: Props) => {
 
   const widgetProperties: any = useSelector(propsSelector, isEqual);
 
-  const enhancementSelector = getWidgetEnhancementFns(
+  const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
   );
 

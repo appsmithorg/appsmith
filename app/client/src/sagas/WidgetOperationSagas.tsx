@@ -135,7 +135,7 @@ import {
   handleSpecificCasesWhilePasting,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
-import { getParentWithEnhancementFn } from "../selectors/widgetEnhancementSelectors";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,

@@ -153,7 +153,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
-        dependencies: ["derivedColumns"],
+        dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig: {
@@ -161,7 +161,7 @@ export default [
           titlePropertyName: "label",
           panelIdPropertyName: "id",
           updateHook: updateDerivedColumnsHook,
-          dependencies: ["primaryColumns", "derivedColumns"],
+          dependencies: ["primaryColumns", "derivedColumns", "columnOrder"],
           children: [
             {
               sectionName: "Column Control",
@@ -202,7 +202,11 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: false,
                   isTriggerProperty: false,
                 },
@@ -224,7 +228,7 @@ export default [
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
-                    "columnType",
+                    "columnOrder",
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -246,7 +250,7 @@ export default [
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
-                    "columnType",
+                    "columnOrder",
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -353,7 +357,7 @@ export default [
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
-                    "columnType",
+                    "columnOrder",
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -482,7 +486,7 @@ export default [
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
-                    "columnType",
+                    "columnOrder",
                   ],
                   isJSConvertible: true,
                   isBindProperty: true,
@@ -501,7 +505,7 @@ export default [
                   columnType === "video"
                 );
               },
-              dependencies: ["columnType"],
+              dependencies: ["primaryColumns", "derivedColumns"],
               children: [
                 {
                   propertyName: "horizontalAlignment",
@@ -525,7 +529,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -568,7 +576,11 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -589,7 +601,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -615,7 +631,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -626,7 +646,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -637,7 +661,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -659,7 +687,7 @@ export default [
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
-                    "columnType",
+                    "columnOrder",
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -673,7 +701,11 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -685,7 +717,11 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -704,7 +740,11 @@ export default [
                   }),
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
-                  dependencies: ["primaryColumns", "derivedColumns"],
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: true,
                 },

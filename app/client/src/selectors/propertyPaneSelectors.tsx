@@ -1,4 +1,4 @@
-import { find, get } from "lodash";
+import { find, get, set } from "lodash";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
@@ -52,7 +52,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
 
 const populateWidgetProperties = (
   widget: WidgetProps,
-  propertyName: string,
+  propertyPath: string,
   dependencies: string[],
 ) => {
   const widgetProperties: any = {
@@ -61,8 +61,9 @@ const populateWidgetProperties = (
     widgetId: widget.widgetId,
     dynamicTriggerPathList: widget.dynamicTriggerPathList,
     dynamicPropertyPathList: widget.dynamicPropertyPathList,
-    [propertyName]: widget[propertyName],
   };
+
+  getAndSetPath(widget, widgetProperties, propertyPath);
 
   if (dependencies && dependencies.length > 0) {
     for (const dependentProperty of dependencies) {
@@ -73,26 +74,39 @@ const populateWidgetProperties = (
   return widgetProperties;
 };
 
+const getAndSetPath = (from: any, to: any, path: string) => {
+  if (!from || !to) return;
+
+  const value = get(from, path);
+
+  if (value === null || value === undefined) return;
+
+  set(to, path, value);
+};
+
 const populateEvaluatedWidgetProperties = (
   evaluatedWidget: DataTreeWidget,
-  propertyName: string,
+  propertyPath: string,
 ) => {
   if (!evaluatedWidget || !evaluatedWidget[EVALUATION_PATH]) return;
 
   const evaluatedWidgetPath = evaluatedWidget[EVALUATION_PATH];
 
   const evaluatedProperties = {
-    errors: {
-      [propertyName]: evaluatedWidgetPath?.errors
-        ? evaluatedWidgetPath?.errors[propertyName]
-        : [],
-    },
-    evaluatedValues: {
-      [propertyName]: evaluatedWidgetPath?.evaluatedValues
-        ? evaluatedWidgetPath?.evaluatedValues[propertyName]
-        : [],
-    },
+    errors: {},
+    evaluatedValues: {},
   };
+
+  getAndSetPath(
+    evaluatedWidgetPath?.errors,
+    evaluatedProperties.errors,
+    propertyPath,
+  );
+  getAndSetPath(
+    evaluatedWidgetPath?.evaluatedValues,
+    evaluatedProperties.evaluatedValues,
+    propertyPath,
+  );
 
   return evaluatedProperties;
 };
