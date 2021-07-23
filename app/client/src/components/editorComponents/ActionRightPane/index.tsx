@@ -35,6 +35,7 @@ const SideBar = styled.div`
     ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
   overflow: auto;
   height: 100%;
+  width: 100%;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
