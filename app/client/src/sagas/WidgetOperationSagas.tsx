@@ -29,7 +29,6 @@ import {
 import {
   all,
   call,
-  delay,
   fork,
   put,
   select,
@@ -1866,7 +1865,6 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       pageId,
       newWidget.newWidgetId,
     );
-    yield delay(100);
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     console.log(error, "Error");
