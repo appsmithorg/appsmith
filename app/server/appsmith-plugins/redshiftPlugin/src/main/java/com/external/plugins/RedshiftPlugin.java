@@ -269,6 +269,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                     }
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                 } finally {
                     if (resultSet != null) {
@@ -308,6 +309,7 @@ public class RedshiftPlugin extends BasePlugin {
                         return e;
                     })
                     .onErrorResume(error -> {
+                        error.printStackTrace();
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
@@ -395,6 +397,7 @@ public class RedshiftPlugin extends BasePlugin {
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -654,6 +657,7 @@ public class RedshiftPlugin extends BasePlugin {
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
@@ -661,6 +665,7 @@ public class RedshiftPlugin extends BasePlugin {
                             )
                     );
                 } catch (AppsmithPluginException e) {
+                    e.printStackTrace();
                     return Mono.error(e);
                 }
 
