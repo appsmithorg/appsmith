@@ -46,7 +46,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
 import get from "lodash/get";
-import DataSourceList from "./DatasourceList";
+import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { isEmpty } from "lodash";
