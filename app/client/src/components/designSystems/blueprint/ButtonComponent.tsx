@@ -232,12 +232,7 @@ function RecaptchaV3Component(
 ) {
   // Check if a string is a valid JSON string
   const checkValidJson = (inputString: string): boolean => {
-    try {
-      JSON.parse(inputString);
-      return !inputString.includes('"');
-    } catch (err) {
-      return false;
-    }
+    return !inputString.includes('"');
   };
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
