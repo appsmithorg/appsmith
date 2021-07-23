@@ -76,6 +76,11 @@ export interface ActionExecutionResponse {
   };
 }
 
+export interface SuggestedWidget {
+  type: WidgetType;
+  bindingQuery: string;
+}
+
 export interface ActionResponse {
   body: unknown;
   headers: Record<string, string[]>;
@@ -84,7 +89,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
-  suggestedWidgets?: WidgetType[];
+  suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
 }
 

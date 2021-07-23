@@ -9,7 +9,6 @@ import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
-import { WidgetType } from "constants/WidgetConstants";
 import { ReactNode } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -26,6 +25,10 @@ import {
   createMessage,
   NO_CONNECTIONS,
 } from "constants/messages";
+import {
+  SuggestedWidget,
+  SuggestedWidget as SuggestedWidgetsType,
+} from "api/ActionAPI";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -136,7 +139,7 @@ function ActionSidebar({
 }: {
   actionName: string;
   hasResponse: boolean;
-  suggestedWidgets?: WidgetType[];
+  suggestedWidgets?: SuggestedWidgetsType[];
 }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -185,7 +188,7 @@ function ActionSidebar({
         <SuggestedWidgets
           actionName={actionName}
           hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as WidgetType[]}
+          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
         />
       )}
     </SideBar>
