@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static java.lang.Boolean.FALSE;
@@ -255,8 +256,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     .flatMap(tuple -> {
                         final UserData userData = tuple.getT1();
                         final Application application = tuple.getT2();
+                        boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
+                                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
+                        );
                         // check whether this thread should be converted to bot thread
-                        if (userData.getLatestCommentEvent() == null) {
+                        if (userData.getLatestCommentEvent() == null && shouldCreateBotThread) {
                             commentThread.setIsPrivate(true);
                             userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
                             return userDataRepository.save(userData).then(
