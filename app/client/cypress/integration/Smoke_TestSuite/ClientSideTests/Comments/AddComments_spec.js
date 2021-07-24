@@ -42,7 +42,9 @@ describe("Comments", function() {
 
   /**
    * create new comment thread
-   * share app with an admin user -> check if he can view the comments on edit mode
+   * share app with an admin user
+   *  - check if he can view the comments on edit mode
+   *  - check the unread indicator shows due to unread comments
    * publish and check if the comment shows up on view mode
    */
   it("Comment visible to all users on viewer and editor", () => {
