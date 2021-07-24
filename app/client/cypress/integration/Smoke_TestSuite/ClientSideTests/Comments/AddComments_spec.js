@@ -49,12 +49,19 @@ describe("Comments", function() {
    */
   it("Comment visible to all users on viewer and editor", () => {
     cy.wrap(null).then(() => {
-      return setFlagForTour().then(() => {
+      return setFlagForTour().then(async () => {
         const appname = localStorage.getItem("AppName");
 
         cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
 
+        // First thread is a bot thread and should be private
         cy.get(commonLocators.canvas).click(50, 50);
+        typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+        cy.get(commentsLocators.mentionsInput).type("{enter}");
+        await cy.wait("@createNewThread");
+
+        cy.get(".bp3-overlay-backdrop").click();
+        cy.get(commonLocators.canvas).click(10, 10);
         typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
         cy.get(commentsLocators.mentionsInput).type("{enter}");
 
