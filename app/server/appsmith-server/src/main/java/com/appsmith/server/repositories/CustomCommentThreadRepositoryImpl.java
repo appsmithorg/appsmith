@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,5 +72,18 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
             where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId)
         );
         return count(criteriaList, AclPermission.READ_THREAD);
+    }
+
+    @Override
+    public Flux<CommentThread> find(CommentThreadFilterDTO commentThreadFilterDTO, AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        criteriaList.add(
+                where(fieldName(QCommentThread.commentThread.applicationId))
+                        .is(commentThreadFilterDTO.getApplicationId())
+        );
+        if(commentThreadFilterDTO.getResolved() != null) {
+            criteriaList.add(where("resolvedState.active").is(commentThreadFilterDTO.getResolved()));
+        }
+        return this.queryAll(criteriaList, permission);
     }
 }

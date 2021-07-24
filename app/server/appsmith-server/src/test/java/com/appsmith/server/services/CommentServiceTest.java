@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
@@ -100,7 +101,11 @@ public class CommentServiceTest {
                     ));
                     return commentService.createThread(thread, "https://app.appsmith.com");
                 })
-                .zipWhen(thread -> commentService.getThreadsByApplicationId(thread.getApplicationId()));
+                .zipWhen(thread -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId(thread.getApplicationId());
+                    return commentService.getThreadsByApplicationId(filterDTO);
+                });
 
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
