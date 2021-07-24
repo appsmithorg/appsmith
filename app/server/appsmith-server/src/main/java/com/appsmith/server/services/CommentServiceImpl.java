@@ -118,12 +118,22 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             threadRepository
                     .findById(threadId, AclPermission.COMMENT_ON_THREAD)
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
-                    .flatMap(commentThread -> updateThreadIfRequired(commentThread, comment, user))
+                    .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
                     .flatMap(commentThread -> create(commentThread, user, comment, originHeader, true))
         );
     }
 
-    private Mono<CommentThread> updateThreadIfRequired(CommentThread commentThread, Comment comment, User user) {
+    /**
+     * This method updates a comment thread when a new comment is added in that thread. It does the following:<ul>
+     * <li>Marks the thread as unread for users other than the author</li>
+     * <li>Mark the thread as unresolved if it's in resolved state</li>
+     * <li>Marks the thread as public if someone is tagged in the comment</li></ul>
+     * @param commentThread the thread object
+     * @param comment the comment object
+     * @param user currently logged in user aka author
+     * @return updated thread
+     */
+    private Mono<CommentThread> updateThreadOnAddComment(CommentThread commentThread, Comment comment, User user) {
         commentThread.setViewedByUsers(Set.of(user.getUsername()));
         if(commentThread.getResolvedState().getActive() == TRUE) {
             commentThread.getResolvedState().setActive(FALSE);
