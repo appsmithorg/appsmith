@@ -33,7 +33,7 @@ public class ActionExecutionResult {
 
     List<ParsedDataType> dataTypes;
 
-    List<WidgetType> suggestedWidgets;
+    List<WidgetSuggestionDTO> suggestedWidgets;
 
     public void setErrorInfo(Throwable error) {
         this.body = error.getMessage();

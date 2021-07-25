@@ -47,6 +47,7 @@ type SubHeaderProps = {
     placeholder: string;
     debounce?: boolean;
     queryFn?: (keyword: string) => void;
+    defaultValue?: string;
   };
 };
 
@@ -67,6 +68,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           <ControlGroup>
             <SearchInput
               cypressSelector={"t--application-search-input"}
+              defaultValue={props.search.defaultValue}
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}

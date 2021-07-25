@@ -72,7 +72,6 @@ function PostBodyData(props: Props) {
                 dataTreePath={`${dataTreePath}.body`}
                 expected={FIELD_VALUES.API_ACTION.body}
                 mode={EditorModes.JSON_WITH_BINDING}
-                mutedHinting
                 name="actionConfiguration.body"
                 placeholder={
                   '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'

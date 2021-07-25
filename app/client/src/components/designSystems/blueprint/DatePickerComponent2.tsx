@@ -74,8 +74,11 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
+      showPicker: false,
     };
   }
+
+  pickerRef: HTMLElement | null = null;
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
@@ -92,6 +95,11 @@ class DatePickerComponent extends React.Component<
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
+  };
+
+  handlePopoverRef = (ref: any) => {
+    // get popover ref as callback
+    this.pickerRef = ref as HTMLElement;
   };
 
   render() {
@@ -142,14 +150,22 @@ class DatePickerComponent extends React.Component<
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
-              closeOnSelection
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                onFocus: this.showPicker,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
+              popoverProps={{
+                isOpen: this.state.showPicker,
+                onClose: this.closePicker,
+                popoverRef: this.handlePopoverRef,
+              }}
+              shortcuts={this.props.shortcuts}
               showActionsBar
               timePrecision={TimePrecision.MINUTE}
               value={value}
@@ -194,11 +210,17 @@ class DatePickerComponent extends React.Component<
     return moment(date).format(dateFormat);
   };
 
-  parseDate = (dateStr: string): Date => {
-    const date = moment(dateStr);
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-    else return moment().toDate();
+  parseDate = (dateStr: string): Date | null => {
+    //when user clears date field the value of dateStr will be empty
+    //and that means user is clearing date field
+    if (!dateStr) {
+      return null;
+    } else {
+      const date = moment(dateStr);
+      const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+      else return moment().toDate();
+    }
   };
 
   /**
@@ -208,14 +230,38 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+  onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
+    console.log({ selectedDate, isUserChange });
     if (isUserChange) {
-      const { onDateSelected } = this.props;
+      const { closeOnSelection, onDateSelected } = this.props;
 
       const date = selectedDate ? selectedDate.toISOString() : "";
-      this.setState({ selectedDate: date });
+      this.setState({
+        selectedDate: date,
+        // close picker while user changes in calender
+        // if closeOnSelection false, do not allow user to close picker
+        showPicker: !closeOnSelection,
+      });
 
       onDateSelected(date);
+    }
+  };
+
+  showPicker = () => {
+    this.setState({ showPicker: true });
+  };
+
+  closePicker = (e: any) => {
+    const { closeOnSelection } = this.props;
+    try {
+      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
+      const showPicker =
+        this.pickerRef && this.pickerRef.contains(e.target)
+          ? !closeOnSelection
+          : false;
+      this.setState({ showPicker });
+    } catch (error) {
+      this.setState({ showPicker: false });
     }
   };
 }
@@ -232,10 +278,13 @@ interface DatePickerComponentProps extends ComponentProps {
   isDisabled: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+  closeOnSelection: boolean;
+  shortcuts: boolean;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
+  showPicker?: boolean;
 }
 
 export default DatePickerComponent;
