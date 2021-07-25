@@ -75,8 +75,8 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: block;
     ${(props) => getTypographyByKey(props, "h4")};
-    line-height: 19px !important;
-    padding: 8px 5px;
+    line-height: ${(props) => props.theme.smallHeaderHeight} !important;
+    padding: 0 10px;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     margin-right: 20px;
@@ -238,7 +238,7 @@ export function EditorAppName(props: EditorAppNameProps) {
         {!isEditing && (
           <StyledIcon
             fillColor={theme.colors.navigationMenu.contentInactive}
-            name="downArrow"
+            name={isPopoverOpen ? "upArrow" : "downArrow"}
             size={IconSize.XXS}
           />
         )}

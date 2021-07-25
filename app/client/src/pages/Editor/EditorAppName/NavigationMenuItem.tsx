@@ -7,6 +7,7 @@ import { noop } from "lodash";
 import { CommonComponentProps } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 export enum MenuTypes {
   MENU = "menu",
@@ -33,6 +34,8 @@ const StyledMenuItem = styled(MenuItem)`
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
   border-radius: 0;
   height: ${(props) => props.theme.navbarMenuHeight};
+  ${(props) => getTypographyByKey(props, "h5")};
+  padding: 5px 10px;
 
   &&&:hover {
     color: ${(props) => props.theme.colors.navigationMenu.contentActive};
@@ -44,6 +47,17 @@ const StyledMenuItem = styled(MenuItem)`
 
   > .${Classes.MENU_ITEM_LABEL} {
     color: ${(props) => props.theme.colors.navigationMenu.label};
+  }
+`;
+
+const ReconfirmStyledItem = styled(StyledMenuItem)<{ isConfirm: boolean }>`
+  color: ${(props) => props.theme.colors.navigationMenu.warning} !important;
+
+  &&&:hover {
+    background-color: ${(props) =>
+      props.isConfirm
+        ? props.theme.colors.navigationMenu.warningBackground
+        : props.theme.colors.navigationMenu.backgroundActive};
   }
 `;
 
@@ -127,7 +141,8 @@ export function NavigationMenuItem({
       );
     case MenuTypes.RECONFIRM:
       return (
-        <StyledMenuItem
+        <ReconfirmStyledItem
+          isConfirm={confirm.isConfirm}
           label={label}
           onClick={handleReconfirmClick}
           style={style}
