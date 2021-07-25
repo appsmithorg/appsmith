@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
@@ -39,5 +40,5 @@ public interface ApplicationPageService {
 
     Mono<Void> sendApplicationPublishedEvent(Application application);
 
-    Mono<Application> reorderPage(String applicationId, String pageId, Integer order);
+    Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order);
 }

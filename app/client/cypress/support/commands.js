@@ -225,6 +225,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   });
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -233,9 +244,10 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.wait("@createNewApplication").should((interception) => {
     assertApiResponseStatusCode(interception, 201);
   });
-
+  cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should((interception) => {
     assertApiResponseStatusCode(interception, 200);
@@ -251,8 +263,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
 
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should((interception) => {
     assertApiResponseStatusCode(interception, 200);
@@ -762,6 +775,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--property-control-dateformat .bp3-popover-target")
     .last()
     .click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)

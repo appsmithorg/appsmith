@@ -23,40 +23,46 @@ import { updateUserDetails } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import useOrg from "utils/hooks/useOrg";
+import { getCanManage } from "utils/helpers";
+
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
-const introSteps = [
+const introStepsEditor = [
   {
     title: "Introducing Live Comments",
     content:
-      "We are introducing live comments. From now on you will be able to comment on your apps, tag other people and exchange thoughts in threads. Click ‘Next’ to learn more about comments and start commenting.",
+      "You can now collaborate with your users to build apps faster. Invite your team to comment on your apps, exchange thoughts & ship your ideas.",
     banner: getBanner(1),
     hideBackBtn: true,
+    bannerProps: { style: { height: 284 } },
   },
   {
-    title: "Give feedback",
+    title: "Give Contextual Feedback",
     content:
-      "Comment on your co-worker’s work and share your thoughts on what works and what needs change.",
+      "Drop a comment on a widget to suggest an improvement. Comments are tagged to the widget and move along with it. Update the widget and iterate your way to shipping your ideas!",
     banner: getBanner(2),
+    bannerProps: { style: { height: 284 } },
+  },
+];
+
+const introStepsViewer = [
+  {
+    title: "Introducing Live Comments",
+    content:
+      "You can now collaborate with your developers to build apps faster. Exchange thoughts, leave feedback & ship your ideas.",
+    banner: getBanner(1),
+    hideBackBtn: true,
+    bannerProps: { style: { height: 284 } },
   },
   {
-    title: "Invite other people to your conversations",
+    title: "Give Contextual Feedback",
     content:
-      "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
-    banner: getBanner(3),
-  },
-  {
-    title: "Tag a comment to a widget",
-    content:
-      "If you click on a component while in a comment mode you will tag that comment to that widget. This way if the widget is moved the comment will be moved as well. You can disconnect the comment and widget y simply moving the the comment away from the widget.",
-    banner: getBanner(4),
-  },
-  {
-    title: "You are all set!",
-    content:
-      "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.",
-    banner: getBanner(5),
+      "Drop a comment on a widget to suggest an improvement or report an issue. Comments are tagged to the widget, resolve them once the updates are live!",
+    banner: getBanner(2),
+    bannerProps: { style: { height: 284 } },
   },
 ];
 
@@ -74,10 +80,11 @@ function IntroStep(props: {
   content: string;
   banner: string;
   theme: Theme;
+  bannerProps: any;
 }) {
   return (
     <>
-      <StyledImg alt="" src={props.banner} />
+      <StyledImg alt="" src={props.banner} {...props.bannerProps} />
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text
@@ -108,30 +115,31 @@ const getSteps = (
   startTutorial: () => void,
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
-) => [
-  ...introSteps.slice(0, 4).map((stepConfig: any) => ({
-    props: stepConfig,
-    component: IntroStepThemed,
-  })),
-  {
-    component: ProfileForm,
-    props: {
-      isSubmitDisabled: isSubmitProfileFormDisabled,
-      onSubmit: onSubmitProfileForm,
-      initialValues: initialProfileFormValues,
-      emailDisabled,
+  showEditorSteps: boolean,
+) => {
+  const introSteps = showEditorSteps ? introStepsEditor : introStepsViewer;
+
+  return [
+    ...introSteps.map((stepConfig: any) => ({
+      props: stepConfig,
+      component: IntroStepThemed,
+    })),
+    {
+      component: ProfileForm,
+      props: {
+        isSubmitDisabled: isSubmitProfileFormDisabled,
+        initialValues: initialProfileFormValues,
+        emailDisabled,
+        nextBtnText: "Start Tutorial",
+        onSubmit: () => {
+          startTutorial();
+          onSubmitProfileForm();
+        },
+        hideBackBtn: true,
+      },
     },
-  },
-  {
-    component: IntroStepThemed,
-    props: {
-      ...introSteps[4],
-      hideBackBtn: true,
-      nextBtnText: "Start Tutorial",
-      onSubmit: startTutorial,
-    },
-  },
-];
+  ];
+};
 
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
@@ -145,15 +153,24 @@ export default function CommentsShowcaseCarousel() {
 
   const initialProfileFormValues = { emailAddress: email, displayName: name };
   const onSubmitProfileForm = () => {
-    const { displayName: name, emailAddress: email } = profileFormValues as {
-      displayName: string;
-      emailAddress: string;
-    };
+    const { displayName: name, emailAddress: email } =
+      (profileFormValues as {
+        displayName: string;
+        emailAddress: string;
+      }) || {};
     dispatch(updateUserDetails({ name, email }));
   };
 
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanManage(currentOrg);
+
   const startTutorial = () => {
-    dispatch(setActiveTour(TourType.COMMENTS_TOUR));
+    const tourType = canManage
+      ? TourType.COMMENTS_TOUR_EDIT_MODE
+      : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
+
+    dispatch(setActiveTour(tourType));
     dispatch(hideCommentsIntroCarousel());
     setCommentsIntroSeen(true);
   };
@@ -164,9 +181,10 @@ export default function CommentsShowcaseCarousel() {
     startTutorial,
     initialProfileFormValues,
     !!email,
+    canManage,
   );
 
-  if (!isIntroCarouselVisible) return null;
+  if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>

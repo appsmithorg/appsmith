@@ -59,6 +59,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -406,7 +407,8 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
@@ -500,24 +502,29 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   const renderEachConfig = (formName: string) => (section: any): any => {
-    return section.children.map((formControlOrSection: ControlProps) => {
-      if (isHidden(props.formData, section.hidden)) return null;
-      if (formControlOrSection.hasOwnProperty("children")) {
-        return renderEachConfig(formName)(formControlOrSection);
-      } else {
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={configProperty}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (isHidden(props.formData, section.hidden)) return null;
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfig(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
         }
-      }
-      return null;
-    });
+        return null;
+      },
+    );
   };
 
   const responseTabs = [

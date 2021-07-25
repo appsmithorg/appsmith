@@ -9,9 +9,9 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -96,6 +96,14 @@ public class PostgresPluginTest {
                 statement.execute("DROP TABLE IF EXISTS users");
             }
 
+            /**
+             * - Add citext module
+             * - https://www.postgresql.org/docs/current/citext.html
+             */
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("CREATE EXTENSION CITEXT;");
+            }
+
             try (Statement statement = connection.createStatement()) {
                 statement.execute("CREATE TABLE users (\n" +
                         "    id serial PRIMARY KEY,\n" +
@@ -126,11 +134,13 @@ public class PostgresPluginTest {
                         "    name timestamptz default now()\n" +
                         ")");
 
-                statement.execute("CREATE TABLE jsontest (\n" +
+                statement.execute("CREATE TABLE dataTypeTest (\n" +
                         "    id serial PRIMARY KEY,\n" +
                         "    item json,\n" +
-                        "    origin jsonb" +
+                        "    origin jsonb,\n" +
+                        "    citextdata citext" +
                         ")");
+
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -168,9 +178,9 @@ public class PostgresPluginTest {
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO jsontest VALUES (" +
+                        "INSERT INTO dataTypeTest VALUES (" +
                                 "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}'," +
-                                "'{\"country\":\"japan\", \"city\":\"kyoto\"}'"+
+                                "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"+
                                 ")");
             }
 
@@ -198,7 +208,7 @@ public class PostgresPluginTest {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
         dsConfig.getConnection().setSsl(new SSLDetails());
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
 
         return dsConfig;
     }
@@ -357,35 +367,39 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
-                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
+                                    new DatasourceStructure.Column("id", "timestamptz", "now()", false),
+                                    new DatasourceStructure.Column("name", "timestamptz", "now()", false)
                             },
                             campusTable.getColumns().toArray()
                     );
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    final DatasourceStructure.Table jsonTestTable = structure.getTables().get(1);
-                    assertEquals("public.jsontest", jsonTestTable.getName());
+                    final DatasourceStructure.Table dataTypeTestTable = structure.getTables().get(1);
+                    assertEquals("public.datatypetest", dataTypeTestTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('jsontest_id_seq" +
-                                            "'::regclass)"),
-                                    new DatasourceStructure.Column("item", "json", null),
-                                    new DatasourceStructure.Column("origin", "jsonb", null)
+                                    new DatasourceStructure.Column(
+                                        "id",
+                                        "int4",
+                                        "nextval('datatypetest_id_seq'::regclass)",
+                                        true),
+                                    new DatasourceStructure.Column("item", "json", null, false),
+                                    new DatasourceStructure.Column("origin", "jsonb", null, false),
+                                    new DatasourceStructure.Column("citextdata", "citext", null, false)
                             },
-                            jsonTestTable.getColumns().toArray()
+                            dataTypeTestTable.getColumns().toArray()
                     );
-                    assertEquals(jsonTestTable.getKeys().size(), 1);
+                    assertEquals(dataTypeTestTable.getKeys().size(), 1);
 
                     final DatasourceStructure.Table possessionsTable = structure.getTables().get(2);
                     assertEquals("public.possessions", possessionsTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('possessions_id_seq'::regclass)"),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int4", null),
+                                    new DatasourceStructure.Column("id", "int4", "nextval('possessions_id_seq'::regclass)", true),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int4", null, false),
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -422,19 +436,19 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)"),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("time_tz", "timetz", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
-                                    new DatasourceStructure.Column("interval1", "interval", null),
-                                    new DatasourceStructure.Column("numbers", "_int4", null),
-                                    new DatasourceStructure.Column("texts", "_varchar", null),
+                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)",true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null, false),
+                                    new DatasourceStructure.Column("dob", "date", null, false),
+                                    new DatasourceStructure.Column("time1", "time", null, false),
+                                    new DatasourceStructure.Column("time_tz", "timetz", null, false),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null, false),
+                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null, false),
+                                    new DatasourceStructure.Column("interval1", "interval", null, false),
+                                    new DatasourceStructure.Column("numbers", "_int4", null, false),
+                                    new DatasourceStructure.Column("texts", "_varchar", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -1093,9 +1107,9 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testJsonTypes() {
+    public void testDataTypes() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT * FROM jsontest");
+        actionConfiguration.setBody("SELECT * FROM dataTypeTest");
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> connectionPoolMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> resultMono = connectionPoolMono
@@ -1112,6 +1126,95 @@ public class PostgresPluginTest {
                     assertEquals("butterfly", node.get("item").get("manufacturer").asText());
                     assertEquals("japan", node.get("origin").get("country").asText());
                     assertEquals("kyoto", node.get("origin").get("city").asText());
+                    assertEquals("A Lincoln", node.get("citextdata").asText());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithExplicitTypeCasting() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        String query = "INSERT INTO users (id, username, password, email, dob) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date)";
+        actionConfiguration.setBody(query);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        params.add(new Param("id", "10"));
+        params.add(new Param("firstName", "1001"));
+        params.add(new Param("lastName", "LastName"));
+        params.add(new Param("email", "email@email.com"));
+        params.add(new Param("date", "2018-12-31"));
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("affectedRows").asText(), "1");
+
+                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    RequestParamDTO requestParamDTO = requestParams.get(0);
+                    Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
+                    for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
+                        PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
+                        switch (psParameter.getValue()) {
+                            case "10" :
+                                assertEquals(psParameter.getType(), "INTEGER");
+                                break;
+                            case "1001" :
+
+                            case "LastName" :
+
+                            case "email@email.com" :
+                                assertEquals(psParameter.getType(), "STRING");
+                                break;
+                            case "2018-12-31" :
+                                assertEquals(psParameter.getType(), "DATE");
+                                break;
+                        }
+                    }
+
+                })
+                .verifyComplete();
+
+        // Delete the newly added row to not affect any other test case
+        actionConfiguration.setBody("DELETE FROM users WHERE id = 10");
+        connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
+    }
+
+    public void testReadOnlyMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(
+                "UPDATE public.\"users\" set created_on = '2021-03-24 14:05:34' where id = 3;"
+        );
+
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+
+                    String expectedBody = "ERROR: cannot execute UPDATE in a read-only transaction";
+                    assertEquals(expectedBody, result.getBody());
                 })
                 .verifyComplete();
     }

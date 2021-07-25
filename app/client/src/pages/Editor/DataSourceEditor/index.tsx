@@ -193,13 +193,14 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginId,
       pluginImages,
       pluginPackageName,
+      viewMode,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
 
     // Check for specific form types first
-    if (pluginDatasourceForm === "RestAPIDatasourceForm") {
+    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
       return (
         <RestAPIDatasourceForm
           applicationId={this.props.match.params.applicationId}

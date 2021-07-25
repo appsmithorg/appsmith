@@ -78,8 +78,8 @@ const UnreadIndicator = styled.div`
 
 const getModeFromUserRole = async (orgId: string) => {
   try {
-    const response = await OrgApi.fetchOrg({ orgId });
-    const userOrgPermissions = response?.data?.data?.userPermissions || [];
+    const response = (await OrgApi.fetchOrg({ orgId })) as any;
+    const userOrgPermissions = response?.data?.userPermissions || [];
     const canPublish = isPermitted(
       userOrgPermissions,
       PERMISSION_TYPE.PUBLISH_APPLICATION,

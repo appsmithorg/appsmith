@@ -152,6 +152,26 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
+            propertyName: "closeOnSelection",
+            label: "Close On Selection",
+            helpText: "Calender should close when a date is selected",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
+          {
+            propertyName: "shortcuts",
+            label: "Show Shortcuts",
+            helpText: "Choose to show shortcut menu",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
+          {
             propertyName: "minDate",
             label: "Min Date",
             helpText: "Defines the min date for this widget",
@@ -194,8 +214,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
-      selectedDate: `{{ this.value ? moment(this.value).toISOString() : (this.defaultDate ? moment(this.defaultDate).toISOString() : "")}}`,
-      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : (this.defaultDate ? moment(this.defaultDate).format(this.dateFormat) : "")}}`,
+      selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
+      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
     };
   }
 
@@ -214,6 +234,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
+        closeOnSelection={this.props.closeOnSelection}
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
         isDisabled={this.props.isDisabled}
@@ -223,6 +244,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.value}
+        shortcuts={this.props.shortcuts}
         widgetId={this.props.widgetId}
       />
     );
@@ -258,6 +280,8 @@ export interface DatePickerWidget2Props extends WidgetProps, WithMeta {
   maxDate: string;
   minDate: string;
   isRequired?: boolean;
+  closeOnSelection: boolean;
+  shortcuts: boolean;
 }
 
 export default DatePickerWidget;

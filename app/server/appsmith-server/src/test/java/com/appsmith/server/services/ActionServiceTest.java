@@ -15,6 +15,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -443,8 +444,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -475,8 +477,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -504,8 +507,9 @@ public class ActionServiceTest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -798,7 +802,7 @@ public class ActionServiceTest {
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
                                         ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
 
-        List<WidgetType> expectedWidget = mockResult.getSuggestedWidgets();
+        List<WidgetSuggestionDTO> expectedWidgets = mockResult.getSuggestedWidgets();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
@@ -806,9 +810,9 @@ public class ActionServiceTest {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
                     assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidget.size());
-                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidget)).isTrue();
-                    assertThat(expectedWidget.containsAll(result.getSuggestedWidgets())).isTrue();
+                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
+                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
+                    assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
                 })
                 .verifyComplete();
     }
@@ -1229,8 +1233,9 @@ public class ActionServiceTest {
                 "]");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1271,8 +1276,9 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1313,8 +1319,9 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1346,8 +1353,8 @@ public class ActionServiceTest {
         mockResult.setBody(null);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1411,11 +1418,13 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.CHART_WIDGET);
-        widgetTypeList.add(WidgetType.LIST_WIDGET);
-        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, "x", "y"));
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "x", "x"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1521,11 +1530,13 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.CHART_WIDGET);
-        widgetTypeList.add(WidgetType.LIST_WIDGET);
-        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, "id", "ppu"));
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "id", "type"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1623,11 +1634,13 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.LIST_WIDGET);
-        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-        widgetTypeList.add(WidgetType.CHART_WIDGET);
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, "url", "width"));
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "url", "url"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1681,11 +1694,12 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.CHART_WIDGET);
-        widgetTypeList.add(WidgetType.LIST_WIDGET);
-        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "CarType", "carID"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1722,8 +1736,9 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1762,11 +1777,11 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.CHART_WIDGET);
-        widgetTypeList.add(WidgetType.LIST_WIDGET);
-        widgetTypeList.add(WidgetType.TABLE_WIDGET);
-        widgetTypeList.add(WidgetType.DROP_DOWN_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1803,7 +1818,8 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1840,9 +1856,10 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
-        List<WidgetType> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetType.TEXT_WIDGET);
-        widgetTypeList.add(WidgetType.INPUT_WIDGET);
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -1864,4 +1881,196 @@ public class ActionServiceTest {
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithJsonNodeData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{\"data\": {\n" +
+                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
+                "    \"previous\": null,\n" +
+                "    \"users\": [\n" +
+                "        {\n" +
+                "            \"id\": 3,\n" +
+                "            \"name\": \"Demetre\",\n" +
+                "            \"status\": \"APPROVED\",\n" +
+                "            \"gender\": \"Male\",\n" +
+                "            \"avatar\": \"https://robohash.org/iustooptiocum.jpg?size=100x100&set=set1\",\n" +
+                "            \"email\": \"aaaa@bbb.com\",\n" +
+                "            \"address\": \"262 Saint Paul Park\",\n" +
+                "            \"createdAt\": \"2020-05-01T17:30:50.000Z\",\n" +
+                "            \"updatedAt\": \"2019-10-08T14:55:53.000Z\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"id\": 4,\n" +
+                "            \"name\": \"Currey\",\n" +
+                "            \"status\": \"APPROVED\",\n" +
+                "            \"gender\": \"Female\",\n" +
+                "            \"avatar\": \"https://robohash.org/aspernaturnatusrepellat.jpg?size=100x100&set=set1\",\n" +
+                "            \"email\": \"cbrayson3@taobao.com\",\n" +
+                "            \"address\": \"35180 Lotheville Street!\",\n" +
+                "            \"createdAt\": \"2019-12-30T03:54:23.000Z\",\n" +
+                "            \"updatedAt\": \"2020-08-12T17:43:01.016Z\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "x", "x"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithJsonObjectData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": {\n" +
+                "            \"id\": 1,\n" +
+                "            \"name\": \"Barty Crouch\",\n" +
+                "            \"status\": \"APPROVED\",\n" +
+                "            \"gender\": \"\",\n" +
+                "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n" +
+                "            \"email\": \"barty.crouch@gmail.com\",\n" +
+                "            \"address\": \"St Petersberg #911 4th main\",\n" +
+                "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
+                "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
+                "        } }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, "x", "y"));
+        widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, "x", "x"));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionAfterExecutionWithJsonArrayObjectData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{ \"data\": {\n" +
+                "            \"id\": 1,\n" +
+                "            \"name\": \"Barty Crouch\",\n" +
+                "            \"status\": \"APPROVED\",\n" +
+                "            \"gender\": \"\",\n" +
+                "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n" +
+                "            \"email\": \"barty.crouch@gmail.com\",\n" +
+                "            \"address\": \"St Petersberg #911 4th main\",\n" +
+                "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
+                "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
+                "        }," +
+                "\"data\": {\n" +
+                "            \"id\": 2,\n" +
+                "            \"name\": \"Jenelle Kibbys\",\n" +
+                "            \"status\": \"APPROVED\",\n" +
+                "            \"gender\": \"Female\",\n" +
+                "            \"avatar\": \"https://robohash.org/quiaasperiorespariatur.bmp?size=100x100&set=set1\",\n" +
+                "            \"email\": \"jkibby1@hp.com\",\n" +
+                "            \"address\": \"85 Tennessee Plaza\",\n" +
+                "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n" +
+                "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
+                "        } }";
+        final JsonNode arrNode = new ObjectMapper().readTree(data);;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    private WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
+        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
+        widgetSuggestionDTO.setType(widgetType);
+        widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(),args));
+        return  widgetSuggestionDTO;
+    }
+
 }
