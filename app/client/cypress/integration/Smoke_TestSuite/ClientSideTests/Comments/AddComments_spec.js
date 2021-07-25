@@ -87,7 +87,7 @@ describe("Comments", function() {
             .click({ force: true });
           cy.get("#loading").should("not.exist");
 
-          // unread indicator should be visible
+          // unread indicator should be visible since a new comment was added
           cy.get(commentsLocators.toggleCommentModeOnUnread).should("exist");
           cy.get(commentsLocators.toggleCommentModeOn).should("not.exist");
 
