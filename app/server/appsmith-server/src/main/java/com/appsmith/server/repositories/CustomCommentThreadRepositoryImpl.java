@@ -2,11 +2,14 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -84,6 +87,12 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
         if(commentThreadFilterDTO.getResolved() != null) {
             criteriaList.add(where("resolvedState.active").is(commentThreadFilterDTO.getResolved()));
         }
-        return this.queryAll(criteriaList, permission);
+        LookupOperation lookupOperation = Aggregation.lookup(
+                fieldName(QComment.comment),
+                fieldName(QComment.comment.threadId),
+                fieldName(QCommentThread.commentThread.id),
+                fieldName(QCommentThread.commentThread.comments)
+        );
+        return aggregateLookup(criteriaList, lookupOperation, permission, null, CommentThread.class);
     }
 }

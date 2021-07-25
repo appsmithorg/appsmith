@@ -17,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,6 +28,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +170,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    protected Criteria createCriteriaWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
+        if(aclPermission != null) {
+            criterias.add(userAcl(user, aclPermission));
+        }
+        criterias.add(notDeleted());
+        Criteria[] array = criterias.toArray(Criteria[]::new);
+        return new Criteria().andOperator(array);
+    }
+
     protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
@@ -206,6 +219,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                             .matching(query)
                             .all()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
+                });
+    }
+
+    public <E> Flux<E> aggregateLookup(List<Criteria> criterias, LookupOperation lookupOperation, AclPermission aclPermission, Sort sort, Class<E> outputClass) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMapMany(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    List<AggregationOperation> aggregationOperations = new ArrayList<>();
+                    aggregationOperations.add(Aggregation.match(createCriteriaWithPermission(criterias, user, aclPermission)));
+                    aggregationOperations.add(lookupOperation);
+                    if(sort != null) {
+                        aggregationOperations.add(Aggregation.sort(sort));
+                    }
+                    Aggregation aggregate = Aggregation.newAggregation(aggregationOperations);
+                    return this.mongoOperations.aggregate(aggregate, this.genericDomain, outputClass);
                 });
     }
 
