@@ -408,6 +408,7 @@ function GeneratePageForm() {
         <SelectWrapper>
           <Label>Select Datasource</Label>
           <Dropdown
+            cypressSelector="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -415,6 +416,7 @@ function GeneratePageForm() {
             options={dataSourceOptions}
             renderOption={({ isSelectedNode, option, optionClickHandler }) => (
               <DataSourceOption
+                cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
                 isSelectedNode={isSelectedNode}
                 key={option.id}
@@ -436,6 +438,7 @@ function GeneratePageForm() {
                   <Bold>{selectedDatasource.label}</Bold>
                 </Label>
                 <Dropdown
+                  cypressSelector="t--table-dropdown"
                   dropdownMaxHeight={"300px"}
                   errorMsg={tableDropdownErrorMsg}
                   height={DROPDOWN_DIMENSION.HEIGHT}
@@ -467,6 +470,7 @@ function GeneratePageForm() {
                   <Bold> {selectedTable.label} </Bold>
                 </Label>
                 <Dropdown
+                  cypressSelector="t--searchColumn-dropdown"
                   dropdownMaxHeight={"300px"}
                   height={DROPDOWN_DIMENSION.HEIGHT}
                   onSelect={onSelectColumn}
@@ -502,7 +506,7 @@ function GeneratePageForm() {
         {showSubmitButton ? (
           <FormSubmitButton
             category={Category.tertiary}
-            data-cy="generate-page-form-submit"
+            data-cy="t--generate-page-form-submit"
             disabled={submitButtonDisable}
             isLoading={isGeneratingTemplatePage}
             onClick={handleFormSubmit}

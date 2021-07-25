@@ -2385,6 +2385,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getDatasourceStructure",
   );
 
+  cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
+  cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
+
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
@@ -2580,6 +2583,15 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("renameDatasource", (datasourceName) => {
+  cy.get(".t--edit-datasource-name").click();
+  cy.get(".t--edit-datasource-name input")
+    .clear()
+    .type(datasourceName, { force: true })
+    .should("have.value", datasourceName)
+    .blur();
+});
 
 Cypress.Commands.add("skipGenerateCRUDPage", () => {
   cy.get(generatePage.buildFromScratchActionCard).click();

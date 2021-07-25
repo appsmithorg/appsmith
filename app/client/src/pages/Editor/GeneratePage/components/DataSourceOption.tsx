@@ -82,12 +82,17 @@ const DatasourceImage = styled.img`
   width: auto;
 `;
 
+interface DataSourceOptionType extends RenderDropdownOptionType {
+  cypressSelector: string;
+}
+
 function DataSourceOption({
+  cypressSelector,
   extraProps,
   isSelectedNode,
   option: dropdownOption,
   optionClickHandler,
-}: RenderDropdownOptionType) {
+}: DataSourceOptionType) {
   const { label } = dropdownOption;
   const { routeToCreateNewDatasource = () => null } = extraProps;
   const pluginImages = useSelector(getPluginImages);
@@ -97,6 +102,12 @@ function DataSourceOption({
   const isSupportedForTemplate = dropdownOption.data.isSupportedForTemplate;
   const isNotSupportedDatasource =
     !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
+
+  const optionCypressSelector = isConnectNewDataSourceBtn
+    ? ".t--connectNewDatasource-option"
+    : isSelectedNode
+    ? ""
+    : cypressSelector;
   return (
     <TooltipComponent
       content="Not supported for template generation"
@@ -106,6 +117,7 @@ function DataSourceOption({
     >
       <OptionWrapper
         className="t--dropdown-option"
+        data-cy={optionCypressSelector}
         disabled={isNotSupportedDatasource}
         key={dropdownOption.id}
         onClick={() => {
