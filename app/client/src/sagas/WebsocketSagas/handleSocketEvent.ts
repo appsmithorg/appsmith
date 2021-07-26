@@ -37,7 +37,6 @@ export default function* handleSocketEvent(event: any) {
     }
     case SOCKET_EVENTS.INSERT_COMMENT: {
       yield put(newCommentEvent(event.payload[0]));
-      const { comment } = event.payload[0];
       return;
     }
     case SOCKET_EVENTS.REPLACE_COMMENT_THREAD:
