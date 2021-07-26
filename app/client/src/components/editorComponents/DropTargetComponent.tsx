@@ -107,26 +107,23 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   }, [props.bottomRow, props.canExtend]);
 
-  const persistDropTargetRows = useCallback(
-    (widgetId: string, widgetBottomRow: number) => {
-      const newRows = calculateDropTargetRows(
-        widgetId,
-        widgetBottomRow,
-        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-        occupiedSpacesByChildren,
-      );
-      const rowsToPersist = Math.max(
-        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-        newRows,
-      );
-      rowRef.current = rowsToPersist;
-      updateHeight();
-      if (canDropTargetExtend) {
-        updateCanvasSnapRows(props.widgetId, rowsToPersist);
-      }
-    },
-    [props.minHeight, props.widgetId, canDropTargetExtend],
-  );
+  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+    const newRows = calculateDropTargetRows(
+      widgetId,
+      widgetBottomRow,
+      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      occupiedSpacesByChildren,
+    );
+    const rowsToPersist = Math.max(
+      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      newRows,
+    );
+    rowRef.current = rowsToPersist;
+    updateHeight();
+    if (canDropTargetExtend) {
+      updateCanvasSnapRows(props.widgetId, rowsToPersist);
+    }
+  };
 
   const updateHeight = useCallback(() => {
     if (dropTargetRef.current) {
@@ -136,27 +133,23 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       dropTargetRef.current.style.height = height;
     }
   }, [canDropTargetExtend]);
-  /* Update the rows of the main container based on the current widget's (dragging/resizing) bottom row */
-  const updateDropTargetRows = useCallback(
-    (widgetId: string, widgetBottomRow: number) => {
-      if (canDropTargetExtend) {
-        const newRows = calculateDropTargetRows(
-          widgetId,
-          widgetBottomRow,
-          props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-          occupiedSpacesByChildren,
-        );
-        if (rowRef.current < newRows) {
-          rowRef.current = newRows;
-          updateHeight();
-          return newRows;
-        }
-        return false;
+  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+    if (canDropTargetExtend) {
+      const newRows = calculateDropTargetRows(
+        widgetId,
+        widgetBottomRow,
+        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+        occupiedSpacesByChildren,
+      );
+      if (rowRef.current < newRows) {
+        rowRef.current = newRows;
+        updateHeight();
+        return newRows;
       }
       return false;
-    },
-    [props.minHeight, occupiedSpacesByChildren, canDropTargetExtend],
-  );
+    }
+    return false;
+  };
 
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
