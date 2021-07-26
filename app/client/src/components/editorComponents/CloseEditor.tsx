@@ -10,10 +10,10 @@ import {
   BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
+  getGenerateTemplateFormURL,
 } from "../../constants/routes";
 import { useSelector } from "react-redux";
 import { getQueryParams } from "../../utils/AppsmithUtils";
-import { getGenerateTemplateFormURL } from "../../constants/routes";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   getCurrentApplicationId,
@@ -38,17 +38,30 @@ function CloseEditor() {
 
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
+
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
+
   if (isGeneratePageInitiator) {
+    // When users routes to Integrations page via generate CRUD page form
+    // the INTEGRATION_TABS.ACTIVE is hidden and
+    // hence when routing back, user should go back to INTEGRATION_TABS.NEW tab.
     integrationTab = INTEGRATION_TABS.NEW;
   }
+  // if it is a generate CRUD page flow from which user came here
+  // then route user back to `/generate-page/form`
+  // else go back to BUILDER_PAGE
+  const redirectURL = isGeneratePageInitiator
+    ? getGenerateTemplateFormURL(applicationId, pageId)
+    : BUILDER_PAGE_URL(applicationId, pageId);
+
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
+
     const URL =
       redirectTo === "datasources"
         ? INTEGRATION_EDITOR_URL(
@@ -58,9 +71,7 @@ function CloseEditor() {
             "",
             getQueryParams(),
           )
-        : isGeneratePageInitiator
-        ? getGenerateTemplateFormURL(applicationId, pageId)
-        : BUILDER_PAGE_URL(applicationId, pageId);
+        : redirectURL;
     history.push(URL);
   };
 
