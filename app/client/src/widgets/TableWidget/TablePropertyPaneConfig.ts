@@ -756,6 +756,7 @@ export default [
         isTriggerProperty: true,
       },
       {
+        helpText: "Triggers an action when a table is sorted on a column",
         propertyName: "onSort",
         label: "onSort",
         controlType: "ACTION_SELECTOR",
