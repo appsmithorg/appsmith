@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Datasource;
@@ -20,12 +22,14 @@ import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.SessionUserService;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.gson.Gson;
@@ -66,37 +70,43 @@ public class CreateDBTablePageSolution {
     private final LayoutActionService layoutActionService;
     private final ApplicationPageService applicationPageService;
     private final PluginService pluginService;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
     
-    private final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
+    private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
-    private final String TEMPLATE_TABLE_NAME = "public.template_table";
+    private static final String TEMPLATE_TABLE_NAME = "public.template_table";
 
-    private final String TEMPLATE_APPLICATION_FILE = "template application file";
+    private static final String TEMPLATE_APPLICATION_FILE = "template application file";
 
-    private final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
+    private static final String DELETE_FIELD = "deleteThisFieldFromActionsAndLayout";
 
-    private final String SELECT_QUERY = "SelectQuery";
+    private static final String SELECT_QUERY = "SelectQuery";
 
-    private final String FIND_QUERY = "FindQuery";
+    private static final String FIND_QUERY = "FindQuery";
 
-    private final String LIST_QUERY = "ListFiles";
+    private static final String LIST_QUERY = "ListFiles";
+
+    // Default SelectWidget dropdown value for SQL and Postgres template pages which will be used in select query for sort operator
+    private static final String SQL_DEFAULT_DROPDOWN_VALUE = "asc";
+
+    // Default SelectWidget dropdown value for MongoDB template page which will be used in find query for sort operator
+    private static final String MONGO_DEFAULT_DROPDOWN_VALUE = "1";
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
-    private final String DEFAULT_SEARCH_COLUMN = "col3";
+    private static final String DEFAULT_SEARCH_COLUMN = "col3";
 
-    private final String TEMPLATE_S3_BUCKET = "assets-test.appsmith.com";
-
-    private final long MIN_TABLE_COLUMNS = 2;
+    private static final long MIN_TABLE_COLUMNS = 2;
 
     // These fields contain the widget fields those need to be mapped between template DB table and DB table in
     // current context
-    private final Set<String> WIDGET_FIELDS = Set.of(
+    private static final Set<String> WIDGET_FIELDS = Set.of(
         "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible"
     );
 
-    // Pattern to break string in separate words
-    final static Pattern wordPattern = Pattern.compile("[^\\W]+");
+    // Pattern to match all words in the text
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -226,6 +236,11 @@ public class CreateDBTablePageSolution {
                 }
 
                 DatasourceStructure templateStructure = templateDatasource.getStructure();
+                // We are supporting datasources for both with and without datasource sturcture. So if datasource
+                // structure is present then we can assign the mapping dynamically as per the template datasource tables.
+                // Those datasources for which we don't have structure like Google sheet etc we are following a
+                // protocol in template application that all the column headers should be named as col1, col2,.... colx
+
                 if (templateStructure != null && !CollectionUtils.isEmpty(templateStructure.getTables())) {
                     Table templateTable = templateStructure.getTables()
                         .stream()
@@ -265,7 +280,6 @@ public class CreateDBTablePageSolution {
                     templateTableRef,
                     tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName);
 
-
                 Set<String> deletedWidgets = new HashSet<>();
                 layout.setDsl(
                     extractAndUpdateAllWidgetFromDSL(layout.getDsl(), mappedColumnsAndTableName, deletedWidgets)
@@ -279,12 +293,23 @@ public class CreateDBTablePageSolution {
                     )
                     .collect(Collectors.toList());
 
-                log.debug("Going to update layout for page {0} and layout {1}", savedPageId.get(), layoutId);
+                // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored at
+                // index 1 in plugin specified templates
+
+                if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
+                    mappedColumnsAndTableName.put(
+                        templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().get(1).getValue().toString(),
+                        tableName
+                    );
+                }
+
+                log.debug("Going to update layout for page {} and layout {}", savedPageId.get(), layoutId);
                 return layoutActionService.updateLayout(savedPageId.get(), layoutId, layout)
                     .then(Mono.zip(
                         Mono.just(datasource),
                         Mono.just(templateActionList),
-                        Mono.just(deletedWidgets)
+                        Mono.just(deletedWidgets),
+                        Mono.just(plugin)
                     ));
             })
             .flatMap(tuple -> {
@@ -292,6 +317,7 @@ public class CreateDBTablePageSolution {
                 Datasource datasource = tuple.getT1();
                 List<NewAction> templateActionList = tuple.getT2();
                 Set<String> deletedWidgets = tuple.getT3();
+                Plugin plugin = tuple.getT4();
                 log.debug("Going to clone actions from template application");
                 return cloneActionsFromTemplateApplication(datasource,
                                                             tableName,
@@ -305,7 +331,9 @@ public class CreateDBTablePageSolution {
                         || StringUtils.equals(actionDTO.getName(), FIND_QUERY)
                         || StringUtils.equals(actionDTO.getName(), LIST_QUERY)
                         ? layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
-                    .then(applicationPageService.getPage(savedPageId.get(), false));
+                    .then(applicationPageService.getPage(savedPageId.get(), false)
+                        .flatMap(pageDTO -> sendGenerateCRUDPageAnalyticsEvent(pageDTO, datasource, plugin.getName()))
+                    );
             });
     }
 
@@ -382,7 +410,7 @@ public class CreateDBTablePageSolution {
     /**
      * This will fetch the template application resource which then act as a reference to clone layouts and actions
      * @param filePath template application path
-     * @return
+     * @return template application file
      * @throws IOException
      */
     private ApplicationJson fetchTemplateApplication(String filePath) throws IOException {
@@ -407,9 +435,9 @@ public class CreateDBTablePageSolution {
     /**
      * This function will clone actions from the template application and update action configuration using mapped
      * columns between the template datasource and datasource in context
-     * @param datasource
-     * @param tableName
-     * @param pageId
+     * @param datasource datasource connected by user
+     * @param tableName Table name provided by the user
+     * @param pageId Page to which actions needs to be cloned
      * @param templateActionList Actions from the template application related to specific datasource
      * @param mappedColumns Mapped column names between template and resource table under consideration
      * @param deletedWidgetNames Deleted column ref when template application have more # of columns than the users table
@@ -447,7 +475,7 @@ public class CreateDBTablePageSolution {
                 List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
                 if (actionBody != null) {
                     String body = actionBody.replaceFirst(TEMPLATE_TABLE_NAME, tableName);
-                    final Matcher matcher = wordPattern.matcher(body);
+                    final Matcher matcher = WORD_PATTERN.matcher(body);
                     actionConfiguration.setBody(matcher.replaceAll(key ->
                         mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                     );
@@ -457,13 +485,15 @@ public class CreateDBTablePageSolution {
                 if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
-                            if (StringUtils.equals(property.getValue().toString(), TEMPLATE_S3_BUCKET)) {
-                                property.setValue(tableName);
+                            if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(templateAction.getPluginId()) && mappedColumns.containsKey(property.getValue().toString())) {
+                                // Replace template S3 bucket with user's  bucket. Here we can't apply WORD_PATTERN
+                                // matcher as the bucket name can be test.appsmith etc
+                                property.setValue(mappedColumns.get(property.getValue().toString()));
                             } else if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
                                 && pluginSpecificTemplateParams.get(property.getKey()) != null){
                                 property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
                             } else {
-                                final Matcher matcher = wordPattern.matcher(property.getValue().toString());
+                                final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
                                 property.setValue(matcher.replaceAll(key ->
                                     mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                                 );
@@ -668,18 +698,21 @@ public class CreateDBTablePageSolution {
                 }
             } else if (FieldName.DROP_DOWN_WIDGET.equals(widgetDsl.getAsString(FieldName.TYPE))
                 && FieldName.OPTIONS.equals(key)
-                && !defaultDropdownValue.toLowerCase().contains("asc")) {
-                // This will handle the options field in SelectWidget
+                && !(SQL_DEFAULT_DROPDOWN_VALUE.equalsIgnoreCase(defaultDropdownValue)
+                    || MONGO_DEFAULT_DROPDOWN_VALUE.equals(defaultDropdownValue))) {
+                // This will update the options field to include all the column names as label and value
+                // in SelectWidget except for SelectWidget with DefaultOptionValue SQL(DefaultValue : "ASC")
+                // and Mongo(DefaultValue : "1") check template application layout for more details
                     List<String> dropdownOptions = new ArrayList<>();
                     mappedColumnsAndTableNames.forEach((colKey, colVal) -> {
-                        if (colKey.toLowerCase().contains("col")) {
+                        if (colKey.toLowerCase().contains("col") && !colVal.equals(DELETE_FIELD)) {
                             dropdownOptions.add("\n{\n\t\"label\": \"" + colVal + "\",\n\t\"value\": \"" + colVal + "\"\n}");
                         }
                     });
                     widgetDsl.put(FieldName.OPTIONS, dropdownOptions.toString());
             } else {
                 //Get separate words and map to tableColumns from widgetDsl
-                Matcher matcher = wordPattern.matcher(widgetDsl.getAsString(key));
+                Matcher matcher = WORD_PATTERN.matcher(widgetDsl.getAsString(key));
                 widgetDsl.put(key, matcher.replaceAll(field ->
                     mappedColumnsAndTableNames.get(field.group()) == null ?
                         field.group() : mappedColumnsAndTableNames.get(field.group())
@@ -711,7 +744,7 @@ public class CreateDBTablePageSolution {
 
             // Get separate words and map to tableColumns from widgetDsl
 
-            Matcher matcher = wordPattern.matcher(actionConfiguration.getBody());
+            Matcher matcher = WORD_PATTERN.matcher(actionConfiguration.getBody());
             actionConfiguration.setBody(matcher.replaceAll(field -> deletedWidgetNames.contains(field.group())
                 ? DELETE_FIELD : field.group()
             ));
@@ -747,4 +780,25 @@ public class CreateDBTablePageSolution {
         }
         return actionConfiguration;
     }
+
+    private Mono<PageDTO> sendGenerateCRUDPageAnalyticsEvent(PageDTO page, Datasource datasource, String pluginName) {
+        return sessionUserService.getCurrentUser()
+            .map(currentUser -> {
+                try {
+                    final Map<String, Object> data = Map.of(
+                        "applicationId", page.getApplicationId(),
+                        "pageId", page.getId(),
+                        "pageName", page.getName(),
+                        "pluginName", pluginName,
+                        "datasourceId", datasource.getId(),
+                        "organizationId", datasource.getOrganizationId()
+                    );
+                    analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                } catch (Exception e) {
+                    log.warn("Error sending generate CRUD DB table page data point", e);
+                }
+                return page;
+            });
+    }
+
 }
