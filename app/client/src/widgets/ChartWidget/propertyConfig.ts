@@ -1,6 +1,7 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CUSTOM_CHART_TYPES } from "constants/CustomChartConstants";
 
 export default [
   {
@@ -14,7 +15,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.TEXT,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         helpText: "Changes the visualisation of the chart data",
@@ -50,6 +51,19 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+        },
       },
       {
         propertyName: "isVisible",
@@ -59,7 +73,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.BOOLEAN,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },
@@ -72,10 +86,62 @@ export default [
         placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
-        controlType: "CUSTOM_FUSION_CHARTS_DATA",
+        controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
+        validation: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                type: ValidationTypes.TEXT,
+                name: "type",
+                params: {
+                  allowedValues: CUSTOM_CHART_TYPES,
+                  default: "",
+                  required: true,
+                },
+              },
+              {
+                type: ValidationTypes.OBJECT,
+                name: "dataSource",
+                params: {
+                  allowedKeys: [
+                    {
+                      name: "chart",
+                      type: ValidationTypes.OBJECT,
+                      params: {
+                        default: {},
+                      },
+                    },
+                    {
+                      name: "data",
+                      type: ValidationTypes.ARRAY,
+                      params: {
+                        default: [],
+                        children: {
+                          type: ValidationTypes.OBJECT,
+                          params: {
+                            allowedKeys: [
+                              {
+                                name: "label",
+                                type: ValidationTypes.TEXT,
+                              },
+                              {
+                                name: "value",
+                                type: ValidationTypes.NUMBER,
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
         dependencies: ["chartType"],
@@ -100,7 +166,7 @@ export default [
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Series data",
@@ -109,7 +175,24 @@ export default [
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.CHART_SERIES_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              children: {
+                type: ValidationTypes.OBJECT,
+                params: {
+                  allowedKeys: [
+                    {
+                      name: "x",
+                      type: ValidationTypes.TEXT,
+                    },
+                    {
+                      name: "y",
+                      type: ValidationTypes.NUMBER,
+                    },
+                  ],
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -131,7 +214,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.TEXT,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         helpText: "Specifies the label of the y-axis",
@@ -141,7 +224,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.TEXT,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         helpText: "Enables scrolling inside the chart",

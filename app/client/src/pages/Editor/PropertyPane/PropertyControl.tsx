@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -8,7 +8,6 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -17,7 +16,7 @@ import {
   deleteWidgetProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
@@ -35,7 +34,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { isEqual } from "lodash";
+import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
@@ -280,11 +279,10 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
-        propertyName
-      ] as any,
       additionalDynamicData: {},
     };
+    const expectedValue = getExpectedValue(props.validation);
+    config.expected = expectedValue;
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.validationMessage = "";
       delete config.dataTreePath;
