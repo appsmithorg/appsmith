@@ -130,7 +130,11 @@ export type EventName =
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
-  | "CREATE_DATA_SOURCE_AUTH_API_CLICK";
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
+  | "CONNECT_DATA_CLICK"
+  | "RESPONSE_TAB_RUN_ACTION_CLICK"
+  | "ASSOCIATED_ENTITY_CLICK"
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
