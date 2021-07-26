@@ -21,9 +21,6 @@ import java.util.List;
 @Slf4j
 public class JsSnippetsController {
 
-    @Autowired
-    public JsSnippetsController() {}
-
     /**
      * This API returns dummy response so that the client can test its features, while the actual API
      * gets implemented.
