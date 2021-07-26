@@ -18,6 +18,7 @@ import {
   setAreCommentsEnabled,
   setCommentMode,
   fetchUnreadCommentThreadsCountSuccess,
+  decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -222,6 +223,7 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
+      yield put(decrementThreadUnreadCount());
     }
   } catch (error) {
     yield put({

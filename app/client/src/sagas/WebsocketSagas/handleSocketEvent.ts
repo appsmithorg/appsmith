@@ -40,16 +40,25 @@ export default function* handleSocketEvent(event: any) {
       const { comment } = event.payload[0];
       return;
     }
+    case SOCKET_EVENTS.REPLACE_COMMENT_THREAD:
     case SOCKET_EVENTS.UPDATE_COMMENT_THREAD: {
       const { thread } = event.payload[0];
-      yield put(updateCommentThreadEvent(thread));
-
       const threadInStore: CommentThread = yield select((state: AppState) =>
         commentThreadsSelector(thread?._id)(state),
       );
 
       const isThreadInStoreViewed = threadInStore?.isViewed;
-      const isThreadFromEventViewed = thread?.isViewed;
+      const isThreadFromEventViewed = thread?.viewedByUsers?.includes(
+        currentUser?.username,
+      );
+
+      yield put(
+        updateCommentThreadEvent({
+          ...thread,
+          isViewed: isThreadFromEventViewed,
+        }),
+      );
+
       if (isThreadInStoreViewed && !isThreadFromEventViewed) {
         yield put(incrementThreadUnreadCount());
       } else if (!isThreadInStoreViewed && isThreadFromEventViewed) {
