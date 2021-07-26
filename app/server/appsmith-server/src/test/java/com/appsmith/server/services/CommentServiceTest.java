@@ -2,11 +2,13 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.CommentBotEvent;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -79,6 +81,9 @@ public class CommentServiceTest {
     @MockBean
     private EmailEventHandler emailEventHandler;
 
+    @MockBean
+    private UserDataRepository userDataRepository;
+
     @Before
     public void setUp() {
         Mockito.doNothing().when(analytics).enqueue(any());
@@ -86,6 +91,10 @@ public class CommentServiceTest {
 
         Mockito.when(emailEventHandler.publish(any(), any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(emailEventHandler.publish(any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
+
+        UserData userData = new UserData();
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+        Mockito.when(userDataRepository.save(any(UserData.class))).thenReturn(Mono.just(userData));
     }
 
     @Test
@@ -119,7 +128,7 @@ public class CommentServiceTest {
                             Policy.builder().permission(AclPermission.MANAGE_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
                             Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
-                    assertThat(thread.getComments()).hasSize(1);
+                    assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
                     assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
                             Policy.builder().permission(AclPermission.MANAGE_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
@@ -157,7 +166,6 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
-
         Organization organization = new Organization();
         organization.setName("CommentDeleteTestOrg");
         Mono<Comment> beforeDeletionMono = organizationService
@@ -343,9 +351,9 @@ public class CommentServiceTest {
             assertThat(thread.getViewedByUsers().size()).isEqualTo(1);
             assertThat(thread.getViewedByUsers()).contains("api_user");
         }).verifyComplete();
-
     }
 
+<<<<<<< HEAD
     private Mono<CommentThread> createAndFetchTestCommentThreadForBotTest(Set<AclPermission> applicationPermissions) {
         return userService.findByEmail("api_user")
                 .flatMap(user ->
@@ -400,5 +408,47 @@ public class CommentServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
             assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
         }).verifyComplete();
+=======
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getThreadsByApplicationId_WhenThreadWithCommentExists_ReturnThreadWithComments() {
+        // mock the user data so that bot comment is not created
+        UserData userData = new UserData();
+        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Organization organization = new Organization();
+        organization.setName("GetThreadsTestOrg");
+
+        Mono<List<CommentThread>> commentThreadListMono = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("GetThreadsTestApplication");
+                    return applicationPageService
+                            .createApplication(testApplication, org.getId());
+                })
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    thread.setComments(List.of(
+                            makePlainTextComment("Test Comment")
+                    ));
+                    return commentService.createThread(thread, "https://app.appsmith.com").thenReturn(application);
+                })
+                .flatMap(application -> {
+                    CommentThreadFilterDTO commentThreadFilterDTO = new CommentThreadFilterDTO();
+                    commentThreadFilterDTO.setApplicationId(application.getId());
+                    return commentService.getThreadsByApplicationId(commentThreadFilterDTO);
+                });
+
+        StepVerifier
+                .create(commentThreadListMono)
+                .assertNext(commentThreadList -> {
+                    assertThat(commentThreadList.size()).isEqualTo(1);
+                    assertThat(commentThreadList.get(0).getComments().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+>>>>>>> 4f77b7308 (-add unit test for get all thread)
     }
 }
