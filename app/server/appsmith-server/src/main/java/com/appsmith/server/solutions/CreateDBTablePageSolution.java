@@ -99,7 +99,7 @@ public class CreateDBTablePageSolution {
 
     // This column will be used to map filter in Find and Select query. This particular field is added to have
     // uniformity across different datasources
-    private static final String DEFAULT_SEARCH_COLUMN = "col3";
+    private static final String DEFAULT_SEARCH_COLUMN = "col2";
 
     private static final long MIN_TABLE_COLUMNS = 2;
 
