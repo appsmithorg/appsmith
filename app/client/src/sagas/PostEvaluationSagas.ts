@@ -41,6 +41,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
+import { Diff } from "deep-diff";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -177,7 +178,7 @@ export function* evalErrorHandler(
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
-          const { entityType, node } = error.context;
+          const { dependencyMap, diffs, entityType, node } = error.context;
           Toaster.show({
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
@@ -190,6 +191,10 @@ export function* evalErrorHandler(
             tags: {
               node,
               entityType,
+            },
+            extra: {
+              dependencyMap,
+              diffs,
             },
             // Level is warning because it could be a user error
             level: Sentry.Severity.Warning,
@@ -295,8 +300,8 @@ export function* postEvalActionDispatcher(
 // we will remove its def
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  evaluationOrder: string[],
   isFirstEvaluation: boolean,
+  updates: Diff<DataTree, DataTree>[],
 ) {
   const updatedEntities: Set<string> = new Set();
   // If it is the first evaluation, we want to add everything in the data tree
@@ -304,9 +309,10 @@ export function* updateTernDefinitions(
     TernServer.resetServer();
     Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
   } else {
-    evaluationOrder.forEach((path) => {
-      const { entityName } = getEntityNameAndPropertyPath(path);
-      updatedEntities.add(entityName);
+    updates.forEach((update) => {
+      if (update.kind === "N" && update.path) {
+        updatedEntities.add(update?.path[0]);
+      }
     });
   }
 

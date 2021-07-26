@@ -128,9 +128,9 @@ export default {
             isVisible: true,
             isDerived: false,
             label: id,
-            computedValue: props.sanitizedTableData.map((currentRow) => {
-              return currentRow[id];
-            }),
+            computedValue: props.sanitizedTableData.map(
+              (currentRow) => currentRow[id],
+            ),
           };
         }
       });
@@ -367,16 +367,16 @@ export default {
         }
       },
       is: (a, b) => {
-        return moment(a).isSame(moment(b), "d");
+        return moment(a).isSame(moment(b), "minute");
       },
       isNot: (a, b) => {
-        return !moment(a).isSame(moment(b), "d");
+        return !moment(a).isSame(moment(b), "minute");
       },
       isAfter: (a, b) => {
-        return !moment(a).isAfter(moment(b), "d");
+        return moment(a).isAfter(moment(b), "minute");
       },
       isBefore: (a, b) => {
-        return !moment(a).isBefore(moment(b), "d");
+        return moment(a).isBefore(moment(b), "minute");
       },
     };
 
