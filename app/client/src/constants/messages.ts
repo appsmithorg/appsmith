@@ -381,3 +381,16 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+// Actions Right pane
+export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
+export const INCOMING_ENTITIES = () => "Incoming entities";
+export const NO_INCOMING_ENTITIES = () => "No incoming entities";
+export const OUTGOING_ENTITIES = () => "Outgoing entities";
+export const NO_OUTGOING_ENTITIES = () => "No outgoing entities";
+export const NO_CONNECTIONS = () => "No connections to show here";
+export const BACK_TO_CANVAS = () => "Back to canvas";
+export const SUGGESTED_WIDGET_DESCRIPTION = () =>
+  "This will add a new widget to the canvas.";
+export const ADD_NEW_WIDGET = () => "Add New Widget";
+export const SUGGESTED_WIDGETS = () => "Suggested widgets";
+export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";

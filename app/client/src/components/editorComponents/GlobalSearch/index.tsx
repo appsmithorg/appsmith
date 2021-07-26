@@ -93,6 +93,16 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
+const getQueryIndexForSorting = (item: SearchItem, query: string) => {
+  if (item.kind === SEARCH_ITEM_TYPES.document) {
+    const title = item?._highlightResult?.title?.value;
+    return title.indexOf(algoliaHighlightTag);
+  } else {
+    const title = getItemTitle(item) || "";
+    return title.toLowerCase().indexOf(query.toLowerCase());
+  }
+};
+
 const getSortedResults = (
   query: string,
   filteredActions: Array<any>,
@@ -109,11 +119,8 @@ const getSortedResults = (
     ...filteredDatasources,
     ...documentationSearchResults,
   ].sort((a: any, b: any) => {
-    const titleA = getItemTitle(a) || "";
-    const titleB = getItemTitle(b) || "";
-
-    const queryIndexA = titleA.toLowerCase().indexOf(query.toLowerCase());
-    const queryIndexB = titleB.toLowerCase().indexOf(query.toLowerCase());
+    const queryIndexA = getQueryIndexForSorting(a, query);
+    const queryIndexB = getQueryIndexForSorting(b, query);
 
     if (queryIndexA === queryIndexB) {
       const pageA = getItemPage(a);

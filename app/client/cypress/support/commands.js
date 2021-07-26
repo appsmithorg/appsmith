@@ -1227,6 +1227,7 @@ Cypress.Commands.add("invalidWidgetText", () => {
 
 Cypress.Commands.add("EvaluateDataType", (dataType) => {
   cy.get(commonlocators.evaluatedType)
+    .first()
     .should("be.visible")
     .contains(dataType);
 });
@@ -1235,6 +1236,7 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
+    .first()
     .should("be.visible")
     .contains(currentValue);
 });
@@ -2475,10 +2477,14 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .find("span")
+    .click();
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
-    .children("p")
-    .siblings("pre")
+    .find("pre")
+    .first()
     .should("have.text", expectedType);
 });
 

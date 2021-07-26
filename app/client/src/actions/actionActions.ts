@@ -277,6 +277,17 @@ export const setActionsToExecuteOnPageLoad = (
   };
 };
 
+export const bindDataOnCanvas = (payload: {
+  queryId: string;
+  applicationId: string;
+  pageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,
@@ -285,4 +296,5 @@ export default {
   deleteActionSuccess,
   updateAction,
   updateActionSuccess,
+  bindDataOnCanvas,
 };

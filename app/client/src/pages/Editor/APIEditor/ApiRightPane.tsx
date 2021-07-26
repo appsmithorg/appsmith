@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
@@ -9,12 +9,12 @@ import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 280px;
   padding: 50px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
@@ -29,21 +29,16 @@ const DatasourceContainer = styled.div`
       margin-right: 0;
     }
   }
+  width: ${(props) => props.theme.actionSidePane.width}px;
 `;
 
 const DataSourceListWrapper = styled.div`
-  width: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 10px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
-  transition: width 2s;
-  background: white;
-  &.show {
-    width: 280px;
-  }
 `;
 
 const DatasourceCard = styled.div`
@@ -107,6 +102,11 @@ const DataSourceNameContainer = styled.div`
   }
 `;
 
+const SomeWrapper = styled.div`
+  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  height: 100%;
+`;
+
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
@@ -121,8 +121,11 @@ export const getDatasourceInfo = (datasource: any): string => {
   return info.join(" | ");
 };
 
-export default function DataSourceList(props: any) {
+export default function ApiRightPane(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  useEffect(() => {
+    if (!!props.hasResponse) setSelectedIndex(1);
+  }, [props.hasResponse]);
   return (
     <DatasourceContainer>
       <TabbedViewContainer>
@@ -133,8 +136,6 @@ export default function DataSourceList(props: any) {
             {
               key: "datasources",
               title: "Datasources",
-              icon: "datasource",
-              iconSize: IconSize.LARGE,
               panelComponent:
                 props.datasources && props.datasources.length > 0 ? (
                   <DataSourceListWrapper
@@ -198,6 +199,19 @@ export default function DataSourceList(props: any) {
                     </Text>
                   </EmptyDatasourceContainer>
                 ),
+            },
+            {
+              key: "Connections",
+              title: "Connections",
+              panelComponent: (
+                <SomeWrapper>
+                  <ActionRightPane
+                    actionName={props.actionName}
+                    hasResponse={props.hasResponse}
+                    suggestedWidgets={props.suggestedWidgets}
+                  />
+                </SomeWrapper>
+              ),
             },
           ]}
         />
