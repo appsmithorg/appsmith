@@ -3,13 +3,41 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "components/designSystems/appsmith/MultiSelectComponent";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
+
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  return {
+    isValid: true,
+    parsed: values,
+  };
+}
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -30,7 +58,28 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -42,7 +91,16 @@ class MultiSelectWidget extends BaseWidget<
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUES,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                },
+              },
+            },
           },
           {
             helpText: "Input Place Holder",
@@ -52,7 +110,7 @@ class MultiSelectWidget extends BaseWidget<
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -62,7 +120,7 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -72,7 +130,7 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -82,7 +140,7 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Enables server side filtering of the data",
