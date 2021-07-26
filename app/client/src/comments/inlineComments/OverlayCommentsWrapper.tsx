@@ -51,7 +51,6 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
     e.persist();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);
-      if (!isCommentMode) return;
       dispatch(
         createUnpublishedCommentThreadRequest({
           refId,
