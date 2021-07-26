@@ -125,6 +125,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Menu Button",
     key: generateReactKey(),
   },
+  {
+    type: "TREE_SELECT_WIDGET",
+    widgetCardName: "TreeSelect",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

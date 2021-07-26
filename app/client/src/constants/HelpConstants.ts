@@ -131,6 +131,10 @@ export const HelpMap = {
     path: "/widget-reference/menu-button",
     searchKey: "Menu Button",
   },
+  TREE_SELECT_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

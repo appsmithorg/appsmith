@@ -197,6 +197,14 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     label: "string",
   },
+  TREE_SELECT_WIDGET: {
+    label: "string",
+    options: "array<{value,label,children, [disabled,selectable]}>",
+    defaultOptionValue: "string",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

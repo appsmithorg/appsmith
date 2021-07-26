@@ -119,6 +119,10 @@ import MenuButtonWidget, {
   MenuButtonWidgetProps,
   ProfiledMenuButtonWidget,
 } from "widgets/MenuButtonWidget";
+import TreeSelectWidget, {
+  ProfiledTreeSelectWidget,
+  TreeSelectWidgetProps,
+} from "widgets/TreeSelectWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -522,6 +526,19 @@ export default class WidgetBuilderRegistry {
       MenuButtonWidget.getDefaultPropertiesMap(),
       MenuButtonWidget.getMetaPropertiesMap(),
       MenuButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.TREE_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: TreeSelectWidgetProps): JSX.Element {
+          return <ProfiledTreeSelectWidget {...widgetData} />;
+        },
+      },
+      TreeSelectWidget.getDerivedPropertiesMap(),
+      TreeSelectWidget.getDefaultPropertiesMap(),
+      TreeSelectWidget.getMetaPropertiesMap(),
+      TreeSelectWidget.getPropertyPaneConfig(),
     );
   }
 }
