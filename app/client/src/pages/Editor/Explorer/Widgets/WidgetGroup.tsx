@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
@@ -9,8 +9,8 @@ import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getSelectedWidgets } from "selectors/ui";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -31,9 +31,7 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-  );
+  const selectedWidgets = useSelector(getSelectedWidgets);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
@@ -53,6 +51,10 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     </EntityPlaceholder>
   );
 
+  const widgetsInStep = useMemo(() => {
+    return props.widgets?.children?.map((child) => child.widgetId) || [];
+  }, [props.widgets?.children]);
+
   return (
     <Entity
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
@@ -61,7 +63,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       icon={widgetIcon}
       isDefaultExpanded={
         !!props.searchKeyword ||
-        (params.pageId === props.pageId && !!selectedWidget)
+        (params.pageId === props.pageId &&
+          !!(selectedWidgets && selectedWidgets.length))
       }
       key={props.pageId + "_widgets"}
       name="Widgets"
@@ -79,6 +82,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           widgetId={child.widgetId}
           widgetName={child.widgetName}
           widgetType={child.type}
+          widgetsInStep={widgetsInStep}
         />
       ))}
       {(!props.widgets?.children || props.widgets?.children.length === 0) &&

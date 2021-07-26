@@ -1,11 +1,17 @@
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { TabContainerWidgetProps, TabsWidgetProps } from "./TabsWidget";
+import {
+  selectedTabValidation,
+  TabContainerWidgetProps,
+  TabsWidgetProps,
+} from "./TabsWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import withMeta from "widgets/MetaHOC";
 import * as Sentry from "@sentry/react";
 import { migrateTabsData } from "utils/WidgetPropsUtils";
-import { cloneDeep } from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { cloneDeep, get } from "lodash";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { generateReactKey } from "utils/generators";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -27,7 +33,32 @@ class TabsMigratorWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TABS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                      },
+                      {
+                        name: "id",
+                        type: ValidationTypes.TEXT,
+                        default: generateReactKey(),
+                      },
+                      {
+                        name: "widgetId",
+                        type: ValidationTypes.TEXT,
+                        default: generateReactKey(),
+                      },
+                    ],
+                  },
+                },
+              },
+            },
           },
           {
             propertyName: "shouldShowTabs",
@@ -46,7 +77,16 @@ class TabsMigratorWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.SELECTED_TAB,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: selectedTabValidation,
+                expected: {
+                  type: "Tab Name (string)",
+                  example: "Tab 1",
+                },
+              },
+            },
           },
           {
             propertyName: "shouldScrollContents",
@@ -63,7 +103,7 @@ class TabsMigratorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -84,7 +124,7 @@ class TabsMigratorWidget extends BaseWidget<
     ];
   }
   componentDidMount() {
-    if (this.props.evaluatedValues) {
+    if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
       this.batchUpdateWidgetProperty({

@@ -27,6 +27,10 @@ export enum WidgetTypes {
   LIST_WIDGET = "LIST_WIDGET",
   SWITCH_WIDGET = "SWITCH_WIDGET",
   TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
+  RATE_WIDGET = "RATE_WIDGET",
+  IFRAME_WIDGET = "IFRAME_WIDGET",
+  DIVIDER_WIDGET = "DIVIDER_WIDGET",
+  MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -96,7 +100,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 25;
+export const LATEST_PAGE_VERSION = 28;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -107,11 +111,12 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
-// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
-export const CONTAINER_GRID_PADDING =
-  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
+// Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
+// which wud allow the user to place elements centered inside a container(columns are rendered proportionaly so it take cares of itselves).
 
-// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+export const CONTAINER_GRID_PADDING =
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
+
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
@@ -146,3 +151,17 @@ export const TEXT_SIZES = {
 };
 
 export type TextSize = keyof typeof TextSizes;
+
+export enum RateSizes {
+  SMALL = "SMALL",
+  MEDIUM = "MEDIUM",
+  LARGE = "LARGE",
+}
+
+export const RATE_SIZES = {
+  SMALL: 12,
+  MEDIUM: 16,
+  LARGE: 21,
+};
+
+export type RateSize = keyof typeof RateSizes;

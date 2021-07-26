@@ -23,7 +23,6 @@ describe("Image Widget Functionality", function() {
     );
     cy.get(viewWidgetsPage.defaultImage)
       .click({ force: true })
-      .type(this.data.command)
       .type(this.data.defaultimage);
     /**
      * @param{URL} ImageUrl
@@ -43,20 +42,20 @@ describe("Image Widget Functionality", function() {
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("contain", "zoom-in");
-    cy.get(commonlocators.imgWidget).click();
-    cy.get(commonlocators.imgWidget).click();
-    cy.get(commonlocators.imgWidget).click();
+    cy.get(commonlocators.imgWidget).click({ force: true });
+    cy.get(commonlocators.imgWidget).click({ force: true });
+    cy.get(commonlocators.imgWidget).click({ force: true });
+    cy.get(commonlocators.imgWidget).click({ force: true });
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("contain", "zoom-out");
-    cy.get(commonlocators.imgWidget).click();
+    cy.get(commonlocators.imgWidget).click({ force: true });
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("contain", "zoom-in");
-
     cy.PublishtheApp();
   });
 

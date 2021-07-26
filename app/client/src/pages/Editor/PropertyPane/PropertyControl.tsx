@@ -8,7 +8,6 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -17,11 +16,12 @@ import {
   deleteWidgetProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
@@ -38,6 +38,7 @@ import {
   useChildWidgetEnhancementFns,
   useParentWithEnhancementFn,
 } from "sagas/WidgetEnhancementHelpers";
+import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
@@ -190,6 +191,9 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            // TODO: Check whether these properties have
+            // dependent properties
+            propertyPath: propertiesToUpdate[0].propertyPath,
           },
           state: allUpdates,
         });
@@ -210,6 +214,7 @@ const PropertyControl = memo((props: Props) => {
             type: ENTITY_TYPE.WIDGET,
             name: widgetProperties.widgetName,
             id: widgetProperties.widgetId,
+            propertyPath: propertyName,
           },
           state: {
             [propertyName]: propertyValue,
@@ -248,18 +253,15 @@ const PropertyControl = memo((props: Props) => {
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
     // get the dataTreePath and apply enhancement if exists
-    // TODO (hetu) make the dataTreePath the actual path of the property
-    // and evaluatedValues should not be added by default
-    let dataTreePath: string | undefined =
-      props.dataTreePath ||
-      `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    let dataTreePath: string =
+      props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
     if (childWidgetDataTreePathEnhancementFn) {
       dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
     }
 
     const evaluatedValue = _.get(
       widgetProperties,
-      `evaluatedValues.${propertyName}`,
+      getEvalValuePath(dataTreePath, false),
     );
 
     const { additionalAutoComplete, ...rest } = props;
@@ -271,18 +273,14 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
-        propertyName
-      ] as any,
       additionalDynamicData: {},
     };
+    const expectedValue = getExpectedValue(props.validation);
+    config.expected = expectedValue;
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      // config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
-      delete config.expected;
-      // config.jsErrorMessage = "";
     }
 
     const isDynamic: boolean = isPathADynamicProperty(

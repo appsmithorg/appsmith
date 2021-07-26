@@ -1,8 +1,9 @@
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 
 const PropertyPaneConfig = [
   {
@@ -10,14 +11,14 @@ const PropertyPaneConfig = [
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
-        propertyName: "items",
+        propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.LIST_DATA,
+        validation: { type: ValidationTypes.OBJECT_ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -27,6 +28,12 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+          },
+        },
       },
       {
         propertyName: "itemBackgroundColor",
@@ -35,6 +42,13 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+          },
+        },
       },
 
       {
@@ -46,7 +60,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: VALIDATION_TYPES.NUMBER,
+        validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
       },
       {
         propertyName: "isVisible",
@@ -56,6 +70,9 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
       },
     ],
   },
@@ -71,7 +88,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, "evaluatedValues.items", []);
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
 
           if (Array.isArray(items)) {
             items = items.filter(Boolean);

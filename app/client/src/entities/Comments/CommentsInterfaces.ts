@@ -1,4 +1,5 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { RawDraftContentState } from "draft-js";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 
@@ -16,6 +17,7 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 export type CreateCommentRequest = {
   body: RawDraftContentState;
+  mode?: APP_MODE;
 };
 
 export type CreateCommentThreadRequest = {
@@ -23,7 +25,12 @@ export type CreateCommentThreadRequest = {
   pageId: string;
   refId: string; // could be an id to refer any parent based on parent type
   tabId?: string;
-  position: { top: number; left: number }; // used as a percentage value
+  position: {
+    top: number;
+    left: number;
+    leftPercent: number;
+    topPercent: number;
+  };
   comments: Array<CreateCommentRequest>;
   resolvedState?: {
     active: boolean;
@@ -39,6 +46,7 @@ export type CreateCommentThreadRequest = {
   };
   isViewed?: boolean;
   mode?: APP_MODE;
+  widgetType?: WidgetType;
 };
 
 export type Reaction = {

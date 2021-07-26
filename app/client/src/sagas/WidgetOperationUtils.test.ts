@@ -3,6 +3,7 @@ import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
+  checkIfPastingIntoListWidget,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -41,7 +42,7 @@ describe("WidgetOperationSaga", () => {
         topRow: 1,
         bottomRow: 3,
         isLoading: false,
-        items: [],
+        listData: [],
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
@@ -60,7 +61,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -79,7 +80,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -88,7 +89,7 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result.list1.template["Text1"].text).toStrictEqual(
-      "{{List1.items.map((currentItem) => currentItem.text)}}",
+      "{{List1.listData.map((currentItem) => currentItem.text)}}",
     );
     expect(get(result, "list1.dynamicBindingPathList.0.key")).toStrictEqual(
       "template.Text1.text",
@@ -110,7 +111,7 @@ describe("WidgetOperationSaga", () => {
         topRow: 1,
         bottomRow: 3,
         isLoading: false,
-        items: [],
+        listData: [],
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
@@ -129,7 +130,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -148,7 +149,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -166,7 +167,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -189,7 +190,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -198,7 +199,7 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result.list2.template["Text2"].text).toStrictEqual(
-      "{{List2.items.map((currentItem) => currentItem.text)}}",
+      "{{List2.listData.map((currentItem) => currentItem.text)}}",
     );
     expect(get(result, "list2.dynamicBindingPathList.0.key")).toStrictEqual(
       "template.Text2.text",
@@ -383,5 +384,76 @@ describe("WidgetOperationSaga", () => {
     expect(result["twnxjwy3r1"].onClick).toStrictEqual(
       "{{closeModal('Modal1Copy')}}",
     );
+  });
+
+  it("should returns widgets after executing checkIfPastingIntoListWidget", async () => {
+    const result = checkIfPastingIntoListWidget(
+      {
+        list2: {
+          widgetId: "list2",
+          type: "LIST_WIDGET",
+          widgetName: "List2",
+          parentId: "0",
+          renderMode: "CANVAS",
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          isLoading: false,
+          listData: [],
+          version: 16,
+          disablePropertyPane: false,
+          template: {},
+        },
+      },
+      {
+        widgetId: "list2",
+        type: "LIST_WIDGET",
+        widgetName: "List2",
+        parentId: "0",
+        renderMode: "CANVAS",
+        parentColumnSpace: 2,
+        parentRowSpace: 3,
+        leftColumn: 2,
+        rightColumn: 3,
+        topRow: 1,
+        bottomRow: 3,
+        isLoading: false,
+        listData: [],
+        version: 16,
+        disablePropertyPane: false,
+        template: {},
+      },
+      [
+        {
+          widgetId: "list2",
+          parentId: "0",
+          list: [
+            {
+              widgetId: "list2",
+              type: "LIST_WIDGET",
+              widgetName: "List2",
+              parentId: "0",
+              renderMode: "CANVAS",
+              parentColumnSpace: 2,
+              parentRowSpace: 3,
+              leftColumn: 2,
+              rightColumn: 3,
+              topRow: 1,
+              bottomRow: 3,
+              isLoading: false,
+              listData: [],
+              version: 16,
+              disablePropertyPane: false,
+              template: {},
+            },
+          ],
+        },
+      ],
+    );
+
+    expect(result?.type).toStrictEqual("LIST_WIDGET");
   });
 });

@@ -30,10 +30,11 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
-  showUnreadIndicator: false,
+  unreadCommentThreadsCount: 0,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   areCommentsEnabled: false,
+  unsubscribed: false,
 };
 
 /**
@@ -72,8 +73,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => ({
     ...state,
-    isCommentMode: action.payload,
-    showUnreadIndicator: false,
+    isCommentMode: action.payload && state.areCommentsEnabled,
     isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
@@ -100,6 +100,12 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleNewCommentThreadEvent(state, action);
   },
+  [ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    unsubscribed: true,
+  }),
   [ReduxActionTypes.NEW_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<NewCommentEventPayload>,
@@ -116,9 +122,7 @@ const commentsReducer = createReducer(initialState, {
       ),
     };
 
-    const showUnreadIndicator = !state.isCommentMode;
-
-    return { ...state, showUnreadIndicator };
+    return { ...state };
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -260,6 +264,13 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentEvent(state, action);
   },
+  [ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<number>,
+  ) => ({
+    ...state,
+    unreadCommentThreadsCount: action.payload || 0,
+  }),
 });
 
 export default commentsReducer;

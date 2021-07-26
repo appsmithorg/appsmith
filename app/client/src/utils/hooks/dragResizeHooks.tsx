@@ -1,10 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  focusWidget,
-  selectAllWidgets,
-  selectWidget,
-} from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
 
@@ -28,6 +23,34 @@ export const useShowPropertyPane = () => {
             widgetId || callForDragOrResize
               ? ReduxActionTypes.SHOW_PROPERTY_PANE
               : ReduxActionTypes.HIDE_PROPERTY_PANE,
+          payload: { widgetId, callForDragOrResize, force },
+        },
+      );
+    },
+    [dispatch, isCommentMode],
+  );
+};
+
+export const useShowTableFilterPane = () => {
+  const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
+
+  return useCallback(
+    (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
+      // Don't show property pane in comment mode
+      if (isCommentMode) return;
+
+      dispatch(
+        // If widgetId is not provided, we don't show the table filter pane.
+        // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
+        // callForDragOrResize payload is handled in SHOW_TABLE_FILTER_PANE action.
+        // Ergo, when either widgetId or callForDragOrResize are provided, SHOW_TABLE_FILTER_PANE
+        // Else, HIDE_TABLE_FILTER_PANE
+        {
+          type:
+            widgetId || callForDragOrResize
+              ? ReduxActionTypes.SHOW_TABLE_FILTER_PANE
+              : ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
           payload: { widgetId, callForDragOrResize, force },
         },
       );
@@ -69,22 +92,6 @@ export const useCanvasSnapRowsUpdateHook = () => {
   return updateCanvasSnapRows;
 };
 
-export const useWidgetSelection = () => {
-  const dispatch = useDispatch();
-  return {
-    selectWidget: useCallback(
-      (widgetId?: string, isMultiSelect?: boolean) => {
-        dispatch(selectWidget(widgetId, isMultiSelect));
-      },
-      [dispatch],
-    ),
-    focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
-      [dispatch],
-    ),
-    deselectAll: useCallback(() => dispatch(selectAllWidgets([])), [dispatch]),
-  };
-};
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {

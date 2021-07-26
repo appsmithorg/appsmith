@@ -8,7 +8,7 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -41,7 +41,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "buttonStyle",
@@ -83,7 +83,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -93,7 +93,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -103,7 +103,17 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "recaptchaV2",
+            label: "Google reCAPTCHA v2",
+            controlType: "SWITCH",
+            helpText: "Use reCAPTCHA v2",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -189,6 +199,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!disabled ? this.onButtonClickBound : undefined}
+        recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
@@ -219,6 +230,7 @@ export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   onReset?: () => void;
   disabledWhenInvalid?: boolean;
   googleRecaptchaKey?: string;
+  recaptchaV2?: boolean;
 }
 
 export interface FormButtonWidgetState extends WidgetState {

@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -710,9 +711,9 @@ public class FirestorePluginTest {
          * - this returns 2 documents.
          */
         ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "category");
+            put("path", "{{Input1.text}}");
             put("operator", "EQ");
-            put("value", "test");
+            put("value", "{{Input2.text}}");
         }});
 
         /*
@@ -720,16 +721,36 @@ public class FirestorePluginTest {
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
         ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "name");
+            put("path", "{{Input3.text}}");
             put("operator", "EQ");
-            put("value", "two");
+            put("value", "{{Input4.text}}");
         }});
 
         pluginSpecifiedTemplates.add(whereProperty);
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("test");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("name");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input4.text");
+        param.setValue("two");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -755,6 +776,7 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testUpdateDocumentWithFieldValueTimestamp() {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
@@ -1010,5 +1032,58 @@ public class FirestorePluginTest {
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testDynamicBindingSubstitutionInActionConfiguration() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("{{Input1.text}}");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
+        pluginSpecifiedTemplates.add(new Property("order", null));
+        pluginSpecifiedTemplates.add(new Property("limit", null));
+        Property whereProperty = new Property("where", null);
+        whereProperty.setValue(new ArrayList<>());
+        /*
+         * - get all documents where category == test.
+         * - this returns 2 documents.
+         */
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+            put("path", "{{Input2.text}}");
+            put("operator", "EQ");
+            put("value", "{{Input3.text}}");
+        }});
+
+        pluginSpecifiedTemplates.add(whereProperty);
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("initial");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("category");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input3.text");
+        param.setValue("test");
+        params.add(param);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        // Substitute dynamic binding values
+        pluginExecutor
+                .prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, null);
+
+        // check if dynamic binding values have been substituted correctly
+        assertEquals("initial", actionConfiguration.getPath());
+        assertEquals("category",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "path"));
+        assertEquals("test",
+                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                        "value"));
     }
 }
