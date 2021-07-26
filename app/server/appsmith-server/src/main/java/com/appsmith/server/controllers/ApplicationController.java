@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -90,6 +91,16 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @PutMapping("/{applicationId}/page/{pageId}/makeDefault")
     public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String applicationId, @PathVariable String pageId) {
         return applicationPageService.makePageDefault(applicationId, pageId)
+                .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
+    }
+
+    @PutMapping("/{applicationId}/page/{pageId}/reorder")
+    public Mono<ResponseDTO<ApplicationPagesDTO>> reorderPage(
+            @PathVariable String applicationId,
+            @PathVariable String pageId,
+            @RequestParam Integer order
+    ) {
+        return applicationPageService.reorderPage(applicationId, pageId, order)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 

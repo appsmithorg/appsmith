@@ -63,7 +63,7 @@ export interface ActionApiResponseReq {
 export interface ActionExecutionResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: Record<string, unknown>;
+    body: Record<string, unknown> | string;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -83,6 +83,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
+  messages?: Array<string>;
 }
 
 export interface MoveActionRequest {

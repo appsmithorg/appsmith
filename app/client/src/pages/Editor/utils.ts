@@ -7,6 +7,12 @@ export const draggableElement = (
   element: any,
   onPositionChange: any,
   initPostion?: any,
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  },
   dragHandle?: () => JSX.Element,
 ) => {
   let newXPos = 0,
@@ -113,7 +119,12 @@ export const draggableElement = (
 
   const OnInit = () => {
     if (dragHandle) {
-      dragHandler = createDragHandler(id, element, dragHandle);
+      dragHandler = createDragHandler(
+        id,
+        element,
+        dragHandle,
+        renderDragBlockPositions,
+      );
     }
     if (initPostion) {
       setElementPosition();
@@ -130,13 +141,20 @@ const createDragHandler = (
   id: string,
   el: any,
   dragHandle: () => JSX.Element,
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  },
 ) => {
   const oldDragHandler = document.getElementById(`${id}-draghandler`);
   const dragElement = document.createElement("div");
   dragElement.setAttribute("id", `${id}-draghandler`);
-  dragElement.style.position = "absolute";
-  dragElement.style.left = "0px";
-  dragElement.style.top = "0px";
+  dragElement.style.position = renderDragBlockPositions?.position ?? "absolute";
+  dragElement.style.left = renderDragBlockPositions?.left ?? "135px";
+  dragElement.style.top = renderDragBlockPositions?.top ?? "0px";
+  dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
   oldDragHandler
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);
