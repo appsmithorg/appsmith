@@ -1,20 +1,22 @@
 /**
- * When routing from "/generate-page/form" ?initiator=generate-page is added to queryParam
+ * When routing from "/generate-page/form" ?isGeneratePageMode=generate-page is added to queryParam
  * to keep track and write logic accordingly.
- * getIsGeneratePageInitiator just checks is the initiator key value inside queryParam is "generate-page" or not.
+ * getIsGeneratePageInitiator just checks is the isGeneratePageMode key value inside queryParam is "generate-page" or not.
  *
- * @param {string} [initiator]
+ * @param {string} [isGeneratePageMode]
  * @return {*}  {boolean}
  */
 
-export const getIsGeneratePageInitiator = (initiator?: string): boolean => {
-  if (initiator) {
-    const isGeneratePageInitiator = initiator === "generate-page";
+export const getIsGeneratePageInitiator = (
+  isGeneratePageMode?: string,
+): boolean => {
+  if (isGeneratePageMode) {
+    const isGeneratePageInitiator = isGeneratePageMode === "generate-page";
     return isGeneratePageInitiator;
   }
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
-  const initiatorParam = searchParamsInstance.get("initiator");
+  const initiatorParam = searchParamsInstance.get("isGeneratePageMode");
   const isGeneratePageInitiator = initiatorParam === "generate-page";
   return isGeneratePageInitiator;
 };

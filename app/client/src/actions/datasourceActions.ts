@@ -157,7 +157,7 @@ export interface addMockRequest
     organizationId: string;
     pluginId: string;
     packageName: string;
-    initiator?: string;
+    isGeneratePageMode?: string;
   }> {
   extraParams?: any;
 }
@@ -167,12 +167,12 @@ export const addMockDatasourceToOrg = (
   organizationId: string,
   pluginId: string,
   packageName: string,
-  initiator?: string,
+  isGeneratePageMode?: string,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
     payload: { name, packageName, pluginId, organizationId },
-    extraParams: { initiator },
+    extraParams: { isGeneratePageMode },
   };
 };
 

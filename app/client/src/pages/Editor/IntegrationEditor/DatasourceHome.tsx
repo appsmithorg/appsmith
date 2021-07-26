@@ -156,7 +156,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
 
-    /* When initiator is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
+    /* When isGeneratePageMode is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
         If YES => continue creating datasource
         If NO => 
           Show user a UnsupportedPluginDialog to choose 
@@ -170,7 +170,8 @@ class DatasourceHomeScreen extends React.Component<Props> {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
           const URL =
-            window.location.pathname + removeQueryParams(["initiator"]);
+            window.location.pathname +
+            removeQueryParams(["isGeneratePageMode"]);
           history.replace(URL);
           this.goToCreateDatasource(pluginId, pluginName, {
             skipValidPluginCheck: true,

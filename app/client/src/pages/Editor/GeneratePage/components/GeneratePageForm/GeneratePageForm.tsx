@@ -340,7 +340,7 @@ function GeneratePageForm() {
         currentApplicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?initiator=generate-page`,
+      )}?isGeneratePageMode=generate-page`,
     );
   };
 
@@ -370,7 +370,7 @@ function GeneratePageForm() {
       currentApplicationId,
       currentPageId,
       selectedDatasource.id,
-      { initiator: "generate-page" },
+      { isGeneratePageMode: "generate-page" },
     );
     history.push(redirectURL);
   };

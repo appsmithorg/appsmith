@@ -148,7 +148,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       packageName,
       pluginId,
     } = actionPayload.payload;
-    const { initiator } = actionPayload.extraParams;
+    const { isGeneratePageMode } = actionPayload.extraParams;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
       name,
       organizationId,
@@ -170,7 +170,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const applicationId: string = yield select(getCurrentApplicationId);
       const pageId: string = yield select(getCurrentPageId);
-      const isGeneratePageInitiator = getIsGeneratePageInitiator(initiator);
+      const isGeneratePageInitiator = getIsGeneratePageInitiator(
+        isGeneratePageMode,
+      );
       if (isGeneratePageInitiator) {
         history.push(
           `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
@@ -754,7 +756,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const { queryParams = {} } = action;
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator(
-    queryParams.initiator,
+    queryParams.isGeneratePageMode,
   );
   if (
     isGeneratePageInitiator &&

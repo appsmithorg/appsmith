@@ -190,7 +190,7 @@ function NewApiScreen(props: Props) {
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
-      queryParams.initiator,
+      queryParams.isGeneratePageMode,
     );
     if (
       isGeneratePageInitiator &&
@@ -212,7 +212,7 @@ function NewApiScreen(props: Props) {
           importSource: CURL,
         });
 
-        delete queryParams.initiator;
+        delete queryParams.isGeneratePageMode;
         const curlImportURL =
           getCurlImportPageURL(applicationId, pageId) +
           convertToQueryParams({ from: "datasources", ...queryParams });

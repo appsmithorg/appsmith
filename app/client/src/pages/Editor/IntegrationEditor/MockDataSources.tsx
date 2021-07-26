@@ -112,7 +112,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
         orgId,
         currentPlugin.id,
         currentPlugin.packageName,
-        queryParams.initiator,
+        queryParams.isGeneratePageMode,
       ),
     );
   };
