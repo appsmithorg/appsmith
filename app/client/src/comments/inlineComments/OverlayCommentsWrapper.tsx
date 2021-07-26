@@ -20,11 +20,12 @@ type Props = {
   widgetType: WidgetType;
 };
 
-const Container = styled.div`
+const Container = styled.div<{ isCommentMode: boolean }>`
   width: 100%;
   height: 100%;
   position: relative;
-  cursor: url("${commentIcon}") 25 20 , auto;
+  ${(props) =>
+    props.isCommentMode && `cursor: url("${commentIcon}") 25 20 , auto;`}
 `;
 
 /**
@@ -45,11 +46,11 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
 
   // create new unpublished thread
   const clickHandler = (e: any) => {
+    if (!isCommentMode) return;
     proceedToNextTourStep();
     e.persist();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);
-      if (!isCommentMode) return;
       dispatch(
         createUnpublishedCommentThreadRequest({
           refId,
@@ -60,17 +61,15 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
     }
   };
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  if (!isCommentMode) return <>{children}</>;
-
   return (
     <Container
       data-cy="overlay-comments-wrapper"
+      isCommentMode={isCommentMode}
       onClick={clickHandler}
-      ref={containerRef}
+      ref={isCommentMode ? containerRef : null}
     >
       {children}
-      <Comments refId={refId} />
+      {isCommentMode && <Comments refId={refId} />}
     </Container>
   );
 }
