@@ -59,6 +59,7 @@ describe("Add functions", () => {
         responseMeta: { isExecutionSuccess: false },
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         dependencyMap: {},
+        logBlackList: {},
       },
     };
     const dataTreeWithFunctions = addFunctions(dataTree);

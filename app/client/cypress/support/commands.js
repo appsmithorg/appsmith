@@ -241,6 +241,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   );
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -251,8 +262,11 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
+
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -272,8 +286,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   );
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
 
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -805,6 +820,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
     .click();
 });
 
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
 Cypress.Commands.add("assertDateFormat", () => {
   cy.get(".t--draggable-datepickerwidget2 input")
     .first()
@@ -1195,6 +1220,7 @@ Cypress.Commands.add("invalidWidgetText", () => {
 
 Cypress.Commands.add("EvaluateDataType", (dataType) => {
   cy.get(commonlocators.evaluatedType)
+    .first()
     .should("be.visible")
     .contains(dataType);
 });
@@ -1203,6 +1229,7 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
+    .first()
     .should("be.visible")
     .contains(currentValue);
 });
@@ -2445,10 +2472,14 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .find("span")
+    .click();
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
-    .children("p")
-    .siblings("pre")
+    .find("pre")
+    .first()
     .should("have.text", expectedType);
 });
 

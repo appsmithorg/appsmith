@@ -46,6 +46,11 @@ interface PostDataProps {
 
 type Props = PostDataProps;
 
+const expectedPostBody = {
+  type: FIELD_VALUES.API_ACTION.body,
+  example: "",
+};
+
 function PostBodyData(props: Props) {
   const {
     apiId,
@@ -70,9 +75,8 @@ function PostBodyData(props: Props) {
             >
               <DynamicTextField
                 dataTreePath={`${dataTreePath}.body`}
-                expected={FIELD_VALUES.API_ACTION.body}
+                expected={expectedPostBody}
                 mode={EditorModes.JSON_WITH_BINDING}
-                mutedHinting
                 name="actionConfiguration.body"
                 placeholder={
                   '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'

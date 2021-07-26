@@ -34,6 +34,7 @@ const initialState: CommentsReduxState = {
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   areCommentsEnabled: false,
+  unsubscribed: false,
 };
 
 /**
@@ -99,6 +100,12 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleNewCommentThreadEvent(state, action);
   },
+  [ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    unsubscribed: true,
+  }),
   [ReduxActionTypes.NEW_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<NewCommentEventPayload>,

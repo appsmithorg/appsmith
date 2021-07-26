@@ -23,6 +23,8 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 describe("Select all hotkey", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  Element.prototype.scrollIntoView = jest.fn();
+
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
     return <MainContainer />;
@@ -298,7 +300,12 @@ describe("Cut/Copy/Paste hotkey", () => {
     selectedWidgets = await component.queryAllByTestId(
       "t--widget-propertypane-toggle",
     );
-    expect(selectedWidgets.length).toBe(0);
+    //adding extra time to let cut cmd works
+    jest.useFakeTimers();
+    setTimeout(() => {
+      expect(selectedWidgets.length).toBe(0);
+    }, 500);
+    jest.runAllTimers();
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

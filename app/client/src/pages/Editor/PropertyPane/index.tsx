@@ -1,4 +1,4 @@
-import React, { Component, useCallback } from "react";
+import React, { Component, ReactElement, useCallback, useMemo } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -37,7 +37,7 @@ import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
-import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
+import ConnectDataCTA, { actionsExist, excludeList } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
@@ -78,8 +78,9 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[5]}px;
-  padding-top: 0px;
+  overflow: hidden;
+  margin: ${(props) => props.theme.spaces[5]}px;
+  margin-top: 0px;
 `;
 
 export const FixedHeader = styled.div`
@@ -105,6 +106,13 @@ function PropertyPaneView(
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
+  const hideConnectDataCTA = useMemo(() => {
+    if (widgetProperties) {
+      return excludeList.includes(widgetProperties.type);
+    }
+
+    return true;
+  }, [widgetProperties?.type]);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {
@@ -112,65 +120,71 @@ function PropertyPaneView(
   }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
+  const actions = useMemo((): Array<{
+    tooltipContent: any;
+    icon: ReactElement;
+  }> => {
+    return [
+      {
+        tooltipContent: "Copy Widget",
+        icon: (
+          <CopyIcon
+            className="t--copy-widget"
+            height={14}
+            onClick={handleCopy}
+            width={14}
+          />
+        ),
+      },
+      {
+        tooltipContent: "Delete Widget",
+        icon: (
+          <DeleteIcon
+            className="t--delete-widget"
+            height={16}
+            onClick={handleDelete}
+            width={16}
+          />
+        ),
+      },
+      {
+        tooltipContent: <span>Explore widget related docs</span>,
+        icon: <PropertyPaneHelpButton />,
+      },
+      {
+        tooltipContent: "Close",
+        icon: (
+          <Icon
+            className={"t--property-pane-close-btn"}
+            icon="cross"
+            iconSize={16}
+            onClick={(e: any) => {
+              AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                widgetType: widgetProperties.widgetType,
+                widgetId: widgetProperties.widgetId,
+              });
+              hidePropertyPane();
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+        ),
+      },
+    ];
+  }, [hidePropertyPane, handleCopy, handleDelete]);
   if (!widgetProperties) return null;
 
   return (
     <>
       <PropertyPaneTitle
-        actions={[
-          {
-            tooltipContent: "Copy Widget",
-            icon: (
-              <CopyIcon
-                className="t--copy-widget"
-                height={14}
-                onClick={handleCopy}
-                width={14}
-              />
-            ),
-          },
-          {
-            tooltipContent: "Delete Widget",
-            icon: (
-              <DeleteIcon
-                className="t--delete-widget"
-                height={16}
-                onClick={handleDelete}
-                width={16}
-              />
-            ),
-          },
-          {
-            tooltipContent: <span>Explore widget related docs</span>,
-            icon: <PropertyPaneHelpButton />,
-          },
-          {
-            tooltipContent: "Close",
-            icon: (
-              <Icon
-                className={"t--property-pane-close-btn"}
-                icon="cross"
-                iconSize={16}
-                onClick={(e: any) => {
-                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-                    widgetType: widgetProperties.widgetType,
-                    widgetId: widgetProperties.widgetId,
-                  });
-                  hidePropertyPane();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              />
-            ),
-          },
-        ]}
+        actions={actions}
         key={widgetProperties.widgetId}
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
       <PropertyPaneBodyWrapper>
-        {!doActionsExist && <ConnectDataCTA />}
+        {!doActionsExist && !hideConnectDataCTA && <ConnectDataCTA />}
         <PropertyControlsWrapper>
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
@@ -209,18 +223,17 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
-
       return (
         <Popper
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
-          onPositionChange={(position: any) =>
+          onPositionChange={(position: any) => {
             this.props.setPropPanePoistion(
               position,
               this.props.widgetProperties?.widgetId,
-            )
-          }
+            );
+          }}
           placement="right-start"
           position={this.props?.propPanePreference?.position}
           targetNode={el}

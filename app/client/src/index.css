@@ -54,6 +54,10 @@ div.bp3-popover-arrow {
   background: rgb(3, 179, 101) !important;
 }
 
+.t--editor-appname-menu-portal {
+  z-index: 9 !important;
+}
+
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;

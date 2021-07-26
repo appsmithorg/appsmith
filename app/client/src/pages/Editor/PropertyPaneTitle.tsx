@@ -23,6 +23,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
+import { isEqual } from "lodash";
 
 const FixedTitle = styled.div`
   position: fixed;
@@ -101,13 +102,18 @@ type PropertyPaneTitleProps = {
 };
 
 /* eslint-disable react/display-name */
-const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
+const PropertyPaneTitle = memo(function PropertyPaneTitle(
+  props: PropertyPaneTitleProps,
+) {
   const dispatch = useDispatch();
-  const { updating } = useSelector((state: AppState) => ({
-    updating: state.ui.editor.loadingStates.updatingWidgetName,
-  }));
+  const updating = useSelector(
+    (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
+  );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
-  const widgets = useSelector(getExistingWidgetNames);
+
+  // Pass custom equality check function. Shouldn't be expensive than the render
+  // as it is just a small array #perf
+  const widgets = useSelector(getExistingWidgetNames, isEqual);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
@@ -198,5 +204,4 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     </FixedTitle>
   ) : null;
 });
-
 export default PropertyPaneTitle;
