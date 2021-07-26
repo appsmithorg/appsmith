@@ -1,5 +1,4 @@
-import { ActionDescription, DataTree } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,
@@ -10,10 +9,11 @@ import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
 import { addFunctions, AppsmithPromise, pusherOverride } from "./Actions";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
   result: any;
-  triggers?: ActionDescription<any>[];
+  triggers?: ActionDescription[];
   errors: EvaluationError[];
 };
 
@@ -44,7 +44,6 @@ const evaluationScripts: Record<
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
-    debugger;
     const result = ${script};
   }
   closedFunction();

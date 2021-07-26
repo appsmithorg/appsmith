@@ -1,53 +1,12 @@
 import {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
-import {
-  EventType,
-  ExecuteActionPayload,
-  ExecuteActionPayloadEvent,
-  PageAction,
-  RESP_HEADER_DATATYPE,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import * as log from "loglevel";
-import {
   all,
   call,
   put,
   race,
   select,
   take,
-  takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import {
-  ActionDescription,
-  RunActionPayload,
-} from "entities/DataTree/dataTreeFactory";
-import { executeAction, executeActionError } from "actions/widgetActions";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getLayoutOnLoadActions,
-  getPageList,
-} from "selectors/editorSelectors";
-import _, { get, isString } from "lodash";
-import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
-import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  BUILDER_PAGE_URL,
-  convertToQueryParams,
-  getApplicationViewerPageURL,
-  QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
-  INTEGRATION_EDITOR_URL,
-} from "constants/routes";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
@@ -55,7 +14,12 @@ import {
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
-import { Action, PluginType } from "entities/Action";
+import {
+  ApplicationPayload,
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
@@ -65,339 +29,64 @@ import ActionAPI, {
 } from "api/ActionAPI";
 import {
   getAction,
-  getAppStoreData,
   getCurrentPageNameByActionId,
   isActionDirty,
   isActionSaving,
 } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
-import { mapToPropList } from "utils/AppsmithUtils";
-import { validateResponse } from "sagas/ErrorSagas";
-import { TypeOptions } from "react-toastify";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
-import {
-  updateAppPersistentStore,
-  updateAppTransientStore,
-} from "actions/pageActions";
-import { getAppStoreName } from "constants/AppConstants";
-import downloadjs from "downloadjs";
-import Axios from "axios";
-import { getType, isURL, Types } from "utils/TypeHelpers";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import {
-  evaluateDynamicTrigger,
-  evaluateActionBindings,
-} from "./EvaluationsSaga";
-import copy from "copy-to-clipboard";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import _, { get, isString } from "lodash";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { validateResponse } from "sagas/ErrorSagas";
+import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
+import { Action, PluginType } from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { Toaster } from "components/ads/Toast";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_API_EXECUTE,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
-  ERROR_WIDGET_DOWNLOAD,
 } from "constants/messages";
-import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-
-import localStorage from "utils/localStorage";
-import { getWidgetByName } from "./selectors";
+import { Variant } from "components/ads/common";
 import {
-  resetChildrenMetaProperty,
-  resetWidgetMetaProperty,
-} from "actions/metaActions";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+  EventType,
+  ExecuteActionPayloadEvent,
+  PageAction,
+  RESP_HEADER_DATATYPE,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  getCurrentPageId,
+  getLayoutOnLoadActions,
+} from "selectors/editorSelectors";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import * as log from "loglevel";
+import { executeActionError } from "actions/widgetActions";
+import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
+import { AppState } from "reducers";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { evaluateActionBindings } from "sagas/EvaluationsSaga";
+import { mapToPropList } from "utils/AppsmithUtils";
+import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
-import { setDataUrl } from "./PageSagas";
-import { AppsmithPromisePayload } from "../workers/Actions";
+import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
+} from "constants/routes";
+import { PluginActionDescription } from "entities/DataTree/actionTriggers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
-}
-
-export enum NavigationTargetType {
-  SAME_WINDOW = "SAME_WINDOW",
-  NEW_WINDOW = "NEW_WINDOW",
-}
-
-const isValidUrlScheme = (url: string): boolean => {
-  return (
-    // Standard http call
-    url.startsWith("http://") ||
-    // Secure http call
-    url.startsWith("https://") ||
-    // Mail url to directly open email app prefilled
-    url.startsWith("mailto:") ||
-    // Tel url to directly open phone app prefilled
-    url.startsWith("tel:")
-  );
-};
-
-function* navigateActionSaga(
-  action: {
-    pageNameOrUrl: string;
-    params: Record<string, string>;
-    target?: NavigationTargetType;
-  },
-  event: ExecuteActionPayloadEvent,
-) {
-  const pageList = yield select(getPageList);
-  const applicationId = yield select(getCurrentApplicationId);
-  const {
-    pageNameOrUrl,
-    params,
-    target = NavigationTargetType.SAME_WINDOW,
-  } = action;
-  const page = _.find(
-    pageList,
-    (page: Page) => page.pageName === pageNameOrUrl,
-  );
-  if (page) {
-    const currentPageId = yield select(getCurrentPageId);
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      pageName: pageNameOrUrl,
-      pageParams: params,
-    });
-    const appMode = yield select(getAppMode);
-    const path =
-      appMode === APP_MODE.EDIT
-        ? BUILDER_PAGE_URL(applicationId, page.pageId, params)
-        : getApplicationViewerPageURL(applicationId, page.pageId, params);
-    if (target === NavigationTargetType.SAME_WINDOW) {
-      history.push(path);
-      if (currentPageId === page.pageId) {
-        yield call(setDataUrl);
-      }
-    } else if (target === NavigationTargetType.NEW_WINDOW) {
-      window.open(path, "_blank");
-    }
-
-    AppsmithConsole.info({
-      text: `navigateTo('${page.pageName}') was triggered`,
-      state: {
-        params,
-      },
-    });
-    if (event.callback) event.callback({ success: true });
-  } else {
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: pageNameOrUrl,
-    });
-    let url = pageNameOrUrl + convertToQueryParams(params);
-    // Add a default protocol if it doesn't exist.
-    if (!isValidUrlScheme(url)) {
-      url = "https://" + url;
-    }
-    if (target === NavigationTargetType.SAME_WINDOW) {
-      window.location.assign(url);
-    } else if (target === NavigationTargetType.NEW_WINDOW) {
-      window.open(url, "_blank");
-    }
-    if (event.callback) event.callback({ success: true });
-  }
-}
-
-function* storeValueLocally(
-  action: { key: string; value: string; persist: boolean },
-  event: ExecuteActionPayloadEvent,
-) {
-  try {
-    if (action.persist) {
-      const appId = yield select(getCurrentApplicationId);
-      const appStoreName = getAppStoreName(appId);
-      const existingStore = localStorage.getItem(appStoreName) || "{}";
-      const parsedStore = JSON.parse(existingStore);
-      parsedStore[action.key] = action.value;
-      const storeString = JSON.stringify(parsedStore);
-      localStorage.setItem(appStoreName, storeString);
-      yield put(updateAppPersistentStore(parsedStore));
-      AppsmithConsole.info({
-        text: `store('${action.key}', '${action.value}', true)`,
-      });
-    } else {
-      const existingStore = yield select(getAppStoreData);
-      const newTransientStore = {
-        ...existingStore.transient,
-        [action.key]: action.value,
-      };
-      yield put(updateAppTransientStore(newTransientStore));
-      AppsmithConsole.info({
-        text: `store('${action.key}', '${action.value}', false)`,
-      });
-    }
-    // Wait for an evaluation before completing this trigger effect
-    // This makes this trigger work in sync and not trigger
-    // another effect till the values are reflected in
-    // the dataTree
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-    if (event.callback) event.callback({ success: true });
-  } catch (err) {
-    if (event.callback) event.callback({ success: false });
-  }
-}
-
-async function downloadSaga(
-  action: { data: any; name: string; type: string },
-  event: ExecuteActionPayloadEvent,
-) {
-  try {
-    const { data, name, type } = action;
-    if (!name) {
-      Toaster.show({
-        text: createMessage(
-          ERROR_WIDGET_DOWNLOAD,
-          "File name was not provided",
-        ),
-        variant: Variant.danger,
-      });
-
-      if (event.callback) event.callback({ success: false });
-      return;
-    }
-    const dataType = getType(data);
-    if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
-      const jsonString = JSON.stringify(data, null, 2);
-      downloadjs(jsonString, name, type);
-      AppsmithConsole.info({
-        text: `download('${jsonString}', '${name}', '${type}') was triggered`,
-      });
-    } else if (
-      dataType === Types.STRING &&
-      isURL(data) &&
-      type === "application/x-binary"
-    ) {
-      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
-      // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
-      // using axios with the arraybuffer header and then pass it to the downloadjs library.
-      Axios.get(data, { responseType: "arraybuffer" })
-        .then((res) => {
-          downloadjs(res.data, name, type);
-          AppsmithConsole.info({
-            text: `download('${data}', '${name}', '${type}') was triggered`,
-          });
-        })
-        .catch((error) => {
-          log.error(error);
-          Toaster.show({
-            text: createMessage(ERROR_WIDGET_DOWNLOAD, error),
-            variant: Variant.danger,
-          });
-          if (event.callback) event.callback({ success: false });
-        });
-    } else {
-      downloadjs(data, name, type);
-      AppsmithConsole.info({
-        text: `download('${data}', '${name}', '${type}') was triggered`,
-      });
-    }
-    if (event.callback) event.callback({ success: true });
-  } catch (err) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
-      variant: Variant.danger,
-    });
-    if (event.callback) event.callback({ success: false });
-  }
-}
-
-function* copySaga(
-  payload: {
-    data: string;
-    options: { debug: boolean; format: string };
-  },
-  event: ExecuteActionPayloadEvent,
-) {
-  const result = copy(payload.data, payload.options);
-  if (event.callback) {
-    if (result) {
-      AppsmithConsole.info({
-        text: `copyToClipboard('${payload.data}') was triggered`,
-      });
-
-      event.callback({ success: result });
-    }
-  }
-}
-
-function* resetWidgetMetaByNameRecursiveSaga(
-  payload: { widgetName: string; resetChildren: boolean },
-  event: ExecuteActionPayloadEvent,
-) {
-  const fail = (msg: string) => {
-    console.error(msg);
-    if (event.callback) event.callback({ success: false });
-  };
-  if (typeof payload.widgetName !== "string") {
-    return fail("widgetName needs to be a string");
-  }
-
-  const widget = yield select(getWidgetByName, payload.widgetName);
-  if (!widget) {
-    return fail(`widget ${payload.widgetName} not found`);
-  }
-
-  yield put(resetWidgetMetaProperty(widget.widgetId));
-  if (payload.resetChildren) {
-    yield put(resetChildrenMetaProperty(widget.widgetId));
-  }
-
-  AppsmithConsole.info({
-    text: `resetWidget('${payload.widgetName}', ${payload.resetChildren}) was triggered`,
-  });
-
-  if (event.callback) event.callback({ success: true });
-}
-
-function* showAlertSaga(
-  payload: { message: string; style?: TypeOptions },
-  event: ExecuteActionPayloadEvent,
-) {
-  if (typeof payload.message !== "string") {
-    console.error("Toast message needs to be a string");
-    if (event.callback) event.callback({ success: false });
-    return;
-  }
-  let variant;
-  switch (payload.style) {
-    case "info":
-      variant = Variant.info;
-      break;
-    case "success":
-      variant = Variant.success;
-      break;
-    case "warning":
-      variant = Variant.warning;
-      break;
-    case "error":
-      variant = Variant.danger;
-      break;
-  }
-  if (payload.style && !variant) {
-    console.error(
-      "Toast type needs to be a one of " + Object.values(Variant).join(", "),
-    );
-    if (event.callback) event.callback({ success: false });
-    return;
-  }
-  Toaster.show({
-    text: payload.message,
-    variant: variant,
-  });
-  AppsmithConsole.info({
-    text: payload.style
-      ? `showAlert('${payload.message}', '${payload.style}') was triggered`
-      : `showAlert('${payload.message}') was triggered`,
-  });
-  if (event.callback) event.callback({ success: true });
 }
 
 export const getActionTimeout = (
@@ -478,7 +167,7 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  * @param bindings
  * @param executionParams
  */
-export function* evaluateActionParams(
+function* evaluateActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any> | string,
 ) {
@@ -501,11 +190,11 @@ export function* evaluateActionParams(
   return mapToPropList(actionParams);
 }
 
-export function* executeActionSaga(
-  apiAction: RunActionPayload,
+export default function* executeActionSaga(
+  pluginAction: PluginActionDescription["payload"],
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onError, onSuccess, params } = apiAction;
+  const { actionId, params } = pluginAction;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {
@@ -536,7 +225,7 @@ export function* executeActionSaga(
       }
     }
 
-    yield put(executeApiActionRequest({ id: apiAction.actionId }));
+    yield put(executeApiActionRequest({ id: pluginAction.actionId }));
     const actionParams: Property[] = yield call(
       evaluateActionParams,
       api.jsonPathKeys,
@@ -593,22 +282,22 @@ export function* executeActionSaga(
         { failed: true },
         actionId,
       );
-      if (onError) {
-        yield put(
-          executeAction({
-            dynamicString: onError,
-            event: {
-              ...event,
-              type: EventType.ON_ERROR,
-            },
-            responseData: [payload.body, params],
-          }),
-        );
-      } else {
-        if (event.callback) {
-          event.callback({ success: false });
-        }
-      }
+      // if (onError) {
+      //   yield put(
+      //     executeAction({
+      //       dynamicString: onError,
+      //       event: {
+      //         ...event,
+      //         type: EventType.ON_ERROR,
+      //       },
+      //       responseData: [payload.body, params],
+      //     }),
+      //   );
+      // } else {
+      //   if (event.callback) {
+      //     event.callback({ success: false });
+      //   }
+      // }
       Toaster.show({
         text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
@@ -634,22 +323,22 @@ export function* executeActionSaga(
           request: response.data.request,
         },
       });
-      if (onSuccess) {
-        yield put(
-          executeAction({
-            dynamicString: onSuccess,
-            event: {
-              ...event,
-              type: EventType.ON_SUCCESS,
-            },
-            responseData: [payload.body, params],
-          }),
-        );
-      } else {
-        if (event.callback) {
-          event.callback({ success: true });
-        }
-      }
+      // if (onSuccess) {
+      //   yield put(
+      //     executeAction({
+      //       dynamicString: onSuccess,
+      //       event: {
+      //         ...event,
+      //         type: EventType.ON_SUCCESS,
+      //       },
+      //       responseData: [payload.body, params],
+      //     }),
+      //   );
+      // } else {
+      //   if (event.callback) {
+      //     event.callback({ success: true });
+      //   }
+      // }
     }
     return response;
   } catch (error) {
@@ -669,110 +358,22 @@ export function* executeActionSaga(
       variant: Variant.danger,
       showDebugButton: true,
     });
-    if (onError) {
-      yield put(
-        executeAction({
-          dynamicString: `{{${onError}}}`,
-          event: {
-            ...event,
-            type: EventType.ON_ERROR,
-          },
-          responseData: [],
-        }),
-      );
-    } else {
-      if (event.callback) {
-        event.callback({ success: false });
-      }
-    }
-  }
-}
-
-function* executePromiseSaga(
-  trigger: AppsmithPromisePayload,
-  event: ExecuteActionPayloadEvent,
-) {
-  // DO something here
-  console.log({ trigger });
-  if (event.callback) {
-    event.callback({ success: true });
-  }
-}
-
-function* executeActionTriggers(
-  trigger: ActionDescription<any>,
-  event: ExecuteActionPayloadEvent,
-) {
-  try {
-    switch (trigger.type) {
-      case "PROMISE":
-        yield call(executePromiseSaga, trigger.payload, event);
-        break;
-      case "RUN_ACTION":
-        yield call(executeActionSaga, trigger.payload, event);
-        break;
-      case "NAVIGATE_TO":
-        yield call(navigateActionSaga, trigger.payload, event);
-        break;
-      case "SHOW_ALERT":
-        yield call(showAlertSaga, trigger.payload, event);
-        break;
-      case "SHOW_MODAL_BY_NAME":
-        yield put(trigger);
-        if (event.callback) event.callback({ success: true });
-        break;
-      case "CLOSE_MODAL":
-        yield put(trigger);
-        AppsmithConsole.info({
-          text: `closeModal(${trigger.payload.modalName}) was triggered`,
-        });
-        if (event.callback) event.callback({ success: true });
-        break;
-      case "STORE_VALUE":
-        yield call(storeValueLocally, trigger.payload, event);
-        break;
-      case "DOWNLOAD":
-        yield call(downloadSaga, trigger.payload, event);
-        break;
-      case "COPY_TO_CLIPBOARD":
-        yield call(copySaga, trigger.payload, event);
-        break;
-      case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
-        yield call(resetWidgetMetaByNameRecursiveSaga, trigger.payload, event);
-        break;
-      default:
-        log.error("Trigger type unknown", trigger.type);
-    }
-  } catch (e) {
-    if (event.callback) event.callback({ success: false });
-  }
-}
-
-function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
-  const { dynamicString, event, responseData } = action.payload;
-  log.debug({ dynamicString, responseData });
-
-  if (dynamicString === undefined) {
-    if (event.callback) event.callback({ success: false });
-    log.error("Executing undefined action", event);
-    return;
-  }
-
-  const triggers = yield call(
-    evaluateDynamicTrigger,
-    dynamicString,
-    responseData,
-  );
-
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription<any>) =>
-        call(executeActionTriggers, trigger, event),
-      ),
-    );
-  } else {
-    if (event.callback) event.callback({ success: true });
+    // if (onError) {
+    //   yield put(
+    //     executeAction({
+    //       dynamicString: `{{${onError}}}`,
+    //       event: {
+    //         ...event,
+    //         type: EventType.ON_ERROR,
+    //       },
+    //       responseData: [],
+    //     }),
+    //   );
+    // } else {
+    //   if (event.callback) {
+    //     event.callback({ success: false });
+    //   }
+    // }
   }
 }
 
@@ -1132,9 +733,8 @@ function* executePageLoadActionsSaga() {
   }
 }
 
-export function* watchActionExecutionSagas() {
+export function* watchPluginActionExecutionSagas() {
   yield all([
-    takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
     takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionInitSaga),
     takeLatest(

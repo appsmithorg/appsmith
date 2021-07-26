@@ -37,38 +37,44 @@
  * */
 
 import {
-  ActionDescription,
+  ActionDispatcher,
   DataTree,
-  DataTreeAction,
+  DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { getEntityNameAndPropertyPath, isAction } from "./evaluationUtils";
+import {
+  ActionDescription,
+  ActionTriggerType,
+  PromiseActionDescription,
+} from "entities/DataTree/actionTriggers";
+import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 
 export type AppsmithPromisePayload = {
-  executor: ActionDescription<any>[];
+  executor: ActionDescription[];
   then: string[];
   catch?: string;
   finally?: string;
 };
 
 export const pusher = function(
-  this: { triggers: ActionDescription<any>[] },
+  this: { triggers: ActionDescription[] },
   action: any,
   ...payload: any[]
 ) {
   const actionPayload = action(...payload);
+  debugger;
   if (actionPayload instanceof AppsmithPromise) {
     this.triggers.push(actionPayload.action);
     return actionPayload;
+  } else {
+    this.triggers.push(actionPayload);
   }
 };
 
 export const pusherOverride = (actionPath: string) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(actionPath);
   const overrideThis = { triggers: promiseTriggers };
-  // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // // @ts-ignore
-  // const globalThis = { triggers: self.triggers };
   if (entityName === actionPath) {
     const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
     if (action) {
@@ -84,11 +90,11 @@ export const pusherOverride = (actionPath: string) => {
   }
 };
 
-let promiseTriggers: ActionDescription<any>[] = [];
+let promiseTriggers: ActionDescription[] = [];
 
 export class AppsmithPromise {
-  action: ActionDescription<AppsmithPromisePayload> = {
-    type: "PROMISE",
+  action: PromiseActionDescription = {
+    type: ActionTriggerType.PROMISE,
     payload: {
       executor: [],
       then: [],
@@ -96,31 +102,19 @@ export class AppsmithPromise {
   };
   triggerReference?: number;
 
-  constructor(
-    executor: ActionDescription<any>[] | (() => ActionDescription<any>[]),
-  ) {
+  constructor(executor: ActionDescription[] | (() => ActionDescription[])) {
     if (typeof executor === "function") {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       executor();
       this.action.payload.executor = promiseTriggers;
       promiseTriggers = [];
-      // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // // @ts-ignore
-      // self.actionPaths.forEach((path: string) =>
-      //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //   // @ts-ignore
-      //   pusherOverride(path, self.triggers),
-      // );
+      this._attachToSelfTriggers();
     } else {
       this.action.payload.executor = executor;
-      debugger;
     }
-    this._attachToSelfTriggers();
     return this;
   }
 
-  _attachToSelfTriggers() {
+  private _attachToSelfTriggers() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (self.triggers) {
@@ -164,29 +158,39 @@ export class AppsmithPromise {
     }
     return this;
   }
+
+  static all(actions: ActionDescription[]) {
+    return new AppsmithPromise(actions);
+  }
 }
 
 const DATA_TREE_FUNCTIONS: Record<
   string,
-  | ((...args: any[]) => AppsmithPromise)
-  | { qualifier: Function; func: Function }
+  | ActionDispatcher
+  | {
+      qualifier: (entity: DataTreeEntity) => boolean;
+      func: (entity: DataTreeEntity) => ActionDispatcher;
+    }
 > = {
   navigateTo: function(
     pageNameOrUrl: string,
     params: Record<string, string>,
-    target?: string,
+    target?: NavigationTargetType,
   ) {
     return new AppsmithPromise([
       {
-        type: "NAVIGATE_TO",
+        type: ActionTriggerType.NAVIGATE_TO,
         payload: { pageNameOrUrl, params, target },
       },
     ]);
   },
-  showAlert: function(message: string, style: string) {
+  showAlert: function(
+    message: string,
+    style: "info" | "success" | "warning" | "error" | "default",
+  ) {
     return new AppsmithPromise([
       {
-        type: "SHOW_ALERT",
+        type: ActionTriggerType.SHOW_ALERT,
         payload: { message, style },
       },
     ]);
@@ -194,7 +198,7 @@ const DATA_TREE_FUNCTIONS: Record<
   showModal: function(modalName: string) {
     return new AppsmithPromise([
       {
-        type: "SHOW_MODAL_BY_NAME",
+        type: ActionTriggerType.SHOW_MODAL_BY_NAME,
         payload: { modalName },
       },
     ]);
@@ -202,7 +206,7 @@ const DATA_TREE_FUNCTIONS: Record<
   closeModal: function(modalName: string) {
     return new AppsmithPromise([
       {
-        type: "CLOSE_MODAL",
+        type: ActionTriggerType.CLOSE_MODAL,
         payload: { modalName },
       },
     ]);
@@ -210,7 +214,7 @@ const DATA_TREE_FUNCTIONS: Record<
   storeValue: function(key: string, value: string, persist = true) {
     return new AppsmithPromise([
       {
-        type: "STORE_VALUE",
+        type: ActionTriggerType.STORE_VALUE,
         payload: { key, value, persist },
       },
     ]);
@@ -218,7 +222,7 @@ const DATA_TREE_FUNCTIONS: Record<
   download: function(data: string, name: string, type: string) {
     return new AppsmithPromise([
       {
-        type: "DOWNLOAD",
+        type: ActionTriggerType.DOWNLOAD,
         payload: { data, name, type },
       },
     ]);
@@ -229,7 +233,7 @@ const DATA_TREE_FUNCTIONS: Record<
   ) {
     return new AppsmithPromise([
       {
-        type: "COPY_TO_CLIPBOARD",
+        type: ActionTriggerType.COPY_TO_CLIPBOARD,
         payload: {
           data,
           options: { debug: options?.debug, format: options?.format },
@@ -240,20 +244,20 @@ const DATA_TREE_FUNCTIONS: Record<
   resetWidget: function(widgetName: string, resetChildren = false) {
     return new AppsmithPromise([
       {
-        type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+        type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
         payload: { widgetName, resetChildren },
       },
     ]);
   },
   run: {
     qualifier: isAction,
-    func: (entity: DataTreeAction) =>
-      function(onSuccess: Function, onError: Function, params = "") {
+    func: (entity) =>
+      function(onSuccess: Function, onError: Function, params = {}) {
         const runActionPromise = new AppsmithPromise([
           {
-            type: "RUN_ACTION",
+            type: ActionTriggerType.PLUGIN_ACTION,
             payload: {
-              actionId: entity.actionId,
+              actionId: isAction(entity) ? entity.actionId : "",
               params,
             },
           },
