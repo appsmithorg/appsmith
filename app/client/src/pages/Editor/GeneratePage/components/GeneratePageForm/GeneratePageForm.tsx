@@ -31,6 +31,7 @@ import { GENERATE_PAGE_FORM_TITLE } from "../../../../../constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "../../../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../../../selectors/entitiesSelector";
 import { useDatasourceOptions } from "./hooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -178,6 +179,7 @@ function GeneratePageForm() {
       dataSourceObj: DropdownOption | undefined,
     ) => {
       if (datasource && dataSourceObj) {
+        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE");
         selectDataSource(dataSourceObj);
         setSelectedDatasourceTableOptions([]);
         setSelectedTableColumnOptions([]);
@@ -201,6 +203,7 @@ function GeneratePageForm() {
   const onSelectTable = useCallback(
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
       if (table && TableObj) {
+        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         const { data } = TableObj;
@@ -237,6 +240,7 @@ function GeneratePageForm() {
   const onSelectColumn = useCallback(
     (table: string | undefined, ColumnObj: DropdownOption | undefined) => {
       if (table && ColumnObj) {
+        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN");
         selectColumn(ColumnObj);
       }
     },
@@ -330,6 +334,7 @@ function GeneratePageForm() {
   }, [querySearch]);
 
   const routeToCreateNewDatasource = () => {
+    AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
       `${INTEGRATION_EDITOR_URL(
         currentApplicationId,
@@ -340,6 +345,7 @@ function GeneratePageForm() {
   };
 
   const handleFormSubmit = () => {
+    AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(
       generateTemplateToUpdatePage({
         applicationId: currentApplicationId || "",
@@ -357,6 +363,9 @@ function GeneratePageForm() {
   };
 
   const goToEditDatasource = () => {
+    AnalyticsUtil.logEvent("GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG", {
+      datasourceId: selectedDatasource.id,
+    });
     const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
       currentApplicationId,
       currentPageId,

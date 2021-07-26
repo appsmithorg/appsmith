@@ -33,6 +33,7 @@ import {
 } from "../../../selectors/entitiesSelector";
 import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -178,6 +179,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const editDatasource = useCallback(() => {
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     const plugin = pluginGroups[datasource.pluginId];
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
@@ -221,7 +223,7 @@ function DatasourceCard(props: DatasourceCardProps) {
       // disable button when it doesn't support page generation
       return;
     }
-
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
       `${getGenerateTemplateFormURL(
         params.applicationId,
@@ -231,6 +233,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   };
 
   const deleteAction = () => {
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
   };
 

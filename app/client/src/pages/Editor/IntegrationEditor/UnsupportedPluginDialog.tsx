@@ -9,6 +9,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { IconProps } from "../../../constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "../../../constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
@@ -125,7 +126,7 @@ const Header = withTheme(
     </>
   ),
 );
-
+// Unsupported Plugin for gen CRUD page
 function UnsupportedPluginDialog(props: Props) {
   const { isModalOpen, onContinue } = props;
   const handleClose = () => {
@@ -151,6 +152,7 @@ function UnsupportedPluginDialog(props: Props) {
         <ActionButton
           category={Category.tertiary}
           onClick={() => {
+            AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
           }}
           size={Size.medium}
@@ -160,6 +162,7 @@ function UnsupportedPluginDialog(props: Props) {
           category={Category.primary}
           onClick={() => {
             handleClose();
+            AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION");
             onContinue();
           }}
           size={Size.medium}
