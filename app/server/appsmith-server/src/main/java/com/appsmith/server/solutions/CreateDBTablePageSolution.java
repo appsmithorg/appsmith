@@ -361,7 +361,14 @@ public class CreateDBTablePageSolution {
             return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                     AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
-                );
+                )
+                .flatMap(newPage -> {
+                    Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
+                    if (layout.getWidgetNames().size() > 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_CRUD_PAGE_REQUEST, "please try on empty layout"));
+                    }
+                    return Mono.just(newPage);
+                });
         }
 
         return newPageService.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES, false)
