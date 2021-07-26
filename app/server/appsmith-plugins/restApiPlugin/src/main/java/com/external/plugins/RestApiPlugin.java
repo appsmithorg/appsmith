@@ -416,6 +416,7 @@ public class RestApiPlugin extends BasePlugin {
                         return result;
                     })
                     .onErrorResume(error -> {
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
