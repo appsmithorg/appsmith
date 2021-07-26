@@ -83,8 +83,6 @@ const updateDocumentDescriptionTitle = (documentObj: any, item: any) => {
     // append documentation button after title:
     const ctaElement = getDocumentationCTA(path) as Node;
     firstChild.appendChild(ctaElement);
-
-    removeBadHighlights(firstChild, item.query);
   }
 };
 
@@ -155,6 +153,9 @@ const parseDocumentationContent = (item: any): string | undefined => {
       } catch (e) {}
     });
 
+    // update description title
+    updateDocumentDescriptionTitle(documentObj, item);
+
     // Combine adjacent highlighted nodes into a single one
     let adjacentMatches: string[] = [];
     const letterRegex = /[a-zA-Z]/g;
@@ -222,8 +223,6 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
     // Remove highlight for nodes that don't match well
     removeBadHighlights(documentObj, query);
-    // update description title
-    updateDocumentDescriptionTitle(documentObj, item);
     let content = updateYoutubeEmbedingsWithIframe(documentObj.body.innerHTML);
     content = strip(content).trim();
     return content;

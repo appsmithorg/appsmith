@@ -113,22 +113,25 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             }
         });
 
-        Mono<CommentThread> commentThreadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
-                .flatMap(commentThread -> {
-                    if (CommentUtils.isAnyoneMentioned(comment) && Boolean.TRUE.equals(commentThread.getIsPrivate())) {
-                        return convertToPublic(commentThread);
-                    }
-                    return Mono.just(commentThread);
-                });
+        return userMono.flatMap(user ->
+            threadRepository
+                    .findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
+                    .flatMap(commentThread -> updateThreadIfRequired(commentThread, comment, user))
+                    .flatMap(commentThread -> create(commentThread, user, comment, originHeader, true))
+        );
+    }
 
+    private Mono<CommentThread> updateThreadIfRequired(CommentThread commentThread, Comment comment, User user) {
+        commentThread.setViewedByUsers(Set.of(user.getUsername()));
+        if(commentThread.getResolvedState().getActive() == TRUE) {
+            commentThread.getResolvedState().setActive(FALSE);
+        }
 
-        return userMono.zipWith(commentThreadMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final CommentThread thread = tuple.getT2();
-                    return create(thread, user, comment, originHeader, true);
-                });
+        if (CommentUtils.isAnyoneMentioned(comment) && Boolean.TRUE.equals(commentThread.getIsPrivate())) {
+            return convertToPublic(commentThread).flatMap(threadRepository::save);
+        }
+        return threadRepository.save(commentThread);
     }
 
     /**
@@ -140,7 +143,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private Mono<CommentThread> convertToPublic(CommentThread commentThread) {
         return applicationService.findById(commentThread.getApplicationId())
                 .zipWith(sequenceService.getNext(CommentThread.class, commentThread.getApplicationId()))
-                .flatMap(objects -> {
+                .map(objects -> {
                     Application application = objects.getT1();
                     commentThread.setSequenceId("#" + objects.getT2());
                     commentThread.setIsPrivate(FALSE);
@@ -155,7 +158,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             commentThread.getAuthorUsername()
                     ).get(AclPermission.MANAGE_THREAD.getValue()));
                     commentThread.setPolicies(policies);
-                    return threadRepository.save(commentThread);
+                    return commentThread;
         });
     }
 
@@ -384,12 +387,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                     // create a new bot thread
                                     CommentThread commentThread = new CommentThread();
                                     commentThread.setIsPrivate(true);
+                                    commentThread.setWidgetType("CANVAS_WIDGET");
                                     CommentThread.Position position = new CommentThread.Position();
-                                    position.setTop(0.558882236480713f);
-                                    position.setLeft(73.5241470336914f);
+                                    position.setTop(100);
+                                    position.setLeft(100);
                                     commentThread.setPosition(position);
                                     commentThread.setPageId(resolvedThread.getPageId());
-                                    commentThread.setRefId(resolvedThread.getRefId());
+                                    commentThread.setRefId("0");
                                     commentThread.setMode(resolvedThread.getMode());
 
                                     return saveCommentThread(commentThread, application, user)
