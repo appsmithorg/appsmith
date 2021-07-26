@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import Dropdown from "components/ads/Dropdown";
-import { getTypographyByKey } from "../../../../constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getEditorConfig,
@@ -9,7 +9,7 @@ import {
 } from "selectors/entitiesSelector";
 import { AppState } from "reducers/index";
 import { DropdownOption } from "components/ads/Dropdown";
-import { fetchPluginFormConfig } from "../../../../actions/pluginActions";
+import { fetchPluginFormConfig } from "actions/pluginActions";
 import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
