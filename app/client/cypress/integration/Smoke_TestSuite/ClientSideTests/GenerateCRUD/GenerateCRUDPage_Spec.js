@@ -78,6 +78,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       cy.renameDatasource(`PostgresSQL CRUD Demo ${UUID}`);
     });
 
+    cy.startRoutesForDatasource();
     cy.get(".t--save-datasource").click();
     cy.wait("@saveDatasource").should(
       "have.nested.property",
