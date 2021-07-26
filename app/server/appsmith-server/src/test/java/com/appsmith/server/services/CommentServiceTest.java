@@ -7,14 +7,21 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.solutions.EmailEventHandler;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,12 +29,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,6 +65,27 @@ public class CommentServiceTest {
 
     @Autowired
     PolicyUtils policyUtils;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    private UserDataRepository userDataRepository;
+
+    @MockBean
+    private Analytics analytics;
+
+    @MockBean
+    private EmailEventHandler emailEventHandler;
+
+    @Before
+    public void setUp() {
+        Mockito.doNothing().when(analytics).enqueue(any());
+        Mockito.doNothing().when(analytics).flush();
+
+        Mockito.when(emailEventHandler.publish(any(), any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(emailEventHandler.publish(any(), any(), any(), any())).thenReturn(Mono.just(Boolean.TRUE));
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -276,4 +307,93 @@ public class CommentServiceTest {
         }).verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
+        // create a thread first with resolved=true
+        Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.COMMENT_ON_THREAD),
+                "api_user"
+        ).values();
+
+        CommentThread commentThread = new CommentThread();
+        CommentThread.CommentThreadState commentThreadState = new CommentThread.CommentThreadState();
+        commentThreadState.setActive(true);
+        commentThread.setResolvedState(commentThreadState);
+        commentThread.setPolicies(Set.copyOf(threadPolicies));
+        commentThread.setViewedByUsers(Set.of("api_user", "test_user"));
+
+        Mono<CommentThread> commentThreadMono = commentThreadRepository.save(commentThread)
+                .flatMap(savedThread -> {
+                    Comment comment = makePlainTextComment("Test comment");
+                    comment.setThreadId(savedThread.getId());
+                    return commentService.create(savedThread.getId(), comment, null);
+                })
+                .flatMap(savedComment ->
+                        commentThreadRepository.findById(savedComment.getThreadId())
+                );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getResolvedState().getActive()).isFalse();
+            assertThat(thread.getViewedByUsers().size()).isEqualTo(1);
+            assertThat(thread.getViewedByUsers()).contains("api_user");
+        }).verifyComplete();
+
+    }
+
+    private Mono<CommentThread> createAndFetchTestCommentThreadForBotTest(Set<AclPermission> applicationPermissions) {
+        return userService.findByEmail("api_user")
+                .flatMap(user ->
+                        userDataRepository.findByUserId(user.getId()) // setup userdata first
+                                .defaultIfEmpty(new UserData(user.getId()))
+                                .map(userData -> {
+                                    userData.setLatestCommentEvent(null);
+                                    return userData;
+                                })
+                                .flatMap(userDataRepository::save).thenReturn(user)
+
+                )
+                .flatMap(user -> {
+                    // create an application
+                    Application application = new Application();
+                    Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
+                            applicationPermissions, user
+                    );
+                    application.setPolicies(Set.copyOf(stringPolicyMap.values()));
+                    application.setName(UUID.randomUUID().toString());
+                    return applicationService.save(application);
+                }).flatMap(application -> {
+                    // create a thread
+                    CommentThread commentThread = new CommentThread();
+                    commentThread.setApplicationId(application.getId());
+                    Comment comment = makePlainTextComment("test comment here");
+                    commentThread.setComments(List.of(comment));
+                    return commentService.createThread(commentThread, null);
+                }).flatMap(thread -> commentThreadRepository.findById(thread.getId())); // fetch the thread to check
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenFirstCommentFromUser_CreatesBotThreadAndComment() {
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS)
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isTrue();
+            assertThat(thread.getSequenceId()).isEqualTo("#0");
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenFirstCommentFromViewer_BotThreadNotCreated() {
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.READ_APPLICATIONS)
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
+        }).verifyComplete();
+    }
 }

@@ -59,6 +59,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -406,7 +407,8 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
@@ -525,6 +527,14 @@ export function EditorJSONtoForm(props: Props) {
     );
   };
 
+  const responeTabOnRunClick = () => {
+    props.onRunClick();
+
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "QUERY_PANE",
+    });
+  };
+
   const responseTabs = [
     {
       key: "Response",
@@ -579,7 +589,7 @@ export function EditorJSONtoForm(props: Props) {
                 🙌 Click on
                 <InlineButton
                   isLoading={isRunning}
-                  onClick={props.onRunClick}
+                  onClick={responeTabOnRunClick}
                   size={Size.medium}
                   tag="button"
                   text="Run"
