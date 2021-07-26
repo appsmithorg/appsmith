@@ -146,7 +146,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (draggableRef.current && !e.metaKey) {
+    if (draggableRef.current && !(e.metaKey || e.ctrlKey)) {
       if (!isCurrentWidgetSelected) {
         dispatch(selectWidgetInitAction(props.widgetId));
       }

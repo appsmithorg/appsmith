@@ -25,6 +25,7 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { useShowPropertyPane } from "./dragResizeHooks";
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { snapToGrid } from "utils/helpers";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -95,6 +96,24 @@ export const useBlocksToBeDraggedOnCanvas = ({
     } else {
       return {};
     }
+  };
+  const getSnappedXY = (
+    parentColumnWidth: number,
+    parentRowHeight: number,
+    currentOffset: XYCoord,
+    parentOffset: XYCoord,
+  ) => {
+    // TODO(abhinav): There is a simpler math to use.
+    const [leftColumn, topRow] = snapToGrid(
+      parentColumnWidth,
+      parentRowHeight,
+      currentOffset.x - parentOffset.x,
+      currentOffset.y - parentOffset.y,
+    );
+    return {
+      X: leftColumn * parentColumnWidth,
+      Y: topRow * parentRowHeight,
+    };
   };
   const getBlocksToDraw = (): WidgetDraggingBlock[] => {
     if (isNewWidget) {
@@ -277,6 +296,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   return {
     blocksToDraw,
     defaultHandlePositions,
+    getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,

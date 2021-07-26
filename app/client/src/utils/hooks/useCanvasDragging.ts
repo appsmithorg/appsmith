@@ -1,4 +1,3 @@
-import { getSnappedXY } from "components/editorComponents/Dropzone";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -33,6 +32,7 @@ export const useCanvasDragging = (
   const {
     blocksToDraw,
     defaultHandlePositions,
+    getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
