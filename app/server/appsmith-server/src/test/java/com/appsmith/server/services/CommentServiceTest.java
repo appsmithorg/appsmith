@@ -10,7 +10,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
@@ -71,9 +70,6 @@ public class CommentServiceTest {
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    private UserDataRepository userDataRepository;
 
     @MockBean
     private Analytics analytics;
@@ -353,19 +349,8 @@ public class CommentServiceTest {
         }).verifyComplete();
     }
 
-<<<<<<< HEAD
     private Mono<CommentThread> createAndFetchTestCommentThreadForBotTest(Set<AclPermission> applicationPermissions) {
         return userService.findByEmail("api_user")
-                .flatMap(user ->
-                        userDataRepository.findByUserId(user.getId()) // setup userdata first
-                                .defaultIfEmpty(new UserData(user.getId()))
-                                .map(userData -> {
-                                    userData.setLatestCommentEvent(null);
-                                    return userData;
-                                })
-                                .flatMap(userDataRepository::save).thenReturn(user)
-
-                )
                 .flatMap(user -> {
                     // create an application
                     Application application = new Application();
@@ -408,7 +393,8 @@ public class CommentServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
             assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
         }).verifyComplete();
-=======
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void getThreadsByApplicationId_WhenThreadWithCommentExists_ReturnThreadWithComments() {
@@ -449,6 +435,5 @@ public class CommentServiceTest {
                     assertThat(commentThreadList.get(0).getComments().size()).isEqualTo(1);
                 })
                 .verifyComplete();
->>>>>>> 4f77b7308 (-add unit test for get all thread)
     }
 }
