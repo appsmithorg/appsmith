@@ -50,6 +50,8 @@ import { AppState } from "reducers";
 import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
+import { showOnboardingHelper } from "actions/onboardingActions";
+import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
