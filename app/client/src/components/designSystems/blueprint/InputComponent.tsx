@@ -7,6 +7,11 @@ import {
 } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
+import {
   Alignment,
   Intent,
   NumericInput,
@@ -125,6 +130,16 @@ const InputComponentWrapper = styled((props) => (
       margin-right: 5px;
       text-align: right;
       align-self: flex-start;
+      color: ${(props) => props.labelTextColor || "inherit"};
+      font-size: ${(props) => props.labelTextSize};
+      font-weight: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+      font-style: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+      text-decoration: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
+          ? "underline"
+          : ""};
     }
   }
 `;
@@ -478,7 +493,13 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
-    const { label, tooltip } = this.props;
+    const {
+      label,
+      labelStyle,
+      labelTextColor,
+      labelTextSize,
+      tooltip,
+    } = this.props;
     const showLabelHeader = label || tooltip;
 
     return (
@@ -488,6 +509,9 @@ class InputComponent extends React.Component<
         fill
         hasError={this.props.isInvalid}
         inputType={this.props.inputType}
+        labelStyle={labelStyle}
+        labelTextColor={labelTextColor}
+        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
@@ -560,6 +584,9 @@ export interface InputComponentProps extends ComponentProps {
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
