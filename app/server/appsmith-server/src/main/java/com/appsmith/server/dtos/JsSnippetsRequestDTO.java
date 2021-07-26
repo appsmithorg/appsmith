@@ -19,6 +19,6 @@ import java.util.List;
 public class JsSnippetsRequestDTO {
     List<String> entity; // e.g. table
     List<String> field; // e.g. table_data
-    String dataType; // e.g. array
+    String dataType; // response data type e.g. array
     String query; // user input for searching snippet
 }
