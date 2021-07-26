@@ -338,7 +338,7 @@ export const BACK = () => "BACK";
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
