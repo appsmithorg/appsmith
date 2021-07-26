@@ -55,7 +55,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -395,15 +394,42 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        final Mono<Plugin> pluginMono = pluginService.findById(action.getPluginId());
+        final Mono<Datasource> datasourceMono = Mono.just(action.getDatasource())
+                .flatMap(datasource -> {
+                    if (datasource.getId() == null) {
+                        return Mono.just(datasource);
+                    } else {
+                        return datasourceService.getById(datasource.getId());
+                    }
+                });
+
         // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
         // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .flatMap(dbAction -> {
+                .map(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
-                    return transformAction(dbAction.getUnpublishedAction()).thenReturn(dbAction);
+                    return dbAction;
+                })
+                .flatMap(action1 -> {
+                    final ActionDTO actionDTO = action1.getUnpublishedAction();
+                    return pluginExecutorHelper
+                            .getPluginExecutor(pluginMono)
+                            .zipWith(datasourceMono)
+                            .flatMap(tuple -> {
+                                final PluginExecutor<Object> pluginExecutor = tuple.getT1();
+                                final Datasource datasource = tuple.getT2();
+                                return pluginExecutor.saveAction(
+                                        actionDTO.getActionConfiguration(),
+                                        datasource.getDatasourceConfiguration());
+                            })
+                            .map(actionConfiguration -> {
+                                actionDTO.setActionConfiguration(actionConfiguration);
+                                return action1;
+                            });
                 })
                 .cache();
 
@@ -422,63 +448,70 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .then(savedUpdatedActionMono);
     }
 
-    /**
-     * Checks for a possible template that this action conforms to. If it exists, uses the transformation for this
-     * template against the given action
-     *
-     * @param actionDTO
-     * @return Transformed action with all default configurations combined, if applicable
-     */
-    @Override
-    public Mono<ActionDTO> transformAction(ActionDTO actionDTO) {
-        // Check if this action is referring to a template
-        if (actionDTO.getTemplateId() == null) {
-            return Mono.just(actionDTO);
-        }
-
-        return this.actionTemplateRepository
-                .findById(actionDTO.getTemplateId())
-                .map(actionTemplate -> {
-                    final Map<?, ?> requestTransformationSpec = actionTemplate.getRequestTransformationSpec();
-                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
-                    // Check if this template requires request transformation
-                    if (requestTransformationSpec != null && actionConfiguration.getBody() != null) {
-                        // TODO validate incoming request. What happens if the transformation is unable to identify the request?
-                        final Map<?, ?> transformedBody;
-                        try {
-
-                            transformedBody = JoltTransformer.transform(
-                                    objectMapper.readValue(actionConfiguration.getBody(), Map.class),
-                                    requestTransformationSpec
-                            );
-
-                            final ActionConfiguration transformedActionConfiguration =
-                                    actionConfiguration
-                                            .toBuilder()
-                                            .body(objectMapper.valueToTree(transformedBody).toPrettyString())
-                                            .build();
-                            actionDTO.setTransformedActionConfiguration(transformedActionConfiguration);
-                        } catch (JsonProcessingException e) {
-                            // Malformed JSON in body
-                        }
-                    } else {
-                        // The transformed action will not require a jolt transformation
-                        actionDTO.setTransformedActionConfiguration(actionConfiguration.toBuilder().build());
-                    }
-                    // Use the transformed configuration to combine with defaults for this action
-                    if (actionTemplate.getDefaultActionConfiguration() != null) {
-                        actionDTO.setCombinedActionConfiguration(
-                                ActionConfiguration
-                                        .combineConfigurations(
-                                                actionTemplate.getDefaultActionConfiguration(),
-                                                actionDTO.getTransformedActionConfiguration()));
-                    } else {
-                        actionDTO.setCombinedActionConfiguration(actionDTO.getTransformedActionConfiguration());
-                    }
-                    return actionDTO;
-                })
-                .subscribeOn(Schedulers.elastic());
-    }
+//    /**
+//     * Checks for a possible template that this action conforms to. If it exists, uses the transformation for this
+//     * template against the given action
+//     *
+//     * @param actionDTO
+//     * @return Transformed action with all default configurations combined, if applicable
+//     */
+//    @Override
+//    public Mono<ActionDTO> transformAction(ActionDTO actionDTO) {
+//        // Find plugin template name from db
+//        // Find plugin template from db
+//        // Find plugin service implementation from saasplugin implementation
+//        // Use transformer from plugin service impl
+//        //
+//
+//
+//        // Check if this action is referring to a template
+//        if (actionDTO.getTemplateId() == null) {
+//            return Mono.just(actionDTO);
+//        }
+//
+//        return this.actionTemplateRepository
+//                .findById(actionDTO.getTemplateId())
+//                .map(actionTemplate -> {
+//                    final Map<?, ?> requestTransformationSpec = actionTemplate.getRequestTransformationSpec();
+//                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+//                    // Check if this template requires request transformation
+//                    if (requestTransformationSpec != null && actionConfiguration.getBody() != null) {
+//                        // TODO validate incoming request. What happens if the transformation is unable to identify the request?
+//                        final Map<?, ?> transformedBody;
+//                        try {
+//
+//                            transformedBody = JoltTransformer.transform(
+//                                    objectMapper.readValue(actionConfiguration.getBody(), Map.class),
+//                                    requestTransformationSpec
+//                            );
+//
+//                            final ActionConfiguration transformedActionConfiguration =
+//                                    actionConfiguration
+//                                            .toBuilder()
+//                                            .body(objectMapper.valueToTree(transformedBody).toPrettyString())
+//                                            .build();
+//                            actionDTO.setTransformedActionConfiguration(transformedActionConfiguration);
+//                        } catch (JsonProcessingException e) {
+//                            // Malformed JSON in body
+//                        }
+//                    } else {
+//                        // The transformed action will not require a jolt transformation
+//                        actionDTO.setTransformedActionConfiguration(actionConfiguration.toBuilder().build());
+//                    }
+//                    // Use the transformed configuration to combine with defaults for this action
+//                    if (actionTemplate.getDefaultActionConfiguration() != null) {
+//                        actionDTO.setCombinedActionConfiguration(
+//                                ActionConfiguration
+//                                        .combineConfigurations(
+//                                                actionTemplate.getDefaultActionConfiguration(),
+//                                                actionDTO.getTransformedActionConfiguration()));
+//                    } else {
+//                        actionDTO.setCombinedActionConfiguration(actionDTO.getTransformedActionConfiguration());
+//                    }
+//                    return actionDTO;
+//                })
+//                .subscribeOn(Schedulers.elastic());
+//    }
 
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
@@ -592,14 +625,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    ActionConfiguration actionConfiguration;
-                    if (action.getCombinedActionConfiguration() != null) {
-                        actionConfiguration = action.getCombinedActionConfiguration();
-                    } else {
-                        actionConfiguration = action.getActionConfiguration();
-                    }
-
-
+                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 
                     log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}",

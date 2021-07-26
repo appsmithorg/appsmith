@@ -51,12 +51,6 @@ public class ActionDTO {
 
     ActionConfiguration actionConfiguration;
 
-    @JsonIgnore
-    ActionConfiguration transformedActionConfiguration;
-
-    @JsonIgnore
-    ActionConfiguration combinedActionConfiguration;
-
     Boolean executeOnLoad;
 
     /*

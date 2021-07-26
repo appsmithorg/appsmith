@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginTransformer;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,5 +31,13 @@ public class PluginExecutorHelper {
                     return Mono.just(executorList.get(0));
                 }
         );
+    }
+
+    public Mono<PluginTransformer> getPluginTransformer(Plugin plugin) {
+        List<PluginTransformer> transformerList = pluginManager.getExtensions(PluginTransformer.class, plugin.getPluginName());
+        if (transformerList.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getPluginName()));
+        }
+        return Mono.just(transformerList.get(0));
     }
 }

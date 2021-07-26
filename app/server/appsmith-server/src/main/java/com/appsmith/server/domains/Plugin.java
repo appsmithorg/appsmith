@@ -28,7 +28,7 @@ public class Plugin extends BaseDomain {
     // This reference determines the pf4j module to be used for plugin execution, etc
     String packageName;
 
-    // The plugin name is a unique identifier for each type of integration as seen by the user
+    // The plugin name is a unique identifier for each type of integration as seen by the plugin
     String pluginName;
 
     // Each plugin may have configurations that

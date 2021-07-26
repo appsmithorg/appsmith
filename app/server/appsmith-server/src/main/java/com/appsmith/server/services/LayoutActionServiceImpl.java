@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.plugins.PluginTransformer;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -11,6 +12,8 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -22,8 +25,8 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
-import com.appsmith.server.repositories.ActionTemplateRepository;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,7 +68,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final NewActionService newActionService;
     private final PageLoadActionsUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
-    private final ActionTemplateRepository actionTemplateRepository;
+    private final PluginService pluginService;
+    private final DatasourceService datasourceService;
+    private final PluginExecutorHelper pluginExecutorHelper;
+
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
@@ -77,20 +83,25 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
 
+
     public LayoutActionServiceImpl(ObjectMapper objectMapper,
                                    AnalyticsService analyticsService,
                                    NewPageService newPageService,
                                    NewActionService newActionService,
                                    PageLoadActionsUtil pageLoadActionsUtil,
                                    SessionUserService sessionUserService,
-                                   ActionTemplateRepository actionTemplateRepository) {
+                                   PluginService pluginService,
+                                   DatasourceService datasourceService,
+                                   PluginExecutorHelper pluginExecutorHelper) {
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
         this.pageLoadActionsUtil = pageLoadActionsUtil;
         this.sessionUserService = sessionUserService;
-        this.actionTemplateRepository = actionTemplateRepository;
+        this.pluginService = pluginService;
+        this.datasourceService = datasourceService;
+        this.pluginExecutorHelper = pluginExecutorHelper;
     }
 
     @Override
@@ -792,7 +803,31 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
-
+        final Mono<Plugin> pluginMono = pluginService.findById(action.getPluginId());
+        final Mono<Datasource> datasourceMono = Mono.just(action.getDatasource())
+                .flatMap(datasource -> {
+                    if (datasource.getId() == null) {
+                        return Mono.just(datasource);
+                    } else {
+                        return datasourceService.getById(datasource.getId());
+                    }
+                });
+        final Mono<ActionDTO> transformedActionMono = pluginMono
+                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
+                .flatMap(pluginExecutorHelper::getPluginTransformer)
+                .zipWith(datasourceMono)
+                .map(tuple -> {
+                    final PluginTransformer pluginTransformer = tuple.getT1();
+                    final Datasource datasource = tuple.getT2();
+                    return pluginTransformer.transformAction(
+                            datasource.getDatasourceConfiguration(),
+                            action.getActionConfiguration());
+                })
+                .map(actionConfiguration -> {
+                    action.setActionConfiguration(actionConfiguration);
+                    return action;
+                })
+                .switchIfEmpty(Mono.just(action));
         return pageMono
                 .flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
@@ -806,7 +841,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     // Throw an error since the new action's name matches an existing action or widget name.
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
                 })
-                .zipWith(newActionService.transformAction(action))
+                .zipWith(transformedActionMono)
                 .flatMap(tuple -> {
                     final NewPage page = tuple.getT1();
                     final ActionDTO actionDTO = tuple.getT2();

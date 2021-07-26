@@ -31,8 +31,6 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
-    Mono<ActionDTO> transformAction(ActionDTO actionDTO);
-
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);

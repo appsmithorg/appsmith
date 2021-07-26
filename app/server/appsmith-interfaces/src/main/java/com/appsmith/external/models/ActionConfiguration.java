@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Range;
+import org.json.JSONObject;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
@@ -47,6 +48,7 @@ public class ActionConfiguration implements AppsmithDomain {
     Boolean encodeParamsToggle = true;
     List<Property> queryParameters;
     String body;
+    JSONObject request;
     // For form-data input instead of json use the following
     List<Property> bodyFormData;
     // For route parameters extracted from rapid-api

@@ -1231,59 +1231,59 @@ public class ActionServiceTest {
                 .verifyComplete();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testCreateAction_saasActionWithRequestMapping_CreatesTransformedAction() throws JsonProcessingException {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Plugin installedSaasPlugin = pluginRepository.findByPackageName("installed-saas-plugin").block();
-        ActionTemplate actionTemplate = new ActionTemplate();
-        assert installedSaasPlugin != null;
-        actionTemplate.setPluginId(installedSaasPlugin.getId());
-        final ActionConfiguration defaultActionConfiguration = new ActionConfiguration();
-        defaultActionConfiguration.setHeaders(List.of(new Property("defaultHeader", "defaultHeaderValue")));
-        actionTemplate.setDefaultActionConfiguration(defaultActionConfiguration);
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readTree("{\"test\":\"heading\"}");
-        actionTemplate.setRequestTransformationSpec(objectMapper.convertValue(jsonNode, Map.class));
-        final ActionTemplate actionTemplate1 = actionTemplateRepository.insert(actionTemplate).block();
-
-        ActionDTO action = new ActionDTO();
-        action.setName("validSaaSAction");
-        action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(List.of(new Property("additionalHeader", "additionalHeaderValue")));
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionConfiguration.setTimeoutInMillisecond("100");
-        actionConfiguration.setBody("{\"test\":\"value\"}");
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-        assert actionTemplate1 != null;
-        action.setTemplateId(actionTemplate1.getId());
-
-        Mono<ActionDTO> actionMono = layoutActionService.createAction(action);
-
-        StepVerifier
-                .create(actionMono)
-                .assertNext(createdAction -> {
-                    assertThat(createdAction).isNotNull();
-                    assertThat(createdAction
-                            .getCombinedActionConfiguration()
-                            .getBody()
-                            .contains("heading")
-                    ).isTrue();
-                    assertThat(createdAction
-                            .getCombinedActionConfiguration()
-                            .getHeaders()
-                            .containsAll(List.of(
-                                    new Property("defaultHeader", "defaultHeaderValue"),
-                                    new Property("additionalHeader", "additionalHeaderValue")))
-                    ).isTrue();
-                    assertThat(createdAction.getTemplateId()).isEqualTo(actionTemplate1.getId());
-                })
-                .verifyComplete();
-    }
+//    @Test
+//    @WithUserDetails(value = "api_user")
+//    public void testCreateAction_saasActionWithRequestMapping_CreatesTransformedAction() throws JsonProcessingException {
+//        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+//
+//        Plugin installedSaasPlugin = pluginRepository.findByPackageName("installed-saas-plugin").block();
+//        ActionTemplate actionTemplate = new ActionTemplate();
+//        assert installedSaasPlugin != null;
+//        actionTemplate.setPluginId(installedSaasPlugin.getId());
+//        final ActionConfiguration defaultActionConfiguration = new ActionConfiguration();
+//        defaultActionConfiguration.setHeaders(List.of(new Property("defaultHeader", "defaultHeaderValue")));
+//        actionTemplate.setDefaultActionConfiguration(defaultActionConfiguration);
+//        final ObjectMapper objectMapper = new ObjectMapper();
+//        final JsonNode jsonNode = objectMapper.readTree("{\"test\":\"heading\"}");
+//        actionTemplate.setRequestTransformationSpec(objectMapper.convertValue(jsonNode, Map.class));
+//        final ActionTemplate actionTemplate1 = actionTemplateRepository.insert(actionTemplate).block();
+//
+//        ActionDTO action = new ActionDTO();
+//        action.setName("validSaaSAction");
+//        action.setPageId(testPage.getId());
+//        action.setExecuteOnLoad(true);
+//        ActionConfiguration actionConfiguration = new ActionConfiguration();
+//        actionConfiguration.setHeaders(List.of(new Property("additionalHeader", "additionalHeaderValue")));
+//        actionConfiguration.setHttpMethod(HttpMethod.GET);
+//        actionConfiguration.setTimeoutInMillisecond("100");
+//        actionConfiguration.setBody("{\"test\":\"value\"}");
+//        action.setActionConfiguration(actionConfiguration);
+//        action.setDatasource(datasource);
+//        assert actionTemplate1 != null;
+//        action.setTemplateId(actionTemplate1.getId());
+//
+//        Mono<ActionDTO> actionMono = layoutActionService.createAction(action);
+//
+//        StepVerifier
+//                .create(actionMono)
+//                .assertNext(createdAction -> {
+//                    assertThat(createdAction).isNotNull();
+//                    assertThat(createdAction
+//                            .getCombinedActionConfiguration()
+//                            .getBody()
+//                            .contains("heading")
+//                    ).isTrue();
+//                    assertThat(createdAction
+//                            .getCombinedActionConfiguration()
+//                            .getHeaders()
+//                            .containsAll(List.of(
+//                                    new Property("defaultHeader", "defaultHeaderValue"),
+//                                    new Property("additionalHeader", "additionalHeaderValue")))
+//                    ).isTrue();
+//                    assertThat(createdAction.getTemplateId()).isEqualTo(actionTemplate1.getId());
+//                })
+//                .verifyComplete();
+//    }
 
     @Test
     @WithUserDetails(value = "api_user")

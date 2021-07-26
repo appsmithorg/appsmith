@@ -23,7 +23,7 @@ import java.net.URI;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ApiKeyAuthentication extends APIConnection{
+public class ApiKeyAuthentication extends APIConnection {
     private String label;
     private String value;
     Type addTo;
@@ -79,8 +79,4 @@ public class ApiKeyAuthentication extends APIConnection{
                 .build()
                 .toUri();
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 36726c5188d2fd666d4d8c6e57382d7a879d49c1

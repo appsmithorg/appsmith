@@ -11,6 +11,14 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>appsmith-plugins</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.appsmith</groupId>
+            <artifactId>interfaces</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
     <packaging>pom</packaging>
 
     <modules>
@@ -30,5 +38,6 @@
         <module>snowflakePlugin</module>
         <module>arangoDBPlugin</module>
         <module>saasPlugin</module>
+        <module>airtablePlugin</module>
     </modules>
 </project>
