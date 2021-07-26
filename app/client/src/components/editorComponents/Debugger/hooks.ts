@@ -12,13 +12,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
-import {
-  getCurrentWidgetId,
-  getIsPropertyPaneVisible,
-} from "selectors/propertyPaneSelectors";
 import { isWidget, isAction } from "workers/evaluationUtils";
 import { onApiEditor, onQueryEditor, onCanvas } from "./helpers";
 import history from "utils/history";
+import { getSelectedWidget } from "selectors/ui";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -82,10 +79,9 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  const isPropertyPaneVisible = useSelector(getIsPropertyPaneVisible);
-  const selectedWidget = useSelector(getCurrentWidgetId);
+  const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId) && isPropertyPaneVisible) {
+    if (onCanvas(applicationId, currentPageId)) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
