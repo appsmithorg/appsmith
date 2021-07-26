@@ -92,6 +92,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
+            String name = mockDataSource.getName();
             if (mockDataSource.getPackageName().equals("mongo-plugin")) {
                 datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             } else {
@@ -102,7 +103,7 @@ public class MockDataServiceImpl implements MockDataService {
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            addAnalyticsForMockDataCreation(mockDataSource.getName(), mockDataSource.getOrganizationId());
+            addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId());
             return createSuffixedDatasource(datasource);
         });
 
@@ -207,8 +208,8 @@ public class MockDataServiceImpl implements MockDataService {
                             AnalyticsEvents.CREATE.getEventName(),
                             user.getUsername(),
                             Map.of(
-                                    "orgId", defaultIfNull(orgId, ""),
-                                    "mockDbName", defaultIfNull(name, "")
+                                    "MockDataSource", defaultIfNull(name, ""),
+                                    "orgId", defaultIfNull(orgId, "")
                             )
                     );
                     return Mono.empty();
