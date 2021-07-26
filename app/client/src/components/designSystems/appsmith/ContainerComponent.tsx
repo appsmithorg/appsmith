@@ -5,6 +5,7 @@ import { ComponentProps } from "./BaseComponent";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
+import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -20,7 +21,9 @@ const StyledContainerComponent = styled.div<
       ? `
   border-width: ${props.borderWidth};
   border-color: ${props.borderColor || "transparent"};
-  border-style: solid;`
+  border-style: solid;
+  box-shadow: 0px 0px 0px 1px #E7E7E7;
+  border-radius: 0;`
       : ""}
   height: 100%;
   width: 100%;
@@ -31,25 +34,33 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
     props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
-  z-index: ${(props) => (props.selected ? "2" : "1")};
-  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
+  z-index: ${(props) => (props.focused ? "3" : props.selected ? "2" : "1")};
+  ${(props) =>
+    props.shouldScrollContents === true
+      ? scrollContents
+      : props.shouldScrollContents === false
+      ? css`
+          overflow: hidden;
+        `
+      : ""}
 
   &:hover {
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
     cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
-    background: ${(props) =>
-      props.onClickCapture
+    background: ${(props) => {
+      return props.onClickCapture && props.backgroundColor
         ? tinycolor(props.backgroundColor)
             .darken(5)
             .toString()
-        : props.backgroundColor};
+        : props.backgroundColor;
+    }};
   }
 }`;
 
 function ContainerComponent(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-
+  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -92,6 +103,8 @@ export interface ContainerComponentProps extends ComponentProps {
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
   selected?: boolean;
+  focused?: boolean;
+  minHeight?: number;
 }
 
 export default ContainerComponent;

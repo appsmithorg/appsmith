@@ -72,6 +72,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -653,7 +654,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypes(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     /*
@@ -680,16 +681,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidgets(result.getBody()));
+        }
+
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
+
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
+
         return result;
     }
 

@@ -26,6 +26,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorSize,
+  HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -158,7 +159,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = datasource.datasourceConfiguration.url;
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -204,7 +205,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url.length;
+        const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -218,7 +219,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  handleDatasourceHint = () => {
+  handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
     return () => {
       return {
@@ -270,7 +271,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           }
         },
         showHint: () => {
-          return;
+          return false;
         },
       };
     };

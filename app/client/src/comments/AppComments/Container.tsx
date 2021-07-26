@@ -11,12 +11,12 @@ const Container = styled.div<{ isInline?: boolean }>`
     position: fixed;
     left: 0;
     top: ${props.theme.smallHeaderHeight};
+    height: calc(100% - ${props.theme.smallHeaderHeight});
   `
       : `
-    position: unset;
+    position: relative;
   `}
   z-index: ${Layers.appComments};
-  height: calc(100% - ${(props) => props.theme.smallHeaderHeight});
   display: flex;
   flex-direction: column;
 `;

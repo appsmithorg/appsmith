@@ -214,7 +214,6 @@ export const ERROR_API_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
-export const ACTION_RUN_SUCCESS = () => `Action ran successfully`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
 export const ACTION_DELETE_SUCCESS = (actionName: string) =>
@@ -319,6 +318,18 @@ export const EMAIL_ADDRESS = () => "Email Address";
 export const FIRST_AND_LAST_NAME = () => "First and last name";
 export const MARK_ALL_AS_READ = () => "Mark all as read";
 export const INVITE_A_NEW_USER = () => "Invite a new user";
+export const REMOVE = () => "Remove";
+export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
+export const UNREAD_MESSAGE = () => "Unread conversation";
+export const UNSUBSCRIBE_EMAIL_SUCCESS = () =>
+  "You have successfully unsubscribed from the corresponding comment thread";
+export const UNSUBSCRIBE_EMAIL_MSG_1 = () =>
+  "You will not receive any more email notifications for the corresponding comment thread.";
+export const UNSUBSCRIBE_EMAIL_MSG_2 = () =>
+  "Please note that you will be subscribed again if someone tags you in a comment or you reply to a comment.";
+export const UNSUBSCRIBE_EMAIL_CONFIRM_MSG = () =>
+  "Are you sure you want to unsubscribe?";
+export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -329,10 +340,16 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
+export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
+export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
+export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
+export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const INVALID_EMAIL = () => "Please enter a valid email";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 

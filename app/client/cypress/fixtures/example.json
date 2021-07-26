@@ -201,50 +201,60 @@
       "orderAmount": 9.99
     }
   ],
-  "ChartCustomConfig": {"type": "area2d",
-    "dataSource": {
-      "chart": {
-        "caption": "Countries With Most Oil Reserves [2017-18]",
-        "subCaption": "In MMbbl = One Million barrels",
-        "xAxisName": "Country",
-        "yAxisName": "Reserves (MMbbl)",
-        "numberSuffix": "K"
-      },
-      "data": [
-        {
-          "label": "Venezuela",
-          "value": "290"
-        },
-        {
-          "label": "Saudi",
-          "value": "260"
-        },
-        {
-          "label": "Canada",
-          "value": "180"
-        },
-        {
-          "label": "Iran",
-          "value": "140"
-        },
-        {
-          "label": "Russia",
-          "value": "115"
-        },
-        {
-          "label": "UAE",
-          "value": "100"
-        },
-        {
-          "label": "US",
-          "value": "30"
-        },
-        {
-          "label": "China",
-          "value": "30"
-        }
-      ]
-    }},
+  "ChartCustomConfig": {
+      "type":"column2d",
+      "dataSource":{
+          "chart":{
+            "caption":"Monthly revenue for last year",
+            "subCaption":"Harry's SuperMart",
+            "xAxisName":"Month",
+            "yAxisName":"Revenues (In USD)",
+            "numberPrefix":"$",
+            "theme":"fusion"
+          },
+          "data":[
+            {
+                "label":"Jan",
+                "value":"420000"
+            },
+            {
+                "label":"Feb",
+                "value":"810000"
+            },
+            {
+                "label":"Mar",
+                "value":"720000"
+            },
+            {
+                "label":"Apr",
+                "value":"550000"
+            },
+            {
+                "label":"May",
+                "value":"910000"
+            },
+            {
+                "label":"Jun",
+                "value":"256000"
+            },
+            {
+                "label":"Jul",
+                "value":"512000"
+            }
+          ],
+          "trendlines":[
+            {
+                "line":[
+                  {
+                      "startvalue":"700000",
+                      "valueOnRight":"1",
+                      "displayvalue":"Monthly Target"
+                  }
+                ]
+            }
+          ]
+      }
+    },
   "TableInputWithNull": [
     {
       "id": 2381224,

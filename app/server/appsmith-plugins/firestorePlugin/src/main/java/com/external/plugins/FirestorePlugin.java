@@ -890,6 +890,7 @@ public class FirestorePlugin extends BasePlugin {
                                     final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                                     return new DatasourceStructure.Table(
                                             DatasourceStructure.TableType.COLLECTION,
+                                            null,
                                             id,
                                             new ArrayList<>(),
                                             new ArrayList<>(),
