@@ -860,6 +860,7 @@ export default [
             },
           },
         },
+        dependencies: ["multiRowSelection"],
       },
       {
         helpText:
