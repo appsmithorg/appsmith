@@ -44,6 +44,7 @@ export type INJECTED_CONFIGS = {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   onboardingFormEnabled: boolean;
+  supportEmail: string;
 };
 declare global {
   interface Window {
@@ -96,7 +97,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
         | "debug"
         | "error"
-        | undefined) || "debug",
+        | undefined) || "error",
     google: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
@@ -120,6 +121,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
+    supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
   };
 };
 
@@ -284,5 +286,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     onboardingFormEnabled: ENV_CONFIG.onboardingFormEnabled,
+    appsmithSupportEmail: ENV_CONFIG.supportEmail,
   };
 };

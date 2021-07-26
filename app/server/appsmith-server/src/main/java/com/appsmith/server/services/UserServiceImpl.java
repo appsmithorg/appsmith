@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -85,8 +86,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
-    // We default the origin header to the production deployment of the client's URL
-    private static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -421,7 +420,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
-            originHeader = DEFAULT_ORIGIN_HEADER;
+            originHeader = Appsmith.DEFAULT_ORIGIN_HEADER;
         }
 
         final String finalOriginHeader = originHeader;
@@ -623,7 +622,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
-
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 

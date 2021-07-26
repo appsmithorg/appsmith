@@ -83,7 +83,6 @@ describe("API Panel Test Functionality", function() {
 
     // Publish the app
     cy.PublishtheApp();
-    cy.wait("@postExecute");
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {
@@ -94,8 +93,15 @@ describe("API Panel Test Functionality", function() {
     cy.get(publishPage.buttonWidget)
       .first()
       .click();
+
+    //Wait for postExecute to finish
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(5000);
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
       expect(cellData).to.be.equal("OUT_FOR_DELIVERY");
@@ -105,8 +111,15 @@ describe("API Panel Test Functionality", function() {
     cy.get(publishPage.buttonWidget)
       .eq(1)
       .click();
+
+    //Wait for postExecute to finish
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(5000);
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("DISCOUNT");

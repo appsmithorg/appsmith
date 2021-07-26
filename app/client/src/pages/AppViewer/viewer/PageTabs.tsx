@@ -142,6 +142,12 @@ type Props = {
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;
   const { pathname } = useLocation();
+  const location = useLocation();
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setQuery(window.location.search);
+  }, [location]);
 
   return (
     <TabsContainer ref={props.measuredTabsRef}>
@@ -161,10 +167,13 @@ export function PageTabs(props: Props) {
           <PageTab
             activeClassName="is-active"
             className="t--page-switch-tab"
-            to={getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
-            )}
+            to={{
+              pathname: getApplicationViewerPageURL(
+                currentApplicationDetails?.id,
+                page.pageId,
+              ),
+              search: query,
+            }}
           >
             <PageTabName name={page.pageName} />
           </PageTab>

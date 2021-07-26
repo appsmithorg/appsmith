@@ -9,7 +9,6 @@ describe("hint helpers", () => {
       const helper = bindingHint(MockCodemirrorEditor, {});
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
-      expect(helper).toHaveProperty("update");
     });
 
     it("opens hint correctly", () => {

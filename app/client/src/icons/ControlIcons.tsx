@@ -11,6 +11,8 @@ import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.sv
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
+import { ReactComponent as CloseCircleIcon } from "assets/icons/control/close-circle.svg";
+import { ReactComponent as AddCircleIcon } from "assets/icons/control/add-circle.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
@@ -33,12 +35,20 @@ import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vert
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
+import { ReactComponent as Copy2Icon } from "assets/icons/control/copy2.svg";
+import { ReactComponent as CutIcon } from "assets/icons/control/cut.svg";
+import { ReactComponent as GroupIcon } from "assets/icons/control/group.svg";
 import { ReactComponent as HeadingOneIcon } from "assets/icons/control/heading_1.svg";
 import { ReactComponent as HeadingTwoIcon } from "assets/icons/control/heading_2.svg";
 import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading_3.svg";
 import { ReactComponent as ParagraphIcon } from "assets/icons/control/paragraph.svg";
 import { ReactComponent as ParagraphTwoIcon } from "assets/icons/control/paragraph_2.svg";
 import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg";
+import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
+import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
+import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
+import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
+import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -99,6 +109,16 @@ export const ControlIcons: {
   CLOSE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CloseIcon />
+    </IconWrapper>
+  ),
+  CLOSE_CIRCLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CloseCircleIcon />
+    </IconWrapper>
+  ),
+  ADD_CIRCLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AddCircleIcon />
     </IconWrapper>
   ),
   PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (
@@ -220,6 +240,21 @@ export const ControlIcons: {
       <CopyIcon />
     </IconWrapper>
   ),
+  COPY2_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Copy2Icon />
+    </IconWrapper>
+  ),
+  CUT_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CutIcon />
+    </IconWrapper>
+  ),
+  GROUP_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <GroupIcon />
+    </IconWrapper>
+  ),
   HEADING_ONE: (props: IconProps) => (
     <IconWrapper {...props}>
       <HeadingOneIcon />
@@ -248,6 +283,31 @@ export const ControlIcons: {
   BULLETS: (props: IconProps) => (
     <IconWrapper {...props}>
       <BulletsIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapRightIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapLeftIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_CAP_ALL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerCapAllIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignLeftIcon />
+    </IconWrapper>
+  ),
+  ICON_ALIGN_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AlignRightIcon />
     </IconWrapper>
   ),
 };

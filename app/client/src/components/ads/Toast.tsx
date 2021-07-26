@@ -37,7 +37,7 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 4em;
+    top: 8em;
   }
 `;
 export function StyledToastContainer(props: ToastOptions) {

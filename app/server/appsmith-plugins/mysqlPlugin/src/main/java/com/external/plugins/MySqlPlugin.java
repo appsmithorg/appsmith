@@ -15,13 +15,14 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.utils.QueryUtils;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
@@ -223,19 +224,21 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
-            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
+            String finalQuery = QueryUtils.removeQueryComments(query);
+
+            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(finalQuery);
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
             Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
-            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(finalQuery) : finalQuery;
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
                         if (isValid) {
-                            return createAndExecuteQueryFromConnection(query,
+                            return createAndExecuteQueryFromConnection(finalQuery,
                                     connection,
                                     preparedStatement,
                                     mustacheValuesInOrder,
@@ -266,7 +269,7 @@ public class MySqlPlugin extends BasePlugin {
                         .thenReturn(rowsList);
             } else {
                 resultMono = resultFlux
-                        .flatMap(result -> result.getRowsUpdated())
+                        .flatMap(Result::getRowsUpdated)
                         .collectList()
                         .flatMap(list -> Mono.just(list.get(list.size() - 1)))
                         .map(rowsUpdated -> {
@@ -302,7 +305,7 @@ public class MySqlPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setQuery(query);
+                        request.setQuery(finalQuery);
                         request.setProperties(requestData);
                         request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
@@ -642,6 +645,7 @@ public class MySqlPlugin extends BasePlugin {
             if (!tablesByName.containsKey(tableName)) {
                 tablesByName.put(tableName, new DatasourceStructure.Table(
                         DatasourceStructure.TableType.TABLE,
+                        null,
                         tableName,
                         new ArrayList<>(),
                         new ArrayList<>(),
@@ -653,7 +657,8 @@ public class MySqlPlugin extends BasePlugin {
             table.getColumns().add(new DatasourceStructure.Column(
                     row.get("column_name", String.class),
                     row.get("column_type", String.class),
-                    null
+                    null,
+                    row.get("extra", String.class).contains("auto_increment")
             ));
 
             return;

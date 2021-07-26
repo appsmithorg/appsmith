@@ -10,8 +10,9 @@ export interface CommentsReduxState {
   creatingNewThreadComment: boolean;
   appCommentsFilter: typeof filterOptions[number]["value"];
   shouldShowResolvedAppCommentThreads: boolean;
-  showUnreadIndicator: boolean;
+  unreadCommentThreadsCount: number;
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
   areCommentsEnabled?: boolean;
+  unsubscribed: boolean;
 }

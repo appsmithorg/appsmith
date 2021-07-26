@@ -78,9 +78,15 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import OnboardingForm from "./OnboardingForm";
 import { getAppsmithConfigs } from "configs";
+import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  setOnboardingFormInProgress,
+  getOnboardingFormInProgress,
+} from "utils/storage";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -769,6 +775,7 @@ function ApplicationsSection(props: any) {
                         <ProfileImage
                           className="org-share-user-icons"
                           key={el.username}
+                          source={`/api/${UserApi.photoURL}/${el.username}`}
                           userName={el.name ? el.name : el.username}
                         />
                       ))}
@@ -887,13 +894,9 @@ type ApplicationProps = {
 };
 
 const getIsFromSignup = () => {
-  if (window.location.href) {
-    const url = new URL(window.location.href);
-    const searchParams = url.searchParams;
-    return !!searchParams.get("isFromSignup");
-  }
-  return false;
+  return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
+
 const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
@@ -912,10 +915,47 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
-    this.setState({
-      showOnboardingForm: getIsFromSignup() && onboardingFormEnabled,
-    });
+    window.addEventListener("message", this.handleTypeFormMessage, false);
+    this.showOnboardingForm();
   }
+
+  componentWillUnmount() {
+    window.removeEventListener("message", this.handleTypeFormMessage);
+  }
+
+  showOnboardingForm = async () => {
+    const isFromSignUp = getIsFromSignup();
+    const isOnboardingFormInProgress = await getOnboardingFormInProgress();
+    const showOnboardingForm =
+      onboardingFormEnabled && (isFromSignUp || isOnboardingFormInProgress);
+    this.setState({
+      showOnboardingForm: !!showOnboardingForm,
+    });
+
+    // Redirect directly in case we're not showing the onboarding form
+    if (isFromSignUp && !onboardingFormEnabled) {
+      this.redirectUsingQueryParam();
+    }
+  };
+
+  redirectUsingQueryParam = () => {
+    const urlObject = new URL(window.location.href);
+    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    if (redirectUrl) {
+      try {
+        window.location.replace(redirectUrl);
+      } catch (e) {
+        console.error("Error handling the redirect url");
+      }
+    }
+  };
+
+  handleTypeFormMessage = (event: any) => {
+    if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
+      setOnboardingFormInProgress();
+      this.redirectUsingQueryParam();
+    }
+  };
 
   public render() {
     return (
@@ -930,6 +970,7 @@ class Applications extends Component<
               search={{
                 placeholder: "Search for apps...",
                 queryFn: this.props.searchApplications,
+                defaultValue: this.props.searchKeyword,
               }}
             />
             <ApplicationsSection searchKeyword={this.props.searchKeyword} />

@@ -73,7 +73,7 @@ function* handlePathUpdated(
 
 export default function* recentEntitiesSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, handleSelectWidget),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, handleSelectWidget),
     takeLatest(ReduxActionTypes.HANDLE_PATH_UPDATED, handlePathUpdated),
   ]);
 }

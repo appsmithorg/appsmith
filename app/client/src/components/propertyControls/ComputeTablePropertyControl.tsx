@@ -14,7 +14,8 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/ActionCreator";
+} from "components/editorComponents/ActionCreator/Fields";
+import { ExpectedValueExample } from "utils/validation/common";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -33,7 +34,7 @@ export function InputText(props: {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: { type: string; example: ExpectedValueExample };
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
@@ -122,7 +123,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.sanitizedTableData.map((currentRow) => { return `.length,
+      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -132,7 +133,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.sanitizedTableData.map((currentRow) => { return ${stringToEvaluate}})}}`;
+    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
