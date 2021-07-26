@@ -26,8 +26,9 @@ public enum AppsmithError {
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid"),
     INVALID_DATASOURCE_CONFIGURATION(400, 4015, "Datasource configuration is invalid", AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid"),
-    INVALID_ACTION_NAME(400, 4014, "Appsmith expects the action naming to follow variable naming conventions. "
-            + "It must be a single word contain any alphabets, numbers, or \"_\".  Hyphen (\"-\") symbol is not allowed. "
+    INVALID_ACTION_NAME(400, 4014, "Appsmith expects all entities to follow Javascript variable naming conventions. "
+            + "It must be a single word containing alphabets, numbers, or \"_\". Any other special characters like hyphens (\"-\"), comma (\",\"), hash (\"#\") etc. "
+            + "are not allowed. "
             + "Please change the name.", AppsmithErrorAction.DEFAULT, null),
     NO_CONFIGURATION_FOUND_IN_ACTION(400, 4016, "No configurations found in this action", AppsmithErrorAction.DEFAULT, null),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name.", AppsmithErrorAction.DEFAULT, null),
@@ -52,7 +53,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access", AppsmithErrorAction.DEFAULT, null),
-    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Please reach out to Appsmith customer support to report this", AppsmithErrorAction.DEFAULT, null),
+    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Message : {0}. Please reach out to Appsmith customer support to report this", AppsmithErrorAction.DEFAULT, null),
     USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in instead.", AppsmithErrorAction.DEFAULT, null),
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Uh oh! You do not have permissions to do : {0}", AppsmithErrorAction.DEFAULT, null),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} {1}", AppsmithErrorAction.DEFAULT, null),

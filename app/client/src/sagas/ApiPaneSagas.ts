@@ -27,10 +27,10 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_ID_URL,
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -119,6 +119,19 @@ function* syncApiParamsSaga(
     );
   }
   PerformanceTracker.stopTracking();
+}
+
+function* redirectToNewIntegrations(
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
+) {
+  history.push(
+    INTEGRATION_EDITOR_URL(
+      action.payload.applicationId,
+      action.payload.pageId,
+      INTEGRATION_TABS.ACTIVE,
+      INTEGRATION_EDITOR_MODES.AUTO,
+    ),
+  );
 }
 
 function* handleUpdateBodyContentType(
@@ -370,6 +383,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
+        from: "datasources",
       }),
     );
   }
@@ -384,7 +398,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const pageId = yield select(getCurrentPageId);
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+    DATA_SOURCES_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      actionPayload.payload.id,
+      {
+        from: "datasources",
+      },
+    ),
   );
 }
 
@@ -396,7 +417,6 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -421,9 +441,6 @@ function* handleCreateNewApiActionSaga(
         },
         pageId,
       } as ApiAction), // We don't have recursive partial in typescript for now.
-    );
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
   }
 }
@@ -481,11 +498,10 @@ function* handleCreateNewQueryActionSaga(
     }
 
     yield put(createActionRequest(createActionPayload));
-    history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-    );
   } else {
-    history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
   }
 }
 
@@ -562,6 +578,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+      redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

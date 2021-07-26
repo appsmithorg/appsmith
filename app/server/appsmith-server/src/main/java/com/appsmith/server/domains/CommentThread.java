@@ -1,24 +1,23 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Document
-public class CommentThread extends BaseDomain {
+public class CommentThread extends AbstractCommentDomain {
+
+    Boolean isPrivate;
 
     String tabId;
 
@@ -26,7 +25,7 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-    String pageId;
+    String widgetType;
 
     CommentThreadState pinnedState;
 
@@ -34,23 +33,17 @@ public class CommentThread extends BaseDomain {
 
     String sequenceId;
 
-    String applicationId;
-
-    String applicationName;
-
     @JsonIgnore
     Set<String> viewedByUsers;
 
-    String mode;
-
     /**
-     * Display name of the user, who authored this comment thread.
+     * username i.e. email of users who are subscribed for notifications in this thread
      */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String authorName;
+    @JsonIgnore
+    Set<String> subscribers;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String authorUsername;
+    /** Edit/Published Mode */
+    String mode;
 
     @Transient
     Boolean isViewed;
@@ -59,13 +52,12 @@ public class CommentThread extends BaseDomain {
     @Transient
     List<Comment> comments;
 
-    private static final DateTimeFormatter ISO_FORMATTER =
-            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
-
     @Data
     public static class Position {
-        Float top;
-        Float left;
+        Integer top;
+        Integer left;
+        Float topPercent;
+        Float leftPercent;
     }
 
     @Data
@@ -83,5 +75,4 @@ public class CommentThread extends BaseDomain {
     public String getUpdationTime() {
         return ISO_FORMATTER.format(updatedAt);
     }
-
 }

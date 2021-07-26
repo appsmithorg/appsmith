@@ -46,6 +46,9 @@ public class Application extends BaseDomain {
     @Transient
     boolean appIsExample = false;
 
+    @Transient
+    long unreadCommentThreads;
+
     @JsonIgnore
     String clonedFromApplicationId;
 

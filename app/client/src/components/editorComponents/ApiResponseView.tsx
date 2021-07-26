@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
@@ -12,12 +12,13 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
@@ -32,11 +33,13 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
+import Button, { Size } from "components/ads/Button";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: 60%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -132,6 +135,26 @@ const FailedMessage = styled.div`
   display: flex;
   align-items: center;
   margin-left: 5px;
+
+  .api-debugcta {
+    margin-top: 0px;
+  }
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
+`;
+
+const InlineButton = styled(Button)`
+  display: inline-flex;
+  margin: 0 4px;
+`;
+
+const HelpSection = styled.div`
+  margin-bottom: 5px;
+  margin-top: 10px;
 `;
 
 interface ReduxStateProps {
@@ -143,6 +166,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
+    onRunClick: () => void;
   };
 
 export const EMPTY_RESPONSE: ActionResponse = {
@@ -181,11 +205,6 @@ function ApiResponseView(props: Props) {
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
-  const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
-    "requestDebugVisible",
-    "true",
-  );
-
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
@@ -193,23 +212,33 @@ function ApiResponseView(props: Props) {
     setSelectedIndex(1);
   }, []);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const messages = response?.messages;
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {hasFailed && !isRunning && requestDebugVisible && (
-            <Callout
-              closeButton
+          {messages && (
+            <HelpSection>
+              {messages.map((msg, i) => (
+                <Callout fill key={i} text={msg} variant={Variant.warning} />
+              ))}
+            </HelpSection>
+          )}
+          {hasFailed && !isRunning && (
+            <StyledCallout
               fill
               label={
                 <FailedMessage>
-                  <DebugButton onClick={onDebugClick} />
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
                 </FailedMessage>
               }
-              onClose={() => setRequestDebugVisible(false)}
               text={createMessage(CHECK_REQUEST_BODY)}
               variant={Variant.danger}
             />
@@ -217,7 +246,18 @@ function ApiResponseView(props: Props) {
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
               <Icon name="no-response" />
-              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+              <Text type={TextType.P1}>
+                {EMPTY_RESPONSE_FIRST_HALF()}
+                <InlineButton
+                  isLoading={isRunning}
+                  onClick={props.onRunClick}
+                  size={Size.medium}
+                  tag="button"
+                  text="Run"
+                  type="button"
+                />
+                {EMPTY_RESPONSE_LAST_HALF()}
+              </Text>
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor

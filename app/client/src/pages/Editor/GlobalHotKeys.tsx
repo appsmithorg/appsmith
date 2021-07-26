@@ -5,13 +5,16 @@ import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
   closePropertyPane,
+  closeTableFilterPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
-  selectAllWidgetsInit,
-  selectAllWidgets,
 } from "actions/widgetActions";
+import {
+  selectAllWidgetsInCanvasInitAction,
+  selectMultipleWidgetsAction,
+} from "actions/widgetSelectionActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
@@ -34,6 +37,7 @@ type Props = {
   resetCommentMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
+  closeTableFilterProppane: () => void;
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
@@ -60,12 +64,6 @@ class GlobalHotKeys extends React.Component<Props> {
       return true;
     }
     return false;
-  }
-
-  public areMultipleWidgetsSelected() {
-    const multipleWidgetsSelected =
-      this.props.selectedWidgets && this.props.selectedWidgets.length >= 2;
-    return !!multipleWidgetsSelected;
   }
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
@@ -127,10 +125,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Copy Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
             }
           }}
@@ -172,10 +167,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Cut Widget"
           onKeyDown={(e: any) => {
-            if (
-              this.stopPropagationIfWidgetSelected(e) &&
-              !this.areMultipleWidgetsSelected()
-            ) {
+            if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.cutSelectedWidget();
             }
           }}
@@ -199,6 +191,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.resetCommentMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
+            this.props.closeTableFilterProppane();
             e.preventDefault();
           }}
         />
@@ -248,8 +241,9 @@ const mapDispatchToProps = (dispatch: any) => {
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
-    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
-    deselectAllWidgets: () => dispatch(selectAllWidgets([])),
+    closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
+    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
+    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
   };
 };

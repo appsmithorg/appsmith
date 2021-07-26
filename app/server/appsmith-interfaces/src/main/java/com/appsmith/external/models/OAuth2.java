@@ -85,9 +85,7 @@ public class OAuth2 extends AuthenticationDTO {
     @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
-            return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected datasource to have valid authentication tokens at this point"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
         }
 
         if (this.authenticationResponse.expiresAt == null) {

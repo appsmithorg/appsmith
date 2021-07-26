@@ -224,6 +224,35 @@ export const getOccupiedSpaces = createSelector(
   },
 );
 
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+export function getOccupiedSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
+    | OccupiedSpace[]
+    | undefined => {
+    if (containerId === null || containerId === undefined) return undefined;
+
+    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+    if (!containerWidget || !containerWidget.children) return undefined;
+
+    // Get child widgets for the container
+    const childWidgets = Object.keys(widgets).filter(
+      (widgetId) =>
+        containerWidget.children &&
+        containerWidget.children.indexOf(widgetId) > -1 &&
+        !widgets[widgetId].detachFromLayout,
+    );
+
+    const occupiedSpaces = getOccupiedSpacesForContainer(
+      containerId,
+      childWidgets.map((widgetId) => widgets[widgetId]),
+    );
+    return occupiedSpaces;
+  });
+}
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
@@ -235,6 +264,9 @@ export const getActionById = createSelector(
     }
   },
 );
+
+export const getActionTabsInitialIndex = (state: AppState) =>
+  state.ui.actionTabs.index;
 
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,

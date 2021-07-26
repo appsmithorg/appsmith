@@ -4,13 +4,11 @@ import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
-import {
-  useWidgetDragResize,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -40,9 +38,6 @@ export const Wrapper = styled.div`
     svg {
       path {
         fill: ${Colors.WHITE};
-      }
-      rect {
-        stroke: ${Colors.WHITE};
       }
     }
   }
