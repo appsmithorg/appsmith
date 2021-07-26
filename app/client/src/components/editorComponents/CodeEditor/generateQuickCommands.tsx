@@ -8,10 +8,12 @@ import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
+import { ReactComponent as Function } from "assets/icons/menu/function.svg";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
+  FUNCTION = "FUNCTION",
 }
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
@@ -36,6 +38,12 @@ export const generateQuickCommands = (
     text: "{{}}",
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
+  });
+  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "Insert Snippet",
+    shortcut: Shortcuts.FUNCTION,
+    action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
@@ -96,7 +104,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []),
+    ...matchingCommands([insertSnippet, newBinding], searchText, []),
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {
@@ -203,9 +211,11 @@ function Command(props: {
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
         {props.shortcut &&
-          { [Shortcuts.BINDING]: <Binding />, [Shortcuts.PLUS]: <NewPlus /> }[
-            props.shortcut
-          ]}
+          {
+            [Shortcuts.BINDING]: <Binding />,
+            [Shortcuts.PLUS]: <NewPlus />,
+            [Shortcuts.FUNCTION]: <Function />,
+          }[props.shortcut]}
         <span>{props.name}</span>
       </div>
     </div>

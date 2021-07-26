@@ -8,6 +8,7 @@ import {
   all,
   call,
   put,
+  putResolve,
   select,
   take,
   takeEvery,
@@ -90,6 +91,11 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -749,6 +755,15 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      const category = get(
+        actionPayload.payload,
+        "args.category",
+        SEARCH_CATEGORIES.INIT,
+      );
+      // yield putResolve(setGlobalSearchFilterContext({ category }));
+      yield put(toggleShowGlobalSearchModal());
+      break;
     case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),

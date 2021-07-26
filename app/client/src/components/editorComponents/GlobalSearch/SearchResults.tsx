@@ -63,14 +63,22 @@ export const SearchItemContainer = styled.div<{
 
   .text {
     max-width: 100px;
+    color: ${(props) =>
+      props.isActiveItem
+        ? "white"
+        : props.theme.colors.globalSearch.searchItemText};
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-weight: ${(props) => props.theme.fontWeights[1]};
+    margin-right: ${(props) => `${props.theme.spaces[1]}px`};
     ${overflowCSS}
   }
 
   .subtext {
     color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
-    font-size: ${(props) => props.theme.fontSizes[1]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
-    display: ${(props) => (props.isActiveItem ? "inline" : "none")};
+    display: inline;
     max-width: 50px;
     ${overflowCSS}
   }
@@ -92,8 +100,9 @@ export const SearchItemContainer = styled.div<{
       visibility: visible;
     }
 
-    .subtext {
-      display: inline;
+    .subtext,
+    .text {
+      color: white;
     }
   }
 
@@ -129,7 +138,8 @@ const StyledDocumentIcon = styled(DocumentIcon)`
 const TextWrapper = styled.div`
   flex: 1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  font-size: 14px;
 `;
 
 function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
@@ -168,7 +178,7 @@ function WidgetItem(props: {
   const { type } = item || {};
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  const subText = `${pageName}`;
+  const subText = ` / ${pageName}`;
 
   return (
     <>
@@ -213,7 +223,7 @@ function ActionItem(props: {
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  const subText = `${pageName}`;
+  const subText = `/  ${pageName}`;
 
   return (
     <>
@@ -245,7 +255,7 @@ function DatasourceItem(props: {
     <>
       {icon}
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <Highlight className="text" match={query} text={title} />
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
@@ -265,7 +275,7 @@ function PageItem(props: {
     <>
       {icon}
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <Highlight className="text" match={query} text={title} />
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>

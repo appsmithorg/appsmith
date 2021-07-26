@@ -193,6 +193,10 @@ function GlobalSearch() {
     setActiveItemIndexInState(index);
   }, []);
 
+  useEffect(() => {
+    document.getElementById("global-search")?.focus();
+  }, [category.id]);
+
   const allWidgets = useSelector(getAllPageWidgets);
 
   const searchableWidgets = useMemo(
@@ -479,11 +483,8 @@ function GlobalSearch() {
                       />
                       {/* {getCategoryId(category) !==
                         SEARCH_CATEGORIES.SNIPPETS && <Separator />} */}
-                      {category.id in
-                        [
-                          SEARCH_CATEGORIES.SNIPPETS,
-                          SEARCH_CATEGORIES.DOCUMENTATION,
-                        ] && (
+                      {(category.id === SEARCH_CATEGORIES.DOCUMENTATION ||
+                        category.id === SEARCH_CATEGORIES.SNIPPETS) && (
                         <Description
                           activeItem={activeItem}
                           activeItemType={activeItemType}

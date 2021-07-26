@@ -40,8 +40,9 @@ const CategoryDisplay = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid #6a86ce;
-  ${(props) => getTypographyByKey(props, "btnMedium")}
+  ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
+    cursor: pointer;
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
@@ -101,11 +102,13 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
         <input
           autoFocus
           className="t--global-search-input"
+          id="global-search"
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
             if (e.key === "Backspace" && !query)
               setCategory({ id: SEARCH_CATEGORIES.INIT });
+            setTimeout(() => document.getElementById("global-search")?.focus());
           }}
           placeholder={createMessage(OMNIBAR_PLACEHOLDER)}
           value={query}

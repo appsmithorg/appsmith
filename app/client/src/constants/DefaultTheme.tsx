@@ -1226,7 +1226,7 @@ const globalSearch = {
   helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
-  sectionTitle: "#D4D4D4",
+  sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
 };
 
@@ -2303,6 +2303,12 @@ export const theme: Theme = {
       fontWeight: "normal",
       fontSize: 14,
       lineHeight: 24,
+    },
+    categoryBtn: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.2,
+      fontWeight: 500,
     },
   },
   iconSizes: {

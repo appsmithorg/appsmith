@@ -10,6 +10,11 @@ export const toggleShowGlobalSearchModal = () => ({
   type: ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL,
 });
 
+export const setGlobalSearchFilterContext = (payload: any) => ({
+  type: ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT,
+  payload,
+});
+
 export const updateRecentEntity = (payload: RecentEntity) => ({
   type: ReduxActionTypes.UPDATE_RECENT_ENTITY,
   payload,
