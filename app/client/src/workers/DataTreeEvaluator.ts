@@ -663,13 +663,13 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
+
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
-      propertyPath,
+      validation,
       valueToValidate,
       widget,
-      validation,
-      currentTree,
     );
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
