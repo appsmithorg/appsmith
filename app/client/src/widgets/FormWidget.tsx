@@ -6,7 +6,7 @@ import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
 import * as Sentry from "@sentry/react";
 import withMeta from "./MetaHOC";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class FormWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -21,8 +21,9 @@ class FormWidget extends ContainerWidget {
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
+            isJSConvertible: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -32,7 +33,7 @@ class FormWidget extends ContainerWidget {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "shouldScrollContents",

@@ -63,7 +63,8 @@ describe("Entity explorer datasource structure", function() {
       201,
     );
 
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -72,7 +73,8 @@ describe("Entity explorer datasource structure", function() {
 
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -151,7 +153,8 @@ describe("Entity explorer datasource structure", function() {
           200,
         );
 
-        cy.get(queryEditor.deleteQuery).click();
+        cy.get(queryEditor.queryMoreAction).click();
+        cy.get(queryEditor.deleteUsingContext).click();
         cy.wait("@deleteAction").should(
           "have.nested.property",
           "response.body.responseMeta.status",

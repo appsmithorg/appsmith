@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -120,11 +121,6 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     }
 
     @Override
-    public Mono<User> saveUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
     public Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole) {
         Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
@@ -168,7 +164,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
@@ -181,13 +179,21 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(application.getId(), commentThreadPolicyMap, user.getUsername(), true));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT4();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.zip(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                Mono.just(updatedOrganization),
+                updatedThreadsFlux.collectList()
+        )
+        .flatMap(tuple -> {
+            //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+            Organization updatedOrgBeforeSave = tuple.getT4();
+            return organizationRepository.save(updatedOrgBeforeSave);
+        });
     }
 
     @Override
@@ -211,8 +217,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 });
     }
 
-    @Override
-    public Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
+    private Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
         List<UserRole> userRoles = organization.getUserRoles();
         if (userRoles == null) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", organization.getName()));
@@ -240,6 +245,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
 
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
@@ -253,13 +261,22 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
+                        application.getId(), commentThreadPolicyMap, user.getUsername(), false
+                        ));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT4();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.zip(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                updatedThreadsFlux.collectList(),
+                Mono.just(updatedOrganization)
+        ).flatMap(tuple -> {
+                //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+                Organization updatedOrgBeforeSave = tuple.getT5();
+                return organizationRepository.save(updatedOrgBeforeSave);
+        });
     }
 
     private Mono<UserRole> updateMemberRole(Organization organization, User user, UserRole userRole, User currentUser, String originHeader) {
@@ -403,6 +420,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, CommentThread.class
+        );
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
         //Now update the organization policies
@@ -417,8 +437,16 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateCommentThreadPermissions(
+                        application.getId(), commentThreadPolicyMap, null, true
+                ));
 
-        return Mono.when(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList())
+        return Mono.when(
+                updatedDatasourcesFlux.collectList(),
+                updatedPagesFlux.collectList(),
+                updatedActionsFlux.collectList(),
+                updatedThreadsFlux.collectList())
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
                 .then(organizationRepository.save(updatedOrganization));
     }

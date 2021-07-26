@@ -1,5 +1,13 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -75,8 +83,10 @@ export const getOffsetPos = (
   );
 
   return {
-    left: offsetLeftPercent,
-    top: offsetTopPercent,
+    leftPercent: offsetLeftPercent,
+    topPercent: offsetTopPercent,
+    left: offsetLeft,
+    top: offsetTop,
   };
 };
 
@@ -85,11 +95,13 @@ export const getCommentThreadURL = ({
   commentThreadId,
   isResolved,
   pageId,
+  mode = APP_MODE.PUBLISHED,
 }: {
   applicationId?: string;
   commentThreadId: string;
   isResolved?: boolean;
   pageId?: string;
+  mode?: APP_MODE;
 }) => {
   const queryParams: Record<string, any> = {
     commentThreadId,
@@ -100,8 +112,13 @@ export const getCommentThreadURL = ({
     queryParams.isResolved = true;
   }
 
+  const urlBuilder =
+    mode === APP_MODE.PUBLISHED
+      ? getApplicationViewerPageURL
+      : BUILDER_PAGE_URL;
+
   const url = new URL(
-    `${window.location.origin}${BUILDER_PAGE_URL(
+    `${window.location.origin}${urlBuilder(
       applicationId,
       pageId,
       queryParams,
@@ -109,4 +126,44 @@ export const getCommentThreadURL = ({
   );
 
   return url;
+};
+
+/**
+ * Absolutely position the pins within the
+ * main container canvas since the height
+ * can change dynamically
+ */
+export const getPosition = (props: {
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset?: number;
+  yOffset?: number;
+  offset?: number;
+}) => {
+  const xOffset = props.xOffset || props.offset || 0;
+  const yOffset = props.yOffset || props.offset || 0;
+  if (props.positionAbsolutely) {
+    return `
+      top: ${props.top - 29}px;
+      left: ${props.left - 29}px;
+    `;
+  } else {
+    // The folling syntax is supported: bottom: calc(50% + -6px);
+    // so we can work with both +ve and -ve offset values as
+    // `calc(${100 - props.topPercent}% + ${yOffset}px);`
+    return `
+      bottom: calc(${100 - props.topPercent}% + ${yOffset}px);
+      right: calc(${100 - props.leftPercent}% + ${xOffset}px);
+    `;
+  }
+};
+
+export const getShouldPositionAbsolutely = (commentThread: CommentThread) => {
+  return (
+    commentThread?.refId === MAIN_CONTAINER_WIDGET_ID &&
+    commentThread?.widgetType === WidgetTypes.CANVAS_WIDGET
+  );
 };

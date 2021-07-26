@@ -7,6 +7,7 @@ import ScrollToLatest from "./ScrollToLatest";
 
 import {
   addCommentToThreadRequest,
+  markThreadAsReadRequest,
   resetVisibleThread,
   setCommentResolutionRequest,
 } from "actions/commentActions";
@@ -21,6 +22,7 @@ import { RawDraftContentState } from "draft-js";
 import styled from "styled-components";
 import { animated } from "react-spring";
 import { AppState } from "reducers";
+import { useEffect } from "react";
 
 const ThreadContainer = styled(animated.div)<{
   visible?: boolean;
@@ -40,7 +42,7 @@ const ThreadContainer = styled(animated.div)<{
   max-height: ${(props) =>
     props.inline ? `calc(100vh - ${props.theme.smallHeaderHeight})` : "unset"};
   /* overflow: auto collapses the comment threads in the sidebar */
-  overflow: ${(props) => (props.inline ? "auto" : "unset")};
+  overflow: ${(props) => (props.inline ? "visible" : "unset")};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`
@@ -78,6 +80,12 @@ function CommentThreadContainer({
     (state: AppState) =>
       state.ui.comments.visibleCommentThreadId === commentThreadId,
   );
+
+  useEffect(() => {
+    if (isVisible && !commentThread?.isViewed) {
+      dispatch(markThreadAsReadRequest(commentThreadId));
+    }
+  }, [isVisible, commentThread?.isViewed]);
 
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates

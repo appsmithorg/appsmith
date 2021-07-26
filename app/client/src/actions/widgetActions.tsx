@@ -63,29 +63,6 @@ export const focusWidget = (
   payload: { widgetId },
 });
 
-export const selectWidget = (
-  widgetId?: string,
-  isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
-  type: ReduxActionTypes.SELECT_WIDGET,
-  payload: { widgetId, isMultiSelect },
-});
-
-export const selectAllWidgets = (
-  widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
-    payload: { widgetIds },
-  };
-};
-
-export const selectAllWidgetsInit = () => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-  };
-};
-
 export const showModal = (id: string) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,
@@ -118,6 +95,15 @@ export const forceOpenPropertyPane = (id: string) => {
 export const closePropertyPane = () => {
   return {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
+export const closeTableFilterPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
     payload: {
       force: false,
     },

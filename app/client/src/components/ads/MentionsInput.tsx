@@ -10,11 +10,14 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import "draft-js/dist/Draft.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSuggestions/Entry/Entry";
-import UserApi from "api/UserApi";
 
 import Icon from "components/ads/Icon";
 
 import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
+import { USER_PHOTO_URL } from "constants/userConstants";
+
+import scrollIntoView from "scroll-into-view-if-needed";
+import { useEffect } from "react";
 
 const StyledMention = styled.span`
   color: ${(props) => props.theme.colors.comments.mention};
@@ -35,6 +38,7 @@ export enum Trigger {
 
 const StyledSuggestionsComponent = styled.div<{ isFocused?: boolean }>`
   display: flex;
+  width: 250px;
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[6]}px`};
 
@@ -58,11 +62,17 @@ const StyledSuggestionsComponent = styled.div<{ isFocused?: boolean }>`
 const Name = styled.div`
   ${(props) => getTypographyByKey(props, "h5")}
   color: ${(props) => props.theme.colors.mentionSuggestion.nameText};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
 `;
 
 const Username = styled.div`
   ${(props) => getTypographyByKey(props, "p3")}
   color: ${(props) => props.theme.colors.mentionSuggestion.usernameText};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
 `;
 
 const PlusCircle = styled.div`
@@ -78,38 +88,58 @@ const PlusCircle = styled.div`
     stroke: #fff;
   }
   margin-right: ${(props) => props.theme.spaces[4]}px;
+  flex-shrink: 0;
+`;
+
+const SuggestionRightContainer = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 function SuggestionComponent(props: EntryComponentProps) {
   // eslint-disable-next-line  @typescript-eslint/no-unused-vars
   const { theme, ...parentProps } = props;
   const { user } = props.mention;
+  const mentionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (parentProps.isFocused && mentionRef.current) {
+      scrollIntoView(mentionRef.current, {
+        scrollMode: "if-needed",
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [parentProps.isFocused]);
 
   if (props.mention?.isInviteTrigger) {
     return (
-      <StyledSuggestionsComponent {...parentProps}>
+      <StyledSuggestionsComponent ref={mentionRef} {...parentProps}>
         <PlusCircle>
           <Icon fillColor="#fff" name="plus" />
         </PlusCircle>
-        <div>
+        <SuggestionRightContainer>
           <Name>{createMessage(INVITE_A_NEW_USER)}</Name>
           <Username>{props.mention.name}</Username>
-        </div>
+        </SuggestionRightContainer>
       </StyledSuggestionsComponent>
     );
   }
 
   return (
-    <StyledSuggestionsComponent {...parentProps}>
-      <ProfileImage
-        side={25}
-        source={`/api/${UserApi.photoURL}/${user?.username}`}
-        userName={user?.username || ""}
-      />
-      <div>
-        <Name>{user?.username}</Name>
-        <Username>{user?.username}</Username>
+    <StyledSuggestionsComponent ref={mentionRef} {...parentProps}>
+      <div style={{ flexShrink: 0 }}>
+        <ProfileImage
+          side={25}
+          source={`/api/${USER_PHOTO_URL}/${user?.username}`}
+          userName={user?.username || ""}
+        />
       </div>
+      <SuggestionRightContainer>
+        <Name>{props.mention.name}</Name>
+        <Username>{user?.username}</Username>
+      </SuggestionRightContainer>
     </StyledSuggestionsComponent>
   );
 }
@@ -118,8 +148,17 @@ const StyledContainer = styled.div`
   overflow: auto;
   flex: 1;
 
-  & [id^="mentions-list"] {
-    padding: 0;
+  .mentions-list {
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0px 4px 30px 0px rgb(220 220 220);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    max-height: 300px;
+    z-index: 2;
   }
 `;
 
@@ -152,6 +191,9 @@ function MentionsInput({
       mentionRegExp: "[\\w@\\._]",
       mentionTrigger: ["@", "+"],
       mentionComponent: MentionComponent,
+      theme: {
+        mentionSuggestions: "mentions-list",
+      },
     });
     const { MentionSuggestions } = mentionPlugin;
     return { plugins: [mentionPlugin], MentionSuggestions };

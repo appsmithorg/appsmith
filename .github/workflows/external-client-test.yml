@@ -71,16 +71,23 @@ jobs:
       - name: Build and test
         env:
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
         run: |
-          mvn --batch-mode versions:set \
+            ./build.sh versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          mvn --batch-mode package
+
+       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/         
 
   build:
     runs-on: ubuntu-latest
@@ -199,7 +206,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -293,56 +300,42 @@ jobs:
           name: build
           path: app/client/build
 
-      - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'|| github.event.pull_request.head.ref == 'release'
-        shell: bash
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
+
+      # Start server
+      - name: start server
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            ls -l
+            ls -l scripts/
+            ls -l dist/
+            nohup ./scripts/start-dev-server.sh 2>&1 &
 
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
-
-      - name: Pull release-frozen server docker container and start it locally
-        if: github.ref == 'refs/heads/release-frozen' || github.event.pull_request.head.ref == 'release-frozen'
-        shell: bash
+      - name: Wait for 30 seconds for server to start
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release-frozen
-
-      - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master'
-        shell: bash
+            sleep 30s
+            
+      - name: Exit if Server hasnt started
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-            --env APPSMITH_ENCRYPTION_PASSWORD=password \
-            --env APPSMITH_ENCRYPTION_SALT=salt \
-            --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
-            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
-            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+         if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+            echo "Server Not Started";
+            exit 1;
+          else
+            echo "Server Found";
+          fi
 
       - name: Installing Yarn serve
         run: |
@@ -443,7 +436,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,
@@ -512,7 +505,7 @@ jobs:
             if(check.length == 0) {
               const head_sha = pull.head.sha;
               const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner, 
+                owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
                 name: process.env.job,

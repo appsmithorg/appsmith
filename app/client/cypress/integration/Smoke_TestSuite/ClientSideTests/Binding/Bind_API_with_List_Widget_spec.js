@@ -6,6 +6,7 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;
+  let valueToTest;
   before(() => {
     cy.addDsl(dsl);
   });
@@ -18,11 +19,13 @@ describe("Test Create Api and Bind to Table widget", function() {
       .siblings("span")
       .invoke("text")
       .then((text) => {
-        const value = text.match(/"(.*)"/)[0];
-        cy.log(value);
-
-        apiData = value;
-        cy.log("val1:" + value);
+        valueToTest = `${text
+          .match(/"(.*)"/)[0]
+          .split('"')
+          .join("")}`;
+        cy.log(valueToTest);
+        apiData = valueToTest;
+        cy.log("val1:" + valueToTest);
       });
   });
 
@@ -37,21 +40,21 @@ describe("Test Create Api and Bind to Table widget", function() {
         });
     });
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(".t--draggable-textwidget span").should("have.length", 4);
+    cy.get(".t--draggable-textwidget span").should("have.length", 8);
 
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-    cy.get(".t--widget-textwidget span").should("have.length", 4);
+    cy.get(".t--widget-textwidget span").should("have.length", 8);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal(valueToTest);
       });
   });
 
@@ -68,20 +71,20 @@ describe("Test Create Api and Bind to Table widget", function() {
         });
     });
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(".t--draggable-textwidget span").should("have.length", 2);
+    cy.get(".t--draggable-textwidget span").should("have.length", 6);
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-    cy.get(".t--widget-textwidget span").should("have.length", 2);
+    cy.get(".t--widget-textwidget span").should("have.length", 6);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("Barty Crouch");
+        expect(text).to.equal(valueToTest);
       });
   });
 

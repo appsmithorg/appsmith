@@ -14,9 +14,10 @@ describe("Fork application across orgs", function() {
   it("Check if the forked application has the same dsl as the original", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
+    cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.get(widgetsPage.defaultInput).type("A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@updateLayout").then((response) => {
+    cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

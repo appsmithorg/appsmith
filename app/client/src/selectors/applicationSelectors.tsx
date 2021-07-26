@@ -36,6 +36,8 @@ export const getIsDuplicatingApplication = (state: AppState) =>
   state.ui.applications.duplicatingApplication;
 export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
+export const getIsErroredSavingAppName = (state: AppState) =>
+  state.ui.applications.isErrorSavingAppName;
 export const getUserApplicationsOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };

@@ -2,6 +2,10 @@
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor
 
+
+[![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
+
+
 ### Pre-requisites:
 
 On your development machine, please ensure that:
@@ -90,7 +94,7 @@ This error occurs because the node version is not compatible with the app enviro
 node versions to be used in different projects. Check below for installation and usage details:
 
 1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-1. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
+1. In the root of the project, run `nvm use 14.15.4` or `fnm use 14.15.4`.
 
 #### If you would like to hit a different Appsmith server:
 
@@ -106,6 +110,28 @@ node versions to be used in different projects. Check below for installation and
     yarn
     yarn start
     ```
+
+### Windows WSL2 Setup
+
+Before you follow the instructions above, make sure to check the following steps:
+
+1. You have **WSL2** setup in your machine. If not, please visit: [https://docs.microsoft.com/en-us/windows/wsl/install-win10](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+2. You have [Node.js](https://www.geeksforgeeks.org/installation-of-node-js-on-linux/) installed on the WSL Distro.
+3. You have **Docker Desktop** installed with WSL2 backend. If not, please visit: [https://docs.docker.com/docker-for-windows/wsl/](https://docs.docker.com/docker-for-windows/wsl/).
+
+In the above [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/) instructions, make sure to:
+1. Set WSL Distro to run in WSL2 mode.
+2. Enable integration with the WSL Distro in Docker Desktop.
+3. Install [Remote-WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension in VSCode.
+
+Make sure to Clone the Repo in the WSL file system instead of the Windows file System.
+
+And finally, you can open the folder in VSCode with WSL by following the instructions in [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/),
+or Alternatively by,
+1. Clicking on the Green button on the Bottom Left corner in VSCode.
+2. Selecting **Open Folder in WSL** and navigating to the folder in WSL.
+
+After this You can continue Setting up from [here](#pre-requisites).
 
 ### Troubleshooting
 

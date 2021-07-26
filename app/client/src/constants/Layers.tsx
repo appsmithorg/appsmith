@@ -11,6 +11,7 @@ export enum Indices {
   Layer7,
   Layer8,
   Layer9,
+  Layer21 = 21,
   LayerMax = 99999,
 }
 
@@ -22,6 +23,10 @@ export const Layers = {
   positionedWidget: Indices.Layer1,
   // Modal needs to higher than other widgets.
   modalWidget: Indices.Layer2,
+  // Dropdown portaled to the canvas
+  dropdownWidget: Indices.Layer2,
+  // dropdown portaled to Modal Container with higher index than Overlay
+  dropdownModalWidget: Indices.Layer21,
   selectedWidget: Indices.Layer2,
   // Layers when dragging
   animatedSnappingDropZone: Indices.Layer2,
@@ -34,14 +39,16 @@ export const Layers = {
   // Sidebar needs to be more than modal so that u can use side bar whilst u have the modal showing up on the canvas.
   sideBar: Indices.Layer3,
   propertyPane: Indices.Layer3,
+  tableFilterPane: Indices.Layer6,
 
   help: Indices.Layer4,
+  contextMenu: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
   portals: Indices.Layer8,
   header: Indices.Layer9,
-  appComments: Indices.Layer9,
+  appComments: Indices.Layer7,
   max: Indices.LayerMax,
 };
 

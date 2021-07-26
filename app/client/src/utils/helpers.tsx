@@ -7,6 +7,13 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
+import { set } from "lodash";
+import { Org } from "constants/orgConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -313,4 +320,29 @@ export const flattenObject = (data: Record<string, any>) => {
   }
   recurse(data, "");
   return result;
+};
+
+/**
+ * renames key in object
+ *
+ * @param object
+ * @param key
+ * @param newKey
+ * @returns
+ */
+export const renameKeyInObject = (object: any, key: string, newKey: string) => {
+  if (object[key]) {
+    set(object, newKey, object[key]);
+  }
+
+  return object;
+};
+
+export const getCanManage = (currentOrg: Org) => {
+  const userOrgPermissions = currentOrg.userPermissions || [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
+  return canManage;
 };

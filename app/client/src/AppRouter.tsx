@@ -13,9 +13,11 @@ import {
   getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
+  SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
+  UNSUBSCRIBE_EMAIL_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -28,6 +30,7 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
+import UnsubscribeEmail from "pages/common/UnsubscribeEmail";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
@@ -47,7 +50,8 @@ function changeAppBackground(currentTheme: any) {
   if (
     trimTrailingSlash(window.location.pathname) === "/applications" ||
     window.location.pathname.indexOf("/settings/") !== -1 ||
-    trimTrailingSlash(window.location.pathname) === "/profile"
+    trimTrailingSlash(window.location.pathname) === "/profile" ||
+    trimTrailingSlash(window.location.pathname) === "/signup-success"
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
@@ -101,6 +105,11 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={APPLICATIONS_URL}
                 />
+                <SentryRoute
+                  component={ApplicationListLoader}
+                  exact
+                  path={SIGNUP_SUCCESS_URL}
+                />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
                 <SentryRoute
                   component={AppViewerLoader}
@@ -108,6 +117,10 @@ class AppRouter extends React.Component<any, any> {
                 />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
                 <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
+                <SentryRoute
+                  component={UnsubscribeEmail}
+                  path={UNSUBSCRIBE_EMAIL_URL}
+                />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>

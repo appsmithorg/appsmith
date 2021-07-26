@@ -4,7 +4,7 @@ const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Onboarding", function() {
-  it("Onboarding flow", function() {
+  it("Onboarding flow - manual without using do it for me option", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
     cy.get(".t--welcome-tour").click();
@@ -50,7 +50,7 @@ describe("Onboarding", function() {
 
         // Add widget
         cy.get(".t--add-widget").click();
-        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 20 });
+        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 40 });
 
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -67,7 +67,11 @@ describe("Onboarding", function() {
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
-        cy.get(".t--onboarding-cheat-action").click();
+        cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
+        cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
+          .click({ force: true })
+          .selectOnClickOption("Execute a Query")
+          .selectOnClickOption("Create New Query");
 
         cy.contains(
           ".t--onboarding-helper-title",

@@ -276,11 +276,13 @@ public class AuthenticationService {
                         "edit" + Entity.SLASH +
                         Entity.DATASOURCES + Entity.SLASH +
                         datasourceId +
-                        "?response_status=" + responseStatus)
+                        "?response_status=" + responseStatus +
+                        "&view_mode=true")
                 .onErrorResume(e -> Mono.just(
                         redirectOrigin + Entity.SLASH +
                                 Entity.APPLICATIONS +
-                                "?response_status=" + responseStatus));
+                                "?response_status=" + responseStatus +
+                                "&view_mode=true"));
     }
 
     public Mono<String> getAppsmithToken(String datasourceId, String pageId, ServerHttpRequest request) {
