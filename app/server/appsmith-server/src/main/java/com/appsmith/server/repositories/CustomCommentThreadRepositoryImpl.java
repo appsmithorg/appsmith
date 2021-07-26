@@ -81,8 +81,13 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
                 where(fieldName(QCommentThread.commentThread.applicationId))
                         .is(commentThreadFilterDTO.getApplicationId())
         );
+
         if(commentThreadFilterDTO.getResolved() != null) {
-            criteriaList.add(where("resolvedState.active").is(commentThreadFilterDTO.getResolved()));
+            String fieldKey = String.format("%s.%s",
+                    fieldName(QCommentThread.commentThread.resolvedState),
+                    fieldName(QCommentThread.commentThread.resolvedState.active)
+            );
+            criteriaList.add(where(fieldKey).is(commentThreadFilterDTO.getResolved()));
         }
         return queryAll(criteriaList, permission);
     }
