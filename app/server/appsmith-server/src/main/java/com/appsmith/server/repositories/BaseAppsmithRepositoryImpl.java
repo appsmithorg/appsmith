@@ -166,15 +166,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    protected Criteria createCriteriaWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
-        if(aclPermission != null) {
-            criterias.add(userAcl(user, aclPermission));
-        }
-        criterias.add(notDeleted());
-        Criteria[] array = criterias.toArray(Criteria[]::new);
-        return new Criteria().andOperator(array);
-    }
-
     protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
