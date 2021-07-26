@@ -30,4 +30,5 @@ public interface Url {
     String ASSET_URL = BASE_URL + VERSION + "/assets";
     String COMMENT_URL = BASE_URL + VERSION + "/comments";
     String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
+    String JS_SNIPPETS_URL = BASE_URL + VERSION + "/jssnippets";
 }
