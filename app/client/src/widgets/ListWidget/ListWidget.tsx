@@ -224,6 +224,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   renderChild = (childWidgetData: WidgetProps) => {
+    const { shouldPaginate } = this.shouldPaginate();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
@@ -236,7 +237,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
-    childWidgetData.bottomRow = componentHeight;
+    childWidgetData.bottomRow = shouldPaginate
+      ? componentHeight - 34
+      : componentHeight;
     childWidgetData.shouldScrollContents = false;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
