@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
@@ -15,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class PageLoadActionsUtil {
      * parallely executed. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
-    public Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Set<String> bindings,
+    public Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Map<String, DynamicBinding> bindings,
                                                                   Set<String> actionNames,
                                                                   String pageId,
                                                                   Set<ActionDependencyEdge> edges,
@@ -55,19 +57,33 @@ public class PageLoadActionsUtil {
                                                                   List<ActionDTO> flatPageLoadActions) {
         Set<String> dynamicBindingNames = new HashSet<>();
 
-        return newActionService.findUnpublishedActionsInPageByNames(bindings, pageId)
+        return newActionService.findUnpublishedActionsInPageByNames(bindings.keySet(), pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // First find all the actions directly used in the DSL and get the graph started
                 .flatMap(unpublishedAction -> {
 
                     // If the user has explicitly set an action to not run on page load, this action should be ignored
-                    if (isUserSetOnPageLoad(unpublishedAction) || isAsyncJSFunction(unpublishedAction)) {
+                    if (isUserSetOnPageLoad(unpublishedAction)) {
                         return Mono.empty();
                     }
 
                     String name = unpublishedAction.getValidName();
+
+                    final DynamicBinding dynamicBinding = bindings.get(name);
+
+                    // Ignore an async js action if it is a function call
+                    if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isAsyncJSFunction(unpublishedAction)) {
+                        return Mono.empty();
+                    }
+
                     actionsUsedInDSL.add(name);
+
                     extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, unpublishedAction);
+
+                    // If this is a js action that is synchronous and is called as a function, don't mark it to run on page load
+                    if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isSyncJSFunction(unpublishedAction)) {
+                        actionNames.remove(name);
+                    }
                     return Mono.just(unpublishedAction);
                 })
                 .collectMap(
@@ -110,6 +126,15 @@ public class PageLoadActionsUtil {
     private boolean isAsyncJSFunction(ActionDTO unpublishedAction) {
         if (PluginType.JS.equals(unpublishedAction.getPluginType())
                 && Boolean.TRUE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isSyncJSFunction(ActionDTO unpublishedAction) {
+        if (PluginType.JS.equals(unpublishedAction.getPluginType())
+                && Boolean.FALSE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
             return true;
         }
 
@@ -234,7 +259,7 @@ public class PageLoadActionsUtil {
 
         actionNames.add(name);
 
-        Set<String> dynamicBindingNamesInAction = new HashSet<>();
+        Map<String, DynamicBinding> dynamicBindingNamesInAction = new HashMap<>();
         Set<String> jsonPathKeys = action.getJsonPathKeys();
         if (!CollectionUtils.isEmpty(jsonPathKeys)) {
             for (String mustacheKey : jsonPathKeys) {
@@ -250,7 +275,7 @@ public class PageLoadActionsUtil {
             // If A depends on B aka B exists in the dynamic bindings of A,
             // the corresponding edge would be B->A since B updates A and hence,
             // B should be executed before A.
-            for (String source : dynamicBindingNamesInAction) {
+            for (String source : dynamicBindingNamesInAction.keySet()) {
                 ActionDependencyEdge edge = new ActionDependencyEdge();
                 edge.setSource(source);
                 edge.setTarget(name);
@@ -258,7 +283,7 @@ public class PageLoadActionsUtil {
             }
 
             // Update the global actions' dynamic bindings
-            dynamicBindings.addAll(dynamicBindingNamesInAction);
+            dynamicBindings.addAll(dynamicBindingNamesInAction.keySet());
 
         }
     }

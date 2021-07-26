@@ -1,6 +1,7 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DynamicBinding;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -36,7 +37,7 @@ public class MustacheHelper {
      * {{JSON.stringify(jsObject.data.foo)}}: group1 = jsObject, group3 = foo
      * {{JSON.stringify(jsObject.data.)}}: this does not match the pattern.
      */
-    private final static Pattern pattern = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)[.]data([.]([a-zA-Z0-9._]+))?($|[^a-zA-Z0-9_.])");
+    private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
     /**
      * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
      * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
@@ -333,38 +334,15 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
+    public static void extractWordsAndAddToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
         String key = mustacheKey.trim();
 
         /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
         while (matcher.find()) {
-
-            /**
-             * - Extract non-JS action name e.g. api1 from api1.data
-             * - It could also be a JS object e.g transform in transform.data.getTrimmedData. Here transform is the
-             * name of the JS object that contains the JS function getTrimmedData()
-             */
-            String topLevelActionOrJsObject = matcher.group(1);
-            if (!StringUtils.isEmpty(topLevelActionOrJsObject)) {
-                bindingNames.add(topLevelActionOrJsObject);
-
-                /* Extract JS function names e.g. getTrimmedDate in transform.data.getTrimmedData */
-                String potentialJsActionString = matcher.group(3);
-                if (!StringUtils.isEmpty(potentialJsActionString)) {
-                    // In case the sequence has more references (potentialJsActionString = func1.key1.key2)
-                    // We want to return with only func1
-                    String potentialJsAction = potentialJsActionString.split("\\.")[0];
-                    String fullyQualifiedActionName =
-                            getFullyQualifiedActionName(topLevelActionOrJsObject, potentialJsAction);
-                    bindingNames.add(fullyQualifiedActionName);
-                }
-            }
+            // Fore each match, check what combination of action bindings could be calculated
+            bindingNames.putAll(DynamicBinding.create(matcher.group()));
         }
-    }
-
-    private static String getFullyQualifiedActionName(String jsObjectName, String jsFunctionName) {
-        return jsObjectName + "." + jsFunctionName;
     }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {

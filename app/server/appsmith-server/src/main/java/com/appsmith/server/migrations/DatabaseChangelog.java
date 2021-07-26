@@ -16,7 +16,6 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
@@ -2816,7 +2815,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "080", id = "add-js-plugin", author = "")
-    public void addJSPlugin(MongoTemplate mongoTemplate) {
+    public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
         plugin.setType(PluginType.JS);

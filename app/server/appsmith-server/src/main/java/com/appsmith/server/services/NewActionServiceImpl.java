@@ -329,7 +329,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         Set<String> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
 
         // Add JS function body to jsonPathKeys field.
-        if (PluginType.JS.equals(actionDTO.getPluginType())) {
+        if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
             keys.add(actionConfiguration.getBody());
         }
 
