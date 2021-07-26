@@ -15,7 +15,7 @@ export APPSMITH_REDIS_URL="redis://localhost:6379"
 export APPSMITH_ENCRYPTION_SALT=ci-salt-is-white-like-radish
 export APPSMITH_ENCRYPTION_PASSWORD=ci-password-is-red-like-carrot
 
-export APPSMITH_CLOUD_SERVICES_BASE_URL=
+export APPSMITH_CLOUD_SERVICES_BASE_URL="https://release-cs.appsmith.com"
 export APPSMITH_IS_SELF_HOSTED=false
 
 if ! mongo --eval 'db.runCommand({ connectionStatus: 1 })' "$APPSMITH_MONGODB_URI"; then
