@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <ff4j.version>1.8.11</ff4j.version>
     </properties>
 
     <repositories>
@@ -221,6 +222,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.8</version>
+        </dependency>
+
+        <!-- Dependencies for feature flagging -->
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-core</artifactId>
+            <version>${ff4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-config-yaml</artifactId>
+            <version>${ff4j.version}</version>
         </dependency>
 
     </dependencies>
