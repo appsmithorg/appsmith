@@ -16,7 +16,7 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
+import { renameKeyInObject, snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
@@ -29,6 +29,7 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
+  migrateTablePrimaryColumnsComputedValue,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -780,10 +781,89 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 24) {
     currentDSL = migrateTableWidgetHeaderVisibilityProperties(currentDSL);
+    currentDSL.version = 25;
+  }
+
+  if (currentDSL.version === 25) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = 26;
+  }
+
+  if (currentDSL.version === 26) {
+    currentDSL = migrateDatePickerMinMaxDate(currentDSL);
+  }
+  if (currentDSL.version === 27) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = 27;
+  }
+  if (currentDSL.version === 27) {
+    currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
+};
+
+const migrateDatePickerMinMaxDate = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (
+    currentDSL.type === WidgetTypes.DATE_PICKER_WIDGET2 &&
+    currentDSL.version === 2
+  ) {
+    if (currentDSL.minDate === "2001-01-01 00:00") {
+      currentDSL.minDate = "1920-12-31T18:30:00.000Z";
+    }
+    if (currentDSL.maxDate === "2041-12-31 23:59") {
+      currentDSL.maxDate = "2121-12-31T18:29:00.000Z";
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.map(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateDatePickerMinMaxDate(eachWidgetDSL);
+      },
+    );
+  }
+  return currentDSL;
+};
+
+const addFilterDefaultValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    if (!currentDSL.hasOwnProperty("isFilterable")) {
+      currentDSL.isFilterable = true;
+    }
+  }
+  return currentDSL;
+};
+export const migrateFilterValueForDropDownWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addFilterDefaultValue(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateFilterValueForDropDownWidget(children);
+  });
+
+  return newDSL;
+};
+export const migrateObjectFitToImageWidget = (
+  dsl: ContainerWidgetProps<WidgetProps>,
+) => {
+  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+    widgetProps.objectFit = "cover";
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        if (widgetProps.type === "IMAGE_WIDGET") {
+          addObjectFitProperty(eachWidgetProp);
+        }
+      });
+    }
+  };
+  addObjectFitProperty(dsl);
+  return dsl;
 };
 
 const migrateOverFlowingTabsWidgets = (
@@ -1219,5 +1299,63 @@ const addLogBlackListToAllListWidgetChildren = (
     return children;
   });
 
+  return currentDSL;
+};
+
+/**
+ * changes items -> listData
+ *
+ * @param currentDSL
+ * @returns
+ */
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+      (path: { key: string }) => {
+        if (path.key === "items") {
+          return { key: "listData" };
+        }
+
+        return path;
+      },
+    );
+
+    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+      if (
+        get(currentDSL, path.key) &&
+        path.key !== "items" &&
+        path.key !== "listData" &&
+        isString(get(currentDSL, path.key))
+      ) {
+        set(
+          currentDSL,
+          path.key,
+          get(currentDSL, path.key, "").replace("items", "listData"),
+        );
+      }
+    });
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        set(
+          currentWidget,
+          path.key,
+          get(currentWidget, path.key).replace("items", "listData"),
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length > 0) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
   return currentDSL;
 };

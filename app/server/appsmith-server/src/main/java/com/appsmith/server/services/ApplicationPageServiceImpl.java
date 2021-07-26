@@ -139,12 +139,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
-                .doOnSuccess(result -> {
-                    if (result.getModifiedCount() != 1) {
-                        log.error("Add page to application didn't update anything, probably because application wasn't found.");
-                    }
-                });
+        if(isDuplicatePage(application, page.getId())) {
+            return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
+                    .doOnSuccess(result -> {
+                        if (result.getModifiedCount() != 1) {
+                            log.error("Add page to application didn't update anything, probably because application wasn't found.");
+                        }
+                    });
+        } else{
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id "+page.getId()));
+        }
+
+    }
+
+    private Boolean isDuplicatePage(Application application, String pageId) {
+        if( application.getPages() != null) {
+            int count = (int) application.getPages().stream().filter(
+                    applicationPage -> applicationPage.getId().equals(pageId)).count();
+            if (count > 0) {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
     }
 
     @Override
@@ -561,7 +577,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Publishes a Boolean true, when the application has been published.
      */
     @Override
-    public Mono<Boolean> publish(String applicationId) {
+    public Mono<Application> publish(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
@@ -642,13 +658,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return Mono.when(
                 publishApplicationAndPages.collectList(),
-                publishedActionsFlux.collectList(),
-                applicationMono.flatMap(this::sendApplicationPublishedEvent)
+                publishedActionsFlux.collectList()
         )
-                .thenReturn(true);
+                .then(applicationMono);
     }
 
-    private Mono<Void> sendApplicationPublishedEvent(Application application) {
+    @Override
+    public Mono<Void> sendApplicationPublishedEvent(Application application) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
@@ -664,6 +680,39 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             )
                     );
                     return Mono.empty();
+                });
+    }
+
+    /** This function walks through all the pages and reorders them and updates the order as per the user preference.
+     * A page can be moved up or down from the current position and accordingly the order of the remaining page changes.
+     * @param applicationId The id of the Application
+     * @param pageId Targetted page id
+     * @param order New order for the selected page
+     * @return Application object with the latest order
+     **/
+    @Override
+    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order) {
+        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .flatMap(application -> {
+                    // Update the order in unpublished pages here, since this should only ever happen in edit mode.
+                    List<ApplicationPage> pages = application.getPages();
+
+                    ApplicationPage foundPage = null;
+                    for (final ApplicationPage page : pages) {
+                        if (pageId.equals(page.getId())) {
+                            foundPage = page;
+                        }
+                    }
+
+                    if(foundPage != null) {
+                        pages.remove(foundPage);
+                        pages.add(order, foundPage);
+                    }
+
+                    return applicationRepository
+                            .setPages(applicationId, pages)
+                            .then(newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId,Boolean.FALSE));
                 });
     }
 

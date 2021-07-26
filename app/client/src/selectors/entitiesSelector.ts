@@ -5,7 +5,7 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -18,6 +18,10 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
+};
+
+export const getMockDatasources = (state: AppState): MockDatasource[] => {
+  return state.entities.datasources.mockDatasourceList;
 };
 
 export const getPluginIdsOfNames = (
@@ -76,7 +80,10 @@ export const getPluginPackageFromDatasourceId = (
   return plugin.packageName;
 };
 
-export const getPluginNameFromId = (state: AppState, pluginId: string) => {
+export const getPluginNameFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
   const plugin = state.entities.plugins.list.find(
     (plugin) => plugin.id === pluginId,
   );
@@ -351,3 +358,5 @@ export const getAllPageWidgets = createSelector(
     );
   },
 );
+
+export const getAppMode = (state: AppState) => state.entities.app.mode;

@@ -22,17 +22,6 @@ describe("Binding the table widget and input Widget", function() {
     );
   });
 
-  it("Input widget test with default value from table widget", function() {
-    cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultRowIndexBinding);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-  });
-
   it("validation of data displayed in input widgets based on selected row", function() {
     cy.SearchEntityandOpen("Table1");
     cy.get(commonlocators.deflautSelectedRow)
@@ -47,10 +36,6 @@ describe("Binding the table widget and input Widget", function() {
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(publish.inputWidget + " " + "input")
-        .last()
-        .invoke("attr", "value")
-        .should("contain", 2);
     });
   });
 });

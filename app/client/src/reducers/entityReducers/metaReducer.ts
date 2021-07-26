@@ -1,6 +1,7 @@
+import { set, cloneDeep } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -11,14 +12,35 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
+    const next = cloneDeep(state);
+
+    set(
+      next,
+      `${action.payload.widgetId}.${action.payload.propertyName}`,
+      action.payload.propertyValue,
+    );
+
+    return next;
+  },
+  [ReduxActionTypes.TABLE_PANE_MOVED]: (
+    state: MetaState,
+    action: ReduxAction<TableFilterPanePositionConfig>,
+  ) => {
     const next = { ...state };
     let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
     if (widgetMetaProps === undefined) {
-      widgetMetaProps = {};
-      next[action.payload.widgetId] = widgetMetaProps;
+      widgetMetaProps = {
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
+    } else {
+      widgetMetaProps = {
+        ...widgetMetaProps,
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
     }
-    (widgetMetaProps as Record<string, any>)[action.payload.propertyName] =
-      action.payload.propertyValue;
+    next[action.payload.widgetId] = widgetMetaProps;
     return next;
   },
   [ReduxActionTypes.WIDGET_DELETE]: (
@@ -52,5 +74,14 @@ export const metaReducer = createReducer(initialState, {
     return initialState;
   },
 });
+
+interface TableFilterPanePositionConfig {
+  widgetId: string;
+  isMoved: boolean;
+  position: {
+    left: number;
+    top: number;
+  };
+}
 
 export default metaReducer;

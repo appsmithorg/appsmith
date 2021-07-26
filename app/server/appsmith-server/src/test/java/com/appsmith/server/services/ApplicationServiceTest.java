@@ -307,6 +307,33 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void invalidUpdateApplication() {
+        Application testApp1 = new Application();
+        testApp1.setName("validApplication1");
+        Application testApp2 = new Application();
+        testApp2.setName("validApplication2");
+
+        Mono<List<Application>> createMultipleApplications = Mono.zip(
+            applicationPageService.createApplication(testApp1, orgId),
+            applicationPageService.createApplication(testApp2, orgId))
+            .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
+
+            Mono<Application> updateInvalidApplication = createMultipleApplications
+            .map(applicationList -> {
+                Application savedTestApp1 = applicationList.get(0);
+                Application savedTestApp2 = applicationList.get(1);
+                savedTestApp2.setName(savedTestApp1.getName());
+                return savedTestApp2;
+            })
+            .flatMap(t -> applicationService.update(t.getId(), t));
+
+        StepVerifier.create(updateInvalidApplication)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+            .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void reuseDeletedAppName() {
         Application firstApp = new Application();
         firstApp.setName("Ghost app");
@@ -811,13 +838,13 @@ public class ApplicationServiceTest {
         Mono<Application> updatedDefaultPageApplicationMono = applicationMono
                 .flatMap(application -> applicationPageService.makePageDefault(application.getId(), newPage.getId()));
 
-        ApplicationPage unpublishedEditedPage = new ApplicationPage();
-        unpublishedEditedPage.setId(newPage.getId());
-        unpublishedEditedPage.setIsDefault(true);
-
         ApplicationPage publishedEditedPage = new ApplicationPage();
         publishedEditedPage.setId(newPage.getId());
         publishedEditedPage.setIsDefault(false);
+
+        ApplicationPage unpublishedEditedPage = new ApplicationPage();
+        unpublishedEditedPage.setId(newPage.getId());
+        unpublishedEditedPage.setIsDefault(true);
 
         StepVerifier
                 .create(updatedDefaultPageApplicationMono)
@@ -825,11 +852,23 @@ public class ApplicationServiceTest {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
                     assertThat(publishedPages).size().isEqualTo(2);
-                    assertThat(publishedPages).containsAnyOf(publishedEditedPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: publishedPages) {
+                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault().equals(publishedEditedPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(unpublishedEditedPage);
+                    isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault().equals(unpublishedEditedPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }
@@ -873,7 +912,13 @@ public class ApplicationServiceTest {
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
-                    assertThat(editedApplicationPages).containsAnyOf(applicationPage);
+                    boolean isFound = false;
+                    for( ApplicationPage page: editedApplicationPages) {
+                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault().equals(applicationPage.getIsDefault())) {
+                            isFound = true;
+                        }
+                    }
+                    assertThat(isFound).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1050,5 +1095,147 @@ public class ApplicationServiceTest {
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validChangeViewAccessCancelledMidWay() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Public View Application Midway Cancellation";
+        testApplication.setName(appName);
+
+        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
+                .block();
+
+        String pageId = originalApplication.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Public View App Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Public View Test action1");
+        action1.setPageId(pageId);
+        action1.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction1 = layoutActionService.createAction(action1).block();
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("Public View Test action2");
+        action2.setPageId(pageId);
+        action2.setDatasource(savedDatasource);
+        action2.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction2 = layoutActionService.createAction(action2).block();
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("Public View Test action3");
+        action3.setPageId(pageId);
+        action3.setDatasource(savedDatasource);
+        action3.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction3 = layoutActionService.createAction(action3).block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        // Trigger the change view access of application now.
+        applicationService.changeViewAccess(originalApplication.getId(), applicationAccessDTO)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        Mono<Application> applicationFromDbPostViewChange = Mono.just(originalApplication)
+                .flatMap(originalApp -> {
+                    try {
+                        // Before fetching the public application, sleep for 5 seconds to ensure that the updating
+                        // all appsmith objects with public permission finishes.
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS);
+                })
+                .cache();
+
+        Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange
+                .flatMap(clonedAppFromDb -> newActionService
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .collectList()
+                );
+
+        Mono<List<PageDTO>> pagesMono = applicationFromDbPostViewChange
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+                .collectList();
+
+        Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
+
+        StepVerifier
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono))
+                .assertNext(tuple -> {
+                    Application updatedApplication = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    List<PageDTO> pages = tuple.getT3();
+                    Datasource datasource1 = tuple.getT4();
+
+                    assertThat(updatedApplication).isNotNull();
+                    assertThat(updatedApplication.getIsPublic()).isTrue();
+                    assertThat(updatedApplication
+                            .getPolicies()
+                            .stream()
+                            .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()))
+                            .findFirst()
+                            .get()
+                            .getUsers()
+                    ).contains("anonymousUser");
+
+                    for (PageDTO page : pages) {
+                        assertThat(page
+                                .getPolicies()
+                                .stream()
+                                .filter(policy -> policy.getPermission().equals(READ_PAGES.getValue()))
+                                .findFirst()
+                                .get()
+                                .getUsers()
+                        ).contains("anonymousUser");
+                    }
+
+                    for (NewAction action : actions) {
+                        assertThat(action
+                                .getPolicies()
+                                .stream()
+                                .filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue()))
+                                .findFirst()
+                                .get()
+                                .getUsers()
+                        ).contains("anonymousUser");
+                    }
+
+
+                    assertThat(datasource1
+                            .getPolicies()
+                            .stream()
+                            .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
+                            .findFirst()
+                            .get()
+                            .getUsers()
+                    ).contains("anonymousUser");
+
+                })
+                .verifyComplete();
+
     }
 }

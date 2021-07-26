@@ -21,7 +21,7 @@ const Wrapper = styled.span<{
   width: 100%;
   line-height: 13px;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  z-index: 1;
+  z-index: 3;
 `;
 
 const CurlyBraces = styled.span`
@@ -36,6 +36,7 @@ function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
+  showLightningMenu?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;
@@ -54,7 +55,13 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+          Type{" "}
+          <CurlyBraces>
+            {props.showLightningMenu === false ? "{{" : "/"}
+          </CurlyBraces>{" "}
+          {props.showLightningMenu === false
+            ? "to see a list of variables"
+            : "to access quick commands"}
         </>
       )}
     </Wrapper>

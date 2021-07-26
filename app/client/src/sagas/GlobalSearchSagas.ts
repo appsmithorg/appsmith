@@ -16,6 +16,7 @@ import {
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import log from "loglevel";
 
 export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
@@ -61,7 +62,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
       );
     }
   } catch (e) {
-    console.log(e, "error");
+    log.error(e);
   }
 }
 

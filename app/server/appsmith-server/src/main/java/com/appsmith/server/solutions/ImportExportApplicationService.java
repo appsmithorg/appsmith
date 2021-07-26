@@ -82,7 +82,20 @@ public class ImportExportApplicationService {
         UNPUBLISHED, PUBLISHED
     }
 
+    /**
+     * This function will give the application resource to rebuild the application in import application flow
+     * @param applicationId which needs to be exported
+     * @return
+     */
     public Mono<ApplicationJson> exportApplicationById(String applicationId) {
+
+        /*
+            1. Fetch application by id
+            2. Fetch pages from the application
+            3. Fetch datasources from organization
+            4. Fetch actions from the application
+            5. Filter out relevant datasources using actions reference
+         */
         ApplicationJson applicationJson = new ApplicationJson();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceIdToNameMap = new HashMap<>();
@@ -208,7 +221,9 @@ public class ImportExportApplicationService {
                             newAction.setPolicies(null);
                             newAction.setApplicationId(null);
                             //Collect Datasource names to filter only required datasources
-                            if (newAction.getPluginType() == PluginType.DB || newAction.getPluginType() == PluginType.API) {
+                            if (PluginType.DB.equals(newAction.getPluginType())
+                                || PluginType.API.equals(newAction.getPluginType())
+                                || PluginType.SAAS.equals(newAction.getPluginType())) {
                                 concernedDBNames.add(
                                     sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
                                 );
@@ -250,7 +265,18 @@ public class ImportExportApplicationService {
                 .thenReturn(applicationJson);
     }
 
+    /**
+     * This function will take the Json filepart and saves the application in organization
+     * @param orgId
+     * @param filePart
+     * @return
+     */
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
+
+        /*
+            1. Check the validity of file part
+            2. Save application to organization
+         */
 
         final MediaType contentType = filePart.headers().getContentType();
         
@@ -279,8 +305,23 @@ public class ImportExportApplicationService {
                     return importApplicationInOrganization(orgId, jsonFile);
                 });
     }
-    
+
+    /**
+     * This function will save the application to organisation from the application resource
+     * @param organizationId organization to which application is going to be stored
+     * @param importedDoc application resource which contains necessary information to save the application
+     * @return
+     */
     public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
+
+        /*
+            1. Fetch organization by id
+            2. Extract datasources and update plugin information
+            3. Create new datasource if same datasource is not present
+            4. Extract and save application
+            5. Extract and save pages in the application
+            6. Extract and save actions in the application
+         */
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -618,6 +659,7 @@ public class ImportExportApplicationService {
             authResponse.setRefreshToken(decryptedFields.getRefreshToken());
             authResponse.setTokenResponse(decryptedFields.getTokenResponse());
             authResponse.setExpiresAt(Instant.now());
+            auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
         }
         return datasource;

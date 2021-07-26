@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
+import TreeDropdown, {
+  TreeDropdownOption,
+} from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -17,7 +19,6 @@ export function WidgetContextMenu(props: {
 }) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
-    // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
     return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
   });
   const widget = useSelector((state: AppState) => {
@@ -64,25 +65,31 @@ export function WidgetContextMenu(props: {
     [dispatch, widgetId],
   );
 
+  const optionTree: TreeDropdownOption[] = [
+    {
+      value: "rename",
+      onSelect: editWidgetName,
+      label: "Edit Name",
+    },
+  ];
+
+  if (widget.isDeletable !== false) {
+    const option: TreeDropdownOption = {
+      value: "delete",
+      onSelect: dispatchDelete,
+      label: "Delete",
+      intent: "danger",
+    };
+
+    optionTree.push(option);
+  }
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        {
-          value: "rename",
-          onSelect: editWidgetName,
-          label: "Edit Name",
-        },
-        {
-          value: "delete",
-          onSelect: dispatchDelete,
-          label: "Delete",
-          intent: "danger",
-        },
-      ]}
+      optionTree={optionTree}
       selectedValue=""
       toggle={<ContextMenuTrigger />}
     />

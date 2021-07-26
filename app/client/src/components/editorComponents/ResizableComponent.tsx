@@ -1,4 +1,4 @@
-import React, { useContext, useRef, memo } from "react";
+import React, { useContext, useRef, memo, useMemo } from "react";
 import { XYCoord } from "react-dnd";
 
 import {
@@ -16,11 +16,13 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
+import { omit, get } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -36,7 +38,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
@@ -50,15 +51,17 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
 
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const {
+    occupiedSpaces: occupiedSpacesBySiblingWidgets,
+    persistDropTargetRows,
+    updateDropTargetRows,
+  } = useContext(DropTargetContext);
 
   const isCommentMode = useSelector(commentModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -77,11 +80,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -255,11 +253,27 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
+    // Make sure that this tableFilterPane should close
+    showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
     });
   };
+  const handles = useMemo(() => {
+    const allHandles = {
+      left: LeftHandleStyles,
+      top: TopHandleStyles,
+      bottom: BottomHandleStyles,
+      right: RightHandleStyles,
+      bottomRight: BottomRightHandleStyles,
+      topLeft: TopLeftHandleStyles,
+      topRight: TopRightHandleStyles,
+      bottomLeft: BottomLeftHandleStyles,
+    };
+
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
 
   const isEnabled =
     !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
@@ -269,21 +283,15 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
-      handles={{
-        left: LeftHandleStyles,
-        top: TopHandleStyles,
-        bottom: BottomHandleStyles,
-        right: RightHandleStyles,
-        bottomRight: BottomRightHandleStyles,
-        topLeft: TopLeftHandleStyles,
-        topRight: TopRightHandleStyles,
-        bottomLeft: BottomLeftHandleStyles,
-      }}
+      handles={handles}
       isColliding={isColliding}
       onStart={handleResizeStart}
       onStop={updateSize}
       ref={resizableRef}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      // Used only for performance tracking, can be removed after optimization.
+      zWidgetId={props.widgetId}
+      zWidgetType={props.type}
     >
       <VisibilityContainer
         padding={props.paddingOffset}
@@ -294,5 +302,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
+
+ResizableComponent.displayName = "ResizableComponent";
 
 export default ResizableComponent;

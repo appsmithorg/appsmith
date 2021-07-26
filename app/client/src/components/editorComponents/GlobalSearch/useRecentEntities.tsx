@@ -6,7 +6,7 @@ import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 
 const recentEntitiesSelector = (state: AppState) =>
-  state.ui.globalSearch.recentEntities;
+  state.ui.globalSearch.recentEntities || [];
 
 const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
@@ -18,7 +18,7 @@ const useResentEntities = () => {
 
   const pages = useSelector(getPageList) || [];
 
-  const populatedRecentEntities = recentEntities
+  const populatedRecentEntities = (recentEntities || [])
     .map((entity) => {
       const { id, params, type } = entity;
       if (type === "page") {

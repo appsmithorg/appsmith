@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
+import { setOnboardingFormInProgress } from "utils/storage";
 
 export const TypeformContainer = styled.div`
   & iframe {
@@ -18,6 +19,10 @@ export const TypeformContainer = styled.div`
 function OnboardingForm() {
   const status = useScript(`https://embed.typeform.com/embed.js`);
   const currentUser = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    setOnboardingFormInProgress(true);
+  }, []);
 
   if (status !== ScriptStatus.READY || !currentUser) return null;
 
