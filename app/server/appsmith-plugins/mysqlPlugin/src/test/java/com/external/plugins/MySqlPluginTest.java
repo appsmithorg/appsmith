@@ -94,7 +94,7 @@ public class MySqlPluginTest {
                 .map(connection -> {
                     return connection.createBatch()
                             .add("create table users (\n" +
-                                    "    id int primary key,\n" +
+                                    "    id int auto_increment primary key,\n" +
                                     "    username varchar (250) unique not null,\n" +
                                     "    password varchar (250) not null,\n" +
                                     "    email varchar (250) unique not null,\n" +
@@ -616,11 +616,11 @@ public class MySqlPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int", null),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int", null),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
+                                    new DatasourceStructure.Column("id", "int", null, false),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int", null, false),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -660,16 +660,16 @@ public class MySqlPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int", null),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("yob", "year", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("updated_on", "datetime", null),
+                                    new DatasourceStructure.Column("id", "int", null, true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null, false),
+                                    new DatasourceStructure.Column("dob", "date", null, false),
+                                    new DatasourceStructure.Column("yob", "year", null, false),
+                                    new DatasourceStructure.Column("time1", "time", null, false),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null, false),
+                                    new DatasourceStructure.Column("updated_on", "datetime", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );

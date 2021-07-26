@@ -799,14 +799,14 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 28;
   }
 
-  if (currentDSL.version === 27) {
+  if (currentDSL.version === 28) {
     currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
-    currentDSL.version = 28;
+    currentDSL.version = 29;
   }
 
-  if (currentDSL.version === 28) {
+  if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
-    currentDSL.version = 29;
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
