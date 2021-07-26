@@ -32,8 +32,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -306,9 +306,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            (validationPath === VALIDATION_TYPES.BOOLEAN &&
+            (validationPath.type === ValidationTypes.BOOLEAN &&
               isBoolean(evaluatedValue)) ||
-            validationPath === VALIDATION_TYPES.CHART_SERIES_DATA
+            validationPath.type === ValidationTypes.OBJECT
           ) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
@@ -488,6 +488,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "bottomLeft",
         ]);
 
+        set(updatedListItemContainer, "ignoreCollision", true);
+
         return updatedListItemContainer;
       },
     );
@@ -571,7 +573,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    const numberOfItemsInGrid = this.props.listData.length;
+    const numberOfItemsInGrid = this.props.listData?.length ?? 0;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
@@ -609,6 +611,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   shouldPaginate = () => {
     let { gridGap } = this.props;
     const { children, listData } = this.props;
+    if (!listData?.length) {
+      return { shouldPaginate: false, perPage: 0 };
+    }
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight =
