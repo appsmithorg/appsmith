@@ -7,6 +7,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
@@ -25,7 +26,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @Service
@@ -33,15 +37,22 @@ public class MockDataServiceImpl implements MockDataService {
 
     private final CloudServicesConfig cloudServicesConfig;
     private final DatasourceService datasourceService;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
 
     public MockDataDTO mockData = new MockDataDTO();
 
     private Instant cacheExpiryTime = null;
 
     @Autowired
-    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig, DatasourceService datasourceService) {
+    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig,
+                               DatasourceService datasourceService,
+                               AnalyticsService analyticsService,
+                               SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.datasourceService = datasourceService;
+        this.analyticsService = analyticsService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -91,6 +102,7 @@ public class MockDataServiceImpl implements MockDataService {
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
+            addAnalyticsForMockDataCreation(mockDataSource.getName(), mockDataSource.getOrganizationId());
             return createSuffixedDatasource(datasource);
         });
 
@@ -181,6 +193,25 @@ public class MockDataServiceImpl implements MockDataService {
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
                     }
                     throw error;
+                });
+    }
+
+    private Mono<Void> addAnalyticsForMockDataCreation(String name, String orgId) {
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.CREATE.getEventName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "orgId", defaultIfNull(orgId, ""),
+                                    "mockDbName", defaultIfNull(name, "")
+                            )
+                    );
+                    return Mono.empty();
                 });
     }
 
