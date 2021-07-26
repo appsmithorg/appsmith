@@ -77,11 +77,10 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
         run: |
-          mvn --batch-mode versions:set \
+            ./build.sh versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          mvn --batch-mode package
 
        # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -328,8 +327,15 @@ jobs:
       - name: Wait for 30 seconds for server to start
         run: |
             sleep 30s
-            ps -ef | grep server-1.0-SNAPSHOT
-
+            
+      - name: Exit if Server hasnt started
+        run: |
+         if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+            echo "Server Not Started";
+            exit 1;
+          else
+            echo "Server Found";
+          fi
 
       - name: Installing Yarn serve
         run: |
