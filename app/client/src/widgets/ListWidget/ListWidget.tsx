@@ -229,10 +229,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     childWidgetData.parentId = this.props.widgetId;
     // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
-    childWidgetData.canExtend =
-      childWidgetData.virtualizedEnabled && false
-        ? true
-        : this.props.shouldScrollContents;
+    childWidgetData.canExtend = undefined;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
@@ -240,7 +237,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow = shouldPaginate
       ? componentHeight - 34
       : componentHeight;
-    childWidgetData.shouldScrollContents = false;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -492,6 +488,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ]);
 
         set(updatedListItemContainer, "ignoreCollision", true);
+        set(updatedListItemContainer, "shouldScrollContents", undefined);
 
         return updatedListItemContainer;
       },
