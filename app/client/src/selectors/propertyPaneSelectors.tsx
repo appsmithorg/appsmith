@@ -11,7 +11,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
-const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
+export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
 
 export const getCurrentWidgetId = createSelector(

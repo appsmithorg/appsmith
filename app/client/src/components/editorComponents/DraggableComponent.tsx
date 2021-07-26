@@ -16,6 +16,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
+import { getPropertyPaneState } from "selectors/propertyPaneSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -64,6 +65,7 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
+  const propertyPaneState = useSelector(getPropertyPaneState);
   const showTableFilterPane = useShowTableFilterPane();
   const canvasWidgets = useSelector(getCanvasWidgets);
 
@@ -164,7 +166,7 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
-    if (parentWidgetToOpen) {
+    if (parentWidgetToOpen && !propertyPaneState.isVisible) {
       !isResizingOrDragging &&
         focusedWidget !== props.widgetId &&
         !props.resizeDisabled &&
