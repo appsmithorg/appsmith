@@ -657,7 +657,8 @@ public class MySqlPlugin extends BasePlugin {
             table.getColumns().add(new DatasourceStructure.Column(
                     row.get("column_name", String.class),
                     row.get("column_type", String.class),
-                    null
+                    null,
+                    row.get("extra", String.class).contains("auto_increment")
             ));
 
             return;

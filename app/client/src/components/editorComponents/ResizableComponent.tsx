@@ -38,8 +38,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type ResizableComponentProps = WidgetProps & {
@@ -52,13 +52,15 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
 
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const {
+    occupiedSpaces: occupiedSpacesBySiblingWidgets,
+    persistDropTargetRows,
+    updateDropTargetRows,
+  } = useContext(DropTargetContext);
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -80,11 +82,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -281,7 +278,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props]);
 
   const isEnabled =
-    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+    !isDragging &&
+    isWidgetFocused &&
+    !props.resizeDisabled &&
+    !isCommentMode &&
+    !isSnipingMode;
 
   return (
     <Resizable
@@ -307,4 +308,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
+
+ResizableComponent.displayName = "ResizableComponent";
+
 export default ResizableComponent;

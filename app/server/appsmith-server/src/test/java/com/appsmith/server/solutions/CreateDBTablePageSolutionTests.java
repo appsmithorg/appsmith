@@ -40,10 +40,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -152,11 +150,11 @@ public class CreateDBTablePageSolutionTests {
 
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
-            new Column("primaryKey", "type1", null),
-            new Column("field1", "type2", null),
-            new Column("field2", "type3", null),
-            new Column("field3", "type4", null),
-            new Column("field4", "type5", null)
+            new Column("primaryKey", "type1", null, true),
+            new Column("field1", "type2", null, false),
+            new Column("field2", "type3", null, false),
+            new Column("field3", "type4", null, false),
+            new Column("field4", "type5", null, false)
         );
         List<Table> tables = List.of(new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()));
         structure.setTables(tables);
@@ -485,6 +483,7 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
@@ -595,6 +594,8 @@ public class CreateDBTablePageSolutionTests {
             })
             .verifyComplete();
     }
+
+    */
 
     @Test
     @WithUserDetails(value = "api_user")

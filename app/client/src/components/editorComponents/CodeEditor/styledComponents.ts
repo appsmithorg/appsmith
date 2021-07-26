@@ -304,7 +304,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .slash-commands {
+    .commands-button {
       display: flex;
     }
   }
@@ -314,15 +314,20 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .commands-button {
     z-index: 2;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    height: 20px;
     background: transparent;
+    display: none;
     color: #f86a2b;
     border: none;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 14px;
     font-style: italic;
     padding: 0 0 3px;
+    margin: 0 !important;
     &:hover {
       background: #f86a2b;
       color: white;
