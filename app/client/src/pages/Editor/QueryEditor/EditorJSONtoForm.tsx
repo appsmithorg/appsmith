@@ -525,6 +525,14 @@ export function EditorJSONtoForm(props: Props) {
     );
   };
 
+  const responeTabOnRunClick = () => {
+    props.onRunClick();
+
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "QUERY_PANE",
+    });
+  };
+
   const responseTabs = [
     {
       key: "Response",
@@ -579,7 +587,7 @@ export function EditorJSONtoForm(props: Props) {
                 🙌 Click on
                 <InlineButton
                   isLoading={isRunning}
-                  onClick={props.onRunClick}
+                  onClick={responeTabOnRunClick}
                   size={Size.medium}
                   tag="button"
                   text="Run"

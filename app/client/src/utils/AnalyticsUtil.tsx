@@ -134,7 +134,10 @@ export type EventName =
   | "WIDGET_SELECTED_VIA_SNIPING_MODE"
   | "SUGGESTED_WIDGET_CLICK"
   | "ASSOCIATED_ENTITY_CLICK"
-  | "CREATE_DATA_SOURCE_AUTH_API_CLICK";
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
+  | "CONNECT_DATA_CLICK"
+  | "RESPONSE_TAB_RUN_ACTION_CLICK"
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
