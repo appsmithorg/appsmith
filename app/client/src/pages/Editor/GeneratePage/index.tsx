@@ -1,11 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
-import { useParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "../../../selectors/editorSelectors";
 import { getTypographyByKey } from "../../../constants/DefaultTheme";
-import { fetchPage } from "actions/pageActions";
 
 const Container = styled.div`
   display: flex;
@@ -40,17 +36,6 @@ const SubHeading = styled.p`
 `;
 
 function GeneratePage() {
-  const params = useParams<{ applicationId: string; pageId: string }>();
-  const dispatch = useDispatch();
-
-  const currentPageId = useSelector(getCurrentPageId);
-
-  // Switch page
-  useEffect(() => {
-    if (currentPageId !== params.pageId && !!params.pageId) {
-      dispatch(fetchPage(params.pageId));
-    }
-  }, [currentPageId, params.pageId, dispatch]);
   const isGenerateFormPage = window.location.pathname.includes("/form");
   const heading = isGenerateFormPage ? "Quick Page Wizard" : "New Page";
 
