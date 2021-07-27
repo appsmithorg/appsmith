@@ -98,10 +98,10 @@ public class CreateDBTablePageSolutionTests {
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
-            "\t\"field4\", \n" +
-            "\t\"field1\",\n" +
-            "\t\"field2\", \n" +
-            "\t\"field3\"\n" +
+            "\t\"field1\", \n" +
+            "\t\"field2\",\n" +
+            "\t\"field3\", \n" +
+            "\t\"field4\"\n" +
             ")\n" +
             "VALUES (\n" +
             "\t\t\t\t{{insert_col_input2.text}}, \n" +
@@ -111,23 +111,23 @@ public class CreateDBTablePageSolutionTests {
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field4\" like '%{{Table1.searchText || \"\"}}%'\n" +
+            "WHERE \"field1\" like '%{{Table1.searchText || \"\"}}%'\n" +
             "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
             "LIMIT {{Table1.pageSize}}" +
             "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field4\" = '{{update_col_2.text}}',\n" +
-            "    \"field1\" = '{{update_col_3.text}}',\n" +
-            "    \"field2\" = '{{update_col_4.text}}',\n" +
-            "\t\t\"field3\" = '{{update_col_5.text}}'\n" +
+            "\t\t\"field1\" = '{{update_col_2.text}}',\n" +
+            "    \"field2\" = '{{update_col_3.text}}',\n" +
+            "    \"field3\" = '{{update_col_4.text}}',\n" +
+            "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};"
     );
 
     private final String dropdownOptions = "options -> [\n" +
-        "{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"field3\",\n" +
-        "\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n\t\"value\": \"field4\"\n" +
-        "}, \n{\n\t\"label\": \"field1\",\n\t\"value\": \"field1\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
+        "{\n\t\"label\": \"field3\",\n\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n" +
+        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1\",\n\t\"value\": \"field1\"\n" +
+        "}, \n{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
         "\t\"value\": \"primaryKey\"\n}]";
 
     @Before
@@ -149,7 +149,7 @@ public class CreateDBTablePageSolutionTests {
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
             new Column("primaryKey", "type1", null, true),
-            new Column("field1", "type2", null, false),
+            new Column("field1", "VARCHAR(23)", null, false),
             new Column("field2", "type3", null, false),
             new Column("field3", "type4", null, false),
             new Column("field4", "type5", null, false)
@@ -654,7 +654,7 @@ public class CreateDBTablePageSolutionTests {
                             .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
 
                         assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{\"field1\" : {{update_col_1.text}},\"field2\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
+                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("DELETE")) {
                         assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
