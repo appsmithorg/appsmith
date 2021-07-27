@@ -291,40 +291,42 @@ export const renderEmptyRows = (
         </div>
       );
     });
+  } else {
+    const tableColumns = columns.length
+      ? columns
+      : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+    return (
+      <>
+        {rows.map((row: string, index: number) => {
+          return (
+            <div
+              className="tr"
+              key={index}
+              style={{
+                display: "flex",
+                flex: "1 0 auto",
+              }}
+            >
+              {multiRowSelection && renderCheckBoxCell(false)}
+              {tableColumns.map((column: any, colIndex: number) => {
+                return (
+                  <div
+                    className="td"
+                    key={colIndex}
+                    style={{
+                      width: column.width + "px",
+                      boxSizing: "border-box",
+                      flex: `${column.width} 0 auto`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
+      </>
+    );
   }
-  const tableColumns = columns.length
-    ? columns
-    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
-  return (
-    <>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  className="td"
-                  key={colIndex}
-                  style={{
-                    width: column.width + "px",
-                    boxSizing: "border-box",
-                    flex: `${column.width} 0 auto`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </>
-  );
 };
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`

@@ -11,6 +11,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommentUtils;
@@ -424,8 +425,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
-        return threadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+    public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
+        return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
                 .collectList()
                 .flatMap(threads -> Mono.zip(
                         Mono.just(threads),
