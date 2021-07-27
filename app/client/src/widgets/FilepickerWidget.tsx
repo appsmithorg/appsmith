@@ -419,7 +419,8 @@ class FilePickerWidget extends BaseWidget<
     if (
       prevProps.selectedFiles &&
       prevProps.selectedFiles.length > 0 &&
-      this.props.selectedFiles === undefined
+      (this.props.selectedFiles === undefined ||
+        !this.props.selectedFiles?.length)
     ) {
       this.state.uppy.reset();
     } else if (
