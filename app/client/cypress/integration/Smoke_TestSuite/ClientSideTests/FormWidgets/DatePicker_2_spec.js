@@ -62,7 +62,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontext("defaultdate", "24-12-2021");
     cy.evaluateErrorMessage(
-      "Value does not match ISO 8601 standard date string",
+      `This value does not evaluate to type "ISO 8601 date string".`,
     );
     cy.closePropertyPane();
   });

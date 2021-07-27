@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -109,5 +110,49 @@ public class CustomCommentThreadRepositoryImplTest {
         StepVerifier.create(privateThreadMono).assertNext(commentThread -> {
             assertThat(commentThread.getAuthorUsername()).isEqualTo("author3");
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void findThread_WhenFilterExists_ReturnsFilteredResults() {
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(true);
+
+        CommentThread.CommentThreadState unresolvedState = new CommentThread.CommentThreadState();
+        unresolvedState.setActive(false);
+
+        CommentThread app1ResolvedThread = createThreadWithPolicies("api_user");
+        app1ResolvedThread.setApplicationId("sample-application-id-1");
+        app1ResolvedThread.setAuthorUsername("app1ResolvedThread");
+        app1ResolvedThread.setResolvedState(resolvedState);
+
+        CommentThread app1UnResolvedThread = createThreadWithPolicies("api_user");
+        app1UnResolvedThread.setApplicationId("sample-application-id-1");
+        app1UnResolvedThread.setAuthorUsername("app1UnResolvedThread");
+        app1UnResolvedThread.setResolvedState(unresolvedState);
+
+        CommentThread app2UnResolvedThread = createThreadWithPolicies("api_user");
+        app2UnResolvedThread.setApplicationId("sample-application-id-2");
+        app2UnResolvedThread.setAuthorUsername("app2UnResolvedThread");
+        app2UnResolvedThread.setResolvedState(unresolvedState);
+
+        List<CommentThread> threadList = List.of(app1ResolvedThread, app1UnResolvedThread, app2UnResolvedThread);
+
+        Mono<List<CommentThread>> listMono = commentThreadRepository
+                .saveAll(threadList)
+                .collectList()
+                .flatMap(commentThreads -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId("sample-application-id-1");
+                    filterDTO.setResolved(false);
+                    return commentThreadRepository.find(filterDTO, AclPermission.READ_THREAD).collectList();
+                });
+
+        StepVerifier.create(listMono).assertNext(
+                commentThreads -> {
+                    assertThat(commentThreads.size()).isEqualTo(1);
+                    assertThat(commentThreads.get(0).getAuthorUsername()).isEqualTo("app1UnResolvedThread");
+                }
+        ).verifyComplete();
     }
 }
