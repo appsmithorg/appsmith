@@ -49,6 +49,12 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       201,
     );
+
+    cy.wait("@executeAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 
   it("Create new app and Generate CRUD page using a new datasource", function() {
@@ -105,6 +111,11 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       201,
     );
+    cy.wait("@executeAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 
   it("Generate CRUD page from datasource ACTIVE section", function() {
@@ -135,6 +146,11 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
+    );
+    cy.wait("@executeAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
     );
   });
 });
