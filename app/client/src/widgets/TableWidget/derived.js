@@ -336,7 +336,10 @@ export default {
       },
       doesNotContain: (a, b) => {
         try {
-          return !this.contains(a, b);
+          return !a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
