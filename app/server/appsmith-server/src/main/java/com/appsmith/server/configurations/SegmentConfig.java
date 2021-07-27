@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +35,7 @@ public class SegmentConfig {
     }
 
     @Bean
+    @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty() || !'${segment.ce.key:}'.isEmpty()")
     public Analytics analyticsRunner() {
         final LogProcessor logProcessor = new LogProcessor();
 
