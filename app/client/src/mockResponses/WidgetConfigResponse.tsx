@@ -142,6 +142,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
       isRequired: false,
+      closeOnSelection: false,
+      shortcuts: false,
     },
     VIDEO_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
@@ -189,7 +191,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "step",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
         },
         task: {
           index: 1,
@@ -205,7 +207,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "task",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
         },
         status: {
           index: 2,
@@ -221,7 +223,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "status",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
         },
         action: {
           index: 3,
@@ -239,7 +241,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           onClick:
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
         },
       },
       derivedColumns: {},
@@ -279,7 +281,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 set(
                   primaryColumns,
                   `${columnId}.computedValue`,
-                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
                 );
               });
               const updatePropertyMap = [
@@ -784,7 +786,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
-                return  ${modifiedAction};
+                return ( ${modifiedAction} );
               })();
             })}}`;
 

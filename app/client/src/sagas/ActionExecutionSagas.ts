@@ -217,7 +217,7 @@ function* storeValueLocally(
       const parsedStore = JSON.parse(existingStore);
       parsedStore[action.key] = action.value;
       const storeString = JSON.stringify(parsedStore);
-      yield localStorage.setItem(appStoreName, storeString);
+      localStorage.setItem(appStoreName, storeString);
       yield put(updateAppPersistentStore(parsedStore));
       AppsmithConsole.info({
         text: `store('${action.key}', '${action.value}', true)`,
@@ -423,10 +423,27 @@ export const getActionTimeout = (
 };
 const createActionExecutionResponse = (
   response: ActionExecutionResponse,
-): ActionResponse => ({
-  ...response.data,
-  ...response.clientMeta,
-});
+): ActionResponse => {
+  const payload = response.data;
+  if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
+    const respHeaders = payload.headers;
+    if (
+      respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+      respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
+      respHeaders[RESP_HEADER_DATATYPE][0] === ActionResponseDataTypes.BINARY &&
+      getType(payload.body) === Types.STRING
+    ) {
+      // Decoding from base64 to handle the binary files because direct
+      // conversion of binary files to string causes corruption in the final output
+      // this is to only handle the download of binary files
+      payload.body = atob(payload.body as string);
+    }
+  }
+  return {
+    ...payload,
+    ...response.clientMeta,
+  };
+};
 const isErrorResponse = (response: ActionExecutionResponse) => {
   return !response.data.isExecutionSuccess;
 };
@@ -865,26 +882,6 @@ function* runActionSaga(
       }
       if (actionObject.pluginType === PluginType.SAAS) {
         eventName = "RUN_SAAS_API";
-      }
-
-      if (
-        actionObject.pluginType === PluginType.API &&
-        payload.statusCode === "200 OK" &&
-        payload.hasOwnProperty("headers")
-      ) {
-        const respHeaders = payload.headers;
-        if (
-          respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
-          respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
-          respHeaders[RESP_HEADER_DATATYPE][0] ===
-            ActionResponseDataTypes.BINARY &&
-          getType(payload.body) === Types.STRING
-        ) {
-          // Decoding from base64 to handle the binary files because direct
-          // conversion of binary files to string causes corruption in the final output
-          // this is to only handle the download of binary files
-          payload.body = atob(payload.body as string);
-        }
       }
 
       AnalyticsUtil.logEvent(eventName, {
