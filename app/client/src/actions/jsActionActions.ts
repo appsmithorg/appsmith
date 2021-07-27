@@ -1,11 +1,12 @@
 import {
   ReduxActionTypes,
+  ReduxAction,
   EvaluationReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { JSAction } from "entities/JSAction";
 
-export type FetchActionsPayload = {
+export type FetchJSActionsPayload = {
   applicationId: string;
 };
 
@@ -120,6 +121,15 @@ export const fetchJSActionsForPageSuccess = (actions: JSAction[]) => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
+  };
+};
+
+export const fetchJSActionsForView = (
+  applicationId: string,
+): ReduxAction<FetchJSActionsPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
+    payload: { applicationId },
   };
 };
 

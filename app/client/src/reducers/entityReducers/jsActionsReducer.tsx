@@ -223,6 +223,15 @@ const jsActionsReducer = createReducer(initialState, {
 
       return a;
     }),
+  [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<JSAction[]>,
+  ): JSActionDataState =>
+    action.payload.map((a) => ({
+      isLoading: false,
+      config: a,
+    })),
+  [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR]: () => initialState,
   [ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS]: (
     state: JSActionDataState,
     action: ReduxAction<JSAction[]>,

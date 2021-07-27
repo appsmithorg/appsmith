@@ -54,6 +54,7 @@ import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { GenericApiResponse } from "api/ApiResponses";
+import { JSActionViewMode } from "entities/JSAction";
 
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -354,6 +355,37 @@ export function* fetchJSActionsForPageSaga(
   }
 }
 
+export function* fetchJSActionsForViewModeSaga(
+  action: ReduxAction<FetchActionsPayload>,
+) {
+  const { applicationId } = action.payload;
+  try {
+    const response: GenericApiResponse<JSActionViewMode[]> = yield JSActionAPI.fetchJSActionsForViewMode(
+      applicationId,
+    );
+    const correctFormatResponse = response.data.map((action) => {
+      return {
+        ...action,
+        actionConfiguration: {
+          timeoutInMillisecond: action.timeoutInMillisecond,
+        },
+      };
+    });
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+        payload: correctFormatResponse,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* watchJSActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSActionsSaga),
@@ -373,6 +405,10 @@ export function* watchJSActionSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
       fetchJSActionsForPageSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
+      fetchJSActionsForViewModeSaga,
     ),
   ]);
 }

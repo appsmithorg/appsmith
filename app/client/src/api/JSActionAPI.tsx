@@ -1,6 +1,6 @@
 import API from "api/Api";
 import { AxiosPromise } from "axios";
-import { JSAction } from "entities/JSAction";
+import { JSAction, JSActionViewMode } from "entities/JSAction";
 import { ApiResponse, GenericApiResponse } from "./ApiResponses";
 export interface JSActionCreateUpdateResponse extends ApiResponse {
   id: string;
@@ -50,6 +50,12 @@ class JSActionAPI extends API {
     pageId: string,
   ): AxiosPromise<GenericApiResponse<JSAction[]>> {
     return API.get(JSActionAPI.url, { pageId });
+  }
+
+  static fetchJSActionsForViewMode(
+    applicationId: string,
+  ): AxiosPromise<GenericApiResponse<JSActionViewMode[]>> {
+    return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
   static updateJSCollectionName(

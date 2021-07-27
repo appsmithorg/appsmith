@@ -28,3 +28,12 @@ export interface JSSubAction {
     jsArguments?: Array<variable>;
   };
 }
+
+export type JSActionViewMode = {
+  id: string;
+  name: string;
+  pageId: string;
+  jsonPathKeys: string[];
+  confirmBeforeExecute?: boolean;
+  timeoutInMillisecond?: number;
+};

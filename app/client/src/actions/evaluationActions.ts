@@ -41,6 +41,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

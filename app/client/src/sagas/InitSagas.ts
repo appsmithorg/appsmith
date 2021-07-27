@@ -51,6 +51,7 @@ import PerformanceTracker, {
 import { executePageLoadActions } from "actions/widgetActions";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { fetchJSActionsForView } from "actions/jsActionActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -254,6 +255,14 @@ export function* initializeAppViewerSaga(
       });
       return;
     }
+
+    const jsActionsCall = yield failFastApiCalls(
+      [fetchJSActionsForView(applicationId)],
+      [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
+    );
+
+    if (!jsActionsCall) return;
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
 

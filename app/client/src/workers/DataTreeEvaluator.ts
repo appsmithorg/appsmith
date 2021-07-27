@@ -134,6 +134,7 @@ export default class DataTreeEvaluator {
     const diffCheckTimeStart = performance.now();
     const differences: Diff<DataTree, DataTree>[] =
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
+    debugger;
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -181,7 +182,10 @@ export default class DataTreeEvaluator {
       // So that the actual uneval value can be evaluated
       if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(localUnEvalTree, propertyPath);
-        _.set(this.evalTree, propertyPath, unEvalPropValue);
+        const evalPropValue = _.get(this.evalTree, propertyPath);
+        if (!_.isFunction(evalPropValue)) {
+          _.set(this.evalTree, propertyPath, unEvalPropValue);
+        }
         return true;
       }
       return false;
@@ -191,6 +195,7 @@ export default class DataTreeEvaluator {
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
+      evaluationOrder: evaluationOrder,
     });
 
     // Remove any deleted paths from the eval tree
