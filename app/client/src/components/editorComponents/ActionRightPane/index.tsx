@@ -37,6 +37,9 @@ const SideBar = styled.div`
   overflow: auto;
   height: 100%;
   width: 100%;
+  //transition: 0.2s ease-in;
+  -webkit-animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -60,6 +63,28 @@ const SideBar = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
     padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
+
+  @-webkit-keyframes slide-left {
+    0% {
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    100% {
+      -webkit-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-left {
+    0% {
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    100% {
+      -webkit-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+
 `;
 
 const Label = styled.span`
@@ -141,7 +166,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name="downArrow" size={IconSize.XXS} />
+        <Icon keepColors name="downArrow" size={IconSize.XXS} />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -227,7 +252,7 @@ function ActionSidebar({
       )}
       {hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
-          <div className="description">Go to canvas and select widgets</div>
+          {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
               category={Category.tertiary}
