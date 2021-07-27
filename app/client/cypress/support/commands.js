@@ -24,6 +24,12 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 
 let pageidcopy = " ";
 
+export const initLocalstorage = () => {
+  cy.window().then((window) => {
+    window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+  });
+};
+
 Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
@@ -85,7 +91,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
     .first()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -235,6 +241,17 @@ Cypress.Commands.add("launchApp", (appName) => {
   );
 });
 
+Cypress.Commands.add("AppSetupForRename", () => {
+  cy.get(homePage.applicationName).then(($appName) => {
+    if (!$appName.hasClass(homePage.editingAppName)) {
+      cy.get(homePage.applicationName).click();
+      cy.get(homePage.portalMenuItem)
+        .contains("Rename", { matchCase: false })
+        .click();
+    }
+  });
+});
+
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
@@ -245,8 +262,11 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
+
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -266,8 +286,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   );
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2000);
 
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -368,11 +389,13 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser").should(
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+  initLocalstorage();
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
@@ -758,16 +781,14 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
+      .type(hValue, { parseSpecialCharSequences: true });
     cy.WaitAutoSave();
   },
 );
@@ -806,6 +827,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--property-control-dateformat .bp3-popover-target")
     .last()
     .click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.get(element)
+    .last()
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
@@ -860,22 +891,20 @@ Cypress.Commands.add(
   "EnterSourceDetailsWithQueryParam",
   (baseUrl, v1method, hKey, hValue, qKey, qValue) => {
     cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.xpath(apiwidget.headerKey)
+    cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(hKey, { force: true })
-      .should("have.value", hKey);
-    cy.xpath(apiwidget.headerValue)
+      .type(hKey, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.headerValue)
       .first()
       .click({ force: true })
-      .type(hValue, { force: true })
-      .should("have.value", hValue);
-    cy.xpath(apiwidget.queryKey)
+      .type(hValue, { parseSpecialCharSequences: true });
+    cy.get(apiwidget.queryKey)
       .first()
       .click({ force: true })
       .type(qKey, { force: true })
       .should("have.value", qKey);
-    cy.xpath(apiwidget.queryValue)
+    cy.get(apiwidget.queryValue)
       .first()
       .click({ force: true })
       .type(qValue, { force: true })
@@ -1211,6 +1240,7 @@ Cypress.Commands.add("invalidWidgetText", () => {
 
 Cypress.Commands.add("EvaluateDataType", (dataType) => {
   cy.get(commonlocators.evaluatedType)
+    .first()
     .should("be.visible")
     .contains(dataType);
 });
@@ -1219,6 +1249,7 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
+    .first()
     .should("be.visible")
     .contains(currentValue);
 });
@@ -1758,9 +1789,7 @@ Cypress.Commands.add("getAlert", (alertcss) => {
 
   cy.get(alertcss)
     .click({ force: true })
-    .type("{command}{A}{del}")
-    .type("hello")
-    .should("not.to.be.empty");
+    .type("hello");
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
@@ -1790,9 +1819,7 @@ Cypress.Commands.add(
 
     cy.get(alertcss)
       .click({ force: true })
-      .type("{command}{A}{del}")
-      .type("hello")
-      .should("not.to.be.empty");
+      .type("hello");
     cy.get(".t--open-dropdown-Select-type").click({ force: true });
     cy.get(".bp3-popover-content .bp3-menu li")
       .contains("Success")
@@ -2221,9 +2248,12 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     .children()
     .last()
     .invoke("text")
-    .then((originalWidget) => {
+    .then((x) => {
+      cy.log(x);
+      let originalWidget = x.replaceAll("x", "");
+      originalWidget = originalWidget.replaceAll(/\u200B/g, "");
       cy.log(originalWidget);
-      cy.get(widgetsPage.copyWidget).click();
+      cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
@@ -2234,16 +2264,19 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
         .children()
         .last()
         .invoke("text")
-        .then((copiedWidget) => {
+        .then((y) => {
+          cy.log(y);
+          let copiedWidget = y.replaceAll("x", "");
+          copiedWidget = copiedWidget.replaceAll(/\u200B/g, "");
           cy.log(copiedWidget);
           expect(originalWidget).to.be.equal(copiedWidget);
         });
     });
 });
 
-Cypress.Commands.add("deleteWidget", () => {
-  // Delete the widget
-  cy.get(widgetsPage.removeWidget).click();
+Cypress.Commands.add("deleteWidget", (widget) => {
+  // Delete the button widget
+  cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
@@ -2467,16 +2500,20 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] a`;
-  const hrefVal = cy.get(selector).invoke("attr", "href");
-  return hrefVal;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
+  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  return bgUrl;
 });
 
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .find("span")
+    .click();
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
-    .children("p")
-    .siblings("pre")
+    .find("pre")
+    .first()
     .should("have.text", expectedType);
 });
 
@@ -2551,13 +2588,13 @@ Cypress.Commands.add("ValidatePaginationInputData", () => {
 Cypress.Commands.add("callApi", (apiname) => {
   cy.get(commonlocators.callApi)
     .first()
-    .click();
+    .click({ force: true });
   cy.get(commonlocators.singleSelectMenuItem)
     .contains("Execute a Query")
-    .click();
+    .click({ force: true });
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("assertPageSave", () => {
@@ -2568,10 +2605,16 @@ Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
     .should("be.visible")
     .click({ force: true });
-  cy.xpath(apiwidget.paramKey)
-    .first()
-    .contains(param.key);
-  cy.xpath(apiwidget.paramValue)
-    .first()
-    .contains(param.value);
+
+  cy.validateCodeEditorContent(apiwidget.paramKey, param.key);
+  cy.validateCodeEditorContent(apiwidget.paramValue, param.value);
 });
+
+Cypress.Commands.add(
+  "validateCodeEditorContent",
+  (selector, contentToValidate) => {
+    cy.get(selector).within(() => {
+      cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+    });
+  },
+);

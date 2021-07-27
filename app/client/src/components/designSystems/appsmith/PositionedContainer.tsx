@@ -4,8 +4,9 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
-import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
+import { useSelector } from "react-redux";
+import { snipingModeSelector } from "../../../selectors/editorSelectors";
 
 const PositionedWidget = styled.div`
   &:hover {
@@ -27,6 +28,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   const openPropertyPane = useClickOpenPropPane();
+  const isSnipingMode = useSelector(snipingModeSelector);
   // memoized classname
   const containerClassName = useMemo(() => {
     return (
@@ -54,16 +56,24 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
-  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
-    props.widgetId,
-    openPropertyPane,
-  ]);
+  const openPropPane = useCallback(
+    (e) => {
+      openPropertyPane(e, props.widgetId);
+    },
+    [props.widgetId, openPropertyPane],
+  );
+
+  // TODO: Experimental fix for sniping mode. This should be handled with a single event
+  const stopEventPropagation = (e: any) => {
+    !isSnipingMode && e.stopPropagation();
+  };
 
   return (
     <PositionedWidget
       className={containerClassName}
       data-testid="test-widget"
       id={props.widgetId}
+      key={`positioned-container-${props.widgetId}`}
       onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
       onClickCapture={openPropPane}

@@ -12,6 +12,7 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -101,6 +102,15 @@ export const closePropertyPane = () => {
   };
 };
 
+export const closeTableFilterPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
 export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
@@ -135,9 +145,9 @@ export const cutWidget = () => {
   };
 };
 
-export const addTableWidgetFromQuery = (queryName: string) => {
+export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-    payload: queryName,
+    type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
+    payload,
   };
 };

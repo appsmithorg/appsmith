@@ -27,6 +27,8 @@ import {
 } from "actions/globalSearchActions";
 import {
   getItemType,
+  getItemTitle,
+  getItemPage,
   SEARCH_ITEM_TYPES,
   useDefaultDocumentationResults,
   DocSearchItem,
@@ -43,7 +45,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
@@ -91,31 +92,49 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
-const getIsInCurrentPage = (
-  isWidget: boolean,
-  entity: any,
+const getQueryIndexForSorting = (item: SearchItem, query: string) => {
+  if (item.kind === SEARCH_ITEM_TYPES.document) {
+    const title = item?._highlightResult?.title?.value;
+    return title.indexOf(algoliaHighlightTag);
+  } else {
+    const title = getItemTitle(item) || "";
+    return title.toLowerCase().indexOf(query.toLowerCase());
+  }
+};
+
+const getSortedResults = (
+  query: string,
+  filteredActions: Array<any>,
+  filteredWidgets: Array<any>,
+  filteredPages: Array<any>,
+  filteredDatasources: Array<any>,
+  documentationSearchResults: Array<any>,
   currentPageId?: string,
-) =>
-  isWidget
-    ? entity.pageId === currentPageId
-    : entity?.config?.pageId === currentPageId;
+) => {
+  return [
+    ...filteredActions,
+    ...filteredWidgets,
+    ...filteredPages,
+    ...filteredDatasources,
+    ...documentationSearchResults,
+  ].sort((a: any, b: any) => {
+    const queryIndexA = getQueryIndexForSorting(a, query);
+    const queryIndexB = getQueryIndexForSorting(b, query);
 
-const sortActionsAndWidgets = (a: any, b: any, currentPageId?: string) => {
-  const isAWidget = !!a.widgetId;
-  const isBWidget = !!b.widgetId;
-
-  const aInCurrentPage = getIsInCurrentPage(isAWidget, a, currentPageId);
-  const bInCurrentPage = getIsInCurrentPage(isBWidget, b, currentPageId);
-
-  // page entites on top
-  if (aInCurrentPage && !bInCurrentPage) return -1;
-  if (!aInCurrentPage && bInCurrentPage) return 1;
-
-  // actions before widgets
-  if (isAWidget && !isBWidget) return 1;
-  if (!isAWidget && isBWidget) return -1;
-
-  return 0;
+    if (queryIndexA === queryIndexB) {
+      const pageA = getItemPage(a);
+      const pageB = getItemPage(b);
+      const isAInCurrentPage = pageA === currentPageId;
+      const isBInCurrentPage = pageB === currentPageId;
+      if (isAInCurrentPage) return -1;
+      if (isBInCurrentPage) return 1;
+      return 0;
+    } else {
+      if (queryIndexA === -1 && queryIndexB !== -1) return 1;
+      else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
+      else return queryIndexA - queryIndexB;
+    }
+  });
 };
 
 function GlobalSearch() {
@@ -201,9 +220,15 @@ function GlobalSearch() {
   }, [modalOpen]);
 
   useEffect(() => {
-    !query && recentEntities.length > 1
-      ? setActiveItemIndex(2)
-      : setActiveItemIndex(1);
+    if (query) {
+      setActiveItemIndex(0);
+    } else {
+      if (recentEntities.length > 1) {
+        setActiveItemIndex(2);
+      } else {
+        setActiveItemIndex(1);
+      }
+    }
   }, [query, recentEntities.length]);
 
   const filteredWidgets = useMemo(() => {
@@ -242,7 +267,6 @@ function GlobalSearch() {
 
   const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
-  const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
   const searchResults = useMemo(() => {
     if (!query) {
@@ -261,29 +285,15 @@ function GlobalSearch() {
       ];
     }
 
-    const results = [];
-
-    const actionsAndWidgetsSorted = [
-      ...filteredActions,
-      ...filteredWidgets,
-    ].sort((a, b) => sortActionsAndWidgets(a, b, currentPageId));
-
-    const entities = [
-      entitiesSectionTitle,
-      ...actionsAndWidgetsSorted,
-      ...filteredPages,
-      ...filteredDatasources,
-    ];
-
-    if (entities.length > 1) {
-      results.push(...entities);
-    }
-
-    if (documentationSearchResults.length > 0) {
-      results.push(docsSectionTitle, ...documentationSearchResults);
-    }
-
-    return results;
+    return getSortedResults(
+      query,
+      filteredActions,
+      filteredWidgets,
+      filteredPages,
+      filteredDatasources,
+      documentationSearchResults,
+      currentPageId,
+    );
   }, [
     filteredWidgets,
     filteredActions,

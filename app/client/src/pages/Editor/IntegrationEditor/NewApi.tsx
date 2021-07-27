@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
+import PlusLogo from "assets/images/Plus-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -58,8 +58,8 @@ const StyledContainer = styled.div`
 
 const ApiCardsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
   text-align: center;
   min-width: 150px;
   border-radius: 4px;
@@ -76,8 +76,7 @@ const ApiCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
-  padding-left: 8px;
+  height: 64px;
   &:hover {
     background: ${Colors.Gallery};
     cursor: pointer;
@@ -87,6 +86,7 @@ const ApiCard = styled.div`
     width: 40px;
     height: 40px;
     border-radius: 20px;
+    padding: 6px 0;
     margin: 0 8px;
     background: #f0f0f0;
     display: flex;
@@ -97,7 +97,6 @@ const ApiCard = styled.div`
       width: auto;
       margin: 0 auto;
       max-width: 100%;
-      margin-bottom: 2px;
     }
   }
 
@@ -147,13 +146,33 @@ function NewApiScreen(props: Props) {
     plugins,
   } = props;
 
+  const [authApiPlugin, setAuthAPiPlugin] = useState<Plugin | undefined>();
+
+  useEffect(() => {
+    const plugin = plugins.find((p) => p.name === "REST API");
+    setAuthAPiPlugin(plugin);
+  }, [plugins]);
+
+  const handleCreateAuthApiDatasource = useCallback(() => {
+    if (authApiPlugin) {
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
+        pluginId: authApiPlugin.id,
+      });
+      props.createDatasourceFromForm({
+        pluginId: authApiPlugin.id,
+      });
+    }
+  }, [authApiPlugin, props.createDatasourceFromForm]);
+
   const handleCreateNew = () => {
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
   const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) + location.search;
+    getCurlImportPageURL(applicationId, pageId) +
+    "?from=datasources" +
+    location.search;
 
   return (
     <StyledContainer>
@@ -164,9 +183,13 @@ function NewApiScreen(props: Props) {
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
-              <Icon className="content-icon" icon="plus" iconSize={28} />
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
             </div>
-            <p className="textBtn">Create new</p>
+            <p className="textBtn">Create new API</p>
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
@@ -187,9 +210,26 @@ function NewApiScreen(props: Props) {
                 src={CurlLogo}
               />
             </div>
-            <p className="textBtn">CURL</p>
+            <p className="textBtn">CURL import</p>
           </CardContentWrapper>
         </ApiCard>
+        {authApiPlugin && (
+          <ApiCard
+            className="t--createAuthApiDatasource"
+            onClick={handleCreateAuthApiDatasource}
+          >
+            <CardContentWrapper>
+              <div className="content-icon-wrapper">
+                <img
+                  alt="OAuth2"
+                  className="authApiImage t--authApiImage content-icon"
+                  src={authApiPlugin.iconLocation}
+                />
+              </div>
+              <p className="textBtn">Authenticated API</p>
+            </CardContentWrapper>
+          </ApiCard>
+        )}
         {plugins
           .filter((p) => p.type === PluginType.SAAS)
           .map((p) => (

@@ -43,6 +43,11 @@ export const removeUnpublishedCommentThreads = () => ({
   payload: null,
 });
 
+export const unsubscribeCommentThreadAction = (threadId: string) => ({
+  type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_REQUEST,
+  payload: threadId,
+});
+
 export const createCommentThreadRequest = (
   payload: CreateCommentThreadPayload,
 ) => ({
@@ -113,6 +118,11 @@ export const updateCommentThreadSuccess = (
 export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   type: ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT,
   payload,
+});
+
+export const unsubscribedCommentThreadSuccess = () => ({
+  type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
+  payload: null,
 });
 
 export const pinCommentThreadRequest = (payload: {
@@ -248,11 +258,15 @@ export const setAreCommentsEnabled = (flag: boolean) => ({
   payload: flag,
 });
 
-export const fetchUnreadCommentThreadsCountRequest = () => ({
-  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_REQUEST,
+export const fetchUnreadCommentThreadsCountSuccess = (count?: number) => ({
+  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
+  payload: count,
 });
 
-export const fetchUnreadCommentThreadsCountSuccess = (flag: boolean) => ({
-  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
-  payload: flag,
+export const incrementThreadUnreadCount = () => ({
+  type: ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
+});
+
+export const decrementThreadUnreadCount = () => ({
+  type: ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
 });

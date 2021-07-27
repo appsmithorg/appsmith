@@ -61,6 +61,13 @@ export const fetchActionsForPageSuccess = (actions: Action[]) => {
   };
 };
 
+export const setActionTabsInitialIndex = (index: number) => {
+  return {
+    type: ReduxActionTypes.SET_ACTION_TABS_INITIAL_INDEX,
+    payload: index,
+  };
+};
+
 export const runActionViaShortcut = () => {
   return {
     type: ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
@@ -262,6 +269,17 @@ export const setActionsToExecuteOnPageLoad = (
   };
 };
 
+export const bindDataOnCanvas = (payload: {
+  queryId: string;
+  applicationId: string;
+  pageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,
@@ -270,4 +288,5 @@ export default {
   deleteActionSuccess,
   updateAction,
   updateActionSuccess,
+  bindDataOnCanvas,
 };

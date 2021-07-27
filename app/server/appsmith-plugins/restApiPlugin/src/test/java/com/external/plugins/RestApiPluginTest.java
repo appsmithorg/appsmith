@@ -4,13 +4,17 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiKeyAuth;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.external.connections.APIConnection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -21,6 +25,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -28,6 +33,7 @@ import reactor.test.StepVerifier;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +56,8 @@ public class RestApiPluginTest {
         dsConfig.setUrl("https://postman-echo.com/post");
 
         ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
         actionConfig.setHttpMethod(HttpMethod.POST);
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
@@ -62,6 +69,16 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
                     assertEquals(requestBody, data.toString());
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(HttpMethod.POST, request.getHttpMethod());
+                    assertEquals(requestBody, request.getBody());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
+                            assertEquals("application/json", field.getValue().get(0).asText());
+                        }
+                    });
                 })
                 .verifyComplete();
     }
@@ -110,6 +127,7 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://httpbin.org/headers");
@@ -131,12 +149,20 @@ public class RestApiPluginTest {
                     String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
                     final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-                    assertEquals("Appsmith", Jwts.parserBuilder()
+                    final String issuer = Jwts.parserBuilder()
                             .setSigningKey(key)
                             .build()
                             .parseClaimsJws(token)
                             .getBody()
-                            .getIssuer());
+                            .getIssuer();
+                    assertEquals("Appsmith", issuer);
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
+                            assertEquals(token, field.getValue().get(0).asText());
+                        }
+                    });
+
                 })
                 .verifyComplete();
     }
@@ -332,7 +358,6 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    System.out.println(result.getBody());
                     String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -394,6 +419,78 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");
                     assertEquals(requestBody, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testParsingBodyWithInvalidJSONHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://mock-api.appsmith.com/echo/raw");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String requestBody = "{\n" +
+                "    \"headers\": {\n" +
+                "        \"Content-Type\": \"application/json\",\n" +
+                "        \"X-RANDOM-HEADER\": \"random-value\"\n" +
+                "    },\n" +
+                "    \"body\": \"invalid json text\"\n" +
+                "}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("invalid json text", result.getBody());
+                    ArrayNode data = (ArrayNode) result.getHeaders().get("Content-Type");
+                    assertEquals("application/json; charset=utf-8", data.get(0).asText());
+
+                    assertEquals(1, result.getMessages().size());
+                    String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
+                            "be careful when using the API response anywhere a valid JSON is required" +
+                            ". You may resolve this issue either by modifying the 'Content-Type' " +
+                            "Header to indicate a non-JSON response or by modifying the API response " +
+                            "to return a valid JSON.";
+                    assertEquals(expectedMessage, result.getMessages().toArray()[0]);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRequestWithApiKeyHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "test");
+        dsConfig.setAuthentication(authenticationDTO);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(
+                new Property("content-type", "application/json"),
+                new Property(HttpHeaders.AUTHORIZATION, "auth-value")
+        ));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String requestBody = "{\"key\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getRequest().getBody());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if ("api_key".equalsIgnoreCase(field.getKey()) || HttpHeaders.AUTHORIZATION.equalsIgnoreCase(field.getKey())) {
+                            assertEquals("****", field.getValue().get(0).asText());
+                        }
+                    });
                 })
                 .verifyComplete();
     }

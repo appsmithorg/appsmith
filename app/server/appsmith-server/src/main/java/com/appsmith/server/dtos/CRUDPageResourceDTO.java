@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,5 +22,9 @@ public class CRUDPageResourceDTO {
 
     String tableName;
 
-    Set<String> columnNames;
+    String searchColumn;
+
+    Set<String> columns;
+
+    Map<String, String> pluginSpecificParams;
 }

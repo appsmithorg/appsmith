@@ -8,8 +8,8 @@
     "buttonWidget": ".t--draggable-buttonwidget",
     "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
-    "copyWidget": ":nth-child(2) > .bp3-popover-target > .sc-bdnylx > svg",
-    "removeWidget": ":nth-child(3) > .bp3-popover-target > .sc-bdnylx > svg",
+    "copyWidget": ".t--copy-widget svg",
+    "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .bp3-panel-stack-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
     "textWidget": ".t--draggable-textwidget",
@@ -75,7 +75,7 @@
     "verticalBottom": ".t--icon-tab-BOTTOM",
     "textColor": ".t--property-control-textcolor input",
     "backgroundcolorPicker": ".t--property-control-backgroundcolor input",
-    "greenColor": "//div[@color='rgb(3, 179, 101)']",
+    "greenColor": "//div[@color='#03b365']",
     "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
     "backgroundColor": ".t--property-control-cellbackground input",
     "toggleJsBcgColor": ".t--property-control-cellbackground .t--js-toggle",
@@ -112,5 +112,7 @@
     "itemContainerWidget":"[type=CONTAINER_WIDGET]",
     "listWidgetName":".t--propery-page-title",
     "toggleBackground": ".t--property-control-background .t--js-toggle",
-    "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle"
+    "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle",
+    "chartPlotGroup": "g.raphael-group-63-plot-group",
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
 }

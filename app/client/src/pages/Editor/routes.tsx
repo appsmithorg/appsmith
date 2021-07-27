@@ -22,7 +22,6 @@ import {
   APIEditorRouteParams,
   getCurlImportPageURL,
   INTEGRATION_EDITOR_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
@@ -95,7 +94,6 @@ class EditorsRouter extends React.Component<
     return matchPath(this.props.location.pathname, {
       path: [
         INTEGRATION_EDITOR_URL(),
-        INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
         API_EDITOR_ID_URL(),
         QUERIES_EDITOR_ID_URL(),
       ],

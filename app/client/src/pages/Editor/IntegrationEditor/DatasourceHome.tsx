@@ -34,8 +34,8 @@ const DatasourceHomePage = styled.div`
 
 const DatasourceCardsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
   text-align: center;
   min-width: 150px;
   border-radius: 4px;
@@ -46,7 +46,7 @@ const DatasourceCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 64px;
   &:hover {
     background: ${Colors.Gallery};
     cursor: pointer;
@@ -55,6 +55,7 @@ const DatasourceCard = styled.div`
   .dataSourceImageWrapper {
     width: 40px;
     height: 40px;
+    padding: 6px 0;
     border-radius: 20px;
     margin: 0 8px;
     background: #f0f0f0;
@@ -66,7 +67,6 @@ const DatasourceCard = styled.div`
       width: auto;
       margin: 0 auto;
       max-width: 100%;
-      margin-bottom: 2px;
     }
   }
 
@@ -133,11 +133,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
     return (
       <DatasourceHomePage>
         <DatasourceCardsContainer>
-          {plugins.map((plugin) => {
+          {plugins.map((plugin, idx) => {
             return (
               <DatasourceCard
                 className="eachDatasourceCard"
-                key={plugin.id}
+                key={`${plugin.id}_${idx}`}
                 onClick={() =>
                   this.goToCreateDatasource(plugin.id, plugin.name)
                 }
