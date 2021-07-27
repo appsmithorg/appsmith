@@ -22,7 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { omit, get } from "lodash";
+import { omit, get, ceil } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -171,7 +171,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (
       boundingElementClientRect &&
       newRowCols.rightColumn * props.parentColumnSpace >
-        boundingElementClientRect.width
+        ceil(boundingElementClientRect.width)
     ) {
       return true;
     }
@@ -184,7 +184,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       if (
         boundingElementClientRect &&
         newRowCols.bottomRow * props.parentRowSpace >
-          boundingElementClientRect.height
+          ceil(boundingElementClientRect.height)
       ) {
         return true;
       }

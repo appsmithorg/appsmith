@@ -79,7 +79,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Array.isArray(this.props.listData))
     ) {
       const structure = this.getCurrentItemStructure(this.props.listData);
-      super.updateWidgetProperty("childAutoComplete", {
+      this.props.updateWidgetMetaProperty("childAutoComplete", {
         currentItem: structure,
       });
     }
@@ -156,7 +156,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (
       xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
     ) {
-      super.updateWidgetProperty("childAutoComplete", {
+      this.props.updateWidgetMetaProperty("childAutoComplete", {
         currentItem: newRowStructure,
       });
     }
