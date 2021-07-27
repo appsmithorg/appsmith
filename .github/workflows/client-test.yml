@@ -118,6 +118,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
+            REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             REACT_APP_SHOW_ONBOARDING_FORM=true \
             yarn build
 
@@ -299,12 +300,27 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-            ./scripts/start-dev-server.sh > /dev/null 2>&1 &
+            ls -l
+            ls -l scripts/
+            ls -l dist/
+            nohup ./scripts/start-dev-server.sh 2>&1 &
 
       - name: Wait for 30 seconds for server to start
-        run: sleep 30s
-        shell: bash
+        run: |
+            sleep 30s 
+            
+      - name: Exit if Server hasnt started
+        run: |
+         if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+            echo "Server Not Started";
+            exit 1;
+          else
+            echo "Server Found";
+          fi
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1

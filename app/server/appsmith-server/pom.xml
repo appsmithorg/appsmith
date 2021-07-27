@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <ff4j.version>1.8.11</ff4j.version>
     </properties>
 
     <repositories>
@@ -116,7 +117,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>30.0-jre</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -156,7 +157,7 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-mongodb</artifactId>
-            <version>4.2.2</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
@@ -166,7 +167,7 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
-            <version>4.2.2</version>
+            <version>5.0.0</version>
         </dependency>
 
         <dependency>
@@ -221,6 +222,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.8</version>
+        </dependency>
+
+        <!-- Dependencies for feature flagging -->
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-core</artifactId>
+            <version>${ff4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ff4j</groupId>
+            <artifactId>ff4j-config-yaml</artifactId>
+            <version>${ff4j.version}</version>
         </dependency>
 
     </dependencies>

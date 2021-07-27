@@ -112,7 +112,7 @@
   "currentRowWithIdOutside": "#{{currentRow.email}}",
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
-  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\".",
+  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ \"label\": \"string\", \"value\": \"string\" }>\".",
   "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\".",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindChartData": "{{Chart1.selectedDataPoint",

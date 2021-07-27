@@ -128,9 +128,9 @@ export default {
             isVisible: true,
             isDerived: false,
             label: id,
-            computedValue: props.sanitizedTableData.map((currentRow) => {
-              return currentRow[id];
-            }),
+            computedValue: props.sanitizedTableData.map(
+              (currentRow) => currentRow[id],
+            ),
           };
         }
       });
@@ -336,7 +336,10 @@ export default {
       },
       doesNotContain: (a, b) => {
         try {
-          return !this.contains(a, b);
+          return !a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
@@ -358,22 +361,22 @@ export default {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
 
-          return _a.length === _a.indexOf(_b) + _b.length;
+          return _a.length === _a.lastIndexOf(_b) + _b.length;
         } catch (e) {
           return false;
         }
       },
       is: (a, b) => {
-        return moment(a).isSame(moment(b), "d");
+        return moment(a).isSame(moment(b), "minute");
       },
       isNot: (a, b) => {
-        return !moment(a).isSame(moment(b), "d");
+        return !moment(a).isSame(moment(b), "minute");
       },
       isAfter: (a, b) => {
-        return !moment(a).isAfter(moment(b), "d");
+        return moment(a).isAfter(moment(b), "minute");
       },
       isBefore: (a, b) => {
-        return !moment(a).isBefore(moment(b), "d");
+        return moment(a).isBefore(moment(b), "minute");
       },
     };
 

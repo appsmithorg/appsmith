@@ -135,6 +135,11 @@
       "color": "7057ff",
       "description": "Good for newcomers"
     },
+    "Google Sheets": {
+      "name": "Google Sheets",
+      "color": "7057ff",
+      "description": "Issues related to Google Sheets"
+    },
     "Generate Page": {
       "name": "Generate Page",
       "color": "7057ff",
@@ -505,6 +510,11 @@
               },
               {
                 "type": "hasLabel",
+                "label": "Google Sheets",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
                 "label": "API pane",
                 "value": true
               },
@@ -635,6 +645,26 @@
               },
               {
                 "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Menu Button",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Validation",
                 "type": "hasLabel",
                 "value": true
               },
