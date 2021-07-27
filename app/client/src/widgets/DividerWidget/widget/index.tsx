@@ -151,7 +151,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
     ];
   }
 
-  getPageView() {
+  render() {
     return (
       <DividerComponent
         capSide={this.props.capSide}
