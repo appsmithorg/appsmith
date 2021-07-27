@@ -8,16 +8,23 @@ import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ActionCollectionService extends CrudService<ActionCollection, String> {
+    Flux<ActionCollection> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+
     Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection);
 
     void  generateAndSetPolicies(NewPage page, ActionCollection actionCollection);
 
     Mono<Boolean> isDuplicateActionCollection(String name, MultiValueMap<String, String> params);
+
+    Flux<ActionCollection> saveAll(List<ActionCollection> collections);
 
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
 

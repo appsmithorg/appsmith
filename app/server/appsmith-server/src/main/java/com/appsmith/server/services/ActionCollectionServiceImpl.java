@@ -76,6 +76,24 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         this.policyGenerator = policyGenerator;
     }
 
+    @Override
+    public Flux<ActionCollection> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
+        return repository.findByApplicationIdAndViewMode(applicationId, viewMode, permission)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(collection -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do not return
+                        if (collection.getPublishedCollection() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible because
+                    // every created action starts from an unpublishedAction state.
+
+                    return Mono.just(collection);
+                });
+    }
+
     /**
      * Called by ActionCollection controller to create ActionCollection.
      *
@@ -220,6 +238,11 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
         return actionCollectionNamesInPageMono
                 .map(actionCollectionNames -> actionCollectionNames.contains(name));
+    }
+
+    @Override
+    public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
+        return repository.saveAll(collections);
     }
 
     @Override

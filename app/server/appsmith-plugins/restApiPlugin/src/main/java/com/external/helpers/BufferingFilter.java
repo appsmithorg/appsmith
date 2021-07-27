@@ -43,7 +43,7 @@ public class BufferingFilter implements ExchangeFilterFunction {
                     .flatMap(dataBuffer -> {
                         int length = dataBuffer.readableByteCount();
                         this.getDelegate().getHeaders().setContentLength(length);
-                        return super.writeWith(Mono.just(dataBuffer));
+                        return super.writeWith(body);
                     });
         }
     }
