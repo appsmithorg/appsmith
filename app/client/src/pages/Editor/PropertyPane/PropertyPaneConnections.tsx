@@ -26,6 +26,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { showDebugger } from "actions/debuggerActions";
 import { setActionTabsInitialIndex } from "actions/actionActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
@@ -321,11 +322,16 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
     : `No ${props.connectionType.toLowerCase()} connections`;
   const iconColor = props.hasError ? "#f22b2b" : "";
 
+  const onClick = () => {
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_DROPDOWN_CLICK");
+  };
+
   return (
     <SelectedNodeWrapper
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
         <Icon
