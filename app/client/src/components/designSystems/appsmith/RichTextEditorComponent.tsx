@@ -63,9 +63,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     const editorId = `rte-${props.widgetId}`;
     const selector = `textarea#${editorId}`;
 
-    if ((window as any).tinyMCE.get(editorId)) {
-      const prevEditor = (window as any).tinyMCE.get(editorId);
-
+    const prevEditor = (window as any).tinyMCE.get(editorId);
+    if (prevEditor) {
       // following code is just a patch for tinyMCE's issue with firefox
       prevEditor.contentWindow = window;
       // removing in case it was not properly removed, which will cause problems
