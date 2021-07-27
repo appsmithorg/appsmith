@@ -89,7 +89,6 @@ public class AnalyticsService {
                     }
                 }
             }
-            analyticsProperties.put("originService", "self-hosted-server");
             userId = hashedUserId;
         }
 
@@ -102,7 +101,6 @@ public class AnalyticsService {
                     analyticsProperties.put(entry.getKey(), "");
                 }
             }
-            analyticsProperties.put("originService", "appsmith-server");
         }
         messageBuilder = messageBuilder.properties(analyticsProperties);
 
@@ -133,6 +131,7 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
+                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }
