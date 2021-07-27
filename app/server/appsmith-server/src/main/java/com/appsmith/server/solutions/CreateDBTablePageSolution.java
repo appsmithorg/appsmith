@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -566,13 +567,9 @@ public class CreateDBTablePageSolution {
                     .contains(column.getType().replaceAll("[^A-Za-z]+", "").toLowerCase())
                 )
                 .findAny()
-                .map(column -> column.getName())
+                .map(Column::getName)
                 .orElse(null);
-            if (tempSearchColumn != null) {
-                mappedTableColumns.put(DEFAULT_SEARCH_COLUMN, tempSearchColumn);
-            } else {
-                mappedTableColumns.put(DEFAULT_SEARCH_COLUMN, DELETE_FIELD);
-            }
+            mappedTableColumns.put(DEFAULT_SEARCH_COLUMN, Objects.requireNonNullElse(tempSearchColumn, DELETE_FIELD));
         }
         mappedTableColumns.putAll(mapKeys(sourceTable, destTable));
         List<Column> sourceTableColumns = sourceTable.getColumns(), destTableColumns = destTable.getColumns();
