@@ -138,7 +138,12 @@ public class DeleteSheetMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Deleted sheet successfully!"));
+        String errorMessage = "Deleted spreadsheet successfully!";
+        if (GoogleSheets.SHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
+            errorMessage = "Deleted sheet " + methodConfig.getSheetName() + " successfully!";
+        }
+
+        return this.objectMapper.valueToTree(Map.of("message", errorMessage));
     }
 
 }
