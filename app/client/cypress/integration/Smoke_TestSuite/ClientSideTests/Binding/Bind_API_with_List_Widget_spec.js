@@ -40,7 +40,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         });
     });
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(".t--draggable-textwidget span").should("have.length", 4);
+    cy.get(".t--draggable-textwidget span").should("have.length", 8);
 
     cy.get(".t--draggable-textwidget span")
       .first()
@@ -49,7 +49,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-    cy.get(".t--widget-textwidget span").should("have.length", 4);
+    cy.get(".t--widget-textwidget span").should("have.length", 8);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
@@ -71,7 +71,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         });
     });
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(".t--draggable-textwidget span").should("have.length", 2);
+    cy.get(".t--draggable-textwidget span").should("have.length", 6);
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
@@ -79,7 +79,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-    cy.get(".t--widget-textwidget span").should("have.length", 2);
+    cy.get(".t--widget-textwidget span").should("have.length", 6);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
