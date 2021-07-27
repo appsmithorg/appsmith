@@ -12,6 +12,9 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import forge from "node-forge";
 
 export type DependencyMap = Record<string, Array<string>>;
+export type Position = { line: number; col: number };
+export type SegmentPosition = { script: string; pos: Position };
+export type Range = { start: Position; end?: Position };
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -60,6 +63,62 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
   }
   if (sum !== 0 && dynamicString !== "") {
     return [dynamicString];
+  }
+  return stringSegments;
+}
+
+//{{}}{{}}}
+export function getDynamicStringSegmentsPos(
+  dynamicString: string,
+  line = 0,
+  col = 0,
+): SegmentPosition[] {
+  let stringSegments: SegmentPosition[] = [];
+  const indexOfDoubleParanStart = dynamicString.indexOf("{{");
+  if (indexOfDoubleParanStart === -1) {
+    return [{ script: dynamicString, pos: { line, col } }];
+  }
+  //{{}}{{}}}
+  const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
+  col += firstString.length;
+
+  firstString &&
+    stringSegments.push({ script: firstString, pos: { line, col } });
+  let rest = dynamicString.substring(
+    indexOfDoubleParanStart,
+    dynamicString.length,
+  );
+  //{{}}{{}}}
+  let sum = 0;
+  for (let i = 0; i <= rest.length - 1; i++) {
+    const char = rest[i];
+    const prevChar = rest[i - 1];
+    col++;
+    if (char === "\n" || char === "\r\n") {
+      line += 1;
+      col = 0;
+    }
+    if (char === "{") {
+      sum++;
+    } else if (char === "}") {
+      sum--;
+      if (prevChar === "}" && sum === 0) {
+        stringSegments.push({
+          script: rest.substring(0, i + 1),
+          pos: { line, col },
+        });
+        rest = rest.substring(i + 1, rest.length);
+        if (rest) {
+          stringSegments = stringSegments.concat(
+            getDynamicStringSegmentsPos(rest, line, col),
+          );
+          break;
+        }
+      }
+    }
+  }
+  if (sum !== 0 && dynamicString !== "") {
+    return [{ script: dynamicString, pos: { line, col } }];
   }
   return stringSegments;
 }
@@ -314,6 +373,7 @@ export type EvaluationError = {
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
+  range?: Range;
 };
 
 export interface DataTreeEvaluationProps {

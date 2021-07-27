@@ -9,6 +9,7 @@ import {
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
+  Position,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -631,9 +632,10 @@ export default class DataTreeEvaluator {
     data: DataTree,
     callbackData?: Array<any>,
     isTriggerBased = false,
+    pos?: Position,
   ): EvalResult {
     try {
-      return evaluate(js, data, callbackData, isTriggerBased);
+      return evaluate(js, data, callbackData, isTriggerBased, pos);
     } catch (e) {
       return {
         result: undefined,
@@ -644,6 +646,7 @@ export default class DataTreeEvaluator {
             raw: js,
             severity: Severity.ERROR,
             errorMessage: e.message,
+            range: { start: { line: 0, col: 0 }, end: { line: 0, col: 2 } },
           },
         ],
       };

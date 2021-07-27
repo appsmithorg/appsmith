@@ -5,6 +5,8 @@ import {
   EvaluationError,
   extraLibraries,
   PropertyEvaluationErrorType,
+  Position,
+  Range,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -49,24 +51,84 @@ const evaluationScripts: Record<
   closedFunction()
   `,
 };
+const scriptReplacer = (template: string, script: string) =>
+  template.replace("{{script}}", script);
+const startPosInScript = (script: string): Position => {
+  const startIndex = script.indexOf(script);
+  const initSubstr = script.substr(0, startIndex + 1);
+  const lines = initSubstr.split("\n");
+  const lastLine = _.last(lines) || "";
+  return { line: lines.length - 1, col: lastLine.length - 1 };
+};
 
-const getScriptToEval = (
-  userScript: string,
+const getScript = (template: string) => (script: string) => ({
+  pos: startPosInScript(template),
+  script: scriptReplacer(template, script),
+});
+
+const evaluationScriptWithPos: Record<
+  EvaluationScriptType,
+  (script: string) => { script: string; pos: Position }
+> = {
+  [EvaluationScriptType.EXPRESSION]: getScript(`
+  function closedFunction () {
+    const result = {{script}}
+    return result;
+  }
+  closedFunction()
+  `),
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: getScript(`
+  function callback (script) {
+    const userFunction = script;
+    const result = userFunction.apply(self, ARGUMENTS);
+    return result;
+  }
+  callback({{script}})
+  `),
+  [EvaluationScriptType.TRIGGERS]: getScript(`
+  function closedFunction () {
+    const result = {{script}}
+  }
+  closedFunction()
+  `),
+};
+
+const getScriptType = (
   evalArguments?: Array<any>,
   isTriggerBased = false,
-): string => {
+): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
   if (evalArguments) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
   } else if (isTriggerBased) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
+  return scriptType;
+};
+
+const getScriptToEval = (
+  userScript: string,
+  evalArguments?: Array<any>,
+  isTriggerBased = false,
+): string => {
+  const scriptType = getScriptType(evalArguments, isTriggerBased);
   return evaluationScripts[scriptType](userScript);
+};
+
+const getScriptToEvalPos = (
+  userScript: string,
+  evalArguments?: Array<any>,
+  isTriggerBased = false,
+) => {
+  const scriptType = getScriptType(evalArguments, isTriggerBased);
+  return evaluationScriptWithPos[scriptType](userScript);
 };
 
 const getLintingErrors = (
   script: string,
   data: Record<string, unknown>,
+  segmentPosition: Position = { line: 0, col: 0 },
+  scriptPostion: Position = { line: 0, col: 0 },
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
@@ -85,6 +147,18 @@ const getLintingErrors = (
   jshint(script, options);
 
   return jshint.errors.map((lintError) => {
+    const range: Range = { start: segmentPosition };
+    if (lintError.line && lintError.character) {
+      range.start.line -= scriptPostion.line + segmentPosition.line;
+      range.start.col -= scriptPostion.col + segmentPosition.col;
+
+      if (range.end) {
+        range.end.line -= scriptPostion.line + segmentPosition.line;
+        range.end.col -= scriptPostion.col + segmentPosition.col;
+      } else {
+        range.end = { line: range.start.line, col: range.start.col + 2 };
+      }
+    }
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
@@ -93,6 +167,7 @@ const getLintingErrors = (
         : Severity.ERROR,
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
+      range,
     };
   });
 };
@@ -104,12 +179,18 @@ export default function evaluate(
   data: DataTree,
   evalArguments?: Array<any>,
   isTriggerBased = false,
+  pos: Position = { line: 0, col: 0 },
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
   const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
+  const scriptPos = getScriptToEvalPos(
+    unescapeJS,
+    evalArguments,
+    isTriggerBased,
+  );
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -159,7 +240,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, GLOBAL_DATA);
+    errors = getLintingErrors(script, GLOBAL_DATA, pos, scriptPos.pos);
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {
