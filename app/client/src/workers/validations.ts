@@ -11,6 +11,7 @@ import _, {
   isString,
   startsWith,
   toString,
+  uniq,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 
@@ -43,11 +44,8 @@ function validatePlainObject(
             );
         }
       } else if (entry.params?.required) {
-        return {
-          isValid: false,
-          parsed: value,
-          message: `Missing required key: ${entry.name}`,
-        };
+        _valid = false;
+        _messages.push(`Missing required key: ${entry.name}`);
       }
     });
     if (_valid) {
@@ -98,6 +96,14 @@ function validateArray(
         );
       }
     });
+  }
+  if (config.params?.unique) {
+    if (
+      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
+    ) {
+      _isValid = false;
+      _messages.push(`Array must be unique. Duplicate values found`);
+    }
   }
   return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
 }
