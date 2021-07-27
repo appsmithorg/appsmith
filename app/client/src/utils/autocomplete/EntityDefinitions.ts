@@ -273,6 +273,10 @@ export const entityDefinitions = {
       "Checkbox group widget allows users to easily configure multiple checkboxes together.",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
     isVisible: isVisible,
+    isDisabled: "bool",
+    isRequired: "bool",
+    options: "[dropdownOption]",
+    selectedValues: "[string]",
   },
 };
 

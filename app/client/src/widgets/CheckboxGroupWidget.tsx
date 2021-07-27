@@ -1,13 +1,15 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import CheckboxComponent from "components/designSystems/blueprint/CheckboxComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { AlignWidget } from "./SwitchWidget";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import CheckboxGroupComponent, {
+  OptionProps,
+} from "components/designSystems/appsmith/CheckboxGroupComponent";
 
 class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
@@ -19,39 +21,34 @@ class CheckboxGroupWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            helpText: "Displays a label next to the widget",
-            placeholderText: "Enter label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
-          },
-          {
-            propertyName: "alignWidget",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
-            isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "defaultCheckedState",
-            label: "Default Selected",
             helpText:
-              "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
+              "Displays a list of options for a user to select. Values must be unique",
+            propertyName: "options",
+            label: "Options",
+            controlType: "OPTION_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Selects values of the options checked by default",
+            propertyName: "defaultSelectedValues",
+            label: "Default Selected Values",
+            placeholderText: "Enter option values",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.ARRAY_OPTIONAL,
+          },
+          {
+            propertyName: "isInline",
+            label: "Inline",
             controlType: "SWITCH",
+            helpText:
+              "Whether the checkbox buttons are to be displayed inline horizontally",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -94,8 +91,8 @@ class CheckboxGroupWidget extends BaseWidget<
         children: [
           {
             helpText: "Triggers an action when the check state is changed",
-            propertyName: "onCheckChange",
-            label: "onCheckChange",
+            propertyName: "onCheckChanged",
+            label: "onCheckChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -108,62 +105,72 @@ class CheckboxGroupWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      isChecked: "defaultCheckedState",
-    };
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      value: `{{!!this.isChecked}}`,
-      isValid: `{{ this.isRequired ? !!this.isChecked : true }}`,
+      selectedValues: "defaultSelectedValues",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      isChecked: undefined,
+      selectedValues: undefined,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
     };
   }
 
   getPageView() {
     return (
-      <CheckboxComponent
-        alignWidget={this.props.alignWidget}
-        isChecked={!!this.props.isChecked}
+      <CheckboxGroupComponent
         isDisabled={this.props.isDisabled}
-        isLoading={this.props.isLoading}
+        isInline={this.props.isInline}
         isRequired={this.props.isRequired}
+        isValid={this.props.isValid}
         key={this.props.widgetId}
-        label={this.props.label}
-        onCheckChange={this.onCheckChange}
+        onChange={this.handleCheckboxChange}
+        options={this.props.options}
+        selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}
       />
     );
   }
 
-  onCheckChange = (isChecked: boolean) => {
-    this.props.updateWidgetMetaProperty("isChecked", isChecked, {
-      triggerPropertyName: "onCheckChange",
-      dynamicString: this.props.onCheckChange,
-      event: {
-        type: EventType.ON_CHECK_CHANGE,
-      },
-    });
-  };
-
   getWidgetType(): WidgetType {
     return "CHECKBOX_GROUP_WIDGET";
   }
+
+  private handleCheckboxChange = (value: string) => {
+    return (event: React.FormEvent<HTMLElement>) => {
+      let { selectedValues } = this.props;
+      const isChecked = (event.target as HTMLInputElement).checked;
+      if (isChecked) {
+        selectedValues = [...selectedValues, value];
+      } else {
+        selectedValues = selectedValues.filter(
+          (item: string) => item !== value,
+        );
+      }
+
+      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+        triggerPropertyName: "onCheckChange",
+        dynamicString: this.props.onCheckChanged,
+        event: {
+          type: EventType.ON_CHECK_CHANGE,
+        },
+      });
+    };
+  };
 }
 
 export interface CheckboxGroupWidgetProps extends WidgetProps, WithMeta {
-  label: string;
-  defaultCheckedState: boolean;
-  isChecked?: boolean;
-  isDisabled?: boolean;
-  onCheckChange?: string;
+  options: OptionProps[];
+  isInline: boolean;
   isRequired?: boolean;
-  alignWidget: AlignWidget;
+  isDisabled?: boolean;
+  isValid?: boolean;
+  onCheckChanged?: string;
 }
 
 export default CheckboxGroupWidget;

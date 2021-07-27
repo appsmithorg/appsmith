@@ -198,7 +198,7 @@ const FIELD_VALUES: Record<
     label: "string",
   },
   CHECKBOX_GROUP_WIDGET: {
-    isVisible: "boolean",
+    defaultSelectedValues: "Array<string>",
   },
 };
 
