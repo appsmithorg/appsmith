@@ -6,6 +6,14 @@ rm -rf dist/
 # Build the code. $@ accepts all the parameters from the input command line and uses it in the maven build command
 mvn clean package "$@"
 
+if [ $? -eq 0 ]
+then
+  echo "mvn Successfull"
+else
+  echo "mvn Failed"
+  exit 1
+fi
+
 # Create the dist directory
 mkdir -p dist/plugins
 

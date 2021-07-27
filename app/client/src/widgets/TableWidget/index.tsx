@@ -539,7 +539,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
       // Get columns keys from this.props.tableData
-      const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
+      const columnIds: string[] = getAllTableColumnKeys(
+        this.props.sanitizedTableData,
+      );
       // Get column keys from columns except for derivedColumns
       const primaryColumnIds = Object.keys(primaryColumns).filter(
         (id: string) => {

@@ -28,6 +28,10 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.get(commonlocators.evaluatedTypeTitle)
+        .first()
+        .find("span")
+        .click();
       cy.EvaluateDataType("string");
       cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
@@ -52,6 +56,10 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("2", "1").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.get(commonlocators.evaluatedTypeTitle)
+        .first()
+        .find("span")
+        .click();
       cy.EvaluateDataType("string");
       cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
@@ -73,6 +81,10 @@ describe("Text-Table Binding Functionality", function() {
       .then((listing) => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).contains(listingCount);
+        cy.get(commonlocators.evaluatedTypeTitle)
+          .first()
+          .find("span")
+          .click();
         cy.EvaluateDataType("string");
         cy.EvaluateCurrentValue(listingCount);
         cy.PublishtheApp();
@@ -122,6 +134,10 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "2").then((tabData) => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).contains(tabValue);
+      cy.get(commonlocators.evaluatedTypeTitle)
+        .first()
+        .find("span")
+        .click();
       cy.EvaluateDataType("string");
       cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
