@@ -56,6 +56,10 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import TooltipComponent from "components/ads/Tooltip";
 import moment from "moment/moment";
+import { Colors } from "constants/Colors";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { useLocation } from "react-router";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -140,6 +144,29 @@ const StyledDeployButton = styled(Button)`
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
+const BindingBanner = styled.div`
+  position: fixed;
+  width: 199px;
+  height: 36px;
+  left: 50%;
+  top: ${(props) => props.theme.smallHeaderHeight};
+  transform: translate(-50%, 0);
+  text-align: center;
+  background: ${Colors.DANUBE};
+
+  color: ${Colors.WHITE};
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  /* Depth: 01 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -167,8 +194,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     pageSaveError,
     publishApplication,
   } = props;
-
+  const location = useLocation();
   const dispatch = useDispatch();
+  const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
@@ -176,6 +204,15 @@ export function EditorHeader(props: EditorHeaderProps) {
   const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
     "",
   );
+
+  useEffect(() => {
+    if (window.location.href) {
+      const searchParams = new URL(window.location.href).searchParams;
+      const isSnipingMode = searchParams.get("isSnipingMode");
+      const updatedIsSnipingMode = isSnipingMode === "true";
+      dispatch(setSnipingModeAction(updatedIsSnipingMode));
+    }
+  }, [location]);
 
   const findLastUpdatedTimeMessage = () => {
     setLastUpdatedTimeMessage(
@@ -360,6 +397,11 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <OnboardingHelper />
         <GlobalSearch />
+        {isSnipingMode && (
+          <BindingBanner className="t--sniping-mode-banner">
+            Select a widget to bind
+          </BindingBanner>
+        )}
       </HeaderWrapper>
     </ThemeProvider>
   );
