@@ -36,11 +36,9 @@ describe("Table Widget Functionality", function() {
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.PublishtheApp();
   });
 
   it("Table Widget Functionality To Verify The Data", function() {
-    cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -49,7 +47,6 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality To Show a Base64 Image", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.editColumn("image");
     cy.changeColumnType("Image");
@@ -58,7 +55,7 @@ describe("Table Widget Functionality", function() {
     const index = 1;
     const imageVal = this.data.TableInput[index].image;
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {
-      expect(hrefVal).to.be.equal(imageVal);
+      expect(hrefVal).to.contain(imageVal);
     });
   });
 
@@ -120,13 +117,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type(tabValue);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
+      // cy.get(widgetsPage.filterCloseBtn).click({force:true});
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -137,7 +135,8 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
+      cy.wait(500);
     });
   });
 
@@ -159,13 +158,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Lindsay");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -176,7 +175,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -198,13 +197,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Lindsay");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -215,7 +214,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -237,13 +236,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Ferguson");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -254,7 +253,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
