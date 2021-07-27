@@ -135,6 +135,7 @@ class CodeEditor extends Component<Props, State> {
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  errorMarkers: CodeMirror.TextMarker[] = [];
 
   constructor(props: Props) {
     super(props);
@@ -457,6 +458,22 @@ class CodeEditor extends Component<Props, State> {
     const filteredLintErrors = errors.filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
+
+    const lintErrors = errors.filter(
+      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+    );
+
+    this.errorMarkers.forEach((marker) => marker.clear());
+
+    lintErrors.forEach((error) => {
+      const range = error.range;
+      if (range) {
+        this.errorMarkers.push(
+          this.editor.markText(range.start, range.end, { css: "color: red" }),
+        );
+      }
+    });
+
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {

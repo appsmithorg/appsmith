@@ -9,7 +9,6 @@ import {
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
-  Position,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -52,6 +51,7 @@ import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
+import { Position } from "codemirror";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -637,7 +637,7 @@ export default class DataTreeEvaluator {
             raw: js,
             severity: Severity.ERROR,
             errorMessage: e.message,
-            range: { start: { line: 0, col: 0 }, end: { line: 0, col: 2 } },
+            range: { start: { line: 0, ch: 0 }, end: { line: 0, ch: 2 } },
           },
         ],
       };

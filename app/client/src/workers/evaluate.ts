@@ -5,13 +5,13 @@ import {
   EvaluationError,
   extraLibraries,
   PropertyEvaluationErrorType,
-  Position,
   Range,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
+import { Position } from "codemirror";
 
 export type EvalResult = {
   result: any;
@@ -58,7 +58,7 @@ const startPosInScript = (script: string): Position => {
   const initSubstr = script.substr(0, startIndex + 1);
   const lines = initSubstr.split("\n");
   const lastLine = _.last(lines) || "";
-  return { line: lines.length - 1, col: lastLine.length - 1 };
+  return { line: lines.length - 1, ch: lastLine.length - 1 };
 };
 
 const getScript = (template: string) => (script: string) => ({
@@ -127,8 +127,8 @@ const getScriptToEvalPos = (
 const getLintingErrors = (
   script: string,
   data: Record<string, unknown>,
-  segmentPosition: Position = { line: 0, col: 0 },
-  scriptPostion: Position = { line: 0, col: 0 },
+  segmentPosition: Position = { line: 0, ch: 0 },
+  scriptPostion: Position = { line: 0, ch: 0 },
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
@@ -147,16 +147,18 @@ const getLintingErrors = (
   jshint(script, options);
 
   return jshint.errors.map((lintError) => {
-    const range: Range = { start: segmentPosition };
+    const range: Range = { start: segmentPosition, end: segmentPosition };
     if (lintError.line && lintError.character) {
-      range.start.line -= scriptPostion.line + segmentPosition.line;
-      range.start.col -= scriptPostion.col + segmentPosition.col;
+      range.start.line =
+        lintError.line - (scriptPostion.line + segmentPosition.line);
+      range.start.ch =
+        lintError.character - (scriptPostion.ch + segmentPosition.ch);
 
       if (range.end) {
         range.end.line -= scriptPostion.line + segmentPosition.line;
-        range.end.col -= scriptPostion.col + segmentPosition.col;
+        range.end.ch -= scriptPostion.ch + segmentPosition.ch;
       } else {
-        range.end = { line: range.start.line, col: range.start.col + 2 };
+        range.end = { line: range.start.line, ch: range.start.ch + 2 };
       }
     }
     return {
@@ -179,7 +181,7 @@ export default function evaluate(
   data: DataTree,
   evalArguments?: Array<any>,
   isTriggerBased = false,
-  pos: Position = { line: 0, col: 0 },
+  pos: Position = { line: 0, ch: 0 },
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
