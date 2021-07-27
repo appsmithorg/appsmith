@@ -976,6 +976,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // fetch the published actions by applicationId
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
+                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
                     actionViewDTO.setId(action.getId());
