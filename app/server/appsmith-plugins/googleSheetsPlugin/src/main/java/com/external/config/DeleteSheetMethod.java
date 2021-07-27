@@ -88,7 +88,7 @@ public class DeleteSheetMethod implements Method {
                     String sheetId = null;
                     for (JsonNode sheet : sheets) {
                         final JsonNode properties = sheet.get("properties");
-                        if (methodConfig.getSheetName().equals(properties.get("title").asText())) {
+                        if (methodConfig.getSheetName().equalsIgnoreCase(properties.get("title").asText())) {
                             sheetId = properties.get("sheetId").asText();
                         }
                     }
