@@ -89,7 +89,7 @@ function getLatestEvalPropertyErrors(
         ? ENTITY_TYPE.WIDGET
         : ENTITY_TYPE.ACTION;
       const debuggerKeyMap = {
-        [idField + "-" + propertyPath]: evalErrors,
+        [`${idField}-${propertyPath}`]: evalErrors,
         [`${idField}-${propertyPath}-warning`]: evalWarnings,
       };
       // if dataTree has error but debugger does not -> add
@@ -98,6 +98,7 @@ function getLatestEvalPropertyErrors(
       // if debugger or data tree does not have an error -> no change
 
       for (const [debuggerKey, errors] of Object.entries(debuggerKeyMap)) {
+        const isWarning = debuggerKey.endsWith("warning");
         if (errors.length) {
           // TODO Rank and set the most critical error
           const error = errors[0];
@@ -105,10 +106,7 @@ function getLatestEvalPropertyErrors(
             message: e.errorMessage,
           }));
 
-          if (
-            !debuggerKey.endsWith("warning") &&
-            !(debuggerKey in updatedDebuggerErrors)
-          ) {
+          if (!isWarning && !(debuggerKey in updatedDebuggerErrors)) {
             store.dispatch(
               logDebuggerErrorAnalytics({
                 eventName: "DEBUGGER_NEW_ERROR",
@@ -129,12 +127,12 @@ function getLatestEvalPropertyErrors(
 
           // Add or update
           updatedDebuggerErrors[debuggerKey] = {
-            logType: LOG_TYPE.EVAL_ERROR,
+            logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
             text: PropertyEvalErrorTypeDebugMessage[error.errorType](
               propertyPath,
             ),
             messages: errorMessages,
-            severity: error.severity,
+            severity: isWarning ? Severity.WARNING : Severity.ERROR,
             timestamp: moment().format("hh:mm:ss"),
             source: {
               id: idField,
@@ -148,7 +146,7 @@ function getLatestEvalPropertyErrors(
             analytics: analyticsData,
           };
         } else if (debuggerKey in updatedDebuggerErrors) {
-          if (!debuggerKey.endsWith("warning")) {
+          if (!isWarning) {
             store.dispatch(
               logDebuggerErrorAnalytics({
                 eventName: "DEBUGGER_RESOLVED_ERROR",
