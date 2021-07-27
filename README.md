@@ -85,6 +85,16 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 👾 Ask for help on our [Forum](https://community.appsmith.com)
 - Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
 
+## Deployment Options
+
+Check out the instructions for the deploying Appsmith on differnt services:
+
+| **Cloud Provider** |                                                                                             **Link**                                                                                              |                                 **Additional Information**                                  |
+| :----------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
+|       Heroku       |                    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/appsmithorg/appsmith/tree/master)                     |                       [docs](https://docs.appsmith.com/setup/heroku)                        |
+|    DigitalOcean    |          [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-white-ghost.svg)](https://cloud.digitalocean.com/droplets/new?onboarding_origin=marketplace&image=appsmith-18-04)           | [docs](https://blog.appsmith.com/self-host-appsmith-in-just-a-few-minutes-on-digital-ocean) |
+|    DigitalOcean    | [![Deploy to DigitalOcean](https://img.shields.io/badge/Amazon_AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white.png)](https://aws.amazon.com/marketplace/pp/prodview-mclslaty46ah4) |                       [docs](https://docs.appsmith.com/setup/aws-ami)                       |
+
 ## Demos
 
 Check out some real applications that can be built with Appsmith:
