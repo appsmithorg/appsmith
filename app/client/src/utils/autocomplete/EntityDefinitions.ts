@@ -274,7 +274,7 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
     isVisible: isVisible,
     isDisabled: "bool",
-    isRequired: "bool",
+    isValid: "bool",
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },

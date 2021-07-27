@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -29,7 +29,28 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        isUnique: true,
+                        type: ValidationTypes.TEXT,
+                      },
+                      {
+                        name: "value",
+                        isUnique: true,
+                        type: ValidationTypes.TEXT,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -41,7 +62,14 @@ class CheckboxGroupWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.ARRAY_OPTIONAL,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
+              },
+            },
           },
           {
             propertyName: "isInline",
@@ -52,7 +80,9 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
           },
           {
             propertyName: "isRequired",
@@ -62,7 +92,9 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
           },
           {
             propertyName: "isVisible",
@@ -72,7 +104,9 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
           },
           {
             propertyName: "isDisabled",
@@ -82,7 +116,9 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
           },
         ],
       },
