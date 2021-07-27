@@ -89,20 +89,22 @@ public class AnalyticsService {
                     }
                 }
             }
+            analyticsProperties.put("originService", "self-hosted-server");
             userId = hashedUserId;
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
-        if (!CollectionUtils.isEmpty(analyticsProperties)) {
+        if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
             // Segment throws an NPE if any value in `properties` is null.
             for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
                 if (entry.getValue() == null) {
                     analyticsProperties.put(entry.getKey(), "");
                 }
             }
-            messageBuilder = messageBuilder.properties(analyticsProperties);
+            analyticsProperties.put("originService", "appsmith-server");
         }
+        messageBuilder = messageBuilder.properties(analyticsProperties);
 
         analytics.enqueue(messageBuilder);
     }
@@ -131,7 +133,6 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
-                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }
