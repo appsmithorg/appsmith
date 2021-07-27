@@ -252,11 +252,7 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
     // Disable google sheet plugin
     plugins.map((plugin) => {
-      if (
-        plugin.generateCRUDPageComponent &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.S3
-      ) {
+      if (plugin.generateCRUDPageComponent) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
     });
