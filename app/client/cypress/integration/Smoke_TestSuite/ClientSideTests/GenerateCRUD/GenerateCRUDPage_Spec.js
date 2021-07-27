@@ -49,7 +49,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       201,
     );
-
+    cy.wait("@getActions");
     cy.wait("@executeAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -111,6 +111,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       201,
     );
+    cy.wait("@getActions");
     cy.wait("@executeAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -147,6 +148,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       201,
     );
+    cy.wait("@getActions");
     cy.wait("@executeAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
