@@ -43,6 +43,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                unique: true,
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -50,12 +51,18 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                       {
                         name: "label",
                         type: ValidationTypes.TEXT,
-                        default: "",
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
-                        default: "",
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                     ],
                   },

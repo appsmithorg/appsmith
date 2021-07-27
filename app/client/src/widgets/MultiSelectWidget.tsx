@@ -61,6 +61,7 @@ class MultiSelectWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                unique: true,
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -68,12 +69,18 @@ class MultiSelectWidget extends BaseWidget<
                       {
                         name: "label",
                         type: ValidationTypes.TEXT,
-                        default: "",
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
-                        default: "",
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                     ],
                   },
