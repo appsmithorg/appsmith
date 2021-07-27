@@ -23,6 +23,7 @@ import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
+import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
@@ -35,6 +36,7 @@ type Props = {
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
+  resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
   closeTableFilterProppane: () => void;
@@ -189,6 +191,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
             this.props.resetCommentMode();
+            this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
@@ -199,7 +202,11 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="v"
           global
           label="Edit Mode"
-          onKeyDown={this.props.resetCommentMode}
+          onKeyDown={(e: any) => {
+            this.props.resetCommentMode();
+            this.props.resetSnipingMode();
+            e.preventDefault();
+          }}
         />
         <Hotkey
           combo="c"
@@ -239,6 +246,7 @@ const mapDispatchToProps = (dispatch: any) => {
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
+    resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
