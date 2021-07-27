@@ -62,6 +62,7 @@ import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
+import { ExpectedValueExample } from "utils/validation/common";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -95,7 +96,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: { type: string; example: ExpectedValueExample };
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -207,7 +208,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 300));
+        editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("change", this.handleAutocompleteVisibility);
         editor.on("change", this.onChangeTrigger);
         editor.on("keyup", this.handleAutocompleteHide);
@@ -362,7 +363,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) return;
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: HintEntityInformation = {
-      expectedType: expected,
+      expectedType: expected?.type,
     };
     if (dataTreePath) {
       const { entityName } = getEntityNameAndPropertyPath(dataTreePath);

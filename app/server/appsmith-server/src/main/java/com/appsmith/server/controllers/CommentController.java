@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CommentService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +57,8 @@ public class CommentController extends BaseController<CommentService, Comment, S
     }
 
     @GetMapping("/threads")
-    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@RequestParam String applicationId) {
-        return service.getThreadsByApplicationId(applicationId)
+    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@Valid CommentThreadFilterDTO filterDTO) {
+        return service.getThreadsByApplicationId(filterDTO)
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
 

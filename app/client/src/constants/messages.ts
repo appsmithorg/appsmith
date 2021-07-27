@@ -359,3 +359,17 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+// Actions Right pane
+export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
+export const INCOMING_ENTITIES = () => "Incoming entities";
+export const NO_INCOMING_ENTITIES = () => "No incoming entities";
+export const OUTGOING_ENTITIES = () => "Outgoing entities";
+export const NO_OUTGOING_ENTITIES = () => "No outgoing entities";
+export const NO_CONNECTIONS = () => "No connections to show here";
+export const BACK_TO_CANVAS = () => "Back to canvas";
+export const SUGGESTED_WIDGET_DESCRIPTION = () =>
+  "This will add a new widget to the canvas.";
+export const ADD_NEW_WIDGET = () => "Add New Widget";
+export const SUGGESTED_WIDGETS = () => "Suggested widgets";
+export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
