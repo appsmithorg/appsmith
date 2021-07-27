@@ -76,12 +76,20 @@ public class AnalyticsService {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = new HashMap<>(properties);
 
-        if (!commonConfig.isCloudHosted()) {
-            userId = DigestUtils.sha256Hex(userId);
-            if (analyticsProperties.containsKey("username")) {
-                analyticsProperties.put("username", userId);
-            }
+        // Hash usernames at all places for self-hosted instance
+        if (!commonConfig.isCloudHosting()) {
+            final String hashedUserId = DigestUtils.sha256Hex(userId);
             analyticsProperties.remove("request");
+            if (!CollectionUtils.isEmpty(analyticsProperties)) {
+                for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                    if (entry.getValue() == null) {
+                        analyticsProperties.put(entry.getKey(), "");
+                    } else if (entry.getValue().equals(userId)) {
+                        analyticsProperties.put(entry.getKey(), hashedUserId);
+                    }
+                }
+            }
+            userId = hashedUserId;
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
