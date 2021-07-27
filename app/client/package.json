@@ -226,7 +226,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
     "craco-babel-loader": "^0.1.4",
-    "cypress": "8.0.0",
+    "cypress": "7.6.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-xpath": "^1.4.0",
