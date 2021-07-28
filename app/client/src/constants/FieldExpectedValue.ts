@@ -179,7 +179,7 @@ const FIELD_VALUES: Record<
     isDisabled: "boolean",
   },
   IFRAME_WIDGET: {
-    source: "string",
+    source: "URL",
     title: "string",
     borderOpacity: "number",
     borderWidth: "number",
