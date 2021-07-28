@@ -6,6 +6,7 @@ import {
   Validator,
 } from "../constants/WidgetValidation";
 import _, {
+  get,
   isObject,
   isPlainObject,
   isString,
@@ -98,7 +99,17 @@ function validateArray(
     });
   }
   if (config.params?.unique) {
-    if (
+    if (isString(config.params?.unique)) {
+      const shouldBeUnique = value.map((entry) =>
+        get(entry, config.params?.unique as string, ""),
+      );
+      if (uniq(shouldBeUnique).length !== value.length) {
+        _isValid = false;
+        _messages.push(
+          `Array entry path:${config.params.unique} must be unique. Duplicate values found`,
+        );
+      }
+    } else if (
       uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
     ) {
       _isValid = false;
