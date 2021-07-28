@@ -104,7 +104,7 @@ function Dependencies(props: any) {
   const onClick = (entityName: string) => {
     navigateToEntity(entityName);
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
-      screen: "INTEGRATION",
+      source: "INTEGRATION",
     });
   };
 

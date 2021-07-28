@@ -292,6 +292,9 @@ function OptionNode(props: any) {
       }
     }
     navigateToEntity(props.option.label);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      source: "PROPERTY_PANE",
+    });
   };
 
   return (
