@@ -3,7 +3,7 @@ import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
-import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { Layers } from "constants/Layers";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "../../../selectors/editorSelectors";
@@ -27,7 +27,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
-  const openPropertyPane = useClickOpenPropPane();
+  const clickToSelectWidget = useClickToSelectWidget();
   const isSnipingMode = useSelector(snipingModeSelector);
   // memoized classname
   const containerClassName = useMemo(() => {
@@ -56,11 +56,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
-  const openPropPane = useCallback(
+  const onClickFn = useCallback(
     (e) => {
-      openPropertyPane(e, props.widgetId);
+      clickToSelectWidget(e, props.widgetId);
     },
-    [props.widgetId, openPropertyPane],
+    [props.widgetId, clickToSelectWidget],
   );
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
@@ -76,7 +76,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       key={`positioned-container-${props.widgetId}`}
       onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
-      onClickCapture={openPropPane}
+      onClickCapture={onClickFn}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
     >

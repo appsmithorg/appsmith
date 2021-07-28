@@ -191,16 +191,18 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
         // Give evaluations a second to complete.
-        setTimeout(() => {
-          if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
-            showPropertyPane(updateWidgetParams.payload.newWidgetId);
-            // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
-          }
-        }, 100);
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);
         persistDropTargetRows(widget.widgetId, widgetBottomRow);
+        if (updateWidgetParams.payload.newWidgetId) {
+          setTimeout(() => {
+            showPropertyPane(updateWidgetParams.payload.newWidgetId);
+            // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
+          }, 100);
+        } else {
+          showPropertyPane();
+        }
 
         /* Finally update the widget */
         updateWidget &&

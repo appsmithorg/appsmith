@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
-  useShowPropertyPane,
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
@@ -67,7 +66,6 @@ export const canDrag = (
 
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
-  const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
 
   // Dispatch hook handy to set a widget as focused/selected
@@ -128,7 +126,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       showTableFilterPane && showTableFilterPane();
       // Tell the rest of the application that a widget has started dragging
       setIsDragging && setIsDragging(true);
-
       AnalyticsUtil.logEvent("WIDGET_DRAG", {
         widgetName: props.widgetName,
         widgetType: props.type,
@@ -140,9 +137,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       // of the property pane is taken into account.
       // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
-      if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-      }
       // Take this to the bottom of the stack. So that it runs last.
       // We do this because, we don't want erroraneous mouse clicks to propagate.
       setTimeout(() => setIsDragging && setIsDragging(false), 0);

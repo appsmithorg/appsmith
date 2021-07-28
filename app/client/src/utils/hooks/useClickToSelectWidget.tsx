@@ -1,5 +1,4 @@
 import { get } from "lodash";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
@@ -50,8 +49,7 @@ export function getParentToOpenIfAny(
   return;
 }
 
-export const useClickOpenPropPane = () => {
-  const showPropertyPane = useShowPropertyPane();
+export const useClickToSelectWidget = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
@@ -72,7 +70,7 @@ export const useClickOpenPropPane = () => {
   );
 
   const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
-  const openPropertyPane = (e: any, targetWidgetId: string) => {
+  const clickToSelectWidget = (e: any, targetWidgetId: string) => {
     // ignore click captures
     // 1. if the component was resizing or dragging coz it is handled internally in draggable component
     // 2. table filter property pane is open
@@ -93,12 +91,9 @@ export const useClickOpenPropPane = () => {
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
         focusWidget(parentWidgetToOpen.widgetId);
-        !isMultiSelect &&
-          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
-        !isMultiSelect && showPropertyPane(focusedWidgetId, undefined, true);
       }
 
       if (isMultiSelect) {
@@ -106,5 +101,5 @@ export const useClickOpenPropPane = () => {
       }
     }
   };
-  return openPropertyPane;
+  return clickToSelectWidget;
 };
