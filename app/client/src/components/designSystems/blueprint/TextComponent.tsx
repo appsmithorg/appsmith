@@ -48,6 +48,7 @@ export const StyledText = styled(Text)<{
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
+  word-break: break-word;
   span {
     width: 100%;
     line-height: 1.2;
