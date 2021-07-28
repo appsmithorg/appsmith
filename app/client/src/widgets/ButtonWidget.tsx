@@ -13,7 +13,7 @@ import ButtonComponent, {
   ButtonVariant,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 
@@ -42,7 +42,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isVisible",
@@ -52,7 +52,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -62,7 +62,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -72,7 +72,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "recaptchaV2",
@@ -82,7 +82,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -157,6 +157,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             },
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "PRIMARY",
+                  "WARNING",
+                  "DANGER",
+                  "INFO",
+                  "SECONDARY",
+                  "CUSTOM",
+                ],
+              },
+            },
           },
           {
             propertyName: "buttonColor",
@@ -191,7 +204,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+              },
+            },
           },
           {
             propertyName: "borderRadius",
@@ -201,7 +219,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
@@ -211,7 +234,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
           },
           {
             propertyName: "boxShadowColor",
@@ -220,6 +255,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "iconName",
@@ -242,7 +283,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               }
               return propertiesToUpdate;
             },
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
           },
           {
             propertyName: "iconAlign",
@@ -251,7 +294,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
           },
         ],
       },

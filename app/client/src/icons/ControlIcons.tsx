@@ -47,6 +47,7 @@ import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg"
 import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
 import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
 import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
+import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
 import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
 import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import { ReactComponent as BoxShadowNoneIcon } from "assets/icons/control/box-shadow-none.svg";
@@ -306,6 +307,11 @@ export const ControlIcons: {
   DIVIDER_CAP_ALL: (props: IconProps) => (
     <IconWrapper {...props}>
       <DividerCapAllIcon />
+    </IconWrapper>
+  ),
+  BIND_DATA_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TrendingFlat />
     </IconWrapper>
   ),
   ICON_ALIGN_LEFT: (props: IconProps) => (

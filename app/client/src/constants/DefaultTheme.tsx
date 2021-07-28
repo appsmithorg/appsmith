@@ -435,6 +435,9 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  actionSidePane: {
+    width: number;
+  };
 };
 
 type IconSizeType = {
@@ -1225,6 +1228,13 @@ type ColorType = {
     border: string;
     actionActiveBg: string;
   };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
+  };
 };
 
 const notifications = {
@@ -1380,6 +1390,13 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
 const navigationMenu = {
   contentActive: "#F0F0F0",
   backgroundActive: "#222222",
@@ -1952,6 +1969,7 @@ export const dark: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const light: ColorType = {
@@ -2525,6 +2543,7 @@ export const light: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const theme: Theme = {
@@ -2885,6 +2904,9 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
+  },
+  actionSidePane: {
+    width: 265,
   },
 };
 

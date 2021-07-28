@@ -9,7 +9,7 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -42,7 +42,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "buttonStyle",
@@ -84,7 +84,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -94,7 +94,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -104,7 +104,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "recaptchaV2",
@@ -114,7 +114,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

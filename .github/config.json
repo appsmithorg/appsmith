@@ -649,6 +649,26 @@
                 "value": true
               },
               {
+                "label": "Menu Button",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Validation",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Widgets",
                 "type": "hasLabel",
                 "value": true
