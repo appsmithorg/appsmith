@@ -25,6 +25,7 @@ export const skipJSProps = [
   "actionId",
   "__evaluation__",
   "variables",
+  "data", //for time being till we introduce async functions
 ];
 
 // Def names are encoded with information about the entity
