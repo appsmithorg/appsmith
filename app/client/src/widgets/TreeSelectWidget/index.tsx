@@ -3,7 +3,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -11,6 +14,30 @@ import TreeSelectComponent from "components/designSystems/appsmith/TreeSelectCom
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  return {
+    isValid: true,
+    parsed: values,
+  };
+}
 class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -27,7 +54,28 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -39,7 +87,16 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.DEFAULT_TREE_OPTION_VALUES,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                },
+              },
+            },
           },
           {
             helpText: "Input Place Holder",
@@ -49,7 +106,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -59,7 +116,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -69,7 +126,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -79,7 +136,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -104,7 +161,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return {
       selectedIndexArr: `{{ this.selectedOptionValues.map(o => _.findIndex(this.options, { value: o })) }}`,
       selectedOptionLabels: `{{ this.selectedOptionValueArr.map((o) => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label ?? this.options[index]?.value; })  }}`,
-      selectedOptionValues: `{{ this.selectedOptionValueArr.filter((o) => { const index = _.findIndex(this.options, { value: o });  return index > -1; })  }}`,
+      selectedOptionValues: `{{ this.selectedOptionValueArr.filter((o) => { const index = _.findIndex(this.flat(), { value: o });  return index > -1; })  }}`,
       isValid: `{{this.isRequired ? !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
     };
   }
@@ -123,10 +180,11 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const values: string[] = isArray(this.props.selectedOptionValues)
-      ? this.props.selectedOptionValues
+    const values: string[] = isArray(this.props.selectedOptionValueArr)
+      ? this.props.selectedOptionValueArr
       : [];
 
+    console.log(values, "valuessss");
     return (
       <TreeSelectComponent
         disabled={this.props.isDisabled ?? false}
@@ -143,6 +201,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
   }
 
   onOptionChange = (value: DefaultValueType) => {
+    console.log(value);
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -151,6 +210,17 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
       },
     });
   };
+
+  flat(array: DropdownOption[]) {
+    let result: { value: string }[] = [];
+    array.forEach((a) => {
+      result.push({ value: a.value });
+      if (Array.isArray(a.children)) {
+        result = result.concat(this.flat(a.children));
+      }
+    });
+    return result;
+  }
 
   getWidgetType(): WidgetType {
     return "TREE_SELECT_WIDGET";
@@ -161,6 +231,7 @@ export interface DropdownOption {
   label: string;
   value: string;
   disabled?: boolean;
+  children?: DropdownOption[];
 }
 
 export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {

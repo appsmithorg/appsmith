@@ -268,6 +268,35 @@ export const entityDefinitions = {
     isVisible: isVisible,
     label: "string",
   },
+  //TODO: fix this after development
+  TREE_SELECT_WIDGET: {
+    "!doc":
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
 };
 
 export const GLOBAL_DEFS = {
@@ -337,34 +366,5 @@ export const GLOBAL_FUNCTIONS = {
   resetWidget: {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
-  },
-  //TODO: fix this after development
-  TREE_SELECT_WIDGET: {
-    "!doc":
-      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
-    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    isVisible: isVisible,
-    selectedOptionValue: {
-      "!type": "string",
-      "!doc": "The value selected in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabel: {
-      "!type": "string",
-      "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionValues: {
-      "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabels: {
-      "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    isDisabled: "bool",
-    options: "[dropdownOption]",
   },
 };
