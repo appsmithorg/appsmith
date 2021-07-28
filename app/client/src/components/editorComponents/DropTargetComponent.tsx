@@ -26,6 +26,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getDragDetails } from "sagas/selectors";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -75,9 +76,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const dragDetails = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
-  );
+  // dragDetails contains of info needed for a container jump:
+  // which parent the dragging widget belongs,
+  // which canvas is active(being dragged on),
+  // which widget is grabbed while dragging started,
+  // relative position of mouse pointer wrt to the last grabbed widget.
+  const dragDetails = useSelector(getDragDetails);
 
   const { draggedOn } = dragDetails;
 
@@ -125,14 +129,14 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   };
 
-  const updateHeight = useCallback(() => {
+  const updateHeight = () => {
     if (dropTargetRef.current) {
       const height = canDropTargetExtend
         ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
         : "100%";
       dropTargetRef.current.style.height = height;
     }
-  }, [canDropTargetExtend]);
+  };
   const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
     if (canDropTargetExtend) {
       const newRows = calculateDropTargetRows(

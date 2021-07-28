@@ -282,9 +282,6 @@ export function CanvasSelectionArena({
             scrollParent?.scrollHeight +
             scrollParent?.scrollTop -
             (lastScrollHeight + lastScrollTop);
-          if (delta) {
-            console.count("onScroll");
-          }
           onMouseMove({
             offsetX: lastMouseMoveEvent.offsetX,
             offsetY: lastMouseMoveEvent.offsetY + delta,

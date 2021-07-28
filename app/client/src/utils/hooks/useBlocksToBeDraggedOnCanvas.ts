@@ -54,6 +54,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
+
+  // dragDetails contains of info needed for a container jump:
+  // which parent the dragging widget belongs,
+  // which canvas is active(being dragged on),
+  // which widget is grabbed while dragging started,
+  // relative position of mouse pointer wrt to the last grabbed widget.
   const dragDetails = useSelector(getDragDetails);
   const defaultHandlePositions = {
     top: 20,

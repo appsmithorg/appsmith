@@ -125,7 +125,9 @@ export const useCanvasDragging = (
             if (isNewWidget) {
               setDraggingNewWidget(false, undefined);
             } else {
-              setDraggingState(false);
+              setDraggingState({
+                isDragging: false,
+              });
             }
             setDraggingCanvas();
           }

@@ -74,8 +74,7 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   const stateWidget: FlattenedWidgetProps = allWidgets[widgetId];
   let widget = Object.assign({}, stateWidget);
   // Get all widgets from DSL/Redux Store
-  const stateWidgets: CanvasWidgetsReduxState = cloneDeep(allWidgets);
-  const widgets = Object.assign({}, stateWidgets);
+  const widgets = Object.assign({}, allWidgets);
   // Get parent from DSL/Redux Store
   const stateParent: FlattenedWidgetProps = allWidgets[parentId];
   const parent = {

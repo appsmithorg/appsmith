@@ -81,10 +81,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
 
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+  const occupiedSpacesBySiblingWidgets = useMemo(() => {
+    return occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
       : undefined;
+  }, [occupiedSpaces, props.parentId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =

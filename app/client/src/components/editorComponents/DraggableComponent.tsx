@@ -1,8 +1,8 @@
-import React, { CSSProperties, useRef } from "react";
+import React, { CSSProperties, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
@@ -11,7 +11,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -62,7 +61,7 @@ export const canDrag = (
 
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
-  const { focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   const isCommentMode = useSelector(commentModeSelector);
 
@@ -111,22 +110,20 @@ function DraggableComponent(props: DraggableComponentProps) {
   };
   const shouldRenderComponent = !(isCurrentWidgetSelected && isDragging);
   // Display this draggable based on the current drag state
-  const style: CSSProperties = {
+  const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
   };
+  const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
+    return {
+      opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
+      position: "absolute",
+      transform: `translate(-50%, -50%)`,
+      top: "50%",
+      left: "50%",
+    };
+  }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
-  // WidgetBoundaries
-  const widgetBoundaries = (
-    <WidgetBoundaries
-      style={{
-        opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
-        position: "absolute",
-        transform: `translate(-50%, -50%)`,
-        top: "50%",
-        left: "50%",
-      }}
-    />
-  );
+  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")
@@ -140,7 +137,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     isCommentMode,
   );
   const className = `${classNameForTesting}`;
-  const dispatch = useDispatch();
   const draggableRef = useRef<HTMLDivElement>(null);
 
   const onDragStart = (e: any) => {
@@ -148,7 +144,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     e.stopPropagation();
     if (draggableRef.current && !(e.metaKey || e.ctrlKey)) {
       if (!isCurrentWidgetSelected) {
-        dispatch(selectWidgetInitAction(props.widgetId));
+        selectWidget(props.widgetId);
       }
       const bounds = draggableRef.current.getBoundingClientRect();
       const startPoints = {
@@ -157,12 +153,13 @@ function DraggableComponent(props: DraggableComponentProps) {
       };
       showTableFilterPane();
       setDraggingCanvas(props.parentId);
-      setDraggingState(
-        true,
-        props.parentId || "",
-        { widgetId: props.widgetId },
+
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: props.parentId || "",
+        draggingGroupCenter: { widgetId: props.widgetId },
         startPoints,
-      );
+      });
     }
   };
 
@@ -174,7 +171,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
       ref={draggableRef}
-      style={style}
+      style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
       {widgetBoundaries}

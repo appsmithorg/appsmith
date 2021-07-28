@@ -212,16 +212,15 @@ function WidgetsMultiSelectBox(props: {
       const top = minBy(selectedWidgets, (rect) => rect.topRow)?.topRow;
       const left = minBy(selectedWidgets, (rect) => rect.leftColumn)
         ?.leftColumn;
-
-      setDraggingState(
-        true,
-        parentId || "",
-        {
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: parentId || "",
+        draggingGroupCenter: {
           top,
           left,
         },
         startPoints,
-      );
+      });
     }
   };
 
