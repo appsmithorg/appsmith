@@ -8,7 +8,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { addFunctions, AppsmithPromise, pusherOverride } from "./Actions";
+import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
@@ -118,21 +118,14 @@ export default function evaluate(
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
+    GLOBAL_DATA.Promise = AppsmithPromise;
     if (isTriggerBased) {
       //// Add internal functions to dataTree;
-      const dataTreeWithFunctions = addFunctions(data);
+      const dataTreeWithFunctions = enhanceDataTreeWithFunctions(data);
       ///// Adding Data tree with functions
       Object.keys(dataTreeWithFunctions).forEach((datum) => {
         GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
       });
-      ///// Fixing action paths and capturing their execution response
-      if (dataTreeWithFunctions.actionPaths) {
-        GLOBAL_DATA.triggers = [];
-        GLOBAL_DATA.actionPaths.forEach((path: string) => {
-          pusherOverride(path);
-        });
-        GLOBAL_DATA.Promise = AppsmithPromise;
-      }
     } else {
       ///// Adding Data tree
       Object.keys(data).forEach((datum) => {
@@ -166,11 +159,7 @@ export default function evaluate(
     try {
       result = eval(script);
       if (isTriggerBased) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         triggers = [...self.triggers];
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         self.triggers = [];
       }
     } catch (e) {

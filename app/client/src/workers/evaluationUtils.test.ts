@@ -1,7 +1,7 @@
 import { getAllPaths } from "./evaluationUtils";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import { addFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions } from "./Actions";
 
 describe("getAllPaths", () => {
   it("getsAllPaths", () => {
@@ -62,7 +62,7 @@ describe("Add functions", () => {
         logBlackList: {},
       },
     };
-    const dataTreeWithFunctions = addFunctions(dataTree);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
     expect(dataTreeWithFunctions.actionPaths).toStrictEqual([
       "action1.run",
       "navigateTo",

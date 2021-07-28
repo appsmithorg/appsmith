@@ -57,37 +57,41 @@ export type AppsmithPromisePayload = {
   finally?: string;
 };
 
-export const pusher = function(
-  this: { triggers: ActionDescription[] },
+export const pusher: ActionDispatcher = function(
+  this: { triggers: ActionDescription[]; isPromise: boolean },
   action: any,
   ...payload: any[]
 ) {
   const actionPayload = action(...payload);
-  debugger;
   if (actionPayload instanceof AppsmithPromise) {
     this.triggers.push(actionPayload.action);
     return actionPayload;
-  } else {
-    this.triggers.push(actionPayload);
   }
+  return action;
 };
 
-export const pusherOverride = (actionPath: string) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(actionPath);
-  const overrideThis = { triggers: promiseTriggers };
-  if (entityName === actionPath) {
-    const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
-    if (action) {
-      _.set(self, actionPath, pusher.bind({ ...overrideThis }, action));
+export const pusherOverride = (revert = false) => {
+  self.actionPaths.forEach((actionPath) => {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      actionPath,
+    );
+    const promiseThis = { triggers: promiseTriggers, isPromise: true };
+    const globalThis = { triggers: self.triggers, isPromise: false };
+    const overrideThis = revert ? globalThis : promiseThis;
+    if (entityName === actionPath) {
+      const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
+      if (action) {
+        _.set(self, actionPath, pusher.bind(overrideThis, action));
+      }
+    } else {
+      const entity = _.get(self, entityName);
+      const funcCreator = DATA_TREE_FUNCTIONS[propertyPath];
+      if (typeof funcCreator === "object" && "qualifier" in funcCreator) {
+        const func = funcCreator.func(entity);
+        _.set(self, actionPath, pusher.bind(overrideThis, func));
+      }
     }
-  } else {
-    const entity = _.get(self, entityName);
-    const funcCreator = DATA_TREE_FUNCTIONS[propertyPath];
-    if (typeof funcCreator === "object" && "qualifier" in funcCreator) {
-      const func = funcCreator.func(entity);
-      _.set(self, actionPath, pusher.bind({ ...overrideThis }, func));
-    }
-  }
+  });
 };
 
 let promiseTriggers: ActionDescription[] = [];
@@ -104,30 +108,31 @@ export class AppsmithPromise {
 
   constructor(executor: ActionDescription[] | (() => ActionDescription[])) {
     if (typeof executor === "function") {
+      pusherOverride();
       executor();
-      this.action.payload.executor = promiseTriggers;
+      this.action.payload.executor = [...promiseTriggers];
       promiseTriggers = [];
-      this._attachToSelfTriggers();
+      pusherOverride(true);
     } else {
       this.action.payload.executor = executor;
     }
+    this._attachToSelfTriggers();
     return this;
   }
 
+  private removeDuplicates() {
+    self.triggers = self.triggers.filter((trigger) => {
+      return !this.action.payload.executor.includes(trigger);
+    });
+  }
+
   private _attachToSelfTriggers() {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     if (self.triggers) {
+      this.removeDuplicates();
       if (_.isNumber(this.triggerReference)) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         self.triggers[this.triggerReference] = this.action;
       } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         self.triggers.push(this.action);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         this.triggerReference = self.triggers.length - 1;
       }
     }
@@ -269,10 +274,19 @@ const DATA_TREE_FUNCTIONS: Record<
   },
 };
 
-export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
-  const withFunction: DataTree = _.cloneDeep(dataTree);
+declare global {
+  interface Window {
+    triggers: ActionDescription[];
+    actionPaths: string[];
+  }
+}
 
-  withFunction.actionPaths = [];
+export const enhanceDataTreeWithFunctions = (
+  dataTree: Readonly<DataTree>,
+): DataTree => {
+  const withFunction: DataTree = _.cloneDeep(dataTree);
+  self.triggers = [];
+  self.actionPaths = [];
 
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -283,13 +297,20 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
           const funcName = `${entityName}.${name}`;
-          _.set(withFunction, funcName, func);
-          withFunction.actionPaths?.push(funcName);
+          _.set(
+            withFunction,
+            funcName,
+            pusher.bind({ triggers: self.triggers, isPromise: false }, func),
+          );
+          self.actionPaths.push(funcName);
         }
       });
     } else {
-      withFunction[name] = funcOrFuncCreator;
-      withFunction.actionPaths?.push(name);
+      withFunction[name] = pusher.bind(
+        { triggers: self.triggers, isPromise: false },
+        funcOrFuncCreator,
+      );
+      self.actionPaths.push(name);
     }
   });
 
