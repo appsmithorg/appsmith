@@ -4,6 +4,7 @@ import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
 import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -75,6 +76,11 @@ export interface ActionExecutionResponse {
   };
 }
 
+export interface SuggestedWidget {
+  type: WidgetType;
+  bindingQuery: string;
+}
+
 export interface ActionResponse {
   body: unknown;
   headers: Record<string, string[]>;
@@ -83,6 +89,7 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
+  suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
 }
 
