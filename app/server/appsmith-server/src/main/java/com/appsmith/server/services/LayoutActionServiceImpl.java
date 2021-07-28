@@ -166,7 +166,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         String oldName = refactorActionNameDTO.getOldName();
         String newName = refactorActionNameDTO.getNewName();
         String actionId = refactorActionNameDTO.getActionId();
-        return isNameAllowed(pageId, layoutId, newName)
+        return Mono.just(newActionService.validateActionName(newName))
+                .flatMap(isValidName -> {
+                    if (!isValidName) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+                    }
+                    return isNameAllowed(pageId, layoutId, newName);
+                })
                 .flatMap(allowed -> {
                     if (!allowed) {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
