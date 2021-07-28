@@ -7,6 +7,7 @@ import { Colors } from "constants/Colors";
 import { addMockDatasourceToOrg } from "actions/datasourceActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "../../../reducers";
+import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`
   overflow: auto;
@@ -103,7 +104,13 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
     return null;
   }
 
-  const addMockDataSource = () =>
+  const addMockDataSource = () => {
+    AnalyticsUtil.logEvent("ADD_MOCK_DATASOURCE_CLICK", {
+      datasourceName: datasource.name,
+      orgId,
+      packageName: currentPlugin.packageName,
+      pluginName: currentPlugin.name,
+    });
     dispatch(
       addMockDatasourceToOrg(
         datasource.name,
@@ -112,6 +119,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
         currentPlugin.packageName,
       ),
     );
+  };
   return (
     <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
       <DatasourceCardHeader className="t--datasource-name">
