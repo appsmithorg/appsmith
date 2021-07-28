@@ -55,6 +55,7 @@ const DatasourceCard = styled.div`
   .dataSourceImageWrapper {
     width: 40px;
     height: 40px;
+    padding: 6px 0;
     border-radius: 20px;
     margin: 0 8px;
     background: #f0f0f0;
@@ -66,7 +67,6 @@ const DatasourceCard = styled.div`
       width: auto;
       margin: 0 auto;
       max-width: 100%;
-      margin-bottom: 2px;
     }
   }
 

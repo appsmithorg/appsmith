@@ -11,6 +11,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommentUtils;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static java.lang.Boolean.FALSE;
@@ -113,22 +115,35 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             }
         });
 
-        Mono<CommentThread> commentThreadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
-                .flatMap(commentThread -> {
-                    if (CommentUtils.isAnyoneMentioned(comment) && Boolean.TRUE.equals(commentThread.getIsPrivate())) {
-                        return convertToPublic(commentThread);
-                    }
-                    return Mono.just(commentThread);
-                });
+        return userMono.flatMap(user ->
+            threadRepository
+                    .findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
+                    .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
+                    .flatMap(commentThread -> create(commentThread, user, comment, originHeader, true))
+        );
+    }
 
+    /**
+     * This method updates a comment thread when a new comment is added in that thread. It does the following:<ul>
+     * <li>Marks the thread as unread for users other than the author</li>
+     * <li>Mark the thread as unresolved if it's in resolved state</li>
+     * <li>Marks the thread as public if someone is tagged in the comment</li></ul>
+     * @param commentThread the thread object
+     * @param comment the comment object
+     * @param user currently logged in user aka author
+     * @return updated thread
+     */
+    private Mono<CommentThread> updateThreadOnAddComment(CommentThread commentThread, Comment comment, User user) {
+        commentThread.setViewedByUsers(Set.of(user.getUsername()));
+        if(commentThread.getResolvedState().getActive() == TRUE) {
+            commentThread.getResolvedState().setActive(FALSE);
+        }
 
-        return userMono.zipWith(commentThreadMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final CommentThread thread = tuple.getT2();
-                    return create(thread, user, comment, originHeader, true);
-                });
+        if (CommentUtils.isAnyoneMentioned(comment) && Boolean.TRUE.equals(commentThread.getIsPrivate())) {
+            return convertToPublic(commentThread).flatMap(threadRepository::save);
+        }
+        return threadRepository.save(commentThread);
     }
 
     /**
@@ -140,7 +155,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private Mono<CommentThread> convertToPublic(CommentThread commentThread) {
         return applicationService.findById(commentThread.getApplicationId())
                 .zipWith(sequenceService.getNext(CommentThread.class, commentThread.getApplicationId()))
-                .flatMap(objects -> {
+                .map(objects -> {
                     Application application = objects.getT1();
                     commentThread.setSequenceId("#" + objects.getT2());
                     commentThread.setIsPrivate(FALSE);
@@ -155,7 +170,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             commentThread.getAuthorUsername()
                     ).get(AclPermission.MANAGE_THREAD.getValue()));
                     commentThread.setPolicies(policies);
-                    return threadRepository.save(commentThread);
+                    return commentThread;
         });
     }
 
@@ -252,8 +267,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     .flatMap(tuple -> {
                         final UserData userData = tuple.getT1();
                         final Application application = tuple.getT2();
+                        boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
+                                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
+                        );
                         // check whether this thread should be converted to bot thread
-                        if (userData.getLatestCommentEvent() == null) {
+                        if (userData.getLatestCommentEvent() == null && shouldCreateBotThread) {
                             commentThread.setIsPrivate(true);
                             userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
                             return userDataRepository.save(userData).then(
@@ -407,8 +425,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
-        return threadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+    public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
+        return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
                 .collectList()
                 .flatMap(threads -> Mono.zip(
                         Mono.just(threads),

@@ -3,7 +3,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import IframeComponent from "components/designSystems/blueprint/IframeComponent";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -21,7 +21,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             placeholderText: "Enter the URL of the page to embed",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.SAFE_URL,
+              params: {
+                default: "https://wikipedia.org",
+              },
+            },
           },
           {
             propertyName: "title",
@@ -31,7 +36,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             placeholderText: "Enter the title of the page to embed",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -75,7 +80,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             inputType: "NUMBER",
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, max: 100, default: 100 },
+            },
           },
           {
             propertyName: "borderWidth",
@@ -84,7 +92,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             inputType: "NUMBER",
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, default: 1 },
+            },
           },
         ],
       },
@@ -128,6 +139,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       title,
       widgetId,
     } = this.props;
+
     return (
       <IframeComponent
         borderColor={borderColor}
