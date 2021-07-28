@@ -813,7 +813,11 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               }
             }
             let newChildren = [widget.widgetId];
-            if (widget.parentId && widgets[widget.parentId].children) {
+            if (
+              widget.parentId &&
+              widgets[widget.parentId] &&
+              widgets[widget.parentId].children
+            ) {
               // Concatenate the list of parents children with the current widgetId
               newChildren = newChildren.concat(
                 widgets[widget.parentId].children,
