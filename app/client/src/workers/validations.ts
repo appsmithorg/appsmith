@@ -1164,10 +1164,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.SAFE_URL]: (
-    value: any,
-    props: WidgetProps,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.SAFE_URL]: (value: any): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
       parsed: "",
