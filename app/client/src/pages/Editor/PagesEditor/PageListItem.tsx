@@ -15,6 +15,7 @@ import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
 
 import { Page } from "constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const Container = styled.div`
   display: flex;
@@ -84,27 +85,42 @@ function PageListItem(props: PageListItemProps) {
   const { applicationId, item } = props;
   const dispatch = useDispatch();
 
-  const clonePageCallback = useCallback(
-    (pageId: string): void => {
-      dispatch(clonePageInit(pageId, true));
-    },
-    [dispatch],
-  );
+  /**
+   * clones the page
+   *
+   * @return void
+   */
+  const clonePageCallback = useCallback((): void => {
+    dispatch(clonePageInit(item.pageId, true));
+  }, [dispatch]);
 
-  const deletePageCallback = useCallback(
-    (pageId: string, pageName: string): void => {
-      dispatch(deletePage(pageId, pageName));
-    },
-    [dispatch],
-  );
+  /**
+   * delete the page
+   *
+   * @return void
+   */
+  const deletePageCallback = useCallback((): void => {
+    dispatch(deletePage(item.pageId));
 
-  const setPageAsDefaultCallback = useCallback(
-    (pageId: string, applicationId?: string): void => {
-      dispatch(setPageAsDefault(pageId, applicationId));
-    },
-    [dispatch],
-  );
+    AnalyticsUtil.logEvent("DELETE_PAGE", {
+      pageName: item.pageName,
+    });
+  }, [dispatch]);
 
+  /**
+   * sets the page as default
+   *
+   * @return void
+   */
+  const setPageAsDefaultCallback = useCallback((): void => {
+    dispatch(setPageAsDefault(item.pageId, props.applicationId));
+  }, [dispatch]);
+
+  /**
+   * sets the page hidden
+   *
+   * @return void
+   */
   const setPageHidden = useCallback(() => {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch]);
@@ -150,7 +166,7 @@ function PageListItem(props: PageListItemProps) {
             <CopyIcon
               color={get(theme, "colors.pagesEditor.iconColor")}
               height={16}
-              onClick={() => clonePageCallback(item.pageId)}
+              onClick={clonePageCallback}
               width={16}
             />
           </Action>
@@ -163,7 +179,7 @@ function PageListItem(props: PageListItemProps) {
               }
               disabled={item.isDefault}
               height={16}
-              onClick={() => deletePageCallback(item.pageId, item.pageName)}
+              onClick={deletePageCallback}
               width={16}
             />
           </Action>

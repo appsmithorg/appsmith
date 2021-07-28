@@ -4,6 +4,10 @@ import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  ClonePageActionPayload,
+  CreatePageActionPayload,
+} from "actions/pageActions";
 
 export interface FetchPageRequest {
   id: string;
@@ -59,12 +63,10 @@ export interface SavePageResponse extends ApiResponse {
   };
 }
 
-export interface CreatePageRequest {
-  applicationId: string;
-  name: string;
-  layouts: Partial<PageLayout>[];
-  blockNavigation?: boolean;
-}
+export type CreatePageRequest = Omit<
+  CreatePageActionPayload,
+  "blockNavigation"
+>;
 
 export interface UpdatePageRequest {
   id: string;
@@ -76,10 +78,6 @@ export interface SetPageOrderRequest {
   order: number;
   pageId: string;
   applicationId: string;
-}
-
-export interface SetPageOrderResponse extends ApiResponse {
-  data: unknown;
 }
 
 export interface CreatePageResponse extends ApiResponse {
@@ -103,10 +101,7 @@ export interface DeletePageRequest {
   id: string;
 }
 
-export interface ClonePageRequest {
-  id: string;
-  blockNavigation?: boolean;
-}
+export type ClonePageRequest = Omit<ClonePageActionPayload, "blockNavigation">;
 
 export interface UpdateWidgetNameRequest {
   pageId: string;
@@ -210,7 +205,7 @@ class PageApi extends Api {
 
   static setPageOrder(
     request: SetPageOrderRequest,
-  ): AxiosPromise<SetPageOrderResponse> {
+  ): AxiosPromise<FetchPageListResponse> {
     return Api.put(
       PageApi.setPageOrderUrl(
         request.applicationId,

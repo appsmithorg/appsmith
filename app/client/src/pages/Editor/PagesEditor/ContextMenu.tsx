@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get, noop } from "lodash";
 import React, { useCallback, useState } from "react";
 import styled, { useTheme } from "styled-components";
 
@@ -105,6 +105,9 @@ function ContextMenu(props: Props) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
+  /**
+   * opens the context menu on interaction ( on click )
+   */
   const handleInteraction = useCallback((isOpen) => {
     setIsOpen(isOpen);
   }, []);
@@ -166,7 +169,7 @@ function ContextMenu(props: Props) {
             )}
 
             <MenuItem>
-              <div>IsVisible</div>
+              <div>Visible</div>
               <MenuItemToggle
                 onToggle={onSetPageHidden}
                 value={!page.isHidden}
@@ -178,16 +181,14 @@ function ContextMenu(props: Props) {
       isOpen={isOpen}
       minimal
       onInteraction={handleInteraction}
-      placement={"bottom-start"}
+      placement="bottom-start"
       portalClassName="pages-editor-context-menu"
     >
       <Action className={isOpen ? "active" : ""} type="button">
         <SettingsIcon
           color={get(theme, "colors.propertyPane.iconColor")}
           height={16}
-          onClick={() => {
-            //
-          }}
+          onClick={noop}
           width={16}
         />
       </Action>

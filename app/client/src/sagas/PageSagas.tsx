@@ -22,6 +22,8 @@ import {
   updateAndSaveLayout,
   saveLayout,
   setLastUpdatedTime,
+  ClonePageActionPayload,
+  CreatePageActionPayload,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -112,7 +114,6 @@ export function* fetchPageListSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
-      console.log({ pages: response.data });
       const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
@@ -459,7 +460,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 }
 
 export function* createPageSaga(
-  createPageAction: ReduxAction<CreatePageRequest>,
+  createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
     const request: CreatePageRequest = createPageAction.payload;
@@ -565,7 +566,9 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
-export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
+export function* clonePageSaga(
+  clonePageAction: ReduxAction<ClonePageActionPayload>,
+) {
   try {
     const request: ClonePageRequest = clonePageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);

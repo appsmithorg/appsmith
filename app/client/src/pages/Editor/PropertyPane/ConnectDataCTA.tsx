@@ -76,21 +76,24 @@ function ConnectDataCTA() {
     });
   }, []);
 
+  const onClick = () => {
+    history.push(
+      INTEGRATION_EDITOR_URL(
+        applicationId,
+        pageId,
+        INTEGRATION_TABS.NEW,
+        INTEGRATION_EDITOR_MODES.MOCK,
+      ),
+    );
+    AnalyticsUtil.logEvent("CONNECT_DATA_CLICK");
+  };
+
   return (
     <StyledDiv className="t--propertypane-connect-cta">
       Data Required
       <Button
         category={Category.primary}
-        onClick={() =>
-          history.push(
-            INTEGRATION_EDITOR_URL(
-              applicationId,
-              pageId,
-              INTEGRATION_TABS.NEW,
-              INTEGRATION_EDITOR_MODES.MOCK,
-            ),
-          )
-        }
+        onClick={onClick}
         size={Size.large}
         text="CONNECT DATA"
       />

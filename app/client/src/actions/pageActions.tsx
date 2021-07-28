@@ -17,6 +17,18 @@ export interface FetchPageListPayload {
   mode: APP_MODE;
 }
 
+export interface ClonePageActionPayload {
+  id: string;
+  blockNavigation?: boolean;
+}
+
+export interface CreatePageActionPayload {
+  applicationId: string;
+  name: string;
+  layouts: Partial<PageLayout>[];
+  blockNavigation?: boolean;
+}
+
 export const fetchPageList = (
   applicationId: string,
   mode: APP_MODE,
@@ -144,6 +156,13 @@ export const createPage = (
   };
 };
 
+/**
+ * action to clone page
+ *
+ * @param pageId
+ * @param blockNavigation
+ * @returns
+ */
 export const clonePageInit = (pageId: string, blockNavigation?: boolean) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_INIT,
@@ -313,11 +332,7 @@ export const updateAppPersistentStore = (
  * @param pageName
  * @returns
  */
-export const deletePage = (pageId: string, pageName: string) => {
-  AnalyticsUtil.logEvent("DELETE_PAGE", {
-    pageName,
-  });
-
+export const deletePage = (pageId: string) => {
   return {
     type: ReduxActionTypes.DELETE_PAGE_INIT,
     payload: {
