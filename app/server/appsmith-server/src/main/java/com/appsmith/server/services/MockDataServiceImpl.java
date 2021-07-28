@@ -9,6 +9,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
@@ -104,7 +105,8 @@ public class MockDataServiceImpl implements MockDataService {
             datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId());
-            return createSuffixedDatasource(datasource);
+            return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId()).
+                    then(createSuffixedDatasource(datasource));
         });
 
     }
@@ -197,13 +199,13 @@ public class MockDataServiceImpl implements MockDataService {
                 });
     }
 
-    private Mono<Void> addAnalyticsForMockDataCreation(String name, String orgId) {
+    private Mono<User> addAnalyticsForMockDataCreation(String name, String orgId) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
 
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
+                .map(user -> {
                     analyticsService.sendEvent(
                             AnalyticsEvents.CREATE.getEventName(),
                             user.getUsername(),
@@ -212,7 +214,7 @@ public class MockDataServiceImpl implements MockDataService {
                                     "orgId", defaultIfNull(orgId, "")
                             )
                     );
-                    return Mono.empty();
+                    return user;
                 });
     }
 
