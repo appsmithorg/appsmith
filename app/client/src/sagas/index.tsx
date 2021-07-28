@@ -15,6 +15,7 @@ import orgSagas from "./OrgSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
+import snipingModeSagas from "./SnipingModeSagas";
 import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
@@ -53,6 +54,7 @@ const sagas = [
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
+  snipingModeSagas,
   queryPaneSagas,
   modalSagas,
   batchSagas,

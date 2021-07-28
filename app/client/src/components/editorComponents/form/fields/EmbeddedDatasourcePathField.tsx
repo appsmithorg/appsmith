@@ -39,7 +39,7 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
-import { getDatasourceInfo } from "pages/Editor/APIEditor/DatasourceList";
+import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 
 type ReduxStateProps = {

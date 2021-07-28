@@ -4,8 +4,9 @@ import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
-import { stopEventPropagation } from "utils/AppsmithUtils";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
+import { useSelector } from "react-redux";
+import { snipingModeSelector } from "../../../selectors/editorSelectors";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -27,6 +28,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   const openPropertyPane = useClickOpenPropPane();
+  const isSnipingMode = useSelector(snipingModeSelector);
   // memoized classname
   const containerClassName = useMemo(() => {
     return (
@@ -53,10 +55,17 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style, onHoverZIndex, zIndex]);
 
-  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
-    props.widgetId,
-    openPropertyPane,
-  ]);
+  const openPropPane = useCallback(
+    (e) => {
+      openPropertyPane(e, props.widgetId);
+    },
+    [props.widgetId, openPropertyPane],
+  );
+
+  // TODO: Experimental fix for sniping mode. This should be handled with a single event
+  const stopEventPropagation = (e: any) => {
+    !isSnipingMode && e.stopPropagation();
+  };
 
   return (
     <PositionedWidget
