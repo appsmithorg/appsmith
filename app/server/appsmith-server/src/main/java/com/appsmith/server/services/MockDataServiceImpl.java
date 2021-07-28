@@ -104,7 +104,6 @@ public class MockDataServiceImpl implements MockDataService {
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId());
             return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId()).
                     then(createSuffixedDatasource(datasource));
         });
