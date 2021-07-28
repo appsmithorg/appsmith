@@ -158,6 +158,9 @@ function NewApiScreen(props: Props) {
       AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
         pluginId: authApiPlugin.id,
       });
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+        plugin: authApiPlugin,
+      });
       props.createDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
@@ -165,6 +168,9 @@ function NewApiScreen(props: Props) {
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
   const handleCreateNew = () => {
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      source: "CREATE_NEW_API",
+    });
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
@@ -198,6 +204,9 @@ function NewApiScreen(props: Props) {
           onClick={() => {
             AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
               importSource: CURL,
+            });
+            AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+              source: CURL,
             });
             history.push(curlImportURL);
           }}
@@ -236,7 +245,12 @@ function NewApiScreen(props: Props) {
             <ApiCard
               className={`t--createBlankApi-${p.packageName}`}
               key={p.id}
-              onClick={() => props.createDatasourceFromForm({ pluginId: p.id })}
+              onClick={() => {
+                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                  plugin: p,
+                });
+                props.createDatasourceFromForm({ pluginId: p.id });
+              }}
             >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">
