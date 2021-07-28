@@ -13,6 +13,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import getIsSafeURL from "./validation/getIsSafeURL";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -345,4 +346,15 @@ export const getCanManage = (currentOrg: Org) => {
     PERMISSION_TYPE.MANAGE_ORGANIZATION,
   );
   return canManage;
+};
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    const currentURL = window.location.href;
+    const currentHost = new URL(currentURL).hostname;
+    const redirectURLHost = new URL(redirectURL).hostname;
+    return getIsSafeURL(redirectURL) && currentHost === redirectURLHost;
+  } catch (e) {
+    return false;
+  }
 };
