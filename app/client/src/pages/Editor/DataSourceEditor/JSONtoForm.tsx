@@ -151,6 +151,7 @@ export class JSONtoForm<
 
   normalizeValues = () => {
     let { formData } = this.props;
+
     const checked: Record<string, any> = {};
     const configProperties = Object.keys(this.configDetails);
 
@@ -205,6 +206,19 @@ export class JSONtoForm<
       }
     }
 
+    return formData;
+  };
+
+  getTrimmedData = (formData: any) => {
+    if (formData && typeof formData === "object") {
+      Object.keys(formData).map((key) => {
+        if (typeof formData[key] === "object") {
+          this.getTrimmedData(formData[key]);
+        } else if (typeof formData[key] === "string") {
+          formData[key] = formData[key].trim();
+        }
+      });
+    }
     return formData;
   };
 

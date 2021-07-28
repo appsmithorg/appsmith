@@ -95,11 +95,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   save = () => {
     const normalizedValues = this.normalizeValues();
+    const trimmedValues = this.getTrimmedData(normalizedValues);
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onSave(normalizedValues);
+    this.props.onSave(trimmedValues);
   };
 
   openOmnibarReadMore = () => {
@@ -110,11 +111,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   test = () => {
     const normalizedValues = this.normalizeValues();
+    const trimmedValues = this.getTrimmedData(normalizedValues);
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onTest(normalizedValues);
+    this.props.onTest(trimmedValues);
   };
 
   render() {
