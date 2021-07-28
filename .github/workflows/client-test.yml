@@ -484,9 +484,9 @@ jobs:
       - name: Push release-frozen image to Docker Hub
         if: success() && github.ref == 'refs/heads/release-frozen' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.branch_name.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
@@ -495,5 +495,5 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
