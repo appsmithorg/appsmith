@@ -2008,7 +2008,7 @@ Cypress.Commands.add(
 
     // fill server timezone override
     cy.get(datasourceEditor["datasourceConfigurationProperty"]).type(
-      datasourceFormData["mysql-password"],
+      datasourceFormData["mysql-timezone"],
     );
   },
 );

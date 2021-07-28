@@ -22,5 +22,6 @@
     "mysql-database-name":"testdatabase",
     "mysql-port":19840,
     "mysql-username":"admin",
-    "mysql-password":"C0rGWRZo"
+    "mysql-password":"C0rGWRZo",
+    "mysql-timezone":"GMT-5"
 }
