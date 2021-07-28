@@ -61,7 +61,7 @@ class MultiSelectWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                unique: "label",
+                unique: ["label", "value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {

@@ -62,7 +62,7 @@ type ValidationConfigParams = {
   max?: number; // max allowed for a number
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type
-  unique?: boolean | string; // unique in an array (string if a particular path is unique)
+  unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{

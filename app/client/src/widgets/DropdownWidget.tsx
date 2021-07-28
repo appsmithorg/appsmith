@@ -43,7 +43,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                unique: "label",
+                unique: ["label", "value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
