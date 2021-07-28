@@ -303,6 +303,7 @@ export function* updateTernDefinitions(
   isFirstEvaluation: boolean,
   updates: Diff<DataTree, DataTree>[],
 ) {
+  const start = performance.now();
   const updatedEntities: Set<string> = new Set();
   // If it is the first evaluation, we want to add everything in the data tree
   if (isFirstEvaluation) {
@@ -310,7 +311,7 @@ export function* updateTernDefinitions(
     Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
   } else {
     updates.forEach((update) => {
-      if (update.kind === "N" && update.path) {
+      if ((update.kind === "N" || update.kind === "E") && update.path) {
         updatedEntities.add(update?.path[0]);
       }
     });
@@ -323,6 +324,8 @@ export function* updateTernDefinitions(
       TernServer.updateDef(name, def);
     }
   });
+  const end = performance.now();
+  log.debug("Time taken by tern definition update: ", (end - start).toFixed(2));
   // removedPaths.forEach((path) => {
   //   // No '.' means that the path is an entity name
   //   if (path.split(".").length === 1) {
