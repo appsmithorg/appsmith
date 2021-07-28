@@ -1,14 +1,14 @@
 import CodeMirror from "codemirror";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
-import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { customTreeTypeDefCreator } from "../../../utils/autocomplete/customTreeTypeDefCreator";
+import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
+import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
-export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
-  if (additionalData) {
-    const customTreeDef = customTreeTypeDefCreator(additionalData);
+export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
+  if (customDataTree) {
+    const customTreeDef = customTreeTypeDefCreator(customDataTree);
     TernServer.updateDef("customDataTree", customTreeDef);
   }
 
@@ -16,11 +16,8 @@ export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
     ...editor.options.extraKeys,
-    [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
-      cm: CodeMirror.Editor,
-      expected: string,
-      entity: string,
-    ) => TernServer.complete(cm, expected, entity),
+    [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
+      TernServer.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       TernServer.showType(cm);
     },
@@ -29,15 +26,12 @@ export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
     },
   });
   return {
-    showHint: (
-      editor: CodeMirror.Editor,
-      expected: string,
-      entityName: string,
-    ): boolean => {
+    showHint: (editor: CodeMirror.Editor, entityInformation): boolean => {
+      TernServer.setEntityInformation(entityInformation);
       const shouldShow = checkIfCursorInsideBinding(editor);
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
-        TernServer.complete(editor, expected, entityName);
+        TernServer.complete(editor);
         return true;
       }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -46,46 +40,4 @@ export const bindingHint: HintHelper = (editor, dataTree, additionalData) => {
       return false;
     },
   };
-};
-
-const computeCursorIndex = (editor: CodeMirror.Editor) => {
-  const cursor = editor.getCursor();
-  let cursorIndex = cursor.ch;
-  if (cursor.line > 0) {
-    for (let lineIndex = 0; lineIndex < cursor.line; lineIndex++) {
-      const line = editor.getLine(lineIndex);
-      cursorIndex = cursorIndex + line.length + 1;
-    }
-  }
-  return cursorIndex;
-};
-
-export const checkIfCursorInsideBinding = (
-  editor: CodeMirror.Editor,
-): boolean => {
-  let cursorBetweenBinding = false;
-  const value = editor.getValue();
-  const cursorIndex = computeCursorIndex(editor);
-  const stringSegments = getDynamicStringSegments(value);
-  // count of chars processed
-  let cumulativeCharCount = 0;
-  stringSegments.forEach((segment: string) => {
-    const start = cumulativeCharCount;
-    const dynamicStart = segment.indexOf("{{");
-    const dynamicDoesStart = dynamicStart > -1;
-    const dynamicEnd = segment.indexOf("}}");
-    const dynamicDoesEnd = dynamicEnd > -1;
-    const dynamicStartIndex = dynamicStart + start + 2;
-    const dynamicEndIndex = dynamicEnd + start;
-    if (
-      dynamicDoesStart &&
-      cursorIndex >= dynamicStartIndex &&
-      ((dynamicDoesEnd && cursorIndex <= dynamicEndIndex) ||
-        (!dynamicDoesEnd && cursorIndex >= dynamicStartIndex))
-    ) {
-      cursorBetweenBinding = true;
-    }
-    cumulativeCharCount = start + segment.length;
-  });
-  return cursorBetweenBinding;
 };

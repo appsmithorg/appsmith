@@ -8,6 +8,7 @@ import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -61,6 +62,7 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
 
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
@@ -115,7 +117,8 @@ function DraggableComponent(props: DraggableComponentProps) {
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
-
+      // Make sure that this tableFilterPane should close
+      showTableFilterPane && showTableFilterPane();
       // Tell the rest of the application that a widget has started dragging
       setIsDragging && setIsDragging(true);
 

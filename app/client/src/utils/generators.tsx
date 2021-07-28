@@ -13,6 +13,7 @@ export const generateReactKey = ({
 // This className is used for the following:
 // 1. Resize bounds
 // 2. Property pane reference for positioning
+// 3. Table widget filter pan reference for positioning
 export const generateClassName = (seed?: string) => {
   return `appsmith_widget_${seed}`;
 };

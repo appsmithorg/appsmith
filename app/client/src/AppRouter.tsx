@@ -17,6 +17,7 @@ import {
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
+  UNSUBSCRIBE_EMAIL_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -29,6 +30,7 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
+import UnsubscribeEmail from "pages/common/UnsubscribeEmail";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
@@ -115,6 +117,10 @@ class AppRouter extends React.Component<any, any> {
                 />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
                 <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
+                <SentryRoute
+                  component={UnsubscribeEmail}
+                  path={UNSUBSCRIBE_EMAIL_URL}
+                />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>
