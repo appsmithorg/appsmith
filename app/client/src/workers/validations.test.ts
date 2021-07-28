@@ -497,6 +497,47 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[index]);
     });
   });
+
+  it("correctly validates safe URL", () => {
+    const config = {
+      type: ValidationTypes.SAFE_URL,
+      params: {
+        default: "https://wikipedia.org",
+      },
+    };
+    const inputs = [
+      "https://wikipedia.org",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+      "javascript:alert(document.cookie)",
+      "data:text/html,<svg onload=alert(1)>",
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "https://wikipedia.org",
+      },
+      {
+        isValid: true,
+        parsed:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+      },
+      {
+        isValid: false,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        parsed: "https://wikipedia.org",
+      },
+      {
+        isValid: false,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        parsed: "https://wikipedia.org",
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {

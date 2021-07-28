@@ -21,7 +21,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             placeholderText: "Enter the URL of the page to embed",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.SAFE_URL },
+            validation: {
+              type: ValidationTypes.SAFE_URL,
+              params: {
+                default: "https://wikipedia.org",
+              },
+            },
           },
           {
             propertyName: "title",

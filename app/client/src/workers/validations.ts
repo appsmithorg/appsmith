@@ -578,19 +578,23 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.SAFE_URL]: (
     config: ValidationConfig,
     value: unknown,
-    props: Record<string, unknown>,
   ): ValidationResponse => {
-    let isValid = false;
-    let parsed = "";
+    const invalidResponse = {
+      isValid: false,
+      parsed: config?.params?.default || "",
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+    };
 
     if (
       typeof value === "string" &&
       (value.match(SAFE_URL_PATTERN) || value.match(DATA_URL_PATTERN))
     ) {
-      isValid = true;
-      parsed = value;
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    } else {
+      return invalidResponse;
     }
-
-    return { isValid, parsed };
   },
 };
