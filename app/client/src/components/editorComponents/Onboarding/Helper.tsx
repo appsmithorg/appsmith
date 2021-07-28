@@ -9,6 +9,7 @@ import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -182,9 +183,7 @@ const SubStepContainer = styled.div`
 `;
 
 function Helper() {
-  const showHelper = useSelector(
-    (state: AppState) => state.ui.onBoarding.showHelper,
-  );
+  const showHelper = useSelector(getIsOnboardingHelperVisible);
   const helperConfig = useSelector(
     (state: AppState) => state.ui.onBoarding.helperStepConfig,
   );
