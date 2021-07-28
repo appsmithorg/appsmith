@@ -158,14 +158,14 @@ public class DataUtils {
                             final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
                             Flux<DataBuffer> data = DataBufferUtils.readInputStream(
                                     () -> new ByteArrayInputStream(String
-                                            .valueOf(finalMultipartFormDataDTO.getPart())
+                                            .valueOf(finalMultipartFormDataDTO.getData())
                                             .getBytes(StandardCharsets.UTF_8)),
                                     outputMessage.bufferFactory(),
                                     4096);
 
                             bodyBuilder.asyncPart(key, data, DataBuffer.class)
-                                    .filename(multipartFormDataDTO.getFilename())
-                                    .contentType(MediaType.valueOf(multipartFormDataDTO.getContentType()));
+                                    .filename(multipartFormDataDTO.getName())
+                                    .contentType(MediaType.valueOf(multipartFormDataDTO.getType()));
                         }
                     }
 
