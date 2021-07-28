@@ -144,10 +144,6 @@ const InputComponentWrapper = styled((props) => (
   }
 `;
 
-const ToolTipContent = styled.div`
-  max-width: 350px;
-`;
-
 const ToolTipIcon = styled(IconWrapper)`
   cursor: help;
   margin-top: 1.5px;
@@ -535,7 +531,9 @@ class InputComponent extends React.Component<
             )}
             {this.props.tooltip && (
               <Tooltip
-                content={<ToolTipContent>{this.props.tooltip}</ToolTipContent>}
+                content={
+                  <div style={{ maxWidth: "350px" }}>{this.props.tooltip}</div>
+                }
                 hoverOpenDelay={200}
                 position={Position.TOP}
               >

@@ -12,7 +12,11 @@ import {
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+} from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -501,7 +505,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   getPageView() {
     const value = this.props.text || "";
-    const isInvalid =
+    let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode =
       this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
@@ -510,7 +514,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
-    if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
+    if (this.props.maxChars) {
+      conditionalProps.maxChars = this.props.maxChars;
+      if (
+        this.props.defaultText &&
+        this.props.defaultText.length > this.props.maxChars
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+        );
+      }
+    }
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
     const minInputSingleLineHeight =
