@@ -1392,7 +1392,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return !allWidgets[each].disallowCopy;
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
   });
 
   if (!allAllowedToCopy) {
