@@ -10,6 +10,11 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+
+export type WidgetProperties = WidgetProps & {
+  [EVALUATION_PATH]?: DataTreeEntity;
+};
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -51,17 +56,19 @@ export const getWidgetPropsForPropertyPane = createSelector(
 );
 
 const populateWidgetProperties = (
-  widget: WidgetProps,
+  widget: WidgetProps | undefined,
   propertyPath: string,
   dependencies: string[],
 ) => {
-  const widgetProperties: any = {
-    type: widget.type,
-    widgetName: widget.widgetName,
-    widgetId: widget.widgetId,
-    dynamicTriggerPathList: widget.dynamicTriggerPathList,
-    dynamicPropertyPathList: widget.dynamicPropertyPathList,
-  };
+  const widgetProperties: any = {};
+
+  if (!widget) return widgetProperties;
+
+  widgetProperties.type = widget.type;
+  widgetProperties.widgetName = widget.widgetName;
+  widgetProperties.widgetId = widget.widgetId;
+  widgetProperties.dynamicTriggerPathList = widget.dynamicTriggerPathList;
+  widgetProperties.dynamicPropertyPathList = widget.dynamicPropertyPathList;
 
   getAndSetPath(widget, widgetProperties, propertyPath);
 
@@ -121,11 +128,9 @@ export const getWidgetPropsForPropertyName = (
     (
       widget: WidgetProps | undefined,
       evaluatedTree: DataTree,
-    ): any | undefined => {
-      if (!widget) return undefined;
-
+    ): WidgetProperties => {
       const evaluatedWidget = find(evaluatedTree, {
-        widgetId: widget.widgetId,
+        widgetId: widget?.widgetId,
       }) as DataTreeWidget;
 
       const widgetProperties = populateWidgetProperties(

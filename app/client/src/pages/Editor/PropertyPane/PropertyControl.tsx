@@ -25,7 +25,10 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyName } from "selectors/propertyPaneSelectors";
+import {
+  getWidgetPropsForPropertyName,
+  WidgetProperties,
+} from "selectors/propertyPaneSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -50,7 +53,10 @@ const PropertyControl = memo((props: Props) => {
     props.dependencies,
   );
 
-  const widgetProperties: any = useSelector(propsSelector, isEqual);
+  const widgetProperties: WidgetProperties = useSelector(
+    propsSelector,
+    isEqual,
+  );
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
@@ -72,23 +78,23 @@ const PropertyControl = memo((props: Props) => {
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
-        widgetType: widgetProperties.type,
-        widgetName: widgetProperties.widgetName,
+        widgetType: widgetProperties?.type,
+        widgetName: widgetProperties?.widgetName,
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
       dispatch(
         setWidgetDynamicProperty(
-          widgetProperties.widgetId,
+          widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
         ),
       );
     },
     [
-      widgetProperties.widgetId,
-      widgetProperties.type,
-      widgetProperties.widgetName,
+      widgetProperties?.widgetId,
+      widgetProperties?.type,
+      widgetProperties?.widgetName,
     ],
   );
 
