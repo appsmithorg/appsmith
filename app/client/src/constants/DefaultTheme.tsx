@@ -566,6 +566,27 @@ type buttonVariant = {
   darkest: string;
 };
 
+type ButtonVariantColor = {
+  solid: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  outline: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  ghost: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor?: Color;
+  };
+};
+
 type ColorType = {
   overlayColor: string;
   button: {
@@ -586,118 +607,24 @@ type ColorType = {
     /**
      * PRIMARY style
      */
-    primary: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    primary: ButtonVariantColor;
+
     /**
      * WARNING style
      */
-    warning: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    warning: ButtonVariantColor;
     /**
      * DANGER style
      */
-    danger: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    danger: ButtonVariantColor;
     /**
      * INFO style
      */
-    info: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    info: ButtonVariantColor;
     /**
      * SECONDARY style
      */
-    secondary: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    secondary: ButtonVariantColor;
     /**
      * CUSTOM style
      */
