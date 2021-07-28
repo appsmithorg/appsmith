@@ -792,6 +792,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 26) {
     currentDSL = migrateDatePickerMinMaxDate(currentDSL);
+    currentDSL.version = 27;
   }
   if (currentDSL.version === 27) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
