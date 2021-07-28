@@ -17,6 +17,7 @@
   "datasourceCard": ".t--datasource",
   "editDatasource": ".t--edit-datasource",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
+  "datasourceConfigurationProperty":"input[name='datasourceConfiguration.properties[0]']",
   "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']",
   "Mysql": ".t--plugin-name:contains('Mysql')",
   "ElasticSearch": ".t--plugin-name:contains('ElasticSearch')",
@@ -40,5 +41,6 @@
   "saveAndAuthorize": "button:contains('Save and Authorize')",
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
-  "basicPassword": "input[name='authentication.password']"
+  "basicPassword": "input[name='authentication.password']",
+  "specificMySQL":"[data-cy='section-MySQL Specific Parameters']"
 }
