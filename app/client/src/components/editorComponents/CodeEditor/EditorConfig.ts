@@ -43,7 +43,7 @@ export const EditorThemes: Record<EditorTheme, string> = {
 export type HintEntityInformation = {
   entityName?: string;
   expectedType?: string;
-  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET;
+  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET | ENTITY_TYPE.JSACTION;
 };
 
 export type HintHelper = (

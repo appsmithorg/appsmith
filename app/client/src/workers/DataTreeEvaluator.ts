@@ -134,7 +134,6 @@ export default class DataTreeEvaluator {
     const diffCheckTimeStart = performance.now();
     const differences: Diff<DataTree, DataTree>[] =
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
-    debugger;
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {

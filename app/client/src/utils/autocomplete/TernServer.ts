@@ -173,7 +173,7 @@ class TernServer {
     }
     const bindings = getDynamicBindings(cm.getValue());
     const onlySingleBinding = bindings.stringSegments.length === 1;
-    const searchText = bindings.jsSnippets[0].trim();
+    const searchText = bindings.jsSnippets[0] && bindings.jsSnippets[0].trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);

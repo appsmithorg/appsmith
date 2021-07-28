@@ -194,7 +194,9 @@ function JSEditorForm() {
                   panelComponent: (
                     <CodeEditor
                       className={"js-editor"}
+                      dataTreePath={`${currentJSAction?.name}.body`}
                       height={"400px"}
+                      hideEvaluatedValue
                       input={{
                         value: currentJSAction?.body,
                         onChange: (event: any) => handleOnChange(event),
