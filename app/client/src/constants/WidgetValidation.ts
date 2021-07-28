@@ -35,6 +35,7 @@ export enum VALIDATION_TYPES {
   RATE_DEFAULT_RATE = "RATE_DEFAULT_RATE",
   RATE_MAX_COUNT = "RATE_MAX_COUNT",
   COLOR_PICKER_TEXT = "COLOR_PICKER_TEXT",
+  SAFE_URL = "SAFE_URL",
 }
 
 export type ValidationResponse = {
