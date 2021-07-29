@@ -1,27 +1,25 @@
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-  forwardRef,
-} from "react";
-import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { isEqual } from "lodash";
-import { createSelector } from "reselect";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
 import {
   getExistingActionNames,
   getExistingPageNames,
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
+import styled from "styled-components";
+import { removeSpecialChars } from "utils/helpers";
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -74,12 +72,6 @@ export interface EntityNameProps {
   searchKeyword?: string;
   className?: string;
   nameTransformFn?: (input: string, limit?: number) => string;
-}
-
-function myEqual(prev: any, next: any) {
-  console.log(prev, next);
-  console.log(prev === next, isEqual(prev, next));
-  return isEqual(prev, next);
 }
 
 export const EntityName = forwardRef(
