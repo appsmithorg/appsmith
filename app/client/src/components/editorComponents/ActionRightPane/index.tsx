@@ -30,6 +30,7 @@ import {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
+import { Colors } from "constants/Colors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -142,7 +143,8 @@ const BackButton = styled.div`
   cursor: pointer;
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   .${Classes.TEXT} {
-    margin-left: ${(props) => props.theme.spaces[4] + 1}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
+    letter-spacing: 0;
   }
 `;
 
@@ -233,7 +235,12 @@ function ActionSidebar({
   return (
     <SideBar>
       <BackButton onClick={navigeteToCanvas}>
-        <Icon keepColors name="chevron-left" size={IconSize.XXS} />
+        <Icon
+          fillColor={Colors.DOVE_GRAY}
+          keepColors
+          name="chevron-left"
+          size={IconSize.XS}
+        />
         <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
       </BackButton>
 
