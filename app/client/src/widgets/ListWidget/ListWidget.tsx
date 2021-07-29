@@ -10,6 +10,7 @@ import {
   range,
   toString,
   isBoolean,
+  omit,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -35,6 +36,7 @@ import withMeta from "./../MetaHOC";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -87,6 +89,37 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     // generate childMetaPropertyMap
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
+    this.generateChildrenEntityDefinitions(this.props);
+  }
+
+  /**
+   * generates the children entity definitions for children
+   *
+   * by entity definition we mean properties that will be open for users for autocomplete
+   *
+   * @param props
+   */
+  generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
+    const template = props.template;
+    const childrenEntityDefinitions: Record<string, any> = {};
+
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const widgetType = currentTemplate.type;
+
+        childrenEntityDefinitions[widgetType] = Object.keys(
+          omit(get(entityDefinitions, `${widgetType}`), ["!doc", "!url"]),
+        );
+      });
+    }
+
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenEntityDefinitions",
+        childrenEntityDefinitions,
+      );
+    }
   }
 
   generateChildrenDefaultPropertiesMap = (
@@ -167,6 +200,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     ) {
       this.generateChildrenDefaultPropertiesMap(this.props);
       this.generateChildrenMetaPropertiesMap(this.props);
+      this.generateChildrenEntityDefinitions(this.props);
     }
   }
 
