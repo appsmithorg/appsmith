@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
@@ -16,13 +16,12 @@ import {
   OUTGOING_ENTITIES,
 } from "constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
-import { useEntityLink, useSelectedEntity } from "./hooks";
+import { useEntityLink, useGetEntityInfo, useSelectedEntity } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isAction, isWidget } from "workers/evaluationUtils";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -133,18 +132,19 @@ type ConnectionsProps = {
   } | null;
 };
 
-const useGetEntityType = () => {
-  const dataTree = useSelector(getDataTree);
+type ConnectionProps = {
+  entityName: string;
+  onClick: (entityName: string, entityType: string) => void;
+};
 
-  const getEntityType = useCallback((name) => {
-    if (isWidget(dataTree[name])) {
-      return "widget";
-    } else if (isAction(dataTree[name])) {
-      return "integration";
-    }
-  }, []);
-
-  return getEntityType;
+const getEntityDescription = (entityType?: ENTITY_TYPE) => {
+  if (entityType === ENTITY_TYPE.WIDGET) {
+    return "widget";
+  } else if (entityType === ENTITY_TYPE.ACTION) {
+    return "integration";
+  } else {
+    return "";
+  }
 };
 
 function BlankState() {
@@ -156,35 +156,52 @@ function BlankState() {
   );
 }
 
+export function Connection(props: ConnectionProps) {
+  const getEntityInfo = useGetEntityInfo(props.entityName);
+  const entityInfo = getEntityInfo();
+  const entityDescription = getEntityDescription(entityInfo?.type);
+
+  return (
+    <Tooltip
+      content={`Open ${entityDescription}`}
+      disabled={!entityDescription}
+      hoverOpenDelay={1000}
+      key={props.entityName}
+    >
+      <ConnectionWrapper className="t--dependencies-item">
+        <span
+          className="connection"
+          onClick={() =>
+            props.onClick(props.entityName, entityInfo?.entityType ?? "")
+          }
+        >
+          {props.entityName}
+        </span>
+      </ConnectionWrapper>
+    </Tooltip>
+  );
+}
+
 function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
-  const getEntityType = useGetEntityType();
 
-  const onClick = (entityName: string) => {
+  const onClick = (entityName: string, entityType: string) => {
     navigateToEntity(entityName);
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
       source: "DEBUGGER",
+      entityType: entityType,
     });
   };
 
   return props.dependencies.length ? (
     <ConnectionsContainer>
       {props.dependencies.map((entityName: string) => {
-        const entityType = getEntityType(entityName);
-
         return (
-          <Tooltip
-            content={`Open ${entityType}`}
-            disabled={!entityType}
-            hoverOpenDelay={1000}
+          <Connection
+            entityName={entityName}
             key={entityName}
-          >
-            <ConnectionWrapper className="t--dependencies-item">
-              <span className="connection" onClick={() => onClick(entityName)}>
-                {entityName}
-              </span>
-            </ConnectionWrapper>
-          </Tooltip>
+            onClick={onClick}
+          />
         );
       })}
     </ConnectionsContainer>
