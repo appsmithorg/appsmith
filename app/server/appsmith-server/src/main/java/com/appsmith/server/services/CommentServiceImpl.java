@@ -281,7 +281,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         return saveCommentThread(commentThread, application, user);
                     })
                     .flatMap(thread ->
-                        analyticsService.sendCreateEvent(thread, Map.of("git a", thread.getWidgetType()))
+                        analyticsService.sendCreateEvent(thread, Map.of("widgetType", thread.getWidgetType()))
                     )
                     .flatMapMany(thread -> {
                         List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
