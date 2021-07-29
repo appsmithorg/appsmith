@@ -54,8 +54,8 @@ public class CommentThread extends AbstractCommentDomain {
 
     @Data
     public static class Position {
-        Float top;
-        Float left;
+        Integer top;
+        Integer left;
         Float topPercent;
         Float leftPercent;
     }

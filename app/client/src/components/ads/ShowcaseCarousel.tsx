@@ -4,6 +4,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import styled from "styled-components";
 import { createMessage, NEXT, BACK } from "constants/messages";
 import { useTransition, animated } from "react-spring";
+import { useCallback } from "react";
 
 const Container = styled.div`
   box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.15);
@@ -77,8 +78,33 @@ export default function ShowcaseCarousel(props: Props) {
     config: { duration: 300 },
   });
 
+  const handleSubmit = useCallback(() => {
+    if (!componentProps.isSubmitDisabled) {
+      setCurrentIdx(Math.min(length - 1, activeIndex + 1));
+      if (typeof componentProps.onSubmit === "function") {
+        componentProps.onSubmit();
+      }
+    }
+  }, [
+    componentProps.isSubmitDisabled,
+    componentProps.onSubmit,
+    activeIndex,
+    setCurrentIdx,
+    length,
+  ]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+      if (isEnterKey) {
+        handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
+
   return (
-    <Container>
+    <Container onKeyDown={handleKeyDown} tabIndex={0}>
       {transition.map(
         ({ item, props: springProps }: { item: string; props: any }) => (
           <animated.div key={item} style={springProps}>
@@ -100,15 +126,11 @@ export default function ShowcaseCarousel(props: Props) {
           )}
           <Button
             disabled={componentProps.isSubmitDisabled}
-            onClick={() => {
-              setCurrentIdx(Math.min(length - 1, activeIndex + 1));
-              if (typeof componentProps.onSubmit === "function") {
-                componentProps.onSubmit();
-              }
-            }}
+            onClick={handleSubmit}
             size={Size.large}
             tag="button"
             text={componentProps.nextBtnText || createMessage(NEXT)}
+            type="submit"
           />
         </Buttons>
       </Footer>
