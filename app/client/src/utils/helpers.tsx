@@ -350,10 +350,7 @@ export const getCanManage = (currentOrg: Org) => {
 
 export const getIsSafeRedirectURL = (redirectURL: string) => {
   try {
-    const currentURL = window.location.href;
-    const currentHost = new URL(currentURL).hostname;
-    const redirectURLHost = new URL(redirectURL).hostname;
-    return getIsSafeURL(redirectURL) && currentHost === redirectURLHost;
+    return new URL(redirectURL).origin === window.location.origin;
   } catch (e) {
     return false;
   }
