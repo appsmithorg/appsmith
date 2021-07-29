@@ -165,3 +165,20 @@ export const RATE_SIZES = {
 };
 
 export type RateSize = keyof typeof RateSizes;
+
+export enum ButtonStyleTypes {
+  PRIMARY = "PRIMARY",
+  WARNING = "WARNING",
+  DANGER = "DANGER",
+  INFO = "INFO",
+  SECONDARY = "SECONDARY",
+  CUSTOM = "CUSTOM",
+}
+export type ButtonStyle = keyof typeof ButtonStyleTypes;
+
+export enum ButtonVariantTypes {
+  SOLID = "SOLID",
+  OUTLINE = "OUTLINE",
+  GHOST = "GHOST",
+}
+export type ButtonVariant = keyof typeof ButtonVariantTypes;

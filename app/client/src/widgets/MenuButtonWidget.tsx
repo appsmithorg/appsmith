@@ -4,14 +4,21 @@ import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import {
+  ButtonStyle,
+  ButtonStyleTypes,
+  ButtonVariant,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import MenuButtonComponent from "components/designSystems/appsmith/MenuButtonComponent";
 
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
-  textColor?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
@@ -32,8 +39,14 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       onClick?: string;
     }
   >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   iconName?: IconName;
-  iconColor?: string;
   iconAlign?: Alignment;
 }
 
@@ -52,22 +65,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "textColor",
-            helpText: "Sets the text color of the widget",
-            label: "Text color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -231,37 +228,231 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Icon Options",
+        sectionName: "Styles",
         children: [
           {
-            propertyName: "iconName",
-            label: "Icon",
-            helpText: "Sets the icon to be used in the menu button",
-            controlType: "ICON_SELECT",
+            propertyName: "menuStyle",
+            label: "Menu Style",
+            controlType: "DROP_DOWN",
+            helpText: "Changes the style of the menu button",
+            options: [
+              {
+                label: "Primary",
+                value: "PRIMARY",
+              },
+              {
+                label: "Warning",
+                value: "WARNING",
+              },
+              {
+                label: "Danger",
+                value: "DANGER",
+              },
+              {
+                label: "Info",
+                value: "INFO",
+              },
+              {
+                label: "Secondary",
+                value: "SECONDARY",
+              },
+              {
+                label: "Custom",
+                value: "CUSTOM",
+              },
+            ],
+            updateHook: (
+              props: MenuButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              let propertiesToUpdate = [
+                { propertyPath, propertyValue },
+                { propertyPath: "prevMenuStyle", propertyValue },
+              ];
+
+              if (propertyValue === "CUSTOM") {
+                propertiesToUpdate = [{ propertyPath, propertyValue }];
+              }
+
+              propertiesToUpdate.push({
+                propertyPath: "menuColor",
+                propertyValue: "",
+              });
+
+              return propertiesToUpdate;
+            },
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "PRIMARY",
+                  "WARNING",
+                  "DANGER",
+                  "INFO",
+                  "SECONDARY",
+                  "CUSTOM",
+                ],
+              },
+            },
           },
           {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of a menu item",
-            label: "Icon color",
+            propertyName: "menuColor",
+            helpText:
+              "Sets the custom color preset based on the menu button variant",
+            label: "Menu Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: MenuButtonWidgetProps) =>
+              props.menuStyle !== ButtonStyleTypes.CUSTOM,
+            updateHook: (
+              props: MenuButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+              if (props.prevMenuStyle) {
+                propertiesToUpdate.push({
+                  propertyPath: "prevMenuStyle",
+                  propertyValue: "",
+                });
+              }
+
+              return propertiesToUpdate;
+            },
+          },
+          {
+            propertyName: "menuVariant",
+            label: "Menu Variant",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the variant of the menu button",
+            options: [
+              {
+                label: "Solid",
+                value: "SOLID",
+              },
+              {
+                label: "Outline",
+                value: "OUTLINE",
+              },
+              {
+                label: "Ghost",
+                value: "GHOST",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+              },
+            },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "iconName",
+            label: "Icon",
+            helpText: "Sets the icon to be used for the menu button",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            updateHook: (
+              props: MenuButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+              if (!props.iconAlign) {
+                propertiesToUpdate.push({
+                  propertyPath: "iconAlign",
+                  propertyValue: Alignment.LEFT,
+                });
+              }
+              return propertiesToUpdate;
+            },
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
           },
           {
             propertyName: "iconAlign",
-            label: "Icon alignment",
-            helpText: "Sets the icon alignment of a menu item",
+            label: "Icon Alignment",
+            helpText: "Sets the icon alignment of the menu button",
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
           },
         ],
       },
     ];
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      prevMenuStyle: "menuStyle",
+    };
   }
 
   menuItemClickHandler = (onClick: string | undefined) => {
