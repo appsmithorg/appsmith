@@ -40,10 +40,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,14 +98,12 @@ public class CreateDBTablePageSolutionTests {
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
-            "\t\"primaryKey\",\n" +
             "\t\"field1\", \n" +
             "\t\"field2\",\n" +
             "\t\"field3\", \n" +
             "\t\"field4\"\n" +
             ")\n" +
             "VALUES (\n" +
-            "\t\t\t\t{{insert_col_input1.text}}, \n" +
             "\t\t\t\t{{insert_col_input2.text}}, \n" +
             "\t\t\t\t{{insert_col_input3.text}}, \n" +
             "\t\t\t\t{{insert_col_input4.text}}, \n" +
@@ -115,7 +111,7 @@ public class CreateDBTablePageSolutionTests {
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field2\" like '%{{Table1.searchText || \"\"}}%'\n" +
+            "WHERE \"field1\" like '%{{Table1.searchText || \"\"}}%'\n" +
             "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
             "LIMIT {{Table1.pageSize}}" +
             "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
@@ -152,11 +148,11 @@ public class CreateDBTablePageSolutionTests {
 
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
-            new Column("primaryKey", "type1", null),
-            new Column("field1", "type2", null),
-            new Column("field2", "type3", null),
-            new Column("field3", "type4", null),
-            new Column("field4", "type5", null)
+            new Column("primaryKey", "type1", null, true),
+            new Column("field1", "VARCHAR(23)", null, false),
+            new Column("field2", "type3", null, false),
+            new Column("field3", "type4", null, false),
+            new Column("field4", "type5", null, false)
         );
         List<Table> tables = List.of(new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()));
         structure.setTables(tables);
@@ -485,6 +481,7 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
@@ -596,6 +593,8 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
+    */
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithValidPageIdForMongoDB() {
@@ -655,7 +654,7 @@ public class CreateDBTablePageSolutionTests {
                             .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
 
                         assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{\"field1\" : {{update_col_1.text}},\"field2\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
+                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("DELETE")) {
                         assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
