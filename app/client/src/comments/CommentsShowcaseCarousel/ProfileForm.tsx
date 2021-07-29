@@ -52,9 +52,10 @@ function ProfileForm(props: any) {
       </div>
       <FormGroup label={createMessage(DISPLAY_NAME)}>
         <FormTextField
+          autoFocus
           hideErrorMessage
           name={fieldNames.displayName}
-          placeholder={createMessage(DISPLAY_NAME)}
+          placeholder=""
         />
       </FormGroup>
       <FormGroup label={createMessage(EMAIL_ADDRESS)}>

@@ -22,13 +22,9 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.TEXT,
+              type: ValidationTypes.SAFE_URL,
               params: {
-                regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
-                expected: {
-                  type: "URL",
-                  example: "https://www.wikipedia.org",
-                },
+                default: "https://wikipedia.org",
               },
             },
           },
@@ -143,6 +139,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       title,
       widgetId,
     } = this.props;
+
     return (
       <IframeComponent
         borderColor={borderColor}
