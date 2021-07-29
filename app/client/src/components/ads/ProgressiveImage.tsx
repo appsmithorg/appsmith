@@ -39,14 +39,12 @@ function ProgressiveImage(props: {
       <img
         alt={props.alt}
         className="progressive-image progressive-image--thumb"
-        key={props.thumbnailSource}
         src={props.thumbnailSource}
         style={{ visibility: isLoaded ? "hidden" : "visible" }}
       />
       <img
         alt={props.alt}
         className="progressive-image progressive-image--full"
-        key={props.imageSource}
         onLoad={() => {
           setIsLoaded(true);
         }}
