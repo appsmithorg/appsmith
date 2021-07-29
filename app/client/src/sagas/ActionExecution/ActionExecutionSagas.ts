@@ -20,7 +20,7 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 
-function* executeActionTriggers(
+export function* executeActionTriggers(
   trigger: ActionDescription,
   event: ExecuteActionPayloadEvent,
 ) {
@@ -70,7 +70,7 @@ function* executeActionTriggers(
   }
 }
 
-function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
+export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug({ dynamicString, responseData });
 
