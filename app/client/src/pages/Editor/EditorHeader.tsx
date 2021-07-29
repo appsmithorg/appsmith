@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
@@ -60,6 +60,7 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -285,6 +286,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const showGitSyncModal = useCallback(() => {
+    dispatch(setIsGitSyncModalOpen(true));
+  }, []);
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -371,7 +376,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <StyledDeployButton
                   className="t--application-publish-btn"
                   isLoading={isPublishing}
-                  onClick={handlePublish}
+                  onClick={showGitSyncModal}
                   size={Size.small}
                   text={"Deploy"}
                 />

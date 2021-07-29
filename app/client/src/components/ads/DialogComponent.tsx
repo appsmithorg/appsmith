@@ -86,6 +86,7 @@ type DialogComponentProps = {
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
+  onClose?: () => void;
   setModalClose?: (close: boolean) => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
@@ -97,10 +98,11 @@ type DialogComponentProps = {
 export function DialogComponent(props: DialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
-  const { setModalClose } = props;
+  const { onClose: onCloseProp, setModalClose } = props;
   const onClose = () => {
     setModalClose ? setModalClose(false) : null;
     setIsOpen(false);
+    onCloseProp && onCloseProp();
   };
 
   useEffect(() => {

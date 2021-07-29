@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  SET_IS_GIT_SYNC_MODAL_OPEN: "SET_IS_GIT_SYNC_MODAL_OPEN",
   BIND_DATA_TO_WIDGET: "BIND_DATA_TO_WIDGET",
   BIND_DATA_ON_CANVAS: "BIND_DATA_ON_CANVAS",
   INCREMENT_COMMENT_THREAD_UNREAD_COUNT:

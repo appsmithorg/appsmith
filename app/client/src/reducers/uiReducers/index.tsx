@@ -34,6 +34,7 @@ import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import notificationsReducer from "./notificationsReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
+import gitSyncReducer from "./gitSyncReducer";
 
 const uiReducer = combineReducers({
   actionTabs: actionTabsReducer,
@@ -71,6 +72,7 @@ const uiReducer = combineReducers({
   tour: tourReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
+  gitSync: gitSyncReducer,
 });
 
 export default uiReducer;
