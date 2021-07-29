@@ -21,6 +21,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
+const generatePage = require("../locators/GeneratePage.json");
 
 let pageidcopy = " ";
 
@@ -268,6 +269,9 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
 
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
+
+  cy.get(generatePage.buildFromScratchActionCard).click();
+
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -295,6 +299,9 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  cy.get(generatePage.buildFromScratchActionCard).click();
+
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here
@@ -1638,6 +1645,7 @@ Cypress.Commands.add("Createpage", (Pagename) => {
     .type(Pagename)
     .type("{Enter}");
   pageidcopy = Pagename;
+  cy.get(generatePage.buildFromScratchActionCard).click();
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -1882,9 +1890,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
+  cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
 
@@ -1941,9 +1947,7 @@ Cypress.Commands.add("saveDatasource", () => {
 
 Cypress.Commands.add("testSaveDatasource", () => {
   cy.saveDatasource();
-  cy.get(
-    `${datasourceEditor.datasourceCard} ${datasourceEditor.editDatasource}`,
-  )
+  cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
   cy.testDatasource();
@@ -2045,9 +2049,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.get(pages.integrationActiveTab)
     .should("be.visible")
     .click({ force: true });
-  cy.contains(".t--datasource-name", datasourceName)
-    .find(".t--edit-datasource")
-    .click();
+  cy.contains(".t--datasource-name", datasourceName).click();
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -2424,6 +2426,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getDatasourceStructure",
   );
 
+  cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
+  cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
+
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
@@ -2623,3 +2628,16 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("renameDatasource", (datasourceName) => {
+  cy.get(".t--edit-datasource-name").click();
+  cy.get(".t--edit-datasource-name input")
+    .clear()
+    .type(datasourceName, { force: true })
+    .should("have.value", datasourceName)
+    .blur();
+});
+
+Cypress.Commands.add("skipGenerateCRUDPage", () => {
+  cy.get(generatePage.buildFromScratchActionCard).click();
+});
