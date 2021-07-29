@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -26,16 +27,25 @@ public class SegmentConfig {
     @Value("${segment.ce.key}")
     private String ceKey;
 
+    private final CommonConfig commonConfig;
+
+    @Autowired
+    public SegmentConfig(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
+
     @Bean
-    @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty()")
+    @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty() || !'${segment.ce.key:}'.isEmpty()")
     public Analytics analyticsRunner() {
         final LogProcessor logProcessor = new LogProcessor();
-        Analytics analyticsOnAnalytics = Analytics.builder(writeKey).log(logProcessor).build();
+
+        final String analyticsWriteKey = commonConfig.isCloudHosting() ? writeKey : ceKey;
+        Analytics analyticsOnAnalytics = Analytics.builder(analyticsWriteKey).log(logProcessor).build();
 
         // We use a different analytics instance for sending events about the analytics system itself so we don't end up
         // in a recursive state.
         final LogProcessor logProcessorWithErrorHandler = new LogProcessor();
-        final Analytics analytics = Analytics.builder(writeKey).log(logProcessorWithErrorHandler).build();
+        final Analytics analytics = Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
         logProcessorWithErrorHandler.onError(logData -> {
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
                     .properties(Map.of(
