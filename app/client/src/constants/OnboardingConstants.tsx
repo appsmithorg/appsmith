@@ -118,6 +118,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/new_query.gif",
       },
+      skipLabel: "Skip tour",
       cheatAction: {
         label: "Do it for me",
         action: {
@@ -154,6 +155,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/addwidget.gif",
       },
+      skipLabel: "Skip tour",
       cheatAction: {
         label: "Do it for me",
         action: {
@@ -184,6 +186,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611906837/Appsmith/Onboarding/property_pane.gif",
       },
+      skipLabel: "Skip tour",
       action: {
         label: "Show me how",
         action: () => {
@@ -221,6 +224,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       image: {
         src: InputDragGif,
       },
+      skipLabel: "Skip tour",
       cheatAction: {
         label: "Do it for me",
         action: {
@@ -244,6 +248,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       image: {
         src: DeployGif,
       },
+      skipLabel: "Skip tour",
       cheatAction: {
         label: "Do it for me",
         action: {
