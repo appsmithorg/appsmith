@@ -25,7 +25,6 @@ export class DraggablePageList extends React.Component<DraggablePageListProps> {
   };
 
   render() {
-    console.log("changed");
     return (
       <DraggableList
         ItemRenderer={({ item }: any) => (
