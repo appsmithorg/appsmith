@@ -168,7 +168,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon keepColors name="downArrow" size={IconSize.XXS} />
+        <Icon keepColors name="downArrow" size={IconSize.XS} />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
