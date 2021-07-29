@@ -280,9 +280,15 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         }
                         return saveCommentThread(commentThread, application, user);
                     })
-                    .flatMap(thread ->
-                        analyticsService.sendCreateEvent(thread, Map.of("widgetType", thread.getWidgetType()))
-                    )
+                    .flatMap(thread -> {
+                        if(thread.getWidgetType() != null) {
+                            return analyticsService.sendCreateEvent(
+                                    thread, Map.of("widgetType", thread.getWidgetType())
+                            );
+                        } else {
+                            return analyticsService.sendCreateEvent(thread);
+                        }
+                    })
                     .flatMapMany(thread -> {
                         List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
