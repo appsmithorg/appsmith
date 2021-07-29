@@ -8,4 +8,8 @@ export const UppyStyles = createGlobalStyle`
   a.uppy-Dashboard-poweredBy {
     display: none;
   }
+
+  .bp3-dialog.file-picker-dialog {
+    margin: 48px 0;
+  }
 `;
