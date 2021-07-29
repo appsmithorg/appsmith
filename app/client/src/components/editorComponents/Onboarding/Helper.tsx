@@ -14,12 +14,12 @@ import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 const StyledContainer = styled.div`
   position: fixed;
   bottom: 37px;
-  left: 37px;
+  left: 33px;
   z-index: 8;
   padding: 12px;
   background-color: white;
   border: 2px solid #df613c;
-  width: 303px;
+  width: 310px;
 `;
 
 const ImagePlaceholder = styled.div`
@@ -75,6 +75,7 @@ const SecondaryActionButton = styled(Button)`
   border: 1px solid #4b4848;
   font-weight: 500;
   background-color: transparent;
+  margin-right: 4px;
 `;
 
 const CheatActionButton = styled(Button)`
@@ -182,6 +183,11 @@ const SubStepContainer = styled.div`
   }
 `;
 
+const ActionButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 function Helper() {
   const showHelper = useSelector(getIsOnboardingHelperVisible);
   const helperConfig = useSelector(
@@ -270,7 +276,7 @@ function Helper() {
               );
             })}
         </div>
-        <div>
+        <ActionButtonWrapper>
           {helperConfig.skipLabel && (
             <SkipButton
               onClick={() => {
@@ -317,7 +323,7 @@ function Helper() {
               {helperConfig.cheatAction?.label}
             </CheatActionButton>
           )}
-        </div>
+        </ActionButtonWrapper>
       </BottomContainer>
     </StyledContainer>
   );
