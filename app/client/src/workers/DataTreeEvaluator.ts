@@ -51,7 +51,6 @@ import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
-import { Position } from "codemirror";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -623,10 +622,9 @@ export default class DataTreeEvaluator {
     data: DataTree,
     callbackData?: Array<any>,
     isTriggerBased = false,
-    pos?: Position,
   ): EvalResult {
     try {
-      return evaluate(js, data, callbackData, isTriggerBased, pos);
+      return evaluate(js, data, callbackData, isTriggerBased);
     } catch (e) {
       return {
         result: undefined,
@@ -637,7 +635,6 @@ export default class DataTreeEvaluator {
             raw: js,
             severity: Severity.ERROR,
             errorMessage: e.message,
-            range: { start: { line: 0, ch: 0 }, end: { line: 0, ch: 2 } },
           },
         ],
       };

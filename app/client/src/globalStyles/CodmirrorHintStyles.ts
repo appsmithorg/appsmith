@@ -248,6 +248,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
       overflow: scroll;
     }
-
+  }
+  .CodeMirror-TextMark-error {
+    text-decoration: dashed underline red;
+  }
+  .CodeMirror-TextMark-warning {
+    text-decoration: dashed underline yellow;
   }
 `;

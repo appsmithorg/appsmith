@@ -158,12 +158,14 @@ interface Props {
   evaluatedValue?: any;
   children: JSX.Element;
   errors: EvaluationError[];
+  activeError?: EvaluationError;
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
 }
 
 interface PopoverContentProps {
+  activeError?: EvaluationError;
   hasError: boolean;
   expected?: { type: string; example: ExpectedValueExample };
   errors: EvaluationError[];
@@ -330,6 +332,7 @@ function PopoverContent(props: PopoverContentProps) {
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
   const {
+    activeError,
     errors,
     expected,
     hasError,
@@ -339,7 +342,7 @@ function PopoverContent(props: PopoverContentProps) {
   } = props;
   let error;
   if (hasError) {
-    error = errors[0];
+    error = activeError || errors[0];
   }
 
   return (
@@ -428,6 +431,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={5}
       >
         <PopoverContent
+          activeError={props.activeError}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}

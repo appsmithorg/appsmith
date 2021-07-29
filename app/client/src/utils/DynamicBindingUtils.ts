@@ -13,8 +13,6 @@ import forge from "node-forge";
 import { Position } from "codemirror";
 
 export type DependencyMap = Record<string, Array<string>>;
-export type SegmentPosition = { script: string; pos: Position };
-export type Range = { start: Position; end: Position };
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -68,61 +66,6 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 }
 
 //{{}}{{}}}
-export function getDynamicStringSegmentsPos(
-  dynamicString: string,
-  line = 0,
-  ch = 0,
-): SegmentPosition[] {
-  let stringSegments: SegmentPosition[] = [];
-  const indexOfDoubleParanStart = dynamicString.indexOf("{{");
-  if (indexOfDoubleParanStart === -1) {
-    return [{ script: dynamicString, pos: { line, ch } }];
-  }
-  //{{}}{{}}}
-  const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-  ch += firstString.length;
-
-  firstString &&
-    stringSegments.push({ script: firstString, pos: { line, ch } });
-  let rest = dynamicString.substring(
-    indexOfDoubleParanStart,
-    dynamicString.length,
-  );
-  //{{}}{{}}}
-  let sum = 0;
-  for (let i = 0; i <= rest.length - 1; i++) {
-    const char = rest[i];
-    const prevChar = rest[i - 1];
-    ch++;
-    if (char === "\n" || char === "\r\n") {
-      line += 1;
-      ch = 0;
-    }
-    if (char === "{") {
-      sum++;
-    } else if (char === "}") {
-      sum--;
-      if (prevChar === "}" && sum === 0) {
-        stringSegments.push({
-          script: rest.substring(0, i + 1),
-          pos: { line, ch },
-        });
-        rest = rest.substring(i + 1, rest.length);
-        if (rest) {
-          stringSegments = stringSegments.concat(
-            getDynamicStringSegmentsPos(rest, line, ch),
-          );
-          break;
-        }
-      }
-    }
-  }
-  if (sum !== 0 && dynamicString !== "") {
-    return [{ script: dynamicString, pos: { line, ch } }];
-  }
-  return stringSegments;
-}
-
 export const getDynamicBindings = (
   dynamicString: string,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
@@ -377,7 +320,8 @@ export type EvaluationError = {
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
-  range?: Range;
+  originalBinding?: string;
+  range?: { start: Position; end: Position };
 };
 
 export interface DataTreeEvaluationProps {

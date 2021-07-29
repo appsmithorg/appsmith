@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import CodeMirror, { EditorConfiguration } from "codemirror";
+import CodeMirror, {
+  EditorConfiguration,
+  Position,
+  TextMarker,
+} from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -123,6 +127,7 @@ type State = {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
+  error?: EvaluationError;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -135,7 +140,7 @@ class CodeEditor extends Component<Props, State> {
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-  errorMarkers: CodeMirror.TextMarker[] = [];
+  markerMap: Map<TextMarker, EvaluationError> = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -301,7 +306,8 @@ class CodeEditor extends Component<Props, State> {
     if (!this.props.input.onChange || this.props.disabled) {
       return;
     }
-    const mode = cm.getModeAt(cm.getCursor());
+    const cursor = cm.getCursor();
+    const mode = cm.getModeAt(cursor);
     if (
       mode &&
       [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
@@ -309,6 +315,17 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setOption("matchBrackets", true);
     } else {
       this.editor.setOption("matchBrackets", false);
+    }
+
+    const markers = cm.findMarksAt(cursor);
+    if (markers.length > 0) {
+      for (const marker of markers) {
+        const error = this.markerMap.get(marker);
+        if (error) {
+          this.setState({ error });
+          break;
+        }
+      }
     }
   };
 
@@ -434,6 +451,25 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  clearTextMarkers() {
+    this.markerMap.forEach((_, marker) => marker.clear());
+    this.markerMap.clear();
+  }
+
+  addTextMarker(
+    from: Position,
+    to: Position,
+    error: EvaluationError,
+    isError = true,
+  ) {
+    const marker = this.editor.markText(from, to, {
+      className: isError
+        ? "CodeMirror-TextMark-error"
+        : "CodeMirror-TextMark-warning",
+    });
+    this.markerMap.set(marker, error);
+  }
+
   getPropertyValidation = (
     dataTree: DataTree,
     dataTreePath?: string,
@@ -459,20 +495,31 @@ class CodeEditor extends Component<Props, State> {
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
 
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
+    this.clearTextMarkers();
+    if (this.editor) {
+      const value = this.editor.getValue();
 
-    this.errorMarkers.forEach((marker) => marker.clear());
-
-    lintErrors.forEach((error) => {
-      const range = error.range;
-      if (range) {
-        this.errorMarkers.push(
-          this.editor.markText(range.start, range.end, { css: "color: red" }),
-        );
-      }
-    });
+      errors.forEach((error) => {
+        const errorSegment = error.errorSegment;
+        const originalBinding = error.originalBinding;
+        if (errorSegment && originalBinding) {
+          let errorSection: string = errorSegment;
+          if (errorSegment.length > originalBinding.length) {
+            errorSection = originalBinding;
+          }
+          errorSection = errorSection.trim();
+          const errorIndex = value.indexOf(errorSection);
+          if (errorIndex) {
+            const prevLines = value.substr(0, errorIndex).split("\n");
+            const ch = (_.last(prevLines) || "").length;
+            const line = prevLines.length - 1;
+            const start: Position = { line, ch };
+            const end: Position = { line, ch: ch + errorSection.length };
+            this.addTextMarker(start, end, error);
+          }
+        }
+      });
+    }
 
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
@@ -542,6 +589,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          activeError={this.state.error}
           errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
