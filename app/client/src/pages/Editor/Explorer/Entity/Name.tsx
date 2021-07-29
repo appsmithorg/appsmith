@@ -15,6 +15,13 @@ import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { isEqual } from "lodash";
+import { createSelector } from "reselect";
+import {
+  getExistingActionNames,
+  getExistingPageNames,
+  getExistingWidgetNames,
+} from "selectors/entitiesSelector";
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -69,6 +76,12 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
 }
 
+function myEqual(prev: any, next: any) {
+  console.log(prev, next);
+  console.log(prev === next, isEqual(prev, next));
+  return isEqual(prev, next);
+}
+
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
@@ -100,22 +113,12 @@ export const EntityName = forwardRef(
       setUpdatedName(name);
     }, [name, nameUpdateError]);
 
-    const existingPageNames: string[] = useSelector((state: AppState) =>
-      state.entities.pageList.pages.map((page: Page) => page.pageName),
-    );
+    const existingPageNames: string[] = useSelector(getExistingPageNames);
+    const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
 
-    const existingWidgetNames: string[] = useSelector((state: AppState) =>
-      Object.values(state.entities.canvasWidgets).map(
-        (widget) => widget.widgetName,
-      ),
-    );
     const dispatch = useDispatch();
 
-    const existingActionNames: string[] = useSelector((state: AppState) =>
-      state.entities.actions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
-    );
+    const existingActionNames: string[] = useSelector(getExistingActionNames);
 
     const hasNameConflict = useCallback(
       (
@@ -223,6 +226,8 @@ export const EntityName = forwardRef(
     );
   },
 );
+
+EntityName.whyDidYouRender = true;
 
 EntityName.displayName = "EntityName";
 

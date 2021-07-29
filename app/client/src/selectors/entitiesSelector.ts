@@ -369,4 +369,20 @@ export const getPageListAsOptions = createSelector(
     })),
 );
 
+export const getExistingPageNames = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages.map((page) => page.pageName),
+);
+
+export const getExistingWidgetNames = createSelector(
+  (state: AppState) => state.entities.canvasWidgets,
+  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+);
+
+export const getExistingActionNames = createSelector(
+  (state: AppState) => state.entities.actions,
+  (actions) =>
+    actions.map((action: { config: { name: string } }) => action.config.name),
+);
+
 export const getAppMode = (state: AppState) => state.entities.app.mode;
