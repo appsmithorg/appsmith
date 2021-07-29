@@ -81,6 +81,7 @@ describe("Select all hotkey", () => {
     act(() => {
       if (canvasWidgets[0].firstChild) {
         fireEvent.mouseOver(canvasWidgets[0].firstChild);
+        fireEvent.click(canvasWidgets[0].firstChild);
       }
     });
     const tabsWidgetName: any = component.container.querySelector(
