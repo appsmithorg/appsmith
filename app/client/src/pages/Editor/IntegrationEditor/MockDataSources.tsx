@@ -6,6 +6,7 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { addMockDatasourceToOrg } from "actions/datasourceActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { AppState } from "../../../reducers";
 
 const MockDataSourceWrapper = styled.div`
@@ -103,15 +104,19 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
     return null;
   }
 
-  const addMockDataSource = () =>
+  const addMockDataSource = () => {
+    const queryParams = getQueryParams();
     dispatch(
       addMockDatasourceToOrg(
         datasource.name,
         orgId,
         currentPlugin.id,
         currentPlugin.packageName,
+        queryParams.isGeneratePageMode,
       ),
     );
+  };
+
   return (
     <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
       <DatasourceCardHeader className="t--datasource-name">
