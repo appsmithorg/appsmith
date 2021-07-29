@@ -78,4 +78,8 @@ public class FieldName {
     public static String MONGO_UNESCAPED_ID = "_id";
     public static String MONGO_UNESCAPED_CLASS = "_class";
     public static String DATASOURCE_STRUCTURE = "datasource structure";
+    public static final String OBJECT_ID = "ObjectId";
+    public static final String PLACEHOLDER_TEXT = "placeholderText";
+    public static final String IS_DISABLED = "isDisabled";
+    public static final String IS_REQUIRED = "isRequired";
 }
