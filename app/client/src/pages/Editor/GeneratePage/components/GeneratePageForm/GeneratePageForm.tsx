@@ -406,6 +406,9 @@ function GeneratePageForm() {
   const isGoogleSheetPlugin =
     selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
 
+  const showSearchableColumnDropdown =
+    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+
   return (
     <div>
       <Wrapper>
@@ -435,6 +438,7 @@ function GeneratePageForm() {
             )}
             selected={selectedDatasource}
             showLabelOnly
+            showOptionsOnLoad
             width={DROPDOWN_DIMENSION.WIDTH}
           />
         </SelectWrapper>
@@ -457,6 +461,7 @@ function GeneratePageForm() {
                   options={datasourceTableOptions}
                   selected={selectedTable}
                   showLabelOnly
+                  showOptionsOnLoad
                   width={DROPDOWN_DIMENSION.WIDTH}
                 />
               </SelectWrapper>
@@ -472,7 +477,7 @@ function GeneratePageForm() {
                   type="button"
                 />
               )}
-            {selectedTable.value ? (
+            {selectedTable.value && showSearchableColumnDropdown && (
               <SelectWrapper>
                 <Label>
                   Select a searchable {columnLabel} from
@@ -487,10 +492,11 @@ function GeneratePageForm() {
                   options={selectedTableColumnOptions}
                   selected={selectedColumn}
                   showLabelOnly
+                  showOptionsOnLoad
                   width={DROPDOWN_DIMENSION.WIDTH}
                 />
               </SelectWrapper>
-            ) : null}
+            )}
           </>
         ) : (
           <GoogleSheetForm

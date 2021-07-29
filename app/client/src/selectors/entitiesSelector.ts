@@ -254,8 +254,7 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
     plugins.map((plugin) => {
       if (
         plugin.generateCRUDPageComponent &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.S3
+        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS
       ) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
