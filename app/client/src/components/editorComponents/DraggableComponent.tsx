@@ -151,10 +151,18 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isCurrentWidgetSelected) {
         selectWidget(props.widgetId);
       }
+      const widgetHeight = props.bottomRow - props.topRow;
+      const widgetWidth = props.rightColumn - props.leftColumn;
       const bounds = draggableRef.current.getBoundingClientRect();
       const startPoints = {
-        top: (e.clientY - bounds.top) / props.parentRowSpace,
-        left: (e.clientX - bounds.left) / props.parentColumnSpace,
+        top: Math.min(
+          Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
+          widgetHeight - 1,
+        ),
+        left: Math.min(
+          Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
+          widgetWidth - 1,
+        ),
       };
       showTableFilterPane();
       setDraggingCanvas(props.parentId);
