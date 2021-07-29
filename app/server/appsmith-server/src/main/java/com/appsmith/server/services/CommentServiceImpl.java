@@ -280,6 +280,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         }
                         return saveCommentThread(commentThread, application, user);
                     })
+                    .flatMap(thread ->
+                        analyticsService.sendCreateEvent(thread, Map.of("git a", thread.getWidgetType()))
+                    )
                     .flatMapMany(thread -> {
                         List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
@@ -439,11 +442,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                     for (CommentThread thread : threads) {
                         thread.setComments(new LinkedList<>());
-                        if (thread.getViewedByUsers() != null && thread.getViewedByUsers().contains(user.getUsername())) {
-                            thread.setIsViewed(true);
-                        } else {
-                            thread.setIsViewed(false);
-                        }
+                        thread.setIsViewed((thread.getViewedByUsers() != null && thread.getViewedByUsers().contains(user.getUsername()))
+                                || thread.getResolvedState().getActive());
                         threadsByThreadId.put(thread.getId(), thread);
                     }
 
