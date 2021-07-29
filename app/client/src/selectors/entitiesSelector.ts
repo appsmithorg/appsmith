@@ -359,4 +359,14 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getPageListAsOptions = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) =>
+    pages.map((page) => ({
+      label: page.pageName,
+      id: page.pageId,
+      value: `'${page.pageName}'`,
+    })),
+);
+
 export const getAppMode = (state: AppState) => state.entities.app.mode;
