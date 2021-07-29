@@ -349,12 +349,13 @@ export const getPropsForJSActionEntity = (entity: any): any => {
         "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
     }
   }
-  const dataObj = entity.data;
-  for (const key in dataObj) {
-    if (dataObj.hasOwnProperty(key)) {
-      result["data." + key] = dataObj[key];
-    }
-  }
+  //DON"T remove will need in async function
+  // const dataObj = entity.data;
+  // for (const key in dataObj) {
+  //   if (dataObj.hasOwnProperty(key)) {
+  //     result["data." + key] = dataObj[key];
+  //   }
+  // }
   const variables = entity.variables;
   if (variables.length > 0) {
     for (let i = 0; i < variables.length; i++) {

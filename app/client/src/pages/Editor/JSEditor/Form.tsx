@@ -195,6 +195,7 @@ function JSEditorForm() {
                     <CodeEditor
                       className={"js-editor"}
                       dataTreePath={`${currentJSAction?.name}.body`}
+                      folding
                       height={"400px"}
                       hideEvaluatedValue
                       input={{
@@ -202,7 +203,7 @@ function JSEditorForm() {
                         onChange: (event: any) => handleOnChange(event),
                       }}
                       mode={EditorModes.JAVASCRIPT}
-                      placeholder="code goes here"
+                      placeholder="Let's write some code!"
                       showLightningMenu={false}
                       showLineNumbers
                       size={EditorSize.EXTENDED}

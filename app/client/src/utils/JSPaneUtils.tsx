@@ -1,8 +1,19 @@
 //check difference for after body change and parsing
-import { JSAction } from "entities/JSAction";
+import { JSAction, variable } from "entities/JSAction";
+
+export type ParsedJSAction = {
+  name: string;
+  body: string;
+  arguments: Array<variable>;
+};
+
+export type ParsedBody = {
+  actions: Array<ParsedJSAction>;
+  variables: Array<variable>;
+};
 
 export const getDifferenceInJSAction = (
-  parsedBody: any,
+  parsedBody: ParsedBody,
   jsAction: JSAction,
 ) => {
   const newActions: any = [];
@@ -30,7 +41,7 @@ export const getDifferenceInJSAction = (
     }
   }
   //create deleted action list
-  if (jsAction.actions && jsAction.actions.length > 0) {
+  if (jsAction.actions && jsAction.actions.length > 0 && parsedBody.actions) {
     for (let i = 0; i < jsAction.actions.length; i++) {
       const preAction = jsAction.actions[i];
       const existed = parsedBody.actions.find(

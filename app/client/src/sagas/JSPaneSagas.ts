@@ -94,7 +94,9 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
     const data = getDifferenceInJSAction(parsedBody, jsAction);
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     jsActionTobeUpdated.body = body;
-    jsActionTobeUpdated.variables = parsedBody.variables;
+    if (parsedBody.variables) {
+      jsActionTobeUpdated.variables = parsedBody.variables;
+    }
     if (data.newActions.length) {
       for (let i = 0; i < data.newActions.length; i++) {
         jsActionTobeUpdated.actions.push({
