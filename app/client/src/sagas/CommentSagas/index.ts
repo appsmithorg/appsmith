@@ -50,6 +50,7 @@ import { AppState } from "reducers";
 import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
+import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -353,6 +354,10 @@ function* handleSetCommentMode(action: ReduxAction<boolean>) {
   }
 }
 
+function* handleHideCommentsIntro() {
+  yield call(setCommentModeInUrl, false);
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(
@@ -395,5 +400,9 @@ export default function* commentSagas() {
       updateCommentThreadUnreadCount,
     ),
     takeLatest(ReduxActionTypes.SET_COMMENT_MODE, handleSetCommentMode),
+    takeLatest(
+      ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL,
+      handleHideCommentsIntro,
+    ),
   ]);
 }
