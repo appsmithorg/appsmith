@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
@@ -47,7 +47,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
-import { Profile } from "pages/common/ProfileImage";
+import ProfileImage, { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
@@ -60,6 +60,12 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import {
+  collabStartEditingAppEvent,
+  collabStopEditingAppEvent,
+} from "actions/appCollabActions";
+import UserApi from "api/UserApi";
+import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -167,6 +173,22 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
+const UserImageContainer = styled.div`
+  display: flex;
+  margin-right: 8px;
+
+  div {
+    cursor: default;
+    margin-left: 4px;
+    width: 24px;
+    height: 24px;
+  }
+
+  div:last-child {
+    margin-right: 0px;
+  }
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -204,6 +226,13 @@ export function EditorHeader(props: EditorHeaderProps) {
   const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
     "",
   );
+
+  useEffect(() => {
+    applicationId && dispatch(collabStartEditingAppEvent(applicationId));
+    return () => {
+      applicationId && dispatch(collabStopEditingAppEvent(applicationId));
+    };
+  }, [applicationId]);
 
   useEffect(() => {
     if (window.location.href) {
@@ -285,6 +314,14 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+  const filteredAppEditors = useMemo(() => {
+    if (user) {
+      return realtimeAppEditors.filter((el) => el.email !== user.email);
+    }
+    return realtimeAppEditors;
+  }, [realtimeAppEditors, user]);
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -333,10 +370,28 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HelpButton />
         </HeaderSection>
         <HeaderSection>
+          <SaveStatusContainer className={"t--save-status-container"}>
+            {saveStatusIcon}
+          </SaveStatusContainer>
+          {filteredAppEditors && filteredAppEditors.length > 0 && (
+            <UserImageContainer>
+              {filteredAppEditors.slice(0, 5).map((el) => (
+                <ProfileImage
+                  className="app-realtime-editors"
+                  key={el.email}
+                  source={`/api/${UserApi.photoURL}/${el.name}`}
+                  userName={el.name ?? el.email}
+                />
+              ))}
+              {filteredAppEditors.length > 5 ? (
+                <ProfileImage
+                  className="app-realtime-editors"
+                  commonName={`+${filteredAppEditors.length - 5}`}
+                />
+              ) : null}
+            </UserImageContainer>
+          )}
           <Boxed step={OnboardingStep.FINISH}>
-            <SaveStatusContainer className={"t--save-status-container"}>
-              {saveStatusIcon}
-            </SaveStatusContainer>
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}

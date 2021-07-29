@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  APP_COLLAB_LIST_EDITORS: "APP_COLLAB_LIST_EDITORS",
   BIND_DATA_TO_WIDGET: "BIND_DATA_TO_WIDGET",
   BIND_DATA_ON_CANVAS: "BIND_DATA_ON_CANVAS",
   INCREMENT_COMMENT_THREAD_UNREAD_COUNT:
