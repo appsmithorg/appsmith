@@ -13,7 +13,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import getIsSafeURL from "./validation/getIsSafeURL";
 
 export const snapToGrid = (
   columnWidth: number,
