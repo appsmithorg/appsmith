@@ -14,7 +14,7 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
-import { getWidgets } from "sagas/selectors";
+import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -257,21 +257,6 @@ function useModalDropdownList() {
   return finalList;
 }
 
-function useWidgetOptionTree() {
-  const widgets = useSelector(getWidgets) || {};
-  return useMemo(() => {
-    return Object.values(widgets)
-      .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
-      .map((w) => {
-        return {
-          label: w.widgetName,
-          id: w.widgetName,
-          value: `"${w.widgetName}"`,
-        };
-      });
-  }, [widgets]);
-}
-
 function getIntegrationOptionsWithChildren(
   pageId: string,
   plugins: any,
@@ -407,7 +392,7 @@ type ActionCreatorProps = {
 
 export function ActionCreator(props: ActionCreatorProps) {
   const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useWidgetOptionTree();
+  const widgetOptionTree = useSelector(getWidgetOptionsTree);
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const fields = getFieldFromValue(props.value);
