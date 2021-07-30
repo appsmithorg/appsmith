@@ -2315,11 +2315,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getDatasourceStructure",
   );
 
-  cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
-  cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
+  cy.intercept("PUT", "/api/v1/pages/crud-page/*").as(
+    "replaceLayoutWithCRUDPage",
+  );
+  cy.intercept("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
-  cy.route("GET", "/api/v1/organizations").as("organizations");
-  cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
+  cy.intercept("GET", "/api/v1/organizations").as("organizations");
+  cy.intercept("GET", "/api/v1/organizations/*").as("getOrganisation");
 
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
