@@ -1,4 +1,4 @@
-import { Severity } from "entities/AppsmithConsole";
+import { Message, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -122,6 +122,15 @@ export function getDependencyChain(
   });
   return currentChain;
 }
+
+export const doesEntityHaveErrors = (
+  entityId: string,
+  debuggerErrors: Record<string, Message>,
+) => {
+  const ids = Object.keys(debuggerErrors);
+
+  return ids.some((e: string) => e.includes(entityId));
+};
 
 export const onApiEditor = (
   applicationId: string | undefined,
