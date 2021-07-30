@@ -95,20 +95,20 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   renderChildWidget = (props: WidgetProps): ReactNode => {
-    const childWidgetProps = produce(props, (childWidgetData) => {
-      childWidgetData.parentId = this.props.widgetId;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : MODAL_SIZE[this.props.size].height;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.containerStyle = "none";
-      childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
-      childWidgetData.rightColumn = this.getModalWidth();
-    });
+    // const childWidgetProps = produce(props, (childWidgetData) => {
+    //   childWidgetData.parentId = this.props.widgetId;
+    //   childWidgetData.shouldScrollContents = false;
+    //   childWidgetData.canExtend = this.props.shouldScrollContents;
+    //   childWidgetData.bottomRow = this.props.shouldScrollContents
+    //     ? childWidgetData.bottomRow
+    //     : MODAL_SIZE[this.props.size].height;
+    //   childWidgetData.isVisible = this.props.isVisible;
+    //   childWidgetData.containerStyle = "none";
+    //   childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
+    //   childWidgetData.rightColumn = this.getModalWidth();
+    // });
 
-    return WidgetFactory.createWidget(childWidgetProps);
+    return WidgetFactory.createWidget(props);
   };
 
   onModalClose = () => {
@@ -143,6 +143,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   makeModalComponent(content: ReactNode) {
+    console.log("Rendering modal ==== ");
     return (
       <ModalComponent
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
@@ -160,9 +161,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   render() {
+    console.log("Rendering modal widget =====");
     if (this.props.renderMode === RenderModes.CANVAS) {
-      let children = this.getChildren();
-      children = this.props.showWidgetName(children, true);
+      const children = this.getChildren();
+      // children = this.props.showWidgetName(children, true);
       return this.makeModalComponent(children);
     }
     const children = this.getChildren();

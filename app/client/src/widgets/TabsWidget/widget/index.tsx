@@ -168,16 +168,6 @@ class TabsWidget extends BaseWidget<
     if (!childWidgetData) {
       return null;
     }
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : componentHeight - 1;
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.minHeight = componentHeight;
 
     return WidgetFactory.createWidget(childWidgetData);
   };

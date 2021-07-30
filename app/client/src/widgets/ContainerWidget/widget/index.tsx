@@ -69,9 +69,9 @@ class ContainerWidget extends BaseWidget<
 
   renderChildWidget(props: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    if (props.detachFromLayout && !props.isVisible) {
-      return null;
-    }
+    // if (props.detachFromLayout && !props.isVisible) {
+    //   return null;
+    // }
 
     return WidgetFactory.createWidget(props);
   }

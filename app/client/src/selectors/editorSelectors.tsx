@@ -27,6 +27,20 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
+const excludedProps = [
+  "defaultProps",
+  "defaultMetaProps",
+  "logBlackList",
+  "bindingPaths",
+  "validationPaths",
+  "triggerPaths",
+  "ENTITY_TYPE",
+  "renderMode",
+  "iconSVG",
+  "hideCard",
+  "displayName",
+  "__evaluation__",
+];
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -184,18 +198,21 @@ export const makeGetWidgetProps = () => {
       dataTreeWidget?: WidgetProps,
     ): WidgetProps | undefined => {
       if (dataTreeWidget && canvasWidget) {
-        const widget = produce(dataTreeWidget, (draft) => {
-          draft.canvasWidth = canvasWidth;
-          delete draft.defaultProps;
-          delete draft.defaultMetaProps;
-          delete draft.logBlackList;
-          delete draft.bindingPaths;
-          delete draft.validationPaths;
-          delete draft.triggerPaths;
-          STATIC_PROPS_LIST.forEach((key) => {
-            draft[key] = canvasWidget[key];
+        const widget = produce(canvasWidget, (draft) => {
+          excludedProps.forEach((key) => {
+            delete draft[key];
           });
+          for (const [key, value] of Object.entries(dataTreeWidget)) {
+            if (
+              !excludedProps.includes(key) &&
+              !STATIC_PROPS_LIST.includes(key) &&
+              draft[key] !== value
+            ) {
+              draft[key] = value;
+            }
+          }
         });
+
         return widget;
       }
       if (canvasWidget) {
@@ -204,8 +221,6 @@ export const makeGetWidgetProps = () => {
         });
         return widget;
       }
-
-      // TODO(abhinav): Get static props from canvas widget and others from dataTree widget
     },
   );
 };
@@ -269,10 +284,6 @@ function getChildren(
       parentColumnSpace,
       renderMode,
       detachFromLayout: !!childProps.detachFromLayout,
-      isVisible:
-        childProps.type === "CANVAS_WIDGET"
-          ? parentProps.isVisible
-          : childProps.isVisible,
       canExtend:
         childProps.type === "CANVAS_WIDGET"
           ? parentProps.shouldScrollContents
