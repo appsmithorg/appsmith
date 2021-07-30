@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
+import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -13,6 +13,11 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
+import { useSelector } from "react-redux";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -131,9 +136,17 @@ type ApiHomeScreenProps = {
   plugins: Plugin[];
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  showUnsupportedPluginDialog: (callback: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
+
+const API_ACTION = {
+  IMPORT_CURL: "IMPORT_CURL",
+  CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
+  AUTH_API: "AUTH_API",
+};
 
 function NewApiScreen(props: Props) {
   const {
@@ -141,11 +154,13 @@ function NewApiScreen(props: Props) {
     createNewApiAction,
     history,
     isCreating,
-    location,
     pageId,
     plugins,
   } = props;
 
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
+  );
   const [authApiPlugin, setAuthAPiPlugin] = useState<Plugin | undefined>();
 
   useEffect(() => {
@@ -158,6 +173,9 @@ function NewApiScreen(props: Props) {
       AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
         pluginId: authApiPlugin.id,
       });
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+        plugin: authApiPlugin,
+      });
       props.createDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
@@ -165,21 +183,70 @@ function NewApiScreen(props: Props) {
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
   const handleCreateNew = () => {
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      source: "CREATE_NEW_API",
+    });
     if (pageId) {
       createNewApiAction(pageId, "API_PANE");
     }
   };
-  const curlImportURL =
-    getCurlImportPageURL(applicationId, pageId) +
-    "?from=datasources" +
-    location.search;
+
+  // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
+  // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
+  const handleOnClick = (actionType: string, params?: any) => {
+    const queryParams = getQueryParams();
+    const isGeneratePageInitiator = getIsGeneratePageInitiator(
+      queryParams.isGeneratePageMode,
+    );
+    if (
+      isGeneratePageInitiator &&
+      !params?.skipValidPluginCheck &&
+      !generateCRUDSupportedPlugin[params?.pluginId]
+    ) {
+      // show modal informing user that this will break the generate flow.
+      props?.showUnsupportedPluginDialog(() =>
+        handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
+      );
+      return;
+    }
+    switch (actionType) {
+      case API_ACTION.CREATE_NEW_API:
+        handleCreateNew();
+        break;
+      case API_ACTION.IMPORT_CURL: {
+        AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+          importSource: CURL,
+        });
+        AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+          source: CURL,
+        });
+
+        delete queryParams.isGeneratePageMode;
+        const curlImportURL =
+          getCurlImportPageURL(applicationId, pageId) +
+          convertToQueryParams({ from: "datasources", ...queryParams });
+
+        history.push(curlImportURL);
+        break;
+      }
+      case API_ACTION.CREATE_DATASOURCE_FORM: {
+        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        break;
+      }
+      case API_ACTION.AUTH_API: {
+        handleCreateAuthApiDatasource();
+        break;
+      }
+      default:
+    }
+  };
 
   return (
     <StyledContainer>
       <ApiCardsContainer>
         <ApiCard
           className="t--createBlankApiCard create-new-api"
-          onClick={handleCreateNew}
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -195,12 +262,7 @@ function NewApiScreen(props: Props) {
         </ApiCard>
         <ApiCard
           className="t--createBlankCurlCard"
-          onClick={() => {
-            AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-              importSource: CURL,
-            });
-            history.push(curlImportURL);
-          }}
+          onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
         >
           <CardContentWrapper>
             <div className="content-icon-wrapper">
@@ -216,7 +278,7 @@ function NewApiScreen(props: Props) {
         {authApiPlugin && (
           <ApiCard
             className="t--createAuthApiDatasource"
-            onClick={handleCreateAuthApiDatasource}
+            onClick={() => handleOnClick(API_ACTION.AUTH_API)}
           >
             <CardContentWrapper>
               <div className="content-icon-wrapper">
@@ -236,7 +298,14 @@ function NewApiScreen(props: Props) {
             <ApiCard
               className={`t--createBlankApi-${p.packageName}`}
               key={p.id}
-              onClick={() => props.createDatasourceFromForm({ pluginId: p.id })}
+              onClick={() => {
+                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                  plugin: p,
+                });
+                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                  pluginId: p.id,
+                });
+              }}
             >
               <CardContentWrapper>
                 <div className="content-icon-wrapper">
