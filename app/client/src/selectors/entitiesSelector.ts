@@ -17,7 +17,7 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
-import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
+import { PLUGIN_PACKAGE_NAME } from "pages/Editor/GeneratePage/components/constants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -120,6 +120,10 @@ export const getIsFetchingSinglePluginForm = (
   pluginId: string,
 ): boolean => {
   return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
+};
+
+export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
+  return state.entities.datasources.executingDatasourceQuery;
 };
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
@@ -250,7 +254,6 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   getPlugins,
   (plugins) => {
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
-    // Disable google sheet plugin
     plugins.map((plugin) => {
       if (
         plugin.generateCRUDPageComponent &&

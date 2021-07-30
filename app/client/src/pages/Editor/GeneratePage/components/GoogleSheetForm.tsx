@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
-import styled from "styled-components";
-import Dropdown from "components/ads/Dropdown";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import React, { useEffect, useCallback } from "react";
+// import styled from "styled-components";
+// import Dropdown from "components/ads/Dropdown";
+// import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getEditorConfig,
-  getIsFetchingSinglePluginForm,
-} from "selectors/entitiesSelector";
+import { getEditorConfig } from "selectors/entitiesSelector";
 import { AppState } from "reducers/index";
 import { DropdownOption } from "components/ads/Dropdown";
 import { fetchPluginFormConfig } from "actions/pluginActions";
@@ -14,7 +11,7 @@ import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
 } from "../../../../actions/datasourceActions";
-import { DropdownOptions, DatasourceTableDropdownOption } from "./constants";
+import { DropdownOptions } from "./constants";
 
 // const GOOGLE_SHEET_METHODS = {
 //   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
@@ -74,45 +71,30 @@ const DEMO_LIST_DATA = [
   },
 ];
 
-const DROPDOWN_DIMENSION = {
-  HEIGHT: "36px",
-  WIDTH: "404px",
-};
-//  ---------- Styles ----------
+// const DROPDOWN_DIMENSION = {
+//   HEIGHT: "36px",
+//   WIDTH: "404px",
+// };
+// //  ---------- Styles ----------
 
-const SelectWrapper = styled.div`
-  margin: 10px;
-`;
+// const SelectWrapper = styled.div`
+//   margin: 10px;
+// `;
 
-const Label = styled.p`
-  ${(props) => `${getTypographyByKey(props, "p1")}`}
-`;
+// const Label = styled.p`
+//   ${(props) => `${getTypographyByKey(props, "p1")}`}
+// `;
 
-const Bold = styled.span`
-  font-weight: 500;
-`;
+// const Bold = styled.span`
+//   font-weight: 500;
+// `;
 
 // Types
 
 type Props = {
-  columnLabel: string;
-  datasourceTableOptions: DropdownOptions;
   googleSheetPluginId: string;
-  isFetchingDatasourceStructure: boolean;
-  onSelectColumn: (
-    table: string | undefined,
-    ColumnObj: DropdownOption | undefined,
-  ) => void;
-  onSelectTable: (
-    table: string | undefined,
-    TableObj: DatasourceTableDropdownOption,
-  ) => void;
-  selectedColumn: DropdownOption;
   selectedDatasource: DropdownOption;
-  selectedTable: DropdownOption;
-  selectedTableColumnOptions: DropdownOptions;
-  tableDropdownErrorMsg: string;
-  tableLabel: string;
+  setSelectedDatasourceIsInvalid: (isInvalid: boolean) => void;
   setSelectedDatasourceTableOptions: React.Dispatch<
     React.SetStateAction<DropdownOptions>
   >;
@@ -122,19 +104,10 @@ type Props = {
 
 function GoogleSheetForm(props: Props) {
   const {
-    columnLabel,
-    datasourceTableOptions,
     googleSheetPluginId,
-    isFetchingDatasourceStructure,
-    onSelectColumn,
-    onSelectTable,
-    selectedColumn,
     selectedDatasource,
-    selectedTable,
-    selectedTableColumnOptions,
+    setSelectedDatasourceIsInvalid,
     setSelectedDatasourceTableOptions,
-    tableDropdownErrorMsg,
-    tableLabel,
   } = props;
 
   const dispatch = useDispatch();
@@ -143,38 +116,38 @@ function GoogleSheetForm(props: Props) {
     getEditorConfig(state, googleSheetPluginId),
   );
 
-  const isFetchingSheetPluginForm = useSelector((state: AppState) =>
-    getIsFetchingSinglePluginForm(state, googleSheetPluginId),
-  );
-
   // TODO :- Create loading state and set Loading state false on success or error
   const onFetchAllSpreadsheetFailure = (error: any) => {
     console.log({ error });
   };
 
-  const onFetchAllSpreadsheetSuccess = (
-    payload: executeDatasourceQuerySuccessPayload,
-  ) => {
-    const tableOptions: DropdownOptions = [];
-    if (payload.data && payload.data.body) {
-      const spreadSheets = payload.data.body;
-      spreadSheets.map(({ id, name }) => {
-        tableOptions.push({
-          id,
-          label: name,
-          value: id,
-        });
-        setSelectedDatasourceTableOptions(tableOptions);
-      });
-    }
-  };
+  const onFetchAllSpreadsheetSuccess = useCallback(
+    (payload: executeDatasourceQuerySuccessPayload) => {
+      const tableOptions: DropdownOptions = [];
+      if (payload.data && payload.data.body) {
+        const spreadSheets = payload.data.body;
+
+        if (Array.isArray(spreadSheets)) {
+          spreadSheets.map(({ id, name }) => {
+            tableOptions.push({
+              id,
+              label: name,
+              value: id,
+            });
+            setSelectedDatasourceTableOptions(tableOptions);
+          });
+        } else {
+          // to handle error like "401 Unauthorized"
+          setSelectedDatasourceIsInvalid(true);
+        }
+      }
+    },
+    [setSelectedDatasourceIsInvalid, setSelectedDatasourceTableOptions],
+  );
 
   useEffect(() => {
-    // On change of datasource selection
     // Check if google sheet editor config is fetched.
-    //    if NO, Check if new selected datasource is google sheet.
-    //        if YES => fetch google sheet editor config.
-    //    if YES, Get all spreadsheets
+    // if not, fetch it.
 
     if (!googleSheetEditorConfig) {
       dispatch(
@@ -182,67 +155,28 @@ function GoogleSheetForm(props: Props) {
           pluginId: selectedDatasource.data?.pluginId,
         }),
       );
-    } else {
-      // Get all the spreadsheets
-      if (selectedDatasource.id) {
-        dispatch(
-          executeDatasourceQuery({
-            payload: {
-              datasourceId: selectedDatasource.id,
-              data: DEMO_LIST_DATA,
-            },
-            onSuccessCallback: onFetchAllSpreadsheetSuccess,
-            onErrorCallback: onFetchAllSpreadsheetFailure,
-          }),
-        );
-      }
+    }
+  }, [googleSheetEditorConfig]);
+
+  useEffect(() => {
+    // On change of datasource selection
+    // if googleSheetEditorConfig if fetched then get all spreadsheets
+
+    if (selectedDatasource.id && googleSheetEditorConfig) {
+      dispatch(
+        executeDatasourceQuery({
+          payload: {
+            datasourceId: selectedDatasource.id,
+            data: DEMO_LIST_DATA,
+          },
+          onSuccessCallback: onFetchAllSpreadsheetSuccess,
+          onErrorCallback: onFetchAllSpreadsheetFailure,
+        }),
+      );
     }
   }, [selectedDatasource.value, googleSheetEditorConfig, dispatch]);
 
-  return (
-    <>
-      {selectedDatasource.value ? (
-        <SelectWrapper>
-          <Label>
-            Select {tableLabel} from <Bold>{selectedDatasource.label}</Bold>
-          </Label>
-          <Dropdown
-            dropdownMaxHeight={"300px"}
-            errorMsg={tableDropdownErrorMsg}
-            height={DROPDOWN_DIMENSION.HEIGHT}
-            isLoading={
-              isFetchingDatasourceStructure || isFetchingSheetPluginForm
-            }
-            onSelect={onSelectTable}
-            optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={datasourceTableOptions}
-            selected={selectedTable}
-            showLabelOnly
-            width={DROPDOWN_DIMENSION.WIDTH}
-          />
-        </SelectWrapper>
-      ) : null}
-
-      {selectedTable.value ? (
-        <SelectWrapper>
-          <Label>
-            Select a searchable {columnLabel} from
-            <Bold> {selectedTable.label} </Bold>
-          </Label>
-          <Dropdown
-            dropdownMaxHeight={"300px"}
-            height={DROPDOWN_DIMENSION.HEIGHT}
-            onSelect={onSelectColumn}
-            optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={selectedTableColumnOptions}
-            selected={selectedColumn}
-            showLabelOnly
-            width={DROPDOWN_DIMENSION.WIDTH}
-          />
-        </SelectWrapper>
-      ) : null}
-    </>
-  );
+  return <div />;
 }
 
 export default GoogleSheetForm;
