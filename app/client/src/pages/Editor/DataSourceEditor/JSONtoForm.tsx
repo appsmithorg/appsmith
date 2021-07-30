@@ -10,6 +10,7 @@ import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { getType, Types } from "utils/TypeHelpers";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -210,11 +211,16 @@ export class JSONtoForm<
   };
 
   getTrimmedData = (formData: any) => {
-    if (formData && typeof formData === "object") {
+    const dataType = getType(formData);
+    const isArrayorObject = (type: ReturnType<typeof getType>) =>
+      type === Types.ARRAY || type === Types.OBJECT;
+
+    if (isArrayorObject(dataType)) {
       Object.keys(formData).map((key) => {
-        if (typeof formData[key] === "object") {
+        const valueType = getType(formData[key]);
+        if (isArrayorObject(valueType)) {
           this.getTrimmedData(formData[key]);
-        } else if (typeof formData[key] === "string") {
+        } else if (valueType === Types.STRING) {
           formData[key] = formData[key].trim();
         }
       });

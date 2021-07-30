@@ -1979,41 +1979,23 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
 });
 
 Cypress.Commands.add(
-  "fillMySQLDatasourceForm",
+  "fillUsersMockDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
-    const host = shouldAddTrailingSpaces
-      ? datasourceEditor["host"] + "  "
-      : datasourceEditor["host"];
+    const userMockDatabaseName = shouldAddTrailingSpaces
+      ? `${datasourceFormData["user-mock-database-name"] + "    "}`
+      : datasourceFormData["user-mock-database-name"];
 
-    const databaseName = shouldAddTrailingSpaces
-      ? datasourceEditor["databaseName"] + "  "
-      : datasourceEditor["databaseName"];
+    const userMockDatabaseHost = shouldAddTrailingSpaces
+      ? `${datasourceFormData["user-mock-database-host"] + "    "}`
+      : datasourceFormData["user-mock-database-host"];
 
-    // fill host, port and database name inputs
-    cy.get(host).type(datasourceFormData["mysql-host"]);
-    cy.get(datasourceEditor["port"]).type(datasourceFormData["mysql-port"]);
-    cy.get(databaseName)
+    cy.get(datasourceEditor["host"])
       .clear()
-      .type(datasourceFormData["mysql-database-name"]);
+      .type(userMockDatabaseHost);
 
-    // click on the authentication section
-    cy.get(datasourceEditor.sectionAuthentication).click();
-
-    // fill username and password
-    cy.get(datasourceEditor["username"]).type(
-      datasourceFormData["mysql-username"],
-    );
-    cy.get(datasourceEditor["password"]).type(
-      datasourceFormData["mysql-password"],
-    );
-
-    //click  MySQL Specific Parameters
-    cy.get(datasourceEditor["specificMySQL"]).click();
-
-    // fill server timezone override
-    cy.get(datasourceEditor["datasourceConfigurationProperty"]).type(
-      datasourceFormData["mysql-timezone"],
-    );
+    cy.get(datasourceEditor["databaseName"])
+      .clear()
+      .type(userMockDatabaseName);
   },
 );
 

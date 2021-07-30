@@ -18,10 +18,6 @@
     "serviceAccCredentials": "testdata",
     "access_key": "AKIATTSPRCT3ZEMEPSMC",
     "secret_key": "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",
-    "mysql-host":"mysql-41183-0.cloudclusters.net",
-    "mysql-database-name":"testdatabase",
-    "mysql-port":19840,
-    "mysql-username":"admin",
-    "mysql-password":"C0rGWRZo",
-    "mysql-timezone":"GMT-5"
+    "user-mock-database-host":"fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+    "user-mock-database-name":"users"
 }
