@@ -1,0 +1,28 @@
+# Check sample file at: https://github.com/ff4j/ff4j-samples/blob/master/spring-boot-2x/ff4j-sample-springboot2x/src/main/resources/ff4j-init-dataset.yml
+
+# -----------------------------
+# Core FF4J
+# -----------------------------
+ff4j:
+  autocreate: false
+  audit: false
+
+  features:
+
+    - uid: JS_EDITOR
+      enable: true
+      description: Should the JS Editor be visible?
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        param:
+          - name: requiredKey
+            value: requiredValue
+
+    - uid: COMMENT
+      enable: false
+      description: Enable this feature based on weight. It's randomized.
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        param:
+          - name: requiredKey
+            value: requiredValue

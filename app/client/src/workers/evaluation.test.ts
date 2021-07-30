@@ -8,7 +8,7 @@ import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -259,7 +259,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Text2: {
@@ -272,7 +272,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Text3: {
@@ -285,7 +285,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Dropdown1: {
@@ -327,7 +327,7 @@ describe("DataTreeEvaluator", () => {
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        tableData: VALIDATION_TYPES.TABLE_DATA,
+        tableData: { type: ValidationTypes.OBJECT_ARRAY },
       },
     },
     Text4: {
@@ -339,7 +339,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
   };
