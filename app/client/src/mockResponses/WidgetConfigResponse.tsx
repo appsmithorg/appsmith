@@ -303,6 +303,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleDownload: true,
       isVisibleCompactMode: true,
       isVisiblePagination: true,
+      csvSeparator: ",",
       version: 1,
     },
     DROP_DOWN_WIDGET: {

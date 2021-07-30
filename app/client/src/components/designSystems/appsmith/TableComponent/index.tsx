@@ -74,6 +74,7 @@ interface ReactTableComponentProps {
   isVisibleDownload?: boolean;
   isVisibleCompactMode?: boolean;
   isVisiblePagination?: boolean;
+  csvSeparator: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -82,6 +83,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
+    csvSeparator,
     disableDrag,
     editMode,
     filters,
@@ -245,6 +247,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columnSizeMap={columnSizeMap}
       columns={columns}
       compactMode={compactMode}
+      csvSeparator={csvSeparator}
       data={tableData}
       disableDrag={() => {
         disableDrag(true);
@@ -288,6 +291,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
+    prev.csvSeparator === next.csvSeparator &&
     prev.compactMode === next.compactMode &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&

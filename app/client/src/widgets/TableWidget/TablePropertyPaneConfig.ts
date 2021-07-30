@@ -892,6 +892,26 @@ export default [
     ],
   },
   {
+    sectionName: "Download Config",
+    hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
+    children: [
+      {
+        propertyName: "csvSeparator",
+        label: "CSV Separator",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter CSV separator",
+        helpText: "use comma (,) or semicolon (;)",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: ",",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: { allowedValues: [",", ";"] },
+        },
+      },
+    ],
+  },
+  {
     sectionName: "Styles",
     children: [
       {

@@ -119,6 +119,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        csvSeparator: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -165,6 +166,12 @@ describe("getAllPathsFromPropertyConfig", () => {
       validationPaths: {
         defaultSearchText: {
           type: "TEXT",
+        },
+        csvSeparator: {
+          type: "TEXT",
+          params: {
+            allowedValues: [",", ";"],
+          },
         },
         defaultSelectedRow: {
           params: {
