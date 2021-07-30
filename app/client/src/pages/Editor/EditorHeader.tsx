@@ -227,12 +227,19 @@ export function EditorHeader(props: EditorHeaderProps) {
     "",
   );
 
+  const isWebsocketConnected = useSelector(
+    (state: AppState) => state.ui.websocket.connected,
+  );
+
   useEffect(() => {
-    applicationId && dispatch(collabStartEditingAppEvent(applicationId));
+    // websocket has to be connected as we only fire this event once.
+    isWebsocketConnected &&
+      applicationId &&
+      dispatch(collabStartEditingAppEvent(applicationId));
     return () => {
       applicationId && dispatch(collabStopEditingAppEvent(applicationId));
     };
-  }, [applicationId]);
+  }, [applicationId, isWebsocketConnected]);
 
   useEffect(() => {
     if (window.location.href) {
@@ -379,8 +386,8 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <ProfileImage
                   className="app-realtime-editors"
                   key={el.email}
-                  source={`/api/${UserApi.photoURL}/${el.name}`}
-                  userName={el.name ?? el.email}
+                  source={`/api/${UserApi.photoURL}/${el.email}`}
+                  userName={el.name || el.email}
                 />
               ))}
               {filteredAppEditors.length > 5 ? (
