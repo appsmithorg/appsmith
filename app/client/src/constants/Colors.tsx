@@ -1,5 +1,5 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
-export const Colors: Record<string, string> = {
+export const Colors = {
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
