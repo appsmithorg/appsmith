@@ -1,12 +1,11 @@
 import React from "react";
-import TreeSelect, {
-  SHOW_PARENT,
-  TreeSelectProps as SelectProps,
-} from "rc-tree-select";
+import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import { TreeSelectContainer, DropdownStyles, inputIcon } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
+import { SelectionType } from "widgets/TreeSelectWidget";
+import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 
 export interface TreeSelectProps
   extends Required<
@@ -15,9 +14,11 @@ export interface TreeSelectProps
       "disabled" | "options" | "placeholder" | "loading" | "dropdownStyle"
     >
   > {
-  mode?: "multiple" | "tags";
-  value: string[];
+  value?: DefaultValueType;
   onChange: (value: DefaultValueType) => void;
+  selectionType: SelectionType;
+  expandAll: boolean;
+  mode: CheckedStrategy;
 }
 
 const getSvg = (style = {}) => (
@@ -66,30 +67,15 @@ const switcherIcon = (obj: TreeNodeProps) => {
 function TreeSelectComponent({
   disabled,
   dropdownStyle,
+  expandAll,
   loading,
+  mode,
   onChange,
   options,
   placeholder,
+  selectionType,
   value,
 }: TreeSelectProps): JSX.Element {
-  // const dropdownRender = useCallback(
-  //   (
-  //     menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-  //   ) => (
-  //     <>
-  //       {options.length ? (
-  //         <StyledCheckbox
-  //           alignIndicator="left"
-  //           checked={isSelectAll}
-  //           label="Select all"
-  //           onChange={handleSelectAll}
-  //         />
-  //       ) : null}
-  //       {menu}
-  //     </>
-  //   ),
-  //   [isSelectAll, options],
-  // );
   return (
     <TreeSelectContainer>
       <DropdownStyles />
@@ -99,26 +85,29 @@ function TreeSelectComponent({
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"
         disabled={disabled}
-        dropdownClassName="tree-select-dropdown"
+        dropdownClassName={`tree-select-dropdown ${selectionType ===
+          "SINGLE_SELECT" && "single-tree-select-dropdown"}`}
         dropdownStyle={dropdownStyle}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
-        multiple
+        multiple={selectionType === "MULTI_SELECT"}
         onChange={onChange}
         placeholder={placeholder}
-        searchPlaceholder="please search"
         showArrow
-        showCheckedStrategy={SHOW_PARENT}
+        showCheckedStrategy={mode}
         showSearch
         style={{ width: "100%" }}
         switcherIcon={switcherIcon}
         transitionName="rc-tree-select-dropdown-slide-up"
         treeCheckable={
-          <span className={`rc-tree-select-tree-checkbox-inner`} />
+          selectionType === "MULTI_SELECT" ? (
+            <span className={`rc-tree-select-tree-checkbox-inner`} />
+          ) : null
         }
         treeData={options}
+        treeDefaultExpandAll={expandAll}
         treeIcon
         treeNodeFilterProp="label"
         value={value}

@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
+import { isArray, findIndex } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -13,6 +13,8 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import TreeSelectComponent from "components/designSystems/appsmith/TreeSelectComponent";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
+import { isString } from "../../utils/helpers";
+import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -44,6 +46,80 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
       {
         sectionName: "General",
         children: [
+          {
+            helpText:
+              "Allows users to select either a single option or multiple options",
+            propertyName: "selectionType",
+            label: "Selection Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Single Select",
+                value: "SINGLE_SELECT",
+              },
+              {
+                label: "Multi Select",
+                value: "MULTI_SELECT",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Mode to Display options",
+            propertyName: "mode",
+            label: "Mode",
+            hidden: (props: TreeSelectWidgetProps) => {
+              return props.selectionType !== "MULTI_SELECT";
+            },
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Display only parent items",
+                value: "SHOW_PARENT",
+              },
+              {
+                label: "Display only child items",
+                value: "SHOW_CHILD",
+              },
+              {
+                label: "Display all items",
+                value: "SHOW_ALL",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           {
             helpText:
               "Allows users to select multiple options. Values must be unique",
@@ -99,6 +175,16 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             },
           },
           {
+            helpText: "Label Text",
+            propertyName: "labelText",
+            label: "Label Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Input Place Holder",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -109,29 +195,9 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            helpText: "Disables input to this widget",
+            propertyName: "expandAll",
+            label: "Expand all by default",
+            helpText: "Expand All nested options",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -161,47 +227,74 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return {
       selectedIndexArr: `{{ this.selectedOptionValues.map(o => _.findIndex(this.options, { value: o })) }}`,
       selectedOptionLabels: `{{ this.selectedOptionValueArr.map((o) => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label ?? this.options[index]?.value; })  }}`,
-      selectedOptionValues: `{{ this.selectedOptionValueArr.filter((o) => { const index = _.findIndex(this.flat(), { value: o });  return index > -1; })  }}`,
+      selectedOptionValues:
+        '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
+      selectedOptionValue:
+        '{{ JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined }}',
       isValid: `{{this.isRequired ? !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
+      selectedOption: "defaultOptionValue",
       selectedOptionValueArr: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
+      selectedOption: undefined,
       selectedOptionValueArr: undefined,
     };
   }
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const values: string[] = isArray(this.props.selectedOptionValueArr)
-      ? this.props.selectedOptionValueArr
-      : [];
+    let values: string | string[] | undefined;
+    if (this.props.selectionType === "SINGLE_SELECT") {
+      values = isString(this.props.selectedOption)
+        ? this.props.selectedOption
+        : isArray(this.props.selectedOption)
+        ? this.props.selectedOption[0]
+        : undefined;
+    } else {
+      values = isArray(this.props.selectedOptionValueArr)
+        ? this.props.selectedOptionValueArr
+        : [];
+    }
+    const filteredValue = this.filterValues(values);
 
-    console.log(values, "valuessss");
     return (
       <TreeSelectComponent
         disabled={this.props.isDisabled ?? false}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
+        expandAll={this.props.expandAll}
         loading={this.props.isLoading}
+        mode={this.props.mode}
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        value={values}
+        selectionType={this.props.selectionType}
+        value={filteredValue}
       />
     );
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    console.log(value);
+    console.log(value, "value");
+    if (this.props.selectionType === "SINGLE_SELECT") {
+      this.props.updateWidgetMetaProperty("selectedOption", value, {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+      return;
+    }
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -222,10 +315,26 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return result;
   }
 
+  filterValues(values: string | string[] | undefined) {
+    const options = this.flat(this.props.options as DropdownOption[]);
+
+    if (isString(values)) {
+      const index = findIndex(options, { value: values as string });
+      return index > -1 ? values : undefined;
+    }
+    if (isArray(values)) {
+      return values.filter((o) => {
+        const index = findIndex(options, { value: o });
+        return index > -1;
+      });
+    }
+  }
+
   getWidgetType(): WidgetType {
     return "TREE_SELECT_WIDGET";
   }
 }
+export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 
 export interface DropdownOption {
   label: string;
@@ -238,15 +347,19 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   placeholderText?: string;
   selectedIndex?: number;
   selectedIndexArr?: number[];
-  selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange: string;
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
+  selectedOption: string;
+  selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionValues: string[];
   selectedOptionLabels: string[];
+  selectionType: SelectionType;
+  expandAll: boolean;
+  mode: CheckedStrategy;
 }
 
 export default TreeSelectWidget;

@@ -147,6 +147,70 @@ export const DropdownStyles = createGlobalStyle`
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
+
+
+
+
+.tree-select-dropdown.single-tree-select-dropdown {
+  .rc-tree-select-tree
+	.rc-tree-select-tree-treenode.rc-tree-select-tree-treenode-disabled
+	span.rc-tree-select-tree-iconEle {
+cursor: not-allowed;
+  }
+  .rc-tree-select-tree
+	.rc-tree-select-tree-treenode
+	span.rc-tree-select-tree-iconEle {
+    	position: relative;
+      cursor: pointer;
+      margin-left: 5px;
+      top: 0;
+      left: 0;
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      direction: ltr;
+      background-color: #fff;
+border: 1px solid #E8E8E8;
+      border-radius: 100%;
+      border-collapse: separate;
+      transition: all .3s;
+      :after{
+          position: absolute;
+        top: 50%;
+       left: 52%;
+        display: table;
+        width: 10px;
+        height: 10px;
+        border: none;
+        border-top: 0;
+        border-left: 0;
+        transform: rotate(
+        45deg
+        ) scale(0) translate(-50%,-50%);
+        opacity: 0;
+        transition: all .1s cubic-bezier(.71,-.46,.88,.6),opacity .1s;
+        content: " ";
+      }
+
+  }
+
+  .rc-tree-select-tree
+	.rc-tree-select-tree-treenode
+  .rc-tree-select-tree-node-selected
+	span.rc-tree-select-tree-iconEle {
+    :after{
+        width: 10px;
+        height: 10px;
+      transform: translate(-50%,-50%) scale(1);
+       background: rgb(3, 179, 101) !important;
+       opacity: 1;
+    content: " ";
+        border-radius: 100%;
+    
+    }
+  }
+
+}
   .tree-select-dropdown {
     min-height: 100px;
     min-width: 250px !important;
@@ -396,6 +460,13 @@ export const DropdownStyles = createGlobalStyle`
     }
 
   }
+
+  .single-tree-select-dropdown
+  .rc-tree-select-tree
+	.rc-tree-select-tree-treenode
+	span.rc-tree-select-tree-iconEle {
+    	width: 20px;
+  }
 /* .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
 	span.rc-tree-select-tree-switcher, */
@@ -542,9 +613,9 @@ export const DropdownStyles = createGlobalStyle`
 	    background: rgb(233, 250, 243);
 }
 .rc-tree-select-tree-node-selected {
-	background-color: #ffe6b0;
-	box-shadow: 0 0 0 1px #ffb951;
-	opacity: 0.8;
+	background-color: none;
+	box-shadow: 0 0 0 0 #ffb951;
+	opacity: 1;
 }
 .rc-tree-select-tree-icon__open {
 	margin-right: 2px;
@@ -642,6 +713,45 @@ export const TreeSelectContainer = styled.div`
         margin-top: 4px;
         animation: rcSelectLoadingIcon 0.5s infinite;
       }
+    }
+  }
+  .rc-tree-select-single .rc-tree-select-selector {
+    padding-right: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1px;
+    box-shadow: none;
+    border: 1px solid rgb(231, 231, 231);
+    border-radius: 0px;
+    width: 100%;
+    transition: border-color 0.15s ease-in-out 0s,
+      box-shadow 0.15s ease-in-out 0s;
+    background-color: white;
+    height: 100%;
+    .rc-tree-select-selection-search {
+      width: 100%;
+      height: 100%;
+      input {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    }
+    .rc-tree-select-selection-item {
+      pointer-events: none;
+      position: absolute;
+      top: 50%;
+      right: 11px;
+      left: 11px;
+      transform: translateY(-50%);
+      transition: all 0.3s;
+      flex: 1;
+      overflow: hidden;
+      color: #231f20;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      font-size: 14px;
     }
   }
   .rc-tree-select-multiple {

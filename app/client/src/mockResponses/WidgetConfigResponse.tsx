@@ -368,10 +368,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
+      selectionType: "SINGLE_SELECT",
+      mode: "SHOW_ALL",
       options: [
         {
-          label: "Hashirama Senju",
-          value: "First",
+          label: "Color",
+          value: "Color",
           children: [
             { label: "Blue", value: "BLUE" },
             { label: "Green", value: "GREEN" },
@@ -379,25 +381,93 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           ],
         },
         {
-          label: "Tobirama Senju",
-          value: "Second",
+          label: "Language",
+          value: "Language",
           children: [
-            { label: "Blue1", value: "BLUE1" },
-            { label: "Green1", value: "GREEN1" },
-            { label: "Red1", value: "RED1" },
+            {
+              label: "Javascript",
+              value: "Javascript",
+              children: [{ label: "Typescript", value: "Typescript" }],
+            },
+            { label: "Python", value: "Python" },
+            { label: "Java", value: "Java" },
           ],
         },
-        { label: "Hiruzen Sarutobi", value: "Third" },
-        { label: "Minato Namikaze", value: "Fourth" },
-        { label: "Tsunade Senju", value: "Fifth" },
-        { label: "Kakashi Hatake", value: "Sixth" },
-        { label: "Naruto Uzumaki", value: "Seventh" },
+        {
+          label: "Planets",
+          value: "Planets",
+          children: [
+            { label: "Jupiter", value: "Jupiter" },
+            { label: "Uranus", value: "Uranus" },
+            { label: "Mars", value: "Mars" },
+          ],
+        },
+        {
+          label: "Manufacturers",
+          value: "Manufacturers",
+          children: [
+            {
+              label: "Samsung",
+              value: "Samsung",
+              children: [
+                { label: "Note series", value: "Note series" },
+                { label: "S series", value: "S series" },
+                { label: "Tab Series", value: "Tab Series" },
+              ],
+            },
+            {
+              label: "Apple",
+              value: "Apple",
+              children: [
+                { label: "iPhone", value: "iPhone" },
+                { label: "iPad", value: "iPad" },
+                { label: "MacBooks", value: "MacBooks" },
+              ],
+            },
+            {
+              label: "Sony",
+              value: "Sony",
+              children: [
+                { label: "PlayStation", value: "PlayStation" },
+                { label: "Xperia", value: "Xperia" },
+              ],
+            },
+          ],
+        },
+        {
+          label: "Countries",
+          value: "countries",
+          children: [
+            {
+              label: "North Pole",
+              value: "North Pole",
+              children: [
+                { label: "Russia", value: "Russia" },
+                { label: "Denmark", value: "Denmark" },
+                { label: "Canada", value: "Canada" },
+              ],
+            },
+            {
+              label: "South Pole",
+              value: "South Pole",
+              children: [
+                { label: "France", value: "France" },
+                { label: "Argentina", value: "Argentina" },
+                { label: "Australia", value: "Australia" },
+                { label: "Chile", value: "Chile" },
+                { label: "New Zealand", value: "New Zealand" },
+                { label: "United Kingdom", value: "United Kingdom" },
+              ],
+            },
+          ],
+        },
       ],
       widgetName: "TreeSelect",
-      defaultOptionValue: ["First", "Seventh"],
+      defaultOptionValue: ["Color"],
       version: 1,
       isRequired: false,
       isDisabled: false,
+      expandAll: false,
       placeholderText: "select option(s)",
     },
     TABS_WIDGET: {
