@@ -421,6 +421,7 @@ function GeneratePageForm() {
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
+            defaultIsOpen
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -438,7 +439,6 @@ function GeneratePageForm() {
             )}
             selected={selectedDatasource}
             showLabelOnly
-            showOptionsOnLoad
             width={DROPDOWN_DIMENSION.WIDTH}
           />
         </SelectWrapper>
@@ -452,6 +452,7 @@ function GeneratePageForm() {
                 </Label>
                 <Dropdown
                   cypressSelector="t--table-dropdown"
+                  defaultIsOpen
                   dropdownMaxHeight={"300px"}
                   errorMsg={tableDropdownErrorMsg}
                   height={DROPDOWN_DIMENSION.HEIGHT}
@@ -461,7 +462,6 @@ function GeneratePageForm() {
                   options={datasourceTableOptions}
                   selected={selectedTable}
                   showLabelOnly
-                  showOptionsOnLoad
                   width={DROPDOWN_DIMENSION.WIDTH}
                 />
               </SelectWrapper>
@@ -485,6 +485,7 @@ function GeneratePageForm() {
                 </Label>
                 <Dropdown
                   cypressSelector="t--searchColumn-dropdown"
+                  defaultIsOpen
                   dropdownMaxHeight={"300px"}
                   height={DROPDOWN_DIMENSION.HEIGHT}
                   onSelect={onSelectColumn}
@@ -492,7 +493,6 @@ function GeneratePageForm() {
                   options={selectedTableColumnOptions}
                   selected={selectedColumn}
                   showLabelOnly
-                  showOptionsOnLoad
                   width={DROPDOWN_DIMENSION.WIDTH}
                 />
               </SelectWrapper>
