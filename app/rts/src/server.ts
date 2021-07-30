@@ -43,18 +43,15 @@ function main() {
 	})
 
 	io.on("connection", (socket) => {
-		socket.join("default_room")
 		onSocketConnected(socket)
 			.catch((error) => console.error("Error in socket connected handler", error))
 	})
 
 	io.of("/").adapter.on("leave-room", (room, id) => {
-		// console.log(`${id} left room ${room}`);
 		sendCurrentUsers(io, room);
 	});
 	
 	io.of("/").adapter.on("join-room", (room, id) => {
-		// console.log(`${id} joined room ${room}`);
 		sendCurrentUsers(io, room);
 	});
 
@@ -67,14 +64,35 @@ function main() {
 	})
 }
 
+function joinAppEditRoom(socket, appId) {
+	// remove this socket from any other app rooms
+	socket.rooms.forEach(roomName => {
+		if(roomName.startsWith(APP_ROOM_PREFIX)) {
+			socket.leave(roomName);
+		}
+	});
+
+	// add this socket to room with application id
+	let roomName = APP_ROOM_PREFIX + appId;
+	socket.join(roomName);
+}
+
 async function onSocketConnected(socket) {
+	socket.on(START_APP_EDIT_EVENT_NAME, (appId) => {
+		if(socket.data.email) {  // user is authenticated, join the room now
+			joinAppEditRoom(socket, appId)
+		} else { // user not authenticated yet, save the appId to join later
+			socket.data.pendingAppId = appId
+		}
+    });
+
+    socket.on(LEAVE_APP_EDIT_EVENT_NAME, (appId) => {
+        let roomName = APP_ROOM_PREFIX + appId;
+        // remove this socket from app room
+        socket.leave(roomName);
+    });
+
 	const connectionCookie = socket.handshake.headers.cookie
-	// console.log("new user connected with cookie", connectionCookie)
-
-	socket.on("disconnect", () => {
-		// console.log("user disconnected", connectionCookie)
-	})
-
 	let isAuthenticated = true
 
 	if (connectionCookie != null && connectionCookie !== "") {
@@ -115,30 +133,9 @@ async function tryAuth(socket, cookie) {
 	socket.data.name = name
 	
 	socket.join("email:" + email)
-	
-	socket.on(START_APP_EDIT_EVENT_NAME, (appId) => {
-        // remove this socket from any other app rooms
-        socket.rooms.forEach(roomName => {
-            if(roomName.startsWith(APP_ROOM_PREFIX)) {
-                socket.leave(roomName);
-            }
-        });
-
-        // add this socket to room with application id
-        let roomName = APP_ROOM_PREFIX + appId;
-        socket.join(roomName);
-    });
-
-    socket.on(LEAVE_APP_EDIT_EVENT_NAME, (appId) => {
-        let roomName = APP_ROOM_PREFIX + appId;
-        // remove this socket from app room
-        socket.leave(roomName);
-    });
-
-	socket.on("disconnect", (reason) => {
-		// delete ROOMS[email]
-	});
-
+	if(socket.data.pendingAppId) {  // an appid is pending for this socket, join now
+		joinAppEditRoom(socket, socket.data.pendingAppId);
+	}
 	return true
 }
 
