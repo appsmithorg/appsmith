@@ -119,5 +119,10 @@ export function getExpectedValue(
         type: `base64 encoded image | data uri | image url`,
         example: `https://app.appsmith.com/static/media/appsmith_logo_square.3867b195.png`,
       };
+    case ValidationTypes.SAFE_URL:
+      return {
+        type: "URL",
+        example: `https://wikipedia.org`,
+      };
   }
 }
