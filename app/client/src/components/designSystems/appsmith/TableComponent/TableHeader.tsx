@@ -55,9 +55,8 @@ function PageNumberInput(props: {
   const handleUpdatePageNo = useCallback(
     (e) => {
       const oldPageNo = Number(props.pageNo || 0);
-      const value = e.target.value;
-      let page = Number(value);
-      if (isNaN(value) || Number(value) < 1) {
+      let page = Number(e.target.value);
+      if (isNaN(page) || Number(page) < 1) {
         page = 1;
       }
       if (oldPageNo < page) {
