@@ -296,7 +296,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",
-    options: "[dropdownOptionTree]",
+    options: "[dropdownOption]",
   },
 };
 
@@ -304,16 +304,6 @@ export const GLOBAL_DEFS = {
   dropdownOption: {
     label: "string",
     value: "string",
-  },
-  dropdownOptionTree: {
-    label: "string",
-    value: "string",
-    children: [
-      {
-        label: "string",
-        value: "string",
-      },
-    ],
   },
   tabs: {
     id: "string",
