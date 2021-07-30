@@ -58,6 +58,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "warning",
+          originalBinding: "wrongJS",
         },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
@@ -70,6 +71,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "wrongJS",
         },
       ],
     });
@@ -89,6 +91,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "{}.map()",
         },
       ],
     });
@@ -130,6 +133,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "setTimeout(() => {}, 100)",
         },
       ],
     });
