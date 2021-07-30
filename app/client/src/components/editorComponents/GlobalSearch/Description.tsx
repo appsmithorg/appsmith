@@ -6,7 +6,6 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
-import dracula from "react-syntax-highlighter/dist/esm/styles/hljs/dracula";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
