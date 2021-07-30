@@ -8,6 +8,7 @@ import { addMockDatasourceToOrg } from "actions/datasourceActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { AppState } from "../../../reducers";
+import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`
   overflow: auto;
@@ -105,6 +106,10 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   }
 
   const addMockDataSource = () => {
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      mockDatasourceName: datasource.name,
+      plugin: currentPlugin,
+    });
     const queryParams = getQueryParams();
     dispatch(
       addMockDatasourceToOrg(
