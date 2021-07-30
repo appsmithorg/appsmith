@@ -14,7 +14,6 @@ import {
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
-  SEE_CONNECTED_ENTITIES,
 } from "constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
 
@@ -115,9 +114,6 @@ type ConnectionsProps = {
 function Connections(props: ConnectionsProps) {
   return (
     <Collapsible label="Relationships">
-      <span className="description">
-        {createMessage(SEE_CONNECTED_ENTITIES)}
-      </span>
       <ConnectionType className="icon-text">
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
         <span className="connection-type">
@@ -130,9 +126,9 @@ function Connections(props: ConnectionsProps) {
         placeholder={createMessage(NO_INCOMING_ENTITIES)}
       />
       <ConnectionFlow>
-        <img src={LongArrowSVG} />
+        <img height="32" src={LongArrowSVG} />
         {props.actionName}
-        <img src={LongArrowSVG} />
+        <img height="32" src={LongArrowSVG} />
       </ConnectionFlow>
       <ConnectionType className="icon-text">
         <span className="connection-type">
