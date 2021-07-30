@@ -25,8 +25,7 @@ import { AppState } from "reducers";
 import { useEffect } from "react";
 
 const ThreadContainer = styled(animated.div).withConfig({
-  shouldForwardProp: (prop, defaultValidatorFn) =>
-    !["visible", "inline"].includes(prop),
+  shouldForwardProp: (prop) => !["visible", "inline"].includes(prop),
 })<{
   visible?: boolean;
   inline?: boolean;

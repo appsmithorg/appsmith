@@ -1,5 +1,4 @@
 import React from "react";
-import { Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
 import { ThreadContainer } from "./StyledComponents";
 import { useDispatch } from "react-redux";
