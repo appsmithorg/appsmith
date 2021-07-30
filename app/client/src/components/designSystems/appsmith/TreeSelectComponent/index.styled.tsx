@@ -279,7 +279,9 @@ border: 1px solid #E8E8E8;
 	white-space: nowrap;
 	list-style: none;
 	outline: 0;
-  padding: 5px;
+  padding: 0 5px;
+  height: 34px;
+  align-items: center;
   display: flex !important;
 }
 .rc-tree-select-tree .rc-tree-select-tree-treenode .draggable {
@@ -329,8 +331,9 @@ border: 1px solid #E8E8E8;
 	.rc-tree-select-tree-treenode
 	.rc-tree-select-tree-node-content-wrapper {
 	position: relative;
-	display: inline-block;
-	height: 24px;
+	display: inline-flex;
+  align-items: center;
+	height: 34px;
 	margin: 0;
 	padding: 0;
 	text-decoration: none;
@@ -401,7 +404,7 @@ border: 1px solid #E8E8E8;
     list-style: none;
     font-feature-settings: "tnum";
     position: relative;
-    top: .2em;
+    top: 0;
     line-height: 1;
     white-space: nowrap;
     outline: none;
@@ -650,10 +653,10 @@ export const TreeSelectContainer = styled.div`
     }
   }
   .rc-tree-select-single .rc-tree-select-selector {
-    padding-right: 20px;
     display: flex;
     flex-wrap: wrap;
     padding: 1px;
+    padding-right: 20px;
     box-shadow: none;
     border: 1px solid rgb(231, 231, 231);
     border-radius: 0px;
@@ -667,6 +670,13 @@ export const TreeSelectContainer = styled.div`
       height: 100%;
       input {
         width: 100%;
+        appearance: none;
+        &::-webkit-search-cancel-button {
+          display: none;
+          appearance: none;
+        }
+        font-family: system-ui;
+
         height: 100%;
         border: none;
       }
@@ -827,7 +837,7 @@ export const TreeSelectContainer = styled.div`
       }
     }
   }
-  .rc-tree-select-show-arrow.rc-tree-select-multiple.rc-tree-select-focused {
+  .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
       border: 1px solid rgb(128, 189, 255);
       outline: 0px;
