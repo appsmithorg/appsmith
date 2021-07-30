@@ -74,7 +74,10 @@ export const SearchItemContainer = styled.div<{
   }
 
   .subtext {
-    color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
+    color: ${(props) =>
+      props.isActiveItem
+        ? "white"
+        : props.theme.colors.globalSearch.searchItemSubText};
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
@@ -99,14 +102,20 @@ export const SearchItemContainer = styled.div<{
     ${StyledActionLink} {
       visibility: visible;
     }
-
+    .icon-wrapper {
+      svg {
+        path: {
+          fill: white !important;
+        }
+      }
+    }
     .subtext,
     .text {
       color: white;
     }
   }
 
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   [class^="ais-"] {
     ${(props) => getTypographyByKey(props, "p3")};
   }
@@ -156,11 +165,14 @@ function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
   );
 }
 
-const WidgetIconWrapper = styled.span`
+const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
+  display: flex;
   svg {
     height: 14px;
+    path {
+      fill: ${(props) => (props.isActiveItem ? "white" : "#6a86ce !important")};
+    }
   }
-  display: flex;
 `;
 
 const usePageName = (pageId: string) => {
@@ -182,7 +194,12 @@ function WidgetItem(props: {
 
   return (
     <>
-      <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
+      <WidgetIconWrapper
+        className="icon-wrapper"
+        isActiveItem={props.isActiveItem}
+      >
+        {getWidgetIcon(type)}
+      </WidgetIconWrapper>
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
@@ -348,6 +365,10 @@ function CategoryItem({
   );
 }
 
+function SnippetItem({ isActive, item: { title } }: any) {
+  return <span>{title}</span>;
+}
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
@@ -357,6 +378,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
+  [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
 };
 
 type ItemProps = {

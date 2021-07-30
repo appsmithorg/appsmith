@@ -22,6 +22,13 @@ const globalSearchReducer = createReducer(initialState, {
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
   ) => ({ ...state, modalOpen: !state.modalOpen }),
+  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
+    state: GlobalSearchReduxState,
+    action: any,
+  ) => ({
+    ...state,
+    filterContext: action.payload,
+  }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
     state: GlobalSearchReduxState,
     action: ReduxAction<Array<RecentEntity>>,

@@ -9,6 +9,7 @@ import {
   call,
   put,
   putResolve,
+  race,
   select,
   take,
   takeEvery,
@@ -761,8 +762,16 @@ function* executeCommand(
         "args.category",
         SEARCH_CATEGORIES.INIT,
       );
-      // yield putResolve(setGlobalSearchFilterContext({ category }));
+      yield putResolve(
+        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.SNIPPETS }),
+      );
       yield put(toggleShowGlobalSearchModal());
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(effectRaceResult.success.payload);
       break;
     case "NEW_INTEGRATION":
       history.push(

@@ -17,6 +17,7 @@ export enum SEARCH_ITEM_TYPES {
   sectionTitle = "sectionTitle",
   placeholder = "placeholder",
   category = "category",
+  snippet = "snippet",
 }
 
 export type DocSearchItem = {
@@ -46,6 +47,7 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
+  else if (item.snippet) type = SEARCH_ITEM_TYPES.snippet;
   else type = SEARCH_ITEM_TYPES.datasource;
 
   return type;
@@ -67,6 +69,8 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.placeholder:
     case SEARCH_ITEM_TYPES.document:
       return item?.title;
+    case SEARCH_ITEM_TYPES.snippet:
+      return item.title;
     default:
       return "";
   }

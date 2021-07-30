@@ -24,6 +24,9 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
+  setGlobalSearchFilterContext,
+  cancelSnippet,
+  insertSnippet,
 } from "actions/globalSearchActions";
 import {
   getItemType,
@@ -50,6 +53,8 @@ import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
+import SnippetsApi from "api/SnippetsApi";
+import { Configure } from "react-instantsearch-dom";
 
 export enum SEARCH_CATEGORIES {
   SNIPPETS = "Snippets",
@@ -101,11 +106,11 @@ const StyledContainer = styled.div`
   }
 `;
 
-const Separator = styled.div`
-  margin: ${(props) => props.theme.spaces[3]}px 0;
-  width: 1px;
-  background-color: ${(props) => props.theme.colors.globalSearch.separator};
-`;
+// const Separator = styled.div`
+//   margin: ${(props) => props.theme.spaces[3]}px 0;
+//   width: 1px;
+//   background-color: ${(props) => props.theme.colors.globalSearch.separator};
+// `;
 
 const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
@@ -169,14 +174,34 @@ const getSortedResults = (
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
+  const dispatch = useDispatch();
+  const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
+  const [snippets, setSnippets] = useState([]);
+  useEffect(() => {
+    SnippetsApi.getSnippets("").then((response) => setSnippets(response.data));
+  }, []);
+  const initCategoryId = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.category,
+  );
+  useEffect(() => {
+    const triggeredCategory = filterCategories.find(
+      (c) => c.id === initCategoryId,
+    );
+    if (triggeredCategory) setCategory(triggeredCategory);
+    return () => {
+      dispatch(
+        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.INIT }),
+      );
+    };
+  }, [initCategoryId]);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
-  const dispatch = useDispatch();
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
     }
     dispatch(toggleShowGlobalSearchModal());
+    dispatch(cancelSnippet());
   };
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
@@ -194,7 +219,6 @@ function GlobalSearch() {
   }, []);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(1);
-  const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
     setActiveItemIndexInState(index);
@@ -321,6 +345,9 @@ function GlobalSearch() {
     if (category.id === SEARCH_CATEGORIES.INIT) {
       return filterCategories;
     }
+    if (category.id === SEARCH_CATEGORIES.SNIPPETS) {
+      return snippets;
+    }
 
     return getSortedResults(
       query,
@@ -422,6 +449,11 @@ function GlobalSearch() {
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
   };
 
+  const handleSnippetClick = (item: any) => {
+    dispatch(insertSnippet(item.snippet));
+    toggleShow();
+  };
+
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.document]: handleDocumentationItemClick,
     [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
@@ -431,6 +463,7 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
     [SEARCH_ITEM_TYPES.category]: setCategory,
+    [SEARCH_ITEM_TYPES.snippet]: handleSnippetClick,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
@@ -469,6 +502,7 @@ function GlobalSearch() {
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
+              <Configure filters="" />
               <SearchBox
                 category={category}
                 query={query}

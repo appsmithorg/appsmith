@@ -1219,7 +1219,7 @@ const globalSearch = {
   documentationCtaText: "#03B365",
   emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#494949",
+  codeBackground: "#F0F0F0",
   documentLink: "#54a9fb",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",

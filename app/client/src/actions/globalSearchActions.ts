@@ -10,6 +10,15 @@ export const toggleShowGlobalSearchModal = () => ({
   type: ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL,
 });
 
+export const cancelSnippet = () => ({
+  type: ReduxActionTypes.CANCEL_SNIPPET,
+});
+
+export const insertSnippet = (payload: string) => ({
+  type: ReduxActionTypes.INSERT_SNIPPET,
+  payload,
+});
+
 export const setGlobalSearchFilterContext = (payload: any) => ({
   type: ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT,
   payload,
