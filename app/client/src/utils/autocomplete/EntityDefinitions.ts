@@ -272,31 +272,31 @@ export const entityDefinitions = {
   //TODO: fix this after development
   TREE_SELECT_WIDGET: {
     "!doc":
-      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
-    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      "Tree Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValue: {
       "!type": "string",
-      "!doc": "The value selected in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      "!doc": "The value selected in a tree select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     selectedOptionLabel: {
       "!type": "string",
-      "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      "!doc": "The selected option label in a tree select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     selectedOptionValues: {
       "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      "!doc": "The array of values selected in a tree select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     selectedOptionLabels: {
       "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      "!doc": "The array of selected option labels in a tree select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",
-    options: "[dropdownOption]",
+    options: "[dropdownOptionTree]",
   },
 };
 
@@ -304,6 +304,16 @@ export const GLOBAL_DEFS = {
   dropdownOption: {
     label: "string",
     value: "string",
+  },
+  dropdownOptionTree: {
+    label: "string",
+    value: "string",
+    children: [
+      {
+        label: "string",
+        value: "string",
+      },
+    ],
   },
   tabs: {
     id: "string",

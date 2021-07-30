@@ -132,8 +132,8 @@ export const HelpMap = {
     searchKey: "Menu Button",
   },
   TREE_SELECT_WIDGET: {
-    path: "",
-    searchKey: "",
+    path: "/widget-reference/tree-select",
+    searchKey: "Tree Select",
   },
 };
 
