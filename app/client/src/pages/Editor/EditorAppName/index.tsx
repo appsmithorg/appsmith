@@ -110,6 +110,11 @@ const StyledMenu = styled(Menu)`
 
     .${Classes.ICON} {
       color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
+      height: 100%;
+      margin-top: 0;
+      > svg {
+        height: 100%;
+      }
     }
 
     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN} > .${Classes.MENU_ITEM} {

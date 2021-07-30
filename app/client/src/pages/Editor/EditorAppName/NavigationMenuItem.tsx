@@ -33,8 +33,9 @@ const StyledMenuItem = styled(MenuItem)`
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
   border-radius: 0;
-  height: ${(props) => props.theme.navbarMenuHeight};
   ${(props) => getTypographyByKey(props, "h5")};
+  height: ${(props) => props.theme.navbarMenuHeight};
+  line-height: ${(props) => props.theme.navbarMenuLineHeight};
   padding: 5px 10px;
 
   &&&:hover {
@@ -46,14 +47,20 @@ const StyledMenuItem = styled(MenuItem)`
   }
 
   > .${Classes.MENU_ITEM_LABEL} {
+    > span {
+      height: 100%;
+    }
+    height: 100%;
     color: ${(props) => props.theme.colors.navigationMenu.label};
   }
 `;
 
 const ReconfirmStyledItem = styled(StyledMenuItem)<{ isConfirm: boolean }>`
-  color: ${(props) => props.theme.colors.navigationMenu.warning} !important;
-
   &&&:hover {
+    color: ${(props) =>
+      props.isConfirm
+        ? props.theme.colors.navigationMenu.warning
+        : props.theme.colors.navigationMenu.contentActive};
     background-color: ${(props) =>
       props.isConfirm
         ? props.theme.colors.navigationMenu.warningBackground

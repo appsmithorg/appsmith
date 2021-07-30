@@ -351,6 +351,7 @@ export type Theme = {
   sidebarWidth: string;
   canvasBottomPadding: number;
   navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
   actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
@@ -1263,8 +1264,8 @@ const navigationMenu = {
   contentInactive: "#858282",
   backgroundInactive: "#090707",
   label: "#A9A7A7",
-  warning: "#F22B2B",
-  warningBackground: "rgba(242,43,43,0.25)",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
 };
 
 export const dark: ColorType = {
@@ -2462,7 +2463,8 @@ export const theme: Theme = {
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
-  navbarMenuHeight: "29px",
+  navbarMenuHeight: "36px",
+  navbarMenuLineHeight: "26px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
