@@ -284,7 +284,6 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    console.log(value, "value");
     if (this.props.selectionType === "SINGLE_SELECT") {
       this.props.updateWidgetMetaProperty("selectedOption", value, {
         triggerPropertyName: "onOptionChange",
