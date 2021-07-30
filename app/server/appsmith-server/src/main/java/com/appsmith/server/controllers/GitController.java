@@ -26,10 +26,36 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
         this.gitService = gitService;
     }
 
+    //Create a new app/repo or connect to remote calls the below method
     @GetMapping("/connect")
     public ResponseDTO<String> initializeGitRepo(@RequestBody String remoteURL) throws GitAPIException {
         gitService.cloneRepo(remoteURL);
         return new ResponseDTO<>(HttpStatus.OK.value(), new String(), "sucess");
+    }
+
+    //When a new files are created call this method
+    private void addFileToGit() {
+
+    }
+
+    private void commitFile() {
+
+    }
+
+    private void showDiff() {
+
+    }
+
+    private void createBranch() {
+
+    }
+
+    private void pullLatest() {
+
+    }
+
+    private void pushToRemote() {
+
     }
 
 }

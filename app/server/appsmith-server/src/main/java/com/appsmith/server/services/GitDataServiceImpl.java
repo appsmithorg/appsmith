@@ -4,7 +4,8 @@ import com.appsmith.server.domains.GitData;
 import com.appsmith.server.repositories.GitDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -31,22 +32,24 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
     }
 
     @Override
-    public String initializeGit(String path) throws IOException, IllegalStateException, GitAPIException{
-        final File localPath = new File("./Test");
-        try (Git git = Git.init().setDirectory(localPath).call()) {
-            System.out.println("Having repository: " + git.getRepository().getDirectory());
-        }
-        return null;
+    public Git initializeGit(String path) throws IOException, IllegalStateException, GitAPIException{
+        File localPath = new File("/Users/anaghhegde/workspace/project/test");
+        Git git = Git.init().setDirectory(localPath).call();
+        //git.
+        return git;
     }
 
     @Override
-    public String cloneRepo(String url) throws GitAPIException {
-        final File localPath = new File("./TestRepo");
-        Git.cloneRepository()
-                .setURI(url)
-                .setDirectory(localPath)
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider("***", "***"))
-                .call();
+    public String cloneRepo(String url) throws GitAPIException, IOException {
+        File localPath = new File("/Users/anaghhegde/workspace/project/test");
+        File git = Git.open(localPath).getRepository().getDirectory();
+        FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+        repositoryBuilder.setMustExist(true);
+        repositoryBuilder.setGitDir(localPath);
+        Repository repository = repositoryBuilder.build();
+
+        Git gitOpen = Git.open( new File( "/Users/anaghhegde/workspace/project/test/.git" ) );
+        gitOpen.commit().setMessage("Trying jGit");
         return null;
     }
 }
