@@ -27,6 +27,7 @@ const IconContainer = styled.div`
   align-items: center;
   cursor: pointer;
   padding-left: 16px;
+  width: fit-content;
   /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
 
