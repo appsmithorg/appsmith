@@ -266,15 +266,6 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
         : [];
     }
     const filteredValue = this.filterValues(values);
-    console.log(
-      this.props.isRequired
-        ? !!this.props.selectedOptionValue?.length ||
-            this.props.selectedOptionValues?.length > 0
-        : true,
-      this.props.selectedOptionValue,
-      this.props.selectedOptionValues,
-      "values",
-    );
 
     return (
       <TreeSelectComponent
