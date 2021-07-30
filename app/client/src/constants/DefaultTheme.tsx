@@ -1377,61 +1377,61 @@ export const dark: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -1452,7 +1452,7 @@ export const dark: ColorType = {
     custom: {
       solid: {
         dark: {
-          textColor: Colors.BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR,
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
         },
         light: {
           textColor: Colors.WHITE,
@@ -1950,61 +1950,61 @@ export const light: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -2025,7 +2025,7 @@ export const light: ColorType = {
     custom: {
       solid: {
         dark: {
-          textColor: Colors.BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR,
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
         },
         light: {
           textColor: Colors.WHITE,

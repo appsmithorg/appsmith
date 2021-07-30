@@ -241,9 +241,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     } !important;
 
     & > span {
-      max-width: 99%;
       text-overflow: ellipsis;
-      overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
