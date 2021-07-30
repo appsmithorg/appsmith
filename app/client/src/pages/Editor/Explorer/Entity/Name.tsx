@@ -219,8 +219,6 @@ export const EntityName = forwardRef(
   },
 );
 
-EntityName.whyDidYouRender = true;
-
 EntityName.displayName = "EntityName";
 
 export default EntityName;
