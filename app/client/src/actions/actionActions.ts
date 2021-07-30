@@ -47,17 +47,25 @@ export const fetchActionsForView = (
   };
 };
 
-export const fetchActionsForPage = (pageId: string) => {
+export const fetchActionsForPage = (
+  pageId: string,
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload> = [],
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
+    postEvalActions,
   };
 };
 
-export const fetchActionsForPageSuccess = (actions: Action[]) => {
+export const fetchActionsForPageSuccess = (
+  actions: Action[],
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
+    postEvalActions,
   };
 };
 
@@ -269,6 +277,17 @@ export const setActionsToExecuteOnPageLoad = (
   };
 };
 
+export const bindDataOnCanvas = (payload: {
+  queryId: string;
+  applicationId: string;
+  pageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,
@@ -277,4 +296,5 @@ export default {
   deleteActionSuccess,
   updateAction,
   updateActionSuccess,
+  bindDataOnCanvas,
 };
