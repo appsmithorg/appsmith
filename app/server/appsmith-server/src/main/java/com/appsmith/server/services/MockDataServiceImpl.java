@@ -174,10 +174,16 @@ public class MockDataServiceImpl implements MockDataService {
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
+        String password = null;
+        if( datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+            password = ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).getPassword();
+        }
+        final String finalPassword = password;
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
                             && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
+                        ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
                     }
                     throw error;
