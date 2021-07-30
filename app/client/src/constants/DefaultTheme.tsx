@@ -1217,6 +1217,7 @@ type ColorType = {
     background: string;
     buttonBackgroundHover: string;
   };
+  link: string;
 };
 
 const editorBottomBar = {
@@ -2005,6 +2006,7 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
 };
 
 export const light: ColorType = {
@@ -2591,6 +2593,7 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
 };
 
 export const theme: Theme = {
