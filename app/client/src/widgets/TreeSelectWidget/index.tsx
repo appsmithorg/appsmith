@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -225,13 +225,13 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedIndexArr: `{{ this.selectedOptionValues.map(o => _.findIndex(this.options, { value: o })) }}`,
-      selectedOptionLabels: `{{ this.selectedOptionValueArr.map((o) => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label ?? this.options[index]?.value; })  }}`,
+      selectedOptionLabel: `{{ this.selectionType === "SINGLE_SELECT" ? this.selectedLabel[0] : undefined }}`,
+      selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedLabel : this.selectedLabel }}`,
       selectedOptionValues:
         '{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) ) : undefined}}',
       selectedOptionValue:
         '{{ this.selectionType === "SINGLE_SELECT" && JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined }}',
-      isValid: `{{this.isRequired ? !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
+      isValid: `{{this.isRequired ? !!this.selectedOptionValue?.length || this.selectedOptionValues?.length > 0 : true}}`,
     };
   }
 
@@ -239,6 +239,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return {
       selectedOption: "defaultOptionValue",
       selectedOptionValueArr: "defaultOptionValue",
+      selectedLabel: "defaultOptionValue",
     };
   }
 
@@ -246,6 +247,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return {
       selectedOption: undefined,
       selectedOptionValueArr: undefined,
+      selectedLabel: [],
     };
   }
 
@@ -264,6 +266,15 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
         : [];
     }
     const filteredValue = this.filterValues(values);
+    console.log(
+      this.props.isRequired
+        ? !!this.props.selectedOptionValue?.length ||
+            this.props.selectedOptionValues?.length > 0
+        : true,
+      this.props.selectedOptionValue,
+      this.props.selectedOptionValues,
+      "values",
+    );
 
     return (
       <TreeSelectComponent
@@ -283,7 +294,15 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     );
   }
 
-  onOptionChange = (value: DefaultValueType) => {
+  onOptionChange = (value: DefaultValueType, labelList: ReactNode[]) => {
+    this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
+      triggerPropertyName: "onOptionChange",
+      dynamicString: this.props.onOptionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+
     if (this.props.selectionType === "SINGLE_SELECT") {
       this.props.updateWidgetMetaProperty("selectedOption", value, {
         triggerPropertyName: "onOptionChange",
@@ -351,10 +370,12 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
+  selectedLabel: string[];
   selectedOption: string | string[];
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionValues: string[];
+  selectedOptionLabel: string;
   selectedOptionLabels: string[];
   selectionType: SelectionType;
   expandAll: boolean;

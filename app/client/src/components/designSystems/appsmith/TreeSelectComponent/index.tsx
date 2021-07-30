@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { ReactNode, useCallback, useRef } from "react";
 import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import { TreeSelectContainer, DropdownStyles, inputIcon } from "./index.styled";
 import "rc-tree-select/assets/index.less";
@@ -19,7 +19,7 @@ export interface TreeSelectProps
     >
   > {
   value?: DefaultValueType;
-  onChange: (value: DefaultValueType) => void;
+  onChange: (value: DefaultValueType, labelList: ReactNode[]) => void;
   selectionType: SelectionType;
   expandAll: boolean;
   mode: CheckedStrategy;
@@ -110,6 +110,7 @@ function TreeSelectComponent({
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
         multiple={selectionType === "MULTI_SELECT"}
+        notFoundContent="No item Found"
         onChange={onChange}
         placeholder={placeholder}
         showArrow
