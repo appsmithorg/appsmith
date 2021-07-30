@@ -14,6 +14,8 @@ export const StyledText = styled.p`
   width: 100%;
   text-align: left;
   font-weight: normal;
+  font-size: 14px;
+  margin-bottom: 5px;
 `;
 
 const rcSelectDropdownSlideUpIn = keyframes`
@@ -406,21 +408,6 @@ border: 1px solid #E8E8E8;
     cursor: pointer;
     margin-left: 3px;
 }
-/* .rc-tree-select-tree-checkbox-checked:after {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 1px solid #1890ff;
-    border-radius: 2px;
-    visibility: hidden;
-    -webkit-animation: antCheckboxEffect .36s ease-in-out;
-    animation: antCheckboxEffect .36s ease-in-out;
-    -webkit-animation-fill-mode: backwards;
-    animation-fill-mode: backwards;
-    content: "";
-} */
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
@@ -467,9 +454,6 @@ border: 1px solid #E8E8E8;
 	span.rc-tree-select-tree-iconEle {
     	width: 20px;
   }
-/* .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-switcher, */
 
 .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
@@ -522,56 +506,6 @@ border: 1px solid #E8E8E8;
 	span.rc-tree-select-tree-switcher.rc-tree-select-tree-switcher_close {
 	background-position: -75px -56px;
 }
-/* .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox {
-	width: 13px;
-	height: 13px;
-	margin: 0 3px;
-	background-position: 0 0;
-} */
-/* .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox-checked {
-	background-position: -14px 0;
-} */
-/* .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox-indeterminate {
-	background-position: -14px -28px;
-}
-.rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox-disabled {
-	background-position: 0 -56px;
-}
-.rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox.rc-tree-select-tree-checkbox-checked.rc-tree-select-tree-checkbox-disabled {
-	background-position: -14px -56px;
-} */
-/* .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox.rc-tree-select-tree-checkbox-indeterminate.rc-tree-select-tree-checkbox-disabled {
-	position: relative;
-	background: #ccc;
-	border-radius: 3px;
-}
-.rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree-select-tree-checkbox.rc-tree-select-tree-checkbox-indeterminate.rc-tree-select-tree-checkbox-disabled::after {
-	position: absolute;
-	top: 5px;
-	left: 3px;
-	width: 5px;
-	height: 0;
-	border: 2px solid #fff;
-	border-top: 0;
-	border-left: 0;
-	-webkit-transform: scale(1);
-	transform: scale(1);
-	content: " ";
-} */
 .rc-tree-select-tree:not(.rc-tree-select-tree-show-line)
 	.rc-tree-select-tree-treenode
 	.rc-tree-select-tree-switcher-noop {

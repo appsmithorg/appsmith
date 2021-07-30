@@ -365,7 +365,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     TREE_SELECT_WIDGET: {
-      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      rows: 1.7 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
@@ -469,6 +469,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       expandAll: false,
       placeholderText: "select option(s)",
+      labelText: "Label",
     },
     TABS_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,

@@ -1,6 +1,11 @@
 import React, { ReactNode, useCallback, useRef } from "react";
 import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
-import { TreeSelectContainer, DropdownStyles, inputIcon } from "./index.styled";
+import {
+  TreeSelectContainer,
+  DropdownStyles,
+  inputIcon,
+  StyledText,
+} from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
@@ -23,6 +28,7 @@ export interface TreeSelectProps
   selectionType: SelectionType;
   expandAll: boolean;
   mode: CheckedStrategy;
+  labelText?: string;
 }
 
 const getSvg = (style = {}) => (
@@ -72,6 +78,7 @@ function TreeSelectComponent({
   disabled,
   dropdownStyle,
   expandAll,
+  labelText,
   loading,
   mode,
   onChange,
@@ -95,7 +102,7 @@ function TreeSelectComponent({
   return (
     <TreeSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
       <DropdownStyles />
-      {/* <StyledText>Label</StyledText> */}
+      {labelText && <StyledText>{labelText}</StyledText>}
       <TreeSelect
         animation="slide-up"
         choiceTransitionName="rc-tree-select-selection__choice-zoom"

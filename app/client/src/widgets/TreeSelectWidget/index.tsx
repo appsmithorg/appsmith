@@ -283,6 +283,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        labelText={this.props.labelText}
         loading={this.props.isLoading}
         mode={this.props.mode}
         onChange={this.onOptionChange}
@@ -370,6 +371,7 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
+  labelText?: string;
   selectedLabel: string[];
   selectedOption: string | string[];
   selectedOptionValue: string;
