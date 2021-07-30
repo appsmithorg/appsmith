@@ -228,9 +228,9 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
       selectedIndexArr: `{{ this.selectedOptionValues.map(o => _.findIndex(this.options, { value: o })) }}`,
       selectedOptionLabels: `{{ this.selectedOptionValueArr.map((o) => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label ?? this.options[index]?.value; })  }}`,
       selectedOptionValues:
-        '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
+        '{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) ) : undefined}}',
       selectedOptionValue:
-        '{{ JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined }}',
+        '{{ this.selectionType === "SINGLE_SELECT" && JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined }}',
       isValid: `{{this.isRequired ? !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
     };
   }
@@ -351,7 +351,7 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
-  selectedOption: string;
+  selectedOption: string | string[];
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionValues: string[];
