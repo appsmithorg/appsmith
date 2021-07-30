@@ -24,7 +24,10 @@ import { animated } from "react-spring";
 import { AppState } from "reducers";
 import { useEffect } from "react";
 
-const ThreadContainer = styled(animated.div)<{
+const ThreadContainer = styled(animated.div).withConfig({
+  shouldForwardProp: (prop, defaultValidatorFn) =>
+    !["visible", "inline"].includes(prop),
+})<{
   visible?: boolean;
   inline?: boolean;
   pinned?: boolean;
