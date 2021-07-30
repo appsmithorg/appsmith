@@ -383,12 +383,24 @@ export function EditorHeader(props: EditorHeaderProps) {
           {filteredAppEditors && filteredAppEditors.length > 0 && (
             <UserImageContainer>
               {filteredAppEditors.slice(0, 5).map((el) => (
-                <ProfileImage
-                  className="app-realtime-editors"
+                <TooltipComponent
+                  content={
+                    <>
+                      <span style={{ margin: "0 0 8px 0", display: "block" }}>
+                        {el.name || el.email}
+                      </span>
+                      <b>Editing</b>
+                    </>
+                  }
+                  hoverOpenDelay={100}
                   key={el.email}
-                  source={`/api/${UserApi.photoURL}/${el.email}`}
-                  userName={el.name || el.email}
-                />
+                >
+                  <ProfileImage
+                    className="app-realtime-editors"
+                    source={`/api/${UserApi.photoURL}/${el.email}`}
+                    userName={el.name || el.email}
+                  />
+                </TooltipComponent>
               ))}
               {filteredAppEditors.length > 5 ? (
                 <ProfileImage
