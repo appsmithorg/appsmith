@@ -1,10 +1,13 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
+import { getCurrentUser } from "./usersSelectors";
 
-const getAppCollabState = (state: AppState) => state.ui.appCollab;
+export const getAppCollabState = (state: AppState) => state.ui.appCollab;
 
 export const getRealtimeAppEditors = createSelector(
   getAppCollabState,
-  (appCollab: AppCollabReducerState) => appCollab.editors,
+  getCurrentUser,
+  (appCollab: AppCollabReducerState, currentUser) =>
+    appCollab.editors.filter((el) => el.email !== currentUser?.email),
 );

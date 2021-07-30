@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
@@ -322,12 +322,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const realtimeAppEditors = useSelector(getRealtimeAppEditors);
-  const filteredAppEditors = useMemo(() => {
-    if (user) {
-      return realtimeAppEditors.filter((el) => el.email !== user.email);
-    }
-    return realtimeAppEditors;
-  }, [realtimeAppEditors, user]);
 
   return (
     <ThemeProvider theme={props.darkTheme}>
@@ -380,9 +374,9 @@ export function EditorHeader(props: EditorHeaderProps) {
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
-          {filteredAppEditors && filteredAppEditors.length > 0 && (
+          {realtimeAppEditors.length > 0 && (
             <UserImageContainer>
-              {filteredAppEditors.slice(0, 5).map((el) => (
+              {realtimeAppEditors.slice(0, 5).map((el) => (
                 <TooltipComponent
                   content={
                     <>
@@ -402,10 +396,10 @@ export function EditorHeader(props: EditorHeaderProps) {
                   />
                 </TooltipComponent>
               ))}
-              {filteredAppEditors.length > 5 ? (
+              {realtimeAppEditors.length > 5 ? (
                 <ProfileImage
                   className="app-realtime-editors"
-                  commonName={`+${filteredAppEditors.length - 5}`}
+                  commonName={`+${realtimeAppEditors.length - 5}`}
                 />
               ) : null}
             </UserImageContainer>
