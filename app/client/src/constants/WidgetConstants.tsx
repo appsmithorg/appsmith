@@ -103,6 +103,9 @@ export const layoutConfigurations: LayoutConfigurations = {
 
 export const LATEST_PAGE_VERSION = 28;
 
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const CANVAS_CLASSNAME = "appsmith_widget_0";
+
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
   DEFAULT_WIDGET_WIDTH: 200,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import { TreeSelectContainer, DropdownStyles, inputIcon } from "./index.styled";
 import "rc-tree-select/assets/index.less";
@@ -6,6 +6,10 @@ import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { SelectionType } from "widgets/TreeSelectWidget";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
+import {
+  CANVAS_CLASSNAME,
+  MODAL_PORTAL_CLASSNAME,
+} from "constants/WidgetConstants";
 
 export interface TreeSelectProps
   extends Required<
@@ -76,8 +80,20 @@ function TreeSelectComponent({
   selectionType,
   value,
 }: TreeSelectProps): JSX.Element {
+  const _menu = useRef<HTMLElement | null>(null);
+
+  const getDropdownPosition = useCallback((node: HTMLElement | null) => {
+    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
+      return document.querySelector(
+        `.${MODAL_PORTAL_CLASSNAME}`,
+      ) as HTMLElement;
+    }
+    // TODO: Use generateClassName func.
+    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
+  }, []);
+
   return (
-    <TreeSelectContainer>
+    <TreeSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
       <DropdownStyles />
       {/* <StyledText>Label</StyledText> */}
       <TreeSelect
@@ -88,6 +104,7 @@ function TreeSelectComponent({
         dropdownClassName={`tree-select-dropdown ${selectionType ===
           "SINGLE_SELECT" && "single-tree-select-dropdown"}`}
         dropdownStyle={dropdownStyle}
+        getPopupContainer={() => getDropdownPosition(_menu.current)}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}
