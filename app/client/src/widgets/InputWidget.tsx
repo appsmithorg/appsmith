@@ -409,7 +409,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 }
 
-export const InputTypes: { [key: string]: string } = {
+export const InputTypes = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
   INTEGER: "INTEGER",
