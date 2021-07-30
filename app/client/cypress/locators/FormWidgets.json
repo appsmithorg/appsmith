@@ -33,5 +33,18 @@
   "switchWidget": ".t--draggable-switchwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",
   "toggleJsMinDate": ".t--property-control-mindate .t--js-toggle",
-  "toggleJsMaxDate": ".t--property-control-maxdate .t--js-toggle"
+  "toggleJsMaxDate": ".t--property-control-maxdate .t--js-toggle",
+  "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
+  "widgetRelatedDocument": "div.main > div:nth-child(1) > div:nth-child(1)",
+  "dropdowonChevranDown":".t--widget-dropdownwidget .bp3-icon-chevron-down",
+  "addWidget": ".t--entity.group.widgets > div:nth-child(1) >div:nth-child(5)",
+  "dropdownDefaultButton":".t--widget-dropdownwidget .bp3-button",
+  "toggleVisible": ".t--property-control-visible .t--js-toggle",
+  "inputToggleVisible": "div.t--property-control-visible div.CodeMirror-lines",
+  "selectWidget": ".t--widget-dropdownwidget",
+  "filterCheckbox":".t--property-control-filterable input[type=checkbox]",
+  "searchBoxDropdown":".select-popover-wrapper div.bp3-input-group",
+  "NavHomePage": "[data-icon='home']",
+  "apiCallToast": "div.t--toast-action span[type='p1']",
+  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle"
 }

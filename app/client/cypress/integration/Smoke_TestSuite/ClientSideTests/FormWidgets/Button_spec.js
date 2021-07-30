@@ -184,7 +184,7 @@ describe("Button Widget Functionality", function() {
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("buttonApi");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error");
+    cy.onClickActions("Success", "Error", "onclick");
 
     cy.PublishtheApp();
 
@@ -230,7 +230,7 @@ describe("Button Widget Functionality", function() {
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error");
+    cy.onClickActions("Success", "Error", "onclick");
 
     cy.PublishtheApp();
 
