@@ -38,3 +38,24 @@ export const fetchPluginFormConfigSuccess = (
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
   payload,
 });
+
+export const fetchPluginFormConfigError = (
+  payload: GetPluginFormConfigRequest,
+): ReduxAction<GetPluginFormConfigRequest> => ({
+  type: ReduxActionTypes.FETCH_PLUGIN_FORM_ERROR,
+  payload,
+});
+
+export interface GetPluginFormConfigRequest {
+  id: string;
+}
+
+// To fetch plugin form config for individual plugin
+export const fetchPluginFormConfig = ({
+  pluginId: id,
+}: {
+  pluginId: GetPluginFormConfigRequest;
+}) => ({
+  type: ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT,
+  payload: id,
+});
