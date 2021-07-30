@@ -504,7 +504,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       payload: props,
     });
   }, [props]);
-
   return (
     <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
@@ -562,10 +561,9 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
-            closeOnSelection={false}
+            closeOnSelection
             dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
-            enableTimePicker={false}
             isDisabled={false}
             isLoading={false}
             label=""
@@ -573,6 +571,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             selectedDate={value}
             shortcuts={false}
             widgetId=""
+            withoutPortal
           />
         </DatePickerWrapper>
       ) : null}
