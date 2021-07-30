@@ -39,11 +39,13 @@ export interface SelectedArenaDimensions {
 
 export function CanvasSelectionArena({
   canExtend,
+  snapColumnSpace,
   snapRows,
   snapRowSpace,
   widgetId,
 }: {
   canExtend: boolean;
+  snapColumnSpace: number;
   widgetId: string;
   snapRows: number;
   snapRowSpace: number;
@@ -74,6 +76,10 @@ export function CanvasSelectionArena({
             snapToNextColumn,
             snapToNextRow,
             isMultiSelect,
+            {
+              snapColumnSpace,
+              snapRowSpace,
+            },
           ),
         );
       },

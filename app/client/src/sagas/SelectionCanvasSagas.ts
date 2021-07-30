@@ -1,12 +1,6 @@
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/editorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  CONTAINER_GRID_PADDING,
-  WIDGET_PADDING,
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
 import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
@@ -38,6 +32,7 @@ function* selectAllWidgetsInAreaSaga(
   const {
     isMultiSelect,
     selectionArena,
+    snapSpaces,
     snapToNextColumn,
     snapToNextRow,
   }: {
@@ -45,38 +40,25 @@ function* selectAllWidgetsInAreaSaga(
     snapToNextColumn: boolean;
     snapToNextRow: boolean;
     isMultiSelect: boolean;
+    snapSpaces: {
+      snapColumnSpace: number;
+      snapRowSpace: number;
+    };
   } = action.payload;
 
-  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
-  if (
-    mainContainer.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-    mainContainer.type === "CONTAINER_WIDGET"
-  ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = CONTAINER_GRID_PADDING * 2;
-  }
-  if (mainContainer.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
-  }
-  // const padding = CONTAINER_GRID_PADDING + WIDGET_PADDING;
-  const snapSpace = {
-    snapColumnWidth:
-      (mainContainer.rightColumn - padding) / GridDefaults.DEFAULT_GRID_COLUMNS,
-    snapColumnHeight: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  };
+  const { snapColumnSpace, snapRowSpace } = snapSpaces;
   // we use snapToNextRow, snapToNextColumn to determine if the selection rectangle is inverted
   // so to snap not to the next column or row like we usually do,
   // but to snap it to the one before it coz the rectangle is inverted.
   const topLeftCorner = snapToGrid(
-    snapSpace.snapColumnWidth,
-    snapSpace.snapColumnHeight,
-    selectionArena.left - (snapToNextRow ? snapSpace.snapColumnWidth : 0),
-    selectionArena.top - (snapToNextColumn ? snapSpace.snapColumnHeight : 0),
+    snapColumnSpace,
+    snapRowSpace,
+    selectionArena.left - (snapToNextRow ? snapColumnSpace : 0),
+    selectionArena.top - (snapToNextColumn ? snapRowSpace : 0),
   );
   const bottomRightCorner = snapToGrid(
-    snapSpace.snapColumnWidth,
-    snapSpace.snapColumnHeight,
+    snapColumnSpace,
+    snapRowSpace,
     selectionArena.left + selectionArena.width,
     selectionArena.top + selectionArena.height,
   );
