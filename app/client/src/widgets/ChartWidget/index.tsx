@@ -54,6 +54,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           onDataPointClick={this.onDataPointClick}
+          setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
           yAxisName={this.props.yAxisName}

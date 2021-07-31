@@ -51,6 +51,7 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  setAdaptiveYMin: boolean;
   onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
@@ -239,6 +240,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionAlignment: "left",
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
+      setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
   };
 

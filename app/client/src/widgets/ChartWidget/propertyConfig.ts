@@ -232,6 +232,15 @@ export default [
         isTriggerProperty: false,
         hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
       },
+      {
+        propertyName: "setAdaptiveYMin",
+        label: "Y-axis Minimum",
+        helpText: "Toggle y-axis adaptive min",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
   {
