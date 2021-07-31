@@ -31,7 +31,7 @@ describe("Dynamic input autocomplete", () => {
         // Tests if data tree entities are sorted
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
-          .should("have.text", "input.text");
+          .should("have.text", "appsmith");
 
         // Tests if "No suggestions" message will pop if you type any garbage
         cy.get(dynamicInputLocators.input)
