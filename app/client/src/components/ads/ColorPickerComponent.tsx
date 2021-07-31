@@ -151,6 +151,7 @@ interface ColorPickerProps {
 
 function ColorPickerComponent(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
+  const [isPopoverOpen, setPopoverOpen] = React.useState(false);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
     [props.changeColor],
@@ -164,12 +165,14 @@ function ColorPickerComponent(props: ColorPickerProps) {
     <Popover
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
+      isOpen={isPopoverOpen}
       minimal
       modifiers={{
         offset: {
           offset: "0, 24px",
         },
       }}
+      onInteraction={(state) => setPopoverOpen(state)}
       position={Position.BOTTOM}
       usePortal
     >
@@ -186,6 +189,11 @@ function ColorPickerComponent(props: ColorPickerProps) {
           )
         }
         onChange={handleChangeColor}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === "Tab") && isPopoverOpen) {
+            setPopoverOpen(false);
+          }
+        }}
         placeholder="enter color name or hex"
         value={color}
       />
