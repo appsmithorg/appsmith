@@ -467,6 +467,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
       isRequired: false,
       isDisabled: false,
+      allowClear: false,
       expandAll: false,
       placeholderText: "select option(s)",
       labelText: "Label",

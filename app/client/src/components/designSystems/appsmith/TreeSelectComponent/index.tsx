@@ -20,7 +20,12 @@ export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      "disabled" | "options" | "placeholder" | "loading" | "dropdownStyle"
+      | "disabled"
+      | "options"
+      | "placeholder"
+      | "loading"
+      | "dropdownStyle"
+      | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -75,6 +80,7 @@ const switcherIcon = (obj: TreeNodeProps) => {
 };
 
 function TreeSelectComponent({
+  allowClear,
   disabled,
   dropdownStyle,
   expandAll,
@@ -103,6 +109,7 @@ function TreeSelectComponent({
       <DropdownStyles />
       {labelText && <StyledText>{labelText}</StyledText>}
       <TreeSelect
+        allowClear={allowClear}
         animation="slide-up"
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"

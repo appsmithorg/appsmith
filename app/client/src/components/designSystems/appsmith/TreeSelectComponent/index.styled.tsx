@@ -626,6 +626,10 @@ export const TreeSelectContainer = styled.div`
         appearance: none;
       }
     }
+    .rc-tree-select-selection-overflow-item-suffix {
+      position: relative !important;
+      left: 0px !important;
+    }
   }
   .rc-tree-select-disabled {
     cursor: not-allowed;
@@ -800,7 +804,15 @@ export const TreeSelectContainer = styled.div`
     .rc-tree-select-clear {
       position: absolute;
       right: 20px;
-      top: 0;
+      right: 25px;
+      top: -1px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      .rc-tree-select-clear-icon {
+        font-size: 18px;
+        font-weight: bold;
+      }
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-multiple {

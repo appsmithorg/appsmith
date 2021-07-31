@@ -121,6 +121,26 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "allowClear",
+            label: "Clear all Selections",
+            helpText: "Enables Icon to clear all Selections",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "expandAll",
+            label: "Expand all by default",
+            helpText: "Expand All nested options",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText:
               "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
@@ -194,16 +214,6 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            propertyName: "expandAll",
-            label: "Expand all by default",
-            helpText: "Expand All nested options",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
         ],
       },
       {
@@ -269,6 +279,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
 
     return (
       <TreeSelectComponent
+        allowClear={this.props.allowClear}
         disabled={this.props.isDisabled ?? false}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
@@ -362,6 +373,7 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
+  allowClear: boolean;
   labelText?: string;
   selectedLabel: string[];
   selectedOption: string | string[];
