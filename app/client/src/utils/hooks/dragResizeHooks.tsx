@@ -2,15 +2,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
-      if (isCommentMode) return;
+      if (isCommentMode || isSnipingMode) return;
 
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
@@ -23,6 +25,34 @@ export const useShowPropertyPane = () => {
             widgetId || callForDragOrResize
               ? ReduxActionTypes.SHOW_PROPERTY_PANE
               : ReduxActionTypes.HIDE_PROPERTY_PANE,
+          payload: { widgetId, callForDragOrResize, force },
+        },
+      );
+    },
+    [dispatch, isCommentMode, isSnipingMode],
+  );
+};
+
+export const useShowTableFilterPane = () => {
+  const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
+
+  return useCallback(
+    (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
+      // Don't show property pane in comment mode
+      if (isCommentMode) return;
+
+      dispatch(
+        // If widgetId is not provided, we don't show the table filter pane.
+        // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
+        // callForDragOrResize payload is handled in SHOW_TABLE_FILTER_PANE action.
+        // Ergo, when either widgetId or callForDragOrResize are provided, SHOW_TABLE_FILTER_PANE
+        // Else, HIDE_TABLE_FILTER_PANE
+        {
+          type:
+            widgetId || callForDragOrResize
+              ? ReduxActionTypes.SHOW_TABLE_FILTER_PANE
+              : ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
           payload: { widgetId, callForDragOrResize, force },
         },
       );

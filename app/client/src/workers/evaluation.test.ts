@@ -8,7 +8,7 @@ import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -207,6 +207,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
 };
 
 const BASE_WIDGET: DataTreeWidget = {
+  logBlackList: {},
   widgetId: "randomID",
   widgetName: "randomWidgetName",
   bottomRow: 0,
@@ -227,6 +228,7 @@ const BASE_WIDGET: DataTreeWidget = {
 };
 
 const BASE_ACTION: DataTreeAction = {
+  logBlackList: {},
   actionId: "randomId",
   name: "randomActionName",
   config: {
@@ -257,7 +259,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Text2: {
@@ -270,7 +272,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Text3: {
@@ -283,7 +285,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
     Dropdown1: {
@@ -325,7 +327,7 @@ describe("DataTreeEvaluator", () => {
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        tableData: VALIDATION_TYPES.TABLE_DATA,
+        tableData: { type: ValidationTypes.OBJECT_ARRAY },
       },
     },
     Text4: {
@@ -337,7 +339,7 @@ describe("DataTreeEvaluator", () => {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
-        text: VALIDATION_TYPES.TEXT,
+        text: { type: ValidationTypes.TEXT },
       },
     },
   };
@@ -384,7 +386,8 @@ describe("DataTreeEvaluator", () => {
         text: "Hey there",
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
@@ -397,7 +400,8 @@ describe("DataTreeEvaluator", () => {
         text: "Label 3",
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
@@ -445,7 +449,8 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
   });
 
@@ -481,7 +486,8 @@ describe("DataTreeEvaluator", () => {
         },
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
   });
 
@@ -501,7 +507,8 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
@@ -565,7 +572,8 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedUnEvalTree);
+    evaluator.updateDataTree(updatedUnEvalTree);
+    const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
@@ -654,7 +662,8 @@ describe("DataTreeEvaluator", () => {
         },
       },
     };
-    const { dataTree } = evaluator.updateDataTree(updatedTree2);
+    evaluator.updateDataTree(updatedTree2);
+    const dataTree = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
@@ -680,8 +689,8 @@ describe("DataTreeEvaluator", () => {
         },
       },
     };
-    const evaluatedDataTreeObject = evaluator.updateDataTree(updatedTree3);
-    const dataTree3 = evaluatedDataTreeObject.dataTree;
+    evaluator.updateDataTree(updatedTree3);
+    const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",

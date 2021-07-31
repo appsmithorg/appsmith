@@ -2,10 +2,6 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 
-// const isLoading = {
-//   "!type": "bool",
-//   "!doc": "Boolean value indicating if the entity is in loading state",
-// };
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
@@ -14,7 +10,6 @@ const isVisible = {
 export const entityDefinitions = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
-    const responseMetaDef = generateTypeDef(entity.responseMeta);
     let data: Record<string, any> = {
       "!doc": "The response of the action",
     };
@@ -23,21 +18,16 @@ export const entityDefinitions = {
     } else {
       data = { ...data, ...dataDef };
     }
-    let responseMeta: Record<string, any> = {
-      "!doc": "The response meta of the action",
-    };
-    if (_.isString(responseMetaDef)) {
-      responseMeta["!type"] = responseMetaDef;
-    } else {
-      responseMeta = { ...responseMeta, ...responseMetaDef };
-    }
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
       "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
-      responseMeta,
+      responseMeta: {
+        "!doc": "The response meta of the action",
+        "!type": "?",
+      },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
     };
   },
@@ -137,8 +127,6 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
-    recaptchaToken: "string",
-    googleRecaptchaKey: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -219,8 +207,6 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
-    recaptchaToken: "string",
-    googleRecaptchaKey: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -257,13 +243,14 @@ export const entityDefinitions = {
     value: "number",
     maxCount: "number",
   },
-  IFRAME_WIDGET: {
+  IFRAME_WIDGET: (widget: any) => ({
     "!doc": "Iframe widget is used to display iframes in your app.",
     "!url": "https://docs.appsmith.com/widget-reference/iframe",
     isVisible: isVisible,
     source: "string",
     title: "string",
-  },
+    message: generateTypeDef(widget.message),
+  }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",
@@ -319,6 +306,7 @@ export const GLOBAL_DEFS = {
 };
 
 export const GLOBAL_FUNCTIONS = {
+  "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
     "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",

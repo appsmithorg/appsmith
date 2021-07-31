@@ -50,7 +50,13 @@ public class PolicyUtils {
         // TODO: Investigate a solution without using deep-copy.
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            policyMap1.put(entry.getKey(), entry.getValue());
+            Policy entryValue = entry.getValue();
+            Policy policy = Policy.builder()
+                    .users(new HashSet<>(entryValue.getUsers()))
+                    .permission(entryValue.getPermission())
+                    .groups(new HashSet<>(entryValue.getGroups()))
+                    .build();
+            policyMap1.put(entry.getKey(), policy);
         }
 
         // Append the user to the existing permission policy if it already exists.
@@ -221,8 +227,8 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
-    public Flux<CommentThread> updateWithApplicationPermissionsToAllItsCommentThreads(
-            String applicationId, Map<String, Policy> commentThreadPolicyMap, boolean addPolicyToObject) {
+    public Flux<CommentThread> updateCommentThreadPermissions(
+            String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
 
         return
                 // fetch comment threads with read permissions
@@ -233,6 +239,9 @@ public class PolicyUtils {
                         if (addPolicyToObject) {
                             return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
                         } else {
+                            if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
+                                thread.getSubscribers().remove(username);
+                            }
                             return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
                         }
                     }

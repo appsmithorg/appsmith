@@ -8,6 +8,11 @@ import {
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { set } from "lodash";
+import { Org } from "constants/orgConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -331,4 +336,21 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   }
 
   return object;
+};
+
+export const getCanManage = (currentOrg: Org) => {
+  const userOrgPermissions = currentOrg.userPermissions || [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
+  return canManage;
+};
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    return new URL(redirectURL).origin === window.location.origin;
+  } catch (e) {
+    return false;
+  }
 };

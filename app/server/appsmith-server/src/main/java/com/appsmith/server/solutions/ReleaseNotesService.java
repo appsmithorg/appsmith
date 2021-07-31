@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -9,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,15 +36,11 @@ public class ReleaseNotesService {
 
     private final ProjectProperties projectProperties;
 
+    private final CommonConfig commonConfig;
+
     public final List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
     private Instant cacheExpiryTime = null;
-
-    @Value("${github_repo}")
-    private String repo;
-
-    @Value("${is.cloud-hosted:false}")
-    private boolean isCloudHosted;
 
     @Data
     static class Releases {
@@ -84,8 +80,8 @@ public class ReleaseNotesService {
                                 baseUrl + "/api/v1/releases?instanceId=" + instanceId +
                                         // isCloudHosted should be true only for our cloud instance,
                                         // For docker images that burn the segment key with the image, the CE key will be present
-                                        "&isSourceInstall=" + (isCloudHosted || StringUtils.isEmpty(segmentConfig.getCeKey())) +
-                                        (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
+                                        "&isSourceInstall=" + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey())) +
+                                        (StringUtils.isEmpty(commonConfig.getRepo()) ? "" : ("&repo=" + commonConfig.getRepo()))
                         )
                         .get()
                         .exchange()
