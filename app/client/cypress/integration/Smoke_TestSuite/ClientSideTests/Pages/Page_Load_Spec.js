@@ -11,6 +11,9 @@ describe("Page Load tests", () => {
       .next()
       .next()
       .click();
+
+    cy.skipGenerateCRUDPage();
+
     cy.get("h2").contains("Drag and drop a widget here");
   });
   it("Published page loads correctly", () => {

@@ -269,7 +269,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<number>,
   ) => ({
     ...state,
-    unreadCommentThreadsCount: action.payload || 0,
+    unreadCommentThreadsCount: Math.max(action.payload, 0),
   }),
 });
 

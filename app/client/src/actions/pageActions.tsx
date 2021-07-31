@@ -5,12 +5,14 @@ import {
   ReduxActionTypes,
   ReduxActionWithoutPayload,
   UpdateCanvasPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { GenerateTemplatePageRequest } from "../api/PageApi";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -300,5 +302,62 @@ export const updateAppPersistentStore = (
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+  };
+};
+
+export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
+  extraParams: Record<any, any>;
+}
+
+export const generateTemplateSuccess = ({
+  isNewPage,
+  layoutId,
+  pageId,
+  pageName,
+}: {
+  layoutId: string;
+  pageId: string;
+  pageName: string;
+  isNewPage: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
+    payload: {
+      layoutId,
+      pageId,
+      pageName,
+      isNewPage,
+    },
+  };
+};
+
+export const generateTemplateError = () => {
+  return {
+    type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
+  };
+};
+
+export const generateTemplateToUpdatePage = ({
+  applicationId,
+  columns,
+  datasourceId,
+  mode,
+  pageId,
+  searchColumn,
+  tableName,
+}: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
+    payload: {
+      pageId,
+      tableName,
+      datasourceId,
+      applicationId,
+      columns,
+      searchColumn,
+    },
+    extraParams: {
+      mode,
+    },
   };
 };
