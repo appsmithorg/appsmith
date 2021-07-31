@@ -10,7 +10,6 @@ import parser from "fast-xml-parser";
 import { Severity } from "entities/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import forge from "node-forge";
-import { Position } from "codemirror";
 
 export type DependencyMap = Record<string, Array<string>>;
 
