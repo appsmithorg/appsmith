@@ -247,7 +247,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "32px";
+        height = props.height || "35px";
       }
       return `height: ${height}`;
     }}
