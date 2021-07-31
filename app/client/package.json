@@ -225,6 +225,8 @@
     "@typescript-eslint/parser": "^4.15.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
+    "brotli-webpack-plugin": "^1.1.0",
+    "compression-webpack-plugin": "^6.0.5",
     "craco-babel-loader": "^0.1.4",
     "cypress": "6.2.1",
     "cypress-file-upload": "^4.1.1",

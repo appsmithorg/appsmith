@@ -3,6 +3,8 @@ const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 const merge = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
+const BrotliPlugin = require("brotli-webpack-plugin");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
 
@@ -38,6 +40,16 @@ if (env === "PRODUCTION" || env === "STAGING") {
     );
   }
 }
+plugins.push(new CompressionPlugin());
+
+plugins.push(
+  new BrotliPlugin({
+    asset: "[path].br[query]",
+    test: /\.(js|css|html|svg)$/,
+    threshold: 10240,
+    minRatio: 0.8,
+  }),
+);
 
 module.exports = merge(common, {
   webpack: {
