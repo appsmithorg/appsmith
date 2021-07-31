@@ -410,7 +410,7 @@ export function* addChildrenSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_ADD_CHILDREN,
+        action: WidgetReduxActionTypes.WIDGET_ADD_CHILDREN,
         error,
       },
     });
@@ -1896,7 +1896,7 @@ export default function* widgetOperationSagas() {
       updateWidgetPropertySaga,
     ),
     takeEvery(
-      ReduxActionTypes.WIDGET_UPDATE_PROPERTY,
+      WidgetReduxActionTypes.WIDGET_UPDATE_PROPERTY,
       updateWidgetPropertySaga,
     ),
     takeEvery(
@@ -1920,6 +1920,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
-    takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
   ]);
 }
