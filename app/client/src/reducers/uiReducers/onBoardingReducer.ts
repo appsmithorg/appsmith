@@ -26,6 +26,7 @@ const initialState: OnboardingState = {
     action: {
       label: "",
     },
+    allowMinimize: false,
   },
 };
 

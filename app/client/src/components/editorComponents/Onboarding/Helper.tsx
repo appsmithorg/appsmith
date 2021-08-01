@@ -9,6 +9,7 @@ import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { CloseButton } from "../../designSystems/blueprint/CloseButton";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -19,6 +20,11 @@ const StyledContainer = styled.div`
   background-color: white;
   border: 2px solid #df613c;
   width: 303px;
+
+  & > .closeButton {
+    top: 3px;
+    border-radius: 16px;
+  }
 `;
 
 const ImagePlaceholder = styled.div`
@@ -181,6 +187,20 @@ const SubStepContainer = styled.div`
   }
 `;
 
+const SideStickBar = styled.div`
+  position: fixed;
+  bottom: 37px;
+  left: 0;
+  z-index: 8;
+  padding: 12px 8px;
+  background-color: #df613c;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+`;
+
 function Helper() {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
@@ -193,6 +213,7 @@ function Helper() {
   );
   const steps = Array.from({ length: OnboardingStep.FINISH }, (_, i) => i + 1);
   const [cheatMode, setCheatMode] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     cheatMode && setCheatMode(false);
@@ -206,7 +227,7 @@ function Helper() {
     helperConfig.hint?.snippet && write(helperConfig.hint.snippet);
   };
 
-  return (
+  return !minimized ? (
     <StyledContainer className="onboarding-step-indicator">
       {helperConfig.image ? (
         <MissionImage src={helperConfig.image.src} />
@@ -215,6 +236,14 @@ function Helper() {
       )}
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title className="t--onboarding-helper-title">{helperConfig.title}</Title>
+      {helperConfig.allowMinimize && (
+        <CloseButton
+          className="closeButton"
+          color={Colors.BLACK_PEARL}
+          onClick={() => setMinimized(true)}
+          size={16}
+        />
+      )}
       <Description>{helperConfig.description}</Description>
       {helperConfig.subSteps &&
         helperConfig.subSteps.map((subStep, index) => {
@@ -321,6 +350,10 @@ function Helper() {
         </div>
       </BottomContainer>
     </StyledContainer>
+  ) : (
+    <SideStickBar onClick={() => setMinimized(false)}>
+      Next Mission
+    </SideStickBar>
   );
 }
 
