@@ -33,6 +33,7 @@ const DEFS: Def[] = [
   xmlJs,
   forge,
 ];
+
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
