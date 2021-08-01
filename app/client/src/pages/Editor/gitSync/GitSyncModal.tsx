@@ -1,5 +1,8 @@
 import React from "react";
 import Dialog from "components/ads/DialogComponent";
+import Repository from "./Repository/Repository";
+import Commit from "./Commit/Commit";
+
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
@@ -19,7 +22,10 @@ function GitSyncModal() {
       isOpen={isModalOpen}
       onClose={handleClose}
     >
-      <div>empty container</div>
+      <div>
+        <Repository />
+        <Commit />
+      </div>
     </Dialog>
   );
 }
