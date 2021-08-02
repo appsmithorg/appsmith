@@ -19,8 +19,8 @@ ff4j:
             value: requiredValue
 
     - uid: COMMENT
-      enable: false
-      description: Enable this feature based on weight. It's randomized.
+      enable: true
+      description: Enable this feature based on email ID of the user
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
         param:
