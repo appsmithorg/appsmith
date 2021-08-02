@@ -7,10 +7,10 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
-import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
+// import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+// import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
 
-SyntaxHighlighter.registerLanguage("javascript", js);
+// SyntaxHighlighter.registerLanguage("javascript", javascript);
 
 type Props = {
   activeItem: SearchItem;
@@ -214,9 +214,7 @@ function SnippetDescription(props: any) {
         <span className="action-msg">Hit ⏎ to insert</span>
       </div>
       <div className="snippet-desc">{description}</div>
-      <SyntaxHighlighter language="javascript" style={xcode}>
-        {snippet}
-      </SyntaxHighlighter>
+      <SyntaxHighlighter language="javascript">{snippet}</SyntaxHighlighter>
       <div className="snippet-group">
         <div className="header">Arguments</div>
         <div className="content">array (Array): The array to concatenate.</div>
@@ -234,9 +232,7 @@ function SnippetDescription(props: any) {
       {examples.map((ex: any) => (
         <>
           <p>{ex.title}</p>
-          <SyntaxHighlighter language="javascript" style={xcode}>
-            {ex.code}
-          </SyntaxHighlighter>
+          <SyntaxHighlighter language="javascript">{ex.code}</SyntaxHighlighter>
           <p>{ex.summary}</p>
         </>
       ))}
