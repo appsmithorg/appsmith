@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Text, { TextType } from "components/ads/Text";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
@@ -44,6 +44,7 @@ const introStepsEditor = [
     banner: getBanner(1),
     bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
     title: "Give Contextual Feedback",
@@ -62,6 +63,7 @@ const introStepsViewer = [
     banner: getBanner(1),
     bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
     title: "Give Contextual Feedback",
@@ -134,12 +136,16 @@ const getSteps = (
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
   showEditorSteps: boolean,
+  onSkip: () => void,
 ) => {
   const introSteps = showEditorSteps ? introStepsEditor : introStepsViewer;
 
   return [
     ...introSteps.map((stepConfig: any) => ({
-      props: stepConfig,
+      props: {
+        ...stepConfig,
+        onSkip,
+      },
       component: IntroStepThemed,
     })),
     {
@@ -165,6 +171,7 @@ export default function CommentsShowcaseCarousel() {
   const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
   const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
   const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const currentUser = useSelector(getCurrentUser);
   const { email, name } = currentUser || {};
@@ -200,13 +207,14 @@ export default function CommentsShowcaseCarousel() {
     initialProfileFormValues,
     !!email,
     canManage,
+    () => setActiveIndex(2),
   );
 
   if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel steps={steps as Steps} />
+      <ShowcaseCarousel activeIndex={activeIndex} steps={steps as Steps} />
     </CommentsCarouselModal>
   );
 }
