@@ -146,7 +146,7 @@ const SECONDARY_MENU: TabProp[] = [
 const getSecondaryMenu = (hasActiveSources: boolean) => {
   const mockDbMenu = {
     key: "MOCK_DATABASE",
-    title: "Mock Databases",
+    title: "Sample Databases",
     panelComponent: <div />,
   };
   return hasActiveSources
@@ -203,7 +203,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Mock Databases</Text>
+      <Text type={TextType.H2}>Sample Databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
