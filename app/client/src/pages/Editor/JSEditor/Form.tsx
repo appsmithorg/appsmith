@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { JS_EDITOR_FORM } from "constants/forms";
 import { JSAction } from "entities/JSAction";
@@ -14,11 +14,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { reduxForm } from "redux-form";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import Resizable from "components/editorComponents/Debugger/Resizer";
-import { TabbedViewContainer } from "../QueryEditor/EditorJSONtoForm";
 import FormRow from "components/editorComponents/FormRow";
 import JSCollectionNameEditor from "./JSCollectionNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
@@ -26,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { thinScrollbar } from "constants/DefaultTheme";
+import JSResponseView from "components/editorComponents/JSResponseView";
 
 const Form = styled.form`
   display: flex;
@@ -73,37 +68,38 @@ const SecondaryWrapper = styled.div`
   flex-direction: column;
   height: calc(100% - 50px);
 `;
-
-const TabContainerView = styled.div`
-  flex: 1;
-  overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  margin-top 5px;
-  ${thinScrollbar}
-  a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 15px;
-  }
-  .react-tabs__tab-panel {
-    overflow: scroll;
-    margin-top: 2px;
-  }
-  .react-tabs__tab-list {
-    margin: 0px;
-  }
-  &&& {
-    ul.react-tabs__tab-list {
-      padding-left: 23px;
-    }
-  }
-  position: relative;
-`;
-
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
+`;
+
+export const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  height: 100%;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${FormRow} {
+    min-height: auto;
+    padding: ${(props) => props.theme.spaces[0]}px;
+    & > * {
+      margin-right: 0px;
+    }
+  }
+
+  &&& {
+    ul.react-tabs__tab-list {
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+      margin-top: 2px;
+      background-color: ${(props) => props.theme.colors.apiPane.bg};
+    }
+  }
 `;
 interface JSFormProps {
   jsAction: JSAction;
@@ -114,40 +110,8 @@ type Props = JSFormProps;
 
 function JSEditorForm() {
   const theme = EditorTheme.LIGHT;
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainTabIndex, setMainTabIndex] = useState(0);
-  const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
-  const responseTabs = [
-    {
-      key: "Response",
-      title: "Response",
-      panelComponent: <div />,
-    },
-    {
-      key: "ERROR",
-      title: "Errors",
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: "LOGS",
-      title: "Logs",
-      panelComponent: <DebuggerLogs searchQuery={""} />,
-    },
-  ];
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "CONSOLE"];
-    if (
-      debuggerTabKeys.includes(responseTabs[index].key) &&
-      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: responseTabs[index].key,
-      });
-    }
-
-    setSelectedIndex(index);
-  };
   const params = useParams<{ collectionId: string }>();
 
   const jsActions: JSAction[] = useSelector((state: AppState) =>
@@ -183,7 +147,7 @@ function JSEditorForm() {
           </FormRow>
         </MainConfiguration>
         <SecondaryWrapper>
-          <TabContainerView>
+          <TabbedViewContainer>
             <TabComponent
               onSelect={setMainTabIndex}
               selectedIndex={mainTabIndex}
@@ -214,15 +178,14 @@ function JSEditorForm() {
                 },
               ]}
             />
-          </TabContainerView>
-          <TabbedViewContainer ref={panelRef}>
-            <Resizable panelRef={panelRef} />
-            <TabComponent
-              onSelect={onTabSelect}
-              selectedIndex={selectedIndex}
-              tabs={responseTabs}
-            />
           </TabbedViewContainer>
+          <JSResponseView
+            jsCollection={currentJSAction}
+            onRunClick={() => {
+              console.log("hey");
+            }}
+            theme={theme}
+          />
         </SecondaryWrapper>
       </Form>
     </>

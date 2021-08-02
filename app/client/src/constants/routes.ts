@@ -40,6 +40,12 @@ export type QueryEditorRouteParams = {
   queryId: string;
 };
 
+export type JSEditorRouteParams = {
+  applicationId: string;
+  pageId: string;
+  collectionId?: string;
+};
+
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
   `/applications/${applicationId}`;
 
