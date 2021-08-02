@@ -153,6 +153,7 @@ export enum ButtonType {
 interface RecaptchaProps {
   googleRecaptchaKey?: string;
   clickWithRecaptcha: (token: string) => void;
+  handleRecaptchaV2Loading?: (isLoading: boolean) => void;
   recaptchaV2?: boolean;
 }
 
@@ -190,20 +191,29 @@ function RecaptchaV2Component(
 ) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [isInvalidKey, setInvalidKey] = useState(false);
+  const handleRecaptchaLoading = (isloading: boolean) => {
+    props.handleRecaptchaV2Loading && props.handleRecaptchaV2Loading(isloading);
+  };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
+    handleRecaptchaLoading(true);
     if (isInvalidKey) {
+      handleRecaptchaLoading(false);
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
     } else {
       try {
+        await recaptchaRef?.current?.reset();
         const token = await recaptchaRef?.current?.executeAsync();
         if (token) {
+          handleRecaptchaLoading(false);
           props.clickWithRecaptcha(token);
         } else {
+          handleRecaptchaLoading(false);
           // Handle incorrent google recaptcha site key
           props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
         }
       } catch (err) {
+        handleRecaptchaLoading(false);
         // Handle error due to google recaptcha key of different domain
         props.handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
       }
@@ -316,6 +326,7 @@ function ButtonContainer(
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
+      handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       onClick={props.onClick}
       recaptchaV2={props.recaptchaV2}
     >
