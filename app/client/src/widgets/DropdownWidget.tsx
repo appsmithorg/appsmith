@@ -132,6 +132,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["selectionType"],
           },
           {
             propertyName: "isFilterable",

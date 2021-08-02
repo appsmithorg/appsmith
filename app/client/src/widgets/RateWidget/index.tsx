@@ -97,6 +97,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["maxCount", "isAllowHalf"],
           },
           {
             propertyName: "activeColor",

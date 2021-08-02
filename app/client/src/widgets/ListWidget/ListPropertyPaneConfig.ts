@@ -114,6 +114,7 @@ const PropertyPaneConfig = [
             ),
           };
         },
+        dependencies: ["listData"],
       },
     ],
   },

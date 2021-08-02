@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get } from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -25,7 +25,11 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import {
+  getWidgetPropsForPropertyName,
+  WidgetProperties,
+} from "selectors/propertyPaneSelectors";
+import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
@@ -33,11 +37,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-
-import {
-  useChildWidgetEnhancementFns,
-  useParentWithEnhancementFn,
-} from "sagas/WidgetEnhancementHelpers";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -49,41 +48,54 @@ type Props = PropertyPaneControlConfig & {
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const parentWithEnhancement = useParentWithEnhancementFn(
+
+  const propsSelector = getWidgetPropsForPropertyName(
+    props.propertyName,
+    props.dependencies,
+  );
+
+  const widgetProperties: WidgetProperties = useSelector(
+    propsSelector,
+    isEqual,
+  );
+
+  const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
   );
 
-  /** get all child enhancements functions */
+  const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
+    enhancementSelector,
+    isEqual,
+  );
+
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
     propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
-  } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
+  } = enhancementFns;
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
-        widgetType: widgetProperties.type,
-        widgetName: widgetProperties.widgetName,
+        widgetType: widgetProperties?.type,
+        widgetName: widgetProperties?.widgetName,
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
       dispatch(
         setWidgetDynamicProperty(
-          widgetProperties.widgetId,
+          widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
         ),
       );
     },
     [
-      dispatch,
-      widgetProperties.widgetId,
-      widgetProperties.type,
-      widgetProperties.widgetName,
+      widgetProperties?.widgetId,
+      widgetProperties?.type,
+      widgetProperties?.widgetName,
     ],
   );
 
@@ -91,7 +103,7 @@ const PropertyControl = memo((props: Props) => {
     (propertyPaths: string[]) => {
       dispatch(deleteWidgetProperty(widgetProperties.widgetId, propertyPaths));
     },
-    [dispatch, widgetProperties.widgetId],
+    [widgetProperties.widgetId],
   );
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
@@ -100,7 +112,7 @@ const PropertyControl = memo((props: Props) => {
           modify: allUpdates,
         }),
       ),
-    [widgetProperties.widgetId, dispatch],
+    [widgetProperties.widgetId],
   );
   // this function updates the properties of widget passed
   const onBatchUpdatePropertiesOfWidget = useCallback(
@@ -116,7 +128,7 @@ const PropertyControl = memo((props: Props) => {
         }),
       );
     },
-    [dispatch],
+    [],
   );
 
   /**
@@ -172,7 +184,7 @@ const PropertyControl = memo((props: Props) => {
 
           onBatchUpdatePropertiesOfWidget(
             allUpdates,
-            get(parentWithEnhancement, "widgetId", ""),
+            parentIdWithEnhancementFn,
             triggerPaths,
           );
         }
@@ -223,7 +235,7 @@ const PropertyControl = memo((props: Props) => {
         });
       }
     },
-    [dispatch, widgetProperties],
+    [widgetProperties],
   );
 
   const openPanel = useCallback(

@@ -173,6 +173,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["dateFormat"],
           },
           {
             helpText: "Sets the format of the selected date",
@@ -255,6 +256,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["dateFormat", "defaultDate"],
           },
           {
             propertyName: "maxDate",
@@ -275,6 +277,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["dateFormat", "defaultDate"],
           },
         ],
       },
