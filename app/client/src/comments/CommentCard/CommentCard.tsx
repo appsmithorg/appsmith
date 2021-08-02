@@ -43,6 +43,7 @@ import {
   deleteCommentThreadRequest,
   addCommentReaction,
   removeCommentReaction,
+  setVisibleThread,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -376,6 +377,9 @@ function CommentCard({
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
+
+    dispatch(setVisibleThread(commentThreadId));
+
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
