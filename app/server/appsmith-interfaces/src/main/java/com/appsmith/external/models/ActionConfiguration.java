@@ -59,6 +59,7 @@ public class ActionConfiguration implements AppsmithDomain {
     // Represents the values that need to be
     List<JSValue> jsArguments;
     Boolean isAsync;
+    Boolean isValid;
 
     /*
      * Future plugins could require more fields that are not covered above.
