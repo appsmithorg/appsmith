@@ -46,6 +46,8 @@ import {
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
 
+import { Bold, Label, SelectWrapper } from "./styles";
+
 //  ---------- Styles ----------
 
 const Wrapper = styled.div`
@@ -55,16 +57,6 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 10px 20px 0px;
   border: none;
-`;
-
-const SelectWrapper = styled.div<{ width: string }>`
-  margin: 10px;
-  max-width: ${(props) => props.width};
-`;
-
-const Label = styled.p`
-  flex: 1;
-  ${(props) => `${getTypographyByKey(props, "p1")}`}
 `;
 
 const FormWrapper = styled.div`
@@ -84,10 +76,6 @@ const EditDatasourceButton = styled(Button)`
   margin-top: 30px;
 `;
 
-const Bold = styled.span`
-  font-weight: 500;
-`;
-
 const DescWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -102,14 +90,14 @@ const Title = styled.p`
   font-size: 24px;
 `;
 
-// ---------- Types ----------
-
-// ---------- GeneratePageForm Component ----------
+// Constants
 
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
+
+// ---------- GeneratePageForm Component ----------
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
@@ -221,35 +209,42 @@ function GeneratePageForm() {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        const { data } = TableObj;
-        const columnIcon: IconName = "column";
-        if (data.columns && Array.isArray(data.columns)) {
-          const newSelectedTableColumnOptions: DropdownOption[] = [];
-          data.columns.map((column) => {
-            if (
-              column.type &&
-              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
-            ) {
-              newSelectedTableColumnOptions.push({
-                id: column.name,
-                label: column.name,
-                value: column.name,
-                subText: column.type,
-                icon: columnIcon,
-                iconSize: IconSize.LARGE,
-                iconColor: Colors.GOLD,
-              });
+        if (!isGoogleSheetPlugin) {
+          const { data } = TableObj;
+          const columnIcon: IconName = "column";
+          if (data.columns && Array.isArray(data.columns)) {
+            const newSelectedTableColumnOptions: DropdownOption[] = [];
+            data.columns.map((column) => {
+              if (
+                column.type &&
+                ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
+              ) {
+                newSelectedTableColumnOptions.push({
+                  id: column.name,
+                  label: column.name,
+                  value: column.name,
+                  subText: column.type,
+                  icon: columnIcon,
+                  iconSize: IconSize.LARGE,
+                  iconColor: Colors.GOLD,
+                });
+              }
+            });
+            if (newSelectedTableColumnOptions) {
+              setSelectedTableColumnOptions(newSelectedTableColumnOptions);
             }
-          });
-          if (newSelectedTableColumnOptions) {
-            setSelectedTableColumnOptions(newSelectedTableColumnOptions);
+          } else {
+            setSelectedTableColumnOptions([]);
           }
-        } else {
-          setSelectedTableColumnOptions([]);
         }
       }
     },
-    [selectTable, setSelectedTableColumnOptions, selectColumn],
+    [
+      selectTable,
+      setSelectedTableColumnOptions,
+      selectColumn,
+      isGoogleSheetPlugin,
+    ],
   );
 
   const onSelectColumn = useCallback(
@@ -497,7 +492,6 @@ function GeneratePageForm() {
                 Select a searchable {columnLabel} from
                 <Bold> {selectedTable.label} </Bold>
               </Label>
-
               <Dropdown
                 cypressSelector="t--searchColumn-dropdown"
                 dropdownMaxHeight={"300px"}
@@ -516,6 +510,7 @@ function GeneratePageForm() {
           <GoogleSheetForm
             googleSheetPluginId={selectedDatasourcePluginId}
             selectedDatasource={selectedDatasource}
+            selectedSpreadsheet={selectedTable}
             setSelectedDatasourceIsInvalid={setSelectedDatasourceIsInvalid}
             setSelectedDatasourceTableOptions={
               setSelectedDatasourceTableOptions
