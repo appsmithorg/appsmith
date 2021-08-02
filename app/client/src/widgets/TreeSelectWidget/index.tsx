@@ -352,7 +352,9 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
   }
 
   filterValues(values: string | string[] | undefined) {
-    const options = this.flat(this.props.options as DropdownOption[]);
+    const options = this.props.options
+      ? this.flat(this.props.options as DropdownOption[])
+      : [];
 
     if (isString(values)) {
       const index = findIndex(options, { value: values as string });
