@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -118,6 +118,12 @@ export const MenuButtonContainer = styled.div`
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
+  }
+`;
+
+const PopoverStyles = createGlobalStyle`
+  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
+    background: none;
   }
 `;
 
@@ -296,10 +302,10 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       : "none"} !important;
 `;
 
-const BaseMenuItem = styled(MenuItem)<BaseStyleProps>`
-  ${({ backgroundColor }) =>
-    backgroundColor &&
-    `
+const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  ${({ backgroundColor, theme }) =>
+    backgroundColor
+      ? `
       background-color: ${backgroundColor} !important;
       &:hover {
         background-color: ${darkenHover(backgroundColor)} !important;
@@ -307,7 +313,24 @@ const BaseMenuItem = styled(MenuItem)<BaseStyleProps>`
       &:active {
         background-color: ${darkenActive(backgroundColor)} !important;
       }
-  `}
+  `
+      : `
+    background: none !important
+      &:hover {
+        background-color: ${tinycolor(
+          theme.colors.button.primary.solid.textColor,
+        )
+          .darken()
+          .toString()} !important;
+      }
+      &:active {
+        background-color: ${tinycolor(
+          theme.colors.button.primary.solid.textColor,
+        )
+          .darken()
+          .toString()} !important;
+      }
+    `}
   ${({ textColor }) =>
     textColor &&
     `
@@ -324,6 +347,7 @@ const BaseMenuItem = styled(MenuItem)<BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  background: none;
 `;
 
 export interface PopoverContentProps {
@@ -518,6 +542,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
 
   return (
     <MenuButtonContainer>
+      <PopoverStyles />
       <Popover2
         content={
           <PopoverContent
@@ -530,6 +555,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         fill
         minimal
         placement="bottom-end"
+        popoverClassName="menu-button-popover"
       >
         <PopoverTargetButton
           borderRadius={borderRadius}
