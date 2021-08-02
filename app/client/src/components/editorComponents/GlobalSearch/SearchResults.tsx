@@ -365,7 +365,7 @@ function CategoryItem({
   );
 }
 
-function SnippetItem({ isActive, item: { title } }: any) {
+function SnippetItem({ item: { title } }: any) {
   return <span>{title}</span>;
 }
 

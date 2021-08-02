@@ -178,7 +178,7 @@ function GlobalSearch() {
   const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const [snippets, setSnippets] = useState([]);
   useEffect(() => {
-    SnippetsApi.getSnippets("").then((response) => setSnippets(response.data));
+    SnippetsApi.getSnippets().then((response) => setSnippets(response.data));
   }, []);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,

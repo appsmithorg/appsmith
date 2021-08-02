@@ -205,8 +205,7 @@ const SnippetContainer = styled.div`
 function SnippetDescription(props: any) {
   //Add type here
   const {
-    item: { args, description, examples, snippet, title },
-    query,
+    item: { description, examples, snippet, title },
   } = props;
   return (
     <SnippetContainer>

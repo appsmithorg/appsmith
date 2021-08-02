@@ -1,14 +1,11 @@
-import { AxiosPromise } from "axios";
-import { reject } from "lodash";
 import Api from "./Api";
-import { ApiResponse } from "./ApiResponses";
 
-type SnippetsRequest = {
-  entity: [string];
-  field: [string];
-  dataType: string;
-  query: string;
-};
+// type SnippetsRequest = {
+//   entity: [string];
+//   field: [string];
+//   dataType: string;
+//   query: string;
+// };
 
 const dummyResponse = [
   {
@@ -60,10 +57,9 @@ class SnippetsApi extends Api {
   static baseURL = "v1/snippets";
   static getSnippetsURL = `${SnippetsApi.baseURL}/dummy`;
 
-  static getSnippets(
-    requestParams: any, //SnippetsRequest,
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
+  static getSnippets(): //SnippetsRequest,
+  Promise<any> {
+    return new Promise((resolve) => {
       resolve({
         data: dummyResponse,
         responseMeta: {},

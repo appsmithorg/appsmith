@@ -757,11 +757,11 @@ function* executeCommand(
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      const category = get(
-        actionPayload.payload,
-        "args.category",
-        SEARCH_CATEGORIES.INIT,
-      );
+      // const category = get(
+      //   actionPayload.payload,
+      //   "args.category",
+      //   SEARCH_CATEGORIES.INIT,
+      // );
       yield putResolve(
         setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.SNIPPETS }),
       );
