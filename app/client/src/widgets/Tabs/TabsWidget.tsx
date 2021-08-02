@@ -100,6 +100,7 @@ class TabsWidget extends BaseWidget<
                 },
               },
             },
+            dependencies: ["tabsObj", "tabs"],
           },
           {
             propertyName: "shouldShowTabs",
