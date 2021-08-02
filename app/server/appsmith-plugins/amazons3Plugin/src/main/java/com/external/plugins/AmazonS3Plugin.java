@@ -8,6 +8,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -56,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -327,8 +329,10 @@ public class AmazonS3Plugin extends BasePlugin {
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
                         properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null, null));
 
-                if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
-                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+                // If the action_type is LIST_BUCKET, remove the bucket name requirement
+                if (s3Action != AmazonS3Action.LIST_BUCKETS
+                    && (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
+                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -338,12 +342,13 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String bucketName = (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+                final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
+                        null : (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(BUCKET_NAME_PROPERTY_INDEX),
                         bucketName, null, null, null));
 
-                if (StringUtils.isEmpty(bucketName)) {
+                if (StringUtils.isEmpty(bucketName) && (s3Action != AmazonS3Action.LIST_BUCKETS)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -545,6 +550,14 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
+                    case LIST_BUCKETS:
+                        List<String> bucketNames = connection.listBuckets()
+                            .stream()
+                            .map(Bucket::getName)
+                            .collect(Collectors.toList());
+                        actionResult = Map.of("bucketList", bucketNames);
+                        break;
+
                     default:
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -889,6 +902,17 @@ public class AmazonS3Plugin extends BasePlugin {
              * Not sure if it make sense to list all buckets as part of structure ? Leaving it empty for now.
              */
             return Mono.empty();
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
+                                                                 DatasourceConfiguration datasourceConfiguration) {
+
+            // Get the metadata from the datasource using pluginSpecifiedTemplate by executing the DB query
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return datasourceCreate(datasourceConfiguration)
+                .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
         }
     }
 }
