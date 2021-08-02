@@ -336,7 +336,10 @@ export default {
       },
       doesNotContain: (a, b) => {
         try {
-          return !this.contains(a, b);
+          return !a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
@@ -364,16 +367,16 @@ export default {
         }
       },
       is: (a, b) => {
-        return moment(a).isSame(moment(b), "d");
+        return moment(a).isSame(moment(b), "minute");
       },
       isNot: (a, b) => {
-        return !moment(a).isSame(moment(b), "d");
+        return !moment(a).isSame(moment(b), "minute");
       },
       isAfter: (a, b) => {
-        return !moment(a).isAfter(moment(b), "d");
+        return moment(a).isAfter(moment(b), "minute");
       },
       isBefore: (a, b) => {
-        return !moment(a).isBefore(moment(b), "d");
+        return moment(a).isBefore(moment(b), "minute");
       },
     };
 
