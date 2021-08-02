@@ -103,6 +103,8 @@ const StyledContainer = styled.div`
     background-color: transparent;
     font-style: normal;
     font-weight: bold;
+  }
+  & .search-highlighted {
     margin-right: -3px;
   }
 `;
@@ -229,6 +231,7 @@ function GlobalSearch() {
 
   useEffect(() => {
     document.getElementById("global-search")?.focus();
+    if (category.id === SEARCH_CATEGORIES.INIT) setActiveItemIndex(0);
   }, [category.id]);
 
   const allWidgets = useSelector(getAllPageWidgets);

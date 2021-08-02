@@ -312,6 +312,7 @@ const StyledSectionTitleContainer = styled.div`
   & .section-title__text {
     color: ${(props) => props.theme.colors.globalSearch.sectionTitle};
     font-size: 12px;
+    font-weight: 600;
   }
   margin-left: -${(props) => props.theme.spaces[3]}px;
 `;
