@@ -111,7 +111,7 @@ const DatasourceWrapper = styled.div`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1;
   height: 100%;
   ${HelpSection} {
     margin-bottom: 10px;

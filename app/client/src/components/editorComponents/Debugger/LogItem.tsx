@@ -108,6 +108,11 @@ const JsonWrapper = styled.div`
     width: 12px !important;
     vertical-align: baseline !important;
   }
+  // This class is used react-json-view values
+  .string-value {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
 `;
 
 const StyledCollapse = styled(Collapse)`
