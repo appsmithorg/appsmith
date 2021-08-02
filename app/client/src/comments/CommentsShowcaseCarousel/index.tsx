@@ -4,6 +4,9 @@ import Text, { TextType } from "components/ads/Text";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import ProfileForm, { PROFILE_FORM } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
+import ProgressiveImage, {
+  Container as ProgressiveImageContainer,
+} from "components/ads/ProgressiveImage";
 
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -27,6 +30,9 @@ import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
 import { getCanManage } from "utils/helpers";
 
+import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
+import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
+
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
@@ -36,15 +42,15 @@ const introStepsEditor = [
     content:
       "You can now collaborate with your users to build apps faster. Invite your team to comment on your apps, exchange thoughts & ship your ideas.",
     banner: getBanner(1),
+    bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
-    bannerProps: { style: { height: 284 } },
   },
   {
     title: "Give Contextual Feedback",
     content:
       "Drop a comment on a widget to suggest an improvement. Comments are tagged to the widget and move along with it. Update the widget and iterate your way to shipping your ideas!",
     banner: getBanner(2),
-    bannerProps: { style: { height: 284 } },
+    bannerThumbnail: stepTwoThumbnail,
   },
 ];
 
@@ -54,15 +60,15 @@ const introStepsViewer = [
     content:
       "You can now collaborate with your developers to build apps faster. Exchange thoughts, leave feedback & ship your ideas.",
     banner: getBanner(1),
+    bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
-    bannerProps: { style: { height: 284 } },
   },
   {
     title: "Give Contextual Feedback",
     content:
       "Drop a comment on a widget to suggest an improvement or report an issue. Comments are tagged to the widget, resolve them once the updates are live!",
     banner: getBanner(2),
-    bannerProps: { style: { height: 284 } },
+    bannerThumbnail: stepTwoThumbnail,
   },
 ];
 
@@ -70,21 +76,33 @@ const IntroContentContainer = styled.div`
   padding: ${(props) => props.theme.spaces[5]}px;
 `;
 
-const StyledImg = styled.img`
-  width: 100%;
-  object-fit: contain;
+const BannerContainer = styled.div`
+  & ${ProgressiveImageContainer} {
+    width: 100%;
+    height: 284px;
+  }
+  .progressive-image--thumb,
+  progressive-image--full {
+    object-fit: contain;
+  }
 `;
 
 function IntroStep(props: {
   title: string;
   content: string;
   banner: string;
+  bannerThumbnail: any;
   theme: Theme;
   bannerProps: any;
 }) {
   return (
     <>
-      <StyledImg alt="" src={props.banner} {...props.bannerProps} />
+      <BannerContainer>
+        <ProgressiveImage
+          imageSource={props.banner}
+          thumbnailSource={props.bannerThumbnail}
+        />
+      </BannerContainer>
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text

@@ -28,9 +28,11 @@ const Bubble = styled.div<{ active?: boolean }>`
         : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
-  margin-left: ${(props) => `${props.theme.radii[1]}px`};
-  &:first-child {
-    margin-left: 0;
+  margin-right: ${(props) => `${props.theme.radii[1]}px`};
+
+  /* At times the rendered emoji has width as 16px */
+  & span.emoji {
+    min-width: 20px;
   }
 `;
 
@@ -156,7 +158,7 @@ function EmojiReactions({
               active={reaction.active}
               onClick={(e) => handleSelectReaction(e, reaction.reactionEmoji)}
             >
-              <span>{reaction.reactionEmoji}</span>
+              <span className="emoji">{reaction.reactionEmoji}</span>
               {reaction.count > 1 && (
                 <Count active={reaction.active}>{reaction.count}</Count>
               )}
