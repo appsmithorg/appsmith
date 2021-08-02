@@ -16,29 +16,44 @@ import { Layers } from "constants/Layers";
 import { isString } from "../../utils/helpers";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  let values: string[] = [];
-  if (typeof value === "string") {
-    try {
-      values = JSON.parse(value);
-      if (!Array.isArray(values)) {
-        throw new Error();
-      }
-    } catch {
-      values = value.length ? value.split(",") : [];
-      if (values.length > 0) {
-        values = values.map((_v: string) => _v.trim());
+function defaultOptionValueValidation(
+  value: unknown,
+  props: TreeSelectWidgetProps,
+): ValidationResponse {
+  if (props.selectionType === "SINGLE_SELECT") {
+    if (typeof value === "string")
+      return { isValid: true, parsed: value.trim() };
+    if (value === undefined || value === null)
+      return {
+        isValid: false,
+        parsed: "",
+        message: "This value does not evaluate to type: string",
+      };
+    return { isValid: true, parsed: value };
+  } else {
+    let values: string[] = [];
+    if (typeof value === "string") {
+      try {
+        values = JSON.parse(value);
+        if (!Array.isArray(values)) {
+          throw new Error();
+        }
+      } catch {
+        values = value.length ? value.split(",") : [];
+        if (values.length > 0) {
+          values = values.map((_v: string) => _v.trim());
+        }
       }
     }
-  }
-  if (Array.isArray(value)) {
-    values = Array.from(new Set(value));
-  }
+    if (Array.isArray(value)) {
+      values = Array.from(new Set(value));
+    }
 
-  return {
-    isValid: true,
-    parsed: values,
-  };
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  }
 }
 class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -241,7 +256,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
         '{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) ) : undefined}}',
       selectedOptionValue:
         '{{ this.selectionType === "SINGLE_SELECT" && JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined }}',
-      isValid: `{{this.isRequired ? !!this.selectedOptionValue?.length || this.selectedOptionValues?.length > 0 : true}}`,
+      isValid: `{{this.isRequired && this.selectionType === "SINGLE_SELECT" ? !!this.selectedOptionValue?.length : this.isRequired && this.selectionType === "MULTI_SELECT" ? this.selectedOptionValues?.length > 0 : true}}`,
     };
   }
 
@@ -297,7 +312,7 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     );
   }
 
-  onOptionChange = (value: DefaultValueType, labelList: ReactNode[]) => {
+  onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,

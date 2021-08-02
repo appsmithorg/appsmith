@@ -29,7 +29,7 @@ export interface TreeSelectProps
     >
   > {
   value?: DefaultValueType;
-  onChange: (value: DefaultValueType, labelList: ReactNode[]) => void;
+  onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   selectionType: SelectionType;
   expandAll: boolean;
   mode: CheckedStrategy;
@@ -125,6 +125,9 @@ function TreeSelectComponent({
         multiple={selectionType === "MULTI_SELECT"}
         notFoundContent="No item Found"
         onChange={onChange}
+        onClear={() => {
+          onChange([], []);
+        }}
         placeholder={placeholder}
         showArrow
         showCheckedStrategy={mode}
