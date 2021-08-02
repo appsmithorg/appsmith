@@ -17,7 +17,7 @@ import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
-import { HintEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
@@ -78,12 +78,21 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+export type DataTreeDefEntityInformation = {
+  type: ENTITY_TYPE;
+  subType: string;
+};
+
 class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
   active: any;
-  entityInformation: HintEntityInformation = {};
+  fieldEntityInformation: FieldEntityInformation = {};
+  defEntityInformation: Map<string, DataTreeDefEntityInformation> = new Map<
+    string,
+    DataTreeDefEntityInformation
+  >();
 
   constructor() {
     this.server = new tern.Server({
@@ -133,10 +142,15 @@ class TernServer {
     });
   }
 
-  updateDef(name: string, def: Def) {
+  updateDef(
+    name: string,
+    def: Def,
+    entityInfo?: Map<string, DataTreeDefEntityInformation>,
+  ) {
     this.server.deleteDefs(name);
     // @ts-ignore: No types available
     this.server.addDefs(def, true);
+    if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
   removeDef(name: string) {
@@ -270,7 +284,7 @@ class TernServer {
     bestMatchSearch: string,
   ) {
     const expectedDataType = this.getExpectedDataType();
-    const { entityName, entityType } = this.entityInformation;
+    const { entityName, entityType } = this.fieldEntityInformation;
     type CompletionType =
       | "DATA_TREE"
       | "MATCHING_TYPE"
@@ -351,8 +365,10 @@ class TernServer {
     if (findBestMatch && completionType.MATCHING_TYPE.length) {
       const sortedMatches: Completion[] = [];
       const groupedMatches = _.groupBy(completionType.MATCHING_TYPE, (c) => {
-        const [, , subType, name] = c.origin.split(".");
-        return c.text.replace(name, subType);
+        const name = c.text.split(".")[0];
+        const entityInfo = this.defEntityInformation.get(name);
+        if (!entityInfo) return c.text;
+        return c.text.replace(name, entityInfo.subType);
       });
       SortRules[expectedDataType].forEach((rule) => {
         if (Array.isArray(groupedMatches[rule])) {
@@ -363,12 +379,16 @@ class TernServer {
       sortedMatches.sort((a, b) => {
         let aRank = 0;
         let bRank = 0;
-        const entityTypeA: ENTITY_TYPE = a.origin.split(".")[1] as ENTITY_TYPE;
-        const entityTypeB: ENTITY_TYPE = b.origin.split(".")[1] as ENTITY_TYPE;
-        if (entityTypeA === entityType) {
+        const aName = a.text.split(".")[0];
+        const bName = b.text.split(".")[0];
+        const aEntityInfo = this.defEntityInformation.get(aName);
+        const bEntityInfo = this.defEntityInformation.get(bName);
+        if (!aEntityInfo) return -1;
+        if (!bEntityInfo) return 1;
+        if (aEntityInfo.type === entityType) {
           aRank = aRank + 1;
         }
-        if (entityTypeB === entityType) {
+        if (bEntityInfo.type === entityType) {
           bRank = bRank + 1;
         }
         return aRank - bRank;
@@ -408,7 +428,7 @@ class TernServer {
   }
 
   getExpectedDataType(): DataType {
-    const type = this.entityInformation.expectedType;
+    const type = this.fieldEntityInformation.expectedType;
     if (type === undefined) return "UNKNOWN";
     if (
       type === "Array<Object>" ||
@@ -818,8 +838,8 @@ class TernServer {
     this.remove(tooltip);
   }
 
-  setEntityInformation(entityInformation: HintEntityInformation) {
-    this.entityInformation = entityInformation;
+  setEntityInformation(entityInformation: FieldEntityInformation) {
+    this.fieldEntityInformation = entityInformation;
   }
 }
 

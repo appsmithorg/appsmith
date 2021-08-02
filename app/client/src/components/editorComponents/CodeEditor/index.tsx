@@ -31,7 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
-  HintEntityInformation,
+  FieldEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -362,7 +362,7 @@ class CodeEditor extends Component<Props, State> {
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
     const { dataTreePath, dynamicData, expected } = this.props;
-    const entityInformation: HintEntityInformation = {
+    const entityInformation: FieldEntityInformation = {
       expectedType: expected?.type,
     };
     if (dataTreePath) {

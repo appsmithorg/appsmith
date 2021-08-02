@@ -40,7 +40,7 @@ export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.DARK]: "duotone-dark",
 };
 
-export type HintEntityInformation = {
+export type FieldEntityInformation = {
   entityName?: string;
   expectedType?: string;
   entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET;
@@ -54,7 +54,7 @@ export type HintHelper = (
 export type Hinter = {
   showHint: (
     editor: CodeMirror.Editor,
-    entityInformation: HintEntityInformation,
+    entityInformation: FieldEntityInformation,
     additionalData?: any,
   ) => boolean;
   update?: (data: DataTree) => void;

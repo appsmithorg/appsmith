@@ -41,7 +41,6 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
-import { Diff } from "deep-diff";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -294,39 +293,9 @@ export function* postEvalActionDispatcher(
   }
 }
 
-// Update only the changed entities on tern. We will pick up the updated
-// entities from the evaluation order and create a new def from them.
-// When there is a top level entity removed in removedPaths,
-// we will remove its def
-export function* updateTernDefinitions(
-  dataTree: DataTree,
-  isFirstEvaluation: boolean,
-  updates: Diff<DataTree, DataTree>[],
-) {
-  const updatedEntities: Set<string> = new Set();
-  // If it is the first evaluation, we want to add everything in the data tree
-  if (isFirstEvaluation) {
-    TernServer.resetServer();
-    Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
-  } else {
-    updates.forEach((update) => {
-      if (update.kind === "N" && update.path) {
-        updatedEntities.add(update?.path[0]);
-      }
-    });
-  }
-
-  updatedEntities.forEach((entityName) => {
-    const entity = dataTree[entityName];
-    if (entity) {
-      const { def, name } = dataTreeTypeDefCreator(entity, entityName);
-      TernServer.updateDef(name, def);
-    }
-  });
-  // removedPaths.forEach((path) => {
-  //   // No '.' means that the path is an entity name
-  //   if (path.split(".").length === 1) {
-  //     TernServer.removeDef(path);
-  //   }
-  // });
+// We update the data tree definition after every eval so that autocomplete
+// is accurate
+export function* updateTernDefinitions(dataTree: DataTree) {
+  const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+  TernServer.updateDef("DATA_TREE", def, entityInfo);
 }
