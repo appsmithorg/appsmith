@@ -1,21 +1,36 @@
 import React from "react";
-import { Checkbox, Classes } from "@blueprintjs/core";
+import { Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
 };
 
-export const StyledText = styled.p`
+export const StyledLabel = styled(Label)<{
+  compactMode: boolean;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+}>`
   overflow-y: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+  width: ${(props) => (props.compactMode ? "auto" : "100%")};
   text-align: left;
-  font-weight: normal;
-  font-size: 14px;
-  margin-bottom: 5px;
+  color: ${(props) => props.labelTextColor || "inherit"};
+  font-size: ${(props) =>
+    props.labelTextSize ? TEXT_SIZES[props.labelTextSize] : "14px"};
+  font-weight: ${(props) =>
+    props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${(props) =>
+    props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
 `;
 
 const rcSelectDropdownSlideUpIn = keyframes`
@@ -223,7 +238,7 @@ border: 1px solid #E8E8E8;
 	margin-top: 10px;
 	padding: 12px;
 	background: white;
-	box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15) !important;
+box-shadow: 0 0 2px rgb(0 0 0 / 20%) !important;
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 16px;
         padding-bottom: 10px;
@@ -591,10 +606,15 @@ border: 1px solid #E8E8E8;
   }
 `;
 
-export const TreeSelectContainer = styled.div`
+export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  align-items: ${(props) => (props.compactMode ? "center" : "left")};
 
+  label.tree-select-label {
+    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  }
   .rc-tree-select {
     display: inline-block;
     font-size: 12px;
@@ -602,7 +622,7 @@ export const TreeSelectContainer = styled.div`
     height: 100%;
     position: relative;
     cursor: pointer;
-    flex: 1;
+    flex: 1 1;
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
       position: absolute;

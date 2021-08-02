@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray, findIndex } from "lodash";
 import {
@@ -15,6 +15,7 @@ import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { isString } from "../../utils/helpers";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 function defaultOptionValueValidation(
   value: unknown,
@@ -106,6 +107,87 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            helpText:
+              "Allows users to select multiple options. Values must be unique",
+            propertyName: "options",
+            label: "Options",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter option value",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              unique: ["value"],
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Selects the option with value by default",
+            propertyName: "defaultOptionValue",
+            label: "Default Value",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter option value",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                },
+              },
+            },
+          },
+          {
+            helpText: "Label Text",
+            propertyName: "labelText",
+            label: "Label Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Input Place Holder",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter placeholder text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -155,76 +237,74 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
           {
-            helpText:
-              "Allows users to select multiple options. Values must be unique",
-            propertyName: "options",
-            label: "Options",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter option value",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            isJSConvertible: false,
-            validation: {
-              type: ValidationTypes.ARRAY,
-              params: {
-                children: {
-                  type: ValidationTypes.OBJECT,
-                  params: {
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        default: "",
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        default: "",
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
-          },
-          {
-            helpText: "Selects the option with value by default",
-            propertyName: "defaultOptionValue",
-            label: "Default Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter option value",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: defaultOptionValueValidation,
-                expected: {
-                  type: "value or Array of values",
-                  example: `value1 | ['value1', 'value2']`,
-                },
-              },
-            },
-          },
-          {
-            helpText: "Label Text",
-            propertyName: "labelText",
-            label: "Label Text",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label text",
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Input Place Holder",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter placeholder text",
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -295,12 +375,22 @@ class TreeSelectWidget extends BaseWidget<TreeSelectWidgetProps, WidgetState> {
     return (
       <TreeSelectComponent
         allowClear={this.props.allowClear}
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         disabled={this.props.isDisabled ?? false}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
         loading={this.props.isLoading}
         mode={this.props.mode}
         onChange={this.onOptionChange}
@@ -402,6 +492,9 @@ export interface TreeSelectWidgetProps extends WidgetProps, WithMeta {
   selectionType: SelectionType;
   expandAll: boolean;
   mode: CheckedStrategy;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
 }
 
 export default TreeSelectWidget;

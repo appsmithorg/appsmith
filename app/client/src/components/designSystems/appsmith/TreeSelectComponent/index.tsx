@@ -4,7 +4,7 @@ import {
   TreeSelectContainer,
   DropdownStyles,
   inputIcon,
-  StyledText,
+  StyledLabel,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -14,6 +14,7 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
+  TextSize,
 } from "constants/WidgetConstants";
 
 export interface TreeSelectProps
@@ -34,6 +35,10 @@ export interface TreeSelectProps
   expandAll: boolean;
   mode: CheckedStrategy;
   labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
 }
 
 const getSvg = (style = {}) => (
@@ -81,10 +86,14 @@ const switcherIcon = (obj: TreeNodeProps) => {
 
 function TreeSelectComponent({
   allowClear,
+  compactMode,
   disabled,
   dropdownStyle,
   expandAll,
+  labelStyle,
   labelText,
+  labelTextColor,
+  labelTextSize,
   loading,
   mode,
   onChange,
@@ -105,9 +114,23 @@ function TreeSelectComponent({
   }, []);
 
   return (
-    <TreeSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
+    <TreeSelectContainer
+      compactMode={compactMode}
+      ref={_menu as React.RefObject<HTMLDivElement>}
+    >
       <DropdownStyles />
-      {labelText && <StyledText>{labelText}</StyledText>}
+      {labelText && (
+        <StyledLabel
+          className="tree-select-label"
+          compactMode={compactMode}
+          labelStyle={labelStyle}
+          labelText={labelText}
+          labelTextColor={labelTextColor}
+          labelTextSize={labelTextSize}
+        >
+          {labelText}
+        </StyledLabel>
+      )}
       <TreeSelect
         allowClear={allowClear}
         animation="slide-up"
