@@ -218,6 +218,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
 
+        if(action.getPluginType() == PluginType.JS && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
+            action.setIsValid(false);
+            invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
+        }
+
         if (action.getActionConfiguration() == null) {
             action.setIsValid(false);
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
