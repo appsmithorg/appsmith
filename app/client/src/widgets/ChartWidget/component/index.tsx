@@ -375,6 +375,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           renderAt: this.props.widgetId + "chart-container",
           width: "100%",
           height: "100%",
+          events: {
+            dataPlotClick: (evt: any) => {
+              const data = evt.data;
+              this.props.onDataPointClick({
+                x: data.categoryLabel,
+                y: data.dataValue,
+              });
+            },
+          },
           ...this.getCustomFusionChartDataSource(),
         };
         this.chartInstance = new FusionCharts(chartConfig);

@@ -4,11 +4,53 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
 import _ from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DropdownOption, SelectionType } from "../constants";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
+function defaultOptionValueValidation(
+  value: unknown,
+  props: DropdownWidgetProps,
+): ValidationResponse {
+  if (props.selectionType === "SINGLE_SELECT") {
+    if (typeof value === "string")
+      return { isValid: true, parsed: value.trim() };
+    if (value === undefined || value === null)
+      return {
+        isValid: false,
+        parsed: "",
+        message: "This value does not evaluate to type: string",
+      };
+    return { isValid: true, parsed: value };
+  } else {
+    let values: string[] = [];
+    if (typeof value === "string") {
+      try {
+        values = JSON.parse(value);
+        if (!Array.isArray(values)) {
+          throw new Error();
+        }
+      } catch {
+        values = value.length ? value.split(",") : [];
+        if (values.length > 0) {
+          values = values.map((_v: string) => _v.trim());
+        }
+      }
+    }
+    if (Array.isArray(value)) {
+      values = Array.from(new Set(value));
+    }
+
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  }
+}
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -43,7 +85,28 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        default: "",
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -55,7 +118,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                },
+              },
+            },
           },
           {
             propertyName: "isFilterable",
@@ -65,6 +137,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isRequired",
@@ -74,7 +147,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -84,7 +157,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -94,7 +167,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

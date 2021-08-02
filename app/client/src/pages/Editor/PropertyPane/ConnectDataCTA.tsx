@@ -20,6 +20,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import WidgetFactory from "utils/WidgetFactory";
+import { WidgetType } from "constants/WidgetConstants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledDiv = styled.div`
@@ -64,7 +65,13 @@ export const excludeList = [
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
 
-function ConnectDataCTA() {
+type ConnectDataCTAProps = {
+  widgetTitle: string;
+  widgetId?: string;
+  widgetType?: WidgetType;
+};
+
+function ConnectDataCTA(props: ConnectDataCTAProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
@@ -77,21 +84,29 @@ function ConnectDataCTA() {
     });
   }, []);
 
+  const onClick = () => {
+    const { widgetId, widgetTitle, widgetType } = props;
+    history.push(
+      INTEGRATION_EDITOR_URL(
+        applicationId,
+        pageId,
+        INTEGRATION_TABS.NEW,
+        INTEGRATION_EDITOR_MODES.AUTO,
+      ),
+    );
+    AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
+      widgetTitle,
+      widgetId,
+      widgetType,
+    });
+  };
+
   return (
     <StyledDiv className="t--propertypane-connect-cta">
       Data Required
       <Button
         category={Category.primary}
-        onClick={() =>
-          history.push(
-            INTEGRATION_EDITOR_URL(
-              applicationId,
-              pageId,
-              INTEGRATION_TABS.NEW,
-              INTEGRATION_EDITOR_MODES.MOCK,
-            ),
-          )
-        }
+        onClick={onClick}
         size={Size.large}
         text="CONNECT DATA"
       />

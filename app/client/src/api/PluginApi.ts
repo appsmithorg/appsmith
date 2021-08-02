@@ -4,6 +4,10 @@ import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
+export type PluginId = string;
+export type PluginPackageName = string;
+export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
+
 export interface Plugin {
   id: string;
   name: string;
@@ -16,6 +20,7 @@ export interface Plugin {
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
+  generateCRUDPageComponent?: string;
 }
 
 export interface PluginFormPayload {

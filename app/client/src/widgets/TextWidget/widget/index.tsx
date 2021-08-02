@@ -1,7 +1,8 @@
 import React from "react";
 
 import { TextSize } from "constants/WidgetConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+
+import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -21,7 +22,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Enter text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "shouldScroll",
@@ -39,7 +40,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -60,7 +61,12 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.COLOR_PICKER_TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "fontSize",
@@ -118,7 +124,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "textAlign",
@@ -142,7 +148,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -172,7 +178,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  static getWidgetType(): string {
+  static getWidgetType() {
     return "TEXT_WIDGET";
   }
 }

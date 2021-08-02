@@ -16,6 +16,7 @@ import {
 import React, { Component, ReactNode } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
+import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
@@ -172,6 +173,16 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
      *
      * @param content
      */
+    makeSnipeable(content: ReactNode) {
+      return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
+    }
+
+    /**
+     * wraps the widget in a draggable component.
+     * Note: widget drag can be disabled by setting `dragDisabled` prop to true
+     *
+     * @param content
+     */
     makeDraggable(content: ReactNode) {
       return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
     }
@@ -232,6 +243,8 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
               content = this.makeResizable(content);
             content = this.showWidgetName(content);
             content = this.makeDraggable(content);
+            content = this.makeSnipeable(content);
+            // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
             content = this.makePositioned(content);
           }
           return content;

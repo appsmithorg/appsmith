@@ -1,12 +1,9 @@
 import React from "react";
-
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
-
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -21,7 +18,12 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             placeholderText: "Enter the URL of the page to embed",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.SAFE_URL,
+              params: {
+                default: "https://wikipedia.org",
+              },
+            },
           },
           {
             propertyName: "title",
@@ -31,7 +33,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             placeholderText: "Enter the title of the page to embed",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -75,7 +77,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             inputType: "NUMBER",
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, max: 100, default: 100 },
+            },
           },
           {
             propertyName: "borderWidth",
@@ -84,11 +89,20 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             inputType: "NUMBER",
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, default: 1 },
+            },
           },
         ],
       },
     ];
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      message: undefined,
+    };
   }
 
   urlChangedHandler = (url: string) => {
@@ -108,15 +122,14 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     if (!this.props.source?.includes(event.origin)) {
       return;
     }
-    if (this.props.onMessageReceived) {
-      this.props.executeAction({
-        triggerPropertyName: "onMessageReceived",
-        dynamicString: this.props.onMessageReceived,
-        event: {
-          type: EventType.ON_IFRAME_MESSAGE_RECEIVED,
-        },
-      });
-    }
+
+    this.props.updateWidgetMetaProperty("message", event.data, {
+      triggerPropertyName: "onMessageReceived",
+      dynamicString: this.props.onMessageReceived,
+      event: {
+        type: EventType.ON_IFRAME_MESSAGE_RECEIVED,
+      },
+    });
   };
 
   render() {
@@ -127,6 +140,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       source,
       title,
     } = this.props;
+
     return (
       <IframeComponent
         borderColor={borderColor}

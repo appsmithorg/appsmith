@@ -2,7 +2,8 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -28,7 +29,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -38,7 +39,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -72,7 +73,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             ],
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Controls the thickness of divider",
@@ -82,7 +83,10 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             placeholderText: "Enter thickness in pixels",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, default: 0 },
+            },
           },
           {
             helpText: "Controls the stroke color of divider",

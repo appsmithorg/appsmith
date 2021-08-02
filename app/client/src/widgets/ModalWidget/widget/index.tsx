@@ -10,7 +10,6 @@ import {
   RenderModes,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
-import produce from "immer";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {

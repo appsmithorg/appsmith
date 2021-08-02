@@ -178,9 +178,11 @@ function Popper(props: PopperProps) {
     disablePopperEvents,
   ]);
   return createPortal(
-    <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
-      {props.children}
-    </PopperWrapper>,
+    props.isOpen && (
+      <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
+        {props.children}
+      </PopperWrapper>
+    ),
     document.body,
   );
 }

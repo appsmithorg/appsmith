@@ -7,7 +7,7 @@ import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
@@ -42,7 +42,7 @@ class FilePickerWidget extends BaseWidget<
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "maxNumFiles",
@@ -54,7 +54,7 @@ class FilePickerWidget extends BaseWidget<
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
             propertyName: "maxFileSize",
@@ -65,6 +65,10 @@ class FilePickerWidget extends BaseWidget<
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 5, required: true },
+            },
           },
           {
             propertyName: "allowedFileTypes",
@@ -109,7 +113,21 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.ARRAY,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                allowedValues: [
+                  "*",
+                  "image/*",
+                  "video/*",
+                  "audio/*",
+                  "text/*",
+                  ".doc",
+                  "image/jpeg",
+                  ".png",
+                ],
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -143,7 +161,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -153,7 +171,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -163,7 +181,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

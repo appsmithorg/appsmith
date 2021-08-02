@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -34,6 +34,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -216,7 +217,15 @@ function ApiResponseView(props: Props) {
     setSelectedIndex(1);
   }, []);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const onRunClick = () => {
+    props.onRunClick();
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "API_PANE",
+    });
+  };
+
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const messages = response?.messages;
   const tabs = [
     {
@@ -253,7 +262,7 @@ function ApiResponseView(props: Props) {
                 {EMPTY_RESPONSE_FIRST_HALF()}
                 <InlineButton
                   isLoading={isRunning}
-                  onClick={props.onRunClick}
+                  onClick={onRunClick}
                   size={Size.medium}
                   tag="button"
                   text="Run"

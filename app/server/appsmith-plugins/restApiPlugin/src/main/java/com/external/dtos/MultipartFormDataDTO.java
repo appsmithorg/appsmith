@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MultipartFormDataDTO {
-    String filename;
-    String contentType;
-    Object part;
+    String name;
+    String type;
+    Object data;
 }

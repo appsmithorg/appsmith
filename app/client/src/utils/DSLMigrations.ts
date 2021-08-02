@@ -20,6 +20,7 @@ import {
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTableWidgetParentRowSpaceProperty,
   tableWidgetPropertyPaneMigrations,
+  migrateTablePrimaryColumnsComputedValue,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -858,14 +859,20 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 25) {
     currentDSL = migrateItemsToListDataInListWidget(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 26;
   }
 
   if (currentDSL.version === 26) {
     currentDSL = migrateDatePickerMinMaxDate(currentDSL);
+    currentDSL.version = 27;
   }
   if (currentDSL.version === 27) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = 28;
+  }
+
+  if (currentDSL.version === 28) {
+    currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

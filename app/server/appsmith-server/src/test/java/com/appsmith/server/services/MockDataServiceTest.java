@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.MockDataSource;
@@ -96,7 +97,7 @@ public class MockDataServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
-                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock");
+                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock (2)");
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))
                             .build();
@@ -151,6 +152,49 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(auth.getDatabaseName()).isEqualTo("users");
                     assertThat(auth.getUsername()).isEqualTo("users");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateMockDataSetsDuplicateName() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
+        MockDataSource mockDataSource = new MockDataSource();
+        mockDataSource.setName("movies");
+        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setPackageName("mongo-plugin");
+        mockDataSource.setPluginId(pluginMono.getId());
+
+        Mono<Datasource> datasourceMono = mockDataService.createMockDataSet(mockDataSource)
+                .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource));
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
+                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock (1)");
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+
+                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(createdDatasource.getPolicies()).isNotEmpty();
+                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(auth.getDatabaseName()).isEqualTo("movies");
+                    assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                 })
                 .verifyComplete();
     }

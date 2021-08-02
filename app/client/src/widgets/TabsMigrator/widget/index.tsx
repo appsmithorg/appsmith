@@ -3,10 +3,12 @@ import {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { selectedTabValidation } from "widgets/TabsWidget/widget";
 import { WidgetType } from "constants/WidgetConstants";
 import { migrateTabsData } from "utils/DSLMigrations";
 import { cloneDeep, get } from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 
@@ -32,7 +34,32 @@ class TabsMigratorWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TABS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                      },
+                      {
+                        name: "id",
+                        type: ValidationTypes.TEXT,
+                        default: generateReactKey(),
+                      },
+                      {
+                        name: "widgetId",
+                        type: ValidationTypes.TEXT,
+                        default: generateReactKey(),
+                      },
+                    ],
+                  },
+                },
+              },
+            },
           },
           {
             propertyName: "shouldShowTabs",
@@ -51,7 +78,16 @@ class TabsMigratorWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.SELECTED_TAB,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: selectedTabValidation,
+                expected: {
+                  type: "Tab Name (string)",
+                  example: "Tab 1",
+                },
+              },
+            },
           },
           {
             propertyName: "shouldScrollContents",
@@ -68,7 +104,7 @@ class TabsMigratorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

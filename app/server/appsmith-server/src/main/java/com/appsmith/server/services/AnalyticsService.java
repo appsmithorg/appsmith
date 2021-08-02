@@ -7,7 +7,6 @@ import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,27 +70,39 @@ public class AnalyticsService {
             return;
         }
 
-        if (!commonConfig.isCloudHosted()) {
-            userId = DigestUtils.sha256Hex(userId);
-            if (properties.containsKey("username")) {
-                properties.put("username", userId);
+        // Can't update the properties directly as it's throwing ImmutableCollection error
+        // java.lang.UnsupportedOperationException: null
+        // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
+        // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
+        Map<String, Object> analyticsProperties = new HashMap<>(properties);
+
+        // Hash usernames at all places for self-hosted instance
+        if (!commonConfig.isCloudHosting()) {
+            final String hashedUserId = DigestUtils.sha256Hex(userId);
+            analyticsProperties.remove("request");
+            if (!CollectionUtils.isEmpty(analyticsProperties)) {
+                for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                    if (entry.getValue() == null) {
+                        analyticsProperties.put(entry.getKey(), "");
+                    } else if (entry.getValue().equals(userId)) {
+                        analyticsProperties.put(entry.getKey(), hashedUserId);
+                    }
+                }
             }
-            if (properties.containsKey("request")) {
-                properties.remove("request");
-            }
+            userId = hashedUserId;
         }
 
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
-        if (!CollectionUtils.isEmpty(properties)) {
+        if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
             // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
                 if (entry.getValue() == null) {
-                    properties.put(entry.getKey(), "");
+                    analyticsProperties.put(entry.getKey(), "");
                 }
             }
-            messageBuilder = messageBuilder.properties(properties);
         }
+        messageBuilder = messageBuilder.properties(analyticsProperties);
 
         analytics.enqueue(messageBuilder);
     }

@@ -2,8 +2,88 @@ import { get } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+function defaultSelectedRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+) {
+  if (props) {
+    if (props.multiRowSelection) {
+      if (props && !props.multiRowSelection)
+        return { isValid: true, parsed: undefined };
+
+      if (_.isString(value)) {
+        const trimmed = (value as string).trim();
+        try {
+          const parsedArray = JSON.parse(trimmed);
+          if (Array.isArray(parsedArray)) {
+            const sanitized = parsedArray.filter((entry) => {
+              return (
+                Number.isInteger(parseInt(entry, 10)) &&
+                parseInt(entry, 10) > -1
+              );
+            });
+            return { isValid: true, parsed: sanitized };
+          } else {
+            throw Error("Not a stringified array");
+          }
+        } catch (e) {
+          // If cannot be parsed as an array
+          const arrayEntries = trimmed.split(",");
+          const result: number[] = [];
+          arrayEntries.forEach((entry: string) => {
+            if (
+              Number.isInteger(parseInt(entry, 10)) &&
+              parseInt(entry, 10) > -1
+            ) {
+              if (!_.isNil(entry)) result.push(parseInt(entry, 10));
+            }
+          });
+          return { isValid: true, parsed: result };
+        }
+      }
+      if (Array.isArray(value)) {
+        const sanitized = value.filter((entry) => {
+          return (
+            Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+          );
+        });
+        return { isValid: true, parsed: sanitized };
+      }
+      if (Number.isInteger(value) && (value as number) > -1) {
+        return { isValid: true, parsed: [value] };
+      }
+      return {
+        isValid: false,
+        parsed: [],
+        message: `This value does not match type: number[]`,
+      };
+    } else {
+      try {
+        const _value: string = value as string;
+        if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
+          return { isValid: true, parsed: parseInt(_value, 10) };
+
+        return {
+          isValid: true,
+          parsed: -1,
+        };
+      } catch (e) {
+        return {
+          isValid: true,
+          parsed: -1,
+        };
+      }
+    }
+  }
+  return {
+    isValid: true,
+    parsed: value,
+  };
+}
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -144,7 +224,7 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.TABLE_DATA,
+        validation: { type: ValidationTypes.OBJECT_ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -677,17 +757,26 @@ export default [
         placeholderText: "Enter default search text",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.TEXT,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
-        helpText: "Selects the default selected row",
+        helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter row index",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultSelectedRowValidation,
+            expected: {
+              type: "Index of row(s)",
+              example: "0 | [0, 1]",
+            },
+          },
+        },
       },
       {
         helpText:
@@ -706,7 +795,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.BOOLEAN,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "multiRowSelection",

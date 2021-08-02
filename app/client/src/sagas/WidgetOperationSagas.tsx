@@ -110,7 +110,6 @@ import {
 import { getAllPaths } from "workers/evaluationUtils";
 import {
   createMessage,
-  ERROR_ADD_WIDGET_FROM_QUERY,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
@@ -137,7 +136,6 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 function* getChildWidgetProps(
@@ -366,6 +364,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
         type: addChildAction.payload.type,
       },
     });
+
     yield put(updateAndSaveLayout(widgets));
 
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
@@ -1564,6 +1563,12 @@ function* pasteWidgetSaga() {
     copiedWidgetGroups,
   );
 
+  selectedWidget = yield checkIfPastingIntoListWidget(
+    stateWidgets,
+    selectedWidget,
+    copiedWidgetGroups,
+  );
+
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     { ...stateWidgets },
     selectedWidget,
@@ -1849,44 +1854,37 @@ function* cutWidgetSaga() {
   });
 }
 
-function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
-  try {
-    const columns = 8 * GRID_DENSITY_MIGRATION_V1;
-    const rows = 7 * GRID_DENSITY_MIGRATION_V1;
-    const queryName = action.payload;
-    const widgets = yield select(getWidgets);
-    const evalTree = yield select(getDataTree);
-    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET", evalTree);
+function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const widgetConfig = action.payload;
 
+  if (!widgetConfig.type) return;
+
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
+
+  const evalTree = yield select(getDataTree);
+  const widgets = yield select(getWidgets);
+
+  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
+
+  try {
     let newWidget = {
-      type: WidgetTypes.TABLE_WIDGET,
       newWidgetId: generateReactKey(),
       widgetId: "0",
-      topRow: 0,
-      bottomRow: rows,
-      leftColumn: 0,
-      rightColumn: columns,
-      columns,
-      rows,
-      parentId: MAIN_CONTAINER_WIDGET_ID,
-      widgetName,
+      parentId: "0",
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      parentColumnSpace: 1,
       isLoading: false,
-      version: 1,
-      props: {
-        tableData: `{{${queryName}.data}}`,
-        dynamicBindingPathList: [{ key: "tableData" }],
-      },
+      ...defaultConfig,
+      widgetName,
+      ...widgetConfig,
     };
+
     const {
       bottomRow,
       leftColumn,
       rightColumn,
       topRow,
     } = yield calculateNewWidgetPosition(
-      newWidget,
+      newWidget as WidgetProps,
       MAIN_CONTAINER_WIDGET_ID,
       widgets,
     );
@@ -1916,26 +1914,16 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       pageId,
       newWidget.newWidgetId,
     );
-    yield put({
-      type: ReduxActionTypes.SELECT_WIDGET_INIT,
-      payload: { widgetId: newWidget.newWidgetId },
-    });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
-    Toaster.show({
-      text: createMessage(ERROR_ADD_WIDGET_FROM_QUERY),
-      variant: Variant.danger,
-    });
+    console.log(error, "Error");
   }
 }
 
 export default function* widgetOperationSagas() {
   yield fork(widgetSelectionSagas);
   yield all([
-    takeEvery(
-      ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-      addTableWidgetFromQuerySaga,
-    ),
+    takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
     takeEvery(ReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),

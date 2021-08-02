@@ -1,6 +1,6 @@
 ## Appsmith Events 👩🏽‍💻 👋🏼
 
-[Sign Up For Events](https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e)
+[Sign Up For Events](https://lu.ma/appsmith)
   
 -----------------
   
@@ -9,17 +9,37 @@ Appsmith Events are a dedicated time slot every Thursday at 10am PT in which our
 The office hours broadly covers the following topics:
 
 
-The events are recorded and will be put up in our [youtube channel](https://www.youtube.com/watch?v=Uqk9jy5CXxY&list=PLE_KXGiWfqwiUzo4-wG1WzU_wtul1Syin&index=4) and website (coming soon!) also.
+The events are recorded and will be put up in our [youtube channel](https://www.youtube.com/appsmith) and website (coming soon!) also.
 
 🙋🏽‍♀️
-You can <a href = "https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">pre-register</a> and search for events here to get an invite to your email inbox, or just sign up to get alerts to the sessions here. You can also join us on <a href="https://discord.gg/rBTTVJp">discord</a> where we send out periodic reminders for the office hours and have a dedicated support channel. 
+You can <a href = "https://lu.ma/appsmith">pre-register</a> and search for events here to get an invite to your email inbox, or just sign up to get alerts to the sessions here. You can also join us on <a href="https://discord.gg/rBTTVJp">discord</a> where we send out periodic reminders for the office hours and have a dedicated support channel. 
 
-You can find the archives of the calls below with a brief summary of each event. The video descriptions in youtube have more detailed explanations. If you have any feedback or requests regarding the office hours program, please write to akshay@appsmith.com
+You can find the archives of the calls below with a brief summary of each event. The video descriptions in youtube have more detailed explanations. If you have any feedback or requests regarding the office hours program, please write to vihar@appsmith.com
 
 
 -----------------
 
 ## Archives
+
+<strong>Appsmith Live Demo #6: Building a Task Manager in Appsmith</strong>
+
+<a href = "https://youtu.be/LX528Iat8hg">Video Link</a>
+
+#### Summary
+
+This week we built a task management app like Asana in under 30 minutes with commenting feature and advanced statistics. Enjoy!
+
+------------------
+
+<strong>Community Call Jul 8, 2021: Design Updates for UI and UX</strong>
+
+<a href = "https://youtu.be/Xl9rz8FgBRw">Video Link</a>
+
+#### Summary
+
+This week's community session was about improving UI building with drag and drop. Debsourabh demonstrates some new upcoming design changes around navigation and discovery in Appsmith. 
+
+------------------
 
 <strong>Appsmith Live Demo #5: Building a Tweetdeck Clone With n8n and Appsmith</strong>
 

@@ -1,8 +1,10 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { SwitchComponent } from "../component";
+
+import { ValidationTypes } from "constants/WidgetValidation";
+
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "../constants";
@@ -21,7 +23,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "alignWidget",
@@ -50,7 +52,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -60,7 +62,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -70,7 +72,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

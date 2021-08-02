@@ -2,16 +2,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   // TODO(abhinav/Satish): Performance bottleneck
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
-      if (isCommentMode) return;
+      if (isCommentMode || isSnipingMode) return;
+
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
         // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -27,7 +30,7 @@ export const useShowPropertyPane = () => {
         },
       );
     },
-    [dispatch, isCommentMode],
+    [dispatch, isCommentMode, isSnipingMode],
   );
 };
 

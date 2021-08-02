@@ -27,7 +27,7 @@ export interface WithMeta {
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  class MetaHOC extends React.Component<WidgetProps, any> {
+  const MetaHOC = class MetaHOC extends React.PureComponent<WidgetProps, any> {
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
     static displayName: string;
@@ -192,7 +192,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     render() {
       return <WrappedWidget {...this.updatedProps()} />;
     }
-  }
+  };
 
   MetaHOC.displayName = "WidgetMetaHOC";
 

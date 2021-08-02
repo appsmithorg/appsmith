@@ -4,7 +4,6 @@ import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
-import AdsButton from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -141,18 +140,6 @@ const ActionButton = styled(BaseButton)`
     max-width: 72px;
     margin-right: 9px;
     min-height: 32px;
-  }
-`;
-
-const CreateApiButton = styled(AdsButton)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    //max-width: 120px;
-    width: auto;
-  }
-  span > svg > path {
-    stroke: white;
   }
 `;
 
@@ -329,22 +316,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const { isNewDatasource, isSaving, pluginImage } = this.props;
+    const { isNewDatasource, pluginImage } = this.props;
     return (
       <Header>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
           <FormTitle focusOnMount={isNewDatasource} />
         </FormTitleContainer>
-
-        <CreateApiButton
-          className="t--create-query"
-          disabled={this.disableSave()}
-          icon="plus"
-          isLoading={isSaving}
-          onClick={this.createApiAction}
-          text="New API"
-        />
       </Header>
     );
   };

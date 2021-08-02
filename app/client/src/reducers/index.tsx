@@ -47,6 +47,7 @@ import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
+import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -59,6 +60,7 @@ export default appReducer;
 
 export interface AppState {
   ui: {
+    actionTabs: ActionTabsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;

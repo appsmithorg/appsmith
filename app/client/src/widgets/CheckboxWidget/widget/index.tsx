@@ -3,7 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/SwitchWidget/constants";
 
@@ -21,7 +21,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "alignWidget",
@@ -50,7 +50,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isRequired",
@@ -60,7 +60,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -70,7 +70,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -80,7 +80,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

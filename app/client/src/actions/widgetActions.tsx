@@ -13,6 +13,7 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const executeAction = (
   payload: ExecuteActionPayload | WidgetExecuteActionPayload,
@@ -146,9 +147,9 @@ export const cutWidget = () => {
   };
 };
 
-export const addTableWidgetFromQuery = (queryName: string) => {
+export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-    payload: queryName,
+    type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
+    payload,
   };
 };
