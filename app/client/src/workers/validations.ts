@@ -18,6 +18,8 @@ import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
+import getIsSafeURL from "utils/validation/getIsSafeURL";
+
 function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
@@ -542,5 +544,24 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
     return invalidResponse;
+  },
+  [ValidationTypes.SAFE_URL]: (
+    config: ValidationConfig,
+    value: unknown,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: config?.params?.default || "",
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+    };
+
+    if (typeof value === "string" && getIsSafeURL(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    } else {
+      return invalidResponse;
+    }
   },
 };
