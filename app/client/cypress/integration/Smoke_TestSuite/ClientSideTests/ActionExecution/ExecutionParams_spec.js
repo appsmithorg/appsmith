@@ -54,7 +54,7 @@ describe("API Panel Test Functionality", function() {
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("Ximenez Kainz");
+      expect(cellData).to.be.equal("Test user 7");
     });
     // Choose static button
     cy.SearchEntityandOpen("StaticButton");
@@ -65,7 +65,7 @@ describe("API Panel Test Functionality", function() {
     // Bind with MultiApi with static value
     cy.testJsontext(
       "onclick",
-      "{{Query1.run(undefined, undefined, { tableName: 'orders' })}}",
+      "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
@@ -86,7 +86,7 @@ describe("API Panel Test Functionality", function() {
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("Ximenez Kainz");
+      expect(cellData).to.be.equal("Test user 7");
     });
 
     // Click Static button
@@ -104,7 +104,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait(5000);
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
-      expect(cellData).to.be.equal("OUT_FOR_DELIVERY");
+      expect(cellData).to.be.equal("Test user 8");
     });
 
     // Click dynamic button
@@ -122,7 +122,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait(5000);
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("DISCOUNT");
+      expect(cellData).to.be.equal("Test user 7");
     });
   });
 });
