@@ -69,7 +69,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     cursor: pointer;
   }
   &&&& .${Classes.EDITABLE_TEXT}, &&&& .${Classes.EDITABLE_TEXT_EDITING} {
-    padding: 0 ${(props) => props.theme.spaces[0]}px;
+    padding: 0;
     width: 100%;
   }
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
