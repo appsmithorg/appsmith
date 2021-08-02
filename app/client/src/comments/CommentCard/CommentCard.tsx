@@ -378,6 +378,8 @@ function CommentCard({
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
 
+    // update visible thread to make it visible
+    // even if the query param is not updated
     dispatch(setVisibleThread(commentThreadId));
 
     if (!commentThread.isViewed) {
