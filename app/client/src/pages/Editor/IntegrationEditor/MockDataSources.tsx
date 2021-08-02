@@ -106,6 +106,12 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   }
 
   const addMockDataSource = () => {
+    AnalyticsUtil.logEvent("ADD_MOCK_DATASOURCE_CLICK", {
+      datasourceName: datasource.name,
+      orgId,
+      packageName: currentPlugin.packageName,
+      pluginName: currentPlugin.name,
+    });
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       mockDatasourceName: datasource.name,
       plugin: currentPlugin,

@@ -177,19 +177,29 @@ export default [
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.ARRAY,
-              children: {
-                type: ValidationTypes.OBJECT,
-                params: {
-                  allowedKeys: [
-                    {
-                      name: "x",
-                      type: ValidationTypes.TEXT,
-                    },
-                    {
-                      name: "y",
-                      type: ValidationTypes.NUMBER,
-                    },
-                  ],
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "x",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "y",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                          default: 10,
+                        },
+                      },
+                    ],
+                  },
                 },
               },
             },

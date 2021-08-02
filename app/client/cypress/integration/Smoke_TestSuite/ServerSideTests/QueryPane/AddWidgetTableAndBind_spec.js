@@ -36,6 +36,10 @@ describe("Addwidget from Query and bind with other widgets", function() {
       .type("SELECT * FROM configs LIMIT 10;");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
+    // Mock the response for this test
+    cy.intercept("/api/v1/actions/execute", {
+      fixture: "addWidgetTable-mock",
+    });
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
       "have.nested.property",
