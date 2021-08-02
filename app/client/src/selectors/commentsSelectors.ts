@@ -41,7 +41,7 @@ export const applicationCommentsSelector = (applicationId: string) => (
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
 export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.users.featureFlags?.COMMENTS;
+  state.ui.users.featureFlags?.COMMENT;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
