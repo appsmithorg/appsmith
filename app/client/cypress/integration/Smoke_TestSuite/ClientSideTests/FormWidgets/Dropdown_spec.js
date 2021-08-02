@@ -15,7 +15,7 @@ describe("Dropdown Widget Functionality", function() {
   });
 
   it("Dropdown-AlertModal Validation", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.SearchEntityandOpen("Dropdown1");
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Alert Modal and verify Modal name
     cy.createModal("Alert Modal", this.data.AlertModalName);
@@ -164,7 +164,6 @@ describe("Dropdown Widget Functionality", function() {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
     cy.openPropertyPane("dropdownwidget");
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.testJsontext(
       "onoptionchange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
@@ -249,7 +248,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.wait(2000);
   });
 
-  it("Explore Widget related documents Verification", function() {
+  it("Explore Widget related documents Validation", function() {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     cy.widgetText(
