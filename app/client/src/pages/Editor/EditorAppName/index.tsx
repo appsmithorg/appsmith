@@ -76,7 +76,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     display: block;
     ${(props) => getTypographyByKey(props, "h4")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
-    padding: 0 10px;
+    padding: 0 ${(props) => props.theme.spaces[4]}px;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     margin-right: 20px;
@@ -85,7 +85,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
 
 const StyledIcon = styled(Icon)`
   height: 100%;
-  padding-right: 10px;
+  padding-right: ${(props) => props.theme.spaces[4]}px;
   align-self: center;
 
   svg path {

@@ -2463,8 +2463,8 @@ export const theme: Theme = {
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
-  navbarMenuHeight: "36px",
-  navbarMenuLineHeight: "26px",
+  navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
