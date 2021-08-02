@@ -5,12 +5,12 @@ import { debounce } from "lodash";
 import { DocSearchItem, SearchItem, SEARCH_ITEM_TYPES } from "./utils";
 
 type Props = {
-  setDocumentationSearchResults: (item: DocSearchItem) => void;
+  setDocumentationSearchResults: (item: DocSearchItem | any) => void;
   hits: IHit[];
 };
 
 function SearchResults({ hits, setDocumentationSearchResults }: Props) {
-  const debounsedSetter = useCallback(
+  const debouncedSetter = useCallback(
     debounce(setDocumentationSearchResults, 100),
     [],
   );
@@ -19,7 +19,7 @@ function SearchResults({ hits, setDocumentationSearchResults }: Props) {
     const filteredHits = hits.filter(
       (doc: SearchItem) => doc.kind === SEARCH_ITEM_TYPES.document,
     );
-    debounsedSetter(filteredHits as any);
+    debouncedSetter(filteredHits as any);
   }, [hits]);
 
   return null;

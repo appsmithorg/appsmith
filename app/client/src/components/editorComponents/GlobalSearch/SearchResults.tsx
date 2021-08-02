@@ -58,11 +58,11 @@ export const SearchItemContainer = styled.div<{
     props.isActiveItem &&
     props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
     props.itemType !== SEARCH_ITEM_TYPES.placeholder
-      ? props.theme.colors.globalSearch.activeSearchItemBackground
+      ? `${props.theme.colors.globalSearch.activeSearchItemBackground} !important`
       : "unset"};
 
   .text {
-    max-width: 100px;
+    max-width: 300px;
     color: ${(props) =>
       props.isActiveItem
         ? "white"
@@ -78,7 +78,7 @@ export const SearchItemContainer = styled.div<{
       props.isActiveItem
         ? "white"
         : props.theme.colors.globalSearch.searchItemSubText};
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
     display: inline;
@@ -90,14 +90,14 @@ export const SearchItemContainer = styled.div<{
     background-color: ${(props) =>
       props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
       props.itemType !== SEARCH_ITEM_TYPES.placeholder
-        ? props.theme.colors.globalSearch.activeSearchItemBackground
+        ? "#E8E8E8"
         : "unset"};
-    color: white;
+    color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
     .category-title {
-      color: white;
+      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
     }
     .category-desc {
-      color: white;
+      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
     }
     ${StyledActionLink} {
       visibility: visible;
@@ -105,13 +105,13 @@ export const SearchItemContainer = styled.div<{
     .icon-wrapper {
       svg {
         path: {
-          fill: white !important;
+          fill: #484848 !important;
         }
       }
     }
     .subtext,
     .text {
-      color: white;
+      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
     }
   }
 
@@ -133,12 +133,13 @@ const ItemTitle = styled.div`
   }
 `;
 
-const StyledDocumentIcon = styled(DocumentIcon)`
+const StyledDocumentIcon = styled(DocumentIcon)<{ isActiveItem: boolean }>`
   && svg {
     width: 14px;
     height: 14px;
     path {
-      fill: transparent;
+      fill: ${(props) =>
+        props.isActiveItem ? "transparent" : "#6a86ce !important"};
     }
   }
   display: flex;
@@ -147,14 +148,14 @@ const StyledDocumentIcon = styled(DocumentIcon)`
 const TextWrapper = styled.div`
   flex: 1;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   font-size: 14px;
 `;
 
 function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
   return (
     <>
-      <StyledDocumentIcon />
+      <StyledDocumentIcon isActiveItem={props.isActiveItem} />
       <ItemTitle>
         <span>
           <AlgoliaHighlight attribute="title" hit={props.item} />
@@ -190,7 +191,7 @@ function WidgetItem(props: {
   const { type } = item || {};
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  const subText = ` / ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
@@ -240,7 +241,7 @@ function ActionItem(props: {
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  const subText = `/  ${pageName}`;
+  const subText = `${pageName}`;
 
   return (
     <>
@@ -306,9 +307,11 @@ const StyledSectionTitleContainer = styled.div`
     width: 14px;
     height: 14px;
     margin-right: ${(props) => props.theme.spaces[5]}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
   }
   & .section-title__text {
     color: ${(props) => props.theme.colors.globalSearch.sectionTitle};
+    font-size: 12px;
   }
   margin-left: -${(props) => props.theme.spaces[3]}px;
 `;

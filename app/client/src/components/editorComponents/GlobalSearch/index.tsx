@@ -49,11 +49,10 @@ import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
 import DocsIcon from "assets/icons/ads/docs.svg";
-import RecentIcon from "assets/icons/ads/recent.svg";
+// import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import SnippetsApi from "api/SnippetsApi";
 import { Configure } from "react-instantsearch-dom";
 
 export enum SEARCH_CATEGORIES {
@@ -70,12 +69,12 @@ const filterCategories = [
     id: SEARCH_CATEGORIES.NAVIGATION,
     desc: "Navigate to any page, widget or file across this project.",
   },
-  {
-    title: "Use Snippets",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORIES.SNIPPETS,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
-  },
+  // {
+  //   title: "Use Snippets",
+  //   kind: SEARCH_ITEM_TYPES.category,
+  //   id: SEARCH_CATEGORIES.SNIPPETS,
+  //   desc: "Search and Insert code snippets to perform complex actions quickly.",
+  // },
   {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
@@ -101,8 +100,10 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background-color: #6287b0;
+    background-color: transparent;
     font-style: normal;
+    font-weight: bold;
+    margin-right: -3px;
   }
 `;
 
@@ -176,9 +177,9 @@ function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
-  const [snippets, setSnippets] = useState([]);
-  useEffect(() => {
-    SnippetsApi.getSnippets().then((response) => setSnippets(response.data));
+  const [snippets, setSnippetsState] = useState([]);
+  const setSnippets = useCallback((res) => {
+    setSnippetsState(res);
   }, []);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
@@ -199,6 +200,7 @@ function GlobalSearch() {
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
+      setCategory({ id: SEARCH_CATEGORIES.INIT });
     }
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());
@@ -214,11 +216,12 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
 
-  const setDocumentationSearchResults = useCallback((res) => {
-    setDocumentationSearchResultsInState(res);
+  const setSearchResults = useCallback((res) => {
+    if (category.id === SEARCH_CATEGORIES.SNIPPETS) setSnippets(res);
+    else setDocumentationSearchResultsInState(res);
   }, []);
 
-  const [activeItemIndex, setActiveItemIndexInState] = useState(1);
+  const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
     setActiveItemIndexInState(index);
@@ -270,10 +273,7 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query)
-        recentEntities.length > 1
-          ? setActiveItemIndex(2)
-          : setActiveItemIndex(1);
+      if (!query) setActiveItemIndex(0);
     }
   }, [modalOpen]);
 
@@ -323,42 +323,70 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
+  // const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
 
   const searchResults = useMemo(() => {
-    if (query && category.id === SEARCH_CATEGORIES.INIT) {
-      return [
-        recentsSectionTitle,
-        ...(recentEntities.length > 0
-          ? recentEntities
-          : [
-              {
-                title: "Recents list is empty",
-                kind: SEARCH_ITEM_TYPES.placeholder,
-              },
-            ]),
-        docsSectionTitle,
-        ...defaultDocs,
-      ];
-    }
-    if (category.id === SEARCH_CATEGORIES.INIT) {
+    // if (query && category.id === SEARCH_CATEGORIES.INIT) {
+    //   return [
+    //     recentsSectionTitle,
+    //     ...(recentEntities.length > 0
+    //       ? recentEntities
+    //       : [
+    //           {
+    //             title: "Recents list is empty",
+    //             kind: SEARCH_ITEM_TYPES.placeholder,
+    //           },
+    //         ]),
+    //     docsSectionTitle,
+    //     ...defaultDocs,
+    //   ];
+    // }
+    if (category.id === SEARCH_CATEGORIES.INIT && !query) {
       return filterCategories;
     }
     if (category.id === SEARCH_CATEGORIES.SNIPPETS) {
       return snippets;
     }
 
-    return getSortedResults(
-      query,
-      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredActions : [],
-      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredWidgets : [],
-      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredPages : [],
-      category.id === SEARCH_CATEGORIES.NAVIGATION ? filteredDatasources : [],
-      category.id === SEARCH_CATEGORIES.DOCUMENTATION
-        ? documentationSearchResults
-        : [],
-      currentPageId,
+    let results: any = [];
+    // if (category.id === SEARCH_CATEGORIES.NAVIGATION && !query) {
+    //   results = [recentsSectionTitle, ...recentEntities];
+    // }
+    if (category.id === SEARCH_CATEGORIES.DOCUMENTATION && !query) {
+      results = [docsSectionTitle];
+    }
+
+    return results.concat(
+      getSortedResults(
+        query,
+        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+          category.id,
+        )
+          ? filteredActions
+          : [],
+        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+          category.id,
+        )
+          ? filteredWidgets
+          : [],
+        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+          category.id,
+        )
+          ? filteredPages
+          : [],
+        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+          category.id,
+        )
+          ? filteredDatasources
+          : [],
+        category.id === SEARCH_CATEGORIES.DOCUMENTATION
+          ? query
+            ? documentationSearchResults
+            : defaultDocs
+          : [],
+        currentPageId,
+      ) || [],
     );
   }, [
     filteredWidgets,
@@ -517,9 +545,7 @@ function GlobalSearch() {
               {
                 <div className="main">
                   <SetSearchResults
-                    setDocumentationSearchResults={
-                      setDocumentationSearchResults
-                    }
+                    setDocumentationSearchResults={setSearchResults}
                   />
                   {searchResults.length > 0 ? (
                     <>
