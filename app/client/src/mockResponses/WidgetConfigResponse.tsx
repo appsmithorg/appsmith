@@ -1159,7 +1159,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       capType: "nc",
       capSide: 0,
       strokeStyle: "solid",
-      dividerColor: "black",
+      dividerColor: "#C4C4C4",
       thickness: 2,
       isVisible: true,
       version: 1,
