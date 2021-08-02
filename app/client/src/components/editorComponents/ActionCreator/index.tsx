@@ -97,9 +97,9 @@ function getFieldFromValue(
   if (!value) {
     return fields;
   }
-  if (value.indexOf("run") !== -1) {
+  if (value.indexOf(".run") !== -1) {
     const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-    if (matches.length) {
+    if (matches.length && matches[0][1]?.indexOf(".run") !== -1) {
       const funcArgs = matches[0][2];
       const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
       const successArg = args[0];
@@ -150,8 +150,8 @@ function getFieldFromValue(
       );
       errorFields[0].label = "onError";
       fields.push(errorFields);
+      return fields;
     }
-    return fields;
   }
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
