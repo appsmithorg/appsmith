@@ -261,13 +261,14 @@ export const entityDefinitions = {
     value: "number",
     maxCount: "number",
   },
-  IFRAME_WIDGET: {
+  IFRAME_WIDGET: (widget: any) => ({
     "!doc": "Iframe widget is used to display iframes in your app.",
     "!url": "https://docs.appsmith.com/widget-reference/iframe",
     isVisible: isVisible,
     source: "string",
     title: "string",
-  },
+    message: generateTypeDef(widget.message),
+  }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",

@@ -21,6 +21,8 @@ import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
+import getIsSafeURL from "utils/validation/getIsSafeURL";
+
 function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
@@ -434,13 +436,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} Array of objects`,
     };
-    if (
-      value === undefined ||
-      value === null ||
-      (!isString(value) && !Array.isArray(value))
-    ) {
+    if (value === undefined || value === null) {
       if (config.params?.required) return invalidResponse;
       return { isValid: true, parsed: value };
+    }
+    if (!isString(value) && !Array.isArray(value)) {
+      return invalidResponse;
     }
 
     let parsed = value;
@@ -563,5 +564,24 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
     return invalidResponse;
+  },
+  [ValidationTypes.SAFE_URL]: (
+    config: ValidationConfig,
+    value: unknown,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: config?.params?.default || "",
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+    };
+
+    if (typeof value === "string" && getIsSafeURL(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    } else {
+      return invalidResponse;
+    }
   },
 };
