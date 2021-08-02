@@ -64,6 +64,7 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
+  BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
@@ -250,7 +251,7 @@ export function* fetchActionsForViewModeSaga(
 }
 
 export function* fetchActionsForPageSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: EvaluationReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
@@ -264,7 +265,9 @@ export function* fetchActionsForPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchActionsForPageSuccess(response.data));
+      yield put(
+        fetchActionsForPageSuccess(response.data, action.postEvalActions),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );
@@ -581,6 +584,22 @@ export function* refactorActionName(
   }
 }
 
+function* bindDataOnCanvasSaga(
+  action: ReduxAction<{
+    queryId: string;
+    applicationId: string;
+    pageId: string;
+  }>,
+) {
+  const { applicationId, pageId, queryId } = action.payload;
+  history.push(
+    BUILDER_PAGE_URL(applicationId, pageId, {
+      isSnipingMode: "true",
+      bindTo: queryId,
+    }),
+  );
+}
+
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
@@ -832,6 +851,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.BIND_DATA_ON_CANVAS, bindDataOnCanvasSaga),
     takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),

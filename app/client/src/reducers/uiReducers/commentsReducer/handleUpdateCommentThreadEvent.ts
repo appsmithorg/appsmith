@@ -26,7 +26,6 @@ const handleUpdateCommentThreadEvent = (
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
     ...action.payload,
-    isViewed: commentThreadInStore?.isViewed || action.payload.isViewed, // TODO refactor this
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
