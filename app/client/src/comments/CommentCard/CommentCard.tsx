@@ -361,9 +361,10 @@ function CommentCard({
     if (inline) return;
     if (commentThread.widgetType) {
       const widget = widgetMap[commentThread.refId];
+
       // only needed for modal widgetMap
       // TODO check if we can do something similar for tabs
-      if (widget.parentModalId) {
+      if (widget?.parentModalId) {
         navigateToWidget(
           commentThread.refId,
           commentThread.widgetType,
