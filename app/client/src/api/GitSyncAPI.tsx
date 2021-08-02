@@ -9,8 +9,8 @@ class GitSyncAPI extends Api {
     return Api.get(GitSyncAPI.url);
   }
 
-  static updateRepo(): AxiosPromise<ApiResponse> {
-    return Api.post(GitSyncAPI.url);
+  static updateRepo(url: string): AxiosPromise<ApiResponse> {
+    return Api.post(GitSyncAPI.url, { url });
   }
 
   // username:password
@@ -22,19 +22,14 @@ class GitSyncAPI extends Api {
     return Api.post(GitSyncAPI.url);
   }
 
-  static testRepoAuthentication(): AxiosPromise<ApiResponse> {
-    return Api.post(GitSyncAPI.url);
+  static testRepoAuthentication(payload?: {
+    username: string;
+    password: string;
+  }): AxiosPromise<ApiResponse> {
+    return Api.post(GitSyncAPI.url, payload);
   }
 
-  static fetchLatestCommit(): AxiosPromise<ApiResponse> {
-    return Api.post(GitSyncAPI.url);
-  }
-
-  static fetchCommitsNotPushed(): AxiosPromise<ApiResponse> {
-    return Api.post(GitSyncAPI.url);
-  }
-
-  static fetchIfUncommitted(): AxiosPromise<ApiResponse> {
+  static fetchGitStatus(): AxiosPromise<ApiResponse> {
     return Api.post(GitSyncAPI.url);
   }
 

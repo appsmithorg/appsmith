@@ -22,10 +22,18 @@ const tourReducer = createReducer(initialState, {
     repoURL: action.payload?.url,
     isConnectionSuccessful: action.payload?.isConnectionSuccessful,
   }),
+  // [ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS]: (
+  //   state: GitSyncReducerState,
+  //   action: ReduxAction<RepoDetails>,
+  // ) => ({
+  //   ...state,
+  // }),
 });
 
 export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
+  repoURL?: string;
+  isConnectionSuccessful?: boolean;
 };
 
 export default tourReducer;
