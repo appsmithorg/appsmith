@@ -13,7 +13,7 @@ import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
-import executeActionSaga from "sagas/ActionExecution/PluginActionSaga";
+import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
 import executePromiseSaga from "sagas/ActionExecution/PromiseActionSaga";
 import {
   ActionDescription,
@@ -30,7 +30,7 @@ export function* executeActionTriggers(
         yield call(executePromiseSaga, trigger.payload, event);
         break;
       case ActionTriggerType.PLUGIN_ACTION:
-        yield call(executeActionSaga, trigger.payload, event);
+        yield call(executePluginActionTriggerSaga, trigger.payload, event);
         break;
       case ActionTriggerType.NAVIGATE_TO:
         yield call(navigateActionSaga, trigger.payload, event);

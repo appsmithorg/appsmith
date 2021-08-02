@@ -111,6 +111,7 @@ export const getActionTimeout = (
   }
   return undefined;
 };
+
 const createActionExecutionResponse = (
   response: ActionExecutionResponse,
 ): ActionResponse => {
@@ -190,7 +191,7 @@ function* evaluateActionParams(
   return mapToPropList(actionParams);
 }
 
-export default function* executeActionSaga(
+export default function* executePluginActionTriggerSaga(
   pluginAction: PluginActionDescription["payload"],
   event: ExecuteActionPayloadEvent,
 ) {
@@ -731,6 +732,58 @@ function* executePageLoadActionsSaga() {
       variant: Variant.danger,
     });
   }
+}
+
+function* executePluginActionSaga(
+  actionId: string,
+  params: Record<string, unknown>,
+  paginationField?: PaginationField,
+) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_ACTION,
+    {
+      actionId: actionId,
+    },
+    actionId,
+  );
+  const pluginAction: Action = yield select(getAction, actionId);
+
+  if (pluginAction.confirmBeforeExecute) {
+    const confirmed = yield call(confirmRunActionSaga);
+    if (!confirmed) {
+      throw Error("User denied execution of action");
+    }
+  }
+
+  const actionParams: Property[] = yield call(
+    evaluateActionParams,
+    pluginAction.jsonPathKeys,
+    params,
+  );
+
+  const appMode = yield select(getAppMode);
+  const timeout = yield select(getActionTimeout, actionId);
+
+  const executeActionRequest: ExecuteActionRequest = {
+    actionId: actionId,
+    params: actionParams,
+    viewMode: appMode === APP_MODE.PUBLISHED,
+  };
+
+  if (paginationField) {
+    executeActionRequest.paginationField = paginationField;
+  }
+
+  const response: ActionExecutionResponse = yield ActionAPI.executeAction(
+    executeActionRequest,
+    timeout,
+  );
+  const payload = createActionExecutionResponse(response);
+
+  return {
+    payload,
+    isError: isErrorResponse(response),
+  };
 }
 
 export function* watchPluginActionExecutionSagas() {

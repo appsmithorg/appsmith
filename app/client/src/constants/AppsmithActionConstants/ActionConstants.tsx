@@ -77,17 +77,6 @@ export enum EventType {
   ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
 }
 
-export type ActionType =
-  | "API"
-  | "QUERY"
-  | "NAVIGATION"
-  | "ALERT"
-  | "JS_FUNCTION"
-  | "SET_VALUE"
-  | "DOWNLOAD";
-
-export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT";
-
 export interface PageAction {
   id: string;
   pluginType: PluginType;
