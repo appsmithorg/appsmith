@@ -56,7 +56,10 @@ const Container = styled.div<{ errorCount: number }>`
 function Debugger() {
   const dispatch = useDispatch();
   const errorCount = useSelector(
-    (state: AppState) => Object.keys(state.ui.debugger.errors).length,
+    (state: AppState) =>
+      Object.keys(state.ui.debugger.errors).filter(
+        (key) => !key.endsWith("warning"),
+      ).length,
   );
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,

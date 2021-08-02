@@ -89,20 +89,27 @@ function getLatestEvalPropertyErrors(
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : ENTITY_TYPE.ACTION;
-      const debuggerKeyMap = {
-        [`${idField}-${propertyPath}`]: evalErrors,
-        [`${idField}-${propertyPath}-warning`]: evalWarnings,
-      };
+      const debuggerKeys = [
+        {
+          key: `${idField}-${propertyPath}`,
+          errors: evalErrors,
+        },
+        {
+          key: `${idField}-${propertyPath}-warning`,
+          errors: evalWarnings,
+          isWarning: true,
+        },
+      ];
       // if dataTree has error but debugger does not -> add
       // if debugger has error and data tree has error -> update error
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      for (const [debuggerKey, errors] of Object.entries(debuggerKeyMap)) {
-        const isWarning = debuggerKey.endsWith("warning");
+      for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
         if (errors.length) {
           // TODO Rank and set the most critical error
           const error = errors[0];
+          const { errorType, severity } = error;
           const errorMessages = errors.map((e) => ({
             message: e.errorMessage,
           }));
@@ -129,11 +136,9 @@ function getLatestEvalPropertyErrors(
           // Add or update
           updatedDebuggerErrors[debuggerKey] = {
             logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
-            text: PropertyEvalErrorTypeDebugMessage[error.errorType](
-              propertyPath,
-            ),
+            text: PropertyEvalErrorTypeDebugMessage[errorType](propertyPath),
             messages: errorMessages,
-            severity: isWarning ? Severity.WARNING : Severity.ERROR,
+            severity,
             timestamp: moment().format("hh:mm:ss"),
             source: {
               id: idField,
