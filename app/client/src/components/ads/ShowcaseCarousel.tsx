@@ -26,6 +26,7 @@ const Dot = styled.div<{ active: boolean }>`
     props.active
       ? props.theme.colors.showcaseCarousel.activeStepDot
       : props.theme.colors.showcaseCarousel.inactiveStepDot};
+  cursor: pointer;
 `;
 
 const Row = styled.div`
@@ -54,13 +55,18 @@ type Props = {
 type DotsProps = {
   count: number;
   activeIndex: number;
+  setCurrentIdx: (index: number) => void;
 };
 
 function Dots(props: DotsProps) {
   return (
     <Row>
       {Array.from(new Array(props.count)).map((_a, index) => (
-        <Dot active={index === props.activeIndex} key={index} />
+        <Dot
+          active={index === props.activeIndex}
+          key={index}
+          onClick={() => props.setCurrentIdx(index)}
+        />
       ))}
     </Row>
   );
@@ -119,7 +125,11 @@ export default function ShowcaseCarousel(props: Props) {
         ),
       )}
       <Footer>
-        <Dots activeIndex={activeIndex} count={length} />
+        <Dots
+          activeIndex={activeIndex}
+          count={length}
+          setCurrentIdx={setCurrentIdx}
+        />
         <Buttons>
           {componentProps.showSkipBtn && (
             <Button
