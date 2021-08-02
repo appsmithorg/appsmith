@@ -15,6 +15,9 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   align-items: center;
   justify-content: center;
   height: 100%;
+  background-color: #ffffff;
+  font-weight: bold;
+
   iframe {
     width: 100%;
     height: 100%;
