@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useCallback, useMemo } from "react";
 import { reduce } from "lodash";
 import {
   useTable,
@@ -33,6 +33,14 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DragUpdate,
+  DropResult,
+} from "react-beautiful-dnd";
+import { useEffect } from "react";
 
 interface TableProps {
   width: number;
@@ -48,6 +56,7 @@ interface TableProps {
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  handleReorderColumn: (columnOrder: Array<string>) => void;
   selectTableRow: (row: {
     original: Record<string, unknown>;
     index: number;
@@ -152,6 +161,20 @@ export function Table(props: TableProps) {
     usePagination,
     useRowSelect,
   );
+
+  const { columnOrder, hiddenColumns } = useMemo(() => {
+    const order: string[] = [];
+    const hidden: string[] = [];
+    columns.forEach((item) => {
+      if (item.isHidden) {
+        hidden.push(item.accessor);
+      } else {
+        order.push(item.accessor);
+      }
+    });
+    return { columnOrder: order, hiddenColumns: hidden };
+  }, [columns]);
+
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
@@ -178,6 +201,7 @@ export function Table(props: TableProps) {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const tableColumnHeaderRef = useRef<HTMLDivElement | null>(null);
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
@@ -207,6 +231,76 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.isVisibleCompactMode ||
     props.isVisiblePagination;
+  // selected column's position while dragging
+  const thCellTop = isHeaderVisible ? 40 : 0;
+  const [thCellLeft, setThCellLeft] = React.useState(0);
+  const setOrgPosition = (left: number) => {
+    setThCellLeft(left);
+  };
+
+  // processing dnd
+  const currentColOrder = React.useRef(columnOrder);
+  useEffect(() => {
+    currentColOrder.current = columnOrder;
+  });
+  const handleDragEnd = useCallback(
+    (result: DropResult, thElem: HTMLElement | null) => {
+      if (thElem) {
+        thElem
+          .querySelector(".th.highlight-left")
+          ?.classList.remove("highlight-left");
+        thElem
+          .querySelector(".th.highlight-right")
+          ?.classList.remove("highlight-right");
+      }
+      if (
+        result.source &&
+        result.destination &&
+        result.source.index != result.destination.index
+      ) {
+        const sIndex = result.source.index;
+        const dIndex = result.destination && result.destination.index;
+
+        if (typeof sIndex === "number" && typeof dIndex === "number") {
+          const newColumnOrder = [...currentColOrder.current];
+          // The dragged column
+          const movedColumnName = newColumnOrder.splice(sIndex, 1);
+          // If the dragged column exists
+          if (movedColumnName && movedColumnName.length === 1) {
+            newColumnOrder.splice(dIndex, 0, movedColumnName[0]);
+          }
+          props.handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
+        }
+      }
+    },
+    [],
+  );
+  const handleDragUpdate = useCallback(
+    (dragUpdateObj: DragUpdate, thElem: HTMLElement | null) => {
+      if (thElem) {
+        thElem
+          .querySelector(".th.highlight-left")
+          ?.classList.remove("highlight-left");
+        thElem
+          .querySelector(".th.highlight-right")
+          ?.classList.remove("highlight-right");
+      }
+      if (dragUpdateObj.source && dragUpdateObj.destination && thElem) {
+        const dElem = thElem.querySelector(
+          `.th.header-reorder:nth-child(${dragUpdateObj.destination.index + 1})
+          `,
+        );
+        if (dragUpdateObj.source.index > dragUpdateObj.destination.index) {
+          dElem?.classList.add("highlight-left");
+        } else if (
+          dragUpdateObj.source.index < dragUpdateObj.destination.index
+        ) {
+          dElem?.classList.add("highlight-right");
+        }
+      }
+    },
+    [],
+  );
 
   return (
     <TableWrapper
@@ -284,6 +378,7 @@ export function Table(props: TableProps) {
               className="thead"
               onMouseLeave={props.enableDrag}
               onMouseOver={props.disableDrag}
+              ref={tableColumnHeaderRef}
             >
               {headerGroups.map((headerGroup: any, index: number) => {
                 const headerRowProps = {
@@ -291,29 +386,68 @@ export function Table(props: TableProps) {
                   style: { display: "flex" },
                 };
                 return (
-                  <div {...headerRowProps} className="tr" key={index}>
-                    {props.multiRowSelection &&
-                      renderCheckBoxHeaderCell(
-                        handleAllRowSelectClick,
-                        rowSelectionState,
+                  <DragDropContext
+                    key={index}
+                    onDragEnd={(result: DropResult) => {
+                      handleDragEnd(result, tableColumnHeaderRef.current);
+                    }}
+                    onDragUpdate={(dragUpdateObj: DragUpdate) => {
+                      handleDragUpdate(
+                        dragUpdateObj,
+                        tableColumnHeaderRef.current,
+                      );
+                    }}
+                  >
+                    <Droppable direction="horizontal" droppableId="droppable">
+                      {(droppableProvided) => (
+                        <div
+                          {...headerRowProps}
+                          className="tr"
+                          key={index}
+                          ref={droppableProvided.innerRef}
+                        >
+                          {props.multiRowSelection &&
+                            renderCheckBoxHeaderCell(
+                              handleAllRowSelectClick,
+                              rowSelectionState,
+                            )}
+                          {headerGroup.headers.map(
+                            (column: any, columnIndex: number) => {
+                              return (
+                                <Draggable
+                                  draggableId={column.id}
+                                  index={columnIndex}
+                                  isDragDisabled={column.isHidden}
+                                  key={column.id}
+                                >
+                                  {(provided, snapshot) => {
+                                    return (
+                                      <TableHeaderCell
+                                        column={column}
+                                        columnIndex={columnIndex}
+                                        columnName={column.Header}
+                                        isAscOrder={column.isAscOrder}
+                                        isHidden={column.isHidden}
+                                        isResizingColumn={
+                                          isResizingColumn.current
+                                        }
+                                        orgLeft={thCellLeft}
+                                        orgTop={thCellTop}
+                                        provided={provided}
+                                        setOrgPosition={setOrgPosition}
+                                        snapshot={snapshot}
+                                        sortTableColumn={props.sortTableColumn}
+                                      />
+                                    );
+                                  }}
+                                </Draggable>
+                              );
+                            },
+                          )}
+                        </div>
                       )}
-                    {headerGroup.headers.map(
-                      (column: any, columnIndex: number) => {
-                        return (
-                          <TableHeaderCell
-                            column={column}
-                            columnIndex={columnIndex}
-                            columnName={column.Header}
-                            isAscOrder={column.isAscOrder}
-                            isHidden={column.isHidden}
-                            isResizingColumn={isResizingColumn.current}
-                            key={columnIndex}
-                            sortTableColumn={props.sortTableColumn}
-                          />
-                        );
-                      },
-                    )}
-                  </div>
+                    </Droppable>
+                  </DragDropContext>
                 );
               })}
               {headerGroups.length === 0 &&

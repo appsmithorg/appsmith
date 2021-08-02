@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { clamp } from "lodash-es";
 import swap from "lodash-move";
-import { useDrag } from "react-use-gesture";
+import { useDrag, useGesture } from "react-use-gesture";
 import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
 import { debounce } from "lodash";
@@ -62,11 +62,15 @@ const DraggableListWrapper = styled.div`
 function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
+  const listWrapper = useRef<HTMLDivElement | null>(null);
+  const selectedItem = useRef<number>(-1);
+  const scrollTop = useRef<number>(0);
 
   const onDrop = () => {
     onUpdate(order.current);
     order.current = items.map((_: any, index: any) => index);
     setSprings(updateSpringStyles(order.current, itemHeight));
+    selectedItem.current = -1;
   };
 
   useEffect(() => {
@@ -77,38 +81,125 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
     }
   }, [items]);
 
+  let isScrolling: any = null;
+  const handleScroll = () => {
+    window.clearTimeout(isScrolling);
+
+    isScrolling = setTimeout(() => {
+      const scrollWrapper = listWrapper.current?.closest(
+        ".t--property-pane-content-section",
+      );
+      const offset = (scrollWrapper?.scrollTop || 0) - scrollTop.current;
+      // console.log(offset);
+      if (selectedItem.current > -1) {
+        const curRow = clamp(
+          Math.round((selectedItem.current * itemHeight + offset) / itemHeight),
+          0,
+          items.length - 1,
+        );
+        const newOrder = [...order.current];
+        // The dragged column
+        const movedColumnName = newOrder.splice(selectedItem.current, 1);
+        // If the dragged column exists
+        if (movedColumnName && movedColumnName.length === 1) {
+          newOrder.splice(curRow, 0, movedColumnName[0]);
+        }
+        order.current = newOrder;
+        selectedItem.current = newOrder.indexOf(selectedItem.current);
+        setSprings(updateSpringStyles(order.current, itemHeight));
+      }
+      scrollTop.current = scrollWrapper?.scrollTop || 0;
+    }, 166);
+  };
+
+  useEffect(() => {
+    const scrollWrapper = listWrapper.current?.closest(
+      ".t--property-pane-content-section",
+    );
+    if (scrollWrapper) {
+      scrollWrapper.addEventListener("scroll", handleScroll);
+      return () => {
+        scrollWrapper.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [listWrapper]);
+
   const [springs, setSprings] = useSprings<any>(
     items.length,
     updateSpringStyles(order.current, itemHeight),
   );
 
-  const bind: any = useDrag<any>((props: any) => {
-    const originalIndex = props.args[0];
-    const curIndex = order.current.indexOf(originalIndex);
-    const curRow = clamp(
-      Math.round((curIndex * itemHeight + props.movement[1]) / itemHeight),
-      0,
-      items.length - 1,
-    );
-    const newOrder = swap(order.current, curIndex, curRow);
-    setSprings(
-      dragIdleSpringStyles(newOrder, {
-        down: props.down,
-        originalIndex,
-        curIndex,
-        y: props.movement[1],
-        itemHeight,
-      }),
-    );
-    if (curRow !== curIndex) {
-      // Feed springs new style data, they'll animate the view without causing a single render
-      if (!props.down) {
-        order.current = newOrder;
-        setSprings(updateSpringStyles(order.current, itemHeight));
-        debounce(onDrop, 400)();
-      }
-    }
-  });
+  const bind: any = useGesture(
+    {
+      onDrag: (props: any) => {
+        const originalIndex = props.args[0];
+        const curIndex = order.current.indexOf(originalIndex);
+        selectedItem.current = curIndex;
+        const curRow = clamp(
+          Math.round((curIndex * itemHeight + props.movement[1]) / itemHeight),
+          0,
+          items.length - 1,
+        );
+        const newOrder = swap(order.current, curIndex, curRow);
+        const scrollWrapper = listWrapper.current?.closest(
+          ".t--property-pane-content-section",
+        );
+        const sRect = scrollWrapper?.getBoundingClientRect();
+        const dRect = listWrapper.current?.getBoundingClientRect();
+        const sPos: any = {
+          top: sRect?.top || 0,
+          bottom: sRect?.bottom || 0,
+        };
+        const dPos = {
+          top: dRect?.top || 0,
+          bottom: dRect?.bottom || 0,
+        };
+        // scrolled down
+        if (
+          props.movement[1] > 0 &&
+          props.xy[1] > sPos.bottom - itemHeight * 1.5
+        ) {
+          if (dPos.bottom > sPos.bottom && curRow < items.length - 1) {
+            scrollWrapper?.scrollTo({
+              top: scrollTop.current + itemHeight * 2,
+              behavior: "smooth",
+            });
+          }
+        }
+        // scrolled up
+        else if (
+          props.xy[1] < sPos.top + itemHeight * 1.5 &&
+          dPos.top < sPos.top &&
+          curRow > 0
+        ) {
+          scrollWrapper?.scrollTo({
+            top: scrollTop.current - itemHeight * 2,
+            behavior: "smooth",
+          });
+        }
+
+        setSprings(
+          dragIdleSpringStyles(newOrder, {
+            down: props.down,
+            originalIndex,
+            curIndex,
+            y: props.movement[1],
+            itemHeight,
+          }),
+        );
+        if (curRow !== curIndex) {
+          // Feed springs new style data, they'll animate the view without causing a single render
+          if (!props.down) {
+            order.current = newOrder;
+            setSprings(updateSpringStyles(order.current, itemHeight));
+            debounce(onDrop, 400)();
+          }
+        }
+      },
+    },
+    {},
+  );
+
   return (
     <DraggableListWrapper
       className="content"
@@ -117,6 +208,7 @@ function DraggableList({ itemHeight, ItemRenderer, items, onUpdate }: any) {
         document.onmouseup = null;
         document.onmousemove = null;
       }}
+      ref={listWrapper}
       style={{ height: items.length * itemHeight }}
     >
       {springs.map(({ scale, y, zIndex }, i) => (
