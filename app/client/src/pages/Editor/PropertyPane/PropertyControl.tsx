@@ -11,10 +11,10 @@ import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  batchUpdateWidgetProperty,
+  deleteWidgetProperty,
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
-  deleteWidgetProperty,
-  batchUpdateWidgetProperty,
 } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
@@ -40,6 +40,7 @@ import {
 } from "sagas/WidgetEnhancementHelpers";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -275,10 +276,14 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
     };
-    const expectedValue = getExpectedValue(props.validation);
-    config.expected = expectedValue;
+    config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.validationMessage = "";
+      config.expected = {
+        example: 'showAlert("There was an error!", "error")',
+        type: "Function",
+        autocompleteDataType: AutocompleteDataType.FUNCTION,
+      };
       delete config.dataTreePath;
       delete config.evaluatedValue;
     }

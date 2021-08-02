@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -42,7 +43,7 @@ export const EditorThemes: Record<EditorTheme, string> = {
 
 export type FieldEntityInformation = {
   entityName?: string;
-  expectedType?: string;
+  expectedType?: AutocompleteDataType;
   entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET;
 };
 

@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultDateValidation(
   value: unknown,
@@ -168,6 +169,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
@@ -249,6 +251,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
@@ -268,6 +271,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },

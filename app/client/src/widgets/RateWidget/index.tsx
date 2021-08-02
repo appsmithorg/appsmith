@@ -7,6 +7,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -89,7 +90,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
               type: ValidationTypes.FUNCTION,
               params: {
                 fn: validateDefaultRate,
-                expected: { type: "number", example: 5 },
+                expected: {
+                  type: "number",
+                  example: 5,
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
               },
             },
           },

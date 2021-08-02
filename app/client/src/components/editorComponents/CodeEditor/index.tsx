@@ -63,6 +63,7 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -83,6 +84,12 @@ interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
 }
 
+export type CodeEditorExpected = {
+  type: string;
+  example: ExpectedValueExample;
+  autocompleteDataType: AutocompleteDataType;
+};
+
 export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
@@ -96,7 +103,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -363,7 +370,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) return;
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
-      expectedType: expected?.type,
+      expectedType: expected?.autocompleteDataType,
     };
     if (dataTreePath) {
       const { entityName } = getEntityNameAndPropertyPath(dataTreePath);

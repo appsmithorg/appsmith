@@ -40,7 +40,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: DataType;
+  type: AutocompleteDataType;
   data: {
     doc: string;
   };
@@ -61,14 +61,15 @@ type TernDoc = {
   changed: { to: number; from: number } | null;
 };
 
-export type DataType =
-  | "OBJECT"
-  | "NUMBER"
-  | "ARRAY"
-  | "FUNCTION"
-  | "BOOLEAN"
-  | "STRING"
-  | "UNKNOWN";
+export enum AutocompleteDataType {
+  OBJECT = "OBJECT",
+  NUMBER = "NUMBER",
+  ARRAY = "ARRAY",
+  FUNCTION = "FUNCTION",
+  BOOLEAN = "BOOLEAN",
+  STRING = "STRING",
+  UNKNOWN = "UNKNOWN",
+}
 
 type ArgHints = {
   start: CodeMirror.Position;
@@ -283,8 +284,12 @@ class TernServer {
     findBestMatch: boolean,
     bestMatchSearch: string,
   ) {
-    const expectedDataType = this.getExpectedDataType();
-    const { entityName, entityType } = this.fieldEntityInformation;
+    const {
+      entityName,
+      entityType,
+      expectedType = AutocompleteDataType.UNKNOWN,
+    } = this.fieldEntityInformation;
+    debugger;
     type CompletionType =
       | "DATA_TREE"
       | "MATCHING_TYPE"
@@ -308,12 +313,12 @@ class TernServer {
         if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
           if (completion.text.includes(".")) {
             // nested paths (with ".") should only be used for best match
-            if (completion.type === expectedDataType) {
+            if (completion.type === expectedType) {
               completionType.MATCHING_TYPE.push(completion);
             }
           } else if (
             completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
-            completion.type === expectedDataType
+            completion.type === expectedType
           ) {
             // Global functions should be in best match as well as DataTree
             completionType.MATCHING_TYPE.push(completion);
@@ -370,7 +375,7 @@ class TernServer {
         if (!entityInfo) return c.text;
         return c.text.replace(name, entityInfo.subType);
       });
-      SortRules[expectedDataType].forEach((rule) => {
+      SortRules[expectedType].forEach((rule) => {
         if (Array.isArray(groupedMatches[rule])) {
           sortedMatches.push(...groupedMatches[rule]);
         }
@@ -416,34 +421,15 @@ class TernServer {
     ];
   }
 
-  getDataType(type: string): DataType {
-    if (type === "?") return "UNKNOWN";
-    else if (type === "number") return "NUMBER";
-    else if (type === "string") return "STRING";
-    else if (type === "bool") return "BOOLEAN";
-    else if (type === "array") return "ARRAY";
-    else if (/^fn\(/.test(type)) return "FUNCTION";
-    else if (/^\[/.test(type)) return "ARRAY";
-    else return "OBJECT";
-  }
-
-  getExpectedDataType(): DataType {
-    const type = this.fieldEntityInformation.expectedType;
-    if (type === undefined) return "UNKNOWN";
-    if (
-      type === "Array<Object>" ||
-      type === "Array" ||
-      type === "Array<{ label: string, value: string }>" ||
-      type === "Array<x:string, y:number>"
-    ) {
-      return "ARRAY";
-    }
-    if (type === "boolean") return "BOOLEAN";
-    if (type === "string") return "STRING";
-    if (type === "number") return "NUMBER";
-    if (type === "object" || type === "JSON") return "OBJECT";
-    if (type === "Function Call") return "FUNCTION";
-    return "UNKNOWN";
+  getDataType(type: string): AutocompleteDataType {
+    if (type === "?") return AutocompleteDataType.UNKNOWN;
+    else if (type === "number") return AutocompleteDataType.NUMBER;
+    else if (type === "string") return AutocompleteDataType.STRING;
+    else if (type === "bool") return AutocompleteDataType.BOOLEAN;
+    else if (type === "array") return AutocompleteDataType.ARRAY;
+    else if (/^fn\(/.test(type)) return AutocompleteDataType.FUNCTION;
+    else if (/^\[/.test(type)) return AutocompleteDataType.ARRAY;
+    else return AutocompleteDataType.OBJECT;
   }
 
   typeToIcon(type: string) {
@@ -849,7 +835,7 @@ export const createCompletionHeader = (name: string): Completion => ({
   className: "CodeMirror-hint-header",
   data: { doc: "" },
   origin: "",
-  type: "UNKNOWN",
+  type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
 });
 
