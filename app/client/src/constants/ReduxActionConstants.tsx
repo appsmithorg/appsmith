@@ -9,6 +9,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  FETCH_FEATURE_FLAGS_INIT: "FETCH_FEATURE_FLAGS_INIT",
+  FETCH_FEATURE_FLAGS_SUCCESS: "FETCH_FEATURE_FLAGS_SUCCESS",
   BIND_DATA_TO_WIDGET: "BIND_DATA_TO_WIDGET",
   BIND_DATA_ON_CANVAS: "BIND_DATA_ON_CANVAS",
   INCREMENT_COMMENT_THREAD_UNREAD_COUNT:
@@ -494,6 +496,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
+  FETCH_FEATURE_FLAGS_ERROR: "FETCH_FEATURE_FLAGS_ERROR",
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",
   MARK_ALL_NOTIFICAIONS_AS_READ_ERROR: "MARK_ALL_NOTIFICAIONS_AS_READ_ERROR",
   FETCH_UNREAD_NOTIFICATIONS_COUNT_ERROR:

@@ -26,7 +26,11 @@ export const commentModeSelector = (state: AppState) => {
   const pathName = window.location.pathname;
   const onEditorOrViewerPage =
     matchBuilderPath(pathName) || matchViewerPath(pathName);
-  return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
+  return (
+    state.ui.comments?.isCommentMode &&
+    !!onEditorOrViewerPage &&
+    areCommentsEnabledForUserAndApp(state)
+  );
 };
 
 export const isUnsubscribedSelector = (state: AppState) =>
@@ -37,7 +41,7 @@ export const applicationCommentsSelector = (applicationId: string) => (
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
 export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.comments?.areCommentsEnabled;
+  state.ui.users.featureFlags?.COMMENTS;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
