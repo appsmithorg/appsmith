@@ -15,9 +15,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -152,6 +154,62 @@ public class CustomCommentThreadRepositoryImplTest {
                 commentThreads -> {
                     assertThat(commentThreads.size()).isEqualTo(1);
                     assertThat(commentThreads.get(0).getAuthorUsername()).isEqualTo("app1UnResolvedThread");
+                }
+        ).verifyComplete();
+    }
+
+    private CommentThread createThreadToTestUnreadCountByResolvedState(
+            String username, String applicationId, boolean isResolved, Boolean isRead) {
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(isResolved);
+
+        Set<String> viewedByUsers = new HashSet<>();
+        if(isRead) {
+            viewedByUsers.add(username);
+        }
+
+        CommentThread commentThread = createThreadWithPolicies(username);
+        commentThread.setApplicationId(applicationId);
+        commentThread.setResolvedState(resolvedState);
+        commentThread.setViewedByUsers(viewedByUsers);
+        return commentThread;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void countUnreadThreads_WhenResolvedAndUnread_ResolvedNotCounted() {
+        String testApplicationId = UUID.randomUUID().toString();
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(true);
+
+        CommentThread.CommentThreadState unresolvedState = new CommentThread.CommentThreadState();
+        unresolvedState.setActive(false);
+
+        CommentThread unresolvedUnread = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, false, false
+        );
+        CommentThread unresolvedRead = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, false, true
+        );
+        CommentThread resolvedUnread = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, true, false
+        );
+
+        List<CommentThread> threadList = List.of(unresolvedUnread, unresolvedRead, resolvedUnread);
+
+        Mono<Long> unreadCountMono = commentThreadRepository
+                .saveAll(threadList)
+                .collectList()
+                .flatMap(commentThreads -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId("sample-application-id-1");
+                    filterDTO.setResolved(false);
+                    return commentThreadRepository.countUnreadThreads(testApplicationId, "api_user");
+                });
+
+        StepVerifier.create(unreadCountMono).assertNext(
+                unreadCount -> {
+                    assertThat(unreadCount).isEqualTo(1);
                 }
         ).verifyComplete();
     }
