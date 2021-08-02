@@ -10,8 +10,13 @@ export const fetchRepoDetailsInit = () => ({
 });
 
 export const fetchRepoDetailsSuccess = (payload: any) => ({
-  type: ReduxActionTypes.FETCH_GIT_REPO_DETAILS_INIT,
+  type: ReduxActionTypes.FETCH_GIT_REPO_DETAILS_SUCCESS,
   payload,
+});
+
+export const fetchRepoDetailsError = (error: any) => ({
+  type: ReduxActionTypes.FETCH_REPO_DETAILS_ERROR,
+  payload: { error },
 });
 
 export const updateRepoUrlInit = () => ({

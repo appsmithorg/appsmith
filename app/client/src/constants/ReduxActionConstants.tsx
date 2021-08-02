@@ -511,6 +511,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
+  FETCH_REPO_DETAILS_ERROR: "FETCH_REPO_DETAILS_ERROR",
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",
   MARK_ALL_NOTIFICAIONS_AS_READ_ERROR: "MARK_ALL_NOTIFICAIONS_AS_READ_ERROR",
   FETCH_UNREAD_NOTIFICATIONS_COUNT_ERROR:

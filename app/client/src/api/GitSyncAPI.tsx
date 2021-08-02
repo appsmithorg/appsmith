@@ -5,7 +5,7 @@ import { ApiResponse } from "./ApiResponses";
 class GitSyncAPI extends Api {
   static url = `v1/git-sync`;
 
-  static fetchRepo(): AxiosPromise<ApiResponse> {
+  static fetchRepoDetails(): AxiosPromise<ApiResponse> {
     return Api.get(GitSyncAPI.url);
   }
 
