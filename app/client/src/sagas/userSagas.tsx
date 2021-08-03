@@ -392,6 +392,7 @@ function* fetchFeatureFlags() {
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(fetchFeatureFlagsSuccess(response.data));
+      (window as any).FEATURE_FLAGS = response.data;
     }
   } catch (error) {
     log.error(error);
