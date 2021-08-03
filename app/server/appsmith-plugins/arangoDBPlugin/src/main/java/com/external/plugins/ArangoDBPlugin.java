@@ -264,6 +264,8 @@ public class ArangoDBPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            // TODO: remove it.
+            System.out.println("devtest: " + datasourceConfiguration);
             return datasourceCreate(datasourceConfiguration)
                     .map(db -> {
                         db.getVersion();

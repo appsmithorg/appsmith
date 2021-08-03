@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -17,12 +18,14 @@ import java.util.Base64;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class UploadedFile {
+public class UploadedFile implements AppsmithDomain {
 
     private static final String BASE64_DELIMITER = ";base64,";
 
     String name;
 
+    // TODO: uncomment
+    @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String base64Content;
 

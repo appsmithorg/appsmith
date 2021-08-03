@@ -47,6 +47,8 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.OrganizationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -57,6 +59,8 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mysema.commons.lang.Pair;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
@@ -2833,5 +2837,70 @@ public class DatabaseChangelog {
             }
             mongoTemplate.save(plugin);
         }
+    }
+
+    private void documentPathExists(Document document) {
+
+    }
+
+    private void encryptKeyFile(Document document, String path) {
+        if (documentPathExists(document, path)) {
+
+        }
+    }
+
+    private void encryptRawValues(Document document) {
+        String path = "";
+        encryptKeyFile(document, path);
+    }
+
+    // TODO: check order, id, name
+    @ChangeSet(order = "085", id = "encrypt-certificate-5", author = "")
+    public void encryptCertificateAndPassword5(MongockTemplate mongoTemplate, EncryptionService encryptionService) {
+        List<String> pathList = new ArrayList<>();
+        pathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
+        pathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
+        pathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
+        pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
+        pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
+        pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+        pathList.add("datasourceConfiguration.sshProxy.privateKey.password");
+
+        mongoTemplate.execute("datasource", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) {
+                MongoCursor cursor = collection.find(
+                        Filters.or(
+                                Filters.exists(pathList.get(0)),
+                                Filters.exists(pathList.get(1)),
+                                Filters.exists(pathList.get(2)),
+                                Filters.exists(pathList.get(3)),
+                                Filters.exists(pathList.get(4)),
+                                Filters.exists(pathList.get(5)),
+                                Filters.exists(pathList.get(6))
+                        )
+                ).cursor();
+
+                List<Pair<Document, Document>> documentPairList = new ArrayList<>();
+                while (cursor.hasNext()) {
+                    Document old = (Document) cursor.next();
+                    Document updated = Document.parse(old.toJson());
+
+                    updated
+                            .get("datasourceConfiguration", Document.class)
+                            .get("connection", Document.class)
+                            .get("ssl", Document.class)
+                            .get("caCertificateFile", Document.class)
+                            .computeIfPresent("base64Content", (k, v) -> encryptionService.encryptString((String) v));
+
+                    documentPairList.add(new Pair(old, updated));
+                }
+
+               documentPairList.stream()
+                        .forEach(docPair -> collection.findOneAndReplace(docPair.getFirst(), docPair.getSecond()));
+
+                return null;
+            }
+        });
     }
 }
