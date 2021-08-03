@@ -711,11 +711,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
-  cy.enterDatasource(datasource);
-  cy.get(apiwidget.editResourceUrl)
-    .first()
-    .click({ force: true })
-    .type(path, { parseSpecialCharSequences: false });
+  cy.enterDatasource(datasource + path);
 });
 
 Cypress.Commands.add("enterDatasource", (datasource) => {
@@ -1120,9 +1116,11 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
 });
 
 Cypress.Commands.add("selectOnClickOption", (option) => {
-  cy.get("ul.bp3-menu div.bp3-fill")
-    .wait(500)
+  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
+  cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
+    .should("be.visible")
     .contains(option)
+    .should("be.visible")
     .click({ force: true });
 });
 
@@ -2183,7 +2181,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
-  cy.get(".code-highlight")
+  cy.get(".code-highlight", { timeout: 10000 })
     .children()
     .contains("No Action")
     .first()
