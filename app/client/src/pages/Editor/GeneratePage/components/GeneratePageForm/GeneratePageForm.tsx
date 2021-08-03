@@ -185,8 +185,19 @@ function GeneratePageForm() {
         setSelectedTableColumnOptions([]);
         selectTable(DEFAULT_DROPDOWN_OPTION);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        if (dataSourceObj.id) {
-          dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+        const datasourcePluginId = dataSourceObj.data?.pluginId;
+        const pluginPackageName: string =
+          generateCRUDSupportedPlugin[datasourcePluginId];
+        switch (pluginPackageName) {
+          case PLUGIN_PACKAGE_NAME.S3:
+            break;
+          case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+            break;
+          default: {
+            if (dataSourceObj.id) {
+              dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+            }
+          }
         }
       }
     },
@@ -197,6 +208,7 @@ function GeneratePageForm() {
       selectTable,
       selectColumn,
       dispatch,
+      generateCRUDSupportedPlugin,
     ],
   );
 
@@ -421,7 +433,7 @@ function GeneratePageForm() {
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
-            defaultIsOpen
+            defaultIsOpen={!selectedDatasource.value}
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -452,7 +464,9 @@ function GeneratePageForm() {
                 </Label>
                 <Dropdown
                   cypressSelector="t--table-dropdown"
-                  defaultIsOpen
+                  defaultIsOpen={
+                    !!selectedDatasource.value && !selectedTable.value
+                  }
                   dropdownMaxHeight={"300px"}
                   errorMsg={tableDropdownErrorMsg}
                   height={DROPDOWN_DIMENSION.HEIGHT}
@@ -485,7 +499,6 @@ function GeneratePageForm() {
                 </Label>
                 <Dropdown
                   cypressSelector="t--searchColumn-dropdown"
-                  defaultIsOpen
                   dropdownMaxHeight={"300px"}
                   height={DROPDOWN_DIMENSION.HEIGHT}
                   onSelect={onSelectColumn}
