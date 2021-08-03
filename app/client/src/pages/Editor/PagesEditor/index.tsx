@@ -4,20 +4,20 @@ import { useParams, useHistory } from "react-router";
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Action } from "./PageListItem";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import Button, { Size } from "components/ads/Button";
+import PageListItem, { Action } from "./PageListItem";
 import { Page } from "constants/ReduxActionConstants";
+import { getPageList } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { getPageList } from "selectors/editorSelectors";
-import { DraggablePageList } from "./DraggablePageList";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -136,8 +136,10 @@ function PagesEditor() {
         />
       </Header>
 
-      <DraggablePageList
-        applicationId={params.applicationId}
+      <DraggableList
+        ItemRenderer={({ item }: any) => (
+          <PageListItem applicationId={params.applicationId} item={item} />
+        )}
         itemHeight={70}
         items={pages}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
