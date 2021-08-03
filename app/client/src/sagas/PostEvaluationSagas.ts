@@ -11,7 +11,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import _ from "lodash";
@@ -32,6 +31,7 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
+  VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
@@ -115,9 +115,7 @@ function getLatestEvalPropertyErrors(
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
-          text: PropertyEvalErrorTypeDebugMessage[error.errorType](
-            propertyPath,
-          ),
+          text: createMessage(VALUE_IS_INVALID, propertyPath),
           messages: errorMessages,
           severity: error.severity,
           timestamp: moment().format("hh:mm:ss"),
