@@ -392,7 +392,7 @@ public class CreateDBTablePageSolution {
             .collectList()
             .flatMap(pages -> {
                 // Avoid duplicating page names
-                String pageName = "Admin Page:" + WordUtils.capitalize(tableName);
+                String pageName = WordUtils.capitalize(tableName);
                 long maxCount = 0L;
                 for (PageDTO pageDTO : pages) {
                     if (pageDTO.getName().matches("^" + Pattern.quote(pageName) + "\\d*$")) {
