@@ -38,6 +38,12 @@ import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
+enum IntroStepsTypesEditor {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
+
 const introStepsEditor = [
   {
     title: "Introducing Live Comments",
@@ -56,6 +62,12 @@ const introStepsEditor = [
     bannerThumbnail: stepTwoThumbnail,
   },
 ];
+
+enum IntroStepsTypesViewer {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
 
 const introStepsViewer = [
   {
@@ -164,13 +176,27 @@ const getSteps = (
   ];
 };
 
+const getInitialAndFinalSteps = (canManage: boolean) => {
+  if (canManage) {
+    return [
+      IntroStepsTypesEditor.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesEditor.PROFILE_FORM,
+    ];
+  } else {
+    return [
+      IntroStepsTypesViewer.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesViewer.PROFILE_FORM,
+    ];
+  }
+};
+
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
   const isIntroCarouselVisible = useSelector(isIntroCarouselVisibleSelector);
   const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
   const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
   const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
-  const [activeIndex, setActiveIndex] = useState(0);
+
   const [isSkipped, setIsSkipped] = useState(false);
 
   const currentUser = useSelector(getCurrentUser);
@@ -190,6 +216,10 @@ export default function CommentsShowcaseCarousel() {
   const currentOrg = useOrg(id);
   const canManage = getCanManage(currentOrg);
 
+  const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
+
+  const [activeIndex, setActiveIndex] = useState(initialStep);
+
   const finalSubmit = async () => {
     dispatch(hideCommentsIntroCarousel());
     await setCommentsIntroSeen(true);
@@ -207,7 +237,7 @@ export default function CommentsShowcaseCarousel() {
   };
 
   const onSkip = () => {
-    setActiveIndex(2);
+    setActiveIndex(finalStep);
     setIsSkipped(true);
   };
 
