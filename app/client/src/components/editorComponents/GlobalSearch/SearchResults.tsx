@@ -115,7 +115,7 @@ export const SearchItemContainer = styled.div<{
     }
   }
 
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${(props) => getTypographyByKey(props, "p3")};
   [class^="ais-"] {
     ${(props) => getTypographyByKey(props, "p3")};
   }
@@ -171,7 +171,7 @@ const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
   svg {
     height: 14px;
     path {
-      fill: ${(props) => (props.isActiveItem ? "white" : "#6a86ce !important")};
+      fill: ${(props) => (props.isActiveItem ? "white" : "#716E6E !important")};
     }
   }
 `;

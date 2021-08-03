@@ -1230,7 +1230,7 @@ const globalSearch = {
   emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
   codeBackground: "#F0F0F0",
-  documentLink: "#54a9fb",
+  documentLink: "#69B5FF",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
@@ -2316,6 +2316,11 @@ export const theme: Theme = {
       fontWeight: "bold",
       fontSize: 28,
       lineHeight: 36,
+    },
+    docHeader: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 17,
     },
     spacedOutP1: {
       fontStyle: "normal",

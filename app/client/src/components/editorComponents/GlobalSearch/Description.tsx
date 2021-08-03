@@ -40,8 +40,13 @@ const Container = styled.div`
   }
 
   h1 {
-    ${(props) => getTypographyByKey(props, "largeH1")};
+    ${(props) => getTypographyByKey(props, "docHeader")}
     word-break: break-word;
+  }
+
+  h2, h3 {
+    ${(props) => getTypographyByKey(props, "h5")}
+    font-weight: 600;
   }
 
   h1,
@@ -180,14 +185,16 @@ const SnippetContainer = styled.div`
     justify-content: space-between;
     .action-msg {
       color: #a9a7a7;
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 400;
+      flex-shrink: 0;
     }
   }
   .snippet-desc {
     color: #4b4848;
     font-size: 14px;
     font-weight: 400;
+    margin-top: 10px;
   }
   .snippet-group {
     margin: 5px 0;
@@ -205,7 +212,7 @@ const SnippetContainer = styled.div`
 function SnippetDescription(props: any) {
   //Add type here
   const {
-    item: { description, examples, snippet, title },
+    item: { examples, snippet, summary, title },
   } = props;
   return (
     <SnippetContainer>
@@ -213,7 +220,7 @@ function SnippetDescription(props: any) {
         <span>{title}</span>
         <span className="action-msg">Hit ⏎ to insert</span>
       </div>
-      <div className="snippet-desc">{description}</div>
+      <div className="snippet-desc">{summary}</div>
       <SyntaxHighlighter language="javascript">{snippet}</SyntaxHighlighter>
       <div className="snippet-group">
         <div className="header">Arguments</div>
@@ -229,13 +236,16 @@ function SnippetDescription(props: any) {
 
       {/* <SnippetArguments args={args} />
       <SnippetReturnType type={returnType} /> */}
-      {examples.map((ex: any) => (
-        <>
-          <p>{ex.title}</p>
-          <SyntaxHighlighter language="javascript">{ex.code}</SyntaxHighlighter>
-          <p>{ex.summary}</p>
-        </>
-      ))}
+      {examples &&
+        examples.map((ex: any) => (
+          <>
+            <p>{ex.title}</p>
+            <SyntaxHighlighter language="javascript">
+              {ex.code}
+            </SyntaxHighlighter>
+            <p>{ex.summary}</p>
+          </>
+        ))}
     </SnippetContainer>
   );
 }

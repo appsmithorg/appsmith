@@ -69,12 +69,12 @@ const filterCategories = [
     id: SEARCH_CATEGORIES.NAVIGATION,
     desc: "Navigate to any page, widget or file across this project.",
   },
-  // {
-  //   title: "Use Snippets",
-  //   kind: SEARCH_ITEM_TYPES.category,
-  //   id: SEARCH_CATEGORIES.SNIPPETS,
-  //   desc: "Search and Insert code snippets to perform complex actions quickly.",
-  // },
+  {
+    title: "Use Snippets",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORIES.SNIPPETS,
+    desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
   {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
@@ -85,7 +85,7 @@ const filterCategories = [
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 60vh;
+  height: 535px;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
@@ -218,8 +218,9 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
 
-  const setSearchResults = useCallback((res) => {
-    if (category.id === SEARCH_CATEGORIES.SNIPPETS) setSnippets(res);
+  const setSearchResults = useCallback((res, categoryId) => {
+    if (categoryId === SEARCH_CATEGORIES.SNIPPETS)
+      setSnippetsState((res || []).map((r: any) => r.body || {}));
     else setDocumentationSearchResultsInState(res);
   }, []);
 
@@ -327,7 +328,7 @@ function GlobalSearch() {
   }, [pages, query]);
 
   // const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
-  const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
+  // const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
 
   const searchResults = useMemo(() => {
     // if (query && category.id === SEARCH_CATEGORIES.INIT) {
@@ -352,46 +353,36 @@ function GlobalSearch() {
       return snippets;
     }
 
-    let results: any = [];
-    // if (category.id === SEARCH_CATEGORIES.NAVIGATION && !query) {
-    //   results = [recentsSectionTitle, ...recentEntities];
-    // }
-    if (category.id === SEARCH_CATEGORIES.DOCUMENTATION && !query) {
-      results = [docsSectionTitle];
-    }
-
-    return results.concat(
-      getSortedResults(
-        query,
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredActions
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredWidgets
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredPages
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredDatasources
-          : [],
-        [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? query
-            ? documentationSearchResults
-            : defaultDocs
-          : [],
-        currentPageId,
-      ) || [],
+    return getSortedResults(
+      query,
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredActions
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredWidgets
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredPages
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredDatasources
+        : [],
+      [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? query
+          ? documentationSearchResults
+          : defaultDocs
+        : [],
+      currentPageId,
     );
   }, [
     filteredWidgets,
@@ -540,7 +531,7 @@ function GlobalSearch() {
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
-              <Configure filters="" />
+              <Configure filters="entities:Table" />
               <SearchBox
                 category={category}
                 query={query}
@@ -550,6 +541,7 @@ function GlobalSearch() {
               {
                 <div className="main">
                   <SetSearchResults
+                    categoryId={category.id}
                     setDocumentationSearchResults={setSearchResults}
                   />
                   {searchResults.length > 0 ? (

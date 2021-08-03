@@ -5,7 +5,10 @@ import { getAppsmithConfigs } from "configs";
 import { debounce } from "lodash";
 
 const { algolia } = getAppsmithConfigs();
-const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+const searchClient = algoliasearch(
+  "I2XJYY5QVP",
+  "103cb223a186e8ce28e6fffea5ac459f",
+);
 
 type SearchProps = {
   query: string;
@@ -25,7 +28,7 @@ function Search({ children, query }: SearchProps) {
 
   return (
     <InstantSearch
-      indexName={algolia.indexName}
+      indexName="js_snippets"
       searchClient={searchClient}
       searchState={{ query: queryInState }}
     >
