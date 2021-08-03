@@ -85,8 +85,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const { draggedOn } = dragDetails;
 
-  const childWidgets = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
+  const childWidgets: string[] | undefined = useSelector(
+    (state: AppState) => state.entities.canvasWidgets[props.widgetId]?.children,
   );
 
   const selectOccupiedSpaces = useCallback(

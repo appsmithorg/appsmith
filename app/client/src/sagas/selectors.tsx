@@ -29,6 +29,18 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
+export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
+  Object.values(widgets)
+    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
+    .map((w) => {
+      return {
+        label: w.widgetName,
+        id: w.widgetName,
+        value: `"${w.widgetName}"`,
+      };
+    }),
+);
+
 export const getEditorConfigs = (
   state: AppState,
 ): { pageId: string; layoutId: string } | undefined => {
