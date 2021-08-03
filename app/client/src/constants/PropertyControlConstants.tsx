@@ -54,6 +54,7 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  dependencies?: string[];
   expected?: { type: string; example: ExpectedValueExample };
 };
 
@@ -62,7 +63,7 @@ type ValidationConfigParams = {
   max?: number; // max allowed for a number
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type
-  unique?: boolean; // unique in an array
+  unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
