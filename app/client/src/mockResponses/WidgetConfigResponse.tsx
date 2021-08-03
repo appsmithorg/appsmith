@@ -791,7 +791,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               })
               .join(" + ");
 
-            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
                 return  ${js};
               })();

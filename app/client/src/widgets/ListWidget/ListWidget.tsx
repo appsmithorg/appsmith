@@ -83,6 +83,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const structure = this.getCurrentItemStructure(this.props.listData);
       this.props.updateWidgetMetaProperty("childAutoComplete", {
         currentItem: structure,
+        currentIndex: "",
       });
     }
 
@@ -191,6 +192,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     ) {
       this.props.updateWidgetMetaProperty("childAutoComplete", {
         currentItem: newRowStructure,
+        currentIndex: "",
       });
     }
 
@@ -408,6 +410,27 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentItem) => { ${next}})(JSON.parse('${JSON.stringify(
                     listItem,
                   )}'))}}`
+                );
+              }
+              return prev + `{{${next}}}`;
+            },
+            "",
+          );
+          set(widget, path, newPropertyValue);
+        }
+
+        if (
+          propertyValue.indexOf("currentIndex") > -1 &&
+          propertyValue.indexOf("{{((currentIndex) => {") === -1
+        ) {
+          const { jsSnippets } = getDynamicBindings(propertyValue);
+
+          const newPropertyValue = jsSnippets.reduce(
+            (prev: string, next: string) => {
+              if (next.indexOf("currentIndex") > -1) {
+                return (
+                  prev +
+                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
                 );
               }
               return prev + `{{${next}}}`;
