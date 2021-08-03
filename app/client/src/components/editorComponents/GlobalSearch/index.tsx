@@ -48,7 +48,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-import DocsIcon from "assets/icons/ads/docs.svg";
+// import DocsIcon from "assets/icons/ads/docs.svg";
 // import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -123,11 +123,11 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
 
-const getSectionTitle = (title: string, icon: any) => ({
-  kind: SEARCH_ITEM_TYPES.sectionTitle,
-  title,
-  icon,
-});
+// const getSectionTitle = (title: string, icon: any) => ({
+//   kind: SEARCH_ITEM_TYPES.sectionTitle,
+//   title,
+//   icon,
+// });
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -180,9 +180,9 @@ function GlobalSearch() {
   const dispatch = useDispatch();
   const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const [snippets, setSnippetsState] = useState([]);
-  const setSnippets = useCallback((res) => {
-    setSnippetsState(res);
-  }, []);
+  // const setSnippets = useCallback((res) => {
+  //   setSnippetsState(res);
+  // }, []);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
