@@ -1,8 +1,8 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useCallback, useMemo, useState } from "react";
-import { isNil, keyBy } from "lodash";
+import React, { useCallback, useState } from "react";
+import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
@@ -17,10 +17,12 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_ID_URL,
+  getGenerateTemplateFormURL,
+} from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { getGenerateTemplateFormURL } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import Menu from "components/ads/Menu";
 import { IconSize } from "../../../components/ads/Icon";
@@ -28,11 +30,11 @@ import Icon from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "../../../actions/datasourceActions";
 import {
-  getIsDeletingDatasource,
   getGenerateCRUDEnabledPluginMap,
+  getIsDeletingDatasource,
 } from "../../../selectors/entitiesSelector";
 import TooltipComponent from "components/ads/Tooltip";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
@@ -64,11 +66,11 @@ const MenuWrapper = styled.div`
 `;
 
 const ActionButton = styled(Button)`
-  padding: 10px 20px;
+  padding: 10px 16px;
   &&&& {
     height: 36px;
-    //max-width: 120px;
-    width: auto;
+    width: 130px;
+    //width: auto;
   }
   span > svg > path {
     stroke: white;
@@ -142,6 +144,7 @@ type DatasourceCardProps = {
   datasource: Datasource;
   onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
   isCreating?: boolean;
+  plugin: Plugin;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
@@ -154,7 +157,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource, isCreating } = props;
+  const { datasource, isCreating, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
   ];
@@ -174,13 +177,9 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
-    const plugin = pluginGroups[datasource.pluginId];
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
@@ -208,14 +207,16 @@ function DatasourceCard(props: DatasourceCardProps) {
         ),
       );
     }
-  }, [datasource.id, params]);
+  }, [datasource.id, params, plugin]);
 
-  const onCreateNewQuery = useCallback((e) => {
-    e?.stopPropagation();
-    setIsSelected(true);
-    const plugin = pluginGroups[datasource.pluginId];
-    props.onCreateQuery(datasource, plugin.type);
-  }, []);
+  const onCreateNewQuery = useCallback(
+    (e) => {
+      e?.stopPropagation();
+      setIsSelected(true);
+      props.onCreateQuery(datasource, plugin.type);
+    },
+    [plugin, props.onCreateQuery, datasource],
+  );
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -282,7 +283,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               icon="plus"
               isLoading={isCreating && isSelected}
               onClick={onCreateNewQuery}
-              text="New Query"
+              text={plugin.type === PluginType.DB ? "New Query" : "New API"}
             />
             <MenuWrapper
               className="t--datasource-menu-option"
