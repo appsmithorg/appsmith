@@ -8,6 +8,8 @@ import {
 
 import { DefaultCurrentUserDetails, User } from "constants/userConstants";
 
+import FeatureFlag from "entities/FeatureFlag";
+
 const initialState: UsersReduxState = {
   loadingStates: {
     fetchingUsers: false,
@@ -18,7 +20,10 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
-  featureFlags: {},
+  featureFlags: {
+    COMMENT: false,
+    JS_EDITOR: false,
+  },
 };
 
 const usersReducer = createReducer(initialState, {
@@ -154,7 +159,7 @@ export interface UsersReduxState {
   currentUser?: User;
   error: string;
   propPanePreferences?: PropertyPanePositionConfig;
-  featureFlags: Record<string, boolean>;
+  featureFlags: FeatureFlag;
 }
 
 export default usersReducer;
