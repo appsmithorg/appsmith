@@ -54,6 +54,7 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  dependencies?: string[];
   expected?: { type: string; example: ExpectedValueExample };
 };
 

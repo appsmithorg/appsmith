@@ -90,6 +90,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["selectionType"],
           },
           {
             propertyName: "isFilterable",
@@ -139,7 +140,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
