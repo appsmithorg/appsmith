@@ -8,7 +8,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
   WEBSOCKET_WRITE_CHANNEL: "WEBSOCKET_WRITE_CHANNEL",
 };
 
-export const ReduxActionTypes: { [key: string]: string } = {
+export const ReduxActionTypes = {
   BIND_DATA_TO_WIDGET: "BIND_DATA_TO_WIDGET",
   BIND_DATA_ON_CANVAS: "BIND_DATA_ON_CANVAS",
   INCREMENT_COMMENT_THREAD_UNREAD_COUNT:
@@ -450,8 +450,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   PASTE_COPIED_WIDGET_SUCCESS: "PASTE_COPIED_WIDGET_SUCCESS",
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
-  WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
-  WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
   SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
   SET_EVALUATION_INVERSE_DEPENDENCY_MAP:
     "SET_EVALUATION_INVERSE_DEPENDENCY_MAP",
@@ -495,7 +493,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
-export const ReduxActionErrorTypes: { [key: string]: string } = {
+export const ReduxActionErrorTypes = {
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",
   MARK_ALL_NOTIFICAIONS_AS_READ_ERROR: "MARK_ALL_NOTIFICAIONS_AS_READ_ERROR",
   FETCH_UNREAD_NOTIFICATIONS_COUNT_ERROR:
@@ -618,13 +616,27 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   GENERATE_TEMPLATE_PAGE_ERROR: "GENERATE_TEMPLATE_PAGE_ERROR",
   FETCH_PLUGIN_FORM_ERROR: "FETCH_PLUGIN_FORM_ERROR",
   EXECUTE_DATASOURCE_QUERY_ERROR: "EXECUTE_DATASOURCE_QUERY_ERROR",
+  INVITED_USER_SIGNUP_ERROR: "INVITED_USER_SIGNUP_ERROR",
 };
 
-export const ReduxFormActionTypes: { [key: string]: string } = {
+export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   UPDATE_FIELD_ERROR: "@@redux-form/UPDATE_SYNC_ERRORS",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
+};
+
+export const WidgetReduxActionTypes: { [key: string]: string } = {
+  WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
+  WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",
+  WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
+  WIDGET_MOVE: "WIDGET_MOVE",
+  WIDGET_RESIZE: "WIDGET_RESIZE",
+  WIDGET_DELETE: "WIDGET_DELETE",
+  WIDGET_BULK_DELETE: "WIDGET_BULK_DELETE",
+  WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
+  WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
+  WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
 
 export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];

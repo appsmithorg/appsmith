@@ -13,6 +13,7 @@ import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
+import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -254,7 +255,7 @@ export const updateWidget = (
   | WidgetUpdateProperty
 > => {
   return {
-    type: ReduxActionTypes["WIDGET_" + operation],
+    type: WidgetReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
   };
 };

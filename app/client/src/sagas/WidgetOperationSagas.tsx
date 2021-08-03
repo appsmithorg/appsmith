@@ -2,6 +2,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
   MultipleWidgetDeletePayload,
@@ -347,7 +348,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     widgets = updatedWidgets;
 
     yield put({
-      type: ReduxActionTypes.WIDGET_CHILD_ADDED,
+      type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
       payload: {
         widgetId: childWidgetPayload.widgetId,
         type: addChildAction.payload.type,
@@ -362,7 +363,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_ADD_CHILD,
+        action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
       },
     });
@@ -413,7 +414,7 @@ export function* addChildrenSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_ADD_CHILDREN,
+        action: WidgetReduxActionTypes.WIDGET_ADD_CHILDREN,
         error,
       },
     });
@@ -551,7 +552,7 @@ export function* deleteAllSelectedWidgetsSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_DELETE,
+        action: WidgetReduxActionTypes.WIDGET_DELETE,
         error,
       },
     });
@@ -564,13 +565,13 @@ export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (selectedWidgets.length > 1) {
     yield put({
-      type: ReduxActionTypes.WIDGET_BULK_DELETE,
+      type: WidgetReduxActionTypes.WIDGET_BULK_DELETE,
       payload: deleteAction.payload,
     });
   }
   if (!!widgetId || !!selectedWidget) {
     yield put({
-      type: ReduxActionTypes.WIDGET_SINGLE_DELETE,
+      type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: deleteAction.payload,
     });
   }
@@ -692,7 +693,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_DELETE,
+        action: WidgetReduxActionTypes.WIDGET_DELETE,
         error,
       },
     });
@@ -879,7 +880,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.WIDGET_RESIZE,
+        action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
       },
     });
@@ -1744,7 +1745,7 @@ function* cutWidgetSaga() {
   }
 
   yield put({
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       disallowUndo: true,
       isShortcut: true,
@@ -1795,7 +1796,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     };
 
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
 
@@ -1821,20 +1822,21 @@ export default function* widgetOperationSagas() {
   yield fork(widgetSelectionSagas);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
-    takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
-    takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
-    takeEvery(ReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
+    takeEvery(WidgetReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),
     takeEvery(
-      ReduxActionTypes.WIDGET_BULK_DELETE,
+      WidgetReduxActionTypes.WIDGET_BULK_DELETE,
       deleteAllSelectedWidgetsSaga,
     ),
-    takeLatest(ReduxActionTypes.WIDGET_RESIZE, resizeSaga),
+
+    takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
       updateWidgetPropertySaga,
     ),
     takeEvery(
-      ReduxActionTypes.WIDGET_UPDATE_PROPERTY,
+      WidgetReduxActionTypes.WIDGET_UPDATE_PROPERTY,
       updateWidgetPropertySaga,
     ),
     takeEvery(
@@ -1858,6 +1860,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
-    takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
   ]);
 }

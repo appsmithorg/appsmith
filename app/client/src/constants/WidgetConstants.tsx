@@ -10,6 +10,7 @@ export enum WidgetTypes {
   DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
   TABLE_WIDGET = "TABLE_WIDGET",
   DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
+  MULTI_SELECT_WIDGET = "MULTI_SELECT_WIDGET",
   CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET = "RADIO_GROUP_WIDGET",
   TABS_WIDGET = "TABS_WIDGET",
@@ -100,7 +101,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 28;
+export const LATEST_PAGE_VERSION = 30;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -129,6 +130,8 @@ export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const CANVAS_CLASSNAME = "appsmith_widget_0";
 
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
