@@ -262,7 +262,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
         {
           step: "#3",
-          task: "Bind the query using {{fetch_users.data}}",
+          task: "Bind the query using => fetch_users.data",
           status: "--",
           action: "",
         },
