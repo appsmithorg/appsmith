@@ -61,9 +61,9 @@ import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { getPluginIdToImageLocation } from "sagas/selectors";
+import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -97,7 +97,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: { type: string; example: ExpectedValueExample };
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -126,19 +126,6 @@ type State = {
   hinterOpen: boolean;
 };
 
-const CommandBtnContainer = styled.div<{ isFocused: boolean }>`
-  position: absolute;
-  right: 1px;
-  height: 33px;
-  width: 33px;
-  top: 1px;
-  display: none;
-  transition: 0.3s all ease;
-  align-items: center;
-  justify-content: center;
-  background: ${(props) => (props.isFocused ? Colors.MERCURY : "#fafafa")};
-  z-index: 2;
-`;
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -222,7 +209,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 300));
+        editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("change", this.handleAutocompleteVisibility);
         editor.on("change", this.onChangeTrigger);
         editor.on("keyup", this.handleAutocompleteHide);
@@ -377,7 +364,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) return;
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: HintEntityInformation = {
-      expectedType: expected,
+      expectedType: expected?.type,
     };
     if (dataTreePath) {
       const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
@@ -525,23 +512,18 @@ class CodeEditor extends Component<Props, State> {
         theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
-          <CommandBtnContainer
-            className="slash-commands"
-            isFocused={this.state.isFocused}
-          >
-            <Button
-              className="commands-button"
-              onClick={() => {
-                const newValue =
-                  typeof this.props.input.value === "string"
-                    ? this.props.input.value + "/"
-                    : "/";
-                this.updatePropertyValue(newValue, newValue.length);
-              }}
-              tag="button"
-              text="/"
-            />
-          </CommandBtnContainer>
+          <Button
+            className="commands-button"
+            onClick={() => {
+              const newValue =
+                typeof this.props.input.value === "string"
+                  ? this.props.input.value + "/"
+                  : "/";
+              this.updatePropertyValue(newValue, newValue.length);
+            }}
+            tag="button"
+            text="/"
+          />
         )}
         <EvaluatedValuePopup
           errors={errors}
@@ -619,7 +601,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
+  recentEntities: getRecentEntityIds(state),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({

@@ -2,11 +2,61 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType, RateSize } from "constants/WidgetConstants";
 import RateComponent from "components/designSystems/blueprint/RateComponent";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+
+function validateDefaultRate(value: unknown, props: any, _: any) {
+  try {
+    let parsed = value;
+    let isValid = false;
+
+    if (_.isString(value as string)) {
+      if (/^\d+\.?\d*$/.test(value as string)) {
+        parsed = Number(value);
+        isValid = true;
+      } else {
+        return {
+          isValid: false,
+          parsed: 0,
+          message: `Value must be a number`,
+        };
+      }
+    }
+
+    if (Number.isFinite(parsed)) {
+      isValid = true;
+    }
+
+    // default rate must be less than max count
+    if (!_.isNaN(props.maxCount) && Number(value) > Number(props.maxCount)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value must be less than or equal to max count`,
+      };
+    }
+
+    // default rate can be a decimal only if Allow half property is true
+    if (!props.isAllowHalf && !Number.isInteger(parsed)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value can be a decimal only if 'Allow half' is true`,
+      };
+    }
+
+    return { isValid, parsed };
+  } catch (e) {
+    return {
+      isValid: false,
+      parsed: value,
+      message: `Could not validate `,
+    };
+  }
+}
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -22,7 +72,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter max count",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.RATE_MAX_COUNT,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { natural: true },
+            },
           },
           {
             propertyName: "defaultRate",
@@ -32,7 +85,14 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter default value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.RATE_DEFAULT_RATE,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: validateDefaultRate,
+                expected: { type: "number", example: 5 },
+              },
+            },
+            dependencies: ["maxCount", "isAllowHalf"],
           },
           {
             propertyName: "activeColor",
@@ -56,7 +116,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter tooltips array",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.ARRAY_OPTIONAL,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: { children: { type: ValidationTypes.TEXT } },
+            },
           },
           {
             propertyName: "size",
@@ -87,7 +150,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -97,7 +160,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -107,7 +170,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

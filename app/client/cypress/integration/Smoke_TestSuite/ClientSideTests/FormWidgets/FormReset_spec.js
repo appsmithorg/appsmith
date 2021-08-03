@@ -12,11 +12,11 @@ describe("Form reset functionality", function() {
       .click()
       .should("have.class", "selected-row");
 
-    cy.get(".t--draggable-dropdownwidget").click({ force: true });
-    cy.get(".t--draggable-dropdownwidget").type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.dropdownDynamic("Option 2");
-    cy.dropdownDynamic("Option 3");
+    cy.get(".t--draggable-multiselectwidget").click({ force: true });
+    cy.get(".t--draggable-multiselectwidget").type("Option");
+    cy.dropdownMultiSelectDynamic("Option 1");
+    cy.dropdownMultiSelectDynamic("Option 2");
+    cy.dropdownMultiSelectDynamic("Option 3");
 
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
@@ -24,7 +24,7 @@ describe("Form reset functionality", function() {
 
     cy.get(widgetsPage.buttonWidget)
       .contains("Reset")
-      .click();
+      .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
 
@@ -32,11 +32,11 @@ describe("Form reset functionality", function() {
       .eq(2)
       .should("not.have.class", "selected-row");
 
-    cy.get(".t-draggable-dropdownwidget .bp3-tag-input-values .bp3-tag").should(
-      ($span) => {
-        expect($span).to.have.length(0);
-      },
-    );
+    cy.get(
+      ".t-draggable-multiselectwidget .bp3-tag-input-values .bp3-tag",
+    ).should(($span) => {
+      expect($span).to.have.length(0);
+    });
 
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
