@@ -1,4 +1,5 @@
 import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WidgetTypes,
 } from "constants/WidgetConstants";
@@ -331,4 +332,22 @@ export const checkIfPastingIntoListWidget = function(
     return get(canvasWidgets, firstChildId);
   }
   return selectedWidget;
+};
+
+export const getParentBottomRowAfterAddingWidget = (
+  stateParent: FlattenedWidgetProps,
+  newWidget: FlattenedWidgetProps,
+) => {
+  const parentRowSpace =
+    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const updateBottomRow =
+    stateParent.type === WidgetTypes.CANVAS_WIDGET &&
+    newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
+  return updateBottomRow
+    ? Math.max(
+        (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+          parentRowSpace,
+        stateParent.bottomRow,
+      )
+    : stateParent.bottomRow;
 };

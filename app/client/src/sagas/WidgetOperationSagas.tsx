@@ -124,6 +124,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   checkIfPastingIntoListWidget,
   doesTriggerPathsContainPropertyPath,
+  getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForPasting,
   getWidgetChildren,
   handleSpecificCasesWhilePasting,
@@ -308,16 +309,16 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     );
     const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
 
-    const updateBottomRow =
-      stateParent.type === WidgetTypes.CANVAS_WIDGET &&
-      newWidget.bottomRow * newWidget.parentRowSpace > stateParent.bottomRow;
+    const parentBottomRow = getParentBottomRowAfterAddingWidget(
+      stateParent,
+      newWidget,
+    );
+
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
       ...stateParent,
-      ...(updateBottomRow
-        ? { bottomRow: newWidget.bottomRow * newWidget.parentRowSpace }
-        : {}),
+      bottomRow: parentBottomRow,
       children: [...(stateParent.children || []), childWidgetPayload.widgetId],
     };
 
@@ -1628,18 +1629,16 @@ function* pasteWidgetSaga() {
                 // Add the new child to existing children
                 parentChildren = parentChildren.concat(widgetChildren);
               }
-              const updateBottomRow =
-                widget.bottomRow * widget.parentRowSpace >
-                widgets[pastingIntoWidgetId].bottomRow;
+              const parentBottomRow = getParentBottomRowAfterAddingWidget(
+                widgets[pastingIntoWidgetId],
+                widget,
+              );
+
               widgets = {
                 ...widgets,
                 [pastingIntoWidgetId]: {
                   ...widgets[pastingIntoWidgetId],
-                  ...(updateBottomRow
-                    ? {
-                        bottomRow: widget.bottomRow * widget.parentRowSpace,
-                      }
-                    : {}),
+                  bottomRow: parentBottomRow,
                   children: parentChildren,
                 },
               };
@@ -1793,6 +1792,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       topRow,
       rightColumn,
       bottomRow,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     };
 
     yield put({
