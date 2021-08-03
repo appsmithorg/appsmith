@@ -195,23 +195,21 @@ function RecaptchaV2Component(
     props.handleRecaptchaV2Loading && props.handleRecaptchaV2Loading(isloading);
   };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
-    handleRecaptchaLoading(true);
     if (isInvalidKey) {
-      handleRecaptchaLoading(false);
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
     } else {
+      handleRecaptchaLoading(true);
       try {
         await recaptchaRef?.current?.reset();
         const token = await recaptchaRef?.current?.executeAsync();
         if (token) {
-          handleRecaptchaLoading(false);
           props.clickWithRecaptcha(token);
         } else {
-          handleRecaptchaLoading(false);
           // Handle incorrent google recaptcha site key
           props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
         }
+        handleRecaptchaLoading(false);
       } catch (err) {
         handleRecaptchaLoading(false);
         // Handle error due to google recaptcha key of different domain
