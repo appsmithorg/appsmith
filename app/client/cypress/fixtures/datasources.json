@@ -17,7 +17,5 @@
     "projectID": "appsmith-f9fe4",
     "serviceAccCredentials": "testdata",
     "access_key": "AKIATTSPRCT3ZEMEPSMC",
-    "secret_key": "DTFRFG15G7Xyn8IIHDW9cKXMg+TuA7DIC74oC0L9",
-    "user-mock-database-host":"fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
-    "user-mock-database-name":"users"
+    "secret_key": "DTFRFG15G7Xyn8IIHDW9cKXMg+TuA7DIC74oC0L9",   
 }

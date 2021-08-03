@@ -116,6 +116,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
+
     this.props.onTest(trimmedValues);
   };
 

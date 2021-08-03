@@ -1962,67 +1962,64 @@ Cypress.Commands.add("testSaveDatasource", () => {
   cy.testDatasource();
 });
 
-Cypress.Commands.add("fillMongoDatasourceForm", () => {
-  cy.get(datasourceEditor["host"]).type(datasourceFormData["mongo-host"]);
-  //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
-  cy.get(datasourceEditor["selConnectionType"]).click();
-  cy.contains(datasourceFormData["connection-type"]).click();
-  cy.get(datasourceEditor["defaultDatabaseName"]).type(
-    datasourceFormData["mongo-defaultDatabaseName"],
-  );
-
-  cy.get(datasourceEditor.sectionAuthentication).click();
-  cy.get(datasourceEditor["databaseName"])
-    .clear()
-    .type(datasourceFormData["mongo-databaseName"]);
-  cy.get(datasourceEditor["username"]).type(
-    datasourceFormData["mongo-username"],
-  );
-  cy.get(datasourceEditor["password"]).type(
-    datasourceFormData["mongo-password"],
-  );
-  cy.get(datasourceEditor["authenticationAuthtype"]).click();
-  cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-    force: true,
-  });
-});
-
 Cypress.Commands.add(
-  "fillUsersMockDatasourceForm",
+  "fillMongoDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
-    const userMockDatabaseName = shouldAddTrailingSpaces
-      ? `${datasourceFormData["user-mock-database-name"] + "    "}`
-      : datasourceFormData["user-mock-database-name"];
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mongo-host"] + "  "
+      : datasourceFormData["mongo-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mongo-defaultDatabaseName"] + "  "
+      : datasourceFormData["mongo-defaultDatabaseName"];
 
-    const userMockDatabaseHost = shouldAddTrailingSpaces
-      ? `${datasourceFormData["user-mock-database-host"] + "    "}`
-      : datasourceFormData["user-mock-database-host"];
+    cy.get(datasourceEditor["host"]).type(hostAddress);
+    //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor["selConnectionType"]).click();
+    cy.contains(datasourceFormData["connection-type"]).click();
+    cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
 
-    cy.get(datasourceEditor["host"])
-      .clear()
-      .type(userMockDatabaseHost);
-
+    cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor["databaseName"])
       .clear()
-      .type(userMockDatabaseName);
+      .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(datasourceEditor["username"]).type(
+      datasourceFormData["mongo-username"],
+    );
+    cy.get(datasourceEditor["password"]).type(
+      datasourceFormData["mongo-password"],
+    );
+    cy.get(datasourceEditor["authenticationAuthtype"]).click();
+    cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
+      force: true,
+    });
   },
 );
 
-Cypress.Commands.add("fillPostgresDatasourceForm", () => {
-  cy.get(datasourceEditor.host).type(datasourceFormData["postgres-host"]);
-  cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
-  cy.get(datasourceEditor.databaseName)
-    .clear()
-    .type(datasourceFormData["postgres-databaseName"]);
+Cypress.Commands.add(
+  "fillPostgresDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["postgres-host"] + "  "
+      : datasourceFormData["postgres-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["postgres-databaseName"] + "  "
+      : datasourceFormData["postgres-databaseName"];
 
-  cy.get(datasourceEditor.sectionAuthentication).click();
-  cy.get(datasourceEditor.username).type(
-    datasourceFormData["postgres-username"],
-  );
-  cy.get(datasourceEditor.password).type(
-    datasourceFormData["postgres-password"],
-  );
-});
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["postgres-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["postgres-password"],
+    );
+  },
+);
 
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
