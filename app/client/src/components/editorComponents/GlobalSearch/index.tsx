@@ -53,7 +53,6 @@ import { keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { Configure } from "react-instantsearch-dom";
 
 export enum SEARCH_CATEGORIES {
   SNIPPETS = "Snippets",
@@ -85,7 +84,7 @@ const filterCategories = [
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 535px;
+  height: 85vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
