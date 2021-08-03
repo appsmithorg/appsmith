@@ -1,5 +1,7 @@
 package com.external.helpers;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -28,6 +30,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * This receiver essentially instantiates a custom ClientHttpRequest that stores the request body via a subscriber
+ * The BodyInserter instance from our original request inserts into this subscriber that we can then retrieve
+ * using receiveValue.
+ *
+ * We do this so that the received value that we display to the user is exactly the same as
+ * the body tht is sent over the wire
+ */
 public class BodyReceiver {
     private static final Object DUMMY = new Object();
 
@@ -40,7 +50,8 @@ public class BodyReceiver {
     }
 
     private void demandValueFrom(BodyInserter<?, ? extends ReactiveHttpOutputMessage> bodyInserter) {
-        var inserter = (BodyInserter<Object, MinimalHttpOutputMessage>) bodyInserter;
+        final BodyInserter<Object, MinimalHttpOutputMessage> inserter =
+                (BodyInserter<Object, MinimalHttpOutputMessage>) bodyInserter;
 
         inserter.insert(
                 MinimalHttpOutputMessage.INSTANCE,
@@ -55,7 +66,9 @@ public class BodyReceiver {
         Object validatedValue;
 
         if (value == DUMMY) {
-            throw new RuntimeException("Value was not received, Check your inserter worked properly");
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Value was not received, check if your inserter worked properly");
         } else {
             validatedValue = value;
         }
@@ -174,13 +187,13 @@ public class BodyReceiver {
                 consumer.accept(o);
                 remainedAccepts -= 1;
             } else {
-                throw new RuntimeException("No more values can be consumed");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No more values can be consumed");
             }
         }
 
         @Override
         public void onError(Throwable t) {
-            throw new RuntimeException("Single value was not consumed", t);
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Single value was not consumed", t);
         }
 
         @Override
