@@ -121,7 +121,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter max allowed characters",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: { type: ValidationTypes.NUMBER },
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.TEXT;
             },
@@ -155,7 +155,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Show help text or details about current input",
@@ -165,7 +165,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter tooltip text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText:
@@ -199,7 +199,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isRequired",
@@ -253,7 +253,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.COLOR_PICKER_TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "labelTextSize",
@@ -311,7 +316,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -325,7 +330,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "ICON_SELECT",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "iconAlign",
@@ -334,7 +339,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
             hidden: (props: InputWidgetProps) => !props.iconName,
           },
         ],

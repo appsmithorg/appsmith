@@ -531,9 +531,7 @@ class InputComponent extends React.Component<
             )}
             {this.props.tooltip && (
               <Tooltip
-                content={
-                  <div style={{ maxWidth: "350px" }}>{this.props.tooltip}</div>
-                }
+                content={this.props.tooltip}
                 hoverOpenDelay={200}
                 position={Position.TOP}
               >
