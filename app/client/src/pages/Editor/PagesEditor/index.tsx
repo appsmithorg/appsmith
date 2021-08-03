@@ -145,6 +145,7 @@ function PagesEditor() {
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
           setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}
+        shouldReRender={false}
       />
     </Wrapper>
   );
