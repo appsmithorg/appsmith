@@ -82,7 +82,7 @@ export const SearchItemContainer = styled.div<{
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
     display: inline;
-    max-width: 50px;
+    max-width: 300px;
     ${overflowCSS}
   }
 
