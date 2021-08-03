@@ -1,12 +1,16 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch";
 
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links
   modalOpen: false,
   recentEntities: [],
   recentEntitiesRestored: false,
+  filterContext: {
+    category: SEARCH_CATEGORIES.INIT,
+  },
 };
 
 const globalSearchReducer = createReducer(initialState, {
@@ -17,6 +21,13 @@ const globalSearchReducer = createReducer(initialState, {
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
   ) => ({ ...state, modalOpen: !state.modalOpen }),
+  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
+    state: GlobalSearchReduxState,
+    action: any,
+  ) => ({
+    ...state,
+    filterContext: action.payload,
+  }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
     state: GlobalSearchReduxState,
     action: ReduxAction<Array<RecentEntity>>,
@@ -37,6 +48,13 @@ const globalSearchReducer = createReducer(initialState, {
     ...state,
     recentEntitiesRestored: true,
   }),
+  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    filterContext: action.payload,
+  }),
 });
 
 export interface GlobalSearchReduxState {
@@ -44,6 +62,9 @@ export interface GlobalSearchReduxState {
   modalOpen: boolean;
   recentEntities: Array<RecentEntity>;
   recentEntitiesRestored: boolean;
+  filterContext: {
+    category: SEARCH_CATEGORIES;
+  };
 }
 
 export default globalSearchReducer;

@@ -7,9 +7,13 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
 import { createMessage, OMNIBAR_PLACEHOLDER } from "constants/messages";
+import { SEARCH_CATEGORIES } from ".";
+import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
 const Container = styled.div`
-  padding: ${(props) => `0 ${props.theme.spaces[11]}px`};
+  padding: ${(props) =>
+    `${props.theme.spaces[4]}px ${props.theme.spaces[7]}px`};
+  background: #ffffff;
   & input {
     ${(props) => getTypographyByKey(props, "cardSubheader")}
     background: transparent;
@@ -17,11 +21,30 @@ const Container = styled.div`
     border: none;
     padding: ${(props) => `${props.theme.spaces[7]}px 0`};
     flex: 1;
+    margin-left: ${(props) => `${props.theme.spaces[7]}px`};
   }
 `;
 
 const InputContainer = styled.div`
   display: flex;
+  align-items: center;
+  background: #f0f0f0;
+  padding: ${(props) => `0 ${props.theme.spaces[7]}px`};
+`;
+
+const CategoryDisplay = styled.div`
+  color: #6a86ce;
+  background: white;
+  height: 32px;
+  padding: ${(props) => `${props.theme.spaces[3]}px`};
+  display: flex;
+  align-items: center;
+  border: 1px solid #6a86ce;
+  ${(props) => getTypographyByKey(props, "categoryBtn")}
+  svg {
+    cursor: pointer;
+    margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+  }
 `;
 
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -33,6 +56,8 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 type SearchBoxProps = SearchBoxProvided & {
   query: string;
   setQuery: (query: string) => void;
+  category: any;
+  setCategory: (category: any) => void;
 };
 
 const useListenToChange = (modalOpen: boolean) => {
@@ -50,7 +75,7 @@ const useListenToChange = (modalOpen: boolean) => {
   return listenToChange;
 };
 
-function SearchBox({ query, setQuery }: SearchBoxProps) {
+function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const listenToChange = useListenToChange(modalOpen);
 
@@ -66,11 +91,25 @@ function SearchBox({ query, setQuery }: SearchBoxProps) {
   return (
     <Container>
       <InputContainer>
+        {category.title && (
+          <CategoryDisplay>
+            {category.id}
+            <CloseIcon
+              onClick={() => setCategory({ id: SEARCH_CATEGORIES.INIT })}
+            />
+          </CategoryDisplay>
+        )}
         <input
           autoFocus
           className="t--global-search-input"
+          id="global-search"
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => {
+            handleKeyDown(e);
+            if (e.key === "Backspace" && !query)
+              setCategory({ id: SEARCH_CATEGORIES.INIT });
+            setTimeout(() => document.getElementById("global-search")?.focus());
+          }}
           placeholder={createMessage(OMNIBAR_PLACEHOLDER)}
           value={query}
         />
