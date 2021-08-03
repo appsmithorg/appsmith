@@ -284,9 +284,16 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
-            return (
-              <div {...cell.getCellProps()} className="td" key={cellIndex} />
-            );
+            const cellProps = cell.getCellProps();
+            const background =
+              columns[0]?.columnProperties?.cellBackground || null;
+            if (background) {
+              cellProps.style = {
+                ...cellProps.style,
+                background,
+              };
+            }
+            return <div {...cellProps} className="td" key={cellIndex} />;
           })}
         </div>
       );
