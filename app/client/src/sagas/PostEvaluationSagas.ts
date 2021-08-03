@@ -1,6 +1,8 @@
 import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
+  DataTreeDiff,
+  DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
@@ -295,7 +297,25 @@ export function* postEvalActionDispatcher(
 
 // We update the data tree definition after every eval so that autocomplete
 // is accurate
-export function* updateTernDefinitions(dataTree: DataTree) {
-  const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
-  TernServer.updateDef("DATA_TREE", def, entityInfo);
+export function* updateTernDefinitions(
+  dataTree: DataTree,
+  updates?: DataTreeDiff[],
+) {
+  let shouldUpdate: boolean;
+
+  if (!updates || updates.length === 0) {
+    shouldUpdate = false;
+  } else {
+    shouldUpdate = _.some(updates, (update) => {
+      return (
+        update.event === DataTreeDiffEvent.NEW ||
+        update.event === DataTreeDiffEvent.DELETE
+      );
+    });
+  }
+  if (shouldUpdate) {
+    console.log("Updated");
+    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    TernServer.updateDef("DATA_TREE", def, entityInfo);
+  }
 }

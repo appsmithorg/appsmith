@@ -70,6 +70,7 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
+    unEvalUpdates,
     updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
@@ -97,7 +98,7 @@ function* evaluateTreeSaga(
       evaluationOrder,
     );
 
-    yield fork(updateTernDefinitions, updatedDataTree);
+    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
   }
 
   yield put(setDependencyMap(dependencies));

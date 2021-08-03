@@ -289,7 +289,6 @@ class TernServer {
       entityType,
       expectedType = AutocompleteDataType.UNKNOWN,
     } = this.fieldEntityInformation;
-    debugger;
     type CompletionType =
       | "DATA_TREE"
       | "MATCHING_TYPE"
