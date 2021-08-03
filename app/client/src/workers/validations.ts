@@ -45,11 +45,8 @@ function validatePlainObject(
             );
         }
       } else if (entry.params?.required) {
-        return {
-          isValid: false,
-          parsed: value,
-          message: `Missing required key: ${entry.name}`,
-        };
+        _valid = false;
+        _messages.push(`Missing required key: ${entry.name}`);
       }
     });
     if (_valid) {
@@ -415,13 +412,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} Array of objects`,
     };
-    if (
-      value === undefined ||
-      value === null ||
-      (!isString(value) && !Array.isArray(value))
-    ) {
+    if (value === undefined || value === null) {
       if (config.params?.required) return invalidResponse;
       return { isValid: true, parsed: value };
+    }
+    if (!isString(value) && !Array.isArray(value)) {
+      return invalidResponse;
     }
 
     let parsed = value;
