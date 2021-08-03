@@ -8,7 +8,6 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
@@ -44,7 +43,6 @@ export const createImmerReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
-  FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init({
