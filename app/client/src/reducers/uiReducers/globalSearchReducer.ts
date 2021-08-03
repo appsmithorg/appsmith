@@ -1,7 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch";
+import {
+  RecentEntity,
+  SEARCH_CATEGORIES,
+} from "components/editorComponents/GlobalSearch/utils";
 
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links

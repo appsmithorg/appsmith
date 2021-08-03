@@ -13,7 +13,7 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "constants/messages";
-import { SEARCH_CATEGORIES } from ".";
+import { SEARCH_CATEGORIES } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
 const Container = styled.div`

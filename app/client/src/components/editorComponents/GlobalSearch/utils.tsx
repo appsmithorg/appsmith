@@ -8,6 +8,13 @@ export type RecentEntity = {
   params?: Record<string, string | undefined>;
 };
 
+export enum SEARCH_CATEGORIES {
+  SNIPPETS = "Snippets",
+  DOCUMENTATION = "Documentation",
+  NAVIGATION = "Navigate",
+  INIT = "",
+}
+
 export enum SEARCH_ITEM_TYPES {
   document = "document",
   action = "action",

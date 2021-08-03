@@ -38,6 +38,7 @@ import {
   SearchItem,
   algoliaHighlightTag,
   attachKind,
+  SEARCH_CATEGORIES,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -53,13 +54,6 @@ import { keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-
-export enum SEARCH_CATEGORIES {
-  SNIPPETS = "Snippets",
-  DOCUMENTATION = "Documentation",
-  NAVIGATION = "Navigate",
-  INIT = "",
-}
 
 const filterCategories = [
   {
