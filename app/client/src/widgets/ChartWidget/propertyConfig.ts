@@ -235,11 +235,14 @@ export default [
       {
         propertyName: "setAdaptiveYMin",
         label: "Y-axis Minimum",
-        helpText: "Toggle y-axis adaptive min",
-        controlType: "SWITCH",
+        helpText: "Define the minimum scale for Y axis",
+        controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { default: 0 },
+        },
       },
     ],
   },
