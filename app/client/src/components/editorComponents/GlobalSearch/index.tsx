@@ -383,7 +383,9 @@ function GlobalSearch() {
         )
           ? filteredDatasources
           : [],
-        category.id === SEARCH_CATEGORIES.DOCUMENTATION
+        [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
+          category.id,
+        )
           ? query
             ? documentationSearchResults
             : defaultDocs
