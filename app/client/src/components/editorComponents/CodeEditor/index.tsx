@@ -63,6 +63,7 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
@@ -607,7 +608,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
+  recentEntities: getRecentEntityIds(state),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
