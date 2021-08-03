@@ -46,7 +46,7 @@ export const verifyInviteError = (error: any) => ({
 export const invitedUserSignup = (
   payload: TokenPasswordUpdateRequest & { resolve: any; reject: any },
 ) => ({
-  type: ReduxActionTypes.INVITED_USER_SIGNUP,
+  type: ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
   payload,
 });
 
