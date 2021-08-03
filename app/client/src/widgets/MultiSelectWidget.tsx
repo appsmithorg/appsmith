@@ -2,31 +2,47 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
-import _ from "lodash";
+import { isArray } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { IconName } from "@blueprintjs/icons";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import MultiSelectComponent from "components/designSystems/appsmith/MultiSelectComponent";
+import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { Layers } from "constants/Layers";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  if (typeof value === "string") return { isValid: true, parsed: value.trim() };
-  if (value === undefined || value === null)
-    return {
-      isValid: false,
-      parsed: "",
-      message: "This value does not evaluate to type: string",
-    };
-  return { isValid: true, parsed: value };
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  return {
+    isValid: true,
+    parsed: values,
+  };
 }
 
-class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+class MultiSelectWidget extends BaseWidget<
+  MultiSelectWidgetProps,
+  WidgetState
+> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -34,13 +50,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         children: [
           {
             helpText:
-              "Allows users to select a single option. Values must be unique",
+              "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
+            placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
+            isJSConvertible: false,
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -76,7 +93,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Option",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
             isBindProperty: true,
@@ -88,21 +105,19 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 expected: {
                   type: "value or Array of values",
                   example: `value1 | ['value1', 'value2']`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
-            dependencies: ["selectionType"],
           },
           {
-            propertyName: "isFilterable",
-            label: "Filterable",
-            helpText: "Makes the dropdown list filterable",
-            controlType: "SWITCH",
-            isJSConvertible: true,
+            helpText: "Input Place Holder",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -155,104 +170,83 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOption : true}}`,
-      selectedOption: `{{  _.find(this.options, { value:  this.defaultValue }) }}`,
-      selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      value: `{{  this.defaultValue }}`,
-      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.label; })()}}`,
-      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.value; })()}}`,
+      selectedIndexArr: `{{ this.selectedOptionValues.map(o => _.findIndex(this.options, { value: o })) }}`,
+      selectedOptionLabels: `{{ this.selectedOptionValueArr.map((o) => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label ?? this.options[index]?.value; })  }}`,
+      selectedOptionValues: `{{ this.selectedOptionValueArr.filter((o) => { const index = _.findIndex(this.options, { value: o });  return index > -1; })  }}`,
+      isValid: `{{this.isRequired ? !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      defaultValue: "defaultOptionValue",
+      selectedOptionValueArr: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      defaultValue: undefined,
+      selectedOptionValueArr: undefined,
     };
   }
 
   getPageView() {
-    const options = _.isArray(this.props.options) ? this.props.options : [];
-    const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.defaultValue,
-    });
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const options = isArray(this.props.options) ? this.props.options : [];
+    const values: string[] = isArray(this.props.selectedOptionValues)
+      ? this.props.selectedOptionValues
+      : [];
+
     return (
-      <DropDownComponent
-        disabled={this.props.isDisabled}
-        height={componentHeight}
-        isFilterable={this.props.isFilterable}
-        isLoading={this.props.isLoading}
-        label={`${this.props.label}`}
-        onOptionSelected={this.onOptionSelected}
+      <MultiSelectComponent
+        disabled={this.props.isDisabled ?? false}
+        dropdownStyle={{
+          zIndex: Layers.dropdownModalWidget,
+        }}
+        loading={this.props.isLoading}
+        onChange={this.onOptionChange}
         options={options}
-        placeholder={this.props.placeholderText}
-        selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
-        widgetId={this.props.widgetId}
-        width={componentWidth}
+        placeholder={this.props.placeholderText as string}
+        value={values}
       />
     );
   }
 
-  onOptionSelected = (selectedOption: DropdownOption) => {
-    let isChanged = true;
-
-    // Check if the value has changed. If no option
-    // selected till now, there is a change
-    if (this.props.selectedOption) {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
-    }
-    if (isChanged) {
-      this.props.updateWidgetMetaProperty(
-        "defaultValue",
-        selectedOption.value,
-        {
-          triggerPropertyName: "onOptionChange",
-          dynamicString: this.props.onOptionChange,
-          event: {
-            type: EventType.ON_OPTION_CHANGE,
-          },
-        },
-      );
-    }
+  onOptionChange = (value: DefaultValueType) => {
+    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
+      triggerPropertyName: "onOptionChange",
+      dynamicString: this.props.onOptionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
-    return "DROP_DOWN_WIDGET";
+    return "MULTI_SELECT_WIDGET";
   }
 }
 
 export interface DropdownOption {
   label: string;
   value: string;
-  icon?: IconName;
-  subText?: string;
-  id?: string;
-  onSelect?: (option: DropdownOption) => void;
-  children?: DropdownOption[];
-  intent?: BlueprintIntent;
+  disabled?: boolean;
 }
 
-export interface DropdownWidgetProps extends WidgetProps, WithMeta {
+export interface MultiSelectWidgetProps extends WidgetProps, WithMeta {
   placeholderText?: string;
-  label?: string;
   selectedIndex?: number;
+  selectedIndexArr?: number[];
   selectedOption: DropdownOption;
   options?: DropdownOption[];
-  onOptionChange?: string;
-  defaultOptionValue?: string | string[];
+  onOptionChange: string;
+  defaultOptionValue: string | string[];
   isRequired: boolean;
-  isFilterable: boolean;
-  defaultValue: string;
-  selectedOptionLabel: string;
+  isLoading: boolean;
+  selectedOptionValueArr: string[];
+  selectedOptionValues: string[];
+  selectedOptionLabels: string[];
 }
 
-export default DropdownWidget;
-export const ProfiledDropDownWidget = Sentry.withProfiler(
-  withMeta(DropdownWidget),
+export default MultiSelectWidget;
+export const ProfiledMultiSelectWidget = Sentry.withProfiler(
+  withMeta(MultiSelectWidget),
 );
