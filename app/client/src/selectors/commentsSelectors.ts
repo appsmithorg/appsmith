@@ -3,6 +3,7 @@ import { get } from "lodash";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import getFeatureFlags from "utils/featureFlags";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -29,7 +30,7 @@ export const commentModeSelector = (state: AppState) => {
   return (
     state.ui.comments?.isCommentMode &&
     !!onEditorOrViewerPage &&
-    areCommentsEnabledForUserAndApp(state)
+    areCommentsEnabledForUserAndApp()
   );
 };
 
@@ -40,8 +41,7 @@ export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
-export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.users.featureFlags?.COMMENT;
+export const areCommentsEnabledForUserAndApp = () => getFeatureFlags().COMMENT;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)

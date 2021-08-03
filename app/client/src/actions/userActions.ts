@@ -92,9 +92,8 @@ export const fetchFeatureFlagsInit = () => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
 });
 
-export const fetchFeatureFlagsSuccess = (payload: Record<string, boolean>) => ({
+export const fetchFeatureFlagsSuccess = () => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
-  payload,
 });
 
 export const fetchFeatureFlagsError = (error: any) => ({
