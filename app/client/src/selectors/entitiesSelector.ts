@@ -5,13 +5,19 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource, MockDatasource } from "entities/Datasource";
+import {
+  Datasource,
+  MockDatasource,
+  DatasourceStructure,
+} from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -20,8 +26,22 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+export const getDatasourcesStructure = (
+  state: AppState,
+): Record<string, DatasourceStructure> => {
+  return state.entities.datasources.structure;
+};
+
+export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure;
+};
+
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
+};
+
+export const getIsDeletingDatasource = (state: AppState): boolean => {
+  return state.entities.datasources.isDeleting;
 };
 
 export const getPluginIdsOfNames = (
@@ -94,6 +114,12 @@ export const getPluginNameFromId = (
 
 export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
+};
+export const getIsFetchingSinglePluginForm = (
+  state: AppState,
+  pluginId: string,
+): boolean => {
+  return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
 };
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
@@ -217,6 +243,24 @@ export const getPluginDocumentationLinks = createSelector(
     });
 
     return pluginDocumentationLinks;
+  },
+);
+
+export const getGenerateCRUDEnabledPluginMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
+    // Disable google sheet plugin
+    plugins.map((plugin) => {
+      if (
+        plugin.generateCRUDPageComponent &&
+        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS &&
+        plugin.packageName !== PLUGIN_PACKAGE_NAME.S3
+      ) {
+        pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
+      }
+    });
+    return pluginIdGenerateCRUDPageEnabled;
   },
 );
 
@@ -357,6 +401,32 @@ export const getAllPageWidgets = createSelector(
       [],
     );
   },
+);
+
+export const getPageListAsOptions = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) =>
+    pages.map((page) => ({
+      label: page.pageName,
+      id: page.pageId,
+      value: `'${page.pageName}'`,
+    })),
+);
+
+export const getExistingPageNames = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages.map((page) => page.pageName),
+);
+
+export const getExistingWidgetNames = createSelector(
+  (state: AppState) => state.entities.canvasWidgets,
+  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+);
+
+export const getExistingActionNames = createSelector(
+  (state: AppState) => state.entities.actions,
+  (actions) =>
+    actions.map((action: { config: { name: string } }) => action.config.name),
 );
 
 export const getAppMode = (state: AppState) => state.entities.app.mode;

@@ -114,12 +114,35 @@ export interface UpdateWidgetNameResponse extends ApiResponse {
   data: PageLayout;
 }
 
+export interface GenerateTemplatePageRequest {
+  pageId: string;
+  tableName: string;
+  datasourceId: string;
+  applicationId: string;
+  columns?: string[];
+  searchColumn?: string;
+  mode?: string;
+}
+
+export type GenerateTemplatePageRequestResponse = ApiResponse & {
+  data: {
+    id: string;
+    name: string;
+    applicationId: string;
+    layouts: Array<PageLayout>;
+  };
+};
+
 class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
   static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
+  };
+
+  static getGenerateTemplateURL = (pageId?: string) => {
+    return `${PageApi.url}/crud-page${pageId ? `/${pageId}` : ""}`;
   };
 
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
@@ -175,6 +198,16 @@ class PageApi extends Api {
 
   static updatePage(request: UpdatePageRequest): AxiosPromise<ApiResponse> {
     return Api.put(PageApi.updatePageUrl(request.id), request);
+  }
+
+  static generateTemplatePage(
+    request: GenerateTemplatePageRequest,
+  ): AxiosPromise<ApiResponse> {
+    if (request.pageId) {
+      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
+    } else {
+      return Api.post(PageApi.getGenerateTemplateURL(), request);
+    }
   }
 
   static fetchPageList(

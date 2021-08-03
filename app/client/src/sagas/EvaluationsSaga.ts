@@ -41,6 +41,8 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -87,18 +89,22 @@ function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
-  yield fork(
-    logSuccessfulBindings,
-    unevalTree,
-    updatedDataTree,
-    evaluationOrder,
-  );
-  yield fork(
-    updateTernDefinitions,
-    updatedDataTree,
-    isFirstEvaluation,
-    updates,
-  );
+  const appMode = yield select(getAppMode);
+  if (appMode !== APP_MODE.PUBLISHED) {
+    yield fork(
+      logSuccessfulBindings,
+      unevalTree,
+      updatedDataTree,
+      evaluationOrder,
+    );
+
+    yield fork(
+      updateTernDefinitions,
+      updatedDataTree,
+      isFirstEvaluation,
+      updates,
+    );
+  }
 
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
