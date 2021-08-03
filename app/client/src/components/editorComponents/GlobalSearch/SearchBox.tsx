@@ -6,7 +6,13 @@ import { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
-import { createMessage, OMNIBAR_PLACEHOLDER } from "constants/messages";
+import {
+  createMessage,
+  OMNIBAR_PLACEHOLDER,
+  OMNIBAR_PLACEHOLDER_DOC,
+  OMNIBAR_PLACEHOLDER_NAV,
+  OMNIBAR_PLACEHOLDER_SNIPPETS,
+} from "constants/messages";
 import { SEARCH_CATEGORIES } from ".";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
@@ -21,7 +27,6 @@ const Container = styled.div`
     border: none;
     padding: ${(props) => `${props.theme.spaces[7]}px 0`};
     flex: 1;
-    margin-left: ${(props) => `${props.theme.spaces[7]}px`};
   }
 `;
 
@@ -29,7 +34,7 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   background: #f0f0f0;
-  padding: ${(props) => `0 ${props.theme.spaces[7]}px`};
+  padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
 `;
 
 const CategoryDisplay = styled.div`
@@ -40,12 +45,25 @@ const CategoryDisplay = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid #6a86ce;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
   ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
     cursor: pointer;
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
+
+const getPlaceHolder = (categoryId: SEARCH_CATEGORIES) => {
+  switch (categoryId) {
+    case SEARCH_CATEGORIES.SNIPPETS:
+      return OMNIBAR_PLACEHOLDER_SNIPPETS;
+    case SEARCH_CATEGORIES.DOCUMENTATION:
+      return OMNIBAR_PLACEHOLDER_DOC;
+    case SEARCH_CATEGORIES.NAVIGATION:
+      return OMNIBAR_PLACEHOLDER_NAV;
+  }
+  return OMNIBAR_PLACEHOLDER;
+};
 
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   if (e.keyCode === 38 || e.key === "ArrowUp") {
@@ -110,7 +128,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
               setCategory({ id: SEARCH_CATEGORIES.INIT });
             setTimeout(() => document.getElementById("global-search")?.focus());
           }}
-          placeholder={createMessage(OMNIBAR_PLACEHOLDER)}
+          placeholder={createMessage(getPlaceHolder(category.id))}
           value={query}
         />
         {query && (

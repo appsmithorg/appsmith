@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   }
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   background: white;
-  padding: ${(props) => props.theme.spaces[1]}px
+  padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[6]}px;
   display: flex;
   flex-direction: row;

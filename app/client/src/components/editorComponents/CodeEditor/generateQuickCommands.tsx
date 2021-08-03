@@ -104,7 +104,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []), //insertSnippet,
+    ...matchingCommands([newBinding], searchText, []), //insertSnippet
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {

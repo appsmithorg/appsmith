@@ -48,12 +48,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-import DocsIcon from "assets/icons/ads/docs.svg";
+// import DocsIcon from "assets/icons/ads/docs.svg";
 // import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { Configure } from "react-instantsearch-dom";
 
 export enum SEARCH_CATEGORIES {
   SNIPPETS = "Snippets",
@@ -85,7 +84,7 @@ const filterCategories = [
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 60vh;
+  height: 85vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
@@ -123,11 +122,11 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
 
-const getSectionTitle = (title: string, icon: any) => ({
-  kind: SEARCH_ITEM_TYPES.sectionTitle,
-  title,
-  icon,
-});
+// const getSectionTitle = (title: string, icon: any) => ({
+//   kind: SEARCH_ITEM_TYPES.sectionTitle,
+//   title,
+//   icon,
+// });
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -180,9 +179,9 @@ function GlobalSearch() {
   const dispatch = useDispatch();
   const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const [snippets, setSnippetsState] = useState([]);
-  const setSnippets = useCallback((res) => {
-    setSnippetsState(res);
-  }, []);
+  // const setSnippets = useCallback((res) => {
+  //   setSnippetsState(res);
+  // }, []);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
@@ -218,8 +217,9 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
 
-  const setSearchResults = useCallback((res) => {
-    if (category.id === SEARCH_CATEGORIES.SNIPPETS) setSnippets(res);
+  const setSearchResults = useCallback((res, categoryId) => {
+    if (categoryId === SEARCH_CATEGORIES.SNIPPETS)
+      setSnippetsState((res || []).map((r: any) => r.body || {}));
     else setDocumentationSearchResultsInState(res);
   }, []);
 
@@ -327,7 +327,7 @@ function GlobalSearch() {
   }, [pages, query]);
 
   // const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
-  const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
+  // const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
 
   const searchResults = useMemo(() => {
     // if (query && category.id === SEARCH_CATEGORIES.INIT) {
@@ -352,46 +352,36 @@ function GlobalSearch() {
       return snippets;
     }
 
-    let results: any = [];
-    // if (category.id === SEARCH_CATEGORIES.NAVIGATION && !query) {
-    //   results = [recentsSectionTitle, ...recentEntities];
-    // }
-    if (category.id === SEARCH_CATEGORIES.DOCUMENTATION && !query) {
-      results = [docsSectionTitle];
-    }
-
-    return results.concat(
-      getSortedResults(
-        query,
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredActions
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredWidgets
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredPages
-          : [],
-        [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? filteredDatasources
-          : [],
-        [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
-          category.id,
-        )
-          ? query
-            ? documentationSearchResults
-            : defaultDocs
-          : [],
-        currentPageId,
-      ) || [],
+    return getSortedResults(
+      query,
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredActions
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredWidgets
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredPages
+        : [],
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? filteredDatasources
+        : [],
+      [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+        ? query
+          ? documentationSearchResults
+          : defaultDocs.concat(documentationSearchResults)
+        : [],
+      currentPageId,
     );
   }, [
     filteredWidgets,
@@ -540,7 +530,7 @@ function GlobalSearch() {
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
-              <Configure filters="" />
+              {/* <Configure filters="entities:Table" /> */}
               <SearchBox
                 category={category}
                 query={query}
@@ -550,6 +540,7 @@ function GlobalSearch() {
               {
                 <div className="main">
                   <SetSearchResults
+                    categoryId={category.id}
                     setDocumentationSearchResults={setSearchResults}
                   />
                   {searchResults.length > 0 ? (
