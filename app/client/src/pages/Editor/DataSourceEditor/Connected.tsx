@@ -9,9 +9,9 @@ import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
-import { createNewQueryName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { ApiActionConfig, Action } from "entities/Action";
+import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
@@ -79,10 +79,13 @@ function Connected() {
   );
 
   const createQueryAction = useCallback(() => {
-    const newQueryName = createNewQueryName(actions, currentPageId || "");
-
+    const pluginType = plugin?.type;
+    const newActionName =
+      pluginType === PluginType.DB
+        ? createNewQueryName(actions, currentPageId || "")
+        : createNewApiName(actions, currentPageId || "");
     if (
-      plugin?.type === "API" &&
+      pluginType === PluginType.API &&
       (!datasource ||
         !datasource.datasourceConfiguration ||
         !datasource.datasourceConfiguration.url)
@@ -100,15 +103,16 @@ function Connected() {
       headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
     };
     let payload = {
-      name: newQueryName,
+      name: newActionName,
       pageId: currentPageId,
       pluginId: datasource?.pluginId,
       datasource: {
         id: datasource?.id,
       },
-      actionConfiguration: plugin?.type === "API" ? defaultApiActionConfig : {},
+      actionConfiguration:
+        pluginType === PluginType.API ? defaultApiActionConfig : {},
       eventData: {
-        actionType: "Query",
+        actionType: pluginType === PluginType.DB ? "Query" : "API",
         from: "datasource-pane",
       },
     } as Partial<Action>;
@@ -126,7 +130,7 @@ function Connected() {
       }
 
     dispatch(createActionRequest(payload));
-  }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
+  }, [dispatch, actions, currentPageId, datasource, plugin]);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
@@ -149,7 +153,7 @@ function Connected() {
             className="t--create-query"
             icon="plus"
             onClick={createQueryAction}
-            text={"New Query"}
+            text={plugin?.type === PluginType.DB ? "New Query" : "New API"}
           />
         </OnboardingIndicator>
       </Header>

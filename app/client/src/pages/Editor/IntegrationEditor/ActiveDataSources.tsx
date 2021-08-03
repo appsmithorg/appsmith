@@ -14,6 +14,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { keyBy } from "lodash";
+import { ERROR_ADD_API_INVALID_URL } from "../../../constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -80,7 +81,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           !dataSource.datasourceConfiguration.url)
       ) {
         Toaster.show({
-          text: "Unable to create API. Try adding a url to the datasource",
+          text: ERROR_ADD_API_INVALID_URL(),
           variant: Variant.danger,
         });
         return;
@@ -115,7 +116,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
         dispatch(createActionRequest(payload));
       }
     },
-    [dispatch, actions],
+    [dispatch, actions, pageId],
   );
 
   if (dataSources.length === 0) {
