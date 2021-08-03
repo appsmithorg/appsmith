@@ -190,8 +190,8 @@ function ColorPickerComponent(props: ColorPickerProps) {
         }
         onChange={handleChangeColor}
         onKeyDown={(e) => {
-          if ((e.key === "Enter" || e.key === "Tab") && isPopoverOpen) {
-            setPopoverOpen(false);
+          if (e.key === "Enter" || e.key === "Tab") {
+            setPopoverOpen(!isPopoverOpen);
           }
         }}
         placeholder="enter color name or hex"
