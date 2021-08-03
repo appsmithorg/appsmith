@@ -904,6 +904,9 @@ public class AmazonS3Plugin extends BasePlugin {
             return Mono.empty();
         }
 
+        // This function executes the DB query to fetch details about the datasource from plugin specified templates
+        // when we don't want to create new action just to get the information about the datasource in this case we can
+        // get list of S3 buckets etc.
         @Override
         public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
                                                                  DatasourceConfiguration datasourceConfiguration) {
