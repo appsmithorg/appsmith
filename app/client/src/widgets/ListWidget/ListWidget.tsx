@@ -195,8 +195,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (
-      xor(Object.keys(prevProps.template), Object.keys(this.props.template))
-        .length > 0
+      xor(
+        Object.keys(get(prevProps, "template", {})),
+        Object.keys(get(this.props, "template")),
+      ).length > 0
     ) {
       this.generateChildrenDefaultPropertiesMap(this.props);
       this.generateChildrenMetaPropertiesMap(this.props);
