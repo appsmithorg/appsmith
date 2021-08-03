@@ -18,6 +18,7 @@ public class WidgetSuggestionHelper {
 
     private static List<String> fields;
     private static List<String> numericFields;
+    private static List<String> objectFields;
 
     /**
      * Suggest the best widget to the query response. We currently planning to support List, Select, Table, Text and Chart widgets
@@ -50,7 +51,7 @@ public class WidgetSuggestionHelper {
                 }
 
                 if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
-                    widgetTypeList = getWidgetsForTypeObject(fields, numericFields);
+                    widgetTypeList = getWidgetsForTypeArray(fields, numericFields);
                 }
 
                 if(JsonNodeType.NUMBER.equals(nodeType)) {
@@ -73,8 +74,20 @@ public class WidgetSuggestionHelper {
                         widgetTypeList = getWidgetsForTypeString(fields, length);
                     }
 
-                    if(JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
-                        widgetTypeList = getWidgetsForTypeObject(fields, numericFields);
+                    if(JsonNodeType.ARRAY.equals(nodeType)) {
+                        widgetTypeList = getWidgetsForTypeArray(fields, numericFields);
+                    }
+
+                    if(JsonNodeType.OBJECT.equals(nodeType)) {
+                        //get fields from nested object
+                        //use the for table, list, chart and Select
+                        if(objectFields.isEmpty()) {
+                            widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                        } else {
+                            String nestedFieldName = objectFields.get(0);
+                            collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
+                            widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                        }
                     }
 
                     if(JsonNodeType.NUMBER.equals(nodeType)) {
@@ -102,6 +115,7 @@ public class WidgetSuggestionHelper {
     private static void collectFieldsFromData(Iterator<Map.Entry<String, JsonNode>> jsonFields) {
         fields = new ArrayList<>();
         numericFields = new ArrayList<>();
+        objectFields = new ArrayList<>();
         while(jsonFields.hasNext()) {
             Map.Entry<String, JsonNode> jsonField = jsonFields.next();
             if(JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
@@ -109,6 +123,10 @@ public class WidgetSuggestionHelper {
             }
             if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
                 numericFields.add(jsonField.getKey());
+            }
+
+            if(JsonNodeType.ARRAY.equals(jsonField.getValue().getNodeType())) {
+                objectFields.add(jsonField.getKey());
             }
         }
     }
@@ -125,7 +143,7 @@ public class WidgetSuggestionHelper {
         return widgetTypeList;
     }
 
-    private static List<WidgetSuggestionDTO> getWidgetsForTypeObject(List<String> fields, List<String> numericFields) {
+    private static List<WidgetSuggestionDTO> getWidgetsForTypeArray(List<String> fields, List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
@@ -150,10 +168,37 @@ public class WidgetSuggestionHelper {
         return widgetTypeList;
     }
 
+    private static List<WidgetSuggestionDTO> getWidgetsForTypeNestedObject(String nestedFieldName) {
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        if(!fields.isEmpty()) {
+            if(fields.size() < 2) {
+                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET,nestedFieldName, fields.get(0), fields.get(0)));
+            } else {
+                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET,nestedFieldName, fields.get(0), fields.get(1)));
+            }
+            if(!numericFields.isEmpty()) {
+                widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET,nestedFieldName, fields.get(0), numericFields.get(0)));
+            }
+        }
+        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET, nestedFieldName));
+        widgetTypeList.add(getWidgetNestedData(WidgetType.LIST_WIDGET, nestedFieldName));
+        widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
+        return widgetTypeList;
+    }
+
     private static WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
         widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(),args));
+        return  widgetSuggestionDTO;
+    }
+
+    private static WidgetSuggestionDTO getWidgetNestedData(WidgetType widgetType, String nestedFieldName, Object... args) {
+        WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
+        widgetSuggestionDTO.setType(widgetType);
+        String query = String.format(widgetType.getMessage(), args);
+        query = query.replace("data", "data."+nestedFieldName);
+        widgetSuggestionDTO.setBindingQuery(query);
         return  widgetSuggestionDTO;
     }
 
