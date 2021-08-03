@@ -314,8 +314,11 @@ export function* updateTernDefinitions(
     });
   }
   if (shouldUpdate) {
-    console.log("Updated");
+    const start = performance.now();
     const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
     TernServer.updateDef("DATA_TREE", def, entityInfo);
+    const end = performance.now();
+    log.debug("Tern", { updates });
+    log.debug("Tern definitions updated took ", (end - start).toFixed(2));
   }
 }
