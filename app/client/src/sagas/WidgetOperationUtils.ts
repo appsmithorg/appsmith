@@ -645,9 +645,8 @@ export const filterOutSelectedWidgets = function*(
 export const isSelectedWidgetsColliding = function*(
   widgets: CanvasWidgetsReduxState,
   copiedWidgetGroups: CopiedWidgetGroup[],
+  pastingIntoWidgetId: string,
 ) {
-  const parentId = copiedWidgetGroups[0].parentId;
-
   const {
     bottomMostWidget,
     leftMostWidget,
@@ -656,12 +655,13 @@ export const isSelectedWidgetsColliding = function*(
   } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
 
   const widgetsWithSameParent = _.omitBy(widgets, (widget) => {
-    return widget.parentId !== parentId;
+    return widget.parentId !== pastingIntoWidgetId;
   });
 
   const widgetsArray = Object.values(widgetsWithSameParent).filter(
     (widget) =>
-      widget.parentId === parentId && widget.type !== WidgetTypes.MODAL_WIDGET,
+      widget.parentId === pastingIntoWidgetId &&
+      widget.type !== WidgetTypes.MODAL_WIDGET,
   );
 
   let isColliding = false;
@@ -670,7 +670,7 @@ export const isSelectedWidgetsColliding = function*(
     const widget = widgetsArray[i];
 
     if (
-      widget.bottomRow < topMostWidget.topRow ||
+      widget.bottomRow + 2 < topMostWidget.topRow ||
       widget.topRow > bottomMostWidget.bottomRow
     ) {
       isColliding = false;

@@ -1536,6 +1536,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let isThereACollision: boolean = yield isSelectedWidgetsColliding(
     widgets,
     copiedWidgetGroups,
+    pastingIntoWidgetId,
   );
 
   // if this is true, selected widgets will be grouped in container
@@ -1548,6 +1549,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     isThereACollision = yield isSelectedWidgetsColliding(
       widgets,
       copiedWidgetGroups,
+      pastingIntoWidgetId,
     );
 
     copiedWidgetGroups = yield groupWidgetsIntoContainer(
