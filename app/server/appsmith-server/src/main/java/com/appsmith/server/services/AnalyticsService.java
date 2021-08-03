@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,14 +25,17 @@ public class AnalyticsService {
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
+    private final ConfigService configService;
 
     @Autowired
     public AnalyticsService(@Autowired(required = false) Analytics analytics,
                             SessionUserService sessionUserService,
-                            CommonConfig commonConfig) {
+                            CommonConfig commonConfig,
+                            ConfigService configService) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
+        this.configService = configService;
     }
     public boolean isActive() {
         return analytics != null;
@@ -92,8 +96,6 @@ public class AnalyticsService {
             userId = hashedUserId;
         }
 
-        TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
-
         if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
             // Segment throws an NPE if any value in `properties` is null.
             for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
@@ -102,9 +104,16 @@ public class AnalyticsService {
                 }
             }
         }
-        messageBuilder = messageBuilder.properties(analyticsProperties);
 
-        analytics.enqueue(messageBuilder);
+        final String finalUserId = userId;
+        configService.getInstanceId().map(instanceId -> {
+            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
+            analyticsProperties.put("originService", "appsmith-server");
+            analyticsProperties.put("instanceId", instanceId);
+            messageBuilder = messageBuilder.properties(analyticsProperties);
+            analytics.enqueue(messageBuilder);
+            return instanceId;
+        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
@@ -131,7 +140,6 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
-                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }
