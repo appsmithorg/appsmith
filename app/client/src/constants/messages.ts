@@ -360,6 +360,27 @@ export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
 
+// Generate page from DB Messages
+
+export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
+  `Couldn't auto generate a page from this datasource.`;
+
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
+  `You can continue building your app with it using our Drag & Drop
+  Builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads Up`;
+
+export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
+  "Start from scratch and create your custom UI";
+
+export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with Drag & Drop";
+
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a Data Table";
+
+export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
+  "Start with a simple CRUD UI and customize it";
+
+export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";

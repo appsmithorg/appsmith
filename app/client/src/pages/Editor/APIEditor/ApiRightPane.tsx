@@ -8,6 +8,7 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 
 const EmptyDatasourceContainer = styled.div`
@@ -160,6 +161,7 @@ export default function ApiRightPane(props: any) {
                                     props.applicationId,
                                     props.currentPageId,
                                     d.id,
+                                    getQueryParams(),
                                   ),
                                 );
                               }}

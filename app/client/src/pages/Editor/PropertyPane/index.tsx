@@ -184,7 +184,13 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
       <PropertyPaneBodyWrapper>
-        {!doActionsExist && !hideConnectDataCTA && <ConnectDataCTA />}
+        {!doActionsExist && !hideConnectDataCTA && (
+          <ConnectDataCTA
+            widgetId={widgetProperties.widgetId}
+            widgetTitle={widgetProperties.widgetName}
+            widgetType={widgetProperties?.type}
+          />
+        )}
         <PropertyControlsWrapper>
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
