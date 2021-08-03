@@ -90,6 +90,7 @@ class AppRouter extends React.Component<any, any> {
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
 
+    // Render the app once the feature flags have been fetched
     if (!featureFlagsFetched) return null;
 
     return (
