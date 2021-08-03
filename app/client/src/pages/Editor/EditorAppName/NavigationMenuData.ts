@@ -7,7 +7,7 @@ import { Toaster } from "components/ads/Toast";
 import { ThemeProp } from "components/ads/common";
 import {
   setCommentModeInUrl,
-  useShouldHideComments,
+  useHideComments,
 } from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -29,7 +29,7 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
-  const isShouldHideComments = useShouldHideComments();
+  const isHideComments = useHideComments();
   const history = useHistory();
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
@@ -67,7 +67,7 @@ export const GetNavigationMenuData = ({
     {
       text: "View Modes",
       type: MenuTypes.PARENT,
-      isVisible: !isShouldHideComments,
+      isVisible: !isHideComments,
       children: [
         {
           text: "Edit Mode",

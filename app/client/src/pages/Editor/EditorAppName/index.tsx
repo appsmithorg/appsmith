@@ -108,6 +108,10 @@ const StyledMenu = styled(Menu)`
     border-radius: 0;
     padding: 0;
 
+    .${Classes.TRANSITION_CONTAINER} {
+      margin-top: -4px;
+    }
+
     .${Classes.ICON} {
       color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
       height: 100%;

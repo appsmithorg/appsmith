@@ -320,7 +320,7 @@ const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
   ];
 };
 
-export const useShouldHideComments = () => {
+export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(false);
   const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const location = useLocation();
@@ -375,9 +375,9 @@ function ToggleCommentModeButton({
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
   // Show comment mode button only on the canvas editor and viewer
-  const isShouldHideComments = useShouldHideComments();
+  const isHideComments = useHideComments();
 
-  if (isShouldHideComments) return null;
+  if (isHideComments) return null;
 
   return (
     <Container>
