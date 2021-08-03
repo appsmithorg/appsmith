@@ -381,7 +381,7 @@ public class CreateDBTablePageSolution {
                 )
                 .map(newPage -> {
                     Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
-                    if (layout.getWidgetNames().size() > 1) {
+                    if (!CollectionUtils.isEmpty(layout.getWidgetNames()) && layout.getWidgetNames().size() > 1) {
                         throw new AppsmithException(AppsmithError.INVALID_CRUD_PAGE_REQUEST, "please try on empty layout");
                     }
                     return newPage;
