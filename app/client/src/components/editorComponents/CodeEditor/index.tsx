@@ -127,7 +127,6 @@ type State = {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
-  error?: EvaluationError;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -140,8 +139,7 @@ class CodeEditor extends Component<Props, State> {
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-  markerMap: Map<TextMarker, EvaluationError> = new Map();
-
+  private markers: TextMarker[] = [];
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -316,17 +314,6 @@ class CodeEditor extends Component<Props, State> {
     } else {
       this.editor.setOption("matchBrackets", false);
     }
-
-    const markers = cm.findMarksAt(cursor);
-    if (markers.length > 0) {
-      for (const marker of markers) {
-        const error = this.markerMap.get(marker);
-        if (error) {
-          this.setState({ error });
-          break;
-        }
-      }
-    }
   };
 
   handleEditorFocus = () => {
@@ -452,8 +439,7 @@ class CodeEditor extends Component<Props, State> {
   }
 
   clearTextMarkers() {
-    this.markerMap.forEach((_, marker) => marker.clear());
-    this.markerMap.clear();
+    this.markers.forEach((marker) => marker.clear());
   }
 
   addTextMarker(
@@ -467,7 +453,7 @@ class CodeEditor extends Component<Props, State> {
         ? "CodeMirror-TextMark-error"
         : "CodeMirror-TextMark-warning",
     });
-    this.markerMap.set(marker, error);
+    this.markers.push(marker);
   }
 
   getPropertyValidation = (
@@ -589,7 +575,6 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
-          activeError={this.state.error}
           errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
