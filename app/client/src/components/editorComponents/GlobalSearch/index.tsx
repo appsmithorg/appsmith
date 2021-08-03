@@ -69,12 +69,12 @@ const filterCategories = [
     id: SEARCH_CATEGORIES.NAVIGATION,
     desc: "Navigate to any page, widget or file across this project.",
   },
-  {
-    title: "Use Snippets",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORIES.SNIPPETS,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
-  },
+  // {
+  //   title: "Use Snippets",
+  //   kind: SEARCH_ITEM_TYPES.category,
+  //   id: SEARCH_CATEGORIES.SNIPPETS,
+  //   desc: "Search and Insert code snippets to perform complex actions quickly.",
+  // },
   {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
@@ -380,7 +380,7 @@ function GlobalSearch() {
       )
         ? query
           ? documentationSearchResults
-          : defaultDocs
+          : defaultDocs.concat(documentationSearchResults)
         : [],
       currentPageId,
     );
@@ -531,7 +531,7 @@ function GlobalSearch() {
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
-              <Configure filters="entities:Table" />
+              {/* <Configure filters="entities:Table" /> */}
               <SearchBox
                 category={category}
                 query={query}

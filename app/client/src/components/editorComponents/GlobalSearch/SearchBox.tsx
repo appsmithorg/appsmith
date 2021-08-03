@@ -21,7 +21,6 @@ const Container = styled.div`
     border: none;
     padding: ${(props) => `${props.theme.spaces[7]}px 0`};
     flex: 1;
-    margin-left: ${(props) => `${props.theme.spaces[7]}px`};
   }
 `;
 
@@ -29,7 +28,7 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   background: #f0f0f0;
-  padding: ${(props) => `0 ${props.theme.spaces[7]}px`};
+  padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
 `;
 
 const CategoryDisplay = styled.div`
@@ -40,6 +39,7 @@ const CategoryDisplay = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid #6a86ce;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
   ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
     cursor: pointer;
