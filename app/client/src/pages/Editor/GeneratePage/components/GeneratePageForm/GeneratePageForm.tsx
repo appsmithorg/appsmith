@@ -421,7 +421,9 @@ function GeneratePageForm() {
     (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
     !!selectedDatasource.value;
 
-  const showSearchableColumn = !!selectedTable.value;
+  const showSearchableColumn =
+    !!selectedTable.value &&
+    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
   const showSubmitButton = selectedTable.value && !showEditDatasourceBtn;
 
   return (
@@ -436,6 +438,7 @@ function GeneratePageForm() {
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
+            defaultIsOpen
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -463,6 +466,7 @@ function GeneratePageForm() {
             </Label>
             <Dropdown
               cypressSelector="t--table-dropdown"
+              defaultIsOpen
               dropdownMaxHeight={"300px"}
               errorMsg={tableDropdownErrorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
@@ -494,6 +498,7 @@ function GeneratePageForm() {
               </Label>
               <Dropdown
                 cypressSelector="t--searchColumn-dropdown"
+                defaultIsOpen
                 dropdownMaxHeight={"300px"}
                 height={DROPDOWN_DIMENSION.HEIGHT}
                 helperText="* Optional"
