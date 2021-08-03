@@ -87,6 +87,7 @@ class TabsMigratorWidget extends BaseWidget<
                 },
               },
             },
+            dependencies: ["tabsObj", "tabs"],
           },
           {
             propertyName: "shouldScrollContents",

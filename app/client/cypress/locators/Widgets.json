@@ -62,6 +62,8 @@
     "tableOnRowSelect": ".t--property-control-onrowselected .t--open-dropdown-Select-Action",
     "switchInput": ".t--draggable-switchwidget span.t--widget-name",
     "switchLabel": ".t--draggable-switchwidget label",
+    "multiSelectInput": ".t--draggable-multiselectwidget span.t--widget-name",
+    "multiSelectLabel": ".t--draggable-multiselectwidget label",
     "addColumn": ".t--add-column-btn",
     "deleteColumn": ".t--delete-column-btn",
     "editCreatedColumn": ".t--property-control-createdcolumns input",
