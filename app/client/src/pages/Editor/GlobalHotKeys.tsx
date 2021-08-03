@@ -31,7 +31,7 @@ import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
 
 type Props = {
   copySelectedWidget: () => void;

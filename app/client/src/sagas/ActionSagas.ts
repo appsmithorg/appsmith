@@ -97,7 +97,7 @@ import {
   toggleShowGlobalSearchModal,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<

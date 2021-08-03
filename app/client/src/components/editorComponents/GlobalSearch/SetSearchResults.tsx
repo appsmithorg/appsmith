@@ -3,7 +3,7 @@ import { connectHits } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import { debounce } from "lodash";
 import { DocSearchItem, SearchItem, SEARCH_ITEM_TYPES } from "./utils";
-import { SEARCH_CATEGORIES } from ".";
+import { SEARCH_CATEGORIES } from "./utils";
 
 type Props = {
   setDocumentationSearchResults: (
