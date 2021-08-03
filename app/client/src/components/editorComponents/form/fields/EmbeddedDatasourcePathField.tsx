@@ -26,6 +26,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorSize,
+  HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -38,8 +39,9 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
-import { getDatasourceInfo } from "pages/Editor/APIEditor/DatasourceList";
+import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
+import { getQueryParams } from "../../../../utils/AppsmithUtils";
 
 type ReduxStateProps = {
   orgId: string;
@@ -218,7 +220,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  handleDatasourceHint = () => {
+  handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
     return () => {
       return {
@@ -270,7 +272,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           }
         },
         showHint: () => {
-          return;
+          return false;
         },
       };
     };
@@ -316,6 +318,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   this.props.applicationId,
                   this.props.currentPageId,
                   datasource.id,
+                  getQueryParams(),
                 ),
               )
             }

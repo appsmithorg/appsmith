@@ -20,14 +20,13 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import styled, { getTypographyByKey } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
@@ -59,6 +58,9 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
+import { SuggestedWidget } from "api/ActionAPI";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -127,26 +129,9 @@ const SettingsWrapper = styled.div`
   ${thinScrollbar};
 `;
 
-const GenerateWidgetButton = styled.a`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 30px;
-  top: 8px;
-  ${(props) => getTypographyByKey(props, "h5")}
-  color: #716e6e;
-  && {
-    margin: 0;
-  }
-  &:hover {
-    text-decoration: none;
-    color: #716e6e;
-  }
-`;
-
 const ResultsCount = styled.div`
   position: absolute;
-  right: 180px;
+  right: 13px;
   top: 8px;
   color: #716e6e;
 `;
@@ -164,7 +149,8 @@ const DocumentationLink = styled.a`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 50px);
+  flex: 1;
+  overflow: hidden;
 `;
 
 const HelpSection = styled.div``;
@@ -202,7 +188,9 @@ const ErrorContainer = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
+  flex: 1;
   align-items: center;
+  justify-content: center;
   padding-top: 10px;
   flex-direction: column;
   & > .${Classes.ICON} {
@@ -350,6 +338,19 @@ const InlineButton = styled(Button)`
   margin: 0 4px;
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 50px);
+  width: 100%;
+`;
+
+const SidebarWrapper = styled.div<{ show: boolean }>`
+  border: 1px solid #e8e8e8;
+  display: ${(props) => (props.show ? "flex" : "none")};
+  width: ${(props) => props.theme.actionSidePane.width}px;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -362,6 +363,7 @@ type QueryFormProps = {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
+    suggestedWidgets?: SuggestedWidget[];
   };
   runErrorMessage: string | undefined;
   location: {
@@ -406,7 +408,8 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
@@ -437,9 +440,6 @@ export function EditorJSONtoForm(props: Props) {
   const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
-  const onAddWidget = () => {
-    dispatch(addTableWidgetFromQuery(actionName));
-  };
 
   function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
@@ -525,6 +525,14 @@ export function EditorJSONtoForm(props: Props) {
     );
   };
 
+  const responeTabOnRunClick = () => {
+    props.onRunClick();
+
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "QUERY_PANE",
+    });
+  };
+
   const responseTabs = [
     {
       key: "Response",
@@ -579,7 +587,7 @@ export function EditorJSONtoForm(props: Props) {
                 🙌 Click on
                 <InlineButton
                   isLoading={isRunning}
-                  onClick={props.onRunClick}
+                  onClick={responeTabOnRunClick}
                   size={Size.medium}
                   tag="button"
                   text="Run"
@@ -665,111 +673,113 @@ export function EditorJSONtoForm(props: Props) {
             </OnboardingIndicator>
           </ActionsWrapper>
         </StyledFormRow>
-        <SecondaryWrapper>
-          <TabContainerView>
-            {documentationLink && (
-              <DocumentationLink
-                className="t--datasource-documentation-link"
-                onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-              >
-                {"Documentation "}
-                <StyledOpenDocsIcon icon="document-open" />
-              </DocumentationLink>
-            )}
-            <TabComponent
-              tabs={[
-                {
-                  key: "query",
-                  title: "Query",
-                  panelComponent: (
-                    <SettingsWrapper>
-                      {editorConfig && editorConfig.length > 0 ? (
-                        editorConfig.map(renderEachConfig(formName))
-                      ) : (
-                        <>
-                          <ErrorMessage>
-                            An unexpected error occurred
-                          </ErrorMessage>
-                          <Tag
-                            intent="warning"
-                            interactive
-                            minimal
-                            onClick={() => window.location.reload()}
-                            round
-                          >
-                            Refresh
-                          </Tag>
-                        </>
-                      )}
-                      {dataSources.length === 0 && (
-                        <NoDataSourceContainer>
-                          <p className="font18">
-                            Seems like you don’t have any Datasources to create
-                            a query
-                          </p>
-                          <EditorButton
-                            filled
-                            icon="plus"
-                            intent="primary"
-                            onClick={() => onCreateDatasourceClick()}
-                            size="small"
-                            text="Add a Datasource"
-                          />
-                        </NoDataSourceContainer>
-                      )}
-                    </SettingsWrapper>
-                  ),
-                },
-                {
-                  key: "settings",
-                  title: "Settings",
-                  panelComponent: (
-                    <SettingsWrapper>
-                      <ActionSettings
-                        actionSettingsConfig={settingConfig}
-                        formName={formName}
-                      />
-                    </SettingsWrapper>
-                  ),
-                },
-              ]}
-            />
-          </TabContainerView>
-
-          <TabbedViewContainer ref={panelRef}>
-            <Resizable
-              panelRef={panelRef}
-              setContainerDimensions={(height: number) =>
-                setTableBodyHeightHeight(height)
-              }
-            />
-            {output && !!output.length && (
-              <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                <ResultsCount>
-                  <Text type={TextType.P3}>
-                    Result:
-                    <Text type={TextType.H5}>{`${output.length} Record${
-                      output.length > 1 ? "s" : ""
-                    }`}</Text>
-                  </Text>
-                </ResultsCount>
-                <GenerateWidgetButton
-                  className="t--add-widget"
-                  onClick={onAddWidget}
+        <Wrapper>
+          <SecondaryWrapper>
+            <TabContainerView>
+              {documentationLink && (
+                <DocumentationLink
+                  className="t--datasource-documentation-link"
+                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
                 >
-                  <AdsIcon name="plus" />
-                  &nbsp;&nbsp;Generate Widget
-                </GenerateWidgetButton>
-              </Boxed>
-            )}
+                  {"Documentation "}
+                  <StyledOpenDocsIcon icon="document-open" />
+                </DocumentationLink>
+              )}
+              <TabComponent
+                tabs={[
+                  {
+                    key: "query",
+                    title: "Query",
+                    panelComponent: (
+                      <SettingsWrapper>
+                        {editorConfig && editorConfig.length > 0 ? (
+                          editorConfig.map(renderEachConfig(formName))
+                        ) : (
+                          <>
+                            <ErrorMessage>
+                              An unexpected error occurred
+                            </ErrorMessage>
+                            <Tag
+                              intent="warning"
+                              interactive
+                              minimal
+                              onClick={() => window.location.reload()}
+                              round
+                            >
+                              Refresh
+                            </Tag>
+                          </>
+                        )}
+                        {dataSources.length === 0 && (
+                          <NoDataSourceContainer>
+                            <p className="font18">
+                              Seems like you don’t have any Datasources to
+                              create a query
+                            </p>
+                            <EditorButton
+                              filled
+                              icon="plus"
+                              intent="primary"
+                              onClick={() => onCreateDatasourceClick()}
+                              size="small"
+                              text="Add a Datasource"
+                            />
+                          </NoDataSourceContainer>
+                        )}
+                      </SettingsWrapper>
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    title: "Settings",
+                    panelComponent: (
+                      <SettingsWrapper>
+                        <ActionSettings
+                          actionSettingsConfig={settingConfig}
+                          formName={formName}
+                        />
+                      </SettingsWrapper>
+                    ),
+                  },
+                ]}
+              />
+            </TabContainerView>
 
-            <TabComponent
-              onSelect={onTabSelect}
-              selectedIndex={selectedIndex}
-              tabs={responseTabs}
+            <TabbedViewContainer ref={panelRef}>
+              <Resizable
+                panelRef={panelRef}
+                setContainerDimensions={(height: number) =>
+                  setTableBodyHeightHeight(height)
+                }
+              />
+              {output && !!output.length && (
+                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                  <ResultsCount>
+                    <Text type={TextType.P3}>
+                      Result:
+                      <Text type={TextType.H5}>{`${output.length} Record${
+                        output.length > 1 ? "s" : ""
+                      }`}</Text>
+                    </Text>
+                  </ResultsCount>
+                </Boxed>
+              )}
+
+              <TabComponent
+                onSelect={onTabSelect}
+                selectedIndex={selectedIndex}
+                tabs={responseTabs}
+              />
+            </TabbedViewContainer>
+          </SecondaryWrapper>
+          <SidebarWrapper show={!!output}>
+            <ActionRightPane
+              actionName={actionName}
+              hasResponse={!!output}
+              suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
-          </TabbedViewContainer>
-        </SecondaryWrapper>
+          </SidebarWrapper>
+        </Wrapper>
       </QueryFormContainer>
     </>
   );

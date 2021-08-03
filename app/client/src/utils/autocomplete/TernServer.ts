@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import tern, { Server, Def } from "tern";
-import ecma from "tern/defs/ecmascript.json";
+import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
@@ -9,6 +9,7 @@ import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
+  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -16,6 +17,10 @@ import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
+import { HintEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SortRules from "./dataTypeSortRules";
+import _ from "lodash";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -28,6 +33,7 @@ const DEFS: Def[] = [
   xmlJs,
   forge,
 ];
+
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -77,8 +83,7 @@ class TernServer {
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
   active: any;
-  expected?: string;
-  entityName?: string;
+  entityInformation: HintEntityInformation = {};
 
   constructor() {
     this.server = new tern.Server({
@@ -87,9 +92,15 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
-    this.expected = expected;
-    this.entityName = entityName;
+  resetServer() {
+    this.server = new tern.Server({
+      async: true,
+      defs: DEFS,
+    });
+    this.docs = Object.create(null);
+  }
+
+  complete(cm: CodeMirror.Editor) {
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -161,25 +172,36 @@ class TernServer {
     ) {
       after = '"]';
     }
+    const bindings = getDynamicBindings(cm.getValue());
+    const onlySingleBinding = bindings.stringSegments.length === 1;
+    const searchText = bindings.jsSnippets[0].trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
-      const entityName = this.entityName;
       if (data.guess) className += " " + cls + "guess";
-      if (!entityName || !completion.name.includes(entityName)) {
-        completions.push({
-          text: completion.name + after,
-          displayText: completion.displayName || completion.name,
-          className: className,
-          data: completion,
-          origin: completion.origin,
-          type: dataType,
-        });
+      let completionText = completion.name + after;
+      if (dataType === "FUNCTION") {
+        completionText = completionText + "()";
       }
+      completions.push({
+        text: completionText,
+        displayText: completionText,
+        className: className,
+        data: completion,
+        origin: completion.origin,
+        type: dataType,
+        isHeader: false,
+      });
     }
-    completions = this.sortCompletions(completions);
-    const indexToBeSelected = completions.length > 1 ? 1 : 0;
+
+    completions = this.sortCompletions(
+      completions,
+      onlySingleBinding,
+      searchText,
+    );
+    const indexToBeSelected =
+      completions.length && completions[0].isHeader ? 1 : 0;
     const obj = {
       from: from,
       to: to,
@@ -242,56 +264,135 @@ class TernServer {
     });
   }
 
-  sortCompletions(completions: Completion[]) {
-    // Add data tree completions before others
+  sortCompletions(
+    completions: Completion[],
+    findBestMatch: boolean,
+    bestMatchSearch: string,
+  ) {
     const expectedDataType = this.getExpectedDataType();
-    const dataTreeCompletions = completions
-      .filter((c) => c.origin && c.origin.startsWith("DATA_TREE_"))
-      .sort((a: Completion, b: Completion) => {
+    const { entityName, entityType } = this.entityInformation;
+    type CompletionType =
+      | "DATA_TREE"
+      | "MATCHING_TYPE"
+      | "OTHER"
+      | "CONTEXT"
+      | "JS"
+      | "LIBRARY";
+    const completionType: Record<CompletionType, Completion[]> = {
+      MATCHING_TYPE: [],
+      DATA_TREE: [],
+      CONTEXT: [],
+      JS: [],
+      LIBRARY: [],
+      OTHER: [],
+    };
+    completions.forEach((completion) => {
+      if (entityName && completion.text.includes(entityName)) {
+        return;
+      }
+      if (completion.origin) {
+        if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
+          if (completion.text.includes(".")) {
+            // nested paths (with ".") should only be used for best match
+            if (completion.type === expectedDataType) {
+              completionType.MATCHING_TYPE.push(completion);
+            }
+          } else if (
+            completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
+            completion.type === expectedDataType
+          ) {
+            // Global functions should be in best match as well as DataTree
+            completionType.MATCHING_TYPE.push(completion);
+            completionType.DATA_TREE.push(completion);
+          } else {
+            // All top level entities are set in data tree
+            completionType.DATA_TREE.push(completion);
+          }
+          return;
+        }
+        if (
+          completion.origin === "[doc]" ||
+          completion.origin === "customDataTree"
+        ) {
+          // [doc] are variables defined in the current context
+          // customDataTree are implicit context defined by platform
+          completionType.CONTEXT.push(completion);
+          return;
+        }
+        if (
+          completion.origin === "ecmascript" ||
+          completion.origin === "base64-js"
+        ) {
+          completionType.JS.push(completion);
+          return;
+        }
+        if (completion.origin.startsWith("LIB/")) {
+          completionType.LIBRARY.push(completion);
+          return;
+        }
+      }
+
+      // Generally keywords or other unCategorised completions
+      completionType.OTHER.push(completion);
+    });
+    completionType.DATA_TREE = completionType.DATA_TREE.sort(
+      (a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
         } else if (a.type !== "FUNCTION" && b.type === "FUNCTION") {
           return -1;
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
+      },
+    );
+    completionType.MATCHING_TYPE = completionType.MATCHING_TYPE.filter((c) =>
+      c.text.toLowerCase().startsWith(bestMatchSearch.toLowerCase()),
+    );
+    if (findBestMatch && completionType.MATCHING_TYPE.length) {
+      const sortedMatches: Completion[] = [];
+      const groupedMatches = _.groupBy(completionType.MATCHING_TYPE, (c) => {
+        const [, , subType, name] = c.origin.split(".");
+        return c.text.replace(name, subType);
       });
-    const sameDataType = dataTreeCompletions.filter(
-      (c) => c.type === expectedDataType,
-    );
-    const otherDataType = dataTreeCompletions.filter(
-      (c) => c.type !== expectedDataType,
-    );
-    if (otherDataType.length && sameDataType.length) {
-      const otherDataTitle: Completion = {
-        text: "Search results",
-        displayText: "Search results",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      };
-      const sameDataTitle: Completion = {
-        text: "Best Match",
-        displayText: "Best Match",
-        className: "CodeMirror-hint-header",
-        data: { doc: "" },
-        origin: "",
-        type: "UNKNOWN",
-        isHeader: true,
-      };
-      sameDataType.unshift(sameDataTitle);
-      otherDataType.unshift(otherDataTitle);
+      SortRules[expectedDataType].forEach((rule) => {
+        if (Array.isArray(groupedMatches[rule])) {
+          sortedMatches.push(...groupedMatches[rule]);
+        }
+      });
+
+      sortedMatches.sort((a, b) => {
+        let aRank = 0;
+        let bRank = 0;
+        const entityTypeA: ENTITY_TYPE = a.origin.split(".")[1] as ENTITY_TYPE;
+        const entityTypeB: ENTITY_TYPE = b.origin.split(".")[1] as ENTITY_TYPE;
+        if (entityTypeA === entityType) {
+          aRank = aRank + 1;
+        }
+        if (entityTypeB === entityType) {
+          bRank = bRank + 1;
+        }
+        return aRank - bRank;
+      });
+      completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
+      if (completionType.MATCHING_TYPE.length) {
+        completionType.MATCHING_TYPE.unshift(
+          createCompletionHeader("Best Match"),
+        );
+        completionType.DATA_TREE.unshift(
+          createCompletionHeader("Search Results"),
+        );
+      }
+    } else {
+      // Clear any matching type because we dont want to find best match
+      completionType.MATCHING_TYPE = [];
     }
-    const docCompletetions = completions.filter((c) => c.origin === "[doc]");
-    const otherCompletions = completions.filter(
-      (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
-    );
     return [
-      ...docCompletetions,
-      ...sameDataType,
-      ...otherDataType,
-      ...otherCompletions,
+      ...completionType.CONTEXT,
+      ...completionType.MATCHING_TYPE,
+      ...completionType.DATA_TREE,
+      ...completionType.LIBRARY,
+      ...completionType.JS,
+      ...completionType.OTHER,
     ];
   }
 
@@ -306,21 +407,23 @@ class TernServer {
     else return "OBJECT";
   }
 
-  getExpectedDataType() {
-    const type = this.expected;
+  getExpectedDataType(): DataType {
+    const type = this.entityInformation.expectedType;
+    if (type === undefined) return "UNKNOWN";
     if (
       type === "Array<Object>" ||
       type === "Array" ||
       type === "Array<{ label: string, value: string }>" ||
       type === "Array<x:string, y:number>"
-    )
+    ) {
       return "ARRAY";
+    }
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";
     if (type === "object" || type === "JSON") return "OBJECT";
-    if (type === undefined) return "UNKNOWN";
-    return undefined;
+    if (type === "Function Call") return "FUNCTION";
+    return "UNKNOWN";
   }
 
   typeToIcon(type: string) {
@@ -417,6 +520,7 @@ class TernServer {
       end?: any;
       start?: any;
       file?: any;
+      includeKeywords?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {
@@ -425,6 +529,7 @@ class TernServer {
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
+    query.includeKeywords = true;
     if (!query.end) {
       const lineValue = this.lineValue(doc);
       const focusedValue = this.getFocusedDynamicValue(doc);
@@ -712,6 +817,20 @@ class TernServer {
   fadeOut(tooltip: HTMLElement) {
     this.remove(tooltip);
   }
+
+  setEntityInformation(entityInformation: HintEntityInformation) {
+    this.entityInformation = entityInformation;
+  }
 }
+
+export const createCompletionHeader = (name: string): Completion => ({
+  text: name,
+  displayText: name,
+  className: "CodeMirror-hint-header",
+  data: { doc: "" },
+  origin: "",
+  type: "UNKNOWN",
+  isHeader: true,
+});
 
 export default new TernServer();

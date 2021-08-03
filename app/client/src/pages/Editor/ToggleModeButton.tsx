@@ -134,7 +134,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
     const isCommentsIntroSeen = await getCommentsIntroSeen();
-    const updatedIsCommentMode = isCommentMode === "true" ? true : false;
+    const updatedIsCommentMode = isCommentMode === "true";
 
     const notLoggedId = currentUser?.username === ANONYMOUS_USERNAME;
 
@@ -150,6 +150,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
+      setCommentModeInUrl(false);
     } else {
       setCommentModeInStore(updatedIsCommentMode);
     }

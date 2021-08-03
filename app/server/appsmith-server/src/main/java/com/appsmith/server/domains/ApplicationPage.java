@@ -20,8 +20,6 @@ public class ApplicationPage {
 
     Boolean isDefault;
 
-    Integer order;
-
     @JsonIgnore
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);

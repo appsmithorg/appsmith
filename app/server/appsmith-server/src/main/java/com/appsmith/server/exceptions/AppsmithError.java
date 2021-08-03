@@ -26,8 +26,9 @@ public enum AppsmithError {
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid"),
     INVALID_DATASOURCE_CONFIGURATION(400, 4015, "Datasource configuration is invalid", AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid"),
-    INVALID_ACTION_NAME(400, 4014, "Appsmith expects the action naming to follow variable naming conventions. "
-            + "It must be a single word contain any alphabets, numbers, or \"_\".  Hyphen (\"-\") symbol is not allowed. "
+    INVALID_ACTION_NAME(400, 4014, "Appsmith expects all entities to follow Javascript variable naming conventions. "
+            + "It must be a single word containing alphabets, numbers, or \"_\". Any other special characters like hyphens (\"-\"), comma (\",\"), hash (\"#\") etc. "
+            + "are not allowed. "
             + "Please change the name.", AppsmithErrorAction.DEFAULT, null),
     NO_CONFIGURATION_FOUND_IN_ACTION(400, 4016, "No configurations found in this action", AppsmithErrorAction.DEFAULT, null),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name.", AppsmithErrorAction.DEFAULT, null),
@@ -62,6 +63,7 @@ public enum AppsmithError {
     VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, null),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null),
+    INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +

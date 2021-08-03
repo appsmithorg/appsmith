@@ -49,6 +49,7 @@ import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getIsSafeRedirectURL } from "utils/helpers";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -98,7 +99,7 @@ export function Login(props: LoginFormProps) {
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
   const redirectUrl = queryParams.get("redirectUrl");
-  if (redirectUrl != null) {
+  if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
     const encodedRedirectUrl = encodeURIComponent(redirectUrl);
     loginURL += `?redirectUrl=${encodedRedirectUrl}`;
     signupURL += `?redirectUrl=${encodedRedirectUrl}`;

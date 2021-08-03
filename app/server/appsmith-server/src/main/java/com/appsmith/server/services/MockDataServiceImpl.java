@@ -7,7 +7,9 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
@@ -15,6 +17,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,7 +27,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @Service
@@ -32,15 +38,22 @@ public class MockDataServiceImpl implements MockDataService {
 
     private final CloudServicesConfig cloudServicesConfig;
     private final DatasourceService datasourceService;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
 
     public MockDataDTO mockData = new MockDataDTO();
 
     private Instant cacheExpiryTime = null;
 
     @Autowired
-    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig, DatasourceService datasourceService) {
+    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig,
+                               DatasourceService datasourceService,
+                               AnalyticsService analyticsService,
+                               SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.datasourceService = datasourceService;
+        this.analyticsService = analyticsService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -80,6 +93,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
+            String name = mockDataSource.getName();
             if (mockDataSource.getPackageName().equals("mongo-plugin")) {
                 datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             } else {
@@ -90,7 +104,8 @@ public class MockDataServiceImpl implements MockDataService {
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            return datasourceService.create(datasource);
+            return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
+                    .then(createSuffixedDatasource(datasource));
         });
 
     }
@@ -156,6 +171,50 @@ public class MockDataServiceImpl implements MockDataService {
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(endpointList);
         return datasourceConfiguration;
+    }
+
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource) {
+        return createSuffixedDatasource(datasource, datasource.getName(), 0);
+    }
+
+    /**
+     * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     * @param datasource Datasource to try create.
+     * @param name Name of the datasource, to which numbered suffixes will be appended.
+     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created datasource.
+     */
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        datasource.setName(actualName);
+        return datasourceService.create(datasource)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
+                        return createSuffixedDatasource(datasource, name, 1 + suffix);
+                    }
+                    throw error;
+                });
+    }
+
+    private Mono<User> addAnalyticsForMockDataCreation(String name, String orgId) {
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return sessionUserService.getCurrentUser()
+                .map(user -> {
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.CREATE.getEventName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "MockDataSource", defaultIfNull(name, ""),
+                                    "orgId", defaultIfNull(orgId, "")
+                            )
+                    );
+                    return user;
+                });
     }
 
 }
