@@ -73,6 +73,8 @@ function validateArray(
   value: unknown[],
   props: Record<string, unknown>,
 ) {
+  let _isValid = true;
+  const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   if (whiteList) {
     value.forEach((entry) => {
@@ -85,9 +87,65 @@ function validateArray(
       }
     });
   }
+  // Check uniqueness of object elements in an array
+  if (
+    config.params?.children?.type === ValidationTypes.OBJECT &&
+    (config.params.children.params?.allowedKeys || []).length > 0
+  ) {
+    const allowedKeysCofigArray =
+      config.params.children.params?.allowedKeys || [];
+
+    const allowedKeys = (config.params.children.params?.allowedKeys || []).map(
+      (key) => key.name,
+    );
+    type ObjectKeys = typeof allowedKeys[number];
+    type ItemType = {
+      [key in ObjectKeys]: string;
+    };
+
+    const valueWithType = value as ItemType[];
+    allowedKeysCofigArray.forEach((allowedKeyConfig) => {
+      if (allowedKeyConfig.params?.unique) {
+        const allowedKeyValues = valueWithType.map(
+          (item) => item[allowedKeyConfig.name],
+        );
+        // Check if value is duplicated
+        _messages.push(
+          ...allowedKeyValues.reduce(
+            (acc: string[], currentValue, currentIndex) => {
+              if (allowedKeyValues.indexOf(currentValue) !== currentIndex) {
+                acc.push(
+                  `Duplication: position: ${currentIndex + 1}, key: ${
+                    allowedKeyConfig.name
+                  }, value: ${currentValue}`,
+                );
+              }
+              return acc;
+            },
+            [],
+          ),
+        );
+        if (_messages.length > 0) {
+          _isValid = false;
+        }
+      }
+    });
+
+    if (_isValid) {
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    }
+    return {
+      isValid: false,
+      parsed: config.params?.default || value,
+      message: _messages.join(" "),
+    };
+  }
+
   const children = config.params?.children;
-  let _isValid = true;
-  const _messages: string[] = [];
+
   if (children) {
     value.forEach((entry, index) => {
       const validation = validate(children, entry, props);

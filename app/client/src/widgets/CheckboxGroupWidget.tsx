@@ -40,11 +40,17 @@ class CheckboxGroupWidget extends BaseWidget<
                         name: "label",
                         isUnique: true,
                         type: ValidationTypes.TEXT,
+                        params: {
+                          unique: true,
+                        },
                       },
                       {
                         name: "value",
                         isUnique: true,
                         type: ValidationTypes.TEXT,
+                        params: {
+                          unique: true,
+                        },
                       },
                     ],
                   },
