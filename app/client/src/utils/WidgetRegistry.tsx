@@ -107,6 +107,10 @@ import DividerWidget, {
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import MultiSelectWidget, {
+  MultiSelectWidgetProps,
+  ProfiledMultiSelectWidget,
+} from "widgets/MultiSelectWidget";
 import RateWidget, {
   RateWidgetProps,
   ProfiledRateWidget,
@@ -471,7 +475,18 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
     );
-
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: MultiSelectWidgetProps): JSX.Element {
+          return <ProfiledMultiSelectWidget {...widgetData} />;
+        },
+      },
+      MultiSelectWidget.getDerivedPropertiesMap(),
+      MultiSelectWidget.getDefaultPropertiesMap(),
+      MultiSelectWidget.getMetaPropertiesMap(),
+      MultiSelectWidget.getPropertyPaneConfig(),
+    );
     WidgetFactory.registerWidgetBuilder(
       "RATE_WIDGET",
       {
