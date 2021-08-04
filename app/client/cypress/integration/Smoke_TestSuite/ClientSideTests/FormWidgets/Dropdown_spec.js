@@ -426,5 +426,5 @@ describe("Dropdown Widget Functionality", function() {
   });
 });
 afterEach(() => {
-  // put your clean up code if any
+  cy.goToEditFromPublish();
 });
