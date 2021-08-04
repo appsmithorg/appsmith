@@ -12,7 +12,7 @@ import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 
 export const EntityProperties = memo(
   (props: {
@@ -32,7 +32,6 @@ export const EntityProperties = memo(
       );
     });
     let entity: any;
-    const dataTree = useSelector(getDataTree);
     const widgetEntity = useSelector((state: AppState) => {
       const pageWidgets = state.ui.pageWidgets[props.pageId];
       if (pageWidgets) {
@@ -52,20 +51,11 @@ export const EntityProperties = memo(
     switch (props.entityType) {
       case ENTITY_TYPE.JSACTION:
         const jsAction = entity.config;
-        const properties = getPropsForJSActionEntity(dataTree[jsAction.name]);
+        const properties = getPropsForJSActionEntity(jsAction);
         if (properties) {
-          const jsEntity = dataTree[jsAction.name];
-          let funcData: any;
-          if ("meta" in jsEntity) {
-            funcData = jsEntity && jsEntity.meta;
-          }
           entityProperties = Object.keys(properties).map(
             (actionProperty: string) => {
-              let value = properties[actionProperty];
-              if (actionProperty in funcData) {
-                actionProperty = actionProperty + "()";
-                value = "Function";
-              }
+              const value = properties[actionProperty];
               return {
                 propertyName: actionProperty,
                 entityName: jsAction.name,
@@ -92,7 +82,7 @@ export const EntityProperties = memo(
               }
               if (actionProperty === "data") {
                 if (
-                  _.isEmpty(entity.data) ||
+                  isEmpty(entity.data) ||
                   !entity.data.hasOwnProperty("body")
                 ) {
                   value = "{}";

@@ -1,6 +1,7 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { JSAction } from "entities/JSAction";
 
 const isVisible = {
   "!type": "bool",
@@ -340,27 +341,22 @@ export const GLOBAL_FUNCTIONS = {
   },
 };
 
-export const getPropsForJSActionEntity = (entity: any): any => {
-  const result: any = {};
-  const metaObj = entity?.meta;
-  for (const key in metaObj) {
-    if (metaObj.hasOwnProperty(key)) {
-      result[key] =
-        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+export const getPropsForJSActionEntity = (
+  entity: JSAction,
+): Record<string, string> => {
+  const properties: Record<string, string> = {};
+  const actions = entity.actions;
+  if (actions && actions.length > 0)
+    for (let i = 0; i < entity.actions.length; i++) {
+      const action = entity.actions[i];
+      properties[action.name + "()"] = "Function";
+    }
+  const variablesProps = entity.variables;
+  if (variablesProps && variablesProps.length > 0) {
+    for (let i = 0; i < variablesProps.length; i++) {
+      const variableProp = variablesProps[i];
+      properties[variableProp.name] = variableProp.value;
     }
   }
-  //DON"T remove will need in async function
-  // const dataObj = entity.data;
-  // for (const key in dataObj) {
-  //   if (dataObj.hasOwnProperty(key)) {
-  //     result["data." + key] = dataObj[key];
-  //   }
-  // }
-  const variables = entity?.variables;
-  if (variables && variables.length > 0) {
-    for (let i = 0; i < variables.length; i++) {
-      result[variables[i]] = entity[variables[i]];
-    }
-  }
-  return result;
+  return properties;
 };

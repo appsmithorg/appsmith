@@ -91,9 +91,11 @@ export default class DataTreeEvaluator {
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
+    const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    const reolvedDataTree = this.resolveJSActionsFirstTree(localUnEvalTree);
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
-      unEvalTree,
+      reolvedDataTree,
       this.sortedDependencies,
     );
     const evaluateEnd = performance.now();
@@ -762,6 +764,23 @@ export default class DataTreeEvaluator {
       return defaultPropertyCache.value;
     }
     return propertyValue;
+  }
+
+  resolveJSActionsFirstTree(unEvalDataTree: DataTree) {
+    Object.keys(unEvalDataTree).forEach((entityName) => {
+      const entity = unEvalDataTree[entityName];
+      if (!isJSAction(entity)) {
+        return;
+      }
+      Object.keys(entity.meta).forEach((unEvalFunc) => {
+        const unEvalValue = _.get(entity, unEvalFunc);
+        if (typeof unEvalValue === "string") {
+          const { result } = evaluate(unEvalValue, {});
+          _.set(unEvalDataTree, `${entityName}.${unEvalFunc}`, result);
+        }
+      });
+    });
+    return unEvalDataTree;
   }
 
   resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
