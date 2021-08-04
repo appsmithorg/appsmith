@@ -1,25 +1,27 @@
 import React, { useState, useRef, RefObject } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import { ActionResponse } from "api/ActionAPI";
 import { JSEditorRouteParams } from "constants/routes";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
-import { Classes } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
-import { JSAction } from "entities/JSAction";
+import { JSAction, JSSubAction } from "entities/JSAction";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import { executeJSFunction } from "actions/jsPaneActions";
+import Text, { TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -37,9 +39,45 @@ const ResponseContainer = styled.div`
 
 const ResponseTabWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   height: 100%;
   width: 100%;
+`;
+
+const ResponseTabActionsList = styled.ul`
+  height: 100%;
+  width: 20%;
+  list-style: none;
+  padding-left: 20px;
+`;
+
+const ResponseTabAction = styled.li`
+  padding: 10px 0;
+  &:hover {
+    cursor: pointer;
+    background-color: #f0f0f0;
+  }
+  &::before {
+    content: "{}";
+    color: #6a86ce;
+    padding-right: 5px;
+    padding-left: 10px;
+  }
+  &::after {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    float: right;
+    width: 0;
+    height: 8px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #a9a7a7;
+    padding-right: 10px;
+    border-radius: 4px;
+  }
+  &.active {
+    background-color: #f0f0f0;
+  }
 `;
 
 const TabbedViewWrapper = styled.div`
@@ -52,25 +90,35 @@ const TabbedViewWrapper = styled.div`
   }
 `;
 
-const SectionDivider = styled.div`
-  height: 2px;
-  width: 100%;
-  background: ${(props) => props.theme.colors.apiPane.dividerBg};
+const ReponseViewer = styled.div`
+  margin-left: 10px;
+  width: 80%;
 `;
 
-const Flex = styled.div`
+const NoResponseContainer = styled.div`
+  height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
-  margin-left: 20px;
+  justify-content: center;
+  flex-direction: column;
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
 
-  span:first-child {
-    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+    color: #090707;
   }
 `;
 
 interface ReduxStateProps {
-  responses: Record<string, ActionResponse | undefined>;
-  isRunning: Record<string, boolean>;
+  responses: Record<string, any>;
+  isExecuting: Record<string, boolean>;
 }
 
 type Props = ReduxStateProps &
@@ -81,25 +129,68 @@ type Props = ReduxStateProps &
   };
 
 function JSResponseView(props: Props) {
-  const {
-    jsCollection,
-    match: {
-      params: { collectionId },
-    },
-    responses,
-  } = props;
-  const isRunning = false;
-  const hasFailed = false;
-
+  const { isExecuting, jsCollection, responses } = props;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-
+  const dispatch = useDispatch();
+  const [selectActionId, setSelectActionId] = useState("");
   const initialIndex = useSelector(getActionTabsInitialIndex);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const actionList = jsCollection?.actions;
+  const response =
+    selectActionId && !!responses[selectActionId]
+      ? responses[selectActionId]
+      : "";
+  const isRunning = selectActionId && !!isExecuting[selectActionId];
   const tabs = [
     {
       key: "body",
       title: "Response",
-      panelComponent: <ResponseTabWrapper />,
+      panelComponent: (
+        <ResponseTabWrapper>
+          {actionList && !actionList?.length ? (
+            <NoResponseContainer> Create function now! </NoResponseContainer>
+          ) : (
+            <>
+              <ResponseTabActionsList>
+                {actionList &&
+                  actionList?.length > 0 &&
+                  actionList.map((action) => {
+                    return (
+                      <ResponseTabAction
+                        className={action.id === selectActionId ? "active" : ""}
+                        key={action.id}
+                        onClick={() => {
+                          runAction(action);
+                        }}
+                      >
+                        {action.name}
+                      </ResponseTabAction>
+                    );
+                  })}
+              </ResponseTabActionsList>
+              <ReponseViewer>
+                {isRunning ? (
+                  <LoadingOverlayScreen theme={props.theme}>
+                    Executing function
+                  </LoadingOverlayScreen>
+                ) : !responses.hasOwnProperty(selectActionId) ? (
+                  <NoResponseContainer>
+                    <Text type={TextType.P1}> Run function now! </Text>
+                  </NoResponseContainer>
+                ) : (
+                  <ReadOnlyEditor
+                    folding
+                    height={"100%"}
+                    input={{
+                      value: response,
+                    }}
+                  />
+                )}
+              </ReponseViewer>
+            </>
+          )}
+        </ResponseTabWrapper>
+      ),
     },
     {
       key: "ERROR",
@@ -126,6 +217,16 @@ function JSResponseView(props: Props) {
     setSelectedIndex(index);
   };
 
+  const runAction = (action: JSSubAction) => {
+    setSelectActionId(action.id);
+    dispatch(
+      executeJSFunction({
+        collectionName: jsCollection?.name || "",
+        action: action,
+      }),
+    );
+  };
+
   return (
     <ResponseContainer ref={panelRef}>
       <Resizer panelRef={panelRef} />
@@ -140,10 +241,20 @@ function JSResponseView(props: Props) {
   );
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (
+  state: AppState,
+  props: { jsCollection: JSAction | undefined },
+) => {
+  const jsActions = state.entities.jsActions;
+  const { jsCollection } = props;
+  const collection =
+    jsCollection &&
+    jsActions.find((action) => action.config.id === jsCollection.id);
+  const responses = (collection && collection.data) || {};
+  const isExecuting = (collection && collection.isExecuting) || {};
   return {
-    responses: {},
-    isRunning: {},
+    responses: responses,
+    isExecuting: isExecuting,
   };
 };
 

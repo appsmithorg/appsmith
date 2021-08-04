@@ -11,7 +11,6 @@ export interface JsPaneReduxState {
   isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
-  extraformData: Record<string, any>;
 }
 
 const initialState: JsPaneReduxState = {
@@ -20,7 +19,6 @@ const initialState: JsPaneReduxState = {
   isSaving: {},
   isDeleting: {},
   isDirty: {},
-  extraformData: {},
 };
 
 const jsPaneReducer = createReducer(initialState, {

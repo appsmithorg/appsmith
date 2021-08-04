@@ -41,6 +41,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import { JSSubAction } from "entities/JSAction";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -163,6 +164,18 @@ export function* parseJSAction(body: string) {
     },
   );
   return parsedObject;
+}
+
+export function* executeFunction(collectionName: string, action: JSSubAction) {
+  const results = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION,
+    {
+      collectionName,
+      action,
+    },
+  );
+  return results;
 }
 
 /**

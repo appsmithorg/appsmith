@@ -19,6 +19,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { Diff } from "deep-diff";
+import evaluate from "workers/evaluate";
 
 const ctx: Worker = self as any;
 
@@ -212,6 +213,17 @@ ctx.addEventListener(
           console.log("error", e);
         }
         return true;
+      }
+      case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
+        const { action, collectionName } = requestData;
+
+        if (!dataTreeEvaluator) {
+          return true;
+        }
+        const evalTree = dataTreeEvaluator.evalTree;
+        const path = collectionName + "." + action.name + "()";
+        const { result } = evaluate(path, evalTree);
+        return result;
       }
       default: {
         console.error("Action not registered on worker", method);

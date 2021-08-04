@@ -19,11 +19,11 @@ import {
 import { getJSAction, getJSActions } from "selectors/entitiesSelector";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
-import { JSAction } from "entities/JSAction";
+import { JSAction, JSSubAction } from "entities/JSAction";
 import { createJSActionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { parseJSAction } from "./EvaluationsSaga";
+import { parseJSAction, executeFunction } from "./EvaluationsSaga";
 import { getJSActionIdFromURL } from "../pages/Editor/Explorer/helpers";
 import { getDifferenceInJSAction } from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
@@ -195,6 +195,27 @@ function* handleJSCollectionNameChangeSuccessSaga(
   }
 }
 
+function* handleExecuteJSFunctionSaga(
+  data: ReduxAction<{ collectionName: string; action: JSSubAction }>,
+): any {
+  const { action } = data.payload;
+  const collectionId = action.collectionId;
+  const actionId = action.id;
+  const results = yield call(
+    executeFunction,
+    data.payload.collectionName,
+    data.payload.action,
+  );
+  yield put({
+    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+    payload: {
+      results,
+      collectionId,
+      actionId,
+    },
+  });
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -213,6 +234,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
       handleJSCollectionNameChangeSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
+      handleExecuteJSFunctionSaga,
     ),
   ]);
 }

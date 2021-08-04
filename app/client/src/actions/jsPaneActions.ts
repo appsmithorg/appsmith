@@ -52,3 +52,13 @@ export const deleteJSCollectionAction = (payload: {
     payload,
   };
 };
+
+export const executeJSFunction = (payload: {
+  collectionName: string;
+  action: JSSubAction;
+}) => {
+  return {
+    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
+    payload,
+  };
+};

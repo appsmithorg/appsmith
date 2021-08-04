@@ -7,18 +7,20 @@ import {
 } from "constants/ReduxActionConstants";
 import { keyBy } from "lodash";
 
-const initialState: any = [];
+const initialState: JSActionDataState = [];
 
 export interface JSActionData {
   isLoading: boolean;
   config: JSAction;
-  data?: any;
+  data?: Record<string, unknown>;
+  isExecuting?: Record<string, boolean>;
 }
 export type JSActionDataState = JSActionData[];
 export interface PartialActionData {
   isLoading: boolean;
   config: { id: string };
-  data?: any;
+  data: Record<string, unknown>;
+  isExecuting: Record<string, boolean>;
 }
 
 const jsActionsReducer = createReducer(initialState, {
@@ -299,6 +301,50 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<{ id: string }>,
   ): JSActionDataState =>
     state.filter((a) => a.config.id !== action.payload.id),
+  [ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      results: any;
+      collectionId: string;
+      actionId: string;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        return {
+          ...a,
+          isExecuting: {
+            ...a.isExecuting,
+            [action.payload.actionId]: true,
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS]: (
+    state: JSActionDataState,
+    action: ReduxAction<{
+      results: any;
+      collectionId: string;
+      actionId: string;
+    }>,
+  ): JSActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        return {
+          ...a,
+          data: {
+            ...a.data,
+            [action.payload.actionId]: action.payload.results,
+          },
+          isExecuting: {
+            ...a.isExecuting,
+            [action.payload.actionId]: false,
+          },
+        };
+      }
+      return a;
+    }),
 });
 
 export default jsActionsReducer;
