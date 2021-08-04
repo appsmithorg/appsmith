@@ -2,6 +2,7 @@ package com.appsmith.server.constants;
 
 public class FieldName {
     public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
@@ -78,4 +79,8 @@ public class FieldName {
     public static String MONGO_UNESCAPED_ID = "_id";
     public static String MONGO_UNESCAPED_CLASS = "_class";
     public static String DATASOURCE_STRUCTURE = "datasource structure";
+    public static final String OBJECT_ID = "ObjectId";
+    public static final String PLACEHOLDER_TEXT = "placeholderText";
+    public static final String IS_DISABLED = "isDisabled";
+    public static final String IS_REQUIRED = "isRequired";
 }

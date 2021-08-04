@@ -58,6 +58,7 @@
   "toastMsg": ".Toastify__toast.Toastify__toast--default span",
   "callApi": ".t--property-control-onpagechange .t--open-dropdown-Select-Action",
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
+  "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedTypeTitle": ".t--CodeEditor-evaluatedValue > p:first-of-type",
   "evaluatedType": ".t--CodeEditor-evaluatedValue > div:first-of-type pre",

@@ -1,4 +1,4 @@
-import { Severity } from "entities/AppsmithConsole";
+import { Message, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -10,6 +10,7 @@ import {
   QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { isMac } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -30,12 +31,14 @@ export function BlankState(props: {
   placeholderText?: string;
   hasShortCut?: boolean;
 }) {
+  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+
   return (
     <BlankStateWrapper>
       {props.hasShortCut ? (
         <span>
           {createMessage(PRESS)}
-          <span className="debugger-shortcut">Cmd + D</span>
+          <span className="debugger-shortcut">{shortcut}</span>
           {createMessage(OPEN_THE_DEBUGGER)}
         </span>
       ) : (
@@ -119,6 +122,15 @@ export function getDependencyChain(
   });
   return currentChain;
 }
+
+export const doesEntityHaveErrors = (
+  entityId: string,
+  debuggerErrors: Record<string, Message>,
+) => {
+  const ids = Object.keys(debuggerErrors);
+
+  return ids.some((e: string) => e.includes(entityId));
+};
 
 export const onApiEditor = (
   applicationId: string | undefined,

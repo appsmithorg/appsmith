@@ -74,7 +74,6 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommentMode: action.payload && state.areCommentsEnabled,
-    isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
@@ -269,7 +268,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<number>,
   ) => ({
     ...state,
-    unreadCommentThreadsCount: action.payload || 0,
+    unreadCommentThreadsCount: Math.max(action.payload, 0),
   }),
 });
 
