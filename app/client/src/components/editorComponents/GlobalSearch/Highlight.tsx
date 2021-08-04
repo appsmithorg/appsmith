@@ -25,7 +25,7 @@ function Highlight({
             {part}
             {index !== parts.length - 1 && (
               <span className="search-highlighted">
-                {text.slice(lastIndex, lastIndex + match.length)}&nbsp;
+                {text.slice(lastIndex, lastIndex + match.length)}
               </span>
             )}
           </React.Fragment>

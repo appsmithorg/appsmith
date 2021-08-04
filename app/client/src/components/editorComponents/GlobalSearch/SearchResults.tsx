@@ -336,19 +336,37 @@ const CategoryContainer = styled.div`
   align-item: center;
   justify-content: space-between;
   padding: 12px 10px;
+  width: 100%;
 `;
 
 const CategoryListItem = styled.div<{ isActiveItem: boolean }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
-  .category-title {
-    ${(props) => getTypographyByKey(props, "h5")}
-    color: ${(props) => (props.isActiveItem ? "white" : "#4b4848")};
+  align-items: center;
+  width: 100%;
+  .content {
+    display: flex;
+    flex-direction: column;
+    .category-title {
+      ${(props) => getTypographyByKey(props, "h5")}
+      color: ${(props) =>
+        props.isActiveItem
+          ? props.theme.colors.globalSearch.searchItemAltText
+          : props.theme.colors.globalSearch.searchItemText};
+    }
+    .category-desc {
+      ${(props) => getTypographyByKey(props, "p3")}
+      color: ${(props) =>
+        props.isActiveItem
+          ? props.theme.colors.globalSearch.searchItemAltText
+          : props.theme.colors.globalSearch.searchItemSubText};
+    }
   }
-  .category-desc {
+  .action-msg {
+    color: ${(props) => props.theme.colors.globalSearch.searchItemAltText};
     ${(props) => getTypographyByKey(props, "p3")}
-    color: ${(props) => (props.isActiveItem ? "white" : "#a9a7a7")};
+    flex-shrink: 0;
   }
 `;
 
@@ -362,8 +380,11 @@ function CategoryItem({
   return (
     <CategoryContainer>
       <CategoryListItem isActiveItem={isActiveItem}>
-        <span className="category-title">{item.title}</span>
-        <span className="category-desc">{item.desc}</span>
+        <div className="content">
+          <span className="category-title">{item.title}</span>
+          <span className="category-desc">{item.desc}</span>
+        </div>
+        {isActiveItem && <div className="action-msg">Hit ⏎ to insert</div>}
       </CategoryListItem>
     </CategoryContainer>
   );
