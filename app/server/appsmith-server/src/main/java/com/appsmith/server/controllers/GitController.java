@@ -2,6 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.GitData;
+import com.appsmith.server.domains.GitGlobalConfig;
+import com.appsmith.server.dtos.GitGlobalConfigDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitDataService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +11,13 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -26,36 +32,11 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
         this.gitService = gitService;
     }
 
-    //Create a new app/repo or connect to remote calls the below method
-    @GetMapping("/connect")
-    public ResponseDTO<String> initializeGitRepo(@RequestBody String remoteURL) throws GitAPIException {
-        gitService.cloneRepo(remoteURL);
-        return new ResponseDTO<>(HttpStatus.OK.value(), new String(), "sucess");
-    }
-
-    //When a new files are created call this method
-    private void addFileToGit() {
-
-    }
-
-    private void commitFile() {
-
-    }
-
-    private void showDiff() {
-
-    }
-
-    private void createBranch() {
-
-    }
-
-    private void pullLatest() {
-
-    }
-
-    private void pushToRemote() {
-
+    @PostMapping("/user")
+    public Mono<ResponseDTO<GitGlobalConfig>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
+        //update the user field in db with git config data
+        return gitService.saveGitConfigData(gitGlobalConfigDTO)
+                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfig.getGitGlobalConfig(), null));
     }
 
 }
