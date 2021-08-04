@@ -4,6 +4,7 @@ import { ColumnProperties } from "components/designSystems/appsmith/TableCompone
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultSelectedRowValidation(
   value: unknown,
@@ -857,6 +858,7 @@ export default [
             expected: {
               type: "Index of row(s)",
               example: "0 | [0, 1]",
+              autocompleteDataType: AutocompleteDataType.STRING,
             },
           },
         },
