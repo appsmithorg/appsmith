@@ -567,7 +567,7 @@ function GlobalSearch() {
                   )}
                 </div>
               }
-              {!query && <Footer />}
+              <Footer />
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>
