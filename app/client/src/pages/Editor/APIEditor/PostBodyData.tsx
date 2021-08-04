@@ -20,6 +20,8 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import MultiSwitch from "components/ads/MultiSwitch";
 import { updateBodyContentType } from "actions/apiPaneActions";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -46,9 +48,10 @@ interface PostDataProps {
 
 type Props = PostDataProps;
 
-const expectedPostBody = {
+const expectedPostBody: CodeEditorExpected = {
   type: FIELD_VALUES.API_ACTION.body,
   example: "",
+  autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
 function PostBodyData(props: Props) {
