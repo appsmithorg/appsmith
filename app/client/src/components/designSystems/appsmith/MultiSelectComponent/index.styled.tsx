@@ -165,6 +165,7 @@ export const DropdownStyles = createGlobalStyle`
       border-width: 2px;
       border-style: solid;
       border-color: ${Colors.GEYSER};
+      border-radius: 0px;
       &::before {
         width: auto;
         height: 1em;
