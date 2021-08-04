@@ -118,6 +118,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           </CategoryDisplay>
         )}
         <input
+          autoComplete="off"
           autoFocus
           className="t--global-search-input"
           id="global-search"
