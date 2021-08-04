@@ -2,9 +2,10 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, {
+  Annotation,
   EditorConfiguration,
   Position,
-  TextMarker,
+  UpdateLintingCallback,
 } from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
@@ -16,6 +17,9 @@ import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
+import "codemirror/addon/lint/lint";
+import "codemirror/addon/lint/lint.css";
+
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
@@ -138,8 +142,9 @@ class CodeEditor extends Component<Props, State> {
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
+  annotations: Annotation[] = [];
+  updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-  private markers: TextMarker[] = [];
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -149,6 +154,56 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+  }
+
+  lintCode() {
+    const { dataTreePath, dynamicData } = this.props;
+    if (!dataTreePath || !this.updateLintingCallback) {
+      return;
+    }
+
+    const errors = _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+    const annotations: Annotation[] = [];
+
+    const lintErrors = errors.filter(
+      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+    );
+
+    if (this.editor) {
+      const value = this.editor.getValue();
+      lintErrors.forEach((error) => {
+        const errorSegment = error.errorSegment;
+        const originalBinding = error.originalBinding;
+        if (errorSegment && originalBinding) {
+          let errorSection: string = errorSegment;
+          if (errorSegment.length > originalBinding.length) {
+            errorSection = originalBinding;
+          }
+          errorSection = errorSection.trim();
+          const errorIndex = value.indexOf(errorSection);
+          if (errorIndex > 0) {
+            const prevLines = value.substr(0, errorIndex).split("\n");
+            const ch = (_.last(prevLines) || "").length;
+            const line = prevLines.length - 1;
+            const from: Position = { line, ch };
+            const to: Position = { line, ch: ch + errorSection.length };
+            const annotation: Annotation = {
+              from,
+              to,
+              message: error.errorMessage,
+              severity: error.severity,
+            };
+            annotations.push(annotation);
+          }
+        }
+      });
+    }
+
+    this.updateLintingCallback(this.editor, annotations);
   }
 
   componentDidMount(): void {
@@ -167,6 +222,13 @@ class CodeEditor extends Component<Props, State> {
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
         placeholder: this.props.placeholder,
+        lint: {
+          getAnnotations: (_: string, callback: UpdateLintingCallback) => {
+            this.updateLintingCallback = callback;
+          },
+          async: true,
+          lintOnChange: false,
+        },
       };
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -438,24 +500,6 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  clearTextMarkers() {
-    this.markers.forEach((marker) => marker.clear());
-  }
-
-  addTextMarker(
-    from: Position,
-    to: Position,
-    error: EvaluationError,
-    isError = true,
-  ) {
-    const marker = this.editor.markText(from, to, {
-      className: isError
-        ? "CodeMirror-TextMark-error"
-        : "CodeMirror-TextMark-warning",
-    });
-    this.markers.push(marker);
-  }
-
   getPropertyValidation = (
     dataTree: DataTree,
     dataTreePath?: string,
@@ -477,35 +521,10 @@ class CodeEditor extends Component<Props, State> {
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
+
     const filteredLintErrors = errors.filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
-
-    this.clearTextMarkers();
-    if (this.editor) {
-      const value = this.editor.getValue();
-
-      errors.forEach((error) => {
-        const errorSegment = error.errorSegment;
-        const originalBinding = error.originalBinding;
-        if (errorSegment && originalBinding) {
-          let errorSection: string = errorSegment;
-          if (errorSegment.length > originalBinding.length) {
-            errorSection = originalBinding;
-          }
-          errorSection = errorSection.trim();
-          const errorIndex = value.indexOf(errorSection);
-          if (errorIndex) {
-            const prevLines = value.substr(0, errorIndex).split("\n");
-            const ch = (_.last(prevLines) || "").length;
-            const line = prevLines.length - 1;
-            const start: Position = { line, ch };
-            const end: Position = { line, ch: ch + errorSection.length };
-            this.addTextMarker(start, end, error);
-          }
-        }
-      });
-    }
 
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
@@ -546,6 +565,8 @@ class CodeEditor extends Component<Props, State> {
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
+
+    this.lintCode();
 
     const showEvaluatedValue =
       this.state.isFocused &&
