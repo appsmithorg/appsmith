@@ -806,9 +806,28 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
+    currentDSL.version = 30;
+  }
+
+  if (currentDSL.version === 30) {
+    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+export const migrateTableDefaultSelectedRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = 0;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateTableDefaultSelectedRow(child),
+    );
+  }
   return currentDSL;
 };
 
