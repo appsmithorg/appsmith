@@ -11,6 +11,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { CloseButton } from "../../designSystems/blueprint/CloseButton";
 import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
+import { Layers } from "constants/Layers";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -193,7 +194,7 @@ const SideStickBar = styled.div`
   position: fixed;
   bottom: 37px;
   left: 0;
-  z-index: 8;
+  z-index: ${Layers.sideStickyBar};
   padding: 12px 8px;
   background-color: #df613c;
   color: #fff;
