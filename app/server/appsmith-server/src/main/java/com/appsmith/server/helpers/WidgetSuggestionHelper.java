@@ -198,14 +198,14 @@ public class WidgetSuggestionHelper {
         return widgetTypeList;
     }
 
-    private static WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
+    public static WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
         widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(),args));
         return  widgetSuggestionDTO;
     }
 
-    private static WidgetSuggestionDTO getWidgetNestedData(WidgetType widgetType, String nestedFieldName, Object... args) {
+    public static WidgetSuggestionDTO getWidgetNestedData(WidgetType widgetType, String nestedFieldName, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
         String query = String.format(widgetType.getMessage(), args);
