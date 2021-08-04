@@ -546,6 +546,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       }
                     },
                   },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
                 ],
               },
             },
