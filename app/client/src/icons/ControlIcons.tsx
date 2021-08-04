@@ -11,6 +11,8 @@ import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.sv
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
+import { ReactComponent as CloseCircleIcon } from "assets/icons/control/close-circle.svg";
+import { ReactComponent as AddCircleIcon } from "assets/icons/control/add-circle.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
@@ -45,6 +47,7 @@ import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg"
 import { ReactComponent as DividerCapRightIcon } from "assets/icons/control/divider_cap_right.svg";
 import { ReactComponent as DividerCapLeftIcon } from "assets/icons/control/divider_cap_left.svg";
 import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divider_cap_all.svg";
+import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
 import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
 import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
 import { ReactComponent as BorderRadiusSharpIcon } from "assets/icons/control/border-radius-sharp.svg";
@@ -116,6 +119,16 @@ export const ControlIcons: {
   CLOSE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CloseIcon />
+    </IconWrapper>
+  ),
+  CLOSE_CIRCLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CloseCircleIcon />
+    </IconWrapper>
+  ),
+  ADD_CIRCLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AddCircleIcon />
     </IconWrapper>
   ),
   PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (
@@ -295,6 +308,11 @@ export const ControlIcons: {
   DIVIDER_CAP_ALL: (props: IconProps) => (
     <IconWrapper {...props}>
       <DividerCapAllIcon />
+    </IconWrapper>
+  ),
+  BIND_DATA_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TrendingFlat />
     </IconWrapper>
   ),
   ICON_ALIGN_LEFT: (props: IconProps) => (

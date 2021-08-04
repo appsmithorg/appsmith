@@ -43,6 +43,7 @@ import {
   deleteCommentThreadRequest,
   addCommentReaction,
   removeCommentReaction,
+  setVisibleThread,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -54,6 +55,9 @@ import { TourType } from "entities/Tour";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
+
+import { getAllWidgetsMap } from "selectors/entitiesSelector";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -86,7 +90,7 @@ const UserName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
 `;
 
@@ -333,6 +337,8 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
+  const widgetMap = useSelector(getAllWidgetsMap);
+
   const contextMenuProps = {
     switchToEditCommentMode,
     pin,
@@ -347,12 +353,35 @@ function CommentCard({
   // TODO enable when comments links are enabled
   // useSelectCommentUsingQuery(comment.id);
 
+  const { navigateToWidget } = useNavigateToWidget();
+
   // Dont make inline cards clickable
+  // TODO check if type === widget
   const handleCardClick = () => {
     if (inline) return;
+    if (commentThread.widgetType) {
+      const widget = widgetMap[commentThread.refId];
+
+      // 1. This is only needed for the modal widgetMap
+      // 2. TODO check if we can do something similar for tabs
+      // 3. getAllWidgetsMap doesn't exist for the view mode, so these won't work for the view mode
+      if (widget?.parentModalId) {
+        navigateToWidget(
+          commentThread.refId,
+          commentThread.widgetType,
+          widget.pageId,
+          false,
+          widget.parentModalId,
+        );
+      }
+    }
+
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
+
+    dispatch(setVisibleThread(commentThreadId));
+
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }

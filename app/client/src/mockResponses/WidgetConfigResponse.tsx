@@ -151,6 +151,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
       isRequired: false,
+      closeOnSelection: false,
+      shortcuts: false,
     },
     VIDEO_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
@@ -169,6 +171,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
+      totalRecordCount: 0,
+      defaultPageSize: 0,
       dynamicBindingPathList: [
         {
           key: "primaryColumns.step.computedValue",
@@ -198,7 +202,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "step",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
         },
         task: {
           index: 1,
@@ -214,7 +218,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "task",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
         },
         status: {
           index: 2,
@@ -230,7 +234,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "status",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
         },
         action: {
           index: 3,
@@ -248,7 +252,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           onClick:
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
         },
       },
       derivedColumns: {},
@@ -288,7 +292,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 set(
                   primaryColumns,
                   `${columnId}.computedValue`,
-                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${columnId}})}}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
                 );
               });
               const updatePropertyMap = [
@@ -312,7 +316,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
@@ -326,6 +330,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isFilterable: true,
       isRequired: false,
       isDisabled: false,
+    },
+    MULTI_SELECT_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      label: "",
+      options: [
+        { label: "Hashirama Senju", value: "First" },
+        { label: "Tobirama Senju", value: "Second" },
+        { label: "Hiruzen Sarutobi", value: "Third" },
+        { label: "Minato Namikaze", value: "Fourth" },
+        { label: "Tsunade Senju", value: "Fifth" },
+        { label: "Kakashi Hatake", value: "Sixth" },
+        { label: "Naruto Uzumaki", value: "Seventh" },
+      ],
+      widgetName: "MultiSelect",
+      defaultOptionValue: ["First", "Seventh"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "select option(s)",
     },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -524,6 +548,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                         return [
                           {
                             widgetId: iconChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
                             propertyName: "onClick",
                             propertyValue: `{{closeModal('${parent.widgetName}')}}`,
                           },
@@ -793,7 +843,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
-                return  ${modifiedAction};
+                return ( ${modifiedAction} );
               })();
             })}}`;
 
@@ -1201,7 +1251,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
-      widgetName: "Menu Button",
+      widgetName: "MenuButton",
     },
     [WidgetTypes.ICON_BUTTON_WIDGET]: {
       iconName: IconNames.PLUS,

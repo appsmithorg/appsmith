@@ -50,6 +50,7 @@ import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -92,6 +93,16 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
+const getQueryIndexForSorting = (item: SearchItem, query: string) => {
+  if (item.kind === SEARCH_ITEM_TYPES.document) {
+    const title = item?._highlightResult?.title?.value;
+    return title.indexOf(algoliaHighlightTag);
+  } else {
+    const title = getItemTitle(item) || "";
+    return title.toLowerCase().indexOf(query.toLowerCase());
+  }
+};
+
 const getSortedResults = (
   query: string,
   filteredActions: Array<any>,
@@ -108,11 +119,8 @@ const getSortedResults = (
     ...filteredDatasources,
     ...documentationSearchResults,
   ].sort((a: any, b: any) => {
-    const titleA = getItemTitle(a) || "";
-    const titleB = getItemTitle(b) || "";
-
-    const queryIndexA = titleA.toLowerCase().indexOf(query.toLowerCase());
-    const queryIndexB = titleB.toLowerCase().indexOf(query.toLowerCase());
+    const queryIndexA = getQueryIndexForSorting(a, query);
+    const queryIndexB = getQueryIndexForSorting(b, query);
 
     if (queryIndexA === queryIndexB) {
       const pageA = getItemPage(a);
@@ -367,7 +375,12 @@ function GlobalSearch() {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, item.pageId, item.id),
+      DATA_SOURCES_EDITOR_ID_URL(
+        params.applicationId,
+        item.pageId,
+        item.id,
+        getQueryParams(),
+      ),
     );
   };
 

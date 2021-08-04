@@ -351,6 +351,7 @@ export type Theme = {
   sidebarWidth: string;
   canvasBottomPadding: number;
   navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
   actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
@@ -435,6 +436,9 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  actionSidePane: {
+    width: number;
+  };
 };
 
 type IconSizeType = {
@@ -745,6 +749,7 @@ type ColorType = {
     backgroundInactive: string;
     label: string;
     warning: string;
+    warningBackground: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -1157,6 +1162,11 @@ type ColorType = {
     ctaTextColor: string;
     ctaBackgroundColor: string;
     ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -1206,6 +1216,13 @@ type ColorType = {
   widgetGroupingContextMenu: {
     border: string;
     actionActiveBg: string;
+  };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
   };
 };
 
@@ -1362,13 +1379,21 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
 const navigationMenu = {
   contentActive: "#F0F0F0",
   backgroundActive: "#222222",
   contentInactive: "#858282",
   backgroundInactive: "#090707",
   label: "#A9A7A7",
-  warning: "#F22B2B",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
 };
 
 export const dark: ColorType = {
@@ -1877,6 +1902,11 @@ export const dark: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -1919,6 +1949,7 @@ export const dark: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const light: ColorType = {
@@ -2435,6 +2466,11 @@ export const light: ColorType = {
     ctaTextColor: "#202223",
     ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
     ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -2477,6 +2513,7 @@ export const light: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const theme: Theme = {
@@ -2731,6 +2768,7 @@ export const theme: Theme = {
   backBanner: "30px",
   canvasBottomPadding: 200,
   navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2837,6 +2875,9 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
+  },
+  actionSidePane: {
+    width: 265,
   },
 };
 

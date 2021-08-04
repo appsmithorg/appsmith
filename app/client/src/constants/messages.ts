@@ -32,7 +32,7 @@ export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password with a minimum of 6 characters`;
+  `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
@@ -214,7 +214,6 @@ export const ERROR_API_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
-export const ACTION_RUN_SUCCESS = () => `Action ran successfully`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
 export const ACTION_DELETE_SUCCESS = (actionName: string) =>
@@ -322,6 +321,15 @@ export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
 export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
 export const UNREAD_MESSAGE = () => "Unread conversation";
+export const UNSUBSCRIBE_EMAIL_SUCCESS = () =>
+  "You have successfully unsubscribed from the corresponding comment thread";
+export const UNSUBSCRIBE_EMAIL_MSG_1 = () =>
+  "You will not receive any more email notifications for the corresponding comment thread.";
+export const UNSUBSCRIBE_EMAIL_MSG_2 = () =>
+  "Please note that you will be subscribed again if someone tags you in a comment or you reply to a comment.";
+export const UNSUBSCRIBE_EMAIL_CONFIRM_MSG = () =>
+  "Are you sure you want to unsubscribe?";
+export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -330,7 +338,7 @@ export const BACK = () => "BACK";
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -341,6 +349,7 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const INVALID_EMAIL = () => "Please enter a valid email";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
@@ -350,3 +359,38 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+// Generate page from DB Messages
+
+export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
+  `Couldn't auto generate a page from this datasource.`;
+
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
+  `You can continue building your app with it using our Drag & Drop
+  Builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads Up`;
+
+export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
+  "Start from scratch and create your custom UI";
+
+export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with Drag & Drop";
+
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a Data Table";
+
+export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
+  "Start with a simple CRUD UI and customize it";
+
+export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+// Actions Right pane
+export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
+export const INCOMING_ENTITIES = () => "Incoming entities";
+export const NO_INCOMING_ENTITIES = () => "No incoming entities";
+export const OUTGOING_ENTITIES = () => "Outgoing entities";
+export const NO_OUTGOING_ENTITIES = () => "No outgoing entities";
+export const NO_CONNECTIONS = () => "No connections to show here";
+export const BACK_TO_CANVAS = () => "Back to canvas";
+export const SUGGESTED_WIDGET_DESCRIPTION = () =>
+  "This will add a new widget to the canvas.";
+export const ADD_NEW_WIDGET = () => "Add New Widget";
+export const SUGGESTED_WIDGETS = () => "Suggested widgets";
+export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";

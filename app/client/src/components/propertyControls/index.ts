@@ -42,7 +42,6 @@ import ButtonTabControl, {
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
-import CustomFusionChartControl from "./CustomFusionChartControl";
 import MenuItemsControl from "./MenuItemsControl";
 import IconSelectControl from "./IconSelectControl";
 import IconAlignControl from "./IconAlignControl";
@@ -61,7 +60,6 @@ export const PropertyControls = {
   ColumnActionSelectorControl,
   MultiSwitchControl,
   ChartDataControl,
-  CustomFusionChartControl,
   LocationSearchControl,
   StepControl,
   TabControl,
