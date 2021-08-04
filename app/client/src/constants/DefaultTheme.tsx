@@ -351,6 +351,7 @@ export type Theme = {
   sidebarWidth: string;
   canvasBottomPadding: number;
   navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
   actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
@@ -620,6 +621,7 @@ type ColorType = {
     backgroundInactive: string;
     label: string;
     warning: string;
+    warningBackground: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -1262,7 +1264,8 @@ const navigationMenu = {
   contentInactive: "#858282",
   backgroundInactive: "#090707",
   label: "#A9A7A7",
-  warning: "#F22B2B",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
 };
 
 export const dark: ColorType = {
@@ -2462,6 +2465,7 @@ export const theme: Theme = {
   backBanner: "30px",
   canvasBottomPadding: 200,
   navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
