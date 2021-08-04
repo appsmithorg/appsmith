@@ -14,6 +14,7 @@ import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export function selectedTabValidation(
   value: unknown,
@@ -97,9 +98,11 @@ class TabsWidget extends BaseWidget<
                 expected: {
                   type: "Tab Name (string)",
                   example: "Tab 1",
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["tabsObj", "tabs"],
           },
           {
             propertyName: "shouldShowTabs",

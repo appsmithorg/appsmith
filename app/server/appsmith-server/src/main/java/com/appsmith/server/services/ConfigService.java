@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Datasource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface ConfigService extends CrudService<Config, String> {
+public interface ConfigService {
     Mono<Config> getByName(String name);
 
     Mono<Config> updateByName(String name, Config config);
