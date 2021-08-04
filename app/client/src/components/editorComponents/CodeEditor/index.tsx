@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, FocusEvent, ChangeEvent } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
@@ -14,7 +14,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps } from "redux-form";
+import { EventOrValueHandler } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
@@ -108,7 +108,10 @@ export type EditorStyleProps = {
 
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
-    input: Partial<WrappedFieldInputProps>;
+    checked?: boolean;
+    value?: any;
+    onBlur?: EventOrValueHandler<FocusEvent<any>>;
+    onChange?: EventOrValueHandler<ChangeEvent<any>>;
   } & {
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
@@ -130,6 +133,7 @@ class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
     hinting: [bindingHint, commandsHelper],
+    value: "",
   };
 
   codeEditorTarget = React.createRef<HTMLDivElement>();
@@ -166,7 +170,7 @@ class CodeEditor extends Component<Props, State> {
         placeholder: this.props.placeholder,
       };
 
-      if (!this.props.input.onChange || this.props.disabled) {
+      if (!this.props.onChange || this.props.disabled) {
         options.readOnly = true;
         options.scrollbarStyle = "null";
       }
@@ -188,7 +192,7 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      const inputValue = getInputValue(this.props.input.value || "");
+      const inputValue = getInputValue(this.props.value);
       if (this.props.size === EditorSize.COMPACT) {
         options.value = removeNewLineChars(inputValue);
       } else {
@@ -248,7 +252,7 @@ class CodeEditor extends Component<Props, State> {
         // const currentMode = this.editor.getOption("mode");
         const editorValue = this.editor.getValue();
         // Safe update of value of the editor when value updated outside the editor
-        const inputValue = getInputValue(this.props.input.value);
+        const inputValue = getInputValue(this.props.value);
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue) {
             this.editor.setValue(inputValue);
@@ -298,7 +302,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
     // ignore if disabled
-    if (!this.props.input.onChange || this.props.disabled) {
+    if (!this.props.onChange || this.props.disabled) {
       return;
     }
     const mode = cm.getModeAt(cm.getCursor());
@@ -342,20 +346,20 @@ class CodeEditor extends Component<Props, State> {
   }
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue() || "";
+    const value = this.editor.getValue();
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = this.props.input.value || "";
+    const inputValue = this.props.value;
     if (
-      this.props.input.onChange &&
+      this.props.onChange &&
       (value !== inputValue ||
         _.get(this.editor, "state.completionActive.startLen") === 0) &&
       this.state.isFocused
     ) {
-      this.props.input.onChange(value);
+      this.props.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
@@ -386,7 +390,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
-        update: this.props.input.onChange?.bind(this),
+        update: this.props.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
             ...payload,
@@ -482,11 +486,11 @@ class CodeEditor extends Component<Props, State> {
       height,
       hideEvaluatedValue,
       hoverInteraction,
-      input,
       showLightningMenu,
       size,
       theme,
       useValidationMessage,
+      value,
     } = this.props;
     const {
       errors,
@@ -516,8 +520,8 @@ class CodeEditor extends Component<Props, State> {
             className="commands-button"
             onClick={() => {
               const newValue =
-                typeof this.props.input.value === "string"
-                  ? this.props.input.value + "/"
+                typeof this.props.value === "string"
+                  ? this.props.value + "/"
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
@@ -568,7 +572,7 @@ class CodeEditor extends Component<Props, State> {
                 isOpen={
                   showBindingPrompt(
                     showEvaluatedValue,
-                    input.value,
+                    value,
                     this.state.hinterOpen,
                   ) && !_.get(this.editor, "state.completionActive")
                 }

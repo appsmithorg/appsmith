@@ -27,12 +27,13 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     return (
       <CodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
-        input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
+        onChange={this.onChange}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}
         useValidationMessage={useValidationMessage}
+        value={propertyValue}
         {...props}
       />
     );
