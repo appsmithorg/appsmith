@@ -25,7 +25,7 @@ describe("Form reset functionality", function() {
     // Reset the form
     cy.get(widgetsPage.formButtonWidget)
       .contains("Reset")
-      .click();
+      .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     // verify table should not have selected row

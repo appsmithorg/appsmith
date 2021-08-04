@@ -1742,6 +1742,15 @@ Cypress.Commands.add("dropdownDynamic", (text) => {
     .should("have.text", text);
 });
 
+Cypress.Commands.add("dropdownMultiSelectDynamic", (text) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(".multi-select-dropdown")
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
 Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);

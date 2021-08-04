@@ -3,7 +3,6 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const data = require("../../../../fixtures/example.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -377,6 +376,8 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.dropdownInput).type("Option");
     cy.dropdownDynamic("Option 1");
     cy.PublishtheApp();
+    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("not.exist");
+    cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Validate Options", function() {
     // select two options at a time and verify
@@ -385,7 +386,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.dropdownDynamic("Option 1");
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Unchecked Visible Widget", function() {
+  it("Dropdown Functionality To Check disabled Widget", function() {
     cy.openPropertyPane("dropdownwidget");
     // Disable the visible JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -394,7 +395,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Check Visible Widget", function() {
+  it("Dropdown Functionality To UnCheck disabled Widget", function() {
     cy.openPropertyPane("dropdownwidget");
     // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);

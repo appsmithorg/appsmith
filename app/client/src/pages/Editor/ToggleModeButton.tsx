@@ -150,6 +150,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
+      setCommentModeInUrl(false);
     } else {
       setCommentModeInStore(updatedIsCommentMode);
     }
