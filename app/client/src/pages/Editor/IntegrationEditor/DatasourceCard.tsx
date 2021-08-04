@@ -1,7 +1,7 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -36,6 +36,7 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import NewActionButton from "../DataSourceEditor/NewActionButton";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -63,18 +64,6 @@ const MenuComponent = styled(Menu)`
 const MenuWrapper = styled.div`
   display: flex;
   margin: 8px 0px;
-`;
-
-const ActionButton = styled(Button)`
-  padding: 10px 16px;
-  &&&& {
-    height: 36px;
-    width: 130px;
-    //width: auto;
-  }
-  span > svg > path {
-    stroke: white;
-  }
 `;
 
 const DatasourceImage = styled.img`
@@ -142,14 +131,11 @@ const CollapseComponentWrapper = styled.div`
 
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
-  isCreating?: boolean;
   plugin: Plugin;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
-  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
@@ -157,7 +143,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource, isCreating, plugin } = props;
+  const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
   ];
@@ -208,15 +194,6 @@ function DatasourceCard(props: DatasourceCardProps) {
       );
     }
   }, [datasource.id, params, plugin]);
-
-  const onCreateNewQuery = useCallback(
-    (e) => {
-      e?.stopPropagation();
-      setIsSelected(true);
-      props.onCreateQuery(datasource, plugin.type);
-    },
-    [plugin, props.onCreateQuery, datasource],
-  );
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -278,12 +255,10 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
             </TooltipComponent>
 
-            <ActionButton
-              className="t--create-query"
-              icon="plus"
-              isLoading={isCreating && isSelected}
-              onClick={onCreateNewQuery}
-              text={plugin.type === PluginType.DB ? "New Query" : "New API"}
+            <NewActionButton
+              datasource={datasource}
+              eventFrom="active-datasources"
+              pluginType={plugin?.type}
             />
             <MenuWrapper
               className="t--datasource-menu-option"
