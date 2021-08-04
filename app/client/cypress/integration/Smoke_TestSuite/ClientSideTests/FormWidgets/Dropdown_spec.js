@@ -13,186 +13,8 @@ describe("Dropdown Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Dropdown-AlertModal Validation", function() {
-    cy.SearchEntityandOpen("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(data.input));
-    //creating the Alert Modal and verify Modal name
-    cy.createModal("Alert Modal", this.data.AlertModalName);
-    cy.PublishtheApp();
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 1")
-      .click({ force: true });
-    cy.wait(1000);
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.AlertModalName,
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Dropdown-FromModal Validation", function() {
-    cy.openPropertyPane("dropdownwidget");
-    //creating the Alert Modal and verify Modal name
-    cy.updateModal("Form Modal", this.data.FormModalName);
-    cy.PublishtheApp();
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 2")
-      .click({ force: true });
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.FormModalName,
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Dropdown-Call-Api Validation", function() {
-    //creating an api and calling it from the onOptionChangeAction of the Dropdown widget.
-    // Creating the api
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("dropdownApi");
-    cy.log("Creation of buttonApi Action successful");
-    cy.enterDatasourceAndPath(this.data.paginationUrl, "users?page=4&size=3");
-    cy.SaveAndRunAPI();
-
-    // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(formWidgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
-    cy.SearchEntityandOpen("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(data.input));
-    // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("dropdownApi");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
-
-    cy.PublishtheApp();
-
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 3")
-      .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Dropdown-Call-Query Validation", function() {
-    //creating a query and calling it from the onOptionChangeAction of the Dropdown widget.
-    // Creating a mock query
-    // cy.CreateMockQuery("Query1");
-    let postgresDatasourceName;
-
-    cy.startRoutesForDatasource();
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.generateUUID().then((uid) => {
-      postgresDatasourceName = uid;
-
-      cy.get(".t--edit-datasource-name").click();
-      cy.get(".t--edit-datasource-name input")
-        .clear()
-        .type(postgresDatasourceName, { force: true })
-        .should("have.value", postgresDatasourceName)
-        .blur();
-    });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.fillPostgresDatasourceForm();
-    cy.saveDatasource();
-
-    cy.CreateMockQuery("Query1");
-
-    // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(formWidgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
-    cy.openPropertyPane("dropdownwidget");
-    cy.testJsontext("options", JSON.stringify(data.input));
-    // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("Query1");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
-
-    cy.PublishtheApp();
-
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 2")
-      .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Toggle JS - Dropdown-Call-Query Validation", function() {
-    //creating an api and calling it from the onOptionChangeAction of the button widget.
-    // calling the existing api
-    cy.openPropertyPane("dropdownwidget");
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
-    cy.testJsontext(
-      "onoptionchange",
-      "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
-    );
-
-    cy.PublishtheApp();
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 2")
-      .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Toggle JS - Dropdown-CallAnApi Validation", function() {
-    //creating an api and calling it from the onOptionChangeAction of the button widget.
-    // calling the existing api
-    cy.openPropertyPane("dropdownwidget");
-    cy.testJsontext(
-      "onoptionchange",
-      "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
-    );
-
-    cy.PublishtheApp();
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 1")
-      .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
-    cy.openPropertyPane("dropdownwidget");
-    // Click on onOptionChange JS button
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
-    cy.get(commonlocators.dropdownSelectButton)
-      .eq(0)
-      .click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("No Action")
-      .click();
-    cy.testJsontext("options", "");
-  });
-
   it("Verify Search box for selecting drop-down options", function() {
-    cy.SearchEntityandOpen("Dropdown1");
+    cy.openPropertyPane("dropdownwidget");
     cy.togglebar(formWidgetsPage.filterCheckbox);
     cy.PublishtheApp();
     cy.get(formWidgetsPage.selectWidget)
@@ -209,7 +31,7 @@ describe("Dropdown Widget Functionality", function() {
   });
 
   it("Selects value with invalid default value", () => {
-    cy.SearchEntityandOpen("Dropdown1");
+    cy.openPropertyPane("dropdownwidget");
     // Add options in dropdown
     cy.testJsontext("options", JSON.stringify(data.input));
     // Assign the invalid default value
@@ -229,27 +51,13 @@ describe("Dropdown Widget Functionality", function() {
 
   it("Verify Dropdown Icon is available", function() {
     cy.PublishtheApp();
-    cy.get(formWidgetsPage.dropdowonChevranDown).should("be.visible");
+    cy.get(formWidgetsPage.dropdowonChevranDown).should("exist");
     cy.get(publish.backToEditor).click();
-  });
-
-  it("Dropdown Widget Functionality To Verify Drag and Drop widget", function() {
-    // Click on Add widget button
-    cy.get(formWidgetsPage.addWidget).click();
-    // Drag and drop table widget
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 170, y: 720 });
-    cy.wait(1000);
-    cy.get(commonlocators.closeWidgetBar).click({ force: true });
-    cy.GlobalSearchEntity("Select1");
-    cy.SearchEntityandOpen("Select1");
-    // Delete Table2
-    cy.deleteWidget(formWidgetsPage.dropdownwidget);
-    cy.wait(2000);
   });
 
   it("Explore Widget related documents Validation", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Dropdown1");
+    cy.openPropertyPane("dropdownwidget");
     cy.widgetText(
       "Select",
       formWidgetsPage.dropdownWidget,
@@ -277,27 +85,9 @@ describe("Dropdown Widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Dropdown Widget Functionality to Verify On Option Change Action", function() {
-    // Open property pane
-    cy.SearchEntityandOpen("Dropdown1");
-    // Dropdown On Option Change
-    cy.addAction("Option Changed");
-    cy.PublishtheApp();
-    // Change the Option
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 3")
-      .click({ force: true });
-    // Verify Option is changed
-    cy.validateToastMessage("Option Changed");
-    cy.get(publish.backToEditor).click();
-  });
-
   it("Selects value with enter in default value", () => {
     // cy.openPropertyPane("dropdownwidget");
-    cy.openPropertyPane("dropdownwidget");
+    cy.SearchEntityandOpen("Dropdown1");
     // Enter value in default option
     cy.testJsontext("defaultoption", "3\n");
     // Verify the default value is selected
@@ -310,6 +100,7 @@ describe("Dropdown Widget Functionality", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
+    cy.testJsontext("options", JSON.stringify(data.input));
     cy.widgetText(
       "Dropdown1",
       formWidgetsPage.dropdownWidget,
@@ -343,7 +134,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.PublishtheApp();
     // Verify the Dropdown widget is deleted
     cy.get(formWidgetsPage.dropdownwidget).should("not.exist");
-    cy.get(publish.backToEditor).click();
   });
 
   it("Dropdown Widget Functionality", function() {
@@ -354,37 +144,7 @@ describe("Dropdown Widget Functionality", function() {
       formWidgetsPage.dropdownWidget,
       commonlocators.containerInnerText,
     );
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .click({ force: true });
-    // Change the selection type to multi
-    cy.get(commonlocators.dropdownmenu)
-      .children()
-      .contains("Multi Select")
-      .click();
-    // Verify the selection type is multi
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .should("have.text", "Multi Select");
-    /**
-     * @param{Show Alert} Css for InputChange
-     */
-    // Type in the message and validate it
-    cy.getAlert(commonlocators.optionchangetextDropdown);
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    // Select dropdown option and Verify it
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + ".bp3-button").should("not.exist");
-    cy.get(publish.backToEditor).click();
-  });
-  it("Dropdown Functionality To Validate Options", function() {
-    // select two options at a time and verify
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.get(publish.backToEditor).click();
+    cy.closePropertyPane();
   });
   it("Dropdown Functionality To Check disabled Widget", function() {
     cy.openPropertyPane("dropdownwidget");
@@ -396,12 +156,12 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To UnCheck disabled Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.SearchEntityandOpen("lock");
     // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     // Verify the checked visible JS
-    cy.get(publish.dropdownWidget + " " + "input").should("be.visible");
+    cy.get(publish.dropdownWidget).should("exist");
     cy.get(publish.backToEditor).click();
   });
   it("Toggle JS - Dropdown-Unckeck Visible field Validation", function() {
@@ -421,7 +181,7 @@ describe("Dropdown Widget Functionality", function() {
     //Check the disabled checkbox using JS and Validate
     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "true");
     cy.PublishtheApp();
-    cy.get(formWidgetsPage.selectWidget).should("be.visible");
+    cy.get(formWidgetsPage.selectWidget).should("exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
 });

@@ -1185,7 +1185,7 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
 Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
   cy.get(checkboxCss, { timeout: 10000 })
     .last()
-    .should("be.visible")
+    .should("exist")
     .dblclick({ force: true })
     .type(inputJS);
   cy.assertPageSave();
