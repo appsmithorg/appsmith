@@ -251,8 +251,7 @@ function GlobalSearch() {
   ] = useState<Array<DocSearchItem>>([]);
 
   const setSearchResults = useCallback((res, categoryId) => {
-    if (categoryId === SEARCH_CATEGORIES.SNIPPETS)
-      setSnippetsState((res || []).map((r: any) => r.body || {}));
+    if (categoryId === SEARCH_CATEGORIES.SNIPPETS) setSnippetsState(res);
     else setDocumentationSearchResultsInState(res);
   }, []);
 
