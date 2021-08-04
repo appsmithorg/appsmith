@@ -79,8 +79,10 @@ public class WidgetSuggestionHelper {
                     }
 
                     if(JsonNodeType.OBJECT.equals(nodeType)) {
-                        //get fields from nested object
-                        //use the for table, list, chart and Select
+                        /*
+                         * Get fields from nested object
+                         * use the for table, list, chart and Select
+                         */
                         if(objectFields.isEmpty()) {
                             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                         } else {
@@ -134,7 +136,7 @@ public class WidgetSuggestionHelper {
     private static List<WidgetSuggestionDTO> getWidgetsForTypeString(List<String> fields, int length) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if (length > 1 && !fields.isEmpty()) {
-            widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
+            widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
         }
         else {
             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
@@ -147,12 +149,12 @@ public class WidgetSuggestionHelper {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
-                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET,fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
             }
             if(!numericFields.isEmpty()) {
-                widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET,fields.get(0), numericFields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
         widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
@@ -168,16 +170,25 @@ public class WidgetSuggestionHelper {
         return widgetTypeList;
     }
 
+    /**
+     * When the response from the action is has nested data(Ex : Object containing array of fields) and only 1 level is supported
+     * For nested data, the binding query changes from data.map() --> data.nestedFieldName.map()
+     */
     private static List<WidgetSuggestionDTO> getWidgetsForTypeNestedObject(String nestedFieldName) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        /*
+        * fields - contains all the fields inside the nested data and nested data is considered to only 1 level
+        * To form the binding query for CHART adn DROP_DOWN widget we need 2 fields and if there is only field in the
+        * response, the same will be used to bind (property and value)
+        * */
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET,nestedFieldName, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET,nestedFieldName, fields.get(0), fields.get(1)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET,nestedFieldName, fields.get(0), numericFields.get(0)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
         widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET, nestedFieldName));
