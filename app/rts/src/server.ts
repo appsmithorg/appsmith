@@ -112,7 +112,7 @@ async function tryAuth(socket, cookie) {
 	try {
 		response = await axios.request({
 			method: "GET",
-			url: API_BASE_URL + "/api/v1/users/me",
+			url: API_BASE_URL + "/applications/new",
 			headers: {
 				Cookie: sessionCookie,
 			},
@@ -126,8 +126,8 @@ async function tryAuth(socket, cookie) {
 		return false
 	}
 
-	const email = response.data.data.email
-	const name = response.data.data.name ? response.data.data.name : email;
+	const email = response.data.data.user.email
+	const name = response.data.data.user.name ? response.data.data.user.name : email;
 
 	socket.data.email = email
 	socket.data.name = name
