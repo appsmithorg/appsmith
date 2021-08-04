@@ -33,7 +33,7 @@ import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "../GoogleSheetForm";
 import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { useDatasourceOptions } from "./hooks";
+import { useDatasourceOptions, useS3BucketList } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers/index";
 import {
@@ -92,6 +92,8 @@ const Title = styled.p`
 
 // Constants
 
+const datasourceIcon: IconName = "tables";
+
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
@@ -144,6 +146,9 @@ function GeneratePageForm() {
   const isGoogleSheetPlugin =
     selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
 
+  const isS3Plugin =
+    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
       return getIsFetchingSinglePluginForm(
@@ -169,6 +174,13 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
+  const {
+    bucketList,
+    failedFetchingBucketList,
+    fetchBucketList,
+    isFetchingBucketList,
+  } = useS3BucketList();
+
   const onSelectDataSource = useCallback(
     (
       datasource: string | undefined,
@@ -190,6 +202,7 @@ function GeneratePageForm() {
           generateCRUDSupportedPlugin[datasourcePluginId];
         switch (pluginPackageName) {
           case PLUGIN_PACKAGE_NAME.S3:
+            fetchBucketList({ selectedDatasource: dataSourceObj });
             break;
           case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
             break;
@@ -218,7 +231,7 @@ function GeneratePageForm() {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        if (!isGoogleSheetPlugin) {
+        if (!isGoogleSheetPlugin && !isS3Plugin) {
           const { data } = TableObj;
           const columnIcon: IconName = "column";
           if (data.columns && Array.isArray(data.columns)) {
@@ -253,6 +266,7 @@ function GeneratePageForm() {
       setSelectedTableColumnOptions,
       selectColumn,
       isGoogleSheetPlugin,
+      isS3Plugin,
     ],
   );
 
@@ -272,6 +286,20 @@ function GeneratePageForm() {
   });
 
   useEffect(() => {
+    if (isS3Plugin && bucketList && bucketList.length) {
+      const tables = bucketList.map((bucketName) => ({
+        id: bucketName,
+        label: bucketName,
+        value: bucketName,
+        icon: datasourceIcon,
+        iconSize: IconSize.LARGE,
+        iconColor: Colors.BURNING_ORANGE,
+      }));
+      setSelectedDatasourceTableOptions(tables);
+    }
+  }, [bucketList, isS3Plugin]);
+
+  useEffect(() => {
     if (
       selectedDatasource.id &&
       selectedDatasource.value &&
@@ -281,7 +309,6 @@ function GeneratePageForm() {
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id] || {};
 
-      const datasourceIcon: IconName = "tables";
       const hasError = selectedDatasourceStructure?.error;
 
       if (hasError) {
@@ -413,27 +440,33 @@ function GeneratePageForm() {
 
   const fetchingDatasourceConfigs =
     isFetchingDatasourceStructure ||
+    (isFetchingBucketList && isS3Plugin) ||
     ((isFetchingSheetPluginForm || isExecutingDatasourceQuery) &&
       isGoogleSheetPlugin);
+
+  const fetchingDatasourceConfigError =
+    selectedDatasourceIsInvalid ||
+    !isValidDatasourceConfig ||
+    (failedFetchingBucketList && isS3Plugin);
 
   if (!fetchingDatasourceConfigs) {
     if (datasourceTableOptions.length === 0) {
       tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
     }
-    if (selectedDatasourceIsInvalid || !isValidDatasourceConfig) {
+    if (fetchingDatasourceConfigError) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
 
   const showEditDatasourceBtn =
-    !isFetchingDatasourceStructure &&
-    (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
+    !fetchingDatasourceConfigs &&
+    fetchingDatasourceConfigError &&
     !!selectedDatasource.value;
 
-  const showSearchableColumn = !!selectedTable.value;
   const showSubmitButton = selectedTable.value && !showEditDatasourceBtn;
 
   const showSearchableColumnDropdown =
+    !!selectedTable.value &&
     PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
 
   return (
@@ -499,7 +532,7 @@ function GeneratePageForm() {
           />
         )}
         {!isGoogleSheetPlugin ? (
-          showSearchableColumn && (
+          showSearchableColumnDropdown && (
             <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
               <Label>
                 Select a searchable {columnLabel} from

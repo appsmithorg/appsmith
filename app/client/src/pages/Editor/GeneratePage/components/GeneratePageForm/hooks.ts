@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { DropdownOptions } from "../constants";
 import { Datasource } from "entities/Datasource";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
@@ -6,6 +6,7 @@ import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import { useDispatch } from "react-redux";
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import { ResponseMeta } from "api/ApiResponses";
+import { DropdownOption } from "components/ads/Dropdown";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -65,7 +66,6 @@ export const useDatasourceOptions = ({
 
 const payload = [
   {
-    key: "method",
     value: "LIST_BUCKETS",
   },
 ];
@@ -80,40 +80,57 @@ export type executeDatasourceQuerySuccessPayload = {
   };
 };
 
-export const useS3BucketList = ({ selectedDatasource }) => {
+export const useS3BucketList = () => {
   const dispatch = useDispatch();
 
   const [bucketList, setBucketList] = useState<Array<string>>([]);
-  const isFetchingBucketList = false;
-  const failedFetchingBucketList = false;
-  const onFetchBucketSuccess = (
-    payload: executeDatasourceQuerySuccessPayload,
-  ) => {
-    if (payload.data && payload.data.body) {
-      const payloadBody = payload.data.body;
-      const { bucketList: list = [] } = payloadBody;
-      setBucketList(list);
-    }
-  };
+  const [isFetchingBucketList, setIsFetchingBucketList] = useState<boolean>(
+    false,
+  );
+  const [failedFetchingBucketList, setFailedFetchingBucketList] = useState<
+    boolean
+  >(false);
+  const onFetchBucketSuccess = useCallback(
+    (payload: executeDatasourceQuerySuccessPayload) => {
+      setIsFetchingBucketList(false);
+      if (payload.data && payload.data.body) {
+        const payloadBody = payload.data.body;
+        const { bucketList: list = [] } = payloadBody;
+        setBucketList(list);
+      }
+    },
+    [setBucketList, setIsFetchingBucketList],
+  );
 
-  const onFetchBucketFailure = () => {
-    //
-  };
+  const onFetchBucketFailure = useCallback(() => {
+    setIsFetchingBucketList(false);
+    setFailedFetchingBucketList(true);
+  }, [setIsFetchingBucketList]);
 
-  dispatch(
-    executeDatasourceQuery({
-      payload: {
-        datasourceId: selectedDatasource.id,
-        data: payload,
-      },
-      onSuccessCallback: onFetchBucketSuccess,
-      onErrorCallback: onFetchBucketFailure,
-    }),
+  const fetchBucketList = useCallback(
+    ({ selectedDatasource }: { selectedDatasource: DropdownOption }) => {
+      if (selectedDatasource.id) {
+        setIsFetchingBucketList(true);
+        setFailedFetchingBucketList(false);
+        dispatch(
+          executeDatasourceQuery({
+            payload: {
+              datasourceId: selectedDatasource.id,
+              data: payload,
+            },
+            onSuccessCallback: onFetchBucketSuccess,
+            onErrorCallback: onFetchBucketFailure,
+          }),
+        );
+      }
+    },
+    [onFetchBucketSuccess, onFetchBucketFailure, setIsFetchingBucketList],
   );
 
   return {
     bucketList,
     isFetchingBucketList,
     failedFetchingBucketList,
+    fetchBucketList,
   };
 };
