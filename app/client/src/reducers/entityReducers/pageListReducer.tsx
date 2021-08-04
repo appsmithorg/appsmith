@@ -4,10 +4,12 @@ import {
   ReduxActionTypes,
   PageListPayload,
   ClonePageSuccessPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
 const initialState: PageListReduxState = {
   pages: [],
+  isGeneratingTemplatePage: false,
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -103,6 +105,40 @@ export const pageListReducer = createReducer(initialState, {
     }
     return { ...state, pages };
   },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: true };
+  },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{
+      pageName: string;
+      pageId: string;
+      layoutId: string;
+      isDefault: boolean;
+      isNewPage: boolean;
+    }>,
+  ) => {
+    const _state = state;
+    if (action.payload.isNewPage) {
+      _state.pages = state.pages.map((page) => ({ ...page, latest: false }));
+      const newPage = {
+        pageName: action.payload.pageName,
+        pageId: action.payload.pageId,
+        layoutId: action.payload.layoutId,
+        isDefault: action.payload.isDefault,
+      };
+      _state.pages.push({ ...newPage, latest: true });
+    }
+
+    return { ..._state, isGeneratingTemplatePage: false };
+  },
+  [ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: false };
+  },
 });
 
 export type SupportedLayouts =
@@ -121,6 +157,7 @@ export interface PageListReduxState {
   defaultPageId?: string;
   currentPageId?: string;
   appLayout?: AppLayoutConfig;
+  isGeneratingTemplatePage?: boolean;
 }
 
 export default pageListReducer;
