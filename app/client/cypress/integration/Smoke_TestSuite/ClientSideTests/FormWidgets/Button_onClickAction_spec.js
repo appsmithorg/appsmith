@@ -143,6 +143,6 @@ describe("Button Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.goToEditFromPublish();
   });
 });
