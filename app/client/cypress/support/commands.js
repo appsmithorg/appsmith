@@ -1467,6 +1467,13 @@ Cypress.Commands.add("showColumn", (colId) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("makeColumnVisible", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn).scrollIntoView();
   cy.get(widgetsPage.addColumn)

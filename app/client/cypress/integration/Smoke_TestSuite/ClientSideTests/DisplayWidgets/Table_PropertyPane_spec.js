@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/tableNewDsl.json");
+const dsl = require("../../../../fixtures/tableNewDslWithPagination.json");
 const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -117,33 +117,42 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
+
+    cy.makeColumnVisible("email");
+    cy.makeColumnVisible("userName");
+    cy.makeColumnVisible("productName");
+    cy.makeColumnVisible("orderAmount");
+
     // Open column detail to be edited by draggable id
     cy.editColumn("id");
     // Change the column name
     cy.editColName("updatedId");
     // Reading single cell value of the table and verify it's value.
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
+      cy.log(tabData)
       expect(tabData).to.not.equal("2736212");
       // Changing the Computed value from "id" to "Email"
       cy.updateComputedValue(testdata.currentRowEmail);
       // Reading single cell value of the table and verify it's value.
-      cy.readTabledataPublish("1", "1").then((tabData) => {
-        expect(tabData).to.be.equal(tabValue);
-        cy.log("computed value of plain text " + tabData);
+      cy.readTabledataPublish("1", "0").then((tabData2) => {
+        cy.log(tabData2)
+        expect(tabData2).to.be.equal(tabValue);
+        cy.log("computed value of plain text " + tabData2);
       });
     });
 
     // Changing Column data type from "Plain text" to "Number"
     cy.changeColumnType("Number");
-    cy.readTabledataPublish("1", "5").then((tabData) => {
-      const tabValue = tabData;
+    cy.readTabledataPublish("1", "4").then((tabData) => {
+      cy.log(tabData)
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
       // Email to "orderAmount"
       cy.updateComputedValue(testdata.currentRowOrderAmt);
-      cy.readTabledataPublish("1", "1").then((tabData) => {
-        expect(tabData).to.be.equal(tabValue);
-        cy.log("computed value of number is " + tabData);
+      cy.readTabledataPublish("1", "0").then((tabData2) => {
+        cy.log(tabData2)
+        expect(tabData2).to.be.equal(tabData);
+        cy.log("computed value of number is " + tabData2);
       });
     });
 
@@ -175,7 +184,7 @@ describe("Table Widget property pane feature validation", function() {
     // "Moement "date" to "Image"
     cy.updateComputedValue(imageVal);
     // Verifying the href of the image added.
-    cy.readTableLinkPublish("1", "1").then((hrefVal) => {
+    cy.readTableLinkPublish("1", "0").then((hrefVal) => {
       expect(hrefVal).to.be.contains(imageVal);
     });
 
@@ -184,9 +193,9 @@ describe("Table Widget property pane feature validation", function() {
       cy.changeColumnType("URL");
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("1", "1").then((tabData) => {
-        expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
-        cy.log("computed value of URL is " + tabData);
+      cy.readTabledataPublish("1", "0").then((tabData2) => {
+        expect(tabData2).to.not.equal("lindsay.ferguson@reqres.in");
+        cy.log("computed value of URL is " + tabData2);
       });
     });
   });
@@ -196,13 +205,13 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.centerAlign)
       .first()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "1", "justify-content", "center");
+    cy.readTabledataValidateCSS("1", "0", "justify-content", "center");
 
     // Verifying Right Alignment
     cy.get(widgetsPage.rightAlign)
       .first()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "1", "justify-content", "flex-end");
+    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
 
     // Verifying Left Alignment
     cy.get(widgetsPage.leftAlign)
@@ -214,26 +223,26 @@ describe("Table Widget property pane feature validation", function() {
   it("Test to validate text format", function() {
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
-    cy.readTabledataValidateCSS("1", "1", "font-weight", "700");
+    cy.readTabledataValidateCSS("1", "0", "font-weight", "700");
     // Validate Italic text
     cy.get(widgetsPage.italics).click({ force: true });
-    cy.readTabledataValidateCSS("0", "1", "font-style", "italic");
+    cy.readTabledataValidateCSS("0", "0", "font-style", "italic");
   });
 
   it("Test to validate vertical allignment", function() {
     // Validate vertical alignemnt of Cell text to TOP
     cy.get(widgetsPage.verticalTop).click({ force: true });
-    cy.readTabledataValidateCSS("1", "1", "align-items", "flex-start");
+    cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start");
     // Validate vertical alignemnt of Cell text to Center
     cy.get(widgetsPage.verticalCenter)
       .last()
       .click({ force: true });
-    cy.readTabledataValidateCSS("1", "1", "align-items", "center");
+    cy.readTabledataValidateCSS("1", "0", "align-items", "center");
     // Validate vertical alignemnt of Cell text to Bottom
     cy.get(widgetsPage.verticalBottom)
       .last()
       .click({ force: true });
-    cy.readTabledataValidateCSS("0", "1", "align-items", "flex-end");
+    cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end");
   });
 
   it("Test to validate text color and text background", function() {
@@ -245,12 +254,12 @@ describe("Table Widget property pane feature validation", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "1", "color", "rgb(3, 179, 101)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "1", "color", "rgb(128, 0, 128)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Changing Cell backgroud color to GREEN and validate
     cy.get(widgetsPage.backgroundColor)
       .first()
@@ -258,8 +267,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.xpath(widgetsPage.greenColor).click();
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
-      "0",
       "1",
+      "0",
       "background",
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
@@ -269,7 +278,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
-      "1",
+      "0",
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
