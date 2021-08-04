@@ -50,13 +50,6 @@ const globalSearchReducer = createReducer(initialState, {
     ...state,
     recentEntitiesRestored: true,
   }),
-  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
-    state: GlobalSearchReduxState,
-    action: ReduxAction<any>,
-  ) => ({
-    ...state,
-    filterContext: action.payload,
-  }),
 });
 
 export interface GlobalSearchReduxState {

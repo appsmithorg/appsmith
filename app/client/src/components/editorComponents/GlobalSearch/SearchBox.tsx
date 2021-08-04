@@ -126,7 +126,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
-            if (e.key === "Backspace" && !e.currentTarget.value)
+            if (e.key === "Backspace" && !query)
               setCategory({ id: SEARCH_CATEGORIES.INIT });
           }}
           placeholder={createMessage(getPlaceHolder(category.id))}
