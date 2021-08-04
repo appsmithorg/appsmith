@@ -5,14 +5,14 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
-const initialState: JSCollectionNameReduxState = {
+const initialState: JSObjectNameReduxState = {
   isSaving: {},
   errors: {},
 };
 
-const jsCollectionNameReducer = createReducer(initialState, {
+const jsObjectNameReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR]: (
-    state: JSCollectionNameReduxState,
+    state: JSObjectNameReduxState,
     action: ReduxAction<{ actionId: string }>,
   ) => {
     return {
@@ -29,7 +29,7 @@ const jsCollectionNameReducer = createReducer(initialState, {
   },
 
   [ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT]: (
-    state: JSCollectionNameReduxState,
+    state: JSObjectNameReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
     return {
@@ -45,7 +45,7 @@ const jsCollectionNameReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS]: (
-    state: JSCollectionNameReduxState,
+    state: JSObjectNameReduxState,
     action: ReduxAction<{ actionId: string }>,
   ) => {
     return {
@@ -62,9 +62,9 @@ const jsCollectionNameReducer = createReducer(initialState, {
   },
 });
 
-export interface JSCollectionNameReduxState {
+export interface JSObjectNameReduxState {
   isSaving: Record<string, boolean>;
   errors: Record<string, boolean>;
 }
 
-export default jsCollectionNameReducer;
+export default jsObjectNameReducer;

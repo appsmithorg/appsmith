@@ -29,9 +29,9 @@ import { getDifferenceInJSAction } from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
 import {
   updateJSActionSuccess,
-  addJSCollectionAction,
-  updateJSCollectionAction,
-  deleteJSCollectionAction,
+  addJSObjectAction,
+  updateJSObjectAction,
+  deleteJSObjectAction,
 } from "../actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -105,7 +105,7 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
         });
       }
       yield put(
-        addJSCollectionAction({
+        addJSObjectAction({
           jsAction: jsAction,
           subActions: data.newActions,
         }),
@@ -123,7 +123,7 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
       }
       jsActionTobeUpdated.actions = changedActions;
       yield put(
-        updateJSCollectionAction({
+        updateJSObjectAction({
           jsAction: jsAction,
           subActions: data.updateActions,
         }),
@@ -138,7 +138,7 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
         });
       }
       yield put(
-        deleteJSCollectionAction({
+        deleteJSObjectAction({
           jsAction: jsAction,
           subActions: data.deletedActions,
         }),
@@ -169,7 +169,7 @@ function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
   }
 }
 
-function* handleJSCollectionNameChangeSuccessSaga(
+function* handleJSObjectNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
@@ -233,7 +233,7 @@ export default function* root() {
     ),
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
-      handleJSCollectionNameChangeSuccessSaga,
+      handleJSObjectNameChangeSuccessSaga,
     ),
     takeEvery(
       ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,

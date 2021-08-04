@@ -56,8 +56,8 @@ export const EntityProperties = memo(
         if (properties) {
           const jsEntity = dataTree[jsAction.name];
           let funcData: any;
-          if ("data" in jsEntity) {
-            funcData = jsEntity && jsEntity.data;
+          if ("meta" in jsEntity) {
+            funcData = jsEntity && jsEntity.meta;
           }
           entityProperties = Object.keys(properties).map(
             (actionProperty: string) => {

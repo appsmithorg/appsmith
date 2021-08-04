@@ -15,7 +15,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { reduxForm } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
-import JSCollectionNameEditor from "./JSCollectionNameEditor";
+import JSObjectNameEditor from "./JSObjectNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -133,8 +133,8 @@ function JSEditorForm() {
       <Form>
         <MainConfiguration>
           <FormRow className="form-row-header">
-            <NameWrapper className="t--nameOfJSCollection">
-              <JSCollectionNameEditor page="JS_PANE" />
+            <NameWrapper className="t--nameOfJSObject">
+              <JSObjectNameEditor page="JS_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSActionsMenu
@@ -180,7 +180,7 @@ function JSEditorForm() {
             />
           </TabbedViewContainer>
           <JSResponseView
-            jsCollection={currentJSAction}
+            jsObject={currentJSAction}
             onRunClick={() => {
               console.log("hey");
             }}

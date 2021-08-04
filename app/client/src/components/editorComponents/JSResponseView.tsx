@@ -124,18 +124,18 @@ interface ReduxStateProps {
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
-    jsCollection: JSAction | undefined;
+    jsObject: JSAction | undefined;
     onRunClick: () => void;
   };
 
 function JSResponseView(props: Props) {
-  const { isExecuting, jsCollection, responses } = props;
+  const { isExecuting, jsObject, responses } = props;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const [selectActionId, setSelectActionId] = useState("");
   const initialIndex = useSelector(getActionTabsInitialIndex);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
-  const actionList = jsCollection?.actions;
+  const actionList = jsObject?.actions;
   const response =
     selectActionId && !!responses[selectActionId]
       ? responses[selectActionId]
@@ -200,7 +200,7 @@ function JSResponseView(props: Props) {
     {
       key: "LOGS",
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={jsCollection?.name} />,
+      panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
 
@@ -221,7 +221,7 @@ function JSResponseView(props: Props) {
     setSelectActionId(action.id);
     dispatch(
       executeJSFunction({
-        collectionName: jsCollection?.name || "",
+        collectionName: jsObject?.name || "",
         action: action,
       }),
     );
@@ -243,15 +243,14 @@ function JSResponseView(props: Props) {
 
 const mapStateToProps = (
   state: AppState,
-  props: { jsCollection: JSAction | undefined },
+  props: { jsObject: JSAction | undefined },
 ) => {
   const jsActions = state.entities.jsActions;
-  const { jsCollection } = props;
-  const collection =
-    jsCollection &&
-    jsActions.find((action) => action.config.id === jsCollection.id);
-  const responses = (collection && collection.data) || {};
-  const isExecuting = (collection && collection.isExecuting) || {};
+  const { jsObject } = props;
+  const seletedJsObject =
+    jsObject && jsActions.find((action) => action.config.id === jsObject.id);
+  const responses = (seletedJsObject && seletedJsObject.data) || {};
+  const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {
     responses: responses,
     isExecuting: isExecuting,

@@ -156,7 +156,7 @@ export const createNewJSFunctionName = (
   const pageJsFunctionNames = jsActions
     .filter((a) => a.config.pageId === pageId)
     .map((a) => a.config.name);
-  return getNextEntityName("JSCollection", pageJsFunctionNames);
+  return getNextEntityName("JSObject", pageJsFunctionNames);
 };
 
 export const noop = () => {

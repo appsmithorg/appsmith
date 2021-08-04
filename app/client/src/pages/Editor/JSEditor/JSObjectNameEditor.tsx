@@ -14,7 +14,7 @@ import { getExistingPageNames } from "sagas/selectors";
 import { Classes } from "@blueprintjs/core";
 import log from "loglevel";
 import { Action } from "entities/Action";
-import { saveJSCollectionName } from "actions/jsActionActions";
+import { saveJSObjectName } from "actions/jsActionActions";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -50,7 +50,7 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export function JSCollectionNameEditor(props: ActionNameEditorProps) {
+export function JSObjectNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -64,7 +64,7 @@ export function JSCollectionNameEditor(props: ActionNameEditorProps) {
     state.entities.jsActions.map((action) => action.config),
   );
 
-  const currentJSCollectionConfig: JSAction | undefined = jsActions.find(
+  const currentJSObjectConfig: JSAction | undefined = jsActions.find(
     (action) => action.id === params.collectionId,
   );
 
@@ -85,7 +85,7 @@ export function JSCollectionNameEditor(props: ActionNameEditorProps) {
     isSaving: boolean;
     error: boolean;
   } = useSelector((state: AppState) => {
-    const id = currentJSCollectionConfig ? currentJSCollectionConfig.id : "";
+    const id = currentJSObjectConfig ? currentJSObjectConfig.id : "";
     return {
       isSaving: state.ui.apiName.isSaving[id],
       error: state.ui.apiName.errors[id],
@@ -97,34 +97,32 @@ export function JSCollectionNameEditor(props: ActionNameEditorProps) {
     [existingPageNames, jsActions, existingWidgetNames, actions],
   );
 
-  const isInvalidJSCollectionName = useCallback(
+  const isInvalidJSObjectName = useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
         return "Please enter a valid name";
       } else if (
-        name !== currentJSCollectionConfig?.name &&
+        name !== currentJSObjectConfig?.name &&
         hasNameConflict(name)
       ) {
         return `${name} is already being used.`;
       }
       return false;
     },
-    [currentJSCollectionConfig, hasNameConflict],
+    [currentJSObjectConfig, hasNameConflict],
   );
 
-  const handleJSCollectionNameChange = useCallback(
+  const handleJSObjectNameChange = useCallback(
     (name: string) => {
       if (
-        currentJSCollectionConfig &&
-        name !== currentJSCollectionConfig?.name &&
-        !isInvalidJSCollectionName(name)
+        currentJSObjectConfig &&
+        name !== currentJSObjectConfig?.name &&
+        !isInvalidJSObjectName(name)
       ) {
-        dispatch(
-          saveJSCollectionName({ id: currentJSCollectionConfig.id, name }),
-        );
+        dispatch(saveJSObjectName({ id: currentJSObjectConfig.id, name }));
       }
     },
-    [dispatch, isInvalidJSCollectionName, currentJSCollectionConfig],
+    [dispatch, isInvalidJSObjectName, currentJSObjectConfig],
   );
 
   useEffect(() => {
@@ -157,14 +155,12 @@ export function JSCollectionNameEditor(props: ActionNameEditorProps) {
       >
         <EditableText
           className="t--action-name-edit-field"
-          defaultValue={
-            currentJSCollectionConfig ? currentJSCollectionConfig.name : ""
-          }
+          defaultValue={currentJSObjectConfig ? currentJSObjectConfig.name : ""}
           editInteractionKind={EditInteractionKind.SINGLE}
           forceDefault={forceUpdate}
           isEditingDefault={isNew}
-          isInvalid={isInvalidJSCollectionName}
-          onTextChanged={handleJSCollectionNameChange}
+          isInvalid={isInvalidJSObjectName}
+          onTextChanged={handleJSObjectNameChange}
           placeholder="Name of the function in camelCase"
           type="text"
           updating={saveStatus.isSaving}
@@ -175,4 +171,4 @@ export function JSCollectionNameEditor(props: ActionNameEditorProps) {
   );
 }
 
-export default JSCollectionNameEditor;
+export default JSObjectNameEditor;

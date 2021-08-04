@@ -97,7 +97,7 @@ export const QUERIES_EDITOR_URL = (
 export const JS_COLLECTION_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsCollections`;
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsObjects`;
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",

@@ -342,7 +342,7 @@ export const GLOBAL_FUNCTIONS = {
 
 export const getPropsForJSActionEntity = (entity: any): any => {
   const result: any = {};
-  const metaObj = entity.meta;
+  const metaObj = entity?.meta;
   for (const key in metaObj) {
     if (metaObj.hasOwnProperty(key)) {
       result[key] =
@@ -356,8 +356,8 @@ export const getPropsForJSActionEntity = (entity: any): any => {
   //     result["data." + key] = dataObj[key];
   //   }
   // }
-  const variables = entity.variables;
-  if (variables.length > 0) {
+  const variables = entity?.variables;
+  if (variables && variables.length > 0) {
     for (let i = 0; i < variables.length; i++) {
       result[variables[i]] = entity[variables[i]];
     }

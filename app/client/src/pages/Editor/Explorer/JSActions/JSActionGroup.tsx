@@ -17,8 +17,8 @@ export const ExplorerJSActionGroup = memo(
   (props: ExplorerJSActionGroupProps) => {
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
-        No JS Collections yet. Please click the <strong>+</strong> icon on
-        above, to create.
+        No JS Objects yet. Please click the <strong>+</strong> icon on above, to
+        create.
       </EntityPlaceholder>
     );
     const childNode: ReactElement<ExplorerJSActionGroupProps> = (
@@ -46,7 +46,7 @@ export const ExplorerJSActionGroup = memo(
         icon={jsIcon}
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
-        name="JS Collections"
+        name="JS Objects"
         onCreate={() => dispatch(createNewJSAction(props.pageId))}
         searchKeyword={props.searchKeyword}
         step={props.step}

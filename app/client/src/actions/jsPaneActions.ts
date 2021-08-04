@@ -23,7 +23,7 @@ export const updateJSActionSuccess = (payload: { data: JSAction }) => {
   };
 };
 
-export const addJSCollectionAction = (payload: {
+export const addJSObjectAction = (payload: {
   jsAction: JSAction;
   subActions: Array<Partial<JSSubAction>>;
 }) => {
@@ -33,7 +33,7 @@ export const addJSCollectionAction = (payload: {
   };
 };
 
-export const updateJSCollectionAction = (payload: {
+export const updateJSObjectAction = (payload: {
   jsAction: JSAction;
   subActions: Array<JSSubAction>;
 }) => {
@@ -43,7 +43,7 @@ export const updateJSCollectionAction = (payload: {
   };
 };
 
-export const deleteJSCollectionAction = (payload: {
+export const deleteJSObjectAction = (payload: {
   jsAction: JSAction;
   subActions: Array<JSSubAction>;
 }) => {

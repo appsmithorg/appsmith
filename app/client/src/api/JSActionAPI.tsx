@@ -9,7 +9,7 @@ export interface MoveJSActionRequest {
   collectionId: string;
   destinationPageId: string;
 }
-export interface UpdateJSCollectionNameRequest {
+export interface UpdateJSObjectNameRequest {
   pageId: string;
   actionCollectionId: string;
   layoutId: string;
@@ -58,13 +58,10 @@ class JSActionAPI extends API {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
-  static updateJSCollectionName(
-    updateJSCollectionNameRequest: UpdateJSCollectionNameRequest,
+  static updateJSObjectName(
+    updateJSObjectNameRequest: UpdateJSObjectNameRequest,
   ) {
-    return API.put(
-      JSActionAPI.url + "/refactor",
-      updateJSCollectionNameRequest,
-    );
+    return API.put(JSActionAPI.url + "/refactor", updateJSObjectNameRequest);
   }
 }
 

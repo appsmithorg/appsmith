@@ -257,9 +257,7 @@ export function* deleteJSActionSaga(
   }
 }
 
-function* saveJSCollectionName(
-  action: ReduxAction<{ id: string; name: string }>,
-) {
+function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const collectionId = action.payload.id;
   const collection = yield select((state) =>
@@ -268,7 +266,7 @@ function* saveJSCollectionName(
     ),
   );
   try {
-    yield refactorJSCollectionName(
+    yield refactorJSObjectName(
       collection.config.id,
       collection.config.pageId,
       collection.config.name,
@@ -290,7 +288,7 @@ function* saveJSCollectionName(
   }
 }
 
-export function* refactorJSCollectionName(
+export function* refactorJSObjectName(
   id: string,
   pageId: string,
   oldName: string,
@@ -305,7 +303,7 @@ export function* refactorJSCollectionName(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse = yield JSActionAPI.updateJSCollectionName({
+    const refactorResponse = yield JSActionAPI.updateJSObjectName({
       layoutId,
       actionCollectionId: id,
       pageId: pageId,
@@ -398,10 +396,7 @@ export function* watchJSActionSagas() {
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSActionSaga),
-    takeLatest(
-      ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT,
-      saveJSCollectionName,
-    ),
+    takeLatest(ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT, saveJSObjectName),
     takeLatest(
       ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
       fetchJSActionsForPageSaga,

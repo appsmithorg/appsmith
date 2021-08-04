@@ -49,24 +49,21 @@ export const getLoadingError = (state: AppState) =>
 
 export const getIsPageSaving = (state: AppState) => {
   let areApisSaving = false;
-  let areJsCollectionsSaving = false;
+  let areJsObjectsSaving = false;
 
   const savingApis = state.ui.apiPane.isSaving;
-  const savingJSCollections = state.ui.jsPane.isSaving;
+  const savingJSObjects = state.ui.jsPane.isSaving;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
   });
 
-  Object.keys(savingJSCollections).forEach((collectionId) => {
-    areJsCollectionsSaving =
-      savingJSCollections[collectionId] || areJsCollectionsSaving;
+  Object.keys(savingJSObjects).forEach((collectionId) => {
+    areJsObjectsSaving = savingJSObjects[collectionId] || areJsObjectsSaving;
   });
 
   return (
-    state.ui.editor.loadingStates.saving ||
-    areApisSaving ||
-    areJsCollectionsSaving
+    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
   );
 };
 
