@@ -10,7 +10,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
 import { isEmpty } from "lodash";
 
