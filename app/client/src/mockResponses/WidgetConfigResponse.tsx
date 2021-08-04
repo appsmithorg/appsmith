@@ -1206,6 +1206,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Orange", value: "orange" },
         { label: "Lemon", value: "lemon" },
       ],
+      defaultSelectedValues: "apple",
       isDisabled: false,
       isRequired: false,
       isVisible: true,

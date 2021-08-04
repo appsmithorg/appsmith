@@ -22,6 +22,8 @@ const CheckboxGroupContainer = styled.div<
   justify-content: space-between;
   width: 100%;
   height: 100%;
+  overflow: auto;
+  border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
     `
@@ -75,16 +77,18 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
 
   return (
     <CheckboxGroupContainer inline={isInline} valid={isValid}>
-      {options.map((option: OptionProps) => (
-        <StyledCheckbox
-          checked={(selectedValues || []).includes(option.value)}
-          disabled={isDisabled}
-          inline={isInline}
-          key={option.value}
-          label={option.label}
-          onChange={onChange(option.value)}
-        />
-      ))}
+      {options &&
+        options.length > 0 &&
+        [...options].map((option: OptionProps) => (
+          <StyledCheckbox
+            checked={(selectedValues || []).includes(option.value)}
+            disabled={isDisabled}
+            inline={isInline}
+            key={option.value}
+            label={option.label}
+            onChange={onChange(option.value)}
+          />
+        ))}
     </CheckboxGroupContainer>
   );
 }
