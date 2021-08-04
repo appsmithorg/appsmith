@@ -481,7 +481,6 @@ function GeneratePageForm() {
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
-            defaultIsOpen={!selectedDatasource.value}
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}

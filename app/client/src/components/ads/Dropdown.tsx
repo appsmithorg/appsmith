@@ -52,7 +52,6 @@ export type DropdownProps = CommonComponentProps &
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
-    defaultIsOpen?: boolean;
     optionWidth?: string;
     dropdownHeight?: string;
     dropdownMaxHeight?: string;
@@ -458,10 +457,9 @@ export default function Dropdown(props: DropdownProps) {
     SelectedValueNode = DefaultDropDownValueNode,
     renderOption,
     errorMsg = "",
-    defaultIsOpen = false,
     helperText = "",
   } = { ...props };
-  const [isOpen, setIsOpen] = useState<boolean>(defaultIsOpen);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
   const closeIfOpen = () => {
@@ -472,7 +470,6 @@ export default function Dropdown(props: DropdownProps) {
 
   useEffect(() => {
     setSelected(props.selected);
-    // when parent component set a selected value and dropdown is open due to defaultIsOpen set to true.
     closeIfOpen();
   }, [props.selected]);
 
