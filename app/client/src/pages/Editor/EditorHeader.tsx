@@ -175,11 +175,11 @@ const BindingBanner = styled.div`
 
 const UserImageContainer = styled.div`
   display: flex;
-  margin-right: 8px;
+  margin-right: ${(props) => props.theme.spaces[3]}px;
 
   div {
     cursor: default;
-    margin-left: 4px;
+    margin-left: ${(props) => props.theme.spaces[1]}px;
     width: 24px;
     height: 24px;
   }
