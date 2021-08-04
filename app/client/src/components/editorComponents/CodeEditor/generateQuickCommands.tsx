@@ -193,6 +193,12 @@ const generateCreateNewCommand = ({
   },
 });
 
+const iconsByType = {
+  [Shortcuts.BINDING]: <Binding />,
+  [Shortcuts.PLUS]: <NewPlus />,
+  [Shortcuts.FUNCTION]: <Function />,
+};
+
 function Command(props: {
   pluginType?: PluginType;
   imgSrc?: string;
@@ -210,12 +216,7 @@ function Command(props: {
             SAAS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
-        {props.shortcut &&
-          {
-            [Shortcuts.BINDING]: <Binding />,
-            [Shortcuts.PLUS]: <NewPlus />,
-            [Shortcuts.FUNCTION]: <Function />,
-          }[props.shortcut]}
+        {props.shortcut && iconsByType[props.shortcut]}
         <span>{props.name}</span>
       </div>
     </div>
