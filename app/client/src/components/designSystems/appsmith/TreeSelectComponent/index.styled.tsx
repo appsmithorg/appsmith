@@ -449,7 +449,7 @@ box-shadow: 0 0 2px rgb(0 0 0 / 20%) !important;
     direction: ltr;
     background-color: #fff;
     border: 1px solid #d9d9d9;
-    border-radius: 2px;
+    border-radius: 0px;
     border-collapse: separate;
     transition: all .3s;
 }

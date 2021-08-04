@@ -288,9 +288,9 @@ export const entityDefinitions = {
     label: "string",
   },
   //TODO: fix this after development
-  TREE_SELECT_WIDGET: {
+  TREE_SINGLE_SELECT_WIDGET: {
     "!doc":
-      "Tree Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
+      "Tree Single Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs.",
     "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValue: {
@@ -303,6 +303,14 @@ export const entityDefinitions = {
       "!doc": "The selected option label in a tree select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
+  TREE_MULTI_SELECT_WIDGET: {
+    "!doc":
+      "Tree Multi Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a tree select dropdown",

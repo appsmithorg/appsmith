@@ -123,10 +123,14 @@ import MenuButtonWidget, {
   MenuButtonWidgetProps,
   ProfiledMenuButtonWidget,
 } from "widgets/MenuButtonWidget";
-import TreeSelectWidget, {
-  ProfiledTreeSelectWidget,
-  TreeSelectWidgetProps,
-} from "widgets/TreeSelectWidget";
+import TreeSingleSelectWidget, {
+  TreeSingleSelectWidgetProps,
+} from "widgets/TreeSelectWidget/SingleSelectWidget";
+import TreeMultiSelectWidget, {
+  TreeMultiSelectWidgetProps,
+  ProfiledTreeMultiSelectWidget,
+} from "../widgets/TreeSelectWidget/MultiSelectWidget";
+import { ProfiledTreeSingleSelectWidget } from "../widgets/TreeSelectWidget/SingleSelectWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -544,16 +548,29 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.TREE_SELECT_WIDGET,
+      WidgetTypes.TREE_SINGLE_SELECT_WIDGET,
       {
-        buildWidget(widgetData: TreeSelectWidgetProps): JSX.Element {
-          return <ProfiledTreeSelectWidget {...widgetData} />;
+        buildWidget(widgetData: TreeSingleSelectWidgetProps): JSX.Element {
+          return <ProfiledTreeSingleSelectWidget {...widgetData} />;
         },
       },
-      TreeSelectWidget.getDerivedPropertiesMap(),
-      TreeSelectWidget.getDefaultPropertiesMap(),
-      TreeSelectWidget.getMetaPropertiesMap(),
-      TreeSelectWidget.getPropertyPaneConfig(),
+      TreeSingleSelectWidget.getDerivedPropertiesMap(),
+      TreeSingleSelectWidget.getDefaultPropertiesMap(),
+      TreeSingleSelectWidget.getMetaPropertiesMap(),
+      TreeSingleSelectWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.TREE_MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: TreeMultiSelectWidgetProps): JSX.Element {
+          return <ProfiledTreeMultiSelectWidget {...widgetData} />;
+        },
+      },
+      TreeMultiSelectWidget.getDerivedPropertiesMap(),
+      TreeMultiSelectWidget.getDefaultPropertiesMap(),
+      TreeMultiSelectWidget.getMetaPropertiesMap(),
+      TreeMultiSelectWidget.getPropertyPaneConfig(),
     );
   }
 }

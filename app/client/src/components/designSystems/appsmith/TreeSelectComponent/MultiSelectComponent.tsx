@@ -9,7 +9,6 @@ import {
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
-import { SelectionType } from "widgets/TreeSelectWidget";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import {
   CANVAS_CLASSNAME,
@@ -31,7 +30,6 @@ export interface TreeSelectProps
   > {
   value?: DefaultValueType;
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
-  selectionType: SelectionType;
   expandAll: boolean;
   mode: CheckedStrategy;
   labelText?: string;
@@ -84,7 +82,7 @@ const switcherIcon = (obj: TreeNodeProps) => {
   return getSvg({ transform: `rotate(${obj.expanded ? 90 : 0}deg)` });
 };
 
-function TreeSelectComponent({
+function MultiTreeSelectComponent({
   allowClear,
   compactMode,
   disabled,
@@ -99,7 +97,6 @@ function TreeSelectComponent({
   onChange,
   options,
   placeholder,
-  selectionType,
   value,
 }: TreeSelectProps): JSX.Element {
   const _menu = useRef<HTMLElement | null>(null);
@@ -137,15 +134,14 @@ function TreeSelectComponent({
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"
         disabled={disabled}
-        dropdownClassName={`tree-select-dropdown ${selectionType ===
-          "SINGLE_SELECT" && "single-tree-select-dropdown"}`}
+        dropdownClassName="tree-select-dropdown"
         dropdownStyle={dropdownStyle}
         getPopupContainer={() => getDropdownPosition(_menu.current)}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
-        multiple={selectionType === "MULTI_SELECT"}
+        multiple
         notFoundContent="No item Found"
         onChange={onChange}
         onClear={() => {
@@ -159,9 +155,7 @@ function TreeSelectComponent({
         switcherIcon={switcherIcon}
         transitionName="rc-tree-select-dropdown-slide-up"
         treeCheckable={
-          selectionType === "MULTI_SELECT" ? (
-            <span className={`rc-tree-select-tree-checkbox-inner`} />
-          ) : null
+          <span className={`rc-tree-select-tree-checkbox-inner`} />
         }
         treeData={options}
         treeDefaultExpandAll={expandAll}
@@ -173,4 +167,4 @@ function TreeSelectComponent({
   );
 }
 
-export default TreeSelectComponent;
+export default MultiTreeSelectComponent;

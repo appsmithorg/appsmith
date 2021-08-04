@@ -384,112 +384,68 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
       isDisabled: false,
     },
-    TREE_SELECT_WIDGET: {
+    TREE_MULTI_SELECT_WIDGET: {
       rows: 1.7 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
-      label: "",
       selectionType: "SINGLE_SELECT",
       mode: "SHOW_ALL",
       options: [
         {
-          label: "Color",
-          value: "Color",
-          children: [
-            { label: "Blue", value: "BLUE" },
-            { label: "Green", value: "GREEN" },
-            { label: "Red", value: "RED" },
-          ],
-        },
-        {
-          label: "Language",
-          value: "Language",
+          label: "Blue",
+          value: "BLUE",
           children: [
             {
-              label: "Javascript",
-              value: "Javascript",
-              children: [{ label: "Typescript", value: "Typescript" }],
-            },
-            { label: "Python", value: "Python" },
-            { label: "Java", value: "Java" },
-          ],
-        },
-        {
-          label: "Planets",
-          value: "Planets",
-          children: [
-            { label: "Jupiter", value: "Jupiter" },
-            { label: "Uranus", value: "Uranus" },
-            { label: "Mars", value: "Mars" },
-          ],
-        },
-        {
-          label: "Manufacturers",
-          value: "Manufacturers",
-          children: [
-            {
-              label: "Samsung",
-              value: "Samsung",
-              children: [
-                { label: "Note series", value: "Note series" },
-                { label: "S series", value: "S series" },
-                { label: "Tab Series", value: "Tab Series" },
-              ],
+              label: "Dark Blue",
+              value: "DARK BLUE",
             },
             {
-              label: "Apple",
-              value: "Apple",
-              children: [
-                { label: "iPhone", value: "iPhone" },
-                { label: "iPad", value: "iPad" },
-                { label: "MacBooks", value: "MacBooks" },
-              ],
-            },
-            {
-              label: "Sony",
-              value: "Sony",
-              children: [
-                { label: "PlayStation", value: "PlayStation" },
-                { label: "Xperia", value: "Xperia" },
-              ],
+              label: "Light Blue",
+              value: "LIGHT BLUE",
             },
           ],
         },
-        {
-          label: "Countries",
-          value: "countries",
-          children: [
-            {
-              label: "North Pole",
-              value: "North Pole",
-              children: [
-                { label: "Russia", value: "Russia" },
-                { label: "Denmark", value: "Denmark" },
-                { label: "Canada", value: "Canada" },
-              ],
-            },
-            {
-              label: "South Pole",
-              value: "South Pole",
-              children: [
-                { label: "France", value: "France" },
-                { label: "Argentina", value: "Argentina" },
-                { label: "Australia", value: "Australia" },
-                { label: "Chile", value: "Chile" },
-                { label: "New Zealand", value: "New Zealand" },
-                { label: "United Kingdom", value: "United Kingdom" },
-              ],
-            },
-          ],
-        },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
       ],
-      widgetName: "TreeSelect",
-      defaultOptionValue: ["Color"],
+      widgetName: "MultiSelectTree",
+      defaultOptionValue: ["BLUE"],
       version: 1,
       isRequired: false,
       isDisabled: false,
       allowClear: false,
       expandAll: false,
       placeholderText: "select option(s)",
+      labelText: "Label",
+    },
+    TREE_SINGLE_SELECT_WIDGET: {
+      rows: 1.7 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      options: [
+        {
+          label: "Blue",
+          value: "BLUE",
+          children: [
+            {
+              label: "Dark Blue",
+              value: "DARK BLUE",
+            },
+            {
+              label: "Light Blue",
+              value: "LIGHT BLUE",
+            },
+          ],
+        },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      widgetName: "SingleSelectTree",
+      defaultOptionValue: "BLUE",
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      allowClear: false,
+      expandAll: false,
+      placeholderText: "select option",
       labelText: "Label",
     },
     TABS_WIDGET: {

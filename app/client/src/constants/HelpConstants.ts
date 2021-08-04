@@ -135,9 +135,13 @@ export const HelpMap = {
     path: "/widget-reference/menu-button",
     searchKey: "Menu Button",
   },
-  TREE_SELECT_WIDGET: {
-    path: "/widget-reference/tree-select",
-    searchKey: "Tree Select",
+  TREE_MULTI_SELECT_WIDGET: {
+    path: "/widget-reference/tree-multi-select",
+    searchKey: "Tree Multi Select",
+  },
+  TREE_SINGLE_SELECT_WIDGET: {
+    path: "/widget-reference/tree-single-select",
+    searchKey: "Tree Single Select",
   },
 };
 

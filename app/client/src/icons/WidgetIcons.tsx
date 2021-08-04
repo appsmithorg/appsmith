@@ -174,7 +174,12 @@ export const WidgetIcons: {
       <MenuButtonIcon />
     </IconWrapper>
   ),
-  TREE_SELECT_WIDGET: (props: IconProps) => (
+  TREE_SINGLE_SELECT_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TreeSelectIcon />
+    </IconWrapper>
+  ),
+  TREE_MULTI_SELECT_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <TreeSelectIcon />
     </IconWrapper>

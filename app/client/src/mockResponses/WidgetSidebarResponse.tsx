@@ -131,8 +131,13 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
-    type: "TREE_SELECT_WIDGET",
-    widgetCardName: "TreeSelect",
+    type: "TREE_SINGLE_SELECT_WIDGET",
+    widgetCardName: "SingleSelect Tree",
+    key: generateReactKey(),
+  },
+  {
+    type: "TREE_MULTI_SELECT_WIDGET",
+    widgetCardName: "MultiSelect Tree",
     key: generateReactKey(),
   },
 ];
