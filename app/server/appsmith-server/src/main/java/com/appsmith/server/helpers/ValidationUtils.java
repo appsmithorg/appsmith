@@ -4,7 +4,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MIN_LENGTH = 6;
-    public static final int LOGIN_PASSWORD_MAX_LENGTH = 42;
+    public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
 
     public static boolean validateEmail(String emailStr) {
         return EmailValidator.getInstance().isValid(emailStr);
