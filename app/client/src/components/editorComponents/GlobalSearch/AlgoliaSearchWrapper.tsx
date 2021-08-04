@@ -10,9 +10,16 @@ const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 type SearchProps = {
   query: string;
   children: React.ReactNode;
+  setRefinement: (args: any) => void;
+  refinementList: any;
 };
 
-function Search({ children, query }: SearchProps) {
+function Search({
+  children,
+  query,
+  refinementList,
+  setRefinement,
+}: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),
@@ -26,8 +33,11 @@ function Search({ children, query }: SearchProps) {
   return (
     <InstantSearch
       indexName={algolia.indexName}
+      onSearchStateChange={(searchState) => {
+        setRefinement(searchState.refinementList);
+      }}
       searchClient={searchClient}
-      searchState={{ query: queryInState }}
+      searchState={{ query: queryInState, refinementList }}
     >
       {children}
     </InstantSearch>

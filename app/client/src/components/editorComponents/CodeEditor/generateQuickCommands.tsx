@@ -39,12 +39,12 @@ export const generateQuickCommands = (
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
   });
-  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-  //   text: "",
-  //   displayText: "Insert Snippet",
-  //   shortcut: Shortcuts.FUNCTION,
-  //   action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
-  // });
+  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "Insert Snippet",
+    shortcut: Shortcuts.FUNCTION,
+    action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
+  });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
@@ -104,7 +104,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []), //insertSnippet
+    ...matchingCommands([insertSnippet, newBinding], searchText, []),
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {
