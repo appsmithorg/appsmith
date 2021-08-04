@@ -49,8 +49,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-// import DocsIcon from "assets/icons/ads/docs.svg";
-// import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
@@ -97,16 +95,7 @@ const StyledContainer = styled.div`
     font-style: normal;
     font-weight: bold;
   }
-  & .search-highlighted {
-    margin-right: -3px;
-  }
 `;
-
-// const Separator = styled.div`
-//   margin: ${(props) => props.theme.spaces[3]}px 0;
-//   width: 1px;
-//   background-color: ${(props) => props.theme.colors.globalSearch.separator};
-// `;
 
 const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
@@ -115,12 +104,6 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
-
-// const getSectionTitle = (title: string, icon: any) => ({
-//   kind: SEARCH_ITEM_TYPES.sectionTitle,
-//   title,
-//   icon,
-// });
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -172,9 +155,6 @@ function GlobalSearch() {
   const dispatch = useDispatch();
   const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const [snippets, setSnippetsState] = useState([]);
-  // const setSnippets = useCallback((res) => {
-  //   setSnippetsState(res);
-  // }, []);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
@@ -331,25 +311,7 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  // const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
-  // const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
-
   const searchResults = useMemo(() => {
-    // if (query && category.id === SEARCH_CATEGORIES.INIT) {
-    //   return [
-    //     recentsSectionTitle,
-    //     ...(recentEntities.length > 0
-    //       ? recentEntities
-    //       : [
-    //           {
-    //             title: "Recents list is empty",
-    //             kind: SEARCH_ITEM_TYPES.placeholder,
-    //           },
-    //         ]),
-    //     docsSectionTitle,
-    //     ...defaultDocs,
-    //   ];
-    // }
     if (category.id === SEARCH_CATEGORIES.INIT && !query) {
       return filterCategories;
     }
@@ -550,8 +512,6 @@ function GlobalSearch() {
                         query={query}
                         searchResults={searchResults}
                       />
-                      {/* {getCategoryId(category) !==
-                        SEARCH_CATEGORIES.SNIPPETS && <Separator />} */}
                       {(category.id === SEARCH_CATEGORIES.DOCUMENTATION ||
                         category.id === SEARCH_CATEGORIES.SNIPPETS) && (
                         <Description
