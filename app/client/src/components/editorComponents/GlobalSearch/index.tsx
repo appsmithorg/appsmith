@@ -134,37 +134,36 @@ const getQueryIndexForSorting = (item: SearchItem, query: string) => {
 
 const getSortedResults = (
   query: string,
-  filteredActions: Array<any>,
-  filteredWidgets: Array<any>,
-  filteredPages: Array<any>,
-  filteredDatasources: Array<any>,
+  filteredEntities: Array<any>,
   documentationSearchResults: Array<any>,
+  recentEntityIndex: (entity: any) => number,
   currentPageId?: string,
 ) => {
-  return [
-    ...filteredActions,
-    ...filteredWidgets,
-    ...filteredPages,
-    ...filteredDatasources,
-    ...documentationSearchResults,
-  ].sort((a: any, b: any) => {
-    const queryIndexA = getQueryIndexForSorting(a, query);
-    const queryIndexB = getQueryIndexForSorting(b, query);
+  return [...filteredEntities, ...documentationSearchResults].sort(
+    (a: any, b: any) => {
+      const queryIndexA = getQueryIndexForSorting(a, query);
+      const queryIndexB = getQueryIndexForSorting(b, query);
 
-    if (queryIndexA === queryIndexB) {
-      const pageA = getItemPage(a);
-      const pageB = getItemPage(b);
-      const isAInCurrentPage = pageA === currentPageId;
-      const isBInCurrentPage = pageB === currentPageId;
-      if (isAInCurrentPage) return -1;
-      if (isBInCurrentPage) return 1;
-      return 0;
-    } else {
-      if (queryIndexA === -1 && queryIndexB !== -1) return 1;
-      else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
-      else return queryIndexA - queryIndexB;
-    }
-  });
+      if (queryIndexA === queryIndexB) {
+        const idxA = recentEntityIndex(a);
+        const idxB = recentEntityIndex(b);
+        if (idxA > -1 && idxB > -1) return idxA - idxB;
+        if (idxA > -1) return -1;
+        else if (idxB > -1) return 1;
+        const pageA = getItemPage(a);
+        const pageB = getItemPage(b);
+        const isAInCurrentPage = pageA === currentPageId;
+        const isBInCurrentPage = pageB === currentPageId;
+        if (isAInCurrentPage) return -1;
+        if (isBInCurrentPage) return 1;
+        return 0;
+      } else {
+        if (queryIndexA === -1 && queryIndexB !== -1) return 1;
+        else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
+        else return queryIndexA - queryIndexB;
+      }
+    },
+  );
 };
 
 function GlobalSearch() {
@@ -259,6 +258,18 @@ function GlobalSearch() {
     );
   }, [reducerDatasources, query]);
   const recentEntities = useRecentEntities();
+  const recentEntityIds = recentEntities
+    .map((r) => r.id || r.widgetId || r.config?.id || r.pageId)
+    .filter(Boolean);
+  const recentEntityIndex = useCallback(
+    (entity) => {
+      if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
+      const id =
+        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+      return recentEntityIds.indexOf(id);
+    },
+    [recentEntities],
+  );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);
@@ -346,28 +357,23 @@ function GlobalSearch() {
       return snippets;
     }
 
+    let filteredEntities: any = [];
+    if (
+      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
+        category.id,
+      )
+    ) {
+      filteredEntities = [
+        ...filteredActions,
+        ...filteredWidgets,
+        ...filteredPages,
+        ...filteredDatasources,
+      ];
+    }
+
     return getSortedResults(
       query,
-      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-        ? filteredActions
-        : [],
-      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-        ? filteredWidgets
-        : [],
-      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-        ? filteredPages
-        : [],
-      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-        ? filteredDatasources
-        : [],
+      filteredEntities,
       [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
         category.id,
       )
@@ -375,6 +381,7 @@ function GlobalSearch() {
           ? documentationSearchResults
           : defaultDocs.concat(documentationSearchResults)
         : [],
+      recentEntityIndex,
       currentPageId,
     );
   }, [
