@@ -47,7 +47,7 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
   cy.contains(newOrgName);
 });
 
-Cypress.Commands.add("goToEidtFromPublish", () => {
+Cypress.Commands.add("goToEditFromPublish", () => {
   cy.url().then((url) => {
     if (!url.includes("edit")) {
       cy.visit(url + "/edit");

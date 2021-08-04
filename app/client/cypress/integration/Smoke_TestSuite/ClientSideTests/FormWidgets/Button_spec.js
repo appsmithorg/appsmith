@@ -165,6 +165,6 @@ describe("Button Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.goToEidtFromPublish();
+    cy.goToEditFromPublish();
   });
 });
