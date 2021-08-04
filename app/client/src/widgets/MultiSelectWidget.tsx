@@ -13,6 +13,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "components/designSystems/appsmith/MultiSelectComponent";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -105,6 +106,7 @@ class MultiSelectWidget extends BaseWidget<
                 expected: {
                   type: "value or Array of values",
                   example: `value1 | ['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },
