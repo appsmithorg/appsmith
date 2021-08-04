@@ -23,7 +23,7 @@ const UserImageContainer = styled.div`
   }
 
   div:last-child {
-    margin-right: 0px;
+    margin-right: 0;
   }
 `;
 
@@ -31,9 +31,7 @@ type RealtimeAppEditorsProps = {
   applicationId?: string;
 };
 
-function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
-  const { applicationId } = props;
-  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+export function useEditAppCollabEvents(applicationId?: string) {
   const dispatch = useDispatch();
 
   const isWebsocketConnected = useSelector(
@@ -49,6 +47,12 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
       applicationId && dispatch(collabStopEditingAppEvent(applicationId));
     };
   }, [applicationId, isWebsocketConnected]);
+}
+
+function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
+  const { applicationId } = props;
+  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+  useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
     <UserImageContainer>
