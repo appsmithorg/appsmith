@@ -42,7 +42,7 @@ import {
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 

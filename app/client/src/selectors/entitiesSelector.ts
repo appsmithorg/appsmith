@@ -19,6 +19,8 @@ import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
 
+import { APP_MODE } from "entities/App";
+
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 

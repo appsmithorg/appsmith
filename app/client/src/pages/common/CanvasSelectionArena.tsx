@@ -8,7 +8,7 @@ import { throttle } from "lodash";
 import React, { memo, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import {
