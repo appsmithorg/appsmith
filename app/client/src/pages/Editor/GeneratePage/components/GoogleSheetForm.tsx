@@ -37,8 +37,8 @@ const demoRequest = {
   deleteFormat: "SHEET",
 };
 
-const mockSheetURL =
-  "https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=0";
+const getSheetUrl = (sheetId: string): string =>
+  `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;
 
 // Types
 
@@ -176,7 +176,6 @@ function GoogleSheetForm(props: Props) {
       }>,
     ) => {
       const sheetOptions: DropdownOptions = [];
-      debugger;
       if (payload.data && payload.data.body) {
         const responseBody = payload.data.body;
         const { sheets = [] } = responseBody;
@@ -208,14 +207,10 @@ function GoogleSheetForm(props: Props) {
     ) {
       const requestData = { ...demoRequest };
       requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_SHEETS;
-      requestData.sheetUrl = mockSheetURL.replace(
-        "SPREADSHEET_ID",
-        selectedSpreadsheet.id,
-      );
+      requestData.sheetUrl = getSheetUrl(selectedSpreadsheet.id);
       const formattedRequestData = Object.entries(
         requestData,
       ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
-      debugger;
       dispatch(
         executeDatasourceQuery({
           payload: {
