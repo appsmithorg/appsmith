@@ -908,10 +908,12 @@ type ColorType = {
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
+    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
+    searchItemAltText: string;
     searchItemText: string;
     searchItemSubText: string;
     highlightedTextUnderline: string;
@@ -927,6 +929,7 @@ type ColorType = {
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
+    mainContainerBackground: string;
   };
   gif: {
     overlay: string;
@@ -1217,10 +1220,12 @@ const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
   activeSearchItemBackground: "#6A86CE",
+  activeCategory: "#6A86CE",
   searchInputText: "#484848",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
+  searchItemAltText: "#fff",
   searchItemText: "#484848",
   searchItemSubText: "#A9A7A7",
   highlightedTextUnderline: "#03B365",
@@ -1238,6 +1243,7 @@ const globalSearch = {
   helpButtonBorder: "#404040",
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
+  mainContainerBackground: "#F0F0F0",
 };
 
 const mentionsInput = {

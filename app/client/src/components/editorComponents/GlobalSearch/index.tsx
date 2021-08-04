@@ -74,6 +74,13 @@ const filterCategories = [
   },
 ];
 
+const isNavigation = (category: any) =>
+  category.id === SEARCH_CATEGORIES.NAVIGATION;
+const isDocumentation = (category: any) =>
+  category.id === SEARCH_CATEGORIES.DOCUMENTATION;
+const isSnippet = (category: any) => category.id === SEARCH_CATEGORIES.SNIPPETS;
+const isMenu = (category: any) => category.id === SEARCH_CATEGORIES.INIT;
+
 const StyledContainer = styled.div`
   width: 785px;
   height: 530px;
@@ -85,8 +92,10 @@ const StyledContainer = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
-    background-color: #f0f0f0;
-    padding: 10px 16px;
+    background-color: ${(props) =>
+      props.theme.colors.globalSearch.mainContainerBackground};
+    padding: ${(props) => props.theme.spaces[4]}px
+      ${(props) => props.theme.spaces[7]}px;
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
@@ -203,8 +212,9 @@ function GlobalSearch() {
   }, []);
 
   useEffect(() => {
-    document.getElementById("global-search")?.focus();
-    if (category.id === SEARCH_CATEGORIES.INIT) setActiveItemIndex(0);
+    setTimeout(() => document.getElementById("global-search")?.focus());
+    if (isNavigation(category)) setActiveItemIndex(1);
+    else setActiveItemIndex(0);
   }, [category.id]);
 
   const allWidgets = useSelector(getAllPageWidgets);
@@ -261,7 +271,6 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(0);
     }
   }, [modalOpen]);
 
@@ -320,11 +329,8 @@ function GlobalSearch() {
     }
 
     let filteredEntities: any = [];
-    if (
-      [SEARCH_CATEGORIES.NAVIGATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-    ) {
+    let documents: DocSearchItem[] = [];
+    if (isNavigation(category) || isMenu(category)) {
       filteredEntities = [
         ...filteredActions,
         ...filteredWidgets,
@@ -332,17 +338,16 @@ function GlobalSearch() {
         ...filteredDatasources,
       ];
     }
+    if (isDocumentation(category) || isMenu(category)) {
+      documents = query
+        ? documentationSearchResults
+        : defaultDocs.concat(documentationSearchResults);
+    }
 
     return getSortedResults(
       query,
       filteredEntities,
-      [SEARCH_CATEGORIES.DOCUMENTATION, SEARCH_CATEGORIES.INIT].includes(
-        category.id,
-      )
-        ? query
-          ? documentationSearchResults
-          : defaultDocs.concat(documentationSearchResults)
-        : [],
+      documents,
       recentEntityIndex,
       currentPageId,
     );
@@ -500,33 +505,31 @@ function GlobalSearch() {
                 setCategory={setCategory}
                 setQuery={setQuery}
               />
-              {
-                <div className="main">
-                  <SetSearchResults
-                    categoryId={category.id}
-                    setDocumentationSearchResults={setSearchResults}
-                  />
-                  {searchResults.length > 0 ? (
-                    <>
-                      <SearchResults
-                        query={query}
-                        searchResults={searchResults}
-                      />
-                      {(category.id === SEARCH_CATEGORIES.DOCUMENTATION ||
-                        category.id === SEARCH_CATEGORIES.SNIPPETS) && (
+              <div className="main">
+                <SetSearchResults
+                  categoryId={category.id}
+                  setDocumentationSearchResults={setSearchResults}
+                />
+                {searchResults.length > 0 ? (
+                  <>
+                    <SearchResults
+                      query={query}
+                      searchResults={searchResults}
+                    />
+                    {isDocumentation(category) ||
+                      (isSnippet(category) && (
                         <Description
                           activeItem={activeItem}
                           activeItemType={activeItemType}
                           query={query}
                           scrollPositionRef={scrollPositionRef}
                         />
-                      )}
-                    </>
-                  ) : (
-                    <ResultsNotFound />
-                  )}
-                </div>
-              }
+                      ))}
+                  </>
+                ) : (
+                  <ResultsNotFound />
+                )}
+              </div>
               <Footer />
             </StyledContainer>
           </AlgoliaSearchWrapper>

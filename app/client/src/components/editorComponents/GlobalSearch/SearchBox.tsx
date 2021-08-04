@@ -33,18 +33,19 @@ const Container = styled.div`
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  background: #f0f0f0;
+  background: ${(props) =>
+    props.theme.colors.globalSearch.mainContainerBackground};
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
 `;
 
 const CategoryDisplay = styled.div`
-  color: #6a86ce;
-  background: white;
+  color: ${(props) => props.theme.colors.globalSearch.activeCategory};
+  background: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
   height: 32px;
   padding: ${(props) => `${props.theme.spaces[3]}px`};
   display: flex;
   align-items: center;
-  border: 1px solid #6a86ce;
+  border: 1px solid ${(props) => props.theme.colors.globalSearch.activeCategory};
   margin-right: ${(props) => props.theme.spaces[4]}px;
   ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
@@ -125,9 +126,8 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
-            if (e.key === "Backspace" && !query)
+            if (e.key === "Backspace" && !e.currentTarget.value)
               setCategory({ id: SEARCH_CATEGORIES.INIT });
-            setTimeout(() => document.getElementById("global-search")?.focus());
           }}
           placeholder={createMessage(getPlaceHolder(category.id))}
           value={query}
