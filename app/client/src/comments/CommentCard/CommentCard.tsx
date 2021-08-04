@@ -43,6 +43,7 @@ import {
   deleteCommentThreadRequest,
   addCommentReaction,
   removeCommentReaction,
+  setVisibleThread,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -360,9 +361,11 @@ function CommentCard({
     if (inline) return;
     if (commentThread.widgetType) {
       const widget = widgetMap[commentThread.refId];
-      // only needed for modal widgetMap
-      // TODO check if we can do something similar for tabs
-      if (widget.parentModalId) {
+
+      // 1. This is only needed for the modal widgetMap
+      // 2. TODO check if we can do something similar for tabs
+      // 3. getAllWidgetsMap doesn't exist for the view mode, so these won't work for the view mode
+      if (widget?.parentModalId) {
         navigateToWidget(
           commentThread.refId,
           commentThread.widgetType,
@@ -376,6 +379,9 @@ function CommentCard({
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
+
+    dispatch(setVisibleThread(commentThreadId));
+
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
