@@ -176,7 +176,7 @@ function GoogleSheetForm(props: Props) {
       }>,
     ) => {
       const sheetOptions: DropdownOptions = [];
-      debugger;
+
       if (payload.data && payload.data.body) {
         const responseBody = payload.data.body;
         const { sheets = [] } = responseBody;
@@ -215,7 +215,6 @@ function GoogleSheetForm(props: Props) {
       const formattedRequestData = Object.entries(
         requestData,
       ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
-      debugger;
       dispatch(
         executeDatasourceQuery({
           payload: {

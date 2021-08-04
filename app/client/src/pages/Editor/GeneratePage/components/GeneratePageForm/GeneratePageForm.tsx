@@ -438,7 +438,6 @@ function GeneratePageForm() {
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
-            defaultIsOpen
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -466,7 +465,6 @@ function GeneratePageForm() {
             </Label>
             <Dropdown
               cypressSelector="t--table-dropdown"
-              defaultIsOpen
               dropdownMaxHeight={"300px"}
               errorMsg={tableDropdownErrorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
@@ -498,10 +496,13 @@ function GeneratePageForm() {
               </Label>
               <Dropdown
                 cypressSelector="t--searchColumn-dropdown"
-                defaultIsOpen
+                disabled={selectedTableColumnOptions.length === 0}
                 dropdownMaxHeight={"300px"}
-                height={DROPDOWN_DIMENSION.HEIGHT}
-                helperText="* Optional"
+                helperText={
+                  selectedTableColumnOptions.length === 0
+                    ? `No searchable ${columnLabel} to select`
+                    : "* Optional"
+                }
                 onSelect={onSelectColumn}
                 optionWidth={DROPDOWN_DIMENSION.WIDTH}
                 options={selectedTableColumnOptions}
