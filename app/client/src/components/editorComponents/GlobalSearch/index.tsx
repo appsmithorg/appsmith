@@ -75,8 +75,8 @@ const filterCategories = [
 ];
 
 const StyledContainer = styled.div`
-  width: 750px;
-  height: 85vh;
+  width: 785px;
+  height: 530px;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
