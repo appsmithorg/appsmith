@@ -6,11 +6,11 @@ import {
   set,
   xor,
   isNumber,
-  round,
   range,
   toString,
   isBoolean,
   omit,
+  floor,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -693,13 +693,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         parseInt(gridGap) * (listData.length - 1) >
       componentHeight;
 
-    const totalSpaceAvailable = componentHeight - (110 + WIDGET_PADDING * 2);
+    const totalSpaceAvailable = componentHeight - (36 + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
       templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : round(perPage) };
+    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : floor(perPage) };
   };
 
   /**
