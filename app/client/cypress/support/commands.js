@@ -47,6 +47,14 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
   cy.contains(newOrgName);
 });
 
+Cypress.Commands.add("goToEidtFromPublish", () => {
+  cy.url().then((url) => {
+    if (!url.includes("edit")) {
+      cy.visit(url + "/edit");
+    }
+  });
+});
+
 Cypress.Commands.add(
   "dragTo",
   { prevSubject: "element" },
@@ -718,7 +726,7 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource);
+    .type(datasource, { parseSpecialCharSequences: false });
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {

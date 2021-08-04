@@ -154,7 +154,7 @@ describe("Button Widget Functionality", function() {
     //Copy button and verify all properties
     cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
 
-    cy.PublishtheApp();
+    // cy.PublishtheApp();
   });
 
   it("Button-Delete Verification", function() {
@@ -165,6 +165,6 @@ describe("Button Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.goToEidtFromPublish();
   });
 });
