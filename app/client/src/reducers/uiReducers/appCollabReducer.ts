@@ -1,10 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
-
-type User = {
-  name: string;
-  email: string;
-};
+import { User } from "entities/AppCollab/CollabInterfaces";
 
 const initialState: AppCollabReducerState = {
   editors: [],
