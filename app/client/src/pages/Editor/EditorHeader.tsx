@@ -47,7 +47,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
-import ProfileImage, { Profile } from "pages/common/ProfileImage";
+import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
@@ -60,12 +60,7 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
-import {
-  collabStartEditingAppEvent,
-  collabStopEditingAppEvent,
-} from "actions/appCollabActions";
-import UserApi from "api/UserApi";
-import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
+import RealtimeAppEditors from "./RealtimeAppEditors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -173,22 +168,6 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
-const UserImageContainer = styled.div`
-  display: flex;
-  margin-right: ${(props) => props.theme.spaces[3]}px;
-
-  div {
-    cursor: default;
-    margin-left: ${(props) => props.theme.spaces[1]}px;
-    width: 24px;
-    height: 24px;
-  }
-
-  div:last-child {
-    margin-right: 0px;
-  }
-`;
-
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -226,20 +205,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
     "",
   );
-
-  const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.connected,
-  );
-
-  useEffect(() => {
-    // websocket has to be connected as we only fire this event once.
-    isWebsocketConnected &&
-      applicationId &&
-      dispatch(collabStartEditingAppEvent(applicationId));
-    return () => {
-      applicationId && dispatch(collabStopEditingAppEvent(applicationId));
-    };
-  }, [applicationId, isWebsocketConnected]);
 
   useEffect(() => {
     if (window.location.href) {
@@ -321,8 +286,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
-
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -374,36 +337,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
-          {realtimeAppEditors.length > 0 && (
-            <UserImageContainer>
-              {realtimeAppEditors.slice(0, 5).map((el) => (
-                <TooltipComponent
-                  content={
-                    <>
-                      <span style={{ margin: "0 0 8px 0", display: "block" }}>
-                        {el.name || el.email}
-                      </span>
-                      <b>Editing</b>
-                    </>
-                  }
-                  hoverOpenDelay={100}
-                  key={el.email}
-                >
-                  <ProfileImage
-                    className="app-realtime-editors"
-                    source={`/api/${UserApi.photoURL}/${el.email}`}
-                    userName={el.name || el.email}
-                  />
-                </TooltipComponent>
-              ))}
-              {realtimeAppEditors.length > 5 ? (
-                <ProfileImage
-                  className="app-realtime-editors"
-                  commonName={`+${realtimeAppEditors.length - 5}`}
-                />
-              ) : null}
-            </UserImageContainer>
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
