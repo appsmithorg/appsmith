@@ -464,8 +464,16 @@ export default function Dropdown(props: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(defaultIsOpen);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
+  const closeIfOpen = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     setSelected(props.selected);
+    // when parent component set a selected value and dropdown is open due to defaultIsOpen set to true.
+    closeIfOpen();
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
