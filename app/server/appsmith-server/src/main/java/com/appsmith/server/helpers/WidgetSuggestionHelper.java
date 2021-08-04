@@ -178,8 +178,9 @@ public class WidgetSuggestionHelper {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         /*
         * fields - contains all the fields inside the nested data and nested data is considered to only 1 level
-        * To form the binding query for CHART adn DROP_DOWN widget we need 2 fields and if there is only field in the
-        * response, the same will be used to bind (property and value)
+        * numericFields - contains fields of type number
+        * For the CHART widget we need at least one field of type int and one string type field
+        * For the DROP_DOWN at least one String type field
         * */
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
