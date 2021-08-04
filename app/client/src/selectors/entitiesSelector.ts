@@ -455,3 +455,10 @@ export const getExistingActionNames = createSelector(
 );
 
 export const getAppMode = (state: AppState) => state.entities.app.mode;
+
+export const widgetsMapWithParentModalId = (state: AppState) => {
+  const appMode = getAppMode(state);
+  return appMode === APP_MODE.EDIT
+    ? getAllWidgetsMap(state)
+    : getCanvasWidgetsWithParentId(state);
+};

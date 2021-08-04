@@ -30,6 +30,7 @@ import moment from "moment";
 import history from "utils/history";
 
 import { getAppMode } from "selectors/applicationSelectors";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 import { USER_PHOTO_URL } from "constants/userConstants";
 
@@ -56,12 +57,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
-import {
-  getAllWidgetsMap,
-  getCanvasWidgetsWithParentId,
-} from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -341,10 +337,8 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
-  const widgetMap = useSelector(getAllWidgetsMap);
-
-  const canvasWidgetMap: Record<string, any> = useSelector(
-    getCanvasWidgetsWithParentId,
+  const widgetMap: Record<string, any> = useSelector(
+    widgetsMapWithParentModalId,
   );
 
   const contextMenuProps = {
@@ -370,10 +364,7 @@ function CommentCard({
     if (commentThread.widgetType) {
       // for the view mode we use canvas widgets instead of widgets by page
       // since we don't have the dsl for all the pages currently
-      const widget =
-        appMode === APP_MODE.EDIT
-          ? widgetMap[commentThread.refId]
-          : canvasWidgetMap[commentThread.refId];
+      const widget = widgetMap[commentThread.refId];
 
       // 1. This is only needed for the modal widgetMap
       // 2. TODO check if we can do something similar for tabs
