@@ -4,7 +4,7 @@ import { IconName } from "@blueprintjs/icons";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent, {
@@ -39,7 +39,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "ICON_SELECT",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "buttonStyle",
@@ -101,7 +101,12 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "BORDER_RADIUS_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
@@ -111,7 +116,19 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
           },
           {
             propertyName: "boxShadowColor",
@@ -129,7 +146,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -139,7 +156,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
