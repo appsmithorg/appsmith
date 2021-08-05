@@ -109,7 +109,8 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
         this.props.widgetName,
         { props: this.props },
       );
-      return this.getWidgetView(<Widget {...this.props} />);
+      const widget = <Widget {...this.props} />;
+      return this.getWidgetView(widget);
     }
 
     getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
@@ -290,6 +291,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
   (WidgetWrapper as any).whyDidYouRender = {
     logOnDifferentValues: false,
   };
+
   return connect(makeMapStateToProps, mapDispatchToProps)(WidgetWrapper);
 }
 
@@ -389,15 +391,21 @@ export type WidgetSkeleton = {
   widgetId: string;
   type: WidgetType;
   parentId?: string;
-  children?: Array<WidgetSkeleton>;
+  children?: Array<WidgetSkeleton | WidgetProps>;
+  needsChildrenDSL?: boolean;
+  detachFromLayout?: boolean;
+  isVisible?: boolean;
 };
 
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 const makeMapStateToProps = () => {
   const getWidgetProps = makeGetWidgetProps();
-  const mapStateToProps = (state: AppState, props: { widgetId: string }) => {
-    return getWidgetProps(state, props);
+  const mapStateToProps = (
+    state: AppState,
+    props: { widgetId: string; needsChildrenDSL: boolean },
+  ) => {
+    return getWidgetProps(state, props) || {};
   };
   return mapStateToProps;
 };

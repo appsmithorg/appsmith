@@ -235,9 +235,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       childWidgetData.bottomRow =
         this.props.bottomRow * this.props.parentRowSpace - 45;
       childWidgetData.shouldScrollContents = false;
+      childWidgetData.renderHandled = true;
     });
 
-    return WidgetFactory.createWidget(childWidgetProps);
+    console.log("Rendering child", { childWidgetProps });
+
+    // return WidgetFactory.createWidget(childWidgetProps);
   };
 
   /**
@@ -299,12 +302,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          const validationPath = get(widget, `validationPaths`)[path];
+          console.log({ path });
+          const validationPath = get(widget, `validationPaths.${path}`);
 
           if (
-            (validationPath.type === ValidationTypes.BOOLEAN &&
+            validationPath &&
+            ((validationPath.type === ValidationTypes.BOOLEAN &&
               isBoolean(evaluatedValue)) ||
-            validationPath.type === ValidationTypes.OBJECT
+              validationPath.type === ValidationTypes.OBJECT)
           ) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
@@ -386,6 +391,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     return this.updateNonTemplateWidgetProperties(widget, itemIndex);
   };
+
+  // button -> eval -> run fn1 rn fn2 -> render
+
+  // static (propsWithDSLChildren) => new properties for list widget
+  // static (propsWidgetDSLChildren) => new children properties
 
   updateNonTemplateWidgetProperties = (
     widget: WidgetProps,
@@ -492,7 +502,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
-  updateGridChildrenProps = (children: DSLWidget[]) => {
+  updateListChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
@@ -512,6 +522,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       };
     });
   };
+
+  shouldComponentUpdate(nextProps: any) {
+    return JSON.stringify(this.props) !== JSON.stringify(nextProps);
+  }
 
   /**
    * paginate items
@@ -564,6 +578,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   //   }
   // }
 
+  // Needs Children
+  // Needs to set children properties
+  // Needs to get children properties
+
   /**
    * renders children
    */
@@ -578,22 +596,28 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           try {
             // here we are duplicating the template for each items in the data array
             // first item of the canvasChildren acts as a template
-            const template = canvasChildren.slice(0, 1).shift();
+            // const template = canvasChildren.slice(0, 1).shift();
 
             for (let i = 0; i < numberOfItemsInGrid; i++) {
-              canvasChildren[i] = JSON.parse(JSON.stringify(template));
+              canvasChildren[i] = canvasChildren[0];
             }
 
             // TODO(pawan): This is recalculated everytime for not much reason
             // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
             // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
             // In particular useNewValues can be memoized, if others can't.
-            canvasChildren = this.updateGridChildrenProps(canvasChildren);
+            canvasChildren = this.updateListChildrenProps(canvasChildren);
           } catch (e) {
             log.error(e);
           }
         }
       });
+
+      console.log(
+        "Have children updated!!!",
+        childCanvas !== this.props.children[0],
+        JSON.stringify(childCanvas) !== JSON.stringify(this.props.children[0]),
+      );
 
       return this.renderChild(childCanvas);
     }
@@ -646,6 +670,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const children = this.renderChildren();
     const { componentHeight } = getWidgetDimensions(this.props);
     const { perPage, shouldPaginate } = this.shouldPaginate();
+    // HERE: children.0.children.0.bottomRow
     const templateBottomRow = get(
       this.props.children,
       "0.children.0.bottomRow",
@@ -655,6 +680,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     console.log(
       "List Widget",
+      { props: this.props },
       { templateHeight },
       { templateBottomRow },
       { perPage },
@@ -707,6 +733,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
     }
 
+    console.log({ children });
+    // return null;
+
     return (
       <ListComponent
         {...this.props}
@@ -735,5 +764,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return "LIST_WIDGET";
   }
 }
+
+(ListWidget as any).whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 
 export default ListWidget;

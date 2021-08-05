@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Radio Group",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 3 * GRID_DENSITY_MIGRATION_V1,

@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 8 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,

@@ -11,6 +11,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Modal",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 6 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,

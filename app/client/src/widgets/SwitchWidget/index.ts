@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Switch",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     label: "Label",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,

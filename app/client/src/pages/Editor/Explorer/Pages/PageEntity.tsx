@@ -102,8 +102,5 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 }
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
-(ExplorerPageEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default ExplorerPageEntity;

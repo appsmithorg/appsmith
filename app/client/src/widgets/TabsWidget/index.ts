@@ -11,6 +11,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Tabs",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
     columns: 8 * GRID_DENSITY_MIGRATION_V1,

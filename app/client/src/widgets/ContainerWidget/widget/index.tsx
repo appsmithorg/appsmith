@@ -4,7 +4,11 @@ import ContainerComponent, { ContainerStyle } from "../component";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetSkeleton,
+  WidgetState,
+} from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -68,11 +72,11 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  renderChildWidget(props: WidgetProps): React.ReactNode {
+  renderChildWidget(props: WidgetProps | WidgetSkeleton): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    // if (props.detachFromLayout && !props.isVisible) {
-    //   return null;
-    // }
+    if (props.detachFromLayout && !props.isVisible) {
+      return null;
+    }
 
     return WidgetFactory.createWidget(props);
   }

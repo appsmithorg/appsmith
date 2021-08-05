@@ -3,6 +3,7 @@ import Widget from "./widget";
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "TabsMigrator",
+  needsMeta: true,
 
   defaults: {
     isLoading: true,

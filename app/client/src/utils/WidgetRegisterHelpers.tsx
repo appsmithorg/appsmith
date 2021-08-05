@@ -17,6 +17,7 @@ export interface WidgetConfiguration {
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  needsMeta?: boolean;
   properties: {
     config: PropertyPaneConfig[];
     default: Record<string, string>;
@@ -33,10 +34,11 @@ export const registerWidget = (
     config.type,
     {
       buildWidget(widgetData: any): JSX.Element {
+        const widget = config.needsMeta ? withMeta(Widget) : Widget;
         const ProfiledWidget = Sentry.withProfiler(
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          withWidgetAPI(withMeta(Widget)),
+          withWidgetAPI(widget),
         );
         return <ProfiledWidget key={widgetData.widgetId} {...widgetData} />;
       },

@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rich Text Editor",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
     rows: 5 * GRID_DENSITY_MIGRATION_V1,

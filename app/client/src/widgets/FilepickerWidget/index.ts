@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "FilePicker",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     files: [],

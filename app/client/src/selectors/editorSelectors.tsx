@@ -17,14 +17,18 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   RenderModes,
+  WidgetType,
   WIDGET_PADDING,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
-import { findKey } from "lodash";
+import { findKey, groupBy } from "lodash";
 import produce from "immer";
 import { getAppMode } from "./applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
 const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
 const excludedProps = [
@@ -132,12 +136,28 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
+function getChildrenDSL(dataTree: DataTree, widgetId: string) {
+  // const flattenedDataTree = groupBy(Object.values(dataTree), "widgetId");
+  const flattenedDataTree: any = {};
+  Object.values(dataTree).forEach((entry) => {
+    const _widgetID = (entry as DataTreeWidget).widgetId;
+    if (_widgetID) {
+      flattenedDataTree[_widgetID] = { ...entry };
+      delete flattenedDataTree[_widgetID].key;
+    }
+  });
+
+  return CanvasWidgetsNormalizer.denormalize(widgetId, {
+    canvasWidgets: flattenedDataTree,
+  })?.children;
+}
+
 export const getCanvasWidth = (state: AppState) =>
   state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
 
 export const getWidgetFromDataTree = (
   state: AppState,
-  ownProps: { widgetId: string },
+  ownProps: { widgetId: string; needsChildrenDSL: boolean },
 ) => {
   if (!ownProps.widgetId) return;
   const widgetName = findKey(state.evaluations.tree, {
@@ -147,10 +167,16 @@ export const getWidgetFromDataTree = (
     const props: WidgetProps = state.evaluations.tree[
       widgetName
     ] as WidgetProps;
+    let childrenDSL: any;
+    // SPECIAL HANDLING FOR WIDGETS WHICH NEED THEIR CHILDREN DATA
+    if (ownProps.needsChildrenDSL) {
+      childrenDSL = getChildrenDSL(state.evaluations.tree, ownProps.widgetId);
+    }
     return produce(props, (draft) => {
       for (const [key, value] of Object.entries(ownProps)) {
         if (draft && draft.hasOwnProperty(key) && draft[key] !== value)
           draft[key] = value;
+        if (childrenDSL) draft.children = childrenDSL;
       }
     });
   }
@@ -159,13 +185,16 @@ export const getWidgetFromDataTree = (
 
 export const getWidgetFromCanvasWidgets = (
   state: AppState,
-  ownProps: { widgetId: string },
+  ownProps: { widgetId: string; needsChildrenDSL: boolean },
 ): WidgetProps => {
   const props = state.entities.canvasWidgets[ownProps.widgetId];
+
   return produce(props, (draft) => {
     for (const [key, value] of Object.entries(ownProps)) {
-      if (draft && draft.hasOwnProperty(key) && draft[key] !== value)
+      if (draft && draft.hasOwnProperty(key) && draft[key] !== value) {
         draft[key] = value;
+        draft.needsChildrenDSL = ownProps.needsChildrenDSL;
+      }
     }
   });
 };
@@ -214,8 +243,10 @@ export const makeGetWidgetProps = () => {
               draft[key] = value;
             }
           }
+          draft.canvasWidth = canvasWidth;
+          if (draft.needsChildrenDSL) draft.children = dataTreeWidget.children;
+          else delete draft.children;
         });
-
         return widget;
       }
       if (canvasWidget) {
@@ -270,10 +301,14 @@ function getChildren(
   children?: string[],
 ): WidgetSkeleton[] | undefined {
   if (!children) return undefined;
+
   const parentProps: FlattenedWidgetProps = widgets[parentId];
   const parentColumnSpace = getColumnSpace(parentProps);
   return children.map((child: string) => {
     const childProps: FlattenedWidgetProps = widgets[child];
+    const needsChildrenDSL = !!WidgetFactory.widgetConfigMap.get(
+      childProps.type,
+    )?.needsChildrenDSL;
 
     return {
       widgetId: child,
@@ -291,6 +326,7 @@ function getChildren(
         childProps.type === "CANVAS_WIDGET"
           ? parentProps.shouldScrollContents
           : false,
+      needsChildrenDSL,
     };
   });
 }
@@ -304,6 +340,7 @@ export const getCanvasWidgetDsl = createSelector(
         ? RenderModes.CANVAS
         : RenderModes.PAGE;
     const maincanvas: FlattenedWidgetProps = widgets["0"];
+
     //TODO(abhinav): Move to a redux reducer or useReducer in Canvas
     const tree = {
       widgetId: maincanvas.widgetId,

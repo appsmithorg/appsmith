@@ -176,7 +176,7 @@ export const handleSpecificCasesWhilePasting = (
 
     widgets[widget.widgetId] = widget;
   } else if (widget.type === WidgetTypes.MODAL_WIDGET) {
-    // if Modal is being coppied handle all onClose action rename
+    // if Modal is being copied handle all onClose action rename
     const oldWidgetName = Object.keys(widgetNameMap).find(
       (key) => widgetNameMap[key] === widget.widgetName,
     );

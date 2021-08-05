@@ -575,6 +575,7 @@ export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
   const selectedWidget = yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  console.log("Here, deleting", { selectedWidgets }, { selectedWidget });
   if (selectedWidgets.length > 1) {
     yield put({
       type: ReduxActionTypes.WIDGET_BULK_DELETE,

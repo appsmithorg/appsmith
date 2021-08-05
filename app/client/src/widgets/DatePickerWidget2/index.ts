@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Date Time Picker",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     isDisabled: false,
     datePickerType: "DATE_PICKER",

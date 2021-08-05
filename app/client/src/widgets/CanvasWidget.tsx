@@ -41,7 +41,11 @@ class CanvasWidget extends ContainerWidget {
   }
 
   render() {
-    if (this.props.renderMode === RenderModes.CANVAS) {
+    console.log({ props: this.props });
+    if (
+      this.props.renderMode === RenderModes.CANVAS &&
+      !this.props.dropDisabled
+    ) {
       return this.renderAsDropTarget();
     }
     const snapRows = getCanvasSnapRows(

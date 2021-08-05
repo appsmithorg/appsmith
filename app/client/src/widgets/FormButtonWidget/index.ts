@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "FormButton",
   iconSVG: IconSVG,
   hideCard: true,
+  needsMeta: true,
   defaults: {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 3 * GRID_DENSITY_MIGRATION_V1,

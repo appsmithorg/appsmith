@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Form",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 13 * GRID_DENSITY_MIGRATION_V1,
     columns: 7 * GRID_DENSITY_MIGRATION_V1,

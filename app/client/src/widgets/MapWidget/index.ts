@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Map",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     rows: 12 * GRID_DENSITY_MIGRATION_V1,
     columns: 8 * GRID_DENSITY_MIGRATION_V1,

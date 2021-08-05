@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Iframe",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     source: "https://www.wikipedia.org/",
     borderOpacity: 100,

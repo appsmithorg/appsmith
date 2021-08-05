@@ -14,7 +14,9 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "List",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
+    needsChildrenDSL: true,
     backgroundColor: "",
     itemBackgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
@@ -336,7 +338,6 @@ export const CONFIG = {
             const widget = { ...widgets[widgetId] };
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
-
             // TODO (abhinav): Figure out how to avoid this abstraction leak
             const disallowedWidgets = [
               "TABLE_WIDGET",

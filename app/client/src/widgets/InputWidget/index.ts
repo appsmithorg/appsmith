@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     inputType: "TEXT",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,

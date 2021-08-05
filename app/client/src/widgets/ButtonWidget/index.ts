@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Button",
   iconSVG: IconSVG,
+  needsMeta: true,
   defaults: {
     text: "Submit",
     buttonStyle: "PRIMARY_BUTTON",
