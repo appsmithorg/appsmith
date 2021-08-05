@@ -235,6 +235,7 @@ describe("Validate Validators", () => {
             name: "key1",
             type: ValidationTypes.NUMBER,
             params: {
+              required: true,
               default: 120,
             },
           },
@@ -257,6 +258,7 @@ describe("Validate Validators", () => {
       [],
       { key1: [], key2: "abc" },
       { key1: 120, key2: {} },
+      { key2: "abc", key3: "something" },
     ];
 
     const expected = [
@@ -292,6 +294,11 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         message: `Value of key: key2 is invalid: This value does not evaluate to type "string"`,
       },
+      {
+        isValid: false,
+        parsed: { key1: 120, key2: "abc" },
+        message: `Missing required key: key1`,
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
@@ -311,11 +318,13 @@ describe("Validate Validators", () => {
       "ABC",
       `["a", "b", "c"]`,
       '{ "key": "value" }',
+      ["a", "b", "a", "c"],
     ];
     const config = {
       type: ValidationTypes.ARRAY,
       params: {
         required: true,
+        unique: true,
         children: {
           type: ValidationTypes.TEXT,
           params: {
@@ -377,6 +386,73 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message: "This value does not evaluate to type Array",
+      },
+      {
+        isValid: false,
+        parsed: ["a", "b", "a", "c"],
+        message: "Array must be unique. Duplicate values found",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array with specific object children", () => {
+    const inputs = [
+      [{ label: 123, value: 234 }],
+      `[{"label": 123, "value": 234}]`,
+      [{ labels: 123, value: 234 }],
+      [{ label: "abcd", value: 234 }],
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        children: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                name: "label",
+                type: ValidationTypes.NUMBER,
+                params: {
+                  required: true,
+                },
+              },
+              {
+                name: "value",
+                type: ValidationTypes.NUMBER,
+                params: {
+                  required: true,
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: [{ label: 123, value: 234 }],
+        message: "",
+      },
+      {
+        isValid: true,
+        parsed: [{ label: 123, value: 234 }],
+        message: "",
+      },
+      {
+        isValid: false,
+        parsed: [{ labels: 123, value: 234 }],
+        message: "Invalid entry at index: 0. Missing required key: label",
+      },
+      {
+        isValid: false,
+        parsed: [{ label: 0, value: 234 }],
+        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type "number"`,
       },
     ];
     inputs.forEach((input, index) => {
@@ -447,6 +523,8 @@ describe("Validate Validators", () => {
       undefined,
       null,
       [],
+      123,
+      "abcd",
     ];
 
     const config = {
@@ -489,6 +567,57 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
         message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array of objects",
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates safe URL", () => {
+    const config = {
+      type: ValidationTypes.SAFE_URL,
+      params: {
+        default: "https://wikipedia.org",
+      },
+    };
+    const inputs = [
+      "https://wikipedia.org",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+      "javascript:alert(document.cookie)",
+      "data:text/html,<svg onload=alert(1)>",
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "https://wikipedia.org",
+      },
+      {
+        isValid: true,
+        parsed:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+      },
+      {
+        isValid: false,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        parsed: "https://wikipedia.org",
+      },
+      {
+        isValid: false,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        parsed: "https://wikipedia.org",
       },
     ];
 

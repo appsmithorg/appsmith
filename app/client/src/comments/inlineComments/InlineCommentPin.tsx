@@ -205,7 +205,6 @@ function InlineCommentPin({
           />
         }
         enforceFocus={false}
-        hasBackdrop
         // isOpen is controlled so that newly created threads are set to be visible
         isOpen={!!isCommentThreadVisible}
         minimal

@@ -76,7 +76,7 @@ export default {
   },
   //
   getSanitizedTableData: (props, moment, _) => {
-    const separatorRegex = /\W+/;
+    const separatorRegex = /\s/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
       return props.tableData.map((entry) => {
@@ -336,7 +336,10 @@ export default {
       },
       doesNotContain: (a, b) => {
         try {
-          return !this.contains(a, b);
+          return !a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
