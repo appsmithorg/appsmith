@@ -1,5 +1,5 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
-export const Colors: Record<string, string> = {
+export const Colors = {
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -18,6 +18,7 @@ export const Colors: Record<string, string> = {
   BINDING_COLOR_LT: "#063289",
   PURE_ORANGE: "#ffb100",
   WHITE_CLOUD: "#D3DEE3",
+  GOLD: "#FFD300",
 
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
@@ -57,14 +58,18 @@ export const Colors: Record<string, string> = {
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
   JAFFA_DARK: "#EF7541",
+  BURNING_ORANGE: "#FF7742",
   TIA_MARIA: "#CB4810",
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
   WATUSI: "#FFE0D2",
   GRAY: "#858282",
+  GRAY2: "#939090",
+  DOVE_GRAY2: "#716E6E",
   ATHENS_GRAY_DARKER: "#F8F9FA",
   POMEGRANATE: "#F44336",
+  POMEGRANATE2: "#F22B2B",
   RIVER_BED: "#4A545B",
   BALTIC_SEA: "#1A191C",
   THUNDER: "#231F20",
@@ -78,6 +83,7 @@ export const Colors: Record<string, string> = {
   ALTO2: "#E0DEDE",
   SEA_SHELL: "#F1F1F1",
   DANUBE: "#6A86CE",
+  FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
   RATE_INACTIVE: "#F2F2F2",
@@ -106,6 +112,6 @@ export const Colors: Record<string, string> = {
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
 
   BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
+  SELECT_DISABLED: "#ced9e080",
 };
-
 export type Color = typeof Colors[keyof typeof Colors];

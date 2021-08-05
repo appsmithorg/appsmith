@@ -337,11 +337,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   clickWithRecaptcha(token: string) {
-    if (this.props.onClick) {
-      this.setState({
-        isLoading: true,
-      });
-    }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
@@ -351,6 +346,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       },
     });
   }
+
+  handleRecaptchaV2Loading = (isLoading: boolean) => {
+    if (this.props.onClick) {
+      this.setState({ isLoading });
+    }
+  };
 
   handleActionComplete = () => {
     this.setState({
@@ -369,6 +370,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
+        handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}
