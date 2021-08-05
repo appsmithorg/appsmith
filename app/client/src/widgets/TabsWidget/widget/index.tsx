@@ -13,6 +13,8 @@ import { generateReactKey } from "utils/generators";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
 export function selectedTabValidation(
   value: unknown,
   props: TabContainerWidgetProps,
@@ -95,9 +97,11 @@ class TabsWidget extends BaseWidget<
                 expected: {
                   type: "Tab Name (string)",
                   example: "Tab 1",
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["tabsObj", "tabs"],
           },
           {
             propertyName: "shouldShowTabs",

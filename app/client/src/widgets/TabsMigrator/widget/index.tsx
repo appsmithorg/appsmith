@@ -10,8 +10,8 @@ import { cloneDeep, get } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import WidgetFactory from "utils/WidgetFactory";
-
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 class TabsMigratorWidget extends BaseWidget<
@@ -85,9 +85,11 @@ class TabsMigratorWidget extends BaseWidget<
                 expected: {
                   type: "Tab Name (string)",
                   example: "Tab 1",
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["tabsObj", "tabs"],
           },
           {
             propertyName: "shouldScrollContents",

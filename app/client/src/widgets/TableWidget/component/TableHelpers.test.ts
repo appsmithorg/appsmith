@@ -1,5 +1,5 @@
 import { ColumnProperties } from "./Constants";
-import { reorderColumns } from "./TableHelpers";
+import { reorderColumns, removeSpecialChars } from "./TableHelpers";
 import { getCurrentRowBinding } from "widgets/TableWidget/constants";
 const MOCK_COLUMNS: Record<string, ColumnProperties> = {
   id: {
@@ -588,5 +588,30 @@ describe("Validate Helpers", () => {
 
     const result = reorderColumns(MOCK_COLUMNS, columnOrder);
     expect(expected).toEqual(result);
+  });
+
+  it("Remove space from table data values", () => {
+    const input1 = "Table Header";
+    const expected1 = "Table_Header";
+    const result1 = removeSpecialChars(input1);
+    expect(expected1).toEqual(result1);
+
+    const input2 = "Col 1";
+    const expected2 = "Col_1";
+    const result2 = removeSpecialChars(input2);
+    expect(expected2).toEqual(result2);
+  });
+
+  it("Remove space from table data that has non ASCII chars", () => {
+    // preserve non ASCII chars even without space
+    const input1 = "Leverantör";
+    const expected1 = "Leverantör";
+    const result1 = removeSpecialChars(input1);
+    expect(expected1).toEqual(result1);
+
+    const input2 = "Leverantör Frö";
+    const expected2 = "Leverantör_Frö";
+    const result2 = removeSpecialChars(input2);
+    expect(expected2).toEqual(result2);
   });
 });

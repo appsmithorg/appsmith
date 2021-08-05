@@ -60,7 +60,6 @@ class CanvasWidget extends ContainerWidget {
   }
 
   render() {
-    console.log("canvas", { props: this.props });
     if (
       this.props.renderMode === RenderModes.CANVAS &&
       !this.props.dropDisabled

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
@@ -9,7 +9,13 @@ interface IframeContainerProps {
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
+  background-color: #ffffff;
+  font-weight: bold;
+
   iframe {
     width: 100%;
     height: 100%;
@@ -47,6 +53,8 @@ function IframeComponent(props: IframeComponentProps) {
     title,
   } = props;
 
+  const [message, setMessage] = useState("");
+
   useEffect(() => {
     // add a listener
     window.addEventListener("message", onMessageReceived, false);
@@ -57,6 +65,11 @@ function IframeComponent(props: IframeComponentProps) {
 
   useEffect(() => {
     onURLChanged(source);
+    if (!source) {
+      setMessage("Valid source url is required");
+    } else {
+      setMessage("");
+    }
   }, [source]);
 
   return (
@@ -65,7 +78,7 @@ function IframeComponent(props: IframeComponentProps) {
       borderOpacity={borderOpacity}
       borderWidth={borderWidth}
     >
-      <iframe src={source} title={title} />
+      {message ? message : <iframe src={source} title={title} />}
     </IframeContainer>
   );
 }

@@ -235,6 +235,7 @@ describe("Validate Validators", () => {
             name: "key1",
             type: ValidationTypes.NUMBER,
             params: {
+              required: true,
               default: 120,
             },
           },
@@ -257,6 +258,7 @@ describe("Validate Validators", () => {
       [],
       { key1: [], key2: "abc" },
       { key1: 120, key2: {} },
+      { key2: "abc", key3: "something" },
     ];
 
     const expected = [
@@ -292,6 +294,11 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         message: `Value of key: key2 is invalid: This value does not evaluate to type "string"`,
       },
+      {
+        isValid: false,
+        parsed: { key1: 120, key2: "abc" },
+        message: `Missing required key: key1`,
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
@@ -311,11 +318,13 @@ describe("Validate Validators", () => {
       "ABC",
       `["a", "b", "c"]`,
       '{ "key": "value" }',
+      ["a", "b", "a", "c"],
     ];
     const config = {
       type: ValidationTypes.ARRAY,
       params: {
         required: true,
+        unique: true,
         children: {
           type: ValidationTypes.TEXT,
           params: {
@@ -377,6 +386,11 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message: "This value does not evaluate to type Array",
+      },
+      {
+        isValid: false,
+        parsed: ["a", "b", "a", "c"],
+        message: "Array must be unique. Duplicate values found",
       },
     ];
     inputs.forEach((input, index) => {

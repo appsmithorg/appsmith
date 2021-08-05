@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
   ExecuteActionPayload,
@@ -133,7 +134,7 @@ export const deleteSelectedWidget = (
   disallowUndo = false,
 ) => {
   return {
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       isShortcut,
       disallowUndo,

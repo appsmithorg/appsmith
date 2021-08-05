@@ -11,6 +11,7 @@ import {
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import { DatePickerType } from "../constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultDateValidation(
   value: unknown,
@@ -167,9 +168,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["dateFormat"],
           },
           {
             helpText: "Sets the format of the selected date",
@@ -248,9 +251,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["dateFormat", "defaultDate"],
           },
           {
             propertyName: "maxDate",
@@ -267,9 +272,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 expected: {
                   type: "ISO 8601 string",
                   example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            dependencies: ["dateFormat", "defaultDate"],
           },
         ],
       },

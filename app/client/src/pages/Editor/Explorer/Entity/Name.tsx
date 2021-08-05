@@ -1,20 +1,25 @@
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-  forwardRef,
-  memo,
-} from "react";
-import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import {
+  getExistingActionNames,
+  getExistingPageNames,
+  getExistingWidgetNames,
+} from "selectors/entitiesSelector";
+import styled from "styled-components";
+import { removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -104,22 +109,12 @@ export const EntityName = forwardRef(
       setUpdatedName(name);
     }, [name, nameUpdateError]);
 
-    const existingPageNames: string[] = useSelector((state: AppState) =>
-      state.entities.pageList.pages.map((page: Page) => page.pageName),
-    );
+    const existingPageNames: string[] = useSelector(getExistingPageNames);
+    const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
 
-    const existingWidgetNames: string[] = useSelector((state: AppState) =>
-      Object.values(state.entities.canvasWidgets).map(
-        (widget) => widget.widgetName,
-      ),
-    );
     const dispatch = useDispatch();
 
-    const existingActionNames: string[] = useSelector((state: AppState) =>
-      state.entities.actions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
-    );
+    const existingActionNames: string[] = useSelector(getExistingActionNames);
 
     const hasNameConflict = useCallback(
       (
@@ -228,8 +223,5 @@ export const EntityName = forwardRef(
 );
 
 EntityName.displayName = "EntityName";
-(EntityName as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
-export default memo(EntityName);
+export default EntityName;

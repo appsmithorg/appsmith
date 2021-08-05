@@ -12,6 +12,7 @@ import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -283,6 +284,7 @@ const views = {
             expected={{
               type: "string",
               example: "showMessage('Hello World!', 'info')",
+              autocompleteDataType: AutocompleteDataType.STRING,
             }}
             label={props.label}
             onChange={(event: any) => {

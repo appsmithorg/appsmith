@@ -70,6 +70,9 @@ import IframeWidget, {
 import MenuButtonWidget, {
   CONFIG as MENU_BUTTON_WIDGET_CONFIG,
 } from "widgets/MenuButtonWidget";
+import MultiSelectWidget, {
+  CONFIG as MULTI_SELECT_WIDGET_CONFIG,
+} from "widgets/MultiSelectWidget";
 import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
 import FormButtonWidget, {
   CONFIG as FORM_BUTTON_WIDGET_CONFIG,
@@ -108,5 +111,6 @@ export const registerWidgets = () => {
   registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
   registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
   registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
+  registerWidget(MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

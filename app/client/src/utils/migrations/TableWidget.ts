@@ -169,7 +169,7 @@ export const tableWidgetPropertyPaneMigrations = (
 };
 
 const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\W+/;
+  const separatorRegex = /\s/;
   return value
     .split(separatorRegex)
     .join("_")

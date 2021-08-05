@@ -2,21 +2,22 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "components/constants";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ExpectedValueExample } from "utils/validation/common";
 
 export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   evaluatedValue?: any;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;

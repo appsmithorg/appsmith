@@ -6,11 +6,14 @@ import {
   Validator,
 } from "../constants/WidgetValidation";
 import _, {
+  get,
+  isArray,
   isObject,
   isPlainObject,
   isString,
   startsWith,
   toString,
+  uniq,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 
@@ -97,6 +100,27 @@ function validateArray(
         );
       }
     });
+  }
+  if (config.params?.unique) {
+    if (isArray(config.params?.unique)) {
+      for (const param of config.params?.unique) {
+        const shouldBeUnique = value.map((entry) =>
+          get(entry, param as string, ""),
+        );
+        if (uniq(shouldBeUnique).length !== value.length) {
+          _isValid = false;
+          _messages.push(
+            `Array entry path:${param} must be unique. Duplicate values found`,
+          );
+          break;
+        }
+      }
+    } else if (
+      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
+    ) {
+      _isValid = false;
+      _messages.push(`Array must be unique. Duplicate values found`);
+    }
   }
   return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
 }

@@ -8,6 +8,7 @@ import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
+import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -75,6 +76,11 @@ export const WidgetIcons: {
   DROP_DOWN_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <DropDownIcon />
+    </IconWrapper>
+  ),
+  MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MultiSelectIcon />
     </IconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (

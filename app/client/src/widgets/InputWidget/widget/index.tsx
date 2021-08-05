@@ -69,6 +69,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Changes the type of currency",
@@ -82,6 +83,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -103,6 +105,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },

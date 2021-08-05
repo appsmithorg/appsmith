@@ -6,6 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -37,6 +38,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 expected: {
                   type: "Video URL",
                   example: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },

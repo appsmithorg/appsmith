@@ -5,6 +5,7 @@ import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import {
@@ -93,6 +94,7 @@ import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
+
 import {
   EVAL_ERROR_PATH,
   EvaluationError,
@@ -675,7 +677,7 @@ function* addWidget(widgetConfig: any) {
     };
 
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
 

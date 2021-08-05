@@ -5,6 +5,7 @@ import { ListWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const PropertyPaneConfig = [
   {
@@ -32,7 +33,11 @@ const PropertyPaneConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
           },
         },
       },
@@ -47,7 +52,11 @@ const PropertyPaneConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            expected: { type: "Color name | hex code", example: "#FFFFFF" },
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
           },
         },
       },
@@ -106,6 +115,7 @@ const PropertyPaneConfig = [
             ),
           };
         },
+        dependencies: ["listData"],
       },
     ],
   },

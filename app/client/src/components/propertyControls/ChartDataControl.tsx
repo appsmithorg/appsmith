@@ -5,7 +5,9 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -15,6 +17,7 @@ import {
 import { Size, Category } from "components/ads/Button";
 import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -91,8 +94,12 @@ type RenderComponentProps = {
   theme: EditorTheme;
 };
 
-const expectedSeriesName = { type: "string", example: "series1" };
-const expectedSeriesData = {
+const expectedSeriesName: CodeEditorExpected = {
+  type: "string",
+  example: "series1",
+  autocompleteDataType: AutocompleteDataType.STRING,
+};
+const expectedSeriesData: CodeEditorExpected = {
   type: "Array<{ x: string, y: string | number }>",
   example: [
     {
@@ -100,6 +107,7 @@ const expectedSeriesData = {
       y: 10000,
     },
   ],
+  autocompleteDataType: AutocompleteDataType.ARRAY,
 };
 
 function DataControlComponent(props: RenderComponentProps) {
