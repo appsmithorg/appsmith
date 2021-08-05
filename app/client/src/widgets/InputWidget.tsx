@@ -136,6 +136,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Changes the country code",
@@ -164,6 +165,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -185,6 +187,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -518,7 +521,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 }
 
-export const InputTypes: { [key: string]: string } = {
+export const InputTypes = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
   INTEGER: "INTEGER",
