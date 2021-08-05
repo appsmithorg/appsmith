@@ -12,6 +12,11 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { CloseButton } from "../../designSystems/blueprint/CloseButton";
 import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 import { Layers } from "constants/Layers";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import {
+  createMessage,
+  WELCOME_TOUR_STICKY_BUTTON_TEXT,
+} from "../../../constants/messages";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -195,13 +200,15 @@ const SideStickBar = styled.div`
   bottom: 37px;
   left: 0;
   z-index: ${Layers.sideStickyBar};
-  padding: 12px 8px;
-  background-color: #df613c;
-  color: #fff;
-  font-weight: 500;
+  padding: ${(props) => props.theme.spaces[5]}px
+    ${(props) => props.theme.spaces[3]}px;
+  background-color: ${(props) =>
+    props.theme.colors.welcomeTourStickySidebarBackground};
+  color: ${(props) => props.theme.colors.welcomeTourStickySidebarColor};
   cursor: pointer;
   writing-mode: vertical-rl;
   text-orientation: mixed;
+  ${(props) => getTypographyByKey(props, "btnLarge")}
 `;
 const ActionButtonWrapper = styled.div`
   display: flex;
@@ -360,7 +367,7 @@ function Helper() {
       className="t--side-sticky-bar"
       onClick={() => setMinimized(false)}
     >
-      Next Mission
+      {createMessage(WELCOME_TOUR_STICKY_BUTTON_TEXT)}
     </SideStickBar>
   );
 }
