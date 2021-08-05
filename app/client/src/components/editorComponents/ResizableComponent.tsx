@@ -65,17 +65,14 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
-  const isSelected = useSelector(
-    (state: AppState) =>
-      state.ui.widgetDragResize.lastSelectedWidget === props.widgetId,
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
-
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
-  const isFocused = useSelector(
-    (state: AppState) =>
-      state.ui.widgetDragResize.focusedWidget === props.widgetId,
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
 
   const isDragging = useSelector(
@@ -87,7 +84,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
-    isFocused || isSelected || selectedWidgets.includes(props.widgetId);
+    focusedWidget === props.widgetId ||
+    selectedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -233,7 +232,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     }, 0);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
-    selectWidget && selectWidget(props.widgetId);
+    selectWidget &&
+      selectedWidget !== props.widgetId &&
+      selectWidget(props.widgetId);
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
@@ -251,7 +252,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
-    // selectWidget && selectWidget(props.widgetId);
+    selectWidget &&
+      selectedWidget !== props.widgetId &&
+      selectWidget(props.widgetId);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {

@@ -3,7 +3,6 @@ import { RouteComponentProps, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import { WidgetSkeleton } from "widgets/BaseWidget";
 import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
@@ -23,6 +22,8 @@ import {
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
@@ -35,7 +36,7 @@ const Section = styled.section`
 `;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
-  widgets?: WidgetSkeleton;
+  widgets?: ContainerWidgetProps<WidgetProps>;
   currentPageName?: string;
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;

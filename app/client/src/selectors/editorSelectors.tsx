@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps, WidgetSkeleton } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -10,41 +10,39 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { getActions } from "selectors/entitiesSelector";
+import { getActions, getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  RenderMode,
   RenderModes,
-  WidgetType,
   WIDGET_PADDING,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
-import { findKey, groupBy } from "lodash";
-import produce from "immer";
-import { getAppMode } from "./applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { getDataTree, getLoadingEntities } from "./dataTreeSelectors";
+import { find, pick } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
-const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
-const excludedProps = [
-  "defaultProps",
-  "defaultMetaProps",
-  "logBlackList",
-  "bindingPaths",
-  "validationPaths",
-  "triggerPaths",
-  "ENTITY_TYPE",
-  "renderMode",
-  "iconSVG",
-  "hideCard",
-  "displayName",
-  "__evaluation__",
-];
+// const STATIC_PROPS_LIST = Object.keys(WIDGET_STATIC_PROPS);
+// const excludedProps = [
+//   "defaultProps",
+//   "defaultMetaProps",
+//   "logBlackList",
+//   "bindingPaths",
+//   "validationPaths",
+//   "triggerPaths",
+//   "ENTITY_TYPE",
+//   "renderMode",
+//   "iconSVG",
+//   "hideCard",
+//   "displayName",
+//   "__evaluation__",
+// ];
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -106,6 +104,11 @@ export const getCurrentPageId = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId;
 
+export const getRenderMode = (state: AppState) =>
+  state.entities.app.mode === APP_MODE.EDIT
+    ? RenderModes.CANVAS
+    : RenderModes.PAGE;
+
 export const getViewModePageList = createSelector(
   getPageList,
   getCurrentPageId,
@@ -136,68 +139,68 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
-function getChildrenDSL(dataTree: DataTree, widgetId: string) {
-  // const flattenedDataTree = groupBy(Object.values(dataTree), "widgetId");
-  const flattenedDataTree: any = {};
-  Object.values(dataTree).forEach((entry) => {
-    const _widgetID = (entry as DataTreeWidget).widgetId;
-    if (_widgetID) {
-      flattenedDataTree[_widgetID] = { ...entry };
-      delete flattenedDataTree[_widgetID].key;
-    }
-  });
+// function getChildrenDSL(dataTree: DataTree, widgetId: string) {
+//   // const flattenedDataTree = groupBy(Object.values(dataTree), "widgetId");
+//   const flattenedDataTree: any = {};
+//   Object.values(dataTree).forEach((entry) => {
+//     const _widgetID = (entry as DataTreeWidget).widgetId;
+//     if (_widgetID) {
+//       flattenedDataTree[_widgetID] = { ...entry };
+//       delete flattenedDataTree[_widgetID].key;
+//     }
+//   });
 
-  return CanvasWidgetsNormalizer.denormalize(widgetId, {
-    canvasWidgets: flattenedDataTree,
-  })?.children;
-}
+//   return CanvasWidgetsNormalizer.denormalize(widgetId, {
+//     canvasWidgets: flattenedDataTree,
+//   })?.children;
+// }
 
 export const getCanvasWidth = (state: AppState) =>
   state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
 
-export const getWidgetFromDataTree = (
-  state: AppState,
-  ownProps: { widgetId: string; needsChildrenDSL: boolean },
-) => {
-  if (!ownProps.widgetId) return;
-  const widgetName = findKey(state.evaluations.tree, {
-    widgetId: ownProps.widgetId,
-  });
-  if (widgetName) {
-    const props: WidgetProps = state.evaluations.tree[
-      widgetName
-    ] as WidgetProps;
-    let childrenDSL: any;
-    // SPECIAL HANDLING FOR WIDGETS WHICH NEED THEIR CHILDREN DATA
-    if (ownProps.needsChildrenDSL) {
-      childrenDSL = getChildrenDSL(state.evaluations.tree, ownProps.widgetId);
-    }
-    return produce(props, (draft) => {
-      for (const [key, value] of Object.entries(ownProps)) {
-        if (draft && draft.hasOwnProperty(key) && draft[key] !== value)
-          draft[key] = value;
-        if (childrenDSL) draft.children = childrenDSL;
-      }
-    });
-  }
-  return;
-};
+// export const getWidgetFromDataTree = (
+//   state: AppState,
+//   ownProps: { widgetId: string; needsChildrenDSL: boolean },
+// ) => {
+//   if (!ownProps.widgetId) return;
+//   const widgetName = findKey(state.evaluations.tree, {
+//     widgetId: ownProps.widgetId,
+//   });
+//   if (widgetName) {
+//     const props: WidgetProps = state.evaluations.tree[
+//       widgetName
+//     ] as WidgetProps;
+//     let childrenDSL: any;
+//     // SPECIAL HANDLING FOR WIDGETS WHICH NEED THEIR CHILDREN DATA
+//     if (ownProps.needsChildrenDSL) {
+//       childrenDSL = getChildrenDSL(state.evaluations.tree, ownProps.widgetId);
+//     }
+//     return produce(props, (draft) => {
+//       for (const [key, value] of Object.entries(ownProps)) {
+//         if (draft && draft.hasOwnProperty(key) && draft[key] !== value)
+//           draft[key] = value;
+//         if (childrenDSL) draft.children = childrenDSL;
+//       }
+//     });
+//   }
+//   return;
+// };
 
-export const getWidgetFromCanvasWidgets = (
-  state: AppState,
-  ownProps: { widgetId: string; needsChildrenDSL: boolean },
-): WidgetProps => {
-  const props = state.entities.canvasWidgets[ownProps.widgetId];
+// export const getWidgetFromCanvasWidgets = (
+//   state: AppState,
+//   ownProps: { widgetId: string; needsChildrenDSL: boolean },
+// ): WidgetProps => {
+//   const props = state.entities.canvasWidgets[ownProps.widgetId];
 
-  return produce(props, (draft) => {
-    for (const [key, value] of Object.entries(ownProps)) {
-      if (draft && draft.hasOwnProperty(key) && draft[key] !== value) {
-        draft[key] = value;
-        draft.needsChildrenDSL = ownProps.needsChildrenDSL;
-      }
-    }
-  });
-};
+//   return produce(props, (draft) => {
+//     for (const [key, value] of Object.entries(ownProps)) {
+//       if (draft && draft.hasOwnProperty(key) && draft[key] !== value) {
+//         draft[key] = value;
+//         draft.needsChildrenDSL = ownProps.needsChildrenDSL;
+//       }
+//     }
+//   });
+// };
 
 export const getColumnSpace = (props: WidgetProps) => {
   const { componentWidth } = getWidgetDimensions(props);
@@ -219,45 +222,45 @@ export const getColumnSpace = (props: WidgetProps) => {
   return componentWidth ? width / GridDefaults.DEFAULT_GRID_COLUMNS : 0;
 };
 
-export const makeGetWidgetProps = () => {
-  return createSelector(
-    getCanvasWidth,
-    getWidgetFromCanvasWidgets,
-    getWidgetFromDataTree,
-    (
-      canvasWidth: number,
-      canvasWidget: WidgetProps,
-      dataTreeWidget?: WidgetProps,
-    ): WidgetProps | undefined => {
-      if (dataTreeWidget && canvasWidget) {
-        const widget = produce(canvasWidget, (draft) => {
-          excludedProps.forEach((key) => {
-            delete draft[key];
-          });
-          for (const [key, value] of Object.entries(dataTreeWidget)) {
-            if (
-              !excludedProps.includes(key) &&
-              !STATIC_PROPS_LIST.includes(key) &&
-              draft[key] !== value
-            ) {
-              draft[key] = value;
-            }
-          }
-          draft.canvasWidth = canvasWidth;
-          if (draft.needsChildrenDSL) draft.children = dataTreeWidget.children;
-          else delete draft.children;
-        });
-        return widget;
-      }
-      if (canvasWidget) {
-        const widget = produce(canvasWidget, (draft) => {
-          draft.canvasWidth = canvasWidth;
-        });
-        return widget;
-      }
-    },
-  );
-};
+// export const makeGetWidgetProps = () => {
+//   return createSelector(
+//     getCanvasWidth,
+//     getWidgetFromCanvasWidgets,
+//     getWidgetFromDataTree,
+//     (
+//       canvasWidth: number,
+//       canvasWidget: WidgetProps,
+//       dataTreeWidget?: WidgetProps,
+//     ): WidgetProps | undefined => {
+//       if (dataTreeWidget && canvasWidget) {
+//         const widget = produce(canvasWidget, (draft) => {
+//           excludedProps.forEach((key) => {
+//             delete draft[key];
+//           });
+//           for (const [key, value] of Object.entries(dataTreeWidget)) {
+//             if (
+//               !excludedProps.includes(key) &&
+//               !STATIC_PROPS_LIST.includes(key) &&
+//               draft[key] !== value
+//             ) {
+//               draft[key] = value;
+//             }
+//           }
+//           draft.canvasWidth = canvasWidth;
+//           if (draft.needsChildrenDSL) draft.children = dataTreeWidget.children;
+//           else delete draft.children;
+//         });
+//         return widget;
+//       }
+//       if (canvasWidget) {
+//         const widget = produce(canvasWidget, (draft) => {
+//           draft.canvasWidth = canvasWidth;
+//         });
+//         return widget;
+//       }
+//     },
+//   );
+// };
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
@@ -294,70 +297,101 @@ export const getWidgetCards = createSelector(
   },
 );
 
-function getChildren(
-  parentId: string,
-  widgets: CanvasWidgetsReduxState,
-  renderMode: RenderMode,
-  children?: string[],
-): WidgetSkeleton[] | undefined {
-  if (!children) return undefined;
+// function getChildren(
+//   parentId: string,
+//   widgets: CanvasWidgetsReduxState,
+//   renderMode: RenderMode,
+//   children?: string[],
+// ): WidgetSkeleton[] | undefined {
+//   if (!children) return undefined;
 
-  const parentProps: FlattenedWidgetProps = widgets[parentId];
-  const parentColumnSpace = getColumnSpace(parentProps);
-  return children.map((child: string) => {
-    const childProps: FlattenedWidgetProps = widgets[child];
-    const needsChildrenDSL = !!WidgetFactory.widgetConfigMap.get(
-      childProps.type,
-    )?.needsChildrenDSL;
+//   const parentProps: FlattenedWidgetProps = widgets[parentId];
+//   const parentColumnSpace = getColumnSpace(parentProps);
+//   return children.map((child: string) => {
+//     const childProps: FlattenedWidgetProps = widgets[child];
+//     const needsChildrenDSL = !!WidgetFactory.widgetConfigMap.get(
+//       childProps.type,
+//     )?.needsChildrenDSL;
 
-    return {
-      widgetId: child,
-      type: childProps.type,
-      parentId: childProps.parentId,
-      children: getChildren(child, widgets, renderMode, childProps.children),
-      parentRowSpace:
-        childProps.type === "CANVAS_WIDGET"
-          ? 1
-          : GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      parentColumnSpace,
-      renderMode,
-      detachFromLayout: !!childProps.detachFromLayout,
-      canExtend:
-        childProps.type === "CANVAS_WIDGET"
-          ? parentProps.shouldScrollContents
-          : false,
-      needsChildrenDSL,
-    };
-  });
-}
+//     return {
+//       widgetId: child,
+//       type: childProps.type,
+//       parentId: childProps.parentId,
+//       children: getChildren(child, widgets, renderMode, childProps.children),
+//       parentRowSpace:
+//         childProps.type === "CANVAS_WIDGET"
+//           ? 1
+//           : GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+//       parentColumnSpace,
+//       renderMode,
+//       detachFromLayout: !!childProps.detachFromLayout,
+//       canExtend:
+//         childProps.type === "CANVAS_WIDGET"
+//           ? parentProps.shouldScrollContents
+//           : false,
+//       needsChildrenDSL,
+//     };
+//   });
+// }
+
+// export const getCanvasWidgetDsl = createSelector(
+//   getWidgets,
+//   getAppMode,
+//   (widgets: CanvasWidgetsReduxState, mode?: APP_MODE): WidgetSkeleton => {
+//     const renderMode: RenderMode =
+//       mode === undefined || mode === APP_MODE.EDIT
+//         ? RenderModes.CANVAS
+//         : RenderModes.PAGE;
+//     const maincanvas: FlattenedWidgetProps = widgets["0"];
+
+//     //TODO(abhinav): Move to a redux reducer or useReducer in Canvas
+//     const tree = {
+//       widgetId: maincanvas.widgetId,
+//       type: maincanvas.type,
+//       children: getChildren(
+//         maincanvas.widgetId,
+//         widgets,
+//         renderMode,
+//         maincanvas.children,
+//       ),
+//       parentRowSpace: 1,
+//       renderMode,
+//       detachFromLayout: true,
+//       isVisible: true,
+//     };
+//     console.log("Connected Widgets Widget Tree", { tree });
+//     return tree;
+//   },
+// );
 
 export const getCanvasWidgetDsl = createSelector(
-  getWidgets,
-  getAppMode,
-  (widgets: CanvasWidgetsReduxState, mode?: APP_MODE): WidgetSkeleton => {
-    const renderMode: RenderMode =
-      mode === undefined || mode === APP_MODE.EDIT
-        ? RenderModes.CANVAS
-        : RenderModes.PAGE;
-    const maincanvas: FlattenedWidgetProps = widgets["0"];
+  getCanvasWidgets,
+  getDataTree,
+  getLoadingEntities,
+  (
+    canvasWidgets: CanvasWidgetsReduxState,
+    evaluatedDataTree,
+    loadingEntities,
+  ): ContainerWidgetProps<WidgetProps> => {
+    const widgets: Record<string, DataTreeWidget> = {};
+    Object.keys(canvasWidgets).forEach((widgetKey) => {
+      const canvasWidget = canvasWidgets[widgetKey];
+      const evaluatedWidget = find(evaluatedDataTree, {
+        widgetId: widgetKey,
+      }) as DataTreeWidget;
+      if (evaluatedWidget) {
+        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
+      } else {
+        widgets[widgetKey] = createLoadingWidget(canvasWidget);
+      }
+      widgets[widgetKey].isLoading = loadingEntities.has(
+        canvasWidget.widgetName,
+      );
+    });
 
-    //TODO(abhinav): Move to a redux reducer or useReducer in Canvas
-    const tree = {
-      widgetId: maincanvas.widgetId,
-      type: maincanvas.type,
-      children: getChildren(
-        maincanvas.widgetId,
-        widgets,
-        renderMode,
-        maincanvas.children,
-      ),
-      parentRowSpace: 1,
-      renderMode,
-      detachFromLayout: true,
-      isVisible: true,
-    };
-    console.log("Connected Widgets Widget Tree", { tree });
-    return tree;
+    return CanvasWidgetsNormalizer.denormalize("0", {
+      canvasWidgets: widgets,
+    });
   },
 );
 
@@ -458,14 +492,11 @@ export const getActionById = createSelector(
 export const getActionTabsInitialIndex = (state: AppState) =>
   state.ui.actionTabs.index;
 
-/*
-
-
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
 ) => {
-  const widgetStaticProps = _.pick(
+  const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   );
@@ -475,10 +506,11 @@ const createCanvasWidget = (
   };
 };
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
 ): DataTreeWidget => {
-  const widgetStaticProps = _.pick(
+  const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   ) as WidgetProps;
@@ -492,4 +524,4 @@ const createLoadingWidget = (
     logBlackList: {},
     isLoading: true,
   };
-};*/
+};

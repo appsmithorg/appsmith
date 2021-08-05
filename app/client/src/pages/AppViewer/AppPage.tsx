@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { WidgetSkeleton } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -13,7 +14,7 @@ const PageView = styled.div<{ width: number }>`
 `;
 
 type AppPageProps = {
-  dsl: WidgetSkeleton;
+  dsl: ContainerWidgetProps<WidgetProps>;
   pageName?: string;
   pageId?: string;
   appName?: string;

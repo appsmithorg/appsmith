@@ -1,4 +1,9 @@
-import { WidgetSkeleton, WidgetBuilder, WidgetProps } from "widgets/BaseWidget";
+import {
+  WidgetBuilder,
+  WidgetDataProps,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import React from "react";
 import {
   PropertyPaneConfig,
@@ -86,7 +91,10 @@ function validateValidationStructure(
 }
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
-  static widgetMap: Map<WidgetType, WidgetBuilder<WidgetSkeleton>> = new Map();
+  static widgetMap: Map<
+    WidgetType,
+    WidgetBuilder<WidgetProps, WidgetState>
+  > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
     WidgetDerivedPropertyType
@@ -112,7 +120,7 @@ class WidgetFactory {
 
   static registerWidgetBuilder(
     widgetType: string,
-    widgetBuilder: WidgetBuilder<WidgetSkeleton>,
+    widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
@@ -147,7 +155,7 @@ class WidgetFactory {
     this.widgetConfigMap.set(widgetType, Object.freeze(config));
   }
 
-  static createWidget(widgetData: WidgetSkeleton): React.ReactNode {
+  static createWidget(widgetData: WidgetDataProps): React.ReactNode {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here

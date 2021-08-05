@@ -1,13 +1,14 @@
 import React, { memo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
-import { WidgetSkeleton } from "widgets/BaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 interface CanvasProps {
-  dsl: WidgetSkeleton;
+  dsl: ContainerWidgetProps<WidgetProps>;
   width: number;
 }
 

@@ -1,12 +1,11 @@
 import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
-import { invisible } from "constants/DefaultTheme";
 import tinycolor from "tinycolor2";
-
+import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
+import { ComponentProps } from "widgets/BaseComponent";
 
 const scrollContents = css`
   overflow-y: auto;

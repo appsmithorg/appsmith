@@ -7,7 +7,7 @@ import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -25,6 +25,8 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
+      isVisible:
+        this.props.isVisible === undefined ? true : this.props.isVisible,
     };
   }
 
@@ -33,6 +35,7 @@ class CanvasWidget extends ContainerWidget {
     return (
       <DropTargetComponent
         {...canvasProps}
+        {...this.getSnapSpaces()}
         minHeight={this.props.minHeight || 380}
       >
         {this.renderAsContainerComponent(canvasProps)}
@@ -40,19 +43,36 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+    if (!childWidgetData) return null;
+    // For now, isVisible prop defines whether to render a detached widget
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+      return null;
+    }
+    const snapSpaces = this.getSnapSpaces();
+
+    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidgetData.noContainerOffset = true;
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData);
+  }
+
   render() {
-    console.log({ props: this.props });
+    console.log("canvas", { props: this.props });
     if (
       this.props.renderMode === RenderModes.CANVAS &&
       !this.props.dropDisabled
     ) {
       return this.renderAsDropTarget();
     }
+    let height = 0;
     const snapRows = getCanvasSnapRows(
       this.props.bottomRow,
       this.props.canExtend,
     );
-    const height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     const style: CSSProperties = {
       width: "100%",
@@ -67,6 +87,11 @@ class CanvasWidget extends ContainerWidget {
         {this.renderAsContainerComponent(this.getCanvasProps())}
       </div>
     );
+  }
+
+  getCanvasView() {
+    if (this.props.dropDisabled) return this.getPageView();
+    return this.renderAsDropTarget();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

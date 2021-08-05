@@ -2,18 +2,21 @@ import React from "react";
 
 import ContainerComponent, { ContainerStyle } from "../component";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 
-import BaseWidget, {
-  WidgetProps,
-  WidgetSkeleton,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { compact, map, sortBy } from "lodash";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -72,28 +75,61 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  renderChildWidget(props: WidgetProps | WidgetSkeleton): React.ReactNode {
+  getSnapSpaces = () => {
+    const { componentWidth } = getWidgetDimensions(this.props);
+    // For all widgets inside a container, we remove both container padding as well as widget padding from component width
+    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    if (
+      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+      this.props.type === "CONTAINER_WIDGET"
+    ) {
+      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+      padding = CONTAINER_GRID_PADDING * 2;
+    }
+    if (this.props.noPad) {
+      // Widgets like ListWidget choose to have no container padding so will only have widget padding
+      padding = WIDGET_PADDING * 2;
+    }
+    let width = componentWidth;
+    width -= padding;
+    return {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace: componentWidth
+        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
+        : 0,
+    };
+  };
+
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    if (props.detachFromLayout && !props.isVisible) {
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
       return null;
     }
 
-    return WidgetFactory.createWidget(props);
+    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
+
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData);
   }
 
   renderChildren = () => {
-    console.log(
-      "Connected Widgets, Rendering Canvas/Container Children",
-      this.props.children,
+    return map(
+      // sort by row so stacking context is correct
+      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+      // Figure out a way in which the stacking context is consistent.
+      sortBy(compact(this.props.children), (child) => child.topRow),
+      this.renderChildWidget,
     );
-    return this.props.children?.map(this.renderChildWidget);
-    // return map(
-    //   // sort by row so stacking context is correct
-    //   // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
-    //   // Figure out a way in which the stacking context is consistent.
-    //   sortBy(compact(this.props.children), (child) => child.topRow),
-    //   this.renderChildWidget,
-    // );
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
@@ -112,7 +148,7 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  render() {
+  getPageView() {
     return this.renderAsContainerComponent(this.props);
   }
 

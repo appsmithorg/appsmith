@@ -3,8 +3,8 @@ import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
-import { Layers } from "constants/Layers";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { Layers } from "constants/Layers";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 

@@ -29,10 +29,8 @@ import ListPagination from "../component/ListPagination";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
-import { getWidgetDimensions } from "widgets/WidgetUtils";
-import { ListWidgetProps } from "../constants";
 import { DSLWidget } from "widgets/constants";
-import produce from "immer";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
@@ -219,28 +217,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  renderChild = (props: WidgetProps) => {
+  renderChild = (childWidgetData: WidgetProps) => {
     const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
-    const childWidgetProps = produce(props, (childWidgetData) => {
-      childWidgetData.parentId = this.props.widgetId;
-      // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
-      childWidgetData.canExtend =
-        childWidgetData.virtualizedEnabled && false
-          ? true
-          : this.props.shouldScrollContents;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.noPad = true;
-      childWidgetData.bottomRow =
-        this.props.bottomRow * this.props.parentRowSpace - 45;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.renderHandled = true;
-    });
 
-    console.log("Rendering child", { childWidgetProps });
+    childWidgetData.parentId = this.props.widgetId;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    childWidgetData.canExtend =
+      childWidgetData.virtualizedEnabled && false
+        ? true
+        : this.props.shouldScrollContents;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.noPad = true;
+    childWidgetData.bottomRow =
+      this.props.bottomRow * this.props.parentRowSpace - 45;
+    childWidgetData.shouldScrollContents = false;
 
-    // return WidgetFactory.createWidget(childWidgetProps);
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
   /**
@@ -302,14 +296,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          console.log({ path });
-          const validationPath = get(widget, `validationPaths.${path}`);
+          const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            validationPath &&
-            ((validationPath.type === ValidationTypes.BOOLEAN &&
+            (validationPath.type === ValidationTypes.BOOLEAN &&
               isBoolean(evaluatedValue)) ||
-              validationPath.type === ValidationTypes.OBJECT)
+            validationPath.type === ValidationTypes.OBJECT
           ) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
@@ -321,31 +313,27 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    if (widget.defaultProps) {
-      // add default value
-      Object.keys(widget.defaultProps).map((key: string) => {
-        const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
+    // add default value
+    Object.keys(widget.defaultProps).map((key: string) => {
+      const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
 
-        set(widget, `${key}`, defaultPropertyValue);
-      });
-    }
+      set(widget, `${key}`, defaultPropertyValue);
+    });
 
-    if (widget.defaultMetaProps) {
-      widget.defaultMetaProps.map((key: string) => {
-        const metaPropertyValue = get(
-          this.props.childMetaProperties,
-          `${widget.widgetName}.${key}.${itemIndex}`,
-          undefined,
-        );
+    widget.defaultMetaProps.map((key: string) => {
+      const metaPropertyValue = get(
+        this.props.childMetaProperties,
+        `${widget.widgetName}.${key}.${itemIndex}`,
+        undefined,
+      );
 
-        if (
-          typeof metaPropertyValue !== "undefined" &&
-          metaPropertyValue !== null
-        ) {
-          set(widget, key, metaPropertyValue);
-        }
-      });
-    }
+      if (
+        typeof metaPropertyValue !== "undefined" &&
+        metaPropertyValue !== null
+      ) {
+        set(widget, key, metaPropertyValue);
+      }
+    });
 
     if (
       Array.isArray(dynamicTriggerPathList) &&
@@ -391,11 +379,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     return this.updateNonTemplateWidgetProperties(widget, itemIndex);
   };
-
-  // button -> eval -> run fn1 rn fn2 -> render
-
-  // static (propsWithDSLChildren) => new properties for list widget
-  // static (propsWidgetDSLChildren) => new children properties
 
   updateNonTemplateWidgetProperties = (
     widget: WidgetProps,
@@ -502,7 +485,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
-  updateListChildrenProps = (children: DSLWidget[]) => {
+  updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
@@ -523,10 +506,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
   };
 
-  shouldComponentUpdate(nextProps: any) {
-    return JSON.stringify(this.props) !== JSON.stringify(nextProps);
-  }
-
   /**
    * paginate items
    *
@@ -543,45 +522,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return children;
   };
 
-  // {
-  //   list: {
-  //     children: [ <--- children
-  //       {
-  //         canvas: { <--- childCanvas
-  //           children: [ <---- canvasChildren
-  //             {
-  //               container: {
-  //                 children: [
-  //                   0: {
-  //                     canvas: [
-  //                       {
-  //                         button
-  //                         image
-  //                       }
-  //                     ]
-  //                   },
-  //                   1: {
-  //                     canvas: [
-  //                       {
-  //                         button
-  //                         image
-  //                       }
-  //                     ]
-  //                   }
-  //                 ]
-  //               }
-  //             }
-  //           ]
-  //         }
-  //       }
-  //     ]
-  //   }
-  // }
-
-  // Needs Children
-  // Needs to set children properties
-  // Needs to get children properties
-
   /**
    * renders children
    */
@@ -589,35 +529,28 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const numberOfItemsInGrid = this.props.listData?.length ?? 0;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
-      let childCanvas = children[0];
-      childCanvas = produce(childCanvas, (canvas: DSLWidget) => {
-        let canvasChildren = canvas.children;
-        if (canvasChildren) {
-          try {
-            // here we are duplicating the template for each items in the data array
-            // first item of the canvasChildren acts as a template
-            // const template = canvasChildren.slice(0, 1).shift();
+      const childCanvas = children[0];
+      let canvasChildren = childCanvas.children;
 
-            for (let i = 0; i < numberOfItemsInGrid; i++) {
-              canvasChildren[i] = canvasChildren[0];
-            }
+      try {
+        // here we are duplicating the template for each items in the data array
+        // first item of the canvasChildren acts as a template
+        const template = canvasChildren.slice(0, 1).shift();
 
-            // TODO(pawan): This is recalculated everytime for not much reason
-            // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-            // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
-            // In particular useNewValues can be memoized, if others can't.
-            canvasChildren = this.updateListChildrenProps(canvasChildren);
-          } catch (e) {
-            log.error(e);
-          }
+        for (let i = 0; i < numberOfItemsInGrid; i++) {
+          canvasChildren[i] = JSON.parse(JSON.stringify(template));
         }
-      });
 
-      console.log(
-        "Have children updated!!!",
-        childCanvas !== this.props.children[0],
-        JSON.stringify(childCanvas) !== JSON.stringify(this.props.children[0]),
-      );
+        // TODO(pawan): This is recalculated everytime for not much reason
+        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
+        // In particular useNewValues can be memoized, if others can't.
+        canvasChildren = this.updateGridChildrenProps(canvasChildren);
+
+        childCanvas.children = canvasChildren;
+      } catch (e) {
+        log.error(e);
+      }
 
       return this.renderChild(childCanvas);
     }
@@ -670,24 +603,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const children = this.renderChildren();
     const { componentHeight } = getWidgetDimensions(this.props);
     const { perPage, shouldPaginate } = this.shouldPaginate();
-    // HERE: children.0.children.0.bottomRow
     const templateBottomRow = get(
       this.props.children,
       "0.children.0.bottomRow",
     );
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-    console.log(
-      "List Widget",
-      { props: this.props },
-      { templateHeight },
-      { templateBottomRow },
-      { perPage },
-      { shouldPaginate },
-      { componentHeight },
-      this.props.children,
-    );
 
     if (this.props.isLoading) {
       return (
@@ -733,9 +654,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
     }
 
-    console.log({ children });
-    // return null;
-
     return (
       <ListComponent
         {...this.props}
@@ -765,8 +683,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 }
 
-(ListWidget as any).whyDidYouRender = {
-  logOnDifferentValues: true,
-};
+export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
+  children?: T[];
+  shouldScrollContents?: boolean;
+  onListItemClick?: string;
+  listData: Array<Record<string, unknown>>;
+  currentItemStructure?: Record<string, string>;
+}
 
 export default ListWidget;

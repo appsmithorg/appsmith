@@ -21,7 +21,6 @@ import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
-
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
@@ -37,8 +36,10 @@ import {
   batchUpdateWidgetProperty,
   deleteWidgetProperty,
 } from "actions/controlActions";
+import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
+import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { getDisplayName, getWidgetDimensions } from "./WidgetUtils";
 import { disableDragAction, executeAction } from "actions/widgetActions";
 import { updateWidget } from "actions/pageActions";
 import {
@@ -46,10 +47,8 @@ import {
   updateWidgetMetaProperty,
 } from "actions/metaActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getDisplayName } from "./WidgetUtils";
-import { makeGetWidgetProps } from "selectors/editorSelectors";
-import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
-import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
+import { getRenderMode } from "selectors/editorSelectors";
+import { AppState } from "reducers";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -88,29 +87,32 @@ export default BaseWidget;
  */
 export function withWidgetAPI(Widget: typeof BaseWidget) {
   class WidgetWrapper extends BaseWidget<WidgetProps, any> {
-    getComponentDimensions = (): {
+    getComponentDimensions = () => {
+      return this.calculateWidgetBounds(
+        this.props.rightColumn,
+        this.props.leftColumn,
+        this.props.topRow,
+        this.props.bottomRow,
+        this.props.parentColumnSpace,
+        this.props.parentRowSpace,
+      );
+    };
+
+    calculateWidgetBounds(
+      rightColumn: number,
+      leftColumn: number,
+      topRow: number,
+      bottomRow: number,
+      parentColumnSpace: number,
+      parentRowSpace: number,
+    ): {
       componentWidth: number;
       componentHeight: number;
-    } => {
+    } {
       return {
-        componentWidth:
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace,
-        componentHeight:
-          (this.props.bottomRow - this.props.topRow) *
-          this.props.parentRowSpace,
+        componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
+        componentHeight: (bottomRow - topRow) * parentRowSpace,
       };
-    };
-    static displayName: string;
-
-    render() {
-      console.log(
-        "Connected Widgets, Rendering Widget......",
-        this.props.widgetName,
-        { props: this.props },
-      );
-      const widget = <Widget {...this.props} />;
-      return this.getWidgetView(widget);
     }
 
     getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
@@ -122,6 +124,10 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
         0,
       );
     }, JSON.stringify);
+
+    render() {
+      return this.getWidgetView();
+    }
 
     /**
      * this function is responsive for making the widget resizable.
@@ -174,18 +180,17 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
      *
      * @param content
      */
-    makeSnipeable(content: ReactNode) {
-      return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
+    makeDraggable(content: ReactNode) {
+      return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
     }
-
     /**
      * wraps the widget in a draggable component.
      * Note: widget drag can be disabled by setting `dragDisabled` prop to true
      *
      * @param content
      */
-    makeDraggable(content: ReactNode) {
-      return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
+    makeSnipeable(content: ReactNode) {
+      return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
     }
 
     makePositioned(content: ReactNode) {
@@ -234,9 +239,12 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
       );
     }
 
-    private getWidgetView(content: ReactNode): ReactNode {
+    private getWidgetView(): ReactNode {
+      let content: ReactNode;
+
       switch (this.props.renderMode) {
         case RenderModes.CANVAS:
+          content = this.getCanvasView();
           content = this.addPreventInteractionOverlay(content);
           content = this.addOverlayComments(content);
           if (!this.props.detachFromLayout) {
@@ -250,6 +258,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
           }
           return content;
         case RenderModes.PAGE:
+          content = this.getPageView();
           if (this.props.isVisible) {
             content = this.addPreventInteractionOverlay(content);
             content = this.addOverlayComments(content);
@@ -265,11 +274,22 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
       }
     }
 
+    getPageView() {
+      return <Widget {...this.props} />;
+    }
+
+    getCanvasView(): ReactNode {
+      const content = this.getPageView();
+      return this.addErrorBoundary(content);
+    }
+
     /**
      * generates styles that positions the widget
      */
     private getPositionStyle(): BaseStyle {
-      const { componentHeight, componentWidth } = this.getComponentDimensions();
+      const { componentHeight, componentWidth } = getWidgetDimensions(
+        this.props,
+      );
 
       return {
         positionType: PositionTypes.ABSOLUTE,
@@ -292,7 +312,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     logOnDifferentValues: false,
   };
 
-  return connect(makeMapStateToProps, mapDispatchToProps)(WidgetWrapper);
+  return connect(mapStateToProps, mapDispatchToProps)(WidgetWrapper);
 }
 
 export interface BaseStyle {
@@ -308,8 +328,10 @@ export interface BaseStyle {
 }
 
 export type WidgetState = Record<string, unknown>;
-export interface WidgetBuilder<WidgetSkeleton> {
-  buildWidget(widgetProps: WidgetSkeleton): JSX.Element;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+  buildWidget(widgetProps: T): JSX.Element;
 }
 
 export interface WidgetBaseProps {
@@ -340,6 +362,24 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
 }
+
+export const WIDGET_STATIC_PROPS = {
+  leftColumn: true,
+  rightColumn: true,
+  topRow: true,
+  bottomRow: true,
+  minHeight: true,
+  parentColumnSpace: true,
+  parentRowSpace: true,
+  children: true,
+  type: true,
+  widgetId: true,
+  widgetName: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
+};
 
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
@@ -387,37 +427,16 @@ export const WidgetOperations = {
   ADD_CHILDREN: "ADD_CHILDREN",
 };
 
-export type WidgetSkeleton = {
-  widgetId: string;
-  type: WidgetType;
-  parentId?: string;
-  children?: Array<WidgetSkeleton | WidgetProps>;
-  needsChildrenDSL?: boolean;
-  detachFromLayout?: boolean;
-  isVisible?: boolean;
-};
-
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
-const makeMapStateToProps = () => {
-  const getWidgetProps = makeGetWidgetProps();
-  const mapStateToProps = (
-    state: AppState,
-    props: { widgetId: string; needsChildrenDSL: boolean },
-  ) => {
-    return getWidgetProps(state, props) || {};
-  };
-  return mapStateToProps;
-};
+function mapStateToProps(state: AppState) {
+  return { renderMode: getRenderMode(state) };
+}
 
 const resolver = (dispatch: any, ownProps: { widgetId: string }) =>
   ownProps.widgetId;
 export const mapDispatchToProps = memoize(
   (dispatch: any, ownProps: { widgetId: string }) => {
-    console.log(
-      "Connected Widgets, creating dispatch props....",
-      ownProps.widgetId,
-    );
     return {
       executeAction: (actionPayload: WidgetExecuteActionPayload): void => {
         dispatch(

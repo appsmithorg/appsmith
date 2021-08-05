@@ -10,6 +10,7 @@ import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import {
@@ -36,7 +37,7 @@ export const useDynamicAppLayout = () => {
   ) => {
     const screenWidthWithBuffer = 0.95 * screenWidth;
     const widthToFill =
-      appMode === "EDIT"
+      appMode === APP_MODE.EDIT
         ? screenWidthWithBuffer - parseInt(theme.sidebarWidth)
         : screenWidth;
     if (layoutMaxWidth < 0) {
@@ -54,7 +55,9 @@ export const useDynamicAppLayout = () => {
     const { minWidth = -1, maxWidth = -1 } =
       layoutConfigurations[type] || layoutConfigurations[DefaultLayoutType];
     const calculatedMinWidth =
-      appMode === "EDIT" ? minWidth - parseInt(theme.sidebarWidth) : minWidth;
+      appMode === APP_MODE.EDIT
+        ? minWidth - parseInt(theme.sidebarWidth)
+        : minWidth;
     const layoutWidth = calculateFluidMaxWidth(screenWidth, maxWidth);
     const { rightColumn } = mainContainer;
     if (

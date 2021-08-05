@@ -93,7 +93,6 @@ class FormWidget extends ContainerWidget {
   }
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    console.log("Form Widget", { childWidgetData });
     if (childWidgetData.children) {
       const isInvalid = this.checkInvalidChildren(childWidgetData.children);
       childWidgetData = produce(childWidgetData, (draft: WidgetProps) => {

@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
+import _ from "lodash";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
-import { fromPairs, isEqual, debounce } from "lodash";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -32,7 +32,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
     static displayName: string;
 
-    debouncedHandleUpdateWidgetMetaProperty = debounce(
+    debouncedHandleUpdateWidgetMetaProperty = _.debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
       {
@@ -44,7 +44,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     constructor(props: any) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.state = fromPairs(
+      this.state = _.fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
@@ -67,8 +67,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           widget) to the current value that is outside (controlled by platform)
         */
         if (
-          !isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
-          isEqual(this.props[defaultProperty], this.props[metaProperty])
+          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
         ) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
@@ -127,6 +127,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     };
 
     handleUpdateWidgetMetaProperty() {
+      const { executeAction, updateWidgetMetaProperty } = this.props;
       const { widgetId, widgetName } = this.props;
       const metaOptions = this.props.__metaOptions;
       /*
@@ -138,34 +139,31 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       */
 
       [...this.updatedProperties.keys()].forEach((propertyName) => {
-        const propertyValue = this.state[propertyName];
+        if (updateWidgetMetaProperty) {
+          const propertyValue = this.state[propertyName];
 
-        clearEvalPropertyCache(`${widgetName}.${propertyName}`);
-        // step 6 - look at this.props.options, check for metaPropPath value
-        // if they exist, then update the propertyName
-        this.props.updateWidgetMetaProperty(
-          widgetId,
-          propertyName,
-          propertyValue,
-        );
+          clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+          // step 6 - look at this.props.options, check for metaPropPath value
+          // if they exist, then update the propertyName
+          updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
 
-        if (metaOptions) {
-          this.props.updateWidgetMetaProperty(
-            metaOptions.widgetId,
-            `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
-            propertyValue,
-          );
+          if (metaOptions) {
+            updateWidgetMetaProperty(
+              metaOptions.widgetId,
+              `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
+              propertyValue,
+            );
+          }
+
+          this.updatedProperties.delete(propertyName);
         }
-
-        this.updatedProperties.delete(propertyName);
-
         const debouncedPayload = this.propertyTriggers.get(propertyName);
         if (
           debouncedPayload &&
           debouncedPayload.dynamicString &&
-          this.props.executeAction
+          executeAction
         ) {
-          this.props.executeAction(debouncedPayload);
+          executeAction(debouncedPayload);
           this.propertyTriggers.delete(propertyName);
           debouncedPayload.triggerPropertyName &&
             AppsmithConsole.info({

@@ -1,14 +1,10 @@
 import React, { ReactNode } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
-import {
-  RenderMode,
-  GridDefaults,
-  RenderModes,
-} from "constants/WidgetConstants";
+import { RenderMode, GridDefaults } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
@@ -86,28 +82,25 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getModalWidth() {
-    const widthFromOverlay = this.props.canvasWidth * 0.95;
+    const widthFromOverlay = this.props.mainContainer.rightColumn * 0.95;
     const defaultModalWidth = MODAL_SIZE[this.props.size].width;
     return widthFromOverlay < defaultModalWidth
       ? widthFromOverlay
       : defaultModalWidth;
   }
 
-  renderChildWidget = (props: WidgetProps): ReactNode => {
-    // const childWidgetProps = produce(props, (childWidgetData) => {
-    //   childWidgetData.parentId = this.props.widgetId;
-    //   childWidgetData.shouldScrollContents = false;
-    //   childWidgetData.canExtend = this.props.shouldScrollContents;
-    //   childWidgetData.bottomRow = this.props.shouldScrollContents
-    //     ? childWidgetData.bottomRow
-    //     : MODAL_SIZE[this.props.size].height;
-    //   childWidgetData.isVisible = this.props.isVisible;
-    //   childWidgetData.containerStyle = "none";
-    //   childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
-    //   childWidgetData.rightColumn = this.getModalWidth();
-    // });
-
-    return WidgetFactory.createWidget(props);
+  renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
+    childWidgetData.parentId = this.props.widgetId;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : MODAL_SIZE[this.props.size].height;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.containerStyle = "none";
+    childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
+    childWidgetData.rightColumn = this.getModalWidth();
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
   onModalClose = () => {
@@ -124,12 +117,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
-
     this.onModalClose();
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     this.props.updateWidgetMetaProperty("isVisible", false);
-
     e.stopPropagation();
     e.preventDefault();
   };
@@ -142,7 +133,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   makeModalComponent(content: ReactNode) {
-    console.log("Rendering modal ==== ");
     return (
       <ModalComponent
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
@@ -159,14 +149,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  render() {
-    console.log("Rendering modal widget =====");
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      const children = this.getChildren();
-      // children = this.props.showWidgetName(children, true);
-      return this.makeModalComponent(children);
-    }
+  getPageView() {
     const children = this.getChildren();
+    // if (this.props.renderMode === RenderModes.CANVAS) {
+    //   children = this.showWidgetName(children, true);
+    // }
+
     return this.makeModalComponent(children);
   }
 
@@ -186,8 +174,8 @@ export interface ModalWidgetProps extends WidgetProps {
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
-  canvasWidth: number;
   onClose: string;
+  mainContainer: WidgetProps;
 }
 
 export default ModalWidget;

@@ -8,7 +8,7 @@ import React, {
   memo,
   useMemo,
 } from "react";
-import styled, { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { isEqual } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -33,13 +33,15 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { OccupiedSpace } from "constants/editorConstants";
-import WidgetFactory from "utils/WidgetFactory";
-import { getSnapSpaces } from "widgets/WidgetUtils";
 import { updateWidget } from "actions/pageActions";
+import WidgetFactory from "utils/WidgetFactory";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
+  snapColumnSpace: number;
+  snapRowSpace: number;
   minHeight: number;
   noPad?: boolean;
 };
@@ -82,7 +84,6 @@ export const DropTargetContext: Context<{
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
-  const { snapColumnSpace, snapRowSpace } = getSnapSpaces(props);
   const canDropTargetExtend = props.canExtend;
   const dispatch = useDispatch();
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -97,8 +98,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const childWidgets = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
+  const childWidgets: string[] | undefined = useSelector(
+    (state: AppState) => state.entities.canvasWidgets[props.widgetId]?.children,
   );
 
   const selectOccupiedSpaces = useCallback(
@@ -182,57 +183,43 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       },
     },
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
-      // TODO(abhinav/Satish): Performance bottleneck
       // Make sure we're dropping in this container.
       if (isExactlyOver) {
-        const canDrop = noCollision(
-          monitor.getSourceClientOffset() as XYCoord,
-          snapColumnSpace,
-          snapRowSpace,
+        const updateWidgetParams = widgetOperationParams(
           widget,
+          monitor.getSourceClientOffset() as XYCoord,
           dropTargetOffset,
-          occupiedSpacesByChildren,
-          rows,
-          GridDefaults.DEFAULT_GRID_COLUMNS,
+          props.snapColumnSpace,
+          props.snapRowSpace,
+          widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
         );
 
-        if (canDrop) {
-          const updateWidgetParams = widgetOperationParams(
-            widget,
-            monitor.getSourceClientOffset() as XYCoord,
-            dropTargetOffset,
-            snapColumnSpace,
-            snapRowSpace,
-            widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
-          );
+        // Select the widget if it is a new widget
+        selectWidget && selectWidget(widget.widgetId);
 
-          // Select the widget if it is a new widget
-          selectWidget && selectWidget(widget.widgetId);
+        /* Finally update the widget */
+        dispatch(
+          updateWidget(
+            updateWidgetParams.operation,
+            updateWidgetParams.widgetId,
+            updateWidgetParams.payload,
+          ),
+        );
+        // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
+        const widgetBottomRow =
+          updateWidgetParams.payload.topRow +
+          (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+        persistDropTargetRows(widget.widgetId, widgetBottomRow);
 
-          /* Finally update the widget */
-          dispatch(
-            updateWidget(
-              updateWidgetParams.operation,
-              updateWidgetParams.widgetId,
-              updateWidgetParams.payload,
-            ),
-          );
-          const widgetBottomRow =
-            updateWidgetParams.payload.topRow +
-            (updateWidgetParams.payload.rows ||
-              widget.bottomRow - widget.topRow);
-
-          persistDropTargetRows(widget.widgetId, widgetBottomRow);
-
-          // Only show property pane if this is a new widget.
-          // If it is not a new widget, then let the DraggableComponent handle it.
-          // Give evaluations a second to complete.
-          setTimeout(() => {
-            if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
-              showPropertyPane(updateWidgetParams.payload.newWidgetId);
-            }
-          }, 100);
-        }
+        // Only show propertypane if this is a new widget.
+        // If it is not a new widget, then let the DraggableComponent handle it.
+        // Give evaluations a second to complete.
+        setTimeout(() => {
+          if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
+            showPropertyPane(updateWidgetParams.payload.newWidgetId);
+            // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
+          }
+        }, 100);
       }
 
       return undefined;
@@ -242,6 +229,26 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       isExactlyOver: monitor.isOver({ shallow: true }),
       isOver: monitor.isOver(),
     }),
+    // Only allow drop if the drag object is directly over this component
+    // As opposed to the drag object being over a child component, or outside the component bounds
+    // Also only if the dropzone does not overlap any existing children
+    canDrop: (widget, monitor) => {
+      // Check if the draggable is the same as the dropTarget
+      if (isExactlyOver) {
+        const hasCollision = !noCollision(
+          monitor.getSourceClientOffset() as XYCoord,
+          props.snapColumnSpace,
+          props.snapRowSpace,
+          widget,
+          dropTargetOffset,
+          occupiedSpacesByChildren,
+          rows,
+          GridDefaults.DEFAULT_GRID_COLUMNS,
+        );
+        return !hasCollision;
+      }
+      return false;
+    },
   });
 
   const handleBoundsUpdate = (rect: DOMRect) => {
@@ -254,28 +261,27 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   const handleFocus = (e: any) => {
-    if (!isResizing && !isDragging && !props.parentId) {
-      deselectAll();
-      focusWidget && focusWidget(props.widgetId);
-      showPropertyPane && showPropertyPane();
+    if (!isResizing && !isDragging) {
+      if (!props.parentId) {
+        deselectAll();
+        focusWidget && focusWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
+      }
     }
     // commenting this out to allow propagation of click events
     // e.stopPropagation();
     e.preventDefault();
   };
+  const height = canDropTargetExtend
+    ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`
+    : "100%";
 
-  const styles: CSSProperties = {
-    height: canDropTargetExtend
-      ? `${Math.max(rows * snapRowSpace, props.minHeight)}px`
-      : "100%",
-    boxShadow:
-      (isResizing || isDragging) &&
-      isExactlyOver &&
-      props.widgetId === MAIN_CONTAINER_WIDGET_ID
-        ? "0px 0px 0px 1px #DDDDDD"
-        : "0px 0px 0px 1px transparent",
-  };
-
+  const boxShadow =
+    (isResizing || isDragging) &&
+    isExactlyOver &&
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? "0px 0px 0px 1px #DDDDDD"
+      : "0px 0px 0px 1px transparent";
   const dropRef = !props.dropDisabled ? drop : undefined;
 
   // memoizing context values
@@ -293,7 +299,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         className={"t--drop-target"}
         onClick={handleFocus}
         ref={dropRef}
-        style={styles}
+        style={{
+          height,
+          boxShadow,
+        }}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&
@@ -308,8 +317,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
           occupiedSpaces={occupiedSpacesByChildren}
           onBoundsUpdate={handleBoundsUpdate}
           parentCols={props.snapColumns}
-          parentColumnWidth={snapColumnSpace}
-          parentRowHeight={snapRowSpace}
+          parentColumnWidth={props.snapColumnSpace}
+          parentRowHeight={props.snapRowSpace}
           parentRows={rows}
           parentWidgetId={props.widgetId}
           visible={isExactlyOver || isChildResizing}
@@ -318,9 +327,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     </DropTargetContext.Provider>
   );
 }
-// (DropTargetComponent as any).whyDidYouRender = {
-//   logOnDifferentValues: true,
-// };
 
 const MemoizedDropTargetComponent = memo(DropTargetComponent);
 
