@@ -248,20 +248,30 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         "chartData.random-id.data": {
-          children: {
-            params: {
-              allowedKeys: [
-                {
-                  name: "x",
-                  type: "TEXT",
-                },
-                {
-                  name: "y",
-                  type: "NUMBER",
-                },
-              ],
+          params: {
+            children: {
+              params: {
+                allowedKeys: [
+                  {
+                    name: "x",
+                    type: "TEXT",
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "y",
+                    type: "NUMBER",
+                    params: {
+                      default: 10,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+              type: "OBJECT",
             },
-            type: "OBJECT",
           },
           type: "ARRAY",
         },
