@@ -155,3 +155,17 @@ export const attachKind = (source: any[], kind: string) => {
     kind,
   }));
 };
+
+export const getEntityId = (entity: any) => {
+  const { entityType } = entity;
+  switch (entityType) {
+    case "page":
+      return entity.pageId;
+    case "datasource":
+      return entity.id;
+    case "widget":
+      return entity.widgetId;
+    case "action":
+      return entity.config?.id;
+  }
+};

@@ -39,6 +39,7 @@ import {
   algoliaHighlightTag,
   attachKind,
   SEARCH_CATEGORIES,
+  getEntityId,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -251,7 +252,7 @@ function GlobalSearch() {
   }, [reducerDatasources, query]);
   const recentEntities = useRecentEntities();
   const recentEntityIds = recentEntities
-    .map((r) => r.id || r.widgetId || r.config?.id || r.pageId)
+    .map((r) => getEntityId(r))
     .filter(Boolean);
   const recentEntityIndex = useCallback(
     (entity) => {
