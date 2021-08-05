@@ -52,6 +52,7 @@ export const Layers = {
   snipeableZone: Indices.Layer10,
   appComments: Indices.Layer7,
   max: Indices.LayerMax,
+  sideStickyBar: Indices.Layer7,
 };
 
 export const LayersContext = React.createContext(Layers);

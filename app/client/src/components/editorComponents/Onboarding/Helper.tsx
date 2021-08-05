@@ -9,7 +9,14 @@ import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { CloseButton } from "../../designSystems/blueprint/CloseButton";
 import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
+import { Layers } from "constants/Layers";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import {
+  createMessage,
+  WELCOME_TOUR_STICKY_BUTTON_TEXT,
+} from "../../../constants/messages";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -20,6 +27,11 @@ const StyledContainer = styled.div`
   background-color: white;
   border: 2px solid #df613c;
   width: 310px;
+
+  & > .t--close--button {
+    top: 3px;
+    border-radius: 16px;
+  }
 `;
 
 const ImagePlaceholder = styled.div`
@@ -183,6 +195,21 @@ const SubStepContainer = styled.div`
   }
 `;
 
+const SideStickBar = styled.div`
+  position: fixed;
+  bottom: 37px;
+  left: 0;
+  z-index: ${Layers.sideStickyBar};
+  padding: ${(props) => props.theme.spaces[5]}px
+    ${(props) => props.theme.spaces[3]}px;
+  background-color: ${(props) =>
+    props.theme.colors.welcomeTourStickySidebarBackground};
+  color: ${(props) => props.theme.colors.welcomeTourStickySidebarColor};
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  ${(props) => getTypographyByKey(props, "btnLarge")}
+`;
 const ActionButtonWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -198,6 +225,7 @@ function Helper() {
   );
   const steps = Array.from({ length: OnboardingStep.FINISH }, (_, i) => i + 1);
   const [cheatMode, setCheatMode] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     cheatMode && setCheatMode(false);
@@ -211,7 +239,7 @@ function Helper() {
     helperConfig.hint?.snippet && write(helperConfig.hint.snippet);
   };
 
-  return (
+  return !minimized ? (
     <StyledContainer className="onboarding-step-indicator">
       {helperConfig.image ? (
         <MissionImage src={helperConfig.image.src} />
@@ -220,6 +248,14 @@ function Helper() {
       )}
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title className="t--onboarding-helper-title">{helperConfig.title}</Title>
+      {helperConfig.allowMinimize && (
+        <CloseButton
+          className="t--close--button"
+          color={Colors.BLACK_PEARL}
+          onClick={() => setMinimized(true)}
+          size={16}
+        />
+      )}
       <Description>{helperConfig.description}</Description>
       {helperConfig.subSteps &&
         helperConfig.subSteps.map((subStep, index) => {
@@ -326,6 +362,13 @@ function Helper() {
         </ActionButtonWrapper>
       </BottomContainer>
     </StyledContainer>
+  ) : (
+    <SideStickBar
+      className="t--side-sticky-bar"
+      onClick={() => setMinimized(false)}
+    >
+      {createMessage(WELCOME_TOUR_STICKY_BUTTON_TEXT)}
+    </SideStickBar>
   );
 }
 
