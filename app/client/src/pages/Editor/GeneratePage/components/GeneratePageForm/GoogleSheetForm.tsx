@@ -4,15 +4,16 @@ import { getEditorConfig } from "selectors/entitiesSelector";
 import { AppState } from "reducers/index";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { fetchPluginFormConfig } from "actions/pluginActions";
-import {
-  DropdownOptions,
-  DROPDOWN_DIMENSION,
-  DEFAULT_DROPDOWN_OPTION,
-} from "../constants";
+import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-// import TextInput from "components/ads/TextInput";
+import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
-import { UseSheetListReturn, UseSpreadSheetsReturn } from "./hooks";
+import { getSheetUrl } from "./hooks";
+import {
+  UseSheetListReturn,
+  UseSpreadSheetsReturn,
+  UseSheetColumnHeadersReturn,
+} from "./hooks";
 
 type Props = {
   googleSheetPluginId: string;
@@ -26,6 +27,7 @@ type Props = {
   }) => ReactElement<any, any>;
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
+  sheetColumnsHeaderProps: UseSheetColumnHeadersReturn;
 };
 
 // ---------- GoogleSheetForm Component -------
@@ -37,14 +39,20 @@ function GoogleSheetForm(props: Props) {
     renderSubmitButton,
     selectedDatasource,
     selectedSpreadsheet,
+    sheetColumnsHeaderProps,
     sheetsListProps,
     spreadSheetsProps,
   } = props;
 
   const { fetchSheetsList, isFetchingSheetsList, sheetsList } = sheetsListProps;
   const { fetchAllSpreadsheets } = spreadSheetsProps;
+  const {
+    columnHeaderList,
+    fetchColumnHeaderList,
+    isFetchingColumnHeaderList,
+  } = sheetColumnsHeaderProps;
 
-  // const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("0");
+  const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("1");
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
@@ -88,6 +96,7 @@ function GoogleSheetForm(props: Props) {
       selectedSpreadsheet.value &&
       selectedSpreadsheet.id
     ) {
+      setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
       fetchSheetsList({
         selectedDatasourceId: selectedDatasource.id,
         selectedSpreadsheetId: selectedSpreadsheet.id,
@@ -108,6 +117,14 @@ function GoogleSheetForm(props: Props) {
   ) => {
     if (sheetValue && sheetObj) {
       setSelectedSheet(sheetObj);
+      if (selectedDatasource.id && selectedSpreadsheet.id) {
+        fetchColumnHeaderList({
+          selectedDatasourceId: selectedDatasource.id,
+          selectedSpreadsheetId: selectedSpreadsheet.id,
+          sheetName: sheetValue,
+          tableHeaderIndex,
+        });
+      }
     }
   };
 
@@ -117,19 +134,44 @@ function GoogleSheetForm(props: Props) {
 
   const selectedColumn = DEFAULT_DROPDOWN_OPTION;
 
-  const selectedTableColumnOptions: DropdownOptions = [];
-
   const onSubmit = () => {
-    const payload = {
-      columns: [],
-      searchColumn: selectedColumn.value,
-      tableName: selectedSpreadsheet.value || "",
-    };
-    generatePageAction(payload);
+    if (selectedSpreadsheet.id) {
+      const columns: string[] = [];
+      columnHeaderList.forEach(({ value }) => {
+        if (value) columns.push(value);
+      });
+      const payload = {
+        columns,
+        searchColumn: "",
+        tableName: selectedSpreadsheet.value || "",
+        pluginSpecificParams: {
+          sheetUrl: getSheetUrl(selectedSpreadsheet.id),
+          tableHeaderIndex,
+          sheetName: selectedSheet.value,
+        },
+      };
+      generatePageAction(payload);
+    }
+  };
+
+  const tableHeaderIndexChangeHandler = (value: string) => {
+    setTableHeaderIndex(value);
+    if (
+      selectedDatasource.id &&
+      selectedSpreadsheet.id &&
+      selectedSheet.value
+    ) {
+      fetchColumnHeaderList({
+        selectedDatasourceId: selectedDatasource.id,
+        selectedSpreadsheetId: selectedSpreadsheet.id,
+        sheetName: selectedSheet.value,
+        tableHeaderIndex: value,
+      });
+    }
   };
 
   return (
-    <div>
+    <>
       {selectedSpreadsheet.value ? (
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>
@@ -150,18 +192,19 @@ function GoogleSheetForm(props: Props) {
         </SelectWrapper>
       ) : null}
 
-      {/* {selectedSheet.value ? (
-        <>
+      {selectedSheet.value ? (
+        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>Table Header Index</Label>
           <TextInput
             cypressSelector="t--org-website-input"
             dataType="number"
             defaultValue={tableHeaderIndex}
-            onChange={(value) => setTableHeaderIndex(value)}
+            fill
+            onChange={tableHeaderIndexChangeHandler}
             placeholder="Table Header Index"
           />
-        </>
-      ) : null} */}
+        </SelectWrapper>
+      ) : null}
 
       {selectedSheet.value && (
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
@@ -172,21 +215,24 @@ function GoogleSheetForm(props: Props) {
 
           <Dropdown
             cypressSelector="t--searchColumn-dropdown"
-            disabled={selectedTableColumnOptions.length === 0}
+            disabled={columnHeaderList.length === 0}
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
+            isLoading={isFetchingColumnHeaderList}
             // helperText="* Optional"
             onSelect={onSelectColumn}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={selectedTableColumnOptions}
+            options={columnHeaderList}
             selected={selectedColumn}
             showLabelOnly
             width={DROPDOWN_DIMENSION.WIDTH}
           />
         </SelectWrapper>
       )}
-      {renderSubmitButton({ onSubmit })}
-    </div>
+      {selectedSheet.value && columnHeaderList.length
+        ? renderSubmitButton({ onSubmit })
+        : null}
+    </>
   );
 }
 

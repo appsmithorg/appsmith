@@ -9,6 +9,7 @@ import {
 } from "actions/datasourceActions";
 import { DropdownOption } from "components/ads/Dropdown";
 import { useDispatch } from "react-redux";
+import { isObject } from "lodash";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -80,7 +81,7 @@ const demoRequest = {
   tableHeaderIndex: "1",
   queryFormat: "ROWS",
   rowLimit: "",
-  sheetsName: "",
+  sheetName: "",
   rowOffset: "",
   rowObject: "",
   rowObjects: "",
@@ -210,7 +211,7 @@ export interface Sheet {
 
 export type Sheets = Sheet[];
 
-const getSheetUrl = (sheetId: string) =>
+export const getSheetUrl = (sheetId: string): string =>
   `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;
 
 export type UseSheetListReturn = {
@@ -238,7 +239,6 @@ export const useSheetsList = (): UseSheetListReturn => {
     boolean
   >(false);
 
-  // TODO :- Create loading state and set Loading state false on success or error
   const onFetchAllSheetFailure = useCallback(() => {
     setIsFetchingSheetsList(false);
     setFailedFetchingSheetsList(true);
@@ -257,18 +257,20 @@ export const useSheetsList = (): UseSheetListReturn => {
 
       if (payload.data && payload.data.body) {
         const responseBody = payload.data.body;
-        const { sheets = [] } = responseBody;
-        if (Array.isArray(sheets)) {
-          sheets.map(({ title }) => {
-            sheetOptions.push({
-              id: title,
-              label: title,
-              value: title,
+        if (isObject(responseBody)) {
+          const { sheets = [] } = responseBody;
+          if (Array.isArray(sheets)) {
+            sheets.map(({ title }) => {
+              sheetOptions.push({
+                id: title,
+                label: title,
+                value: title,
+              });
+              setSheetsList(sheetOptions);
             });
-            setSheetsList(sheetOptions);
-          });
-        } else {
-          // to handle error like "401 Unauthorized"
+          } else {
+            // to handle error like "401 Unauthorized"
+          }
         }
       }
     },
@@ -277,6 +279,7 @@ export const useSheetsList = (): UseSheetListReturn => {
 
   const fetchSheetsList = useCallback(
     ({ selectedDatasourceId, selectedSpreadsheetId }) => {
+      setSheetsList([]);
       setIsFetchingSheetsList(true);
       setFailedFetchingSheetsList(false);
 
@@ -298,6 +301,7 @@ export const useSheetsList = (): UseSheetListReturn => {
       );
     },
     [
+      setSheetsList,
       onFetchAllSheetSuccess,
       onFetchAllSheetFailure,
       setIsFetchingSheetsList,
@@ -310,5 +314,130 @@ export const useSheetsList = (): UseSheetListReturn => {
     isFetchingSheetsList,
     failedFetchingSheetsList,
     fetchSheetsList,
+  };
+};
+
+export type FetchColumnHeaderListParams = {
+  selectedDatasourceId: string;
+  selectedSpreadsheetId: string;
+  sheetName: string;
+  tableHeaderIndex: string;
+};
+
+export type UseSheetColumnHeadersReturn = {
+  columnHeaderList: DropdownOption[];
+  isFetchingColumnHeaderList: boolean;
+  errorFetchingColumnHeaderList: string;
+  fetchColumnHeaderList: ({
+    selectedDatasourceId,
+    selectedSpreadsheetId,
+    sheetName,
+    tableHeaderIndex,
+  }: FetchColumnHeaderListParams) => void;
+};
+
+export const useSheetColumnHeaders = () => {
+  const dispatch = useDispatch();
+
+  const [columnHeaderList, setColumnHeaderList] = useState<DropdownOption[]>(
+    [],
+  );
+
+  const [isFetchingColumnHeaderList, setIsFetchingColumnHeaderList] = useState<
+    boolean
+  >(false);
+  const [
+    errorFetchingColumnHeaderList,
+    setErrorFetchingColumnHeaderList,
+  ] = useState<string>("");
+
+  const onFetchColumnHeadersFailure = useCallback(
+    (error: string) => {
+      setIsFetchingColumnHeaderList(false);
+      setErrorFetchingColumnHeaderList(error);
+    },
+    [setErrorFetchingColumnHeaderList, setIsFetchingColumnHeaderList],
+  );
+
+  const onFetchColumnHeadersSuccess = useCallback(
+    (
+      payload: executeDatasourceQuerySuccessPayload<Record<string, string>[]>,
+    ) => {
+      setIsFetchingColumnHeaderList(false);
+      const columnHeaders: DropdownOptions = [];
+
+      if (payload.data && payload.data.body) {
+        const responseBody = payload.data.body;
+        if (Array.isArray(responseBody) && responseBody.length) {
+          const headersObject = responseBody[0];
+          delete headersObject.rowIndex;
+          const headers = Object.keys(headersObject);
+          if (Array.isArray(headers) && headers.length) {
+            headers.map((header, index) => {
+              columnHeaders.push({
+                id: `${header}_${index}`,
+                label: header,
+                value: header,
+              });
+              setColumnHeaderList(columnHeaders);
+            });
+          }
+        } else {
+          let error = "Failed fetching Column headers";
+          if (typeof responseBody === "string") {
+            error = responseBody;
+          }
+          setColumnHeaderList([]);
+          setErrorFetchingColumnHeaderList(error);
+        }
+      }
+    },
+    [
+      setColumnHeaderList,
+      setIsFetchingColumnHeaderList,
+      setErrorFetchingColumnHeaderList,
+    ],
+  );
+
+  const fetchColumnHeaderList = useCallback(
+    (params: FetchColumnHeaderListParams) => {
+      setIsFetchingColumnHeaderList(true);
+      setErrorFetchingColumnHeaderList("");
+
+      const requestData = { ...demoRequest };
+      requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_COLUMNS;
+      requestData.sheetUrl = getSheetUrl(params.selectedSpreadsheetId);
+      requestData.tableHeaderIndex = params.tableHeaderIndex;
+      requestData.rowLimit = "1";
+      requestData.rowOffset = "0";
+      requestData.sheetName = params.sheetName;
+
+      const formattedRequestData = Object.entries(
+        requestData,
+      ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
+      dispatch(
+        executeDatasourceQuery({
+          payload: {
+            datasourceId: params.selectedDatasourceId,
+            data: formattedRequestData,
+          },
+          onSuccessCallback: onFetchColumnHeadersSuccess,
+          onErrorCallback: onFetchColumnHeadersFailure,
+        }),
+      );
+    },
+    [
+      onFetchColumnHeadersSuccess,
+      onFetchColumnHeadersFailure,
+      setIsFetchingColumnHeaderList,
+      setErrorFetchingColumnHeaderList,
+    ],
+  );
+
+  return {
+    columnHeaderList,
+    isFetchingColumnHeaderList,
+    errorFetchingColumnHeaderList,
+    fetchColumnHeaderList,
   };
 };

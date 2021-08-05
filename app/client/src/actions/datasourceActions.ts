@@ -202,13 +202,13 @@ export const getOAuthAccessToken = (datasourceId: string) => {
 export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
-    body: T;
+    body: T | string;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
   };
 };
-type errorPayload = unknown;
+type errorPayload = string;
 
 export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
   executeDatasourceQueryRequest,

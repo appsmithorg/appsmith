@@ -32,7 +32,12 @@ import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { useDatasourceOptions, useSheetsList, useSpreadSheets } from "./hooks";
+import {
+  useDatasourceOptions,
+  useSheetsList,
+  useSpreadSheets,
+  useSheetColumnHeaders,
+} from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers/index";
 import {
@@ -289,24 +294,14 @@ function GeneratePageForm() {
 
   //
 
-  const {
-    failedFetchingSpreadsheets,
-    fetchAllSpreadsheets,
-    isFetchingSpreadsheets,
-    // spreadsheetsList,
-  } = useSpreadSheets({
+  const spreadSheetsProps = useSpreadSheets({
     setSelectedDatasourceTableOptions,
     setSelectedDatasourceIsInvalid,
   });
 
-  const {
-    failedFetchingSheetsList,
-    fetchSheetsList,
-    isFetchingSheetsList,
-    sheetsList,
-  } = useSheetsList();
+  const sheetsListProps = useSheetsList();
 
-  //
+  const sheetColumnsHeaderProps = useSheetColumnHeaders();
 
   useEffect(() => {
     if (
@@ -401,6 +396,13 @@ function GeneratePageForm() {
   };
 
   const generatePageAction = (data: GeneratePagePayload) => {
+    let extraParams = {};
+    if (data.pluginSpecificParams) {
+      extraParams = {
+        pluginSpecificParams: data.pluginSpecificParams,
+      };
+    }
+
     const payload = {
       applicationId: currentApplicationId || "",
       pageId:
@@ -412,6 +414,7 @@ function GeneratePageForm() {
       tableName: data.tableName,
       datasourceId: selectedDatasource.id || "",
       mode: currentMode.current,
+      ...extraParams,
     };
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
@@ -457,7 +460,7 @@ function GeneratePageForm() {
 
   const fetchingDatasourceConfigs =
     isFetchingDatasourceStructure ||
-    ((isFetchingSheetPluginForm || isFetchingSpreadsheets) &&
+    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
       isGoogleSheetPlugin);
 
   if (!fetchingDatasourceConfigs) {
@@ -588,18 +591,9 @@ function GeneratePageForm() {
             )}
             selectedDatasource={selectedDatasource}
             selectedSpreadsheet={selectedTable}
-            sheetsListProps={{
-              failedFetchingSheetsList,
-              fetchSheetsList,
-              isFetchingSheetsList,
-              sheetsList,
-            }}
-            spreadSheetsProps={{
-              failedFetchingSpreadsheets,
-              fetchAllSpreadsheets,
-              isFetchingSpreadsheets,
-              // spreadsheetsList,
-            }}
+            sheetColumnsHeaderProps={sheetColumnsHeaderProps}
+            sheetsListProps={sheetsListProps}
+            spreadSheetsProps={spreadSheetsProps}
           />
         )}
       </FormWrapper>
