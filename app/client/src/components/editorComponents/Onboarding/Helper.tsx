@@ -23,7 +23,7 @@ const StyledContainer = styled.div`
   border: 2px solid #df613c;
   width: 310px;
 
-  & > .closeButton {
+  & > .t--close--button {
     top: 3px;
     border-radius: 16px;
   }
@@ -243,7 +243,7 @@ function Helper() {
       <Title className="t--onboarding-helper-title">{helperConfig.title}</Title>
       {helperConfig.allowMinimize && (
         <CloseButton
-          className="closeButton"
+          className="t--close--button"
           color={Colors.BLACK_PEARL}
           onClick={() => setMinimized(true)}
           size={16}
@@ -356,7 +356,10 @@ function Helper() {
       </BottomContainer>
     </StyledContainer>
   ) : (
-    <SideStickBar onClick={() => setMinimized(false)}>
+    <SideStickBar
+      className="t--side-sticky-bar"
+      onClick={() => setMinimized(false)}
+    >
       Next Mission
     </SideStickBar>
   );
