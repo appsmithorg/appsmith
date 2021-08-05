@@ -39,7 +39,6 @@
             "summary": "You can have custom styles such as colours and backgrounds in your table widget on a particular column. Choose the column you want, open the column settings and use the following snippet in Cell Background or Text Color property.",
             "examples": [{
                 "title": "javascript for Cell Background or Text Color property",
-                "dataType": "string",
                 "code": "(function coloumnColor() { let colors = { \"True\": \"green\", \"False\": \"Red\" }; return colors[currentRow[\"status\"]]; })()",
                 "summary": ""
             }]
@@ -65,11 +64,9 @@
         "language": "javascript",
         "dataType": "string",
         "body": {
-            "title": "Parsing through nested javascriptON data inside an array of objects",
-            "dataType": "string",
+            "title": "Parsing through nested JSON data inside an array of objects",
             "snippet": "currentRow.columnName.${key}.${key}",
-            "summary": "If the value\"s in the data are dense javascriptON object\"s, you could parse them into your columns inside the Table widget or bind them onto the List widget. For this, you\"ll have to open the property pane on the Table widget and go to the column settings and update the ComputedValue. Similarly, on the list widget, you could use the currentItem property and parse through javascriptON.",
-            "dataType": "string",
+            "summary": "If the values in the data are dense JSON, you could parse them into your columns inside the Table widget or bind them onto the List widget. For this, you\"ll have to open the property pane on the Table widget and go to the column settings and update the ComputedValue. Similarly, on the list widget, you could use the currentItem property and parse through JSON.",
             "examples": [{
                 "title": "",
                 "code": "// When using Notion API, to bind title from a Notion table, // the following has to be used inside the Title computed Value. currentRow.Title.title[0].plain_text",
@@ -83,13 +80,11 @@
         "dataType": "string",
         "body": {
             "title": "Removing duplicate values from an array",
-            "snippet": "function(){let javascriptonObject = ${Variable: array}.map(javascriptON.stringify);let uniqueSet = new Set(javascriptonObject);let uniqueArray = Array.from(uniqueSet).map(javascriptON.parse);return uniqueArray;}",
-            "dataType": "string",
+            "snippet": "function(){let JSONObject = ${Variable: array}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;}",
             "summary": "When binding array data into a table widget or list widget, you may encounter duplicate values. You can use the following snippet to only bind unique values.",
             "examples": [{
                 "title": "",
-                "code": "function(){ let heros = [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Bat Man\", team: \"Justice Leaugue\", skills: \"Gadgets\", }, { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Bat Man\", team: \"Justice Leaugue\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice Leaugue\", skills: \"endurance\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ]; let javascriptonObject = heros.map(javascriptON.stringify); let uniqueSet = new Set(javascriptonObject); let uniqueArray = Array.from(uniqueSet).map(javascriptON.parse); return uniqueArray; }()",
-                "dataType": "string",
+                "code": "function(){ let heros = [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Bat Man\", team: \"Justice Leaugue\", skills: \"Gadgets\", }, { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Bat Man\", team: \"Justice Leaugue\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice Leaugue\", skills: \"endurance\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ]; let JSONObject = heros.map(JSON.stringify); let uniqueSet = new Set(JSONObject); let uniqueArray = Array.from(uniqueSet).map(JSON.parse); return uniqueArray; }()",
                 "summary": ""
             }]
         }
@@ -132,7 +127,6 @@
             "title": "Setting default value of checkbox based on a query",
             "snippet": "${query}.${queryObject[key]}",
             "summary": "To configure the default value of the checkbox widget with a particular query, you can use javascript and return the state of the checkbox.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "function() { let iron_man = { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", status: ture, }; return iron_man.status; }()",
@@ -163,7 +157,6 @@
             "title": "Formatting date inside the data picker widget",
             "snippet": "moment(${Var1: date}.format(${dateFormat})",
             "summary": "If you want to change the format of the date object from a query, you can use moment.javascript and covert it into the desired format.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "moment(\"2021-06-28 12:28:33 PM\").format(\"LL\")",
@@ -179,7 +172,6 @@
             "title": "Binding current time in the text widget",
             "snippet": "moment.now()",
             "summary": "Sometimes, you need to display time when building UI, especially when building dashboards. On Appsmith, you can utilise the moment.javascript library to either display the current time or format any date-time type from a query.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "moment.now()",
@@ -225,7 +217,6 @@
             "title": "Configuring multiple actions on button click",
             "snippet": "${QueryOne}.run(() => { showAlert(\"Query Executed\", \"info\"), function(storeValue(\"${Var1: string}\", ${Var2}), navigateTo(${PageName}));});",
             "summary": "You can configure multiple actions for buttons in Appsmith. For this, you\"ll need to use javascript in the onClick property and use the necessary methods. The following snippet does the following when clicked.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "getUsers.run(() => { showAlert(\"Query Executed\", \"info\"), Function(storeValue(\"name\", getUsers.data[0].name), navigateTo(\"Page2\")); });",
@@ -241,7 +232,6 @@
             "title": "Open a modal and run a query on button click",
             "snippet": "showModal(${ModalName}); ${Query}",
             "summary": "To open a new Modal on button click and run a query, you can use javascript in the onClick property. This can be handy when you want to render any data on the Modal.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "showModal('Modal1');getUsers.run()",
@@ -272,7 +262,6 @@
             "title": "Running multiple queries in series",
             "snippet": "${queryOne}.run(() => ${queryTwo}.run(() => ${queryThree}.run()));",
             "summary": "If you want to run two APIs in series on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "getAvengers.run(() => getLeague.run(() => getRangers.run()));",
@@ -288,7 +277,6 @@
             "title": "Running multiple queries in parallel",
             "snippet": "${queryOne}.run(); ${queryTwo}.run();",
             "summary": "If you want to run two APIs in parallel on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "getAvengers.run(); getLeague.run();",
@@ -304,7 +292,6 @@
             "title": "Displaying alerts for workflows",
             "snippet": "${QueryOne}.run(() => {${Query Two}.run(() => {showAlert(${Alert Text});${Query Three}.run()},() => showAlert(${Alert Text}));},() => showAlert(${Alert Text}, \"error\"));",
             "summary": "You might often want to notify users with alerts, after executing queries or when performing certain actions on Appsmith. To do this, you can use showAlert method with javascript.",
-            "dataType": "string",
             "examples": [{
                 "title": "",
                 "code": "updateUsers.run( () => { fetchUsers.run( () => { showAlert(\"User Updated\"); }, () => showAlert(\"Fetch Users Failed\") ); }, () => showAlert(\"Update User Failed\", \"error\") );",
@@ -315,6 +302,7 @@
     {
         "entities": ["datasource","postgres"],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "Query data from Postgres table",
             "snippet": "SELECT * FROM ${table_name}",
@@ -329,6 +317,7 @@
     {
         "entities": ["datasource","postgres"],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from multiple columns",
             "snippet": "SELECT ${column1}, ${column2}, ${column3} FROM ${table_name}",
@@ -343,6 +332,7 @@
     {
         "entities": ["datasource","postgres"],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from one column",
             "snippet": "SELECT ${coloumn_name} FROM ${table_name}",
@@ -357,6 +347,7 @@
     {
         "entities": ["datasource","postgres"],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "Ordering table data in ascending order",
             "snippet": "SELECT ${coloumn1} ${coloumn2} FROM ${tablename} ORDER BY ${coloumn1} ASC;",
@@ -371,6 +362,7 @@
     {
         "entities": ["datasource","postgres"],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "Ordering table data in descending order",
             "snippet": "SELECT ${coloumn1}, ${coloumn2} FROM ${tablename} ORDER BY ${coloumn1} DESC;",
@@ -385,6 +377,7 @@
     {
         "entities": [""],
         "language": "postgres",
+        "dataType": "string",
         "body": {
             "title": "Ordering table data based on the length of column value",
             "snippet": "SELECT ${column1}, LENGTH(column1) len FROM users ORDER BY len DESC;",

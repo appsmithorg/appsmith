@@ -212,10 +212,9 @@ const SnippetContainer = styled.div`
 `;
 
 function SnippetDescription(props: any) {
-  //Add type here
   const {
     item: {
-      body: { examples, snippet, summary, title },
+      body: { additionalInfo, examples, snippet, summary, title },
       language,
     },
   } = props;
@@ -229,20 +228,15 @@ function SnippetDescription(props: any) {
       <SyntaxHighlighter language={language} style={xcode}>
         {snippet}
       </SyntaxHighlighter>
-      {/* <div className="snippet-group">
-        <div className="header">Arguments</div>
-        <div className="content">array (Array): The array to concatenate.</div>
-      </div>
-      <div className="snippet-group">
-        <div className="header">Returns</div>
-        <div className="content">
-          (Array): Returns the new concatenated array.
-        </div>
-      </div> */}
-      {/* <pre>{snippet}</pre> */}
-
-      {/* <SnippetArguments args={args} />
-      <SnippetReturnType type={returnType} /> */}
+      {additionalInfo &&
+        additionalInfo.map(
+          ({ content, header }: { header: string; content: string }) => (
+            <div className="snippet-group" key={header}>
+              <div className="header">{header}</div>
+              <div className="content">{content}</div>
+            </div>
+          ),
+        )}
       {examples && examples.length && (
         <div className="snippet-group">
           <div className="header">Example</div>
