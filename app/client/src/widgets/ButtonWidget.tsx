@@ -70,14 +70,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             },
           },
           {
-            helpText: "Show help text or details about current button",
+            helpText: "Show helper text with button on hover",
             propertyName: "tooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter tooltip text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isVisible",

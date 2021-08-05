@@ -7,8 +7,6 @@ import {
   Position,
 } from "@blueprintjs/core";
 import Tooltip from "components/ads/Tooltip";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
-import { IconWrapper } from "constants/IconConstants";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
@@ -38,12 +36,12 @@ const ToolTipContent = styled.div`
   max-width: 350px;
 `;
 
-const ToolTipIcon = styled(IconWrapper)`
-  &&&:hover {
-    svg {
-      path {
-        fill: black !important;
-      }
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover-target {
+    height: 100%;
+    div {
+      height: 100%;
     }
   }
 `;
@@ -52,9 +50,6 @@ const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${getButtonColorStyles};
   svg {
     fill: ${getButtonColorStyles};
-    path {
-      fill: ${getButtonColorStyles};
-    }
   }
 `;
 
@@ -342,22 +337,7 @@ function BtnWrapper(
 function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
 ) {
-  const icon = props.icon ? (
-    props.icon
-  ) : props.tooltip ? (
-    <Tooltip
-      content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
-      hoverOpenDelay={200}
-      position={Position.TOP}
-    >
-      <ToolTipIcon height={14} width={14}>
-        <HelpIcon />
-      </ToolTipIcon>
-    </Tooltip>
-  ) : (
-    undefined
-  );
-  return (
+  const btnWrapper = (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
@@ -369,7 +349,7 @@ function ButtonContainer(
         accent={mapButtonStyleToStyleName(props.buttonStyle)}
         disabled={props.disabled}
         filled={props.buttonStyle !== "SECONDARY_BUTTON"}
-        icon={icon}
+        icon={props.icon}
         loading={props.isLoading}
         rightIcon={props.rightIcon}
         text={props.text}
@@ -377,6 +357,21 @@ function ButtonContainer(
       />
     </BtnWrapper>
   );
+  if (props.tooltip) {
+    return (
+      <ToolTipWrapper>
+        <Tooltip
+          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+          hoverOpenDelay={200}
+          position={Position.TOP}
+        >
+          {btnWrapper}
+        </Tooltip>
+      </ToolTipWrapper>
+    );
+  } else {
+    return btnWrapper;
+  }
 }
 
 export default ButtonContainer;
