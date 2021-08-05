@@ -1,3 +1,5 @@
+import { IconNames } from "@blueprintjs/icons";
+
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
@@ -9,6 +11,13 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadowTypes,
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+} from "components/designSystems/appsmith/IconButtonComponent";
+
 /*
  ********************************{Grid Density Migration}*********************************
  */
@@ -1243,6 +1252,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
+    },
+    [WidgetTypes.ICON_BUTTON_WIDGET]: {
+      iconName: IconNames.PLUS,
+      borderRadius: ButtonBorderRadiusTypes.CIRCLE,
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      buttonStyle: ButtonStyleTypes.PRIMARY,
+      buttonVariant: ButtonVariantTypes.SOLID,
+      isDisabled: false,
+      isVisible: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "IconButton",
+      version: 1,
     },
   },
   configVersion: 1,
