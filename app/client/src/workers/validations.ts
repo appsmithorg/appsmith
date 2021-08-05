@@ -6,11 +6,14 @@ import {
   Validator,
 } from "../constants/WidgetValidation";
 import _, {
+  get,
+  isArray,
   isObject,
   isPlainObject,
   isString,
   startsWith,
   toString,
+  uniq,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 
@@ -45,11 +48,8 @@ function validatePlainObject(
             );
         }
       } else if (entry.params?.required) {
-        return {
-          isValid: false,
-          parsed: value,
-          message: `Missing required key: ${entry.name}`,
-        };
+        _valid = false;
+        _messages.push(`Missing required key: ${entry.name}`);
       }
     });
     if (_valid) {
@@ -100,6 +100,27 @@ function validateArray(
         );
       }
     });
+  }
+  if (config.params?.unique) {
+    if (isArray(config.params?.unique)) {
+      for (const param of config.params?.unique) {
+        const shouldBeUnique = value.map((entry) =>
+          get(entry, param as string, ""),
+        );
+        if (uniq(shouldBeUnique).length !== value.length) {
+          _isValid = false;
+          _messages.push(
+            `Array entry path:${param} must be unique. Duplicate values found`,
+          );
+          break;
+        }
+      }
+    } else if (
+      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
+    ) {
+      _isValid = false;
+      _messages.push(`Array must be unique. Duplicate values found`);
+    }
   }
   return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
 }
@@ -415,13 +436,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} Array of objects`,
     };
-    if (
-      value === undefined ||
-      value === null ||
-      (!isString(value) && !Array.isArray(value))
-    ) {
+    if (value === undefined || value === null) {
       if (config.params?.required) return invalidResponse;
       return { isValid: true, parsed: value };
+    }
+    if (!isString(value) && !Array.isArray(value)) {
+      return invalidResponse;
     }
 
     let parsed = value;

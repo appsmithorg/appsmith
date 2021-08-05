@@ -7,9 +7,9 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,11 +35,15 @@ public class SegmentConfig {
     }
 
     @Bean
-    @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty() || !'${segment.ce.key:}'.isEmpty()")
     public Analytics analyticsRunner() {
+        final String analyticsWriteKey = commonConfig.isCloudHosting() ? writeKey : ceKey;
+        if (StringUtils.isEmpty(analyticsWriteKey)) {
+            // We don't have the Segment Key, returning `null` here will disable analytics calls from AnalyticsService.
+            return null;
+        }
+
         final LogProcessor logProcessor = new LogProcessor();
 
-        final String analyticsWriteKey = commonConfig.isCloudHosting() ? writeKey : ceKey;
         Analytics analyticsOnAnalytics = Analytics.builder(analyticsWriteKey).log(logProcessor).build();
 
         // We use a different analytics instance for sending events about the analytics system itself so we don't end up
