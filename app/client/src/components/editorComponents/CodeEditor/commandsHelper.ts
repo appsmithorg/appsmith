@@ -16,9 +16,10 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   return {
     showHint: (
       editor: CodeMirror.Editor,
-      { entityType },
+      { entityType, expectedType },
       {
         datasources,
+        entityId,
         executeCommand,
         pluginIdToImageLocation,
         recentEntities,
@@ -29,6 +30,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
         update: (value: string) => void;
+        entityId: string;
       },
     ): boolean => {
       const currentEntityType = entityType || ENTITY_TYPE.ACTION;
@@ -54,6 +56,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             pluginIdToImageLocation,
             recentEntities,
           },
+          expectedType || "string",
+          entityId,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",

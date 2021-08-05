@@ -45,6 +45,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
+  getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -98,6 +99,7 @@ import {
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
 import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
+import { getWidgetById } from "./selectors";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -776,13 +778,19 @@ function* executeCommand(
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      // const category = get(
-      //   actionPayload.payload,
-      //   "args.category",
-      //   SEARCH_CATEGORIES.INIT,
-      // );
+      const entityType = get(actionPayload, "payload.args.entityType");
+      const expectedType = get(actionPayload, "payload.args.expectedType");
+      const entityId = get(actionPayload, "payload.args.entityId");
+      const entityMeta = yield buildEntityMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+      );
       yield putResolve(
-        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.SNIPPETS }),
+        setGlobalSearchFilterContext({
+          category: SEARCH_CATEGORIES.SNIPPETS,
+          entityMeta,
+        }),
       );
       yield put(toggleShowGlobalSearchModal());
       const effectRaceResult = yield race({
@@ -838,6 +846,35 @@ function* executeCommand(
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
       break;
   }
+}
+
+function* buildEntityMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+) {
+  const entityMetaForSnippets: {
+    dataType: string;
+    entities: any;
+  } = {
+    dataType: expectedType,
+    entities: [],
+  };
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "").toLowerCase().split("-");
+    entityMetaForSnippets.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = currentEntity.type.toLowerCase().split("_");
+    entityMetaForSnippets.entities = type;
+  }
+  return entityMetaForSnippets;
 }
 
 export function* watchActionSagas() {

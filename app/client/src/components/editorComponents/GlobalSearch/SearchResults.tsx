@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext, useMemo } from "react";
+import React, { useEffect, useRef, useContext, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
@@ -27,6 +27,7 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
+import SnippetsFilter from "./SnippetsFilter";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -390,7 +391,11 @@ function CategoryItem({
   );
 }
 
-function SnippetItem({ item: { title } }: any) {
+function SnippetItem({
+  item: {
+    body: { title },
+  },
+}: any) {
   return <span>{title}</span>;
 }
 
@@ -452,28 +457,41 @@ function SearchItemComponent(props: ItemProps) {
 }
 
 const SearchResultsContainer = styled.div`
-  overflow: auto;
   flex: 1;
   background: white;
+  position: relative;
+  .container {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 50px;
+  }
 `;
 
 function SearchResults({
   query,
+  refinements,
   searchResults,
+  showFilter,
 }: {
   searchResults: SearchItem[];
   query: string;
+  refinements: any;
+  showFilter: boolean;
 }) {
   return (
     <SearchResultsContainer>
-      {searchResults.map((item: SearchItem, index: number) => (
-        <SearchItemComponent
-          index={index}
-          item={item}
-          key={index}
-          query={query}
-        />
-      ))}
+      <div className="container">
+        {searchResults.map((item: SearchItem, index: number) => (
+          <SearchItemComponent
+            index={index}
+            item={item}
+            key={index}
+            query={query}
+          />
+        ))}
+      </div>
+      {showFilter && <SnippetsFilter refinements={refinements} />}
     </SearchResultsContainer>
   );
 }

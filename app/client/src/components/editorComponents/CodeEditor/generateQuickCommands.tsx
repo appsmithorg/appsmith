@@ -30,6 +30,8 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
   },
+  expectedType: string,
+  entityId: string,
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
@@ -43,7 +45,15 @@ export const generateQuickCommands = (
     text: "",
     displayText: "Insert Snippet",
     shortcut: Shortcuts.FUNCTION,
-    action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
+    action: () =>
+      executeCommand({
+        actionType: "NEW_SNIPPET",
+        args: {
+          entityType: currentEntityType,
+          expectedType: expectedType,
+          entityId: entityId,
+        },
+      }),
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",

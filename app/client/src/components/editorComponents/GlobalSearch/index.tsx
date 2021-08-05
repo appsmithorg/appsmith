@@ -52,7 +52,6 @@ import { keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { RefinementList } from "react-instantsearch-dom";
 
 const filterCategories = [
   {
@@ -104,56 +103,6 @@ const StyledContainer = styled.div`
     background-color: transparent;
     font-style: normal;
     font-weight: bold;
-  }
-`;
-
-const SnippetsFilter = styled.div<{ showFilter: boolean }>`
-  position: absolute;
-  bottom: 50px;
-  left: 90px;
-  height: 32px;
-  width: 75px;
-  button {
-    background: #fafafa;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 400;
-    color: #716e6e;
-    border: 1px solid #f1f1f1;
-    box-shadow: 0 0 5px #fafafa;
-    height: 100%;
-    width: 100%;
-    cursor: pointer;
-    position: relative;
-  }
-  .filter-list {
-    display: ${(props) => (props.showFilter ? "block" : "none")};
-    position: absolute;
-    width: 185px;
-    height: 185px;
-    bottom: 40px;
-    right: -58px;
-    padding: 7px 15px;
-    overflow: auto;
-    background: #fafafa;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 0 5px #f0f0f0;
-    [class^="ais-"] {
-      font-size: 12px;
-    }
-    .ais-RefinementList-list {
-      text-align: left;
-      .ais-RefinementList-item {
-        font-size: 12px;
-        .ais-RefinementList-label {
-          display: flex;
-          align-items: center;
-          .ais-RefinementList-labelText {
-            margin: 0 10px;
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -218,6 +167,9 @@ function GlobalSearch() {
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
+  const refinementList = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.entityMeta,
+  );
   useEffect(() => {
     const triggeredCategory = filterCategories.find(
       (c) => c.id === initCategoryId,
@@ -265,7 +217,7 @@ function GlobalSearch() {
     setTimeout(() => document.getElementById("global-search")?.focus());
     if (isNavigation(category)) setActiveItemIndex(1);
     else setActiveItemIndex(0);
-  }, [category.id]);
+  }, [category.id, snippets]);
 
   const allWidgets = useSelector(getAllPageWidgets);
 
@@ -496,7 +448,7 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (item: any) => {
-    dispatch(insertSnippet(item.snippet));
+    dispatch(insertSnippet(item.body.snippet));
     toggleShow();
   };
 
@@ -538,9 +490,11 @@ function GlobalSearch() {
     handleItemLinkClick,
   };
 
-  const [showSnippetFilter, toggleSnippetFilter] = useState(false);
+  const [refinements, setRefinements] = useState(refinementList);
 
-  const [refinements, setRefinements] = useState([]);
+  useEffect(() => {
+    setRefinements(refinementList);
+  }, [refinementList]);
 
   const activeItemType = useMemo(() => {
     return activeItem ? getItemType(activeItem) : undefined;
@@ -556,22 +510,6 @@ function GlobalSearch() {
             setRefinement={setRefinements}
           >
             <StyledContainer>
-              {/* <Configure filters="entities:table" /> */}
-              {category.id === SEARCH_CATEGORIES.SNIPPETS && (
-                <SnippetsFilter showFilter={showSnippetFilter}>
-                  <button
-                    onClick={() => toggleSnippetFilter(!showSnippetFilter)}
-                  >
-                    1 Filter
-                  </button>
-                  <div className="filter-list">
-                    <RefinementList
-                      attribute="entities"
-                      defaultRefinement={refinements}
-                    />
-                  </div>
-                </SnippetsFilter>
-              )}
               <SearchBox
                 category={category}
                 query={query}
@@ -587,7 +525,9 @@ function GlobalSearch() {
                   <>
                     <SearchResults
                       query={query}
+                      refinements={refinements}
                       searchResults={searchResults}
+                      showFilter={isSnippet(category)}
                     />
                     {isDocumentation(category) ||
                       (isSnippet(category) && (

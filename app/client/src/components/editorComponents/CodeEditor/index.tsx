@@ -57,7 +57,12 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
+import {
+  getInputValue,
+  isActionEntity,
+  isWidgetEntity,
+  removeNewLineChars,
+} from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
@@ -366,6 +371,7 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: HintEntityInformation = {
       expectedType: expected?.type,
     };
+    let entityId = null;
     if (dataTreePath) {
       const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
       entityInformation.entityName = entityName;
@@ -378,11 +384,14 @@ class CodeEditor extends Component<Props, State> {
         ) {
           entityInformation.entityType = entityType;
         }
+        if (isActionEntity(entity)) entityId = entity.actionId;
+        if (isWidgetEntity(entity)) entityId = entity.widgetId;
       }
     }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
+        entityId: entityId,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
