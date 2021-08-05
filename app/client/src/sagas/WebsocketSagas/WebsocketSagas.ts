@@ -96,11 +96,7 @@ function* flow() {
       const socket = yield call(connect);
       const task = yield fork(handleIO, socket);
       yield put(setIsWebsocketConnected(true));
-      // Disconnect if comments are disabled or user is logged out
-      yield take([
-        ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-        ReduxActionTypes.LOGOUT_USER_INIT,
-      ]);
+      yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
       yield take();
       yield cancel(task);
       socket.disconnect();

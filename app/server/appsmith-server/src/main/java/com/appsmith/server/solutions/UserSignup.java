@@ -28,7 +28,10 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
+import static com.appsmith.server.helpers.ValidationUtils.validateLoginPassword;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Component
@@ -57,6 +60,12 @@ public class UserSignup {
 
         if (!validateEmail(user.getUsername())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
+        if (!validateLoginPassword(user.getPassword())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
+            );
         }
 
         return Mono
