@@ -87,3 +87,16 @@ export const leaveOrganization = (orgId: string) => {
     },
   };
 };
+
+export const fetchFeatureFlagsInit = () => ({
+  type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
+});
+
+export const fetchFeatureFlagsSuccess = () => ({
+  type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+});
+
+export const fetchFeatureFlagsError = (error: any) => ({
+  type: ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR,
+  payload: { error, show: false },
+});
