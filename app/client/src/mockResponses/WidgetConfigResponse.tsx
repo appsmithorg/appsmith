@@ -262,7 +262,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
         {
           step: "#3",
-          task: "Bind the query using {{fetch_users.data}}",
+          task: "Bind the query using => fetch_users.data",
           status: "--",
           action: "",
         },
@@ -307,7 +307,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
@@ -321,6 +321,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isFilterable: true,
       isRequired: false,
       isDisabled: false,
+    },
+    MULTI_SELECT_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      label: "",
+      options: [
+        { label: "Hashirama Senju", value: "First" },
+        { label: "Tobirama Senju", value: "Second" },
+        { label: "Hiruzen Sarutobi", value: "Third" },
+        { label: "Minato Namikaze", value: "Fourth" },
+        { label: "Tsunade Senju", value: "Fifth" },
+        { label: "Kakashi Hatake", value: "Sixth" },
+        { label: "Naruto Uzumaki", value: "Seventh" },
+      ],
+      widgetName: "MultiSelect",
+      defaultOptionValue: ["First", "Seventh"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "select option(s)",
     },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -519,6 +539,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                         return [
                           {
                             widgetId: iconChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
                             propertyName: "onClick",
                             propertyValue: `{{closeModal('${parent.widgetName}')}}`,
                           },
