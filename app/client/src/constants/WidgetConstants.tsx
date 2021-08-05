@@ -32,6 +32,7 @@ export enum WidgetTypes {
   IFRAME_WIDGET = "IFRAME_WIDGET",
   DIVIDER_WIDGET = "DIVIDER_WIDGET",
   MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
+  ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;

@@ -97,7 +97,7 @@ function* handleIO(socket: any) {
 function* flow() {
   while (true) {
     yield take([
-      ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+      ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
 
@@ -114,11 +114,7 @@ function* flow() {
         const socket = yield call(connect);
         const task = yield fork(handleIO, socket);
         yield put(setIsWebsocketConnected(true));
-        // Disconnect if comments are disabled or user is logged out
-        yield take([
-          ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-          ReduxActionTypes.LOGOUT_USER_INIT,
-        ]);
+        yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
         yield take();
         yield cancel(task);
         socket.disconnect();
