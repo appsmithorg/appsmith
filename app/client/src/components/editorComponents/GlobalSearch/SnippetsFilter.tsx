@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { RefinementList } from "react-instantsearch-dom";
+import { ClearRefinements, RefinementList } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
@@ -32,32 +32,60 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     width: ${(props) => (props.showFilter ? "185px" : "0")};
     height: ${(props) => (props.showFilter ? "185px" : "0")};
     bottom: 40px;
-    padding: ${(props) => (props.showFilter ? "7px 15px" : "0")};
-    overflow: auto;
     background: #fafafa;
     border: 1px solid rgba(240, 240, 240, 1);
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     [class^="ais-"] {
       font-size: 12px;
     }
-    .ais-RefinementList-list {
-      text-align: left;
-      .ais-RefinementList-item {
-        font-size: 12px;
-        padding: 5px 0;
-        .ais-RefinementList-label {
-          display: flex;
-          align-items: center;
-          .ais-RefinementList-checkbox {
-            height: 15px;
-            width: 15px;
+    .ais-ClearRefinements {
+      display: flex;
+      justify-content: center;
+      .ais-ClearRefinements-button {
+        width: auto;
+        border-radius: none;
+        box-shadow: unset;
+        cursor: pointer;
+        color: ${(props) => props.theme.colors.globalSearch.activeCategory};
+        font-weight: 500;
+        transition: 0.1s;
+        background: #fafafa;
+        &:hover {
+          background: #fafafa;
+          font-weight: 700;
+        }
+        &.ais-ClearRefinements-button--disabled {
+          &:hover {
+            background: #fafafa;
+            font-weight: 500;
+            cursor: block;
           }
-          .ais-RefinementList-labelText {
-            margin: 0 10px;
-            text-transform: capitalize;
-          }
-          .ais-RefinementList-count {
-            display: none;
+        }
+      }
+    }
+    .container {
+      height: calc(100% - 25px);
+      overflow: auto;
+      padding: 7px 15px;
+      .ais-RefinementList-list {
+        text-align: left;
+        .ais-RefinementList-item {
+          font-size: 12px;
+          padding: 5px 0;
+          .ais-RefinementList-label {
+            display: flex;
+            align-items: center;
+            .ais-RefinementList-checkbox {
+              height: 15px;
+              width: 15px;
+            }
+            .ais-RefinementList-labelText {
+              margin: 0 10px;
+              text-transform: capitalize;
+            }
+            .ais-RefinementList-count {
+              display: none;
+            }
           }
         }
       }
@@ -92,7 +120,15 @@ function SnippetsFilter({ refinements }: any) {
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
       <div className="filter-list">
-        <RefinementList attribute="entities" defaultRefinement={refinements} />
+        <div className="container">
+          <RefinementList
+            attribute="entities"
+            defaultRefinement={refinements ? refinements.entities : []}
+          />
+        </div>
+        {showSnippetFilter && (
+          <ClearRefinements translations={{ reset: "Reset Filter" }} />
+        )}
       </div>
     </SnippetsFilterContainer>
   );

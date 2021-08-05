@@ -110,7 +110,7 @@
         }
     },
     {
-        "entities": ["select","workflows"],
+        "entities": ["select","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -218,7 +218,7 @@
         }
     },
     {
-        "entities": ["button","workflows"],
+        "entities": ["button","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -234,7 +234,7 @@
         }
     },
     {
-        "entities": ["modal","workflows"],
+        "entities": ["modal","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -250,7 +250,7 @@
         }
     },
     {
-        "entities": ["modal","workflows"],
+        "entities": ["modal","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -265,7 +265,7 @@
         }
     },
     {
-        "entities": ["actions","button","workflows"],
+        "entities": ["action","button","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -281,7 +281,7 @@
         }
     },
     {
-        "entities": ["actions","button","workflows"],
+        "entities": ["action","button","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -297,7 +297,7 @@
         }
     },
     {
-        "entities": ["actions","workflows"],
+        "entities": ["action","workflow"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -313,7 +313,7 @@
         }
     },
     {
-        "entities": ["datasources","postgres"],
+        "entities": ["datasource","postgres"],
         "language": "postgres",
         "body": {
             "title": "Query data from Postgres table",
@@ -327,7 +327,7 @@
         }
     },
     {
-        "entities": ["datasources","postgres"],
+        "entities": ["datasource","postgres"],
         "language": "postgres",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from multiple columns",
@@ -341,7 +341,7 @@
         }
     },
     {
-        "entities": ["datasources","postgres"],
+        "entities": ["datasource","postgres"],
         "language": "postgres",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from one column",
@@ -355,7 +355,7 @@
         }
     },
     {
-        "entities": ["datasources","postgres"],
+        "entities": ["datasource","postgres"],
         "language": "postgres",
         "body": {
             "title": "Ordering table data in ascending order",
@@ -369,7 +369,7 @@
         }
     },
     {
-        "entities": ["datasources","postgres"],
+        "entities": ["datasource","postgres"],
         "language": "postgres",
         "body": {
             "title": "Ordering table data in descending order",
