@@ -274,16 +274,8 @@ function GlobalSearch() {
   }, [modalOpen]);
 
   useEffect(() => {
-    if (query) {
-      setActiveItemIndex(0);
-    } else {
-      if (recentEntities.length > 1) {
-        setActiveItemIndex(2);
-      } else {
-        setActiveItemIndex(1);
-      }
-    }
-  }, [query, recentEntities.length]);
+    if (query) setActiveItemIndex(0);
+  }, [query]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
