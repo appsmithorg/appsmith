@@ -11,9 +11,9 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadowTypes } from "components/propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";

@@ -24,6 +24,10 @@ import {
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
 } from "components/propertyControls/BoxShadowOptionsControl";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/propertyControls/BorderRadiusOptionsControl";
 
 export enum ButtonStyleTypes {
   PRIMARY = "PRIMARY",
@@ -41,13 +45,6 @@ export enum ButtonVariantTypes {
   GHOST = "GHOST",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
-
-export enum ButtonBorderRadiusTypes {
-  SHARP = "SHARP",
-  ROUNDED = "ROUNDED",
-  CIRCLE = "CIRCLE",
-}
-export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
 const getCustomTextColor = (
   theme: Theme,

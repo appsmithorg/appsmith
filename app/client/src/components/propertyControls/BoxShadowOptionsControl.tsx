@@ -65,7 +65,10 @@ class BoxShadowOptionsControl extends BaseControl<
     return (
       <StyledButtonGroup fill>
         <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.NONE || undefined}
+          active={
+            propertyValue === ButtonBoxShadowTypes.NONE ||
+            propertyValue === undefined
+          }
           icon={
             <ControlIcons.BOX_SHADOW_NONE
               color="#CACACA"
