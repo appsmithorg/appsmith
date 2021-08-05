@@ -4,10 +4,7 @@ import { unmountComponentAtNode } from "react-dom";
 import OverlayCommentsWrapper from "../inlineComments/OverlayCommentsWrapper";
 import store from "store";
 import { createEvent, fireEvent, render, waitFor } from "test/testUtils";
-import {
-  fetchApplicationCommentsRequest,
-  setAreCommentsEnabled,
-} from "actions/commentActions";
+import { fetchApplicationCommentsRequest } from "actions/commentActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { setCommentMode } from "actions/commentActions";
 import { resetEditorSuccess } from "actions/initActions";
@@ -30,7 +27,6 @@ describe("Comment threads", () => {
     document.body.appendChild(container);
     // application id is required
     setMockPages();
-    store.dispatch(setAreCommentsEnabled(true));
     store.dispatch(setCommentMode(true));
     // dispatch fetch comments and mock the axios req
     store.dispatch(fetchApplicationCommentsRequest());
