@@ -596,7 +596,6 @@ Cypress.Commands.add("EditApiName", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname);
-  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
