@@ -39,6 +39,7 @@ import {
   algoliaHighlightTag,
   attachKind,
   SEARCH_CATEGORIES,
+  getEntityId,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -215,9 +216,12 @@ function GlobalSearch() {
 
   useEffect(() => {
     setTimeout(() => document.getElementById("global-search")?.focus());
-    if (isNavigation(category)) setActiveItemIndex(1);
-    else setActiveItemIndex(0);
-  }, [category.id, snippets]);
+    if (isNavigation(category) && recentEntities.length > 1) {
+      setActiveItemIndex(1);
+    } else {
+      setActiveItemIndex(0);
+    }
+  }, [category.id]);
 
   const allWidgets = useSelector(getAllPageWidgets);
 
@@ -251,7 +255,7 @@ function GlobalSearch() {
   }, [reducerDatasources, query]);
   const recentEntities = useRecentEntities();
   const recentEntityIds = recentEntities
-    .map((r) => r.id || r.widgetId || r.config?.id || r.pageId)
+    .map((r) => getEntityId(r))
     .filter(Boolean);
   const recentEntityIndex = useCallback(
     (entity) => {
@@ -277,16 +281,8 @@ function GlobalSearch() {
   }, [modalOpen]);
 
   useEffect(() => {
-    if (query) {
-      setActiveItemIndex(0);
-    } else {
-      if (recentEntities.length > 1) {
-        setActiveItemIndex(2);
-      } else {
-        setActiveItemIndex(1);
-      }
-    }
-  }, [query, recentEntities.length]);
+    if (query) setActiveItemIndex(0);
+  }, [query]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -529,15 +525,14 @@ function GlobalSearch() {
                       searchResults={searchResults}
                       showFilter={isSnippet(category)}
                     />
-                    {isDocumentation(category) ||
-                      (isSnippet(category) && (
-                        <Description
-                          activeItem={activeItem}
-                          activeItemType={activeItemType}
-                          query={query}
-                          scrollPositionRef={scrollPositionRef}
-                        />
-                      ))}
+                    {(isDocumentation(category) || isSnippet(category)) && (
+                      <Description
+                        activeItem={activeItem}
+                        activeItemType={activeItemType}
+                        query={query}
+                        scrollPositionRef={scrollPositionRef}
+                      />
+                    )}
                   </>
                 ) : (
                   <ResultsNotFound />
