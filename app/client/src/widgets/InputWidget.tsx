@@ -128,6 +128,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.TEXT;
             },
+            dependencies: ["inputType"],
           },
           {
             helpText:
@@ -228,6 +229,16 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Disables input to this widget",
             propertyName: "isDisabled",
             label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Set if input is valid",
+            propertyName: "isValid",
+            label: "Valid",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -344,6 +355,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: InputWidgetProps) => !props.iconName,
+            dependencies: ["iconName"],
           },
         ],
       },
@@ -376,62 +388,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{
-        function(){
-          let parsedRegex = null;
-          if (this.regex) {
-            /*
-            * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-            * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
-            */
-            const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
-
-            if (!regexParts) {
-              parsedRegex = new RegExp(this.regex);
-            } else {
-              /*
-              * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-              /*
-              if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
-                parsedRegex = RegExp(this.regex);
-              }
-              /*
-              * if we have a regex flags, use it to form regexp
-              */
-              parsedRegex = new RegExp(regexParts[2], regexParts[3]);
-            }
-          }
-          if (this.inputType === "EMAIL") {
-            const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
-            return emailRegex.test(this.text);
-          }
-          else if (this.inputType === "NUMBER") {
-            if (parsedRegex) {
-              return parsedRegex.test(this.text);
-            }
-            if (this.isRequired) {
-              return !(this.text === '' || isNaN(this.text));
-            }
-
-            return (this.text === '' || !isNaN(this.text || ''));
-          }
-          else if (this.isRequired) {
-            if(this.text && this.text.length) {
-              if (parsedRegex) {
-                return parsedRegex.test(this.text)
-              } else {
-                return true;
-              }
-            } else {
-              return false;
-            }
-          } if (parsedRegex) {
-            return parsedRegex.test(this.text)
-          } else {
-            return true;
-          }
-        }()
-      }}`,
       value: `{{this.text}}`,
     };
   }
