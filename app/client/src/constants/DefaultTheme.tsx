@@ -351,6 +351,7 @@ export type Theme = {
   sidebarWidth: string;
   canvasBottomPadding: number;
   navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
   actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
@@ -435,6 +436,9 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  actionSidePane: {
+    width: number;
+  };
 };
 
 type IconSizeType = {
@@ -567,6 +571,134 @@ type ColorType = {
   overlayColor: string;
   button: {
     disabledText: ShadeColor;
+    boxShadow: {
+      default: {
+        variant1: Color;
+        variant2: Color;
+        variant3: Color;
+        variant4: Color;
+        variant5: Color;
+      };
+    };
+    disabled: {
+      bgColor: Color;
+      textColor: Color;
+    };
+    /**
+     * PRIMARY style
+     */
+    primary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * WARNING style
+     */
+    warning: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * DANGER style
+     */
+    danger: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * INFO style
+     */
+    info: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * SECONDARY style
+     */
+    secondary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -617,6 +749,7 @@ type ColorType = {
     backgroundInactive: string;
     label: string;
     warning: string;
+    warningBackground: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -1084,6 +1217,13 @@ type ColorType = {
     border: string;
     actionActiveBg: string;
   };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
+  };
 };
 
 const notifications = {
@@ -1239,13 +1379,21 @@ const mentionsInput = {
   mentionsInviteBtnPlusIcon: "#6A86CE",
 };
 
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
 const navigationMenu = {
   contentActive: "#F0F0F0",
   backgroundActive: "#222222",
   contentInactive: "#858282",
   backgroundInactive: "#090707",
   label: "#A9A7A7",
-  warning: "#F22B2B",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
 };
 
 export const dark: ColorType = {
@@ -1276,6 +1424,94 @@ export const dark: ColorType = {
   },
   button: {
     disabledText: darkShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1713,6 +1949,7 @@ export const dark: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const light: ColorType = {
@@ -1750,6 +1987,94 @@ export const light: ColorType = {
   },
   button: {
     disabledText: lightShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#716E6E",
@@ -2188,6 +2513,7 @@ export const light: ColorType = {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
   },
+  actionSidePane,
 };
 
 export const theme: Theme = {
@@ -2442,6 +2768,7 @@ export const theme: Theme = {
   backBanner: "30px",
   canvasBottomPadding: 200,
   navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2548,6 +2875,9 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
+  },
+  actionSidePane: {
+    width: 265,
   },
 };
 

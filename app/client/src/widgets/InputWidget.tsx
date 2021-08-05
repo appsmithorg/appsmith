@@ -9,7 +9,7 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
@@ -66,10 +66,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Changes the type of currency",
@@ -83,6 +84,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -104,6 +106,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -116,7 +119,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -126,7 +129,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText:
@@ -138,7 +141,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.REGEX,
+            validation: { type: ValidationTypes.REGEX },
           },
           {
             helpText:
@@ -150,7 +153,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -160,7 +163,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -170,7 +173,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Disables input to this widget",
@@ -180,7 +183,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Clears the input value after submit",
@@ -190,7 +193,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -409,7 +412,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 }
 
-export const InputTypes: { [key: string]: string } = {
+export const InputTypes = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
   INTEGER: "INTEGER",

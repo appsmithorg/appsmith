@@ -346,3 +346,11 @@ export const getCanManage = (currentOrg: Org) => {
   );
   return canManage;
 };
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    return new URL(redirectURL).origin === window.location.origin;
+  } catch (e) {
+    return false;
+  }
+};
