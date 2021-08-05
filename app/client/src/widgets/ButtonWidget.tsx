@@ -216,7 +216,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Border Radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
-            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+            controlType: "BORDER_RADIUS_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
