@@ -179,7 +179,7 @@ export const DropdownStyles = createGlobalStyle`
 						outline: none !important;
     }
     .rc-select-item {
-	font-size: 16px;
+	font-size: 14px;
 	line-height: 1.5;
 	padding: 5px 16px;
 	align-items: center;
