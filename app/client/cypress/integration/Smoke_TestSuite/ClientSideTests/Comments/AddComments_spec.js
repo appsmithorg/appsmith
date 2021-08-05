@@ -65,11 +65,10 @@ describe("Comments", function() {
 
   // create another comment since the first one is a private bot thread
   it("another comment can be created after dismissing the first one", () => {
-    cy.get(".bp3-overlay-backdrop").click();
+    cy.get(commonLocators.canvas).click(10, 10);
     // wait for transition to be completed
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
-    cy.get(commonLocators.canvas).click(10, 10);
     typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     cy.wait("@createNewThread").then((response) => {
