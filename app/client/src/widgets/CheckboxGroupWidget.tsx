@@ -90,7 +90,6 @@ class CheckboxGroupWidget extends BaseWidget<
                     allowedKeys: [
                       {
                         name: "label",
-                        isUnique: true,
                         type: ValidationTypes.TEXT,
                         params: {
                           unique: true,
@@ -98,7 +97,6 @@ class CheckboxGroupWidget extends BaseWidget<
                       },
                       {
                         name: "value",
-                        isUnique: true,
                         type: ValidationTypes.TEXT,
                         params: {
                           unique: true,
@@ -224,10 +222,6 @@ class CheckboxGroupWidget extends BaseWidget<
       );
       const options = this.props.options.map((option) => option.value);
 
-      console.log("prev options: => ", prevOptions);
-      console.log("options: => ", options);
-      console.log("selectedValues: => ", this.props.selectedValues);
-
       const diffOptions = prevOptions.filter(
         (prevOption) => !options.includes(prevOption),
       );
@@ -256,6 +250,7 @@ class CheckboxGroupWidget extends BaseWidget<
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
         options={this.props.options}
+        rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}
       />

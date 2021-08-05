@@ -4,6 +4,7 @@ import { Checkbox } from "@blueprintjs/core";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
+import { generateReactKey } from "utils/generators";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
@@ -33,9 +34,12 @@ const CheckboxGroupContainer = styled.div<
 
 export interface StyledCheckboxProps {
   disabled?: boolean;
+  rowspace: number;
 }
 
 const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
+  height: ${({ rowspace }) => rowspace}px;
+
   &.bp3-control input:checked ~ .bp3-control-indicator {
     box-shadow: none;
     background-image: none;
@@ -62,6 +66,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   isValid?: boolean;
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   options: OptionProps[];
+  rowSpace: number;
   selectedValues: string[];
 }
 
@@ -72,6 +77,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     isValid,
     onChange,
     options,
+    rowSpace,
     selectedValues,
   } = props;
 
@@ -84,9 +90,10 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
             inline={isInline}
-            key={option.value}
+            key={generateReactKey()}
             label={option.label}
             onChange={onChange(option.value)}
+            rowspace={rowSpace}
           />
         ))}
     </CheckboxGroupContainer>
