@@ -334,6 +334,7 @@ export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 // Showcase Carousel
 export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
+export const SKIP = () => "SKIP";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
