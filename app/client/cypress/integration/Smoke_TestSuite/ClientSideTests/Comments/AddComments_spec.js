@@ -102,8 +102,6 @@ describe("Comments", function() {
   });
 
   it("is visible for the other app users in edit mode", () => {
-    // wait for the page to load
-    cy.get(commonLocators.canvas);
     cy.get(commentsLocators.switchToCommentModeBtn).click({
       force: true,
     });
@@ -121,8 +119,8 @@ describe("Comments", function() {
 
   it("is visible in the published mode", () => {
     cy.PublishtheApp();
-    // wait for the page to load
-    cy.get(commonLocators.canvas);
+    // wait for the published page to load
+    cy.get(commonLocators.viewerPage);
     cy.get(commentsLocators.switchToCommentModeBtn).click({
       force: true,
     });
