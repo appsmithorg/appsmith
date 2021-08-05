@@ -32,7 +32,7 @@ export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password with a minimum of 6 characters`;
+  `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
@@ -338,7 +338,7 @@ export const BACK = () => "BACK";
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -394,3 +394,6 @@ export const SUGGESTED_WIDGET_DESCRIPTION = () =>
 export const ADD_NEW_WIDGET = () => "Add New Widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
+
+// Data Sources pane
+export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
