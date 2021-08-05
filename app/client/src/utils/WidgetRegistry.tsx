@@ -78,6 +78,9 @@ import FormButtonWidget, {
   CONFIG as FORM_BUTTON_WIDGET_CONFIG,
 } from "widgets/FormButtonWidget";
 import IconWidget, { CONFIG as ICON_WIDGET_CONFIG } from "widgets/IconWidget";
+import IconButtonWidget, {
+  CONFIG as ICON_BUTTON_WIDGET_CONFIG,
+} from "widgets/IconButtonWidget";
 
 export const registerWidgets = () => {
   const start = performance.now();
@@ -112,5 +115,6 @@ export const registerWidgets = () => {
   registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
   registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
   registerWidget(MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG);
+  registerWidget(IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

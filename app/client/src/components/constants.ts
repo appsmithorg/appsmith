@@ -24,3 +24,20 @@ export const InputTypes: { [key: string]: string } = {
 };
 
 export type InputType = typeof InputTypes[keyof typeof InputTypes];
+
+export enum ButtonBorderRadiusTypes {
+  SHARP = "SHARP",
+  ROUNDED = "ROUNDED",
+  CIRCLE = "CIRCLE",
+}
+export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
+
+export enum ButtonBoxShadowTypes {
+  NONE = "NONE",
+  VARIANT1 = "VARIANT1",
+  VARIANT2 = "VARIANT2",
+  VARIANT3 = "VARIANT3",
+  VARIANT4 = "VARIANT4",
+  VARIANT5 = "VARIANT5",
+}
+export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;
