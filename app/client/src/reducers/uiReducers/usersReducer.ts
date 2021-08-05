@@ -131,6 +131,12 @@ const usersReducer = createReducer(initialState, {
     ...state,
     featureFlagFetched: true,
   }),
+  [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
+    state: UsersReduxState,
+  ) => ({
+    ...state,
+    featureFlagFetched: true,
+  }),
 });
 
 export interface PropertyPanePositionConfig {

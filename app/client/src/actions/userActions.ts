@@ -98,5 +98,5 @@ export const fetchFeatureFlagsSuccess = () => ({
 
 export const fetchFeatureFlagsError = (error: any) => ({
   type: ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR,
-  payload: { error },
+  payload: { error, show: false },
 });
