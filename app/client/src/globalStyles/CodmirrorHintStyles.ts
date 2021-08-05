@@ -249,10 +249,18 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       overflow: scroll;
     }
   }
-  .CodeMirror-TextMark-error {
-    text-decoration: dashed underline red;
+  .CodeMirror-lint-tooltip {
+    border: none;
+    background: ${(props) =>
+      props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"};
+    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+    padding: 7px 12px;
+    border-radius: 0;
   }
-  .CodeMirror-TextMark-warning {
-    text-decoration: dashed underline yellow;
+  .CodeMirror-lint-message {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-family: ${(props) => props.theme.fonts.text};
+    color: #4B4848;
   }
 `;
