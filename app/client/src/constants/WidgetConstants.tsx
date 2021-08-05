@@ -134,6 +134,7 @@ export const WIDGET_STATIC_PROPS = {
   widgetId: true,
   widgetName: true,
   parentId: true,
+  renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
 };

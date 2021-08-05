@@ -363,24 +363,6 @@ export interface WidgetPositionProps extends WidgetRowCols {
   noContainerOffset?: boolean; // This won't offset the child in parent
 }
 
-export const WIDGET_STATIC_PROPS = {
-  leftColumn: true,
-  rightColumn: true,
-  topRow: true,
-  bottomRow: true,
-  minHeight: true,
-  parentColumnSpace: true,
-  parentRowSpace: true,
-  children: true,
-  type: true,
-  widgetId: true,
-  widgetName: true,
-  parentId: true,
-  renderMode: true,
-  detachFromLayout: true,
-  noContainerOffset: false,
-};
-
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
   isLoading: true,

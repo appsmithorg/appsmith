@@ -25,8 +25,6 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
-      isVisible:
-        this.props.isVisible === undefined ? true : this.props.isVisible,
     };
   }
 
