@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
@@ -10,19 +10,19 @@ import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import { getPluginIcon, getWidgetIcon } from "../Explorer/ExplorerIcons";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
-import { keyBy } from "lodash";
-import { isStoredDatasource } from "entities/Action";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { useEntityLink } from "components/editorComponents/Debugger/hooks";
-import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import {
+  useEntityLink,
+  useGetEntityInfo,
+} from "components/editorComponents/Debugger/hooks";
+import {
+  doesEntityHaveErrors,
+  getDependenciesFromInverseDependencies,
+} from "components/editorComponents/Debugger/helpers";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { Message } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { useCallback } from "react";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { showDebugger } from "actions/debuggerActions";
 import { setActionTabsInitialIndex } from "actions/actionActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -177,15 +177,6 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   hasError: boolean;
 };
 
-const doesEntityHaveErrors = (
-  entityId: string,
-  debuggerErrors: Record<string, Message>,
-) => {
-  const ids = Object.keys(debuggerErrors);
-
-  return ids.some((e: string) => e.includes(entityId));
-};
-
 const doConnectionsHaveErrors = (
   options: DropdownOption[],
   debuggerErrors: Record<string, Message>,
@@ -193,51 +184,6 @@ const doConnectionsHaveErrors = (
   return options.some((option) =>
     doesEntityHaveErrors(option.value as string, debuggerErrors),
   );
-};
-
-const useGetEntityInfo = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const debuggerErrors: Record<string, Message> = useSelector(
-    getDebuggerErrors,
-  );
-
-  const entity = dataTree[name];
-  const action = useSelector((state: AppState) =>
-    isAction(entity) ? getAction(state, entity.actionId) : undefined,
-  );
-
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
-  const datasource = useSelector((state: AppState) =>
-    action && isStoredDatasource(action.datasource)
-      ? getDatasource(state, action.datasource.id)
-      : undefined,
-  );
-
-  if (isWidget(entity)) {
-    const icon = getWidgetIcon(entity.type);
-    const hasError = doesEntityHaveErrors(entity.widgetId, debuggerErrors);
-
-    return {
-      name,
-      icon,
-      hasError,
-      type: ENTITY_TYPE.WIDGET,
-    };
-  } else if (isAction(entity)) {
-    const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
-
-    return {
-      name,
-      icon,
-      datasourceName: datasource?.name ?? "",
-      hasError,
-      type: ENTITY_TYPE.ACTION,
-    };
-  }
 };
 
 const useDependencyList = (name: string) => {
@@ -279,7 +225,8 @@ const useDependencyList = (name: string) => {
 };
 
 function OptionNode(props: any) {
-  const entityInfo = useGetEntityInfo(props.option.label);
+  const getEntityInfo = useGetEntityInfo(props.option.label);
+  const entityInfo = getEntityInfo();
   const dispatch = useDispatch();
   const { navigateToEntity } = useEntityLink();
 
@@ -292,6 +239,10 @@ function OptionNode(props: any) {
       }
     }
     navigateToEntity(props.option.label);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      source: "PROPERTY_PANE",
+      entityType: entityInfo?.entityType,
+    });
   };
 
   return (

@@ -12,7 +12,6 @@ import {
   ADD_NEW_WIDGET,
   createMessage,
   SUGGESTED_WIDGETS,
-  SUGGESTED_WIDGET_DESCRIPTION,
   SUGGESTED_WIDGET_TOOLTIP,
 } from "constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
@@ -203,9 +202,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
   return (
     <Collapsible label={label}>
-      <div className="description">
-        {createMessage(SUGGESTED_WIDGET_DESCRIPTION)}{" "}
-      </div>
       <WidgetList>
         {props.suggestedWidgets.map((suggestedWidget) => {
           const widgetInfo: WidgetBindingInfo | undefined =
