@@ -11,9 +11,14 @@ import DatasourceCard from "./DatasourceCard";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { Toaster } from "../../../components/ads/Toast";
-import { Variant } from "../../../components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "../../../constants/ApiEditorConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  createMessage,
+  EMPTY_ACTIVE_DATA_SOURCES,
+  ERROR_ADD_API_INVALID_URL,
+} from "constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -74,7 +79,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
         !dataSource.datasourceConfiguration.url)
     ) {
       Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
+        text: ERROR_ADD_API_INVALID_URL(),
         variant: Variant.danger,
       });
       return;
@@ -120,7 +125,7 @@ class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
       return (
         <EmptyActiveDatasource>
           <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-            No active datasources found.{" "}
+            {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
             <CreateButton
               category={Category.primary}
               onClick={this.props.onCreateNew}
