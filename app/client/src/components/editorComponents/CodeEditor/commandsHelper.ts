@@ -11,7 +11,9 @@ import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEdit
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
     (entity: any) =>
-      entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
+      entity.ENTITY_TYPE &&
+      entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH &&
+      entity.ENTITY_TYPE !== ENTITY_TYPE.JSACTION,
   );
   return {
     showHint: (

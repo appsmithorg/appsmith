@@ -102,6 +102,9 @@ const NoResponseContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  &.run {
+    background-color: #fafafa;
+  }
   .${Classes.ICON} {
     margin-right: 0px;
     svg {
@@ -174,7 +177,7 @@ function JSResponseView(props: Props) {
                     Executing function
                   </LoadingOverlayScreen>
                 ) : !responses.hasOwnProperty(selectActionId) ? (
-                  <NoResponseContainer>
+                  <NoResponseContainer className="run">
                     <Text type={TextType.P1}> Run function now! </Text>
                   </NoResponseContainer>
                 ) : (
