@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -21,7 +21,7 @@ const SaveStatusContainer = styled.div`
 
 export function EditorSaveIndicator() {
   const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
-    "",
+    "Saved",
   );
 
   const lastUpdatedTime = useSelector(
@@ -34,20 +34,9 @@ export function EditorSaveIndicator() {
     setLastUpdatedTimeMessage(
       lastUpdatedTime
         ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
-        : "",
+        : "Saved",
     );
   };
-
-  useEffect(() => {
-    findLastUpdatedTimeMessage();
-    const interval = setInterval(
-      findLastUpdatedTimeMessage,
-      (moment.relativeTimeThreshold("ss") as number) * 1000,
-    );
-    return () => {
-      clearInterval(interval);
-    };
-  }, [lastUpdatedTime]);
 
   let saveStatusIcon: React.ReactNode;
   if (isSaving) {
@@ -55,7 +44,11 @@ export function EditorSaveIndicator() {
   } else {
     if (!pageSaveError) {
       saveStatusIcon = (
-        <TooltipComponent content={lastUpdatedTimeMessage} hoverOpenDelay={200}>
+        <TooltipComponent
+          content={lastUpdatedTimeMessage}
+          hoverOpenDelay={200}
+          onOpening={findLastUpdatedTimeMessage}
+        >
           <HeaderIcons.SAVE_SUCCESS
             className="t--save-status-success"
             color={"#36AB80"}
