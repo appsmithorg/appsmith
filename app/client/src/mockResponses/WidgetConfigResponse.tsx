@@ -546,6 +546,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       }
                     },
                   },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
                 ],
               },
             },
@@ -573,11 +599,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               x: "Mon",
-              y: 10000,
+              y: 20000,
             },
             {
               x: "Tue",
-              y: 12000,
+              y: 22000,
             },
             {
               x: "Wed",
@@ -589,11 +615,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               x: "Fri",
-              y: 14000,
+              y: 24000,
             },
             {
               x: "Sat",
-              y: 19000,
+              y: 29000,
             },
             {
               x: "Sun",
@@ -604,7 +630,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
-      setAdaptiveYMin: 0,
+      setAdaptiveYMin: "0",
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
@@ -617,11 +643,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               label: "Mon",
-              value: 10000,
+              value: 20000,
             },
             {
               label: "Tue",
-              value: 12000,
+              value: 22000,
             },
             {
               label: "Wed",
@@ -633,11 +659,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               label: "Fri",
-              value: 14000,
+              value: 24000,
             },
             {
               label: "Sat",
-              value: 19000,
+              value: 29000,
             },
             {
               label: "Sun",

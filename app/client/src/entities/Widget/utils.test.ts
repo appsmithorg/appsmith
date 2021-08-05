@@ -226,6 +226,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           key: "chartData.random-id.data",
         },
       ],
+      setAdaptiveYMin: "0",
     };
     const config = chartPorpertyConfig;
 
@@ -238,36 +239,27 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,
       },
       validationPaths: {
         "chartData.random-id.data": {
-          params: {
-            children: {
-              params: {
-                allowedKeys: [
-                  {
-                    name: "x",
-                    type: "TEXT",
-                    params: {
-                      default: "",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "y",
-                    type: "NUMBER",
-                    params: {
-                      default: 10,
-                      required: true,
-                    },
-                  },
-                ],
-              },
-              type: "OBJECT",
+          children: {
+            params: {
+              allowedKeys: [
+                {
+                  name: "x",
+                  type: "TEXT",
+                },
+                {
+                  name: "y",
+                  type: "NUMBER",
+                },
+              ],
             },
+            type: "OBJECT",
           },
           type: "ARRAY",
         },
@@ -292,6 +284,12 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
+        },
+        setAdaptiveYMin: {
+          type: "NUMBER",
+          params: {
+            default: 0,
+          },
         },
         xAxisName: {
           type: "TEXT",

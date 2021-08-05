@@ -80,7 +80,9 @@ describe("Validate Chart Widget's property config", () => {
   it("Validates that sections are hidden when chartType is CUSTOM_FUSION_CHART", () => {
     const hiddenFns = [
       get(config, "[1].children.[1].hidden"),
-      get(config, "[2].hidden"),
+      get(config, "[2].children.[0].hidden"),
+      get(config, "[2].children.[1].hidden"),
+      get(config, "[2].children.[2].hidden"),
     ];
     hiddenFns.forEach((fn: (props: any) => boolean) => {
       const result = fn({ chartType: "CUSTOM_FUSION_CHART" });
