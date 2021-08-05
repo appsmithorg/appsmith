@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 
