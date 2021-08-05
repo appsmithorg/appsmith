@@ -10,7 +10,7 @@ import {
   DEFAULT_DROPDOWN_OPTION,
 } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-import TextInput from "components/ads/TextInput";
+// import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
 import { UseSheetListReturn, UseSpreadSheetsReturn } from "./hooks";
 
@@ -44,7 +44,7 @@ function GoogleSheetForm(props: Props) {
   const { fetchSheetsList, isFetchingSheetsList, sheetsList } = sheetsListProps;
   const { fetchAllSpreadsheets } = spreadSheetsProps;
 
-  const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("0");
+  // const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("0");
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );

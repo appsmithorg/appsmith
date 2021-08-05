@@ -117,13 +117,10 @@ export const useSpreadSheets = ({
   >(false);
 
   // TODO :- Create loading state and set Loading state false on success or error
-  const onFetchAllSpreadsheetFailure = useCallback(
-    (error: any) => {
-      setIsFetchingSpreadsheets(false);
-      setFailedFetchingSpreadsheets(true);
-    },
-    [setIsFetchingSpreadsheets],
-  );
+  const onFetchAllSpreadsheetFailure = useCallback(() => {
+    setIsFetchingSpreadsheets(false);
+    setFailedFetchingSpreadsheets(true);
+  }, [setIsFetchingSpreadsheets]);
 
   const onFetchAllSpreadsheetSuccess = useCallback(
     (
@@ -242,13 +239,10 @@ export const useSheetsList = (): UseSheetListReturn => {
   >(false);
 
   // TODO :- Create loading state and set Loading state false on success or error
-  const onFetchAllSheetFailure = useCallback(
-    (error: any) => {
-      setIsFetchingSheetsList(false);
-      setFailedFetchingSheetsList(true);
-    },
-    [setIsFetchingSheetsList],
-  );
+  const onFetchAllSheetFailure = useCallback(() => {
+    setIsFetchingSheetsList(false);
+    setFailedFetchingSheetsList(true);
+  }, [setIsFetchingSheetsList]);
 
   const onFetchAllSheetSuccess = useCallback(
     (
