@@ -8,6 +8,7 @@ import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
+import { createMessage, EMPTY_ACTIVE_DATA_SOURCES } from "constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -66,7 +67,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
     return (
       <EmptyActiveDatasource>
         <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-          No active datasources found.{" "}
+          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
           <CreateButton
             category={Category.primary}
             onClick={props.onCreateNew}
