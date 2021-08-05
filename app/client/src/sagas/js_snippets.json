@@ -1,6 +1,6 @@
 [
     {
-        "entities": ["list","table","widgets"],
+        "entities": ["list","table","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -15,7 +15,7 @@
         }
     },
     {
-        "entities": ["list","table","widgets"],
+        "entities": ["list","table","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -30,7 +30,7 @@
         }
     },
     {
-        "entities": ["list","table","widgets"],
+        "entities": ["list","table","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -46,7 +46,7 @@
         }
     },
     {
-        "entities": ["list","table","widgets"],
+        "entities": ["list","table","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -61,7 +61,7 @@
         }
     },
     {
-        "entities": ["list","table","widgets"],
+        "entities": ["list","table","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -95,7 +95,7 @@
         }
     },
     {
-        "entities": ["select","widgets"],
+        "entities": ["select","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -125,7 +125,7 @@
         }
     },
     {
-        "entities": ["checkbox","widgets"],
+        "entities": ["checkbox","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -172,7 +172,7 @@
         }
     },
     {
-        "entities": ["text","widgets"],
+        "entities": ["text","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -188,7 +188,7 @@
         }
     },
     {
-        "entities": ["text","widgets"],
+        "entities": ["text","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
@@ -203,7 +203,7 @@
         }
     },
     {
-        "entities": ["text","widgets"],
+        "entities": ["text","widget"],
         "language": "javascript",
         "dataType": "string",
         "body": {
