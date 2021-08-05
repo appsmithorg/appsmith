@@ -9,6 +9,10 @@ import TooltipComponent from "components/ads/Tooltip";
 import { HeaderIcons } from "icons/HeaderIcons";
 import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
+import {
+  createMessage,
+  EDITOR_HEADER_SAVE_INDICATOR,
+} from "constants/messages";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;
@@ -21,7 +25,7 @@ const SaveStatusContainer = styled.div`
 
 export function EditorSaveIndicator() {
   const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
-    "Saved",
+    createMessage(EDITOR_HEADER_SAVE_INDICATOR),
   );
 
   const lastUpdatedTime = useSelector(
@@ -31,10 +35,11 @@ export function EditorSaveIndicator() {
   const pageSaveError = useSelector(getPageSavingError);
 
   const findLastUpdatedTimeMessage = () => {
+    const savedMessage = createMessage(EDITOR_HEADER_SAVE_INDICATOR);
     setLastUpdatedTimeMessage(
       lastUpdatedTime
-        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
-        : "Saved",
+        ? `${savedMessage} ${moment(lastUpdatedTime * 1000).fromNow()}`
+        : savedMessage,
     );
   };
 
