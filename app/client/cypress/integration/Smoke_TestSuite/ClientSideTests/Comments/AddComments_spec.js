@@ -55,6 +55,8 @@ describe("Comments", function() {
 
   it("new comments can be created after switching to comment mode", () => {
     return cy.wrap(null).then(async () => {
+      // wait for the page to load
+      cy.get(commonLocators.canvas);
       cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
       cy.get(commonLocators.canvas).click(50, 50);
       typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
@@ -100,6 +102,8 @@ describe("Comments", function() {
   });
 
   it("is visible for the other app users in edit mode", () => {
+    // wait for the page to load
+    cy.get(commonLocators.canvas);
     cy.get(commentsLocators.switchToCommentModeBtn).click({
       force: true,
     });
@@ -117,6 +121,8 @@ describe("Comments", function() {
 
   it("is visible in the published mode", () => {
     cy.PublishtheApp();
+    // wait for the page to load
+    cy.get(commonLocators.canvas);
     cy.get(commentsLocators.switchToCommentModeBtn).click({
       force: true,
     });
