@@ -77,7 +77,7 @@ export const Colors = {
   NERO: "#2B2B2B",
   CHARCOAL: "#4B4848",
   LIGHT_GREY: "#D4D4D4",
-  GREY_SCALE: "#C4C4C4",
+  LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
