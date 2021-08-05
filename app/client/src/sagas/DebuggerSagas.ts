@@ -6,11 +6,7 @@ import {
   updateErrorLog,
 } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  ENTITY_TYPE,
-  LogActionPayload,
-  Message,
-} from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log, LogActionPayload } from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -78,7 +74,7 @@ function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   }
 }
 
-function* onEntityDeleteSaga(payload: Message) {
+function* onEntityDeleteSaga(payload: Log) {
   const source = payload.source;
 
   if (!source) {
@@ -91,7 +87,7 @@ function* onEntityDeleteSaga(payload: Message) {
     payload?.analytics?.pluginId,
   );
 
-  const errors: Record<string, Message> = yield select(getDebuggerErrors);
+  const errors: Record<string, Log> = yield select(getDebuggerErrors);
   const errorIds = Object.keys(errors);
   const updatedErrors: any = {};
 
@@ -133,7 +129,7 @@ function* onEntityDeleteSaga(payload: Message) {
   yield put(debuggerLog(payload));
 }
 
-function* logDependentEntityProperties(payload: Message) {
+function* logDependentEntityProperties(payload: Log) {
   const { source, state } = payload;
   if (!state || !source) return;
 
@@ -182,11 +178,9 @@ function* logDependentEntityProperties(payload: Message) {
   );
 }
 
-function* debuggerLogSaga(action: ReduxAction<Message>) {
+function* debuggerLogSaga(action: ReduxAction<Log>) {
   const { payload } = action;
-  const debuggerErrors: Record<string, Message> = yield select(
-    getDebuggerErrors,
-  );
+  const debuggerErrors: Record<string, Log> = yield select(getDebuggerErrors);
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:

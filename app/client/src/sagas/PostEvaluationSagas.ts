@@ -1,4 +1,4 @@
-import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -47,11 +47,11 @@ import store from "../store";
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
 function getLatestEvalPropertyErrors(
-  currentDebuggerErrors: Record<string, Message>,
+  currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
   evaluationOrder: Array<string>,
 ) {
-  const updatedDebuggerErrors: Record<string, Message> = {
+  const updatedDebuggerErrors: Record<string, Log> = {
     ...currentDebuggerErrors,
   };
 
@@ -92,6 +92,7 @@ function getLatestEvalPropertyErrors(
         const error = evalErrors[0];
         const errorMessages = evalErrors.map((e) => ({
           message: e.errorMessage,
+          type: e.errorType,
         }));
 
         if (!(debuggerKey in updatedDebuggerErrors)) {
@@ -159,7 +160,7 @@ export function* evalErrorHandler(
   evaluationOrder?: Array<string>,
 ): any {
   if (dataTree && evaluationOrder) {
-    const currentDebuggerErrors: Record<string, Message> = yield select(
+    const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
     const evalPropertyErrors = getLatestEvalPropertyErrors(

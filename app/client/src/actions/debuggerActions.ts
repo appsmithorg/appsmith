@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { Message, ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
 
 export interface LogDebuggerErrorAnalyticsPayload {
@@ -11,12 +11,12 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorMessages: { message: string }[];
 }
 
-export const debuggerLogInit = (payload: Message) => ({
+export const debuggerLogInit = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_LOG_INIT,
   payload,
 });
 
-export const debuggerLog = (payload: Message) => ({
+export const debuggerLog = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });
@@ -30,12 +30,12 @@ export const showDebugger = (payload?: boolean) => ({
   payload,
 });
 
-export const errorLog = (payload: Message) => ({
+export const errorLog = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_ERROR_LOG,
   payload,
 });
 
-export const updateErrorLog = (payload: Message) => ({
+export const updateErrorLog = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG,
   payload,
 });

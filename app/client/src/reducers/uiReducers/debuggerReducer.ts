@@ -1,5 +1,5 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Message, Severity } from "entities/AppsmithConsole";
+import { Log, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { get, merge, isEmpty, omit, isUndefined } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -15,7 +15,7 @@ const initialState: DebuggerReduxState = {
 const debuggerReducer = createReducer(initialState, {
   [ReduxActionTypes.DEBUGGER_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
     const isError = action.payload.severity === Severity.ERROR;
 
@@ -43,7 +43,7 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
     if (!action.payload.source) return state;
 
@@ -68,7 +68,7 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
     if (!action.payload.source) return state;
 
@@ -100,7 +100,7 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
     return {
       ...state,
@@ -115,10 +115,10 @@ const debuggerReducer = createReducer(initialState, {
 });
 
 export interface DebuggerReduxState {
-  logs: Message[];
+  logs: Log[];
   errorCount: number;
   isOpen: boolean;
-  errors: Record<string, Message>;
+  errors: Record<string, Log>;
   expandId: string;
 }
 
