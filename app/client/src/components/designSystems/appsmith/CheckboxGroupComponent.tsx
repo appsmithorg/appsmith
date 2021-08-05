@@ -30,6 +30,7 @@ const CheckboxGroupContainer = styled.div<
     `
     border: 1px solid ${theme.colors.error};
   `}
+  padding: 2px 4px;
 `;
 
 export interface StyledCheckboxProps {
