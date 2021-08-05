@@ -13,6 +13,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import CheckboxGroupComponent, {
   OptionProps,
 } from "components/designSystems/appsmith/CheckboxGroupComponent";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultSelectedValuesValidation(
   value: unknown,
@@ -125,6 +126,7 @@ class CheckboxGroupWidget extends BaseWidget<
                 expected: {
                   type: "Value or Array of values",
                   example: `value1 | ['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
