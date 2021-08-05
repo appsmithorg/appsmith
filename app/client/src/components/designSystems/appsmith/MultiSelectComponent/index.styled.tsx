@@ -56,6 +56,8 @@ export const DropdownStyles = createGlobalStyle`
 }
 .rc-select-item-option-content {
 	flex: 1 1 0;
+  overflow-wrap: break-word;
+  overflow: hidden;
 }
 .rc-select-item-option-active {
 	background: rgb(233, 250, 243);
@@ -144,7 +146,7 @@ export const DropdownStyles = createGlobalStyle`
 
 	position: absolute;
 	background: #fff;
-	width: 100%;
+	width: auto;
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 0px;
 	margin-top: 8px;
@@ -184,6 +186,7 @@ export const DropdownStyles = createGlobalStyle`
 	padding: 5px 16px;
 	align-items: center;
 	cursor: pointer;
+  width: 100%;
 }
 .rc-select-item-option-state {
 	.bp3-control.bp3-checkbox {
