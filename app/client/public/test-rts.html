@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="mb-5">Appsmith socket IO simulator</h1>
+      <div class="row my-3">
+        <div class="col">
+          <h4>Join application</h4>
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <label class="col-form-label">Application Id</label>
+            </div>
+            <div class="col-auto">
+              <input id="appIdInput" name="appid" autocomplete="off" value="1" class="form-control" required />
+            </div>
+            <div class="col-auto">
+              <button type="button" id="editAppBtn" class="btn btn-primary">Edit App</button>
+              <button type="button" id="leaveAppBtn" class="btn btn-warning">Leave App</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col">
+          <h4>Current app editors: </h4>
+          <ul id="onlineUsers"></ul>
+        </div>
+      </div>
+      <hr>
+      <div class="row my-3">
+        <div class="col">
+          <h4>Join page</h4>
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <label class="col-form-label">Page Id</label>
+            </div>
+            <div class="col-auto">
+              <input id="pageIdInput" name="pageid" autocomplete="off" value="1" class="form-control" required />
+            </div>
+            <div class="col-auto">
+              <button type="button" id="editPageBtn" class="btn btn-primary">Edit Page</button>
+              <button type="button" id="leavePageBtn" class="btn btn-warning">Leave Page</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col">
+          <h4>Current page editors: </h4>
+          <ul id="pageEditors"></ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js" integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg" crossorigin="anonymous"></script>
+    <script>
+        var appSocket = io();
+        var pageSocket = io('/page/edit');
+
+        // var onlineUsers = document.getElementById('onlineUsers');
+        var leaveAppBtn = document.getElementById('leaveAppBtn');
+        var editAppBtn = document.getElementById('editAppBtn');
+        var appIdInput = document.getElementById('appIdInput');
+
+        // var pageEditors = document.getElementById('pageEditors');
+        var leavePageBtn = document.getElementById('leavePageBtn');
+        var editPageBtn = document.getElementById('editPageBtn');
+        var pageIdInput = document.getElementById('pageIdInput');
+
+        function showUserList(ulElementId, users) {
+          var ulElement = document.getElementById(ulElementId);
+          ulElement.innerHTML = ''; // clear the list first
+          users.forEach(user => {
+              var item = document.createElement('li');
+              item.textContent = `${user.name} (${user.email})`;
+              ulElement.appendChild(item);
+          });
+        }
+        
+        appSocket.on('collab:online_editors', function(eventData) {
+          showUserList('onlineUsers', eventData.users);
+        });
+
+        pageSocket.on('collab:online_editors', function(eventData) {
+          showUserList('pageEditors', eventData.users);
+        });
+
+        editAppBtn.onclick = function() {
+          appSocket.emit('collab:start_edit', appIdInput.value);
+        };
+
+        editPageBtn.onclick = function() {
+          console.log("editPageBtn clicked");
+          pageSocket.emit('collab:start_edit', pageIdInput.value);
+        };
+
+        leaveAppBtn.onclick = function() {
+          appSocket.emit('collab:leave_edit', appIdInput.value);
+          showUserList('onlineUsers', []);
+        };
+
+        leavePageBtn.onclick = function() {
+          pageSocket.emit('collab:leave_edit', pageIdInput.value);
+          showUserList('pageEditors', []);
+        };
+
+        appSocket.on('connect', () => {
+          console.log('appSocket connected: ' + appSocket.connected);
+        });
+
+        pageSocket.on('connect', () => {
+          console.log('pageSocket connected: ' + pageSocket.connected);
+        });
+      </script>
+  </body>
+</html>

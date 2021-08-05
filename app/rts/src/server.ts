@@ -1,16 +1,21 @@
 import http from "http"
 import path from "path"
 import express from "express"
-import SocketIO from "socket.io"
+import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
-import { AppUser, CurrentAppEditorEvent, Policy, Comment, CommentThread } from "./models"
+import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread } from "./models"
 
 const APP_ROOM_PREFIX : string = "app:"
-const APP_EDITORS_EVENT_NAME : string = "collab:online_app_editors"
-const START_APP_EDIT_EVENT_NAME : string = "collab:start_edit_app"
-const LEAVE_APP_EDIT_EVENT_NAME : string = "collab:leave_edit_app"
+const PAGE_ROOM_PREFIX : string = "page:"
+const ROOT_NAMESPACE : string = "/"
+const PAGE_EDIT_NAMESPACE : string = "/page/edit"
+
+const EDITORS_EVENT_NAME : string = "collab:online_editors"
+const START_EDIT_EVENT_NAME : string = "collab:start_edit"
+const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
+
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
 if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
@@ -29,7 +34,7 @@ main()
 function main() {
 	const app = express()
 	const server = new http.Server(app)
-	const io = new SocketIO.Server(server, {
+	const io = new Server(server, {
 		// TODO: Remove this CORS configuration.
 		cors: {
 			origin: "*",
@@ -42,17 +47,32 @@ function main() {
 		res.redirect("/index.html")
 	})
 
-	io.on("connection", (socket) => {
-		onSocketConnected(socket)
+	io.on("connection", (socket: Socket) => {
+		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
+		onAppSocketConnected(socket)
 			.catch((error) => console.error("Error in socket connected handler", error))
 	})
 
-	io.of("/").adapter.on("leave-room", (room, id) => {
-		sendCurrentUsers(io, room);
+	io.of("/page/edit").on("connection", (socket: Socket) => {
+		subscribeToEditEvents(socket, PAGE_ROOM_PREFIX)
+		onPageSocketConnected(socket)
+			.catch((error) => console.error("Error in socket connected handler", error))
+	});
+
+	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 	
-	io.of("/").adapter.on("join-room", (room, id) => {
-		sendCurrentUsers(io, room);
+	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
+	});
+
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		sendCurrentUsers(io.of("/page/edit"), room, PAGE_ROOM_PREFIX);
+	});
+	
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		sendCurrentUsers(io.of("/page/edit"), room, PAGE_ROOM_PREFIX);
 	});
 
 	watchMongoDB(io)
@@ -64,79 +84,82 @@ function main() {
 	})
 }
 
-function joinAppEditRoom(socket, appId) {
+function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
 	// remove this socket from any other app rooms
 	socket.rooms.forEach(roomName => {
-		if(roomName.startsWith(APP_ROOM_PREFIX)) {
+		if(roomName.startsWith(roomPrefix)) {
 			socket.leave(roomName);
 		}
 	});
 
 	// add this socket to room with application id
-	let roomName = APP_ROOM_PREFIX + appId;
+	let roomName = roomPrefix + roomId;
 	socket.join(roomName);
 }
 
-async function onSocketConnected(socket) {
-	socket.on(START_APP_EDIT_EVENT_NAME, (appId) => {
+function subscribeToEditEvents(socket:Socket, appRoomPrefix:string) {
+	socket.on(START_EDIT_EVENT_NAME, (resourceId) => {
 		if(socket.data.email) {  // user is authenticated, join the room now
-			joinAppEditRoom(socket, appId)
-		} else { // user not authenticated yet, save the appId to join later
-			socket.data.pendingAppId = appId
+			joinEditRoom(socket, resourceId, appRoomPrefix)
+		} else { // user not authenticated yet, save the resource id and room prefix to join later after auth
+			socket.data.pendingRoomId = resourceId
+			socket.data.pendingRoomPrefix = appRoomPrefix
 		}
-    });
+	});
 
-    socket.on(LEAVE_APP_EDIT_EVENT_NAME, (appId) => {
-        let roomName = APP_ROOM_PREFIX + appId;
-        // remove this socket from app room
-        socket.leave(roomName);
-    });
-
-	const connectionCookie = socket.handshake.headers.cookie
-	let isAuthenticated = true
-
-	if (connectionCookie != null && connectionCookie !== "") {
-		isAuthenticated = await tryAuth(socket, connectionCookie)
-		socket.emit("authStatus", { isAuthenticated })
-	}
-
-	socket.on("auth", async ({ cookie }) => {
-		isAuthenticated = await tryAuth(socket, cookie)
-		socket.emit("authStatus", { isAuthenticated })
+	socket.on(LEAVE_EDIT_EVENT_NAME, (resourceId) => {
+		let roomName = appRoomPrefix + resourceId;
+		socket.leave(roomName);  // remove this socket from room
 	});
 }
 
-async function tryAuth(socket, cookie) {
-	const sessionCookie = cookie.match(/\bSESSION=\S+/)[0]
-	let response
-	try {
-		response = await axios.request({
-			method: "GET",
-			url: API_BASE_URL + "/applications/new",
-			headers: {
-				Cookie: sessionCookie,
-			},
-		})
-	} catch (error) {
-		if (error.response?.status === 401) {
-			console.info("Couldn't authenticate user with cookie:")
-		} else {
-			console.error("Error authenticating", error)
+async function onAppSocketConnected(socket:Socket) {
+	let isAuthenticated = await tryAuth(socket)
+	if(isAuthenticated) {
+		socket.join("email:" + socket.data.email)
+	}
+}
+
+async function onPageSocketConnected(socket:Socket) {
+	let isAuthenticated = await tryAuth(socket)
+}
+
+async function tryAuth(socket:Socket) {
+	const connectionCookie = socket.handshake.headers.cookie
+	if (connectionCookie != null && connectionCookie !== "") {
+		const sessionCookie = connectionCookie.match(/\bSESSION=\S+/)[0]
+		let response
+		try {
+			response = await axios.request({
+				method: "GET",
+				url: API_BASE_URL + "/applications/new",
+				headers: {
+					Cookie: sessionCookie,
+				},
+			})
+		} catch (error) {
+			if (error.response?.status === 401) {
+				console.info("Couldn't authenticate user with cookie:")
+			} else {
+				console.error("Error authenticating", error)
+			}
+			return false
 		}
-		return false
-	}
-
-	const email = response.data.data.user.email
-	const name = response.data.data.user.name ? response.data.data.user.name : email;
-
-	socket.data.email = email
-	socket.data.name = name
 	
-	socket.join("email:" + email)
-	if(socket.data.pendingAppId) {  // an appid is pending for this socket, join now
-		joinAppEditRoom(socket, socket.data.pendingAppId);
+		const email = response.data.data.user.email
+		const name = response.data.data.user.name ? response.data.data.user.name : email;
+	
+		socket.data.email = email
+		socket.data.name = name
+		
+		if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
+			joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+		}
+
+		return true
 	}
-	return true
+	return false
+	
 }
 
 async function watchMongoDB(io) {
@@ -160,7 +183,6 @@ async function watchMongoDB(io) {
 	);
 
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
-		// console.log("comment event", event)
 		const comment: Comment = event.fullDocument
 		const { applicationId }: CommentThread = await threadCollection.findOne(
 			{ _id: new ObjectId(comment.threadId) },
@@ -177,13 +199,11 @@ async function watchMongoDB(io) {
 
 		for (const email of findPolicyEmails(comment.policies, "read:comments")) {
 			shouldEmit = true
-			// console.log("Emitting comment to email", email)
 			target = target.to("email:" + email)
 		}
 
 		if (shouldEmit) {
 			const eventName = event.operationType + ":" + event.ns.coll
-			// console.log("Emitting", eventName)
 			target.emit(eventName, { comment })
 		}
 	})
@@ -203,7 +223,6 @@ async function watchMongoDB(io) {
 	);
 
 	threadChangeStream.on("change", async (event: mongodb.ChangeEventCR) => {
-		// console.log("thread event", event)
 		const thread = event.fullDocument
 		if (thread == null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
@@ -222,13 +241,11 @@ async function watchMongoDB(io) {
 
 		for (const email of findPolicyEmails(thread.policies, "read:commentThreads")) {
 			shouldEmit = true
-			// console.log("Emitting thread to email", email)
 			target = target.to("email:" + email)
 		}
 
 		if (shouldEmit) {
 			const eventName = event.operationType + ":" + event.ns.coll
-			// console.log("Emitting", eventName)
 			target.emit(eventName, { thread })
 		}
 	})
@@ -247,7 +264,6 @@ async function watchMongoDB(io) {
 	);
 
 	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
-		// console.log("notification event", event)
 		const notification = event.fullDocument
 
 		if (notification == null) {
@@ -278,7 +294,6 @@ function findPolicyEmails(policies: Policy[], permission: string): string[] {
 	for (const policy of policies) {
 		if (policy.permission === permission) {
 			for (const email of policy.users) {
-				// console.log("Emitting comment to email", email)
 				emails.push(email)
 			}
 			break
@@ -287,8 +302,8 @@ function findPolicyEmails(policies: Policy[], permission: string): string[] {
 	return emails
 }
 
-function sendCurrentUsers(socketIo, roomName:string) {
-	if(roomName.startsWith(APP_ROOM_PREFIX)) {
+function sendCurrentUsers(socketIo, roomName:string, roomPrefix:string) {
+	if(roomName.startsWith(roomPrefix)) {
 		socketIo.in(roomName).fetchSockets().then(sockets => {
 			let onlineUsernames = new Set<string>();
 			let onlineUsers = new Array<AppUser>();
@@ -300,9 +315,9 @@ function sendCurrentUsers(socketIo, roomName:string) {
 					onlineUsernames.add(s.data.email);
 				});
 			}
-			let appId = roomName.replace(APP_ROOM_PREFIX, "") // get app id from room name by removing the prefix
-			let response = new CurrentAppEditorEvent(appId, onlineUsers);
-			socketIo.to(roomName).emit(APP_EDITORS_EVENT_NAME, response);
+			let resourceId = roomName.replace(roomPrefix, "") // get resourceId from room name by removing the prefix
+			let response = new CurrentEditorsEvent(resourceId, onlineUsers);
+			socketIo.to(roomName).emit(EDITORS_EVENT_NAME, response);
 		});
 	}
 }
