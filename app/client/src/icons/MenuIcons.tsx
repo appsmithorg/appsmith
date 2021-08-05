@@ -17,6 +17,7 @@ import { ReactComponent as ForeignKeyIcon } from "assets/icons/menu/foreign-key.
 import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/datasource-column.svg";
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
 import { ReactComponent as JSIcon } from "assets/icons/menu/js.svg";
+import { ReactComponent as JSFileIcon } from "assets/icons/menu/js_file.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
@@ -33,6 +34,11 @@ export const MenuIcons: {
   JS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <JSIcon />
+    </IconWrapper>
+  ),
+  JS_FILE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <JSFileIcon />
     </IconWrapper>
   ),
   APIS_ICON: (props: IconProps) => (

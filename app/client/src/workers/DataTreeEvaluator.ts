@@ -92,10 +92,10 @@ export default class DataTreeEvaluator {
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
     const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
-    const reolvedDataTree = this.resolveJSActionsFirstTree(localUnEvalTree);
+    const resolvedDataTree = this.resolveJSActionsFirstTree(localUnEvalTree);
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
-      reolvedDataTree,
+      resolvedDataTree,
       this.sortedDependencies,
     );
     const evaluateEnd = performance.now();

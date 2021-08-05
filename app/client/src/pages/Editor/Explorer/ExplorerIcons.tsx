@@ -62,6 +62,11 @@ export const jsIcon = (
   <JSIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
+const JSFileIcon = MenuIcons.JS_FILE_ICON;
+export const jsFileIcon = (
+  <JSFileIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);
+
 const QueryIconWrapper = styled.div`
   position: relative;
   .inner-image {
