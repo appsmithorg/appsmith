@@ -38,7 +38,12 @@ public class ActionExecutionResult {
     public void setErrorInfo(Throwable error) {
         this.body = error.getMessage();
 
-        if (error instanceof BaseException) {
+        if (error instanceof AppsmithPluginException) {
+            this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
+            this.title = ((AppsmithPluginException) error).getErrorType();
+        }
+
+        else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode().toString();
             this.title = ((BaseException) error).getTitle();
         }
