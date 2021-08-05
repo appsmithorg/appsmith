@@ -19,6 +19,7 @@ public class ActionExecutionResult {
 
     String statusCode;
     String title;
+    String errorType;
     JsonNode headers;
     Object body;
     Boolean isExecutionSuccess = false;
@@ -40,12 +41,14 @@ public class ActionExecutionResult {
 
         if (error instanceof AppsmithPluginException) {
             this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
-            this.title = ((AppsmithPluginException) error).getErrorType();
+            this.title = ((AppsmithPluginException) error).getTitle();
+            this.errorType = ((AppsmithPluginException) error).getErrorType();
         }
 
         else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode().toString();
             this.title = ((BaseException) error).getTitle();
+            this.errorType = ((AppsmithPluginException) error).getErrorType();
         }
     }
 }
