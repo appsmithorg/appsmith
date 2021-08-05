@@ -212,8 +212,11 @@ function GlobalSearch() {
 
   useEffect(() => {
     setTimeout(() => document.getElementById("global-search")?.focus());
-    if (isNavigation(category)) setActiveItemIndex(1);
-    else setActiveItemIndex(0);
+    if (isNavigation(category) && recentEntities.length > 1) {
+      setActiveItemIndex(1);
+    } else {
+      setActiveItemIndex(0);
+    }
   }, [category.id]);
 
   const allWidgets = useSelector(getAllPageWidgets);
@@ -507,15 +510,14 @@ function GlobalSearch() {
                       query={query}
                       searchResults={searchResults}
                     />
-                    {isDocumentation(category) ||
-                      (isSnippet(category) && (
-                        <Description
-                          activeItem={activeItem}
-                          activeItemType={activeItemType}
-                          query={query}
-                          scrollPositionRef={scrollPositionRef}
-                        />
-                      ))}
+                    {(isDocumentation(category) || isSnippet(category)) && (
+                      <Description
+                        activeItem={activeItem}
+                        activeItemType={activeItemType}
+                        query={query}
+                        scrollPositionRef={scrollPositionRef}
+                      />
+                    )}
                   </>
                 ) : (
                   <ResultsNotFound />
