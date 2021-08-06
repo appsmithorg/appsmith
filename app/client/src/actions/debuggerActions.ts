@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
 
 export interface LogDebuggerErrorAnalyticsPayload {
@@ -8,7 +8,9 @@ export interface LogDebuggerErrorAnalyticsPayload {
   entityType: ENTITY_TYPE;
   eventName: EventName;
   propertyPath: string;
-  errorMessages: { message: string }[];
+  errorMessages?: Message[];
+  errorMessage?: Message["message"];
+  errorType?: Message["type"];
 }
 
 export const debuggerLogInit = (payload: Log) => ({

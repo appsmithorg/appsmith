@@ -109,6 +109,18 @@ function* onEntityDeleteSaga(payload: Log) {
           errorMessages: error.messages,
           pageId: currentPageId,
         });
+
+        if (error.messages) {
+          error.messages.map((errorMessage) => {
+            AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR_MESSAGE", {
+              entityType: pluginName,
+              propertyPath: `${pluginName}.${error.source?.propertyPath ?? ""}`,
+              errorMessage: errorMessage.message,
+              pageId: currentPageId,
+              errorType: errorMessage.type,
+            });
+          });
+        }
       } else if (source.type === ENTITY_TYPE.WIDGET) {
         const widgetType = error?.analytics?.widgetType;
 
@@ -118,6 +130,18 @@ function* onEntityDeleteSaga(payload: Log) {
           errorMessages: error.messages,
           pageId: currentPageId,
         });
+
+        if (error.messages) {
+          error.messages.map((errorMessage) => {
+            AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR_MESSAGE", {
+              entityType: widgetType,
+              propertyPath: `${widgetType}.${error.source?.propertyPath ?? ""}`,
+              errorMessage: errorMessage.message,
+              pageId: currentPageId,
+              errorType: errorMessage.type,
+            });
+          });
+        }
       }
     }
   });
@@ -207,16 +231,29 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
         const log = { ...payload };
         res && set(log, "state.headers", res);
         if (!((payload.source?.id as string) in debuggerErrors)) {
+          const errorMessages = payload.messages ?? [];
           yield put(
             logDebuggerErrorAnalytics({
               eventName: "DEBUGGER_NEW_ERROR",
-              errorMessages: payload.messages ?? [],
+              errorMessages: errorMessages,
               entityType: ENTITY_TYPE.ACTION,
               entityId: payload.source?.id ?? "",
               entityName: payload.source?.name ?? "",
               propertyPath: "",
             }),
           );
+
+          errorMessages.map((errorMessage) => {
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+              errorMessage: errorMessage.message,
+              errorType: errorMessage.type,
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+            });
+          });
         }
 
         yield put(errorLog(log));
@@ -232,6 +269,9 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
         );
 
         if ((payload.source?.id as string) in debuggerErrors) {
+          const errorMessages =
+            debuggerErrors[payload.source?.id ?? ""].messages ?? [];
+
           yield put(
             logDebuggerErrorAnalytics({
               eventName: "DEBUGGER_RESOLVED_ERROR",
@@ -243,6 +283,16 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
               propertyPath: "",
             }),
           );
+          errorMessages.map((errorMessage) => {
+            AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR_MESSAGE", {
+              errorMessage: errorMessage,
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+              errorType: errorMessage.type,
+            });
+          });
         }
         yield put(
           updateErrorLog({
@@ -283,6 +333,8 @@ function* logDebuggerErrorAnalyticsSaga(
         propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
+        errorMessage: payload.errorMessage,
+        errorType: payload.errorType,
       });
     } else if (payload.entityType === ENTITY_TYPE.ACTION) {
       const action: Action = yield select(getAction, payload.entityId);
@@ -300,6 +352,8 @@ function* logDebuggerErrorAnalyticsSaga(
         propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
+        errorMessage: payload.errorMessage,
+        errorType: payload.errorType,
       });
     }
   } catch (e) {

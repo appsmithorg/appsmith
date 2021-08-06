@@ -16,7 +16,7 @@ import {
   PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import _ from "lodash";
+import { find, findIndex, get, isMatch, some } from "lodash";
 import LOG_TYPE from "../entities/AppsmithConsole/logtype";
 import moment from "moment/moment";
 import { put, select } from "redux-saga/effects";
@@ -64,12 +64,12 @@ function getLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const allEvalErrors: EvaluationError[] = _.get(
+      const allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
-      const evaluatedValue = _.get(
+      const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
       );
@@ -87,14 +87,70 @@ function getLatestEvalPropertyErrors(
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
+      const existingErrorMessages =
+        updatedDebuggerErrors[debuggerKey]?.messages ?? [];
       if (evalErrors.length) {
         // TODO Rank and set the most critical error
         const error = evalErrors[0];
-        const errorMessages = evalErrors.map((e) => ({
-          message: e.errorMessage,
-          type: e.errorType,
-        }));
+        // Reformatting eval errors here to a format usable by the debugger
+        const errorMessages = evalErrors.map((e) => {
+          // Error format required for the debugger
+          const formattedError = {
+            message: e.errorMessage,
+            type: e.errorType,
+          };
 
+          // Checks if this is a new error
+          // If it is a new error log an analytics event
+          // for the same
+          if (existingErrorMessages.length) {
+            const exists = findIndex(
+              existingErrorMessages,
+              (existingErrorMessage) => {
+                return isMatch(existingErrorMessage, formattedError);
+              },
+            );
+            if (exists < 0) {
+              store.dispatch(
+                logDebuggerErrorAnalytics({
+                  eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                  entityId: idField,
+                  entityName: nameField,
+                  entityType,
+                  propertyPath,
+                  errorMessage: e.errorMessage,
+                  errorType: e.errorType,
+                }),
+              );
+            }
+          }
+
+          return formattedError;
+        });
+
+        // If any previous error message no longer exists
+        // logging the same for analytics
+        existingErrorMessages?.map((existingErrorMessage) => {
+          const exists = findIndex(errorMessages, (errorMessage) => {
+            return isMatch(errorMessage, existingErrorMessage);
+          });
+          if (exists < 0) {
+            store.dispatch(
+              logDebuggerErrorAnalytics({
+                eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+                entityId: idField,
+                entityName: nameField,
+                entityType,
+                propertyPath,
+                errorMessage: existingErrorMessage.message,
+                errorType: existingErrorMessage.type,
+              }),
+            );
+          }
+        });
+
+        // If a new error log has been added we log the same
+        // for analytics
         if (!(debuggerKey in updatedDebuggerErrors)) {
           store.dispatch(
             logDebuggerErrorAnalytics({
@@ -135,6 +191,7 @@ function getLatestEvalPropertyErrors(
           analytics: analyticsData,
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
+        const errorMessages = updatedDebuggerErrors[debuggerKey].messages ?? [];
         store.dispatch(
           logDebuggerErrorAnalytics({
             eventName: "DEBUGGER_RESOLVED_ERROR",
@@ -143,9 +200,24 @@ function getLatestEvalPropertyErrors(
             entityType,
             propertyPath:
               updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
-            errorMessages: updatedDebuggerErrors[debuggerKey].messages ?? [],
+            errorMessages,
           }),
         );
+        // Logging analytic events for all error messages as they are resolved
+        errorMessages.map((errorMessage) => {
+          store.dispatch(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+              entityId: idField,
+              entityName: nameField,
+              entityType,
+              propertyPath:
+                updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
+              errorMessage: errorMessage.message,
+              errorType: errorMessage.type,
+            }),
+          );
+        });
         // Remove
         delete updatedDebuggerErrors[debuggerKey];
       }
@@ -261,13 +333,13 @@ export function* logSuccessfulBindings(
     );
     const entity = dataTree[entityName];
     if (isAction(entity) || isWidget(entity)) {
-      const unevalValue = _.get(unEvalTree, evaluatedPath);
+      const unevalValue = get(unEvalTree, evaluatedPath);
       const entityType = isAction(entity) ? entity.pluginType : entity.type;
-      const isABinding = _.find(entity.dynamicBindingPathList, {
+      const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
       const logBlackList = entity.logBlackList;
-      const errors: EvaluationError[] = _.get(
+      const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
         [],
@@ -311,7 +383,7 @@ export function* updateTernDefinitions(
     shouldUpdate = false;
   } else {
     // Only when new field is added or deleted, we want to re create the def
-    shouldUpdate = _.some(updates, (update) => {
+    shouldUpdate = some(updates, (update) => {
       return (
         update.event === DataTreeDiffEvent.NEW ||
         update.event === DataTreeDiffEvent.DELETE
