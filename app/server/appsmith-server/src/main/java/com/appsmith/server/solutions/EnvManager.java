@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,7 +36,18 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
+    private static final Set<String> DISALLOWED_VARIABLES = Set.of(
+            "APPSMITH_ENCRYPTION_PASSWORD",
+            "APPSMITH_ENCRYPTION_SALT"
+    );
+
     public static List<String> transformEnvContent(String envContent, Map<String, String> changes) {
+        for (final String variable : DISALLOWED_VARIABLES) {
+            if (changes.containsKey(variable)) {
+                throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
+            }
+        }
+
         return envContent.lines()
                 .map(line -> {
                     final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);

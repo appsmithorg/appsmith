@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -7,6 +9,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -42,6 +48,8 @@ public class UserSignup {
     private final UserService userService;
     private final CaptchaService captchaService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final PolicyUtils policyUtils;
+    private final UserRepository userRepository;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -136,6 +144,22 @@ public class UserSignup {
                         redirectUri = URI.create(referer);
                     }
                     return redirectStrategy.sendRedirect(exchange, redirectUri);
+                });
+    }
+
+    public Mono<User> signupAndLoginSuper(User user, ServerWebExchange exchange) {
+        return userService.isUsersEmpty()
+                .flatMap(isEmpty -> {
+                    if (!isEmpty) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+
+                    policyUtils.addPoliciesToExistingObject(Map.of(
+                            AclPermission.MANAGE_INSTANCE_CONFIG.getValue(),
+                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_CONFIG.getValue()).users(Set.of(user.getUsername())).build()
+                    ), user);
+
+                    return signupAndLogin(user, exchange);
                 });
     }
 

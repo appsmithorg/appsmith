@@ -19,6 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -89,6 +90,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
+
+    private Boolean isUsersEmptyValue = null;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -788,6 +791,33 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             params.put("inviteUrl", inviteUrl + "/applications#" + organization.getSlug());
         }
         return params;
+    }
+
+    @Override
+    public Mono<Boolean> isUsersEmpty() {
+        if (isUsersEmptyValue != null) {
+            return Mono.just(isUsersEmptyValue);
+        }
+
+        return repository.isUsersEmpty()
+                .doOnSuccess(value -> isUsersEmptyValue = value);
+    }
+
+    @Override
+    public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+        return isUsersEmpty()
+                .map(isUsersEmpty -> {
+                    final UserProfileDTO profile = new UserProfileDTO();
+
+                    profile.setEmail(user.getEmail());
+                    profile.setOrganizationIds(user.getOrganizationIds());
+                    profile.setUsername(user.getUsername());
+                    profile.setName(user.getName());
+                    profile.setGender(user.getGender());
+                    profile.setEmptyInstance(isUsersEmpty);
+
+                    return profile;
+                });
     }
 
 }
