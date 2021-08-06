@@ -32,8 +32,6 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 
-const WidgetTypes = WidgetFactory.widgetTypes;
-
 /**
  * adds logBlackList key for all list widget children
  *
@@ -44,7 +42,7 @@ const addLogBlackListToAllListWidgetChildren = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === WidgetTypes.LIST_WIDGET) {
+    if (children.type === "LIST_WIDGET") {
       const widgets = get(
         children,
         "children.0.children.0.children.0.children",
@@ -81,7 +79,7 @@ const addLogBlackListToAllListWidgetChildren = (
 const migrateItemsToListDataInListWidget = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+  if (currentDSL.type === "LIST_WIDGET") {
     currentDSL = renameKeyInObject(currentDSL, "items", "listData");
 
     currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
@@ -131,22 +129,19 @@ const migrateItemsToListDataInListWidget = (
 };
 
 const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
-  if (
-    dsl.type === WidgetTypes.CONTAINER_WIDGET ||
-    dsl.type === WidgetTypes.FORM_WIDGET
-  ) {
+  if (dsl.type === "CONTAINER_WIDGET" || dsl.type === "FORM_WIDGET") {
     if (
       !(
         dsl.children &&
         dsl.children.length > 0 &&
-        (dsl.children[0].type === WidgetTypes.CANVAS_WIDGET ||
-          dsl.children[0].type === WidgetTypes.FORM_WIDGET)
+        (dsl.children[0].type === "CANVAS_WIDGET" ||
+          dsl.children[0].type === "FORM_WIDGET")
       )
     ) {
       const canvas = {
         ...dsl,
         backgroundColor: "transparent",
-        type: WidgetTypes.CANVAS_WIDGET,
+        type: "CANVAS_WIDGET",
         detachFromLayout: true,
         topRow: 0,
         leftColumn: 0,
@@ -179,17 +174,17 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
 const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (
-      children.type === WidgetTypes.CHART_WIDGET &&
+      children.type === "CHART_WIDGET" &&
       children.chartData &&
       children.chartData.length &&
       !Array.isArray(children.chartData[0])
     ) {
       children.chartData = [{ data: children.chartData as ChartDataPoint[] }];
     } else if (
-      children.type === WidgetTypes.CONTAINER_WIDGET ||
-      children.type === WidgetTypes.FORM_WIDGET ||
-      children.type === WidgetTypes.CANVAS_WIDGET ||
-      children.type === WidgetTypes.TABS_WIDGET
+      children.type === "CONTAINER_WIDGET" ||
+      children.type === "FORM_WIDGET" ||
+      children.type === "CANVAS_WIDGET" ||
+      children.type === "TABS_WIDGET"
     ) {
       children = chartDataMigration(children);
     }
@@ -202,7 +197,7 @@ const singleChartDataMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child) => {
-    if (child.type === WidgetTypes.CHART_WIDGET) {
+    if (child.type === "CHART_WIDGET") {
       // Check if chart widget has the deprecated singleChartData property
       if (child.hasOwnProperty("singleChartData")) {
         // This is to make sure that the format of the chartData is accurate
@@ -231,7 +226,7 @@ const singleChartDataMigration = (
 
 const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === WidgetTypes.MAP_WIDGET) {
+    if (children.type === "MAP_WIDGET") {
       if (children.markers) {
         children.markers = children.markers.map(
           (marker: { lat: any; lng: any; long: any; title: any }) => {
@@ -295,7 +290,7 @@ const tabsWidgetTabsPropertyMigration = (
   currentDSL.children = currentDSL.children
     ?.filter(Boolean)
     .map((child: WidgetProps) => {
-      if (child.type === WidgetTypes.TABS_WIDGET) {
+      if (child.type === "TABS_WIDGET") {
         try {
           const tabs = isString(child.tabs)
             ? JSON.parse(child.tabs)
@@ -366,7 +361,7 @@ const canvasNameConflictMigration = (
   props = { counter: 1 },
 ): ContainerWidgetProps<WidgetProps> => {
   if (
-    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.type === "CANVAS_WIDGET" &&
     currentDSL.widgetName.startsWith("Canvas")
   ) {
     currentDSL.widgetName = `Canvas${props.counter}`;
@@ -387,7 +382,7 @@ const renamedCanvasNameConflictMigration = (
 ): ContainerWidgetProps<WidgetProps> => {
   // Rename all canvas widgets except for MainContainer
   if (
-    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.type === "CANVAS_WIDGET" &&
     currentDSL.widgetName !== "MainContainer"
   ) {
     currentDSL.widgetName = `Canvas${props.counter}`;
@@ -405,7 +400,7 @@ const renamedCanvasNameConflictMigration = (
 const rteDefaultValueMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
-  if (currentDSL.type === WidgetTypes.RICH_TEXT_EDITOR_WIDGET) {
+  if (currentDSL.type === "RICH_TEXT_EDITOR_WIDGET") {
     currentDSL.inputType = "html";
   }
   currentDSL.children?.forEach((children) =>
@@ -418,9 +413,9 @@ const rteDefaultValueMigration = (
 function migrateTabsDataUsingMigrator(
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) {
-  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 1) {
+  if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
     try {
-      currentDSL.type = WidgetTypes.TABS_MIGRATOR_WIDGET;
+      currentDSL.type = "TABS_MIGRATOR_WIDGET";
       currentDSL.version = 1;
     } catch (error) {
       Sentry.captureException({
@@ -439,13 +434,11 @@ function migrateTabsDataUsingMigrator(
 
 export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   if (
-    [WidgetTypes.TABS_WIDGET, WidgetTypes.TABS_MIGRATOR_WIDGET].includes(
-      currentDSL.type as any,
-    ) &&
+    ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
     currentDSL.version === 1
   ) {
     try {
-      currentDSL.type = WidgetTypes.TABS_WIDGET;
+      currentDSL.type = "TABS_WIDGET";
       const isTabsDataBinded = isString(currentDSL.tabs);
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList || [];
@@ -522,7 +515,7 @@ export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
 
 // A rudimentary transform function which updates the DSL based on its version.
 function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
-  if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
+  if (currentDSL.type === "CHART_WIDGET") {
     if (isString(currentDSL.chartData)) {
       try {
         currentDSL.chartData = JSON.parse(currentDSL.chartData);
@@ -552,7 +545,7 @@ export function migrateChartDataFromArrayToObject(
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === WidgetTypes.CHART_WIDGET) {
+    if (children.type === "CHART_WIDGET") {
       if (Array.isArray(children.chartData)) {
         const newChartData = {};
         const dynamicBindingPathList = children?.dynamicBindingPathList
@@ -583,10 +576,10 @@ export function migrateChartDataFromArrayToObject(
         children.chartData = newChartData;
       }
     } else if (
-      children.type === WidgetTypes.CONTAINER_WIDGET ||
-      children.type === WidgetTypes.FORM_WIDGET ||
-      children.type === WidgetTypes.CANVAS_WIDGET ||
-      children.type === WidgetTypes.TABS_WIDGET
+      children.type === "CONTAINER_WIDGET" ||
+      children.type === "FORM_WIDGET" ||
+      children.type === "CANVAS_WIDGET" ||
+      children.type === "TABS_WIDGET"
     ) {
       children = migrateChartDataFromArrayToObject(children);
     }
@@ -638,55 +631,55 @@ export const migrateInitialValues = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.INPUT_WIDGET) {
+    if (child.type === "INPUT_WIDGET") {
       child = {
         isRequired: false,
         isDisabled: false,
         resetOnSubmit: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.DROP_DOWN_WIDGET) {
+    } else if (child.type === "DROP_DOWN_WIDGET") {
       child = {
         isRequired: false,
         isDisabled: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.DATE_PICKER_WIDGET2) {
+    } else if (child.type === "DATE_PICKER_WIDGET2") {
       child = {
         minDate: "2001-01-01 00:00",
         maxDate: "2041-12-31 23:59",
         isRequired: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.SWITCH_WIDGET) {
+    } else if (child.type === "SWITCH_WIDGET") {
       child = {
         isDisabled: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.ICON_WIDGET) {
+    } else if (child.type === "ICON_WIDGET") {
       child = {
         isRequired: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.VIDEO_WIDGET) {
+    } else if (child.type === "VIDEO_WIDGET") {
       child = {
         isRequired: false,
         isDisabled: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.CHECKBOX_WIDGET) {
-      child = {
-        isDisabled: false,
-        isRequired: false,
-        ...child,
-      };
-    } else if (child.type === WidgetTypes.RADIO_GROUP_WIDGET) {
+    } else if (child.type === "CHECKBOX_WIDGET") {
       child = {
         isDisabled: false,
         isRequired: false,
         ...child,
       };
-    } else if (child.type === WidgetTypes.FILE_PICKER_WIDGET) {
+    } else if (child.type === "RADIO_GROUP_WIDGET") {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === "FILE_PICKER_WIDGET") {
       child = {
         isDisabled: false,
         isRequired: false,
@@ -721,7 +714,7 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     // The canvas is a CANVAS_WIDGET whichdoesn't have a background or borders by default
     currentDSL.backgroundColor = "none";
     currentDSL.containerStyle = "none";
-    currentDSL.type = WidgetTypes.CANVAS_WIDGET;
+    currentDSL.type = "CANVAS_WIDGET";
     currentDSL.detachFromLayout = true;
     currentDSL.canExtend = true;
 
@@ -1002,7 +995,7 @@ const migrateWidgetsWithoutLeftRightColumns = (
 const migrateNewlyAddedTabsWidgetsMissingData = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 2) {
+  if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 2) {
     try {
       if (currentDSL.children && currentDSL.children.length) {
         currentDSL.children = currentDSL.children.map((each) => {
@@ -1063,10 +1056,7 @@ export const checkIfMigrationIsNeeded = (
 export const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  if (
-    currentDSL.type === WidgetTypes.DATE_PICKER_WIDGET2 &&
-    currentDSL.version === 2
-  ) {
+  if (currentDSL.type === "DATE_PICKER_WIDGET2" && currentDSL.version === 2) {
     if (currentDSL.minDate === "2001-01-01 00:00") {
       currentDSL.minDate = "1920-12-31T18:30:00.000Z";
     }
@@ -1087,7 +1077,7 @@ export const migrateDatePickerMinMaxDate = (
 const addFilterDefaultValue = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  if (currentDSL.type === WidgetTypes.DROP_DOWN_WIDGET) {
+  if (currentDSL.type === "DROP_DOWN_WIDGET") {
     if (!currentDSL.hasOwnProperty("isFilterable")) {
       currentDSL.isFilterable = true;
     }

@@ -156,10 +156,15 @@ class WidgetFactory {
   }
 
   static createWidget(widgetData: WidgetDataProps): React.ReactNode {
+    const widgetProps: WidgetProps = {
+      key: widgetData.widgetId,
+      isVisible: true,
+      ...widgetData,
+    };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-      const widget = widgetBuilder.buildWidget(widgetData);
+      const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
       const ex: WidgetCreationException = {

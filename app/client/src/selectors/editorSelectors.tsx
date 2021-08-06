@@ -11,7 +11,11 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { getActions, getCanvasWidgets } from "selectors/entitiesSelector";
-import { RenderModes, WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+  WIDGET_STATIC_PROPS,
+} from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -107,6 +111,9 @@ export const getViewModePageList = createSelector(
 
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
+
+export const getCanvasWidth = (state: AppState) =>
+  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
 
 export const getCurrentPageName = createSelector(
   getPageListState,

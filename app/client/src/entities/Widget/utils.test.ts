@@ -1,7 +1,7 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
-import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
+import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 

@@ -47,7 +47,7 @@ import {
   updateWidgetMetaProperty,
 } from "actions/metaActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getRenderMode } from "selectors/editorSelectors";
+import { getCanvasWidth, getRenderMode } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 
 abstract class BaseWidget<
@@ -412,7 +412,10 @@ export const WidgetOperations = {
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 function mapStateToProps(state: AppState) {
-  return { renderMode: getRenderMode(state) };
+  return {
+    renderMode: getRenderMode(state),
+    canvasWidth: getCanvasWidth(state),
+  };
 }
 
 const resolver = (dispatch: any, ownProps: { widgetId: string }) =>

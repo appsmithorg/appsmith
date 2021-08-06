@@ -7,7 +7,6 @@ import TernServer, {
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { WidgetTypes } from "constants/WidgetConstants";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -190,7 +189,7 @@ describe("Tern server sorting", () => {
   };
   defEntityInformation.set("sameEntity", {
     type: ENTITY_TYPE.WIDGET,
-    subType: WidgetTypes.TABLE_WIDGET,
+    subType: "TABLE_WIDGET",
   });
 
   const sameTypeCompletion: Completion = {
@@ -203,7 +202,7 @@ describe("Tern server sorting", () => {
   };
   defEntityInformation.set("sameType", {
     type: ENTITY_TYPE.WIDGET,
-    subType: WidgetTypes.TABLE_WIDGET,
+    subType: "TABLE_WIDGET",
   });
 
   const diffTypeCompletion: Completion = {
@@ -217,7 +216,7 @@ describe("Tern server sorting", () => {
 
   defEntityInformation.set("diffType", {
     type: ENTITY_TYPE.WIDGET,
-    subType: WidgetTypes.TABLE_WIDGET,
+    subType: "TABLE_WIDGET",
   });
 
   const sameTypeDiffEntityTypeCompletion: Completion = {
@@ -245,7 +244,7 @@ describe("Tern server sorting", () => {
 
   defEntityInformation.set("otherDataTree", {
     type: ENTITY_TYPE.WIDGET,
-    subType: WidgetTypes.TEXT_WIDGET,
+    subType: "TEXT_WIDGET",
   });
 
   const functionCompletion: Completion = {

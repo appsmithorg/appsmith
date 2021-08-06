@@ -4,8 +4,13 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
-import { RenderMode, GridDefaults } from "constants/WidgetConstants";
+import {
+  RenderMode,
+  GridDefaults,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -82,7 +87,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getModalWidth() {
-    const widthFromOverlay = this.props.mainContainer.rightColumn * 0.95;
+    const widthFromOverlay = this.props.canvasWidth * 0.95;
     const defaultModalWidth = MODAL_SIZE[this.props.size].width;
     return widthFromOverlay < defaultModalWidth
       ? widthFromOverlay
@@ -149,11 +154,24 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  getPageView() {
-    const children = this.getChildren();
-    // if (this.props.renderMode === RenderModes.CANVAS) {
-    //   children = this.showWidgetName(children, true);
-    // }
+  render() {
+    let children = this.getChildren();
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      children = (
+        <>
+          <WidgetNameComponent
+            errorCount={0} //Modal widget does not have bindable properties, so the errorCount will always be 0
+            parentId={this.props.parentId}
+            showControls
+            topRow={4}
+            type={this.props.type}
+            widgetId={this.props.widgetId}
+            widgetName={this.props.widgetName}
+          />
+          {children}
+        </>
+      );
+    }
 
     return this.makeModalComponent(children);
   }
