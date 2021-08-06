@@ -130,6 +130,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Menu Button",
     key: generateReactKey(),
   },
+  {
+    type: "ICON_BUTTON_WIDGET",
+    widgetCardName: "Icon Button",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
