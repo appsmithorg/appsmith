@@ -32,7 +32,7 @@ describe("Table Widget property pane feature validation", function() {
       // Chaging the computed value to "Emails"
       cy.updateComputedValue(testdata.currentRowWithIdOutside);
       // Validating single cell value
-      cy.readTabledataPublish("1", "0").then((tabData) => {
+      cy.readTabledataPublish("1", "1").then((tabData) => {
         expect(tabData).to.be.equal("#lindsay.ferguson@reqres.in");
         cy.log("computed value of plain text " + tabData);
       });
