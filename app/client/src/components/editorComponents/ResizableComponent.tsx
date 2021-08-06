@@ -247,9 +247,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
-      selectWidget(
-        parentWidgetToSelect ? parentWidgetToSelect.widgetId : props.widgetId,
-      );
+      selectWidget(props.widgetId);
 
     if (parentWidgetToSelect) {
       selectWidget &&

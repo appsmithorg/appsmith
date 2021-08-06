@@ -8,7 +8,10 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
 
@@ -78,15 +81,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
         if (isString(value) && value.indexOf("currentItem") > -1) {
           const { jsSnippets, stringSegments } = getDynamicBindings(value);
 
-          const js = stringSegments
-            .map((segment, index) => {
-              if (jsSnippets[index] && jsSnippets[index].length > 0) {
-                return jsSnippets[index];
-              } else {
-                return `'${segment}'`;
-              }
-            })
-            .join(" + ");
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
 
           value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${js})}}`;
 

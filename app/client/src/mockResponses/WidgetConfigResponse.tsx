@@ -8,7 +8,10 @@ import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
 import {
@@ -836,15 +839,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               propertyValue,
             );
 
-            const js = stringSegments
-              .map((segment, index) => {
-                if (jsSnippets[index] && jsSnippets[index].length > 0) {
-                  return jsSnippets[index];
-                } else {
-                  return `'${segment}'`;
-                }
-              })
-              .join(" + ");
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
 
             value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
@@ -1068,18 +1063,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                         value,
                       );
 
-                      const js = stringSegments
-                        .map((segment, index) => {
-                          if (
-                            jsSnippets[index] &&
-                            jsSnippets[index].length > 0
-                          ) {
-                            return jsSnippets[index];
-                          } else {
-                            return `'${segment}'`;
-                          }
-                        })
-                        .join(" + ");
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
 
                       value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
