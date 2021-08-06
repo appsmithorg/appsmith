@@ -21,6 +21,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+import history from "utils/history";
 
 /**
  * The relavent pixel position is bottom right for the comment cursor
@@ -120,6 +121,21 @@ const focusThread = (commentThreadId: string) => {
   }
 };
 
+const resetCommentThreadIdInURL = (commentThreadId: string) => {
+  if (!window.location.href) return;
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  if (searchParams.get("commentThreadId") === commentThreadId) {
+    searchParams.delete("commentId");
+    searchParams.delete("commentThreadId");
+
+    history.replace({
+      ...window.location,
+      search: searchParams.toString(),
+    });
+  }
+};
+
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
@@ -214,6 +230,7 @@ function InlineCommentPin({
             dispatch(setVisibleThread(commentThreadId));
           } else {
             dispatch(resetVisibleThread(commentThreadId));
+            resetCommentThreadIdInURL(commentThreadId);
           }
         }}
         placement={"right-start"}
