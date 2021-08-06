@@ -30,6 +30,7 @@ import moment from "moment";
 import history from "utils/history";
 
 import { getAppMode } from "selectors/applicationSelectors";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 import { USER_PHOTO_URL } from "constants/userConstants";
 
@@ -56,7 +57,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
-import { getAllWidgetsMap } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
 const StyledContainer = styled.div`
@@ -337,7 +337,9 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
-  const widgetMap = useSelector(getAllWidgetsMap);
+  const widgetMap: Record<string, any> = useSelector(
+    widgetsMapWithParentModalId,
+  );
 
   const contextMenuProps = {
     switchToEditCommentMode,
@@ -360,6 +362,8 @@ function CommentCard({
   const handleCardClick = () => {
     if (inline) return;
     if (commentThread.widgetType) {
+      // for the view mode we use canvas widgets instead of widgets by page
+      // since we don't have the dsl for all the pages currently
       const widget = widgetMap[commentThread.refId];
 
       // 1. This is only needed for the modal widgetMap
