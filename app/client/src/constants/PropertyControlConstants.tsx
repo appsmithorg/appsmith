@@ -4,7 +4,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ExpectedValueExample } from "utils/validation/common";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -55,7 +55,7 @@ export type PropertyPaneControlConfig = {
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
 };
 
 type ValidationConfigParams = {
@@ -63,7 +63,7 @@ type ValidationConfigParams = {
   max?: number; // max allowed for a number
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type
-  unique?: boolean; // unique in an array
+  unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
@@ -81,7 +81,7 @@ type ValidationConfigParams = {
     moment?: any,
   ) => ValidationResponse; // Function in a FUNCTION type
   fnString?: string; // AUTO GENERATED, SHOULD NOT BE SET BY WIDGET DEVELOPER
-  expected?: { type: string; example: ExpectedValueExample }; // FUNCTION type expected type and example
+  expected?: CodeEditorExpected; // FUNCTION type expected type and example
 };
 
 export type ValidationConfig = {
