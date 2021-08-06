@@ -104,10 +104,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    rowRef.current = snapRows;
-    updateHeight();
-    if (canDropTargetExtend) {
-      updateCanvasSnapRows(props.widgetId, snapRows);
+    if (rowRef.current !== snapRows) {
+      rowRef.current = snapRows;
+      updateHeight();
+      if (canDropTargetExtend) {
+        updateCanvasSnapRows(props.widgetId, snapRows);
+      }
     }
   }, [props.bottomRow, props.canExtend]);
 
