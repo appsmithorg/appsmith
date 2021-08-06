@@ -126,7 +126,6 @@ const resetCommentThreadIdInURL = (commentThreadId: string) => {
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   if (searchParams.get("commentThreadId") === commentThreadId) {
-    searchParams.delete("commentId");
     searchParams.delete("commentThreadId");
 
     history.replace({
