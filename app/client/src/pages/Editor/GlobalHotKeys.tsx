@@ -181,7 +181,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Un-select widgets"
           onKeyDown={() => {
             this.props.deselectAllWidgets();
-            this.props.closePropertyPane();
+            this.props.closeProppane();
             this.props.unfocusWidgets();
           }}
         />

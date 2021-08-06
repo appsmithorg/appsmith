@@ -50,18 +50,6 @@ export const getEditorConfigs = (
   return { pageId, layoutId };
 };
 
-// export const getDefaultWidgetConfig = (
-//   state: AppState,
-//   type: WidgetType,
-// ): Partial<WidgetProps> => {
-//   const configs = state.entities.widgetConfig.config;
-//   if (configs.hasOwnProperty(type)) {
-//     const widgetConfig = { ...(configs[type] };
-//     return widgetConfig;
-//   }
-//   return {};
-// };
-
 export const getWidgetNamePrefix = (state: AppState, type: string): string => {
   return state.entities.widgetConfig.config[type].widgetName || "";
 };

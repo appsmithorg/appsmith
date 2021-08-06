@@ -22,8 +22,6 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { AppState } from "reducers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -65,10 +63,7 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const canvasWidth = useSelector(
-    (state: AppState) =>
-      state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
-  );
+
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -121,7 +116,7 @@ function WidgetsEditor() {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} width={canvasWidth} />;
+    node = <Canvas dsl={widgets} />;
   }
 
   log.debug("Canvas rendered");

@@ -97,8 +97,6 @@ function WidgetCard(props: CardProps) {
     },
   });
 
-  // const iconType: string = props.details.type;
-  // const Icon = WidgetIcons[iconType];
   const className = `t--widget-card-draggable-${props.details.type
     .split("_")
     .join("")

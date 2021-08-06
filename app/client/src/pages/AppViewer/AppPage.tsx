@@ -3,8 +3,7 @@ import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -14,11 +13,10 @@ const PageView = styled.div<{ width: number }>`
 `;
 
 type AppPageProps = {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: DSLWidget;
   pageName?: string;
   pageId?: string;
   appName?: string;
-  width: number;
 };
 
 export function AppPage(props: AppPageProps) {
@@ -32,7 +30,7 @@ export function AppPage(props: AppPageProps) {
     });
   }, [props.pageId, props.pageName]);
   return (
-    <PageView width={props.width}>
+    <PageView width={props.dsl.rightColumn}>
       {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
     </PageView>
   );

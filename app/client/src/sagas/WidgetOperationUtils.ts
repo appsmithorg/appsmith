@@ -6,11 +6,8 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
 
 /**
  * checks if triggerpaths contains property path passed
@@ -58,7 +55,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
   let root = get(widgets, `${widget.parentId}`);
 
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    if (root.type === WidgetTypes.LIST_WIDGET) {
+    if (root.type === "LIST_WIDGET") {
       const listWidget = root;
       const currentWidget = cloneDeep(widget);
       let template = get(listWidget, "template", {});
@@ -134,7 +131,7 @@ export const handleSpecificCasesWhilePasting = (
   newWidgetList: FlattenedWidgetProps[],
 ) => {
   // this is the case when whole list widget is copied and pasted
-  if (widget.type === WidgetTypes.LIST_WIDGET) {
+  if (widget.type === "LIST_WIDGET") {
     Object.keys(widget.template).map((widgetName) => {
       const oldWidgetName = widgetName;
       const newWidgetName = widgetNameMap[oldWidgetName];
@@ -175,7 +172,7 @@ export const handleSpecificCasesWhilePasting = (
     });
 
     widgets[widget.widgetId] = widget;
-  } else if (widget.type === WidgetTypes.MODAL_WIDGET) {
+  } else if (widget.type === "MODAL_WIDGET") {
     // if Modal is being copied handle all onClose action rename
     const oldWidgetName = Object.keys(widgetNameMap).find(
       (key) => widgetNameMap[key] === widget.widgetName,
@@ -256,10 +253,7 @@ export const getParentWidgetIdForPasting = function*(
       }
     }
     // Select the selected widget if the widget is container like ( excluding list widget )
-    if (
-      selectedWidget.children &&
-      selectedWidget.type !== WidgetTypes.LIST_WIDGET
-    ) {
+    if (selectedWidget.children && selectedWidget.type !== "LIST_WIDGET") {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -268,12 +262,12 @@ export const getParentWidgetIdForPasting = function*(
   // is not the main container and is not a canvas widget
   if (
     parentWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-    parentWidget.type !== WidgetTypes.CANVAS_WIDGET
+    parentWidget.type !== "CANVAS_WIDGET"
   ) {
     let childWidget;
     // If the widget in which to paste the new widget is NOT
     // a tabs widget
-    if (parentWidget.type !== WidgetTypes.TABS_WIDGET) {
+    if (parentWidget.type !== "TABS_WIDGET") {
       // The child will be a CANVAS_WIDGET, as we've established
       // this parent widget to be a container like widget
       // Which always has its first child as a canvas widget
@@ -289,7 +283,7 @@ export const getParentWidgetIdForPasting = function*(
     }
     // If the finally selected parent in which to paste the widget
     // is a CANVAS_WIDGET, use its widgetId as the new widget's parent Id
-    if (childWidget && childWidget.type === WidgetTypes.CANVAS_WIDGET) {
+    if (childWidget && childWidget.type === "CANVAS_WIDGET") {
       newWidgetParentId = childWidget.widgetId;
     }
   }
@@ -310,7 +304,7 @@ export const checkIfPastingIntoListWidget = function(
   if (
     selectedWidget &&
     selectedWidget.children &&
-    selectedWidget?.type === WidgetTypes.LIST_WIDGET
+    selectedWidget?.type === "LIST_WIDGET"
   ) {
     const childrenIds: string[] = getWidgetChildren(
       canvasWidgets,
@@ -323,7 +317,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+      if (copiedWidget.type === "LIST_WIDGET") {
         return selectedWidget;
       }
     }

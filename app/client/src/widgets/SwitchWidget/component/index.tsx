@@ -2,8 +2,8 @@ import { Alignment, Classes, Switch } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
-import { AlignWidget } from "../constants";
 import { ComponentProps } from "widgets/BaseComponent";
+import { AlignWidget } from "widgets/constants";
 
 interface SwitchComponentProps extends ComponentProps {
   label: string;

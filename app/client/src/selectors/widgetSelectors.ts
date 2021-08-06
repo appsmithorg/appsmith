@@ -26,7 +26,7 @@ export const getModalDropdownList = createSelector(
 );
 
 const getModalNamePrefix = (state: AppState) =>
-  getWidgetNamePrefix(state, "MODAL_WIDGET");
+  getWidgetNamePrefix(state, WidgetTypes.MODAL_WIDGET);
 
 export const getNextModalName = createSelector(
   getExistingWidgetNames,

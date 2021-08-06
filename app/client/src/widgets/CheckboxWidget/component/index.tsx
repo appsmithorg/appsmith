@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
-import { AlignWidget } from "widgets/SwitchWidget/constants";
+import { AlignWidget } from "widgets/constants";
 
 const CheckboxContainer = styled.div<{ isValid: boolean }>`
   && {

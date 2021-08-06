@@ -241,12 +241,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
-          onPositionChange={(position: any) => {
-            this.props.setPropPanePoistion(
-              position,
-              this.props.widgetProperties?.widgetId,
-            );
-          }}
+          onPositionChange={this.onPositionChange}
           placement="right-start"
           position={this.props?.propPanePreference?.position}
           targetNode={el}

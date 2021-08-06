@@ -137,7 +137,6 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { getWidgetDimensions } from "widgets/WidgetUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 function* getChildWidgetProps(
@@ -577,7 +576,7 @@ export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
   const selectedWidget = yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  console.log("Here, deleting", { selectedWidgets }, { selectedWidget });
+
   if (selectedWidgets.length > 1) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_BULK_DELETE,
@@ -610,7 +609,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     }
 
     if (widgetId && parentId) {
-      console.log("delete", { widgetId }, { isShortcut }, { parentId });
       const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
       const widgets = { ...stateWidgets };
       const stateWidget: FlattenedWidgetProps = yield select(
@@ -704,12 +702,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       // Note: mutates finalWidgets
       resizeCanvasToLowestWidget(finalWidgets, parentId);
-      console.log("delete", { finalWidgets });
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
   } catch (error) {
-    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
@@ -957,26 +953,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
-    // update canvas child
-    // Check if widget has children
-    if (widget.children && widget.children.length) {
-      // Get the child props
-      let child = widgets[widget.children[0]];
-      // If child is a canvas widget
-      if (child.type === WidgetTypes.CANVAS_WIDGET) {
-        // Get widget dimensions
-        const { componentHeight, componentWidth } = getWidgetDimensions(widget);
-        // Update child canvas properties
-        child = produce(child, (canvas: WidgetProps) => {
-          canvas.rightColumn = componentWidth;
-          canvas.bottomRow = widget.shouldScrollContents
-            ? canvas.bottomRow
-            : componentHeight;
-        });
-        // Update child in canvas widgets
-        widgets[widget.children[0]] = child;
-      }
-    }
 
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
@@ -1230,7 +1206,7 @@ function* batchUpdateWidgetPropertySaga(
 ) {
   const start = performance.now();
   const { updates, widgetId } = action.payload;
-  console.log("Register", { updates });
+
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -1269,10 +1245,8 @@ function* batchUpdateWidgetPropertySaga(
     widget = yield removeWidgetProperties(widget, remove);
   }
 
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = produce(stateWidgets, (draft) => {
-    draft[widgetId] = widget;
-  });
+  const stateWidgets = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,

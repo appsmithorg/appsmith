@@ -21,9 +21,7 @@ import {
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
@@ -36,12 +34,11 @@ const Section = styled.section`
 `;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
-  widgets?: ContainerWidgetProps<WidgetProps>;
+  widgets?: DSLWidget;
   currentPageName?: string;
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
-  width: number;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -116,7 +113,6 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             dsl={this.props.widgets}
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
-            width={this.props.width}
           />
           <ConfirmRunModal />
           <EndTourHelper />
@@ -134,7 +130,6 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
-    width: state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
   };
   return props;
 };

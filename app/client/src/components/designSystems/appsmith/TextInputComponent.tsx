@@ -8,7 +8,7 @@ import {
   InputGroup,
   MaybeElement,
 } from "@blueprintjs/core";
-import { ComponentProps } from "../../../widgets/BaseComponent";
+import { ComponentProps } from "widgets/BaseComponent";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

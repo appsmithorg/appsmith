@@ -1,10 +1,10 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { DSLWidget } from "widgets/constants";
 
 export const migrateTextStyleFromTextWidget = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-): ContainerWidgetProps<WidgetProps> => {
+  currentDSL: DSLWidget,
+): DSLWidget => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "TEXT_WIDGET") {
       const textStyle = child.textStyle;

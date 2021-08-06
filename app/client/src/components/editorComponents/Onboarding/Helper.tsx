@@ -9,7 +9,7 @@ import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { CloseButton } from "../../designSystems/blueprint/CloseButton";
+import { CloseButton } from "components/designSystems/appsmith/CloseButton";
 import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 import { Layers } from "constants/Layers";
 import { getTypographyByKey } from "constants/DefaultTheme";

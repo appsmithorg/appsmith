@@ -13,5 +13,7 @@ export type FlattenedWidgetProps = WidgetProps & {
 };
 
 export interface DSLWidget extends WidgetProps {
-  children?: WidgetProps[];
+  children?: DSLWidget[];
 }
+
+export type AlignWidget = "LEFT" | "RIGHT";

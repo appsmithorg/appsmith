@@ -1,5 +1,3 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   FontStyleTypes,
   TextSizes,
@@ -16,11 +14,11 @@ import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-export const tableWidgetPropertyPaneMigrations = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
     // If the current child is a TABLE_WIDGET
@@ -176,9 +174,7 @@ const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const migrateTablePrimaryColumnsBindings = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "TABLE_WIDGET") {
       if (
@@ -218,7 +214,7 @@ export const migrateTablePrimaryColumnsBindings = (
 };
 
 export const migrateTableWidgetParentRowSpaceProperty = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TABLE_WIDGET) {
@@ -234,7 +230,7 @@ export const migrateTableWidgetParentRowSpaceProperty = (
 };
 
 export const migrateTableWidgetHeaderVisibilityProperties = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TABLE_WIDGET) {
@@ -254,7 +250,7 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
 };
 
 export const migrateTablePrimaryColumnsComputedValue = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TABLE_WIDGET) {

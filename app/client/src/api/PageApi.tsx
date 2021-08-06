@@ -1,9 +1,8 @@
 import Api from "api/Api";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ApiResponse } from "./ApiResponses";
-import { WidgetProps } from "widgets/BaseWidget";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import { DSLWidget } from "widgets/constants";
 
 export interface FetchPageRequest {
   id: string;
@@ -16,14 +15,14 @@ export interface FetchPublishedPageRequest {
 }
 
 export interface SavePageRequest {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: DSLWidget;
   layoutId: string;
   pageId: string;
 }
 
 export interface PageLayout {
   id: string;
-  dsl: Partial<ContainerWidgetProps<any>>;
+  dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
 }
@@ -40,7 +39,7 @@ export type FetchPageResponse = ApiResponse & {
 export type FetchPublishedPageResponse = ApiResponse & {
   data: {
     id: string;
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<DSLWidget>;
     pageId: string;
   };
 };
@@ -49,7 +48,7 @@ export interface SavePageResponse extends ApiResponse {
   data: {
     id: string;
     layoutOnLoadActions: PageAction[][];
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<DSLWidget>;
     messages: string[];
     actionUpdates: Array<{
       executeOnLoad: boolean;

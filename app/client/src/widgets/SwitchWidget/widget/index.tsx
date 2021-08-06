@@ -7,7 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { AlignWidget } from "../constants";
+import { AlignWidget } from "widgets/constants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {

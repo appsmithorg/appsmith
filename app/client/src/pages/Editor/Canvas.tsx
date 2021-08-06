@@ -4,47 +4,35 @@ import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 
 interface CanvasProps {
-  dsl: ContainerWidgetProps<WidgetProps>;
-  width: number;
+  dsl: DSLWidget;
 }
 
-const Canvas = memo(
-  (props: CanvasProps) => {
-    try {
-      return (
-        <>
-          <PropertyPane />
-          <ArtBoard
-            className="t--canvas-artboard"
-            data-testid="t--canvas-artboard"
-            id="art-board"
-            width={props.width}
-          >
-            {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
-          </ArtBoard>
-        </>
-      );
-    } catch (error) {
-      log.error("Error rendering DSL", error);
-      Sentry.captureException(error);
-      return null;
-    }
-  },
-  (prevProps, nextProps) => {
+// TODO(abhinav): get the render mode from context
+const Canvas = memo((props: CanvasProps) => {
+  try {
     return (
-      prevProps.width === nextProps.width &&
-      JSON.stringify(prevProps.dsl) === JSON.stringify(nextProps.dsl)
+      <>
+        <PropertyPane />
+        <ArtBoard
+          className="t--canvas-artboard"
+          data-testid="t--canvas-artboard"
+          id="art-board"
+          width={props.dsl.rightColumn}
+        >
+          {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
+        </ArtBoard>
+      </>
     );
-  },
-);
+  } catch (error) {
+    log.error("Error rendering DSL", error);
+    Sentry.captureException(error);
+    return null;
+  }
+});
 
 Canvas.displayName = "Canvas";
-Canvas.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default Canvas;

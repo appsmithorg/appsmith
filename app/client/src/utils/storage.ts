@@ -66,14 +66,12 @@ export const saveDeletedWidgets = async (
   widgetId: string,
 ): Promise<boolean> => {
   try {
-    console.log({ widgets }, { widgetId });
     await store.setItem(
       `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
       JSON.stringify(widgets),
     );
     return true;
   } catch (error) {
-    console.log({ widgets }, { widgetId });
     log.error(
       "An error occurred when temporarily storing delete widget: ",
       error,

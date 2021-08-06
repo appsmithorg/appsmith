@@ -74,10 +74,8 @@ export function getWidgetEnhancementFn(
   // Get enhancements for the widget type from the config response
   // Spread the config response so that we don't pollute the original
   // configs
-  // const { enhancements = {} } = {
-  //   ...(WidgetConfigResponse as any).config[type],
-  // };
-  const config = WidgetFactory.widgetConfigMap.get(type);
+
+  const config = { ...WidgetFactory.widgetConfigMap.get(type) };
   if (config?.enhancements)
     return get(config.enhancements, enhancementType, undefined);
 }

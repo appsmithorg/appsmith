@@ -1,1 +1,1 @@
-export type AlignWidget = "LEFT" | "RIGHT";
+export default "constants";
