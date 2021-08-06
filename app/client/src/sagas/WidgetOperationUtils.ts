@@ -326,7 +326,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+      if (copiedWidget?.type === WidgetTypes.LIST_WIDGET) {
         return selectedWidget;
       }
     }

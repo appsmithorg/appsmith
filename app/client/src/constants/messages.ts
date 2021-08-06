@@ -32,7 +32,7 @@ export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password with a minimum of 6 characters`;
+  `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
@@ -334,11 +334,12 @@ export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 // Showcase Carousel
 export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
+export const SKIP = () => "SKIP";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -360,6 +361,27 @@ export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
 
+// Generate page from DB Messages
+
+export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
+  `Couldn't auto generate a page from this datasource.`;
+
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
+  `You can continue building your app with it using our Drag & Drop
+  Builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads Up`;
+
+export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
+  "Start from scratch and create your custom UI";
+
+export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with Drag & Drop";
+
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a Data Table";
+
+export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
+  "Start with a simple CRUD UI and customize it";
+
+export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
@@ -373,3 +395,7 @@ export const SUGGESTED_WIDGET_DESCRIPTION = () =>
 export const ADD_NEW_WIDGET = () => "Add New Widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
+export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
+
+// Data Sources pane
+export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";

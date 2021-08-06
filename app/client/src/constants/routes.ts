@@ -49,9 +49,9 @@ export const BUILDER_PAGE_URL = (
   params?: Record<string, string>,
 ): string => {
   if (!pageId) return APPLICATIONS_URL;
-  const queryParams = convertToQueryParams(params);
+  const queryString = convertToQueryParams(params);
   return (
-    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryParams
+    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryString
   );
 };
 
@@ -74,13 +74,13 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
-  params?: Record<string, string>,
+  params = {},
 ): string => {
-  const queryparams = convertToQueryParams(params);
+  const queryString = convertToQueryParams(params);
   return `${DATA_SOURCES_EDITOR_URL(
     applicationId,
     pageId,
-  )}/${datasourceId}${queryparams}`;
+  )}/${datasourceId}${queryString}`;
 };
 
 export const QUERIES_EDITOR_URL = (
@@ -102,10 +102,16 @@ export const INTEGRATION_EDITOR_URL = (
   pageId = ":pageId",
   selectedTab = ":selectedTab",
   mode = "",
-): string =>
-  `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources/${selectedTab}${
-    mode ? "?mode=" + mode : ""
+  params = {},
+): string => {
+  const queryString = convertToQueryParams(params);
+  return `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}/datasources/${selectedTab}${
+    mode ? "?mode=" + mode + "&" + queryString.replace("?", "") : queryString
   }`;
+};
 
 export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
@@ -113,11 +119,11 @@ export const QUERIES_EDITOR_ID_URL = (
   queryId = ":queryId",
   params = {},
 ): string => {
-  const queryparams = convertToQueryParams(params);
+  const queryString = convertToQueryParams(params);
   return `${QUERIES_EDITOR_URL(
     applicationId,
     pageId,
-  )}/${queryId}${queryparams}`;
+  )}/${queryId}${queryString}`;
 };
 
 export const API_EDITOR_ID_URL = (
@@ -126,8 +132,8 @@ export const API_EDITOR_ID_URL = (
   apiId = ":apiId",
   params = {},
 ): string => {
-  const queryParams = convertToQueryParams(params);
-  return `${API_EDITOR_URL(applicationId, pageId)}/${apiId}${queryParams}`;
+  const queryString = convertToQueryParams(params);
+  return `${API_EDITOR_URL(applicationId, pageId)}/${apiId}${queryString}`;
 };
 
 export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
@@ -153,8 +159,8 @@ export const getApplicationViewerPageURL = (
   params: Record<string, string> = {},
 ): string => {
   const url = `/applications/${applicationId}/pages/${pageId}`;
-  const queryParams = convertToQueryParams(params);
-  return url + queryParams;
+  const queryString = convertToQueryParams(params);
+  return url + queryString;
 };
 
 export function convertToQueryParams(
@@ -194,6 +200,23 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     pageId,
   )}/queries?importTo=${selectedPageId}`;
 };
+
+export const GEN_TEMPLATE_URL = "/generate-page";
+export const GEN_TEMPLATE_FORM_ROUTE = "/form";
+
+export const getGenerateTemplateURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}${GEN_TEMPLATE_URL}`;
+
+export const getGenerateTemplateFormURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string =>
+  `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`;
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
