@@ -135,6 +135,7 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -1467,15 +1468,10 @@ function* getEntityNames() {
   return Object.keys(evalTree);
 }
 
-function getNextWidgetName(
+export function getNextWidgetName(
   widgets: CanvasWidgetsReduxState,
   type: WidgetType,
-  evalTree: {
-    bottomRow: any;
-    leftColumn: any;
-    rightColumn: any;
-    topRow: any;
-  },
+  evalTree: DataTree,
   options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
@@ -1584,7 +1580,7 @@ function* pasteWidgetSaga() {
           // goToNextAvailableRow = true,
           // persistColumnPosition = false,
 
-          const evalTree = yield select(getDataTree);
+          const evalTree: DataTree = yield select(getDataTree);
 
           // Get a flat list of all the widgets to be updated
           const widgetList = copiedWidgets.list;

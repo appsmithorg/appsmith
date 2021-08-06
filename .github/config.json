@@ -85,8 +85,8 @@
       "color": "0075ca",
       "description": "Improvements or additions to documentation"
     },
-    "Dropdown Widget": {
-      "name": "Dropdown Widget",
+    "Select Widget": {
+      "name": "Select Widget",
       "color": "0c669e",
       "description": ""
     },
@@ -569,7 +569,7 @@
                 "value": true
               },
               {
-                "label": "Dropdown Widget",
+                "label": "Select Widget",
                 "type": "hasLabel",
                 "value": true
               },
