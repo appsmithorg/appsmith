@@ -55,9 +55,9 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
           font-weight: 700;
         }
         &.ais-ClearRefinements-button--disabled {
+          font-weight: 400;
           &:hover {
             background: #fafafa;
-            font-weight: 500;
             cursor: block;
           }
         }
@@ -66,7 +66,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     .container {
       height: calc(100% - 25px);
       overflow: auto;
-      padding: 7px 15px;
+      padding: ${(props) => (props.showFilter ? "7px 15px" : "0")};
       .ais-RefinementList-list {
         text-align: left;
         .ais-RefinementList-item {
