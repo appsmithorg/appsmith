@@ -304,3 +304,7 @@ export const retryPromise = (
 export const getRandomPaletteColor = (colorPalette: string[]) => {
   return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };
+
+export const isBlobUrl = (url: string) => {
+  return url.startsWith("blob:");
+};

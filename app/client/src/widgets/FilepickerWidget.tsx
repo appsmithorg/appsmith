@@ -214,7 +214,7 @@ class FilePickerWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
-      files: `{{this.selectedFiles.map((file) => { return { ...file, data: this.fileDataType === "Base64" ? file.base64 : this.fileDataType === "Binary" ? file.raw : file.text } })}}`,
+      files: `{{this.selectedFiles}}`,
     };
   }
 
@@ -342,38 +342,37 @@ class FilePickerWidget extends BaseWidget<
         ? [...this.props.selectedFiles]
         : [];
       const fileReaderPromises = files.map((file) => {
-        const reader = new FileReader();
         return new Promise((resolve) => {
-          reader.readAsDataURL(file.data);
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            const binaryReader = new FileReader();
-            binaryReader.readAsBinaryString(file.data);
-            binaryReader.onloadend = () => {
-              const rawData = binaryReader.result;
-              const textReader = new FileReader();
-              textReader.readAsText(file.data);
-              textReader.onloadend = () => {
-                const text = textReader.result;
-                const newFile = {
-                  type: file.type,
-                  id: file.id,
-                  base64: base64data,
-                  raw: rawData,
-                  text: text,
-                  data:
-                    this.props.fileDataType === FileDataTypes.Base64
-                      ? base64data
-                      : this.props.fileDataType === FileDataTypes.Binary
-                      ? rawData
-                      : text,
-                  name: file.meta ? file.meta.name : undefined,
-                };
-
-                resolve(newFile);
+          if (file.size < 5000 * 1000) {
+            const reader = new FileReader();
+            if (this.props.fileDataType === FileDataTypes.Base64) {
+              reader.readAsDataURL(file.data);
+            } else if (this.props.fileDataType === FileDataTypes.Binary) {
+              reader.readAsBinaryString(file.data);
+            } else {
+              reader.readAsText(file.data);
+            }
+            reader.onloadend = () => {
+              const newFile = {
+                type: file.type,
+                id: file.id,
+                data: reader.result,
+                name: file.meta ? file.meta.name : undefined,
               };
+              resolve(newFile);
             };
-          };
+          } else {
+            const data = `${URL.createObjectURL(file.data)}?type=${
+              this.props.fileDataType
+            }`;
+            const newFile = {
+              type: file.type,
+              id: file.id,
+              data: data,
+              name: file.meta ? file.meta.name : undefined,
+            };
+            resolve(newFile);
+          }
         });
       });
 
