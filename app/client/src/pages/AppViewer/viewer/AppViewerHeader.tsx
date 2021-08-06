@@ -212,7 +212,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
-                  hideThemeSwitch
                   modifiers={{
                     offset: {
                       enabled: true,

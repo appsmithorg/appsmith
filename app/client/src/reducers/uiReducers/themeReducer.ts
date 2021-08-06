@@ -4,12 +4,12 @@ import { dark, light, theme } from "constants/DefaultTheme";
 import { ThemeMode } from "../../selectors/themeSelectors";
 
 const initialState: ThemeState = {
-  mode: ThemeMode.DARK,
+  mode: ThemeMode.LIGHT,
   theme: {
     ...theme,
     colors: {
       ...theme.colors,
-      ...dark,
+      ...light,
     },
   },
 };

@@ -388,7 +388,6 @@ export function EditorHeader(props: EditorHeaderProps) {
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                hideThemeSwitch
                 name={user.name}
                 userName={user?.username || ""}
               />
