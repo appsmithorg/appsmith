@@ -71,6 +71,7 @@ import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWi
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.Sizeof.sizeof;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
@@ -108,6 +109,8 @@ public class PostgresPlugin extends BasePlugin {
     private static final int MAXIMUM_POOL_SIZE = 5;
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
+
+    private static final int HEAVY_OP_FREQUENCY = 100;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -161,6 +164,8 @@ public class PostgresPlugin extends BasePlugin {
                         "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
+
+//        private static volatile Instrumentation globalInstrumentation;
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -314,11 +319,24 @@ public class PostgresPlugin extends BasePlugin {
 
                     } else {
 
+                        int fetchSize = resultSet.getFetchSize();
+                        System.out.println("Fetch size : " + fetchSize);
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
                         columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
+                        int iterator = 0;
                         while (resultSet.next()) {
+                            iterator++;
+
+                            if (iterator% HEAVY_OP_FREQUENCY == 0) {
+                                int objectSize = sizeof(rowsList);
+                                System.out.println("current size of results : " + objectSize);
+
+                                if (objectSize > 300000) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR))
+                                }
+                            }
 
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                             Map<String, Object> row = new LinkedHashMap<>(colCount);

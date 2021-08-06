@@ -226,6 +226,8 @@ public class MssqlPlugin extends BasePlugin {
 
                         rowsList.add(Map.of("affectedRows", updateCount));
                     } else {
+                        int fetchSize = resultSet.getFetchSize();
+                        System.out.println("Fetch size : " + fetchSize);
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
                         columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
