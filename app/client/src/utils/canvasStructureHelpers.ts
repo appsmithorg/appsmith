@@ -3,9 +3,6 @@ import {
   DSL,
 } from "reducers/uiReducers/pageCanvasStructureReducer";
 
-import WidgetFactory from "utils/WidgetFactory";
-const WidgetTypes = WidgetFactory.widgetTypes;
-
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,
   current: DSL,
@@ -21,17 +18,17 @@ const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
   let children = dsl.children;
   let structureChildren: CanvasStructure[] | undefined = undefined;
   // Todo(abhinav): abstraction leak
-  if (dsl.type === WidgetTypes.TABS_WIDGET) {
+  if (dsl.type === "TABS_WIDGET") {
     if (children && children.length > 0) {
       structureChildren = children.map((childTab) => ({
         widgetName: childTab.tabName,
         widgetId: childTab.widgetId,
-        type: WidgetTypes.TABS_WIDGET,
+        type: "TABS_WIDGET",
         children: childTab.children,
       }));
     }
   } else if (children && children.length === 1) {
-    if (children[0].type === WidgetTypes.CANVAS_WIDGET) {
+    if (children[0].type === "CANVAS_WIDGET") {
       children = children[0].children;
     }
   }

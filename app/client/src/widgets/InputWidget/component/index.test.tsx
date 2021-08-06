@@ -1,7 +1,7 @@
 import store from "store";
 import React from "react";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
-import InputComponent from "components/designSystems/blueprint/InputComponent";
+import InputComponent from "./";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  document.body.removeChild(container);
+  document.body.removeChild(container as Node);
   container = null;
 });
 

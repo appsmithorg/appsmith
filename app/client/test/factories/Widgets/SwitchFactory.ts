@@ -6,7 +6,7 @@ export const SwitchFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
   label: "Switch",
   defaultSwitchState: true,
-  widgetName: Factory.each((i) => `Switch${(i+1)}` ),
+  widgetName: Factory.each((i) => `Switch${i + 1}`),
   type: "SWITCH_WIDGET",
   isLoading: false,
   parentColumnSpace: 71.75,

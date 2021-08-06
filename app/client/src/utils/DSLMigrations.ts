@@ -1,6 +1,5 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "./generators";
 import {
   GridDefaults,

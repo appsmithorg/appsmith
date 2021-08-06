@@ -106,4 +106,17 @@ export default {
     return updatedItems;
   },
   //
+  getChildAutoComplete: (props, moment, _) => {
+    const structure =
+      Array.isArray(props.listData) && props.listData.length > 0
+        ? Object.assign(
+            {},
+            ...Object.keys(props.listData[0]).map((key) => ({
+              [key]: "",
+            })),
+          )
+        : {};
+    return { currentItem: structure };
+  },
+  //
 };

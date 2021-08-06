@@ -16,12 +16,11 @@ import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 
-import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
-const WidgetTypes = WidgetFactory.widgetTypes;
+import { WidgetType } from "utils/WidgetFactory";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
-const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
+const UNREGISTERED_WIDGETS: WidgetType[] = ["ICON_WIDGET"];
 
 const useWidget = (
   widgetId: string,

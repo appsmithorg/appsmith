@@ -37,7 +37,7 @@ import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
-import ConnectDataCTA, { actionsExist, excludeList } from "./ConnectDataCTA";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
@@ -97,6 +97,19 @@ export const PropertyPaneBodyWrapper = styled.div`
   overflow: auto;
 `;
 
+// TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
+// Widgets where we do not want to show the CTA
+export const excludeList = [
+  "CONTAINER_WIDGET",
+  "TABS_WIDGET",
+  "FORM_WIDGET",
+  "MODAL_WIDGET",
+  "DIVIDER_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "BUTTON_WIDGET",
+  "CANVAS_WIDGET",
+];
+
 function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
@@ -112,7 +125,7 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type]);
+  }, [widgetProperties?.type, excludeList]);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {

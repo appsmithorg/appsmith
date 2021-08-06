@@ -48,38 +48,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
+      childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
   }
 
-  /**
-   * creates object of keys
-   *
-   * @param items
-   */
-  getCurrentItemStructure = (listData: Array<Record<string, unknown>>) => {
-    return Array.isArray(listData) && listData.length > 0
-      ? Object.assign(
-          {},
-          ...Object.keys(listData[0]).map((key) => ({
-            [key]: "",
-          })),
-        )
-      : {};
-  };
-
   componentDidMount() {
-    if (
-      !this.props.childAutoComplete ||
-      (Object.keys(this.props.childAutoComplete).length === 0 &&
-        this.props.listData &&
-        Array.isArray(this.props.listData))
-    ) {
-      const structure = this.getCurrentItemStructure(this.props.listData);
-      this.props.updateWidgetProperty("childAutoComplete", {
-        currentItem: structure,
-      });
-    }
-
     // generate childMetaPropertyMap
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
@@ -146,17 +119,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const oldRowStructure = this.getCurrentItemStructure(prevProps.listData);
-    const newRowStructure = this.getCurrentItemStructure(this.props.listData);
-
-    if (
-      xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
-    ) {
-      this.props.updateWidgetProperty("childAutoComplete", {
-        currentItem: newRowStructure,
-      });
-    }
-
     if (
       xor(Object.keys(prevProps.template), Object.keys(this.props.template))
         .length > 0
@@ -234,6 +196,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.bottomRow * this.props.parentRowSpace - 45;
     childWidgetData.shouldScrollContents = false;
 
+    console.log({ childWidgetData });
     return WidgetFactory.createWidget(childWidgetData);
   };
 
@@ -551,6 +514,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       } catch (e) {
         log.error(e);
       }
+
+      console.log({ childCanvas });
 
       return this.renderChild(childCanvas);
     }

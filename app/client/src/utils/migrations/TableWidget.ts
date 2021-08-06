@@ -13,11 +13,9 @@ import {
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
 
-const WidgetTypes = WidgetFactory.widgetTypes;
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
@@ -217,7 +215,7 @@ export const migrateTableWidgetParentRowSpaceProperty = (
   currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (child.parentRowSpace === 40) {
         child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
       }
@@ -233,7 +231,7 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
   currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (!("isVisibleSearch" in child)) {
         child.isVisibleSearch = true;
         child.isVisibleFilters = true;
@@ -253,7 +251,7 @@ export const migrateTablePrimaryColumnsComputedValue = (
   currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0

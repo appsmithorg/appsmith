@@ -24,7 +24,7 @@ import { SkeletonFactory } from "./SkeletonFactory";
 import { ListFactory } from "./ListFactory";
 import { DividerFactory } from "./DividerFactory";
 
-export const WidgetTypeFactories = {
+export const WidgetTypeFactories: Record<string, any> = {
   SWITCH_WIDGET: SwitchFactory,
   BUTTON_WIDGET: ButtonFactory,
   TEXT_WIDGET: TextFactory,

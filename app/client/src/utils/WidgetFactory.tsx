@@ -126,9 +126,7 @@ class WidgetFactory {
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
-    if (!!this.widgetTypes[widgetType]) {
-      console.error(`Widget ${widgetType} is already registered`);
-    } else {
+    if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
       this.widgetMap.set(widgetType, widgetBuilder);
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
@@ -161,6 +159,7 @@ class WidgetFactory {
       isVisible: true,
       ...widgetData,
     };
+    console.log("Created key", widgetData.widgetId);
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here

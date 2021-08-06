@@ -19,10 +19,8 @@ import {
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetType } from "constants/WidgetConstants";
 
-const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
   ${(props) => getTypographyByKey(props, "p1")}
@@ -50,17 +48,6 @@ const StyledDiv = styled.div`
     }
   }
 `;
-
-// Widgets where we do not want to show the CTA
-export const excludeList = [
-  WidgetTypes.CONTAINER_WIDGET,
-  WidgetTypes.TABS_WIDGET,
-  WidgetTypes.FORM_WIDGET,
-  WidgetTypes.MODAL_WIDGET,
-  WidgetTypes.DIVIDER_WIDGET,
-  WidgetTypes.FILE_PICKER_WIDGET,
-  WidgetTypes.BUTTON_WIDGET,
-];
 
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;

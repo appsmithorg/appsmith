@@ -47,7 +47,7 @@ describe("dataTreeTypeDefCreator", () => {
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
       type: ENTITY_TYPE.WIDGET,
-      subType: WidgetTypes.INPUT_WIDGET,
+      subType: "INPUT_WIDGET",
     });
   });
 

@@ -1,5 +1,5 @@
 import { renderCell } from "./TableUtilities";
-import { ColumnTypes } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnTypes } from "widgets/TableWidget/component/Constants";
 
 describe("Test table columnType Image render", () => {
   it("columnType Image accepts single image url and renders image correctly", () => {

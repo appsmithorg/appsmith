@@ -1,9 +1,9 @@
 import { makeFactory } from "factory.ts";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DSLWidget } from "widgets/constants";
 import defaultTemplate from "../../src/templates/default";
 import { WidgetTypeFactories } from "./Widgets/WidgetTypeFactories";
-const defaultMainContainer: ContainerWidgetProps<WidgetProps> = {
+const defaultMainContainer: DSLWidget = {
   ...(defaultTemplate as any),
   renderMode: "PAGE",
   version: 1,

@@ -148,7 +148,7 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  render() {
     return this.renderAsContainerComponent(this.props);
   }
 

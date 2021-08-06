@@ -12,6 +12,7 @@ interface CanvasProps {
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
+  console.log({ DSL: props.dsl });
   try {
     return (
       <>
