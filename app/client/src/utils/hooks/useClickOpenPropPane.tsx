@@ -43,8 +43,6 @@ export function getParentToOpenIfAny(
         continue;
       }
     }
-
-    return widget;
   }
 
   return;
