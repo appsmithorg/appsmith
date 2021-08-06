@@ -7,6 +7,7 @@
 
     <style>
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      span.user-pointer{position: relative;}
     </style>
   </head>
 
@@ -14,7 +15,7 @@
     <div class="container">
       <h1 class="mb-5">Appsmith socket IO simulator</h1>
       <div class="row my-3">
-        <div class="col">
+        <div class="col-7">
           <h4>Join application</h4>
           <div class="row g-3 align-items-center">
             <div class="col-auto">
@@ -30,14 +31,14 @@
           </div>
         </div>
         
-        <div class="col">
+        <div class="col-5">
           <h4>Current app editors: </h4>
           <ul id="onlineUsers"></ul>
         </div>
       </div>
       <hr>
       <div class="row my-3">
-        <div class="col">
+        <div class="col-7">
           <h4>Join page</h4>
           <div class="row g-3 align-items-center">
             <div class="col-auto">
@@ -53,9 +54,12 @@
           </div>
         </div>
         
-        <div class="col">
-          <h4>Current page editors: </h4>
-          <ul id="pageEditors"></ul>
+        <div class="col-5">
+          <h4>Users pointers: </h4>
+          <div id="canvas" style="height: 300px;" class="bg-secondary">
+            <!-- <span class="bg-warning user-pointer">h</span> -->
+          </div>
+          <div id="canvasData">data here </div>
         </div>
       </div>
     </div>
@@ -74,6 +78,9 @@
         var leavePageBtn = document.getElementById('leavePageBtn');
         var editPageBtn = document.getElementById('editPageBtn');
         var pageIdInput = document.getElementById('pageIdInput');
+        var canvas = document.getElementById('canvas');
+
+        var mousePointerDisplayScheduler;
 
         function showUserList(ulElementId, users) {
           var ulElement = document.getElementById(ulElementId);
@@ -84,13 +91,32 @@
               ulElement.appendChild(item);
           });
         }
+
+        function drawOtherUserMousePointers() {
+          document.getElementById('canvas').innerHTML = '';
+          document.getElementById('canvasData').innerHTML = JSON.stringify(window.userMousePointers);
+
+          for(var socketId in window.userMousePointers) {
+            if(socketId) {
+              var eventData = window.userMousePointers[socketId];
+              var el = document.createElement('span');
+              el.className = 'user-pointer bg-warning';
+              el.innerText = eventData.user.email;
+              el.style.top = parseInt(eventData.data.y) + 'px';
+              el.style.left = parseInt(eventData.data.x) + 'px';
+              document.getElementById('canvas').appendChild(el);
+            }
+          }
+        }
         
         appSocket.on('collab:online_editors', function(eventData) {
           showUserList('onlineUsers', eventData.users);
         });
 
-        pageSocket.on('collab:online_editors', function(eventData) {
-          showUserList('pageEditors', eventData.users);
+        pageSocket.on('collab:mouse_pointer', function(eventData) {
+          if(eventData.socketId !== pageSocket.id) {
+            window.userMousePointers[eventData.socketId] = eventData;
+          }
         });
 
         editAppBtn.onclick = function() {
@@ -98,8 +124,19 @@
         };
 
         editPageBtn.onclick = function() {
-          console.log("editPageBtn clicked");
           pageSocket.emit('collab:start_edit', pageIdInput.value);
+          window.userMousePointers = {};
+          
+          // schedule a function to draw and emit mouse pointers
+          mousePointerDisplayScheduler = setInterval(() => {
+            // emit my lastest pointer location
+            if(window.myPointer) {
+              pageSocket.emit('collab:mouse_pointer', {data: window.myPointer, pageId: pageIdInput.value});
+            }
+            
+            // draw the mouse pointers
+            drawOtherUserMousePointers(); 
+          }, 1000);
         };
 
         leaveAppBtn.onclick = function() {
@@ -109,7 +146,9 @@
 
         leavePageBtn.onclick = function() {
           pageSocket.emit('collab:leave_edit', pageIdInput.value);
-          showUserList('pageEditors', []);
+          window.userMousePointers = {};
+          clearInterval(mousePointerDisplayScheduler);
+          drawOtherUserMousePointers(); // this will clear the pointers as we've already cleared the data
         };
 
         appSocket.on('connect', () => {
@@ -119,6 +158,13 @@
         pageSocket.on('connect', () => {
           console.log('pageSocket connected: ' + pageSocket.connected);
         });
+
+        canvas.onmousemove = function(event) {
+          var rect = event.target.getBoundingClientRect();
+          var x = event.clientX - rect.left;
+          var y = event.clientY - rect.top;
+          window.myPointer = {x: x, y: y};
+        };
       </script>
   </body>
 </html>

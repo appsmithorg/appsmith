@@ -1,11 +1,11 @@
 import http from "http"
 import path from "path"
 import express from "express"
-import { Server, Socket } from "socket.io"
+import { Server, Socket, Namespace } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
-import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread } from "./models"
+import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
 
 const APP_ROOM_PREFIX : string = "app:"
 const PAGE_ROOM_PREFIX : string = "page:"
@@ -15,6 +15,7 @@ const PAGE_EDIT_NAMESPACE : string = "/page/edit"
 const EDITORS_EVENT_NAME : string = "collab:online_editors"
 const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
+const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
 
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
@@ -53,9 +54,9 @@ function main() {
 			.catch((error) => console.error("Error in socket connected handler", error))
 	})
 
-	io.of("/page/edit").on("connection", (socket: Socket) => {
-		subscribeToEditEvents(socket, PAGE_ROOM_PREFIX)
-		onPageSocketConnected(socket)
+	io.of(PAGE_EDIT_NAMESPACE).on("connection", (socket: Socket) => {
+		subscribeToEditEvents(socket, PAGE_ROOM_PREFIX);
+		onPageSocketConnected(socket, io)
 			.catch((error) => console.error("Error in socket connected handler", error))
 	});
 
@@ -65,14 +66,6 @@ function main() {
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
-	});
-
-	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
-		sendCurrentUsers(io.of("/page/edit"), room, PAGE_ROOM_PREFIX);
-	});
-	
-	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
-		sendCurrentUsers(io.of("/page/edit"), room, PAGE_ROOM_PREFIX);
 	});
 
 	watchMongoDB(io)
@@ -120,8 +113,15 @@ async function onAppSocketConnected(socket:Socket) {
 	}
 }
 
-async function onPageSocketConnected(socket:Socket) {
+async function onPageSocketConnected(socket:Socket, socketIo:Server) {
 	let isAuthenticated = await tryAuth(socket)
+	if(isAuthenticated) {
+		socket.on(MOUSE_POINTER_EVENT_NAME, (event:MousePointerEvent) => {
+			event.user = new AppUser(socket.data.name, socket.data.email)
+			event.socketId = socket.id
+			socketIo.of(PAGE_EDIT_NAMESPACE).to(PAGE_ROOM_PREFIX+event.pageId).emit(MOUSE_POINTER_EVENT_NAME, event);
+		});
+	}
 }
 
 async function tryAuth(socket:Socket) {

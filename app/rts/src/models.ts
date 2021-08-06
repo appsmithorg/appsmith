@@ -18,6 +18,13 @@ export class CurrentEditorsEvent {
     }
 }
 
+export class MousePointerEvent {
+    pageId: string
+    socketId: string
+    user: AppUser
+    data: object
+}
+
 export interface Policy {
 	permission: string
 	users: string[]
