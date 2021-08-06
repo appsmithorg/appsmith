@@ -66,8 +66,8 @@ const getSvg = (style = {}) => (
   </i>
 );
 
-const switcherIcon = (obj: TreeNodeProps) => {
-  if (obj.isLeaf) {
+const switcherIcon = (treeNode: TreeNodeProps) => {
+  if (treeNode.isLeaf) {
     return (
       <i
         style={{
@@ -79,7 +79,7 @@ const switcherIcon = (obj: TreeNodeProps) => {
       />
     );
   }
-  return getSvg({ transform: `rotate(${obj.expanded ? 90 : 0}deg)` });
+  return getSvg({ transform: `rotate(${treeNode.expanded ? 90 : 0}deg)` });
 };
 
 function MultiTreeSelectComponent({
@@ -101,7 +101,8 @@ function MultiTreeSelectComponent({
 }: TreeSelectProps): JSX.Element {
   const _menu = useRef<HTMLElement | null>(null);
 
-  const getDropdownPosition = useCallback((node: HTMLElement | null) => {
+  const getDropdownPosition = useCallback(() => {
+    const node = _menu.current;
     if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
       return document.querySelector(
         `.${MODAL_PORTAL_CLASSNAME}`,
@@ -109,6 +110,8 @@ function MultiTreeSelectComponent({
     }
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
+
+  const onClear = useCallback(() => onChange([], []), []);
 
   return (
     <TreeSelectContainer
@@ -118,12 +121,12 @@ function MultiTreeSelectComponent({
       <DropdownStyles />
       {labelText && (
         <StyledLabel
+          $compactMode={compactMode}
+          $labelStyle={labelStyle}
+          $labelText={labelText}
+          $labelTextColor={labelTextColor}
+          $labelTextSize={labelTextSize}
           className="tree-select-label"
-          compactMode={compactMode}
-          labelStyle={labelStyle}
-          labelText={labelText}
-          labelTextColor={labelTextColor}
-          labelTextSize={labelTextSize}
         >
           {labelText}
         </StyledLabel>
@@ -136,7 +139,7 @@ function MultiTreeSelectComponent({
         disabled={disabled}
         dropdownClassName="tree-select-dropdown"
         dropdownStyle={dropdownStyle}
-        getPopupContainer={() => getDropdownPosition(_menu.current)}
+        getPopupContainer={getDropdownPosition}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}
@@ -144,9 +147,7 @@ function MultiTreeSelectComponent({
         multiple
         notFoundContent="No item Found"
         onChange={onChange}
-        onClear={() => {
-          onChange([], []);
-        }}
+        onClear={onClear}
         placeholder={placeholder}
         showArrow
         showCheckedStrategy={mode}

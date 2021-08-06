@@ -105,6 +105,37 @@ class TreeMultiSelectWidget extends BaseWidget<
                           required: true,
                         },
                       },
+                      {
+                        name: "children",
+                        type: ValidationTypes.ARRAY,
+                        unique: ["value"],
+                        required: false,
+                        params: {
+                          children: {
+                            type: ValidationTypes.OBJECT,
+                            params: {
+                              allowedKeys: [
+                                {
+                                  name: "label",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                    required: true,
+                                  },
+                                },
+                                {
+                                  name: "value",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                    required: true,
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
                     ],
                   },
                 },
