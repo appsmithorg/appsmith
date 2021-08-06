@@ -212,8 +212,12 @@ function LogItem(props: LogItemProps) {
         break;
       default:
         // Prefill the error in intercom
+        console.log(intercomAppID, "intercomAppID");
+        console.log(window.Intercom, "window.Intercom");
         if (intercomAppID && window.Intercom) {
-          window.Intercom("showMessage", text);
+          console.log("open intercom");
+          window.Intercom("show");
+          // window.Intercom("showMessage", text);
         }
     }
   }, []);
