@@ -68,6 +68,7 @@ class UserApi extends Api {
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
+  static featureFlagsURL = "v1/users/features";
 
   static createUser(
     request: CreateUserRequest,
@@ -144,6 +145,10 @@ class UserApi extends Api {
 
   static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
     return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
+  }
+
+  static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.featureFlagsURL);
   }
 }
 

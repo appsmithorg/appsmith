@@ -32,7 +32,7 @@ export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password with a minimum of 6 characters`;
+  `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
@@ -334,6 +334,7 @@ export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 // Showcase Carousel
 export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
+export const SKIP = () => "SKIP";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
@@ -394,3 +395,7 @@ export const SUGGESTED_WIDGET_DESCRIPTION = () =>
 export const ADD_NEW_WIDGET = () => "Add New Widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
+export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
+
+// Data Sources pane
+export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
