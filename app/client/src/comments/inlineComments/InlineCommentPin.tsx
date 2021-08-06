@@ -78,7 +78,7 @@ function Pin({
   return (
     <StyledPinContainer onClick={onClick} unread={unread}>
       <Icon
-        className={`comment-thread-pin-${commentThreadId}`}
+        className={`comment-thread-pin-${commentThreadId} t--inline-comment-pin-trigger-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
         keepColors
         name={unread ? "unread-pin" : "read-pin"}
