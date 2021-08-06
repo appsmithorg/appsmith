@@ -736,17 +736,30 @@ export function* updateListWidgetPropertiesOnChildDelete(
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   // Get the list of widget and its children which were deleted
-  const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
+  const allDeletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
-  const deletedWidgetIds = action.payload.widgetId.split(",");
-  if (deletedWidgets && Array.isArray(deletedWidgets)) {
+  const stateWidgets = yield select(getWidgets);
+  const deletedWidgets = allDeletedWidgets.filter((each) => {
+    if (each.parentId && !stateWidgets[each.parentId]) {
+      // undo only widgets that have their parent on the canvas.
+      return false;
+    }
+    return true;
+  });
+  const deletedWidgetIds = deletedWidgets.map((each) => {
+    return each.widgetId;
+  });
+  if (
+    deletedWidgets &&
+    Array.isArray(deletedWidgets) &&
+    deletedWidgets.length
+  ) {
     // Get the current list of widgets from reducer
     const formTree = deletedWidgets.reduce((widgetTree, each) => {
       widgetTree[each.widgetId] = each;
       return widgetTree;
     }, {} as CanvasWidgetsReduxState);
-    const stateWidgets = yield select(getWidgets);
     const deletedWidgetGroups = deletedWidgetIds.map((each) => ({
       widget: formTree[each],
       widgetsToRestore: getAllWidgetsInTree(each, formTree),
