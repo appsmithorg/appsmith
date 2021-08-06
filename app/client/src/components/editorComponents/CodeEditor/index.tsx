@@ -31,7 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
-  HintEntityInformation,
+  FieldEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -62,6 +62,9 @@ import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
+import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -82,6 +85,12 @@ interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
 }
 
+export type CodeEditorExpected = {
+  type: string;
+  example: ExpectedValueExample;
+  autocompleteDataType: AutocompleteDataType;
+};
+
 export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
@@ -95,7 +104,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -207,7 +216,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 300));
+        editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("change", this.handleAutocompleteVisibility);
         editor.on("change", this.onChangeTrigger);
         editor.on("keyup", this.handleAutocompleteHide);
@@ -361,8 +370,8 @@ class CodeEditor extends Component<Props, State> {
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
     const { dataTreePath, dynamicData, expected } = this.props;
-    const entityInformation: HintEntityInformation = {
-      expectedType: expected,
+    const entityInformation: FieldEntityInformation = {
+      expectedType: expected?.autocompleteDataType,
     };
     if (dataTreePath) {
       const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
@@ -599,7 +608,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
+  recentEntities: getRecentEntityIds(state),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({

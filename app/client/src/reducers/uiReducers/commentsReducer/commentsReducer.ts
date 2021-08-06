@@ -33,7 +33,6 @@ const initialState: CommentsReduxState = {
   unreadCommentThreadsCount: 0,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
-  areCommentsEnabled: false,
   unsubscribed: false,
 };
 
@@ -73,8 +72,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => ({
     ...state,
-    isCommentMode: action.payload && state.areCommentsEnabled,
-    isIntroCarouselVisible: false,
+    isCommentMode: action.payload,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
@@ -251,13 +249,6 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     isIntroCarouselVisible: false,
   }),
-  [ReduxActionTypes.SET_ARE_COMMENTS_ENABLED]: (
-    state: CommentsReduxState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    areCommentsEnabled: action.payload,
-  }),
   [ReduxActionTypes.UPDATE_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<Comment>,
@@ -269,7 +260,7 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<number>,
   ) => ({
     ...state,
-    unreadCommentThreadsCount: action.payload || 0,
+    unreadCommentThreadsCount: Math.max(action.payload, 0),
   }),
 });
 

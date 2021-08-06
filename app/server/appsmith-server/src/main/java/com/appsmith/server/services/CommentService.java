@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface CommentService extends CrudService<Comment, String> {
 
     Mono<CommentThread> updateThread(String threadId, CommentThread commentThread, String originHeader);
 
-    Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId);
+    Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO);
 
     Mono<Comment> deleteComment(String id);
 
