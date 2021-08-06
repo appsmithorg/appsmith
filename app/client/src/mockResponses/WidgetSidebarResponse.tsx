@@ -140,6 +140,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "MultiSelect Tree",
     key: generateReactKey(),
   },
+  {
+    type: "ICON_BUTTON_WIDGET",
+    widgetCardName: "Icon Button",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

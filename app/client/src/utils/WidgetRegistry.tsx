@@ -131,6 +131,10 @@ import TreeMultiSelectWidget, {
   ProfiledTreeMultiSelectWidget,
 } from "../widgets/TreeSelectWidget/MultiSelectWidget";
 import { ProfiledTreeSingleSelectWidget } from "../widgets/TreeSelectWidget/SingleSelectWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -571,6 +575,18 @@ export default class WidgetBuilderRegistry {
       TreeMultiSelectWidget.getDefaultPropertiesMap(),
       TreeMultiSelectWidget.getMetaPropertiesMap(),
       TreeMultiSelectWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

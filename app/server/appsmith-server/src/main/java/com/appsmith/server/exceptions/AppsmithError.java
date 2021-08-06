@@ -50,6 +50,7 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT, null),
     INVALID_PASSWORD_RESET(400, 4020, "Cannot find an outstanding reset password request for this email. Please initiate a request via 'forgot password' " +
             "button to reset your password", AppsmithErrorAction.DEFAULT, null),
+    INVALID_PASSWORD_LENGTH(400, 4037, "Password length should be between {0} and {1}" , AppsmithErrorAction.DEFAULT, null),
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access", AppsmithErrorAction.DEFAULT, null),

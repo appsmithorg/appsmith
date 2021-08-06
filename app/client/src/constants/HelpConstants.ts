@@ -143,6 +143,10 @@ export const HelpMap = {
     path: "/widget-reference/tree-single-select",
     searchKey: "Tree Single Select",
   },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

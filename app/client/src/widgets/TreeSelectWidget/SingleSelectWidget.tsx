@@ -15,6 +15,7 @@ import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { isString } from "../../utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -91,6 +92,7 @@ class TreeSingleSelectWidget extends BaseWidget<
                 expected: {
                   type: "value",
                   example: `value1`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },

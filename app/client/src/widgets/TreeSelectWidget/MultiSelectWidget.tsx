@@ -15,6 +15,7 @@ import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -159,6 +160,7 @@ class TreeMultiSelectWidget extends BaseWidget<
                 expected: {
                   type: "Array of values",
                   example: `['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },

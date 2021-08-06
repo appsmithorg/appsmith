@@ -36,6 +36,7 @@ import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 import { TreeSingleSelectWidgetProps } from "widgets/TreeSelectWidget/SingleSelectWidget";
 import { TreeMultiSelectWidgetProps } from "widgets/TreeSelectWidget/MultiSelectWidget";
+import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -98,6 +99,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     TREE_MULTI_SELECT_WIDGET: Partial<TreeMultiSelectWidgetProps> &
       WidgetConfigProps;
+    ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }
