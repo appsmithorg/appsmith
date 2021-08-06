@@ -9,7 +9,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
