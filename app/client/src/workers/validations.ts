@@ -117,7 +117,7 @@ function validateArray(
             (acc: string[], currentValue, currentIndex) => {
               if (allowedKeyValues.indexOf(currentValue) !== currentIndex) {
                 acc.push(
-                  `Duplication: position: ${currentIndex + 1}, key: ${
+                  `Duplicated entry at index: ${currentIndex + 1}, key: ${
                     allowedKeyConfig.name
                   }, value: ${currentValue}`,
                 );
@@ -132,18 +132,6 @@ function validateArray(
         }
       }
     });
-
-    if (_isValid) {
-      return {
-        isValid: true,
-        parsed: value,
-      };
-    }
-    return {
-      isValid: false,
-      parsed: config.params?.default || value,
-      message: _messages.join(" "),
-    };
   }
 
   const children = config.params?.children;
