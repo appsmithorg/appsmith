@@ -5,6 +5,7 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "constants/messages";
+import { useBootIntercom } from "./hooks";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
@@ -19,6 +20,7 @@ const ListWrapper = styled.div`
 function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getDebuggerErrors);
   const expandId = useSelector((state: any) => state.ui.debugger.expandId);
+  useBootIntercom();
 
   return (
     <ContainerWrapper>

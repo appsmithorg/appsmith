@@ -5,7 +5,7 @@ import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
-import { usePagination, useFilteredLogs } from "./hooks";
+import { usePagination, useFilteredLogs, useBootIntercom } from "./hooks";
 import { createMessage, NO_LOGS } from "constants/messages";
 
 const LIST_HEADER_HEIGHT = "38px";
@@ -45,6 +45,7 @@ function DebbuggerLogs(props: Props) {
     () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
     [filter],
   );
+  useBootIntercom();
 
   const handleScroll = (e: Event) => {
     if ((e.target as HTMLDivElement).scrollTop === 0) {
