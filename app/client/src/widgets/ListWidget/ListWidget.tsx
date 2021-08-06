@@ -343,10 +343,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            (validationPath.type === ValidationTypes.BOOLEAN &&
-              isBoolean(evaluatedValue)) ||
-            validationPath.type === ValidationTypes.OBJECT
+            validationPath?.type === ValidationTypes.BOOLEAN &&
+            (evaluatedValue === "false" ||
+              evaluatedValue === "true" ||
+              isBoolean(evaluatedValue))
           ) {
+            set(widget, path, evaluatedValue == "true");
+            set(widget, `validationMessages.${path}`, "");
+            set(widget, `invalidProps.${path}`, "");
+          } else if (validationPath?.type === ValidationTypes.OBJECT) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
             set(widget, `invalidProps.${path}`, "");

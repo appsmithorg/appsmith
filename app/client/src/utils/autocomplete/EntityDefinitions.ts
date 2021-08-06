@@ -232,7 +232,6 @@ export const entityDefinitions = {
     },
     isVisible: isVisible,
     gridGap: "number",
-    selectedRow: generateTypeDef(widget.selectedRow),
     selectedItem: generateTypeDef(widget.selectedItem),
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
