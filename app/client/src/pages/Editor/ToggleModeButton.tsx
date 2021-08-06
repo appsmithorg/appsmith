@@ -30,7 +30,7 @@ import useProceedToNextTourStep, {
 import { getCommentsIntroSeen } from "utils/storage";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 
 import {
   AUTH_LOGIN_URL,

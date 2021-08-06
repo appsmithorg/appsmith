@@ -88,7 +88,7 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import {
   getAppMode,
   getCurrentApplication,
