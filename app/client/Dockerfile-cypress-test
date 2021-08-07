@@ -1,5 +1,5 @@
 # FROM cypress/browsers:node10.16.3-chrome80-ff73
-FROM nginx:1.17.9-alpine
+FROM nginx:1.21-alpine
 
 RUN apt update -y -q && \
     apt-get install -y -q nginx gettext-base && \
