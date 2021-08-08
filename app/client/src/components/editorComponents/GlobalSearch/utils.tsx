@@ -8,7 +8,7 @@ export type RecentEntity = {
   params?: Record<string, string | undefined>;
 };
 
-export enum SEARCH_CATEGORIES {
+export enum SEARCH_CATEGORY_ID {
   SNIPPETS = "Snippets",
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
@@ -37,6 +37,39 @@ export type DocSearchItem = {
   kind: string;
   path: string;
 };
+
+export type SearchCategory = {
+  id: SEARCH_CATEGORY_ID;
+  kind?: SEARCH_ITEM_TYPES;
+  title?: string;
+  desc?: string;
+};
+
+export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
+  [SEARCH_CATEGORY_ID.NAVIGATION]: {
+    title: "Navigate",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.NAVIGATION,
+    desc: "Navigate to any page, widget or file across this project.",
+  },
+  [SEARCH_CATEGORY_ID.SNIPPETS]: {
+    title: "Use Snippets",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.SNIPPETS,
+    desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
+    title: "Search Documentation",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.DOCUMENTATION,
+    desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
+  [SEARCH_CATEGORY_ID.INIT]: {
+    id: SEARCH_CATEGORY_ID.INIT,
+  },
+};
+
+export const getFilterCategoryList = () => Object.values(filterCategories);
 
 export type SearchItem = DocSearchItem | Datasource | any;
 

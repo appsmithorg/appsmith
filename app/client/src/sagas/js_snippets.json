@@ -9,7 +9,7 @@
             "summary": "Merge data from two entities into a single response",
             "examples": [{
                 "title": "",
-                "code": "let data = [ { \"hero\": \"Iron Man\", \"team\": \"Avengers\", \"skills\": \"Superhuman strength\" }, { \"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, { \"hero\": \"Aqua Man\", \"team\": \"Justice Leaugue\", \"skills\": \"endurance\" }, { \"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" } ] filtered_data = data.filter((item) => { return item[\"team\"] == \"Avengers\"; });",
+                "code": "let data = [\n{ \"hero\": \"Iron Man\",\n\"team\": \"Avengers\",\n\"skills\": \"Superhuman strength\" }, \n{ \n\"hero\": \"Bat Man\", \n\"team\": \"Justice League\", \n\"skills\": \"Gadgets\" }, { \n\"hero\": \"Aqua Man\", \n\"team\": \"Justice Leaugue\", \n\"skills\": \"endurance\" \n}, {\n \"hero\": \"Captain America\", \n\"team\": \"Avengers\", \n\"skills\": \"endurance\" \n} ]; \nfiltered_data = data.filter((item) => { return item[\"team\"] == \"Avengers\"; });",
                 "summary": ""
             }]
         }
@@ -24,7 +24,7 @@
             "summary": "When you have objects or arrays nested inside each other, you can use the dot operator to access items inside them and return them onto the table or list widget.",
             "examples": [{
                 "title": "",
-                "code": "let nested_data = { \"data\": { \"heros_data\": [ { \"hero\": \"Iron Man\", \"team\": \"Avengers\", \"skills\": \"Superhuman strength\" }, { \"hero\": \"Bat Man\", \"team\": \"Justice Leaugue\", \"skills\": \"Gadgets\" }, { \"hero\": \"Aqua Man\", \"team\": \"Justice Leaugue\", \"skills\": \"endurance\" }, { \"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" } ] } } heros_data = nested_data.data.heros_data",
+                "code": "let nested_data = { \n\"data\": { \n\"heros_data\": [{ \n\"hero\": \"Iron Man\", \n\"team\": \"Avengers\", \n\"skills\": \"Superhuman strength\" \n}, { \n\"hero\": \"Bat Man\", \n\"team\": \"Justice League\", \n\"skills\": \"Gadgets\" \n}, {\n \"hero\": \"Aqua Man\",\n \"team\": \"Justice League\", \n\"skills\": \"endurance\" \n}, { \n\"hero\": \"Captain America\", \n\"team\": \"Avengers\", \n\"skills\": \"endurance\" \n} ] } } \nheros_data = nested_data.data.heros_data;",
                 "summary": ""
             }]
         }
@@ -294,7 +294,7 @@
             "summary": "You might often want to notify users with alerts, after executing queries or when performing certain actions on Appsmith. To do this, you can use showAlert method with javascript.",
             "examples": [{
                 "title": "",
-                "code": "updateUsers.run( () => { fetchUsers.run( () => { showAlert(\"User Updated\"); }, () => showAlert(\"Fetch Users Failed\") ); }, () => showAlert(\"Update User Failed\", \"error\") );",
+                "code": "updateUsers.run( () => { \nfetchUsers.run( () => { showAlert(\"User Updated\"); }, () => showAlert(\"Fetch Users Failed\") ); \n}, () => showAlert(\"Update User Failed\", \"error\") );",
                 "summary": ""
             }]
         }

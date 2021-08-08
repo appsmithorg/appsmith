@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext, useMemo, useState } from "react";
+import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
@@ -476,8 +476,8 @@ function SearchResults({
 }: {
   searchResults: SearchItem[];
   query: string;
-  refinements: any;
   showFilter: boolean;
+  refinements: any;
 }) {
   return (
     <SearchResultsContainer>

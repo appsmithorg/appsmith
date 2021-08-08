@@ -98,7 +98,10 @@ import {
   toggleShowGlobalSearchModal,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
 import { getWidgetById } from "./selectors";
 
 export function* createActionSaga(
@@ -781,15 +784,16 @@ function* executeCommand(
       const entityType = get(actionPayload, "payload.args.entityType");
       const expectedType = get(actionPayload, "payload.args.expectedType");
       const entityId = get(actionPayload, "payload.args.entityId");
-      const entityMeta = yield buildEntityMetaForSnippets(
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
         expectedType,
       );
       yield putResolve(
         setGlobalSearchFilterContext({
-          category: SEARCH_CATEGORIES.SNIPPETS,
-          entityMeta,
+          category: filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+          refinements,
+          fieldMeta,
         }),
       );
       yield put(toggleShowGlobalSearchModal());
@@ -848,17 +852,14 @@ function* executeCommand(
   }
 }
 
-function* buildEntityMetaForSnippets(
+function* buildMetaForSnippets(
   entityId: any,
   entityType: string,
   expectedType: string,
 ) {
-  const entityMetaForSnippets: {
-    dataType: string;
-    entities: any;
-  } = {
+  const refinements: any = {};
+  const fieldMeta = {
     dataType: expectedType,
-    entities: [],
   };
   let currentEntity, type;
   if (entityType === ENTITY_TYPE.ACTION) {
@@ -867,14 +868,14 @@ function* buildEntityMetaForSnippets(
     });
     const plugin = yield select(getPlugin, currentEntity.pluginId);
     type = (plugin.packageName || "").toLowerCase().split("-");
-    entityMetaForSnippets.entities = [entityType.toLowerCase()].concat(type);
+    refinements.entities = [entityType.toLowerCase()].concat(type);
   }
   if (entityType === ENTITY_TYPE.WIDGET) {
     currentEntity = yield select(getWidgetById, entityId);
     type = currentEntity.type.toLowerCase().split("_");
-    entityMetaForSnippets.entities = type;
+    refinements.entities = type;
   }
-  return entityMetaForSnippets;
+  return { refinements, fieldMeta };
 }
 
 export function* watchActionSagas() {

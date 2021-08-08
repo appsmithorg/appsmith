@@ -16,9 +16,9 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     border-radius: 20px;
     transition: 0.2s width ease;
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
-    font-size: 12px;
+    font-size: ${(props) => props.theme.fontWeights[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: #716e6e;
+    color: ${(props) => props.theme.colors.tertiary.light};
     border: none;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     height: 100%;
@@ -32,7 +32,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     width: ${(props) => (props.showFilter ? "185px" : "0")};
     height: ${(props) => (props.showFilter ? "185px" : "0")};
     bottom: 40px;
-    background: #fafafa;
+    background: ${(props) => props.theme.colors.globalSearch.activeCategory};
     border: 1px solid rgba(240, 240, 240, 1);
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     [class^="ais-"] {
@@ -47,17 +47,20 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
         box-shadow: unset;
         cursor: pointer;
         color: ${(props) => props.theme.colors.globalSearch.activeCategory};
-        font-weight: 500;
+        font-weight: ${(props) => props.theme.fontWeights[2]};
         transition: 0.1s;
-        background: #fafafa;
+        background: ${(props) =>
+          props.theme.color.globalSearch.filterListBackground};
         &:hover {
-          background: #fafafa;
-          font-weight: 700;
+          background: ${(props) =>
+            props.theme.color.globalSearch.filterListBackground};
+          font-weight: ${(props) => props.theme.fontWeights[3]};
         }
         &.ais-ClearRefinements-button--disabled {
-          font-weight: 400;
+          font-weight: ${(props) => props.theme.fontWeights[1]};
           &:hover {
-            background: #fafafa;
+            background: ${(props) =>
+              props.theme.color.globalSearch.filterListBackground};
             cursor: block;
           }
         }
@@ -71,7 +74,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
         text-align: left;
         .ais-RefinementList-item {
           font-size: 12px;
-          padding: 5px 0;
+          padding: ${(props) => props.theme.spaces[2]}px 0;
           .ais-RefinementList-label {
             display: flex;
             align-items: center;
@@ -80,7 +83,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
               width: 15px;
             }
             .ais-RefinementList-labelText {
-              margin: 0 10px;
+              margin: 0 ${(props) => props.theme.spaces[4]}px;
               text-transform: capitalize;
             }
             .ais-RefinementList-count {
@@ -107,12 +110,13 @@ function SnippetsFilter({ refinements }: any) {
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
+
   return (
     <SnippetsFilterContainer ref={ref} showFilter={showSnippetFilter}>
       <button onClick={() => toggleSnippetFilter(!showSnippetFilter)}>
         {!showSnippetFilter && <FilterIcon />}
         {!showSnippetFilter &&
-          refinements &&
+          refinements.entities &&
           refinements.entities &&
           refinements.entities.length > 0 &&
           ` ${refinements.entities.length}`}
@@ -123,7 +127,7 @@ function SnippetsFilter({ refinements }: any) {
         <div className="container">
           <RefinementList
             attribute="entities"
-            defaultRefinement={refinements ? refinements.entities : []}
+            defaultRefinement={refinements.entities || []}
           />
         </div>
         {showSnippetFilter && (
