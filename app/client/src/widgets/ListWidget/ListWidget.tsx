@@ -200,7 +200,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (
       xor(
         Object.keys(get(prevProps, "template", {})),
-        Object.keys(get(this.props, "template")),
+        Object.keys(get(this.props, "template", {})),
       ).length > 0
     ) {
       this.generateChildrenDefaultPropertiesMap(this.props);
@@ -344,15 +344,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            validationPath?.type === ValidationTypes.BOOLEAN &&
-            (evaluatedValue === "false" ||
-              evaluatedValue === "true" ||
-              isBoolean(evaluatedValue))
+            (validationPath?.type === ValidationTypes.BOOLEAN &&
+              isBoolean(evaluatedValue)) ||
+            validationPath?.type === ValidationTypes.OBJECT
           ) {
-            set(widget, path, evaluatedValue == "true");
-            set(widget, `validationMessages.${path}`, "");
-            set(widget, `invalidProps.${path}`, "");
-          } else if (validationPath?.type === ValidationTypes.OBJECT) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
             set(widget, `invalidProps.${path}`, "");
