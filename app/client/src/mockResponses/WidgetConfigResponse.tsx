@@ -8,7 +8,10 @@ import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
 import {
@@ -807,7 +810,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.LIST_WIDGET]: {
-      backgroundColor: "",
+      backgroundColor: "transparent",
       itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
@@ -832,22 +835,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets } = getDynamicBindings(propertyValue);
-
-            const modifiedAction = jsSnippets.reduce(
-              (prev: string, next: string) => {
-                return `${prev}${next}`;
-              },
-              "",
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
             );
 
-            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
-                return ( ${modifiedAction} );
+                return  ${js};
               })();
             })}}`;
 
-            if (!modifiedAction) {
+            if (!js) {
               value = propertyValue;
             }
 
@@ -1059,16 +1059,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets } = getDynamicBindings(value);
-
-                      const modifiedAction = jsSnippets.reduce(
-                        (prev: string, next: string) => {
-                          return prev + `${next}`;
-                        },
-                        "",
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
                       );
 
-                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                       childWidget[key] = value;
 
