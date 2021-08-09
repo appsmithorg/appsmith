@@ -237,7 +237,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText: "Set if input is valid",
-            propertyName: "isValid",
+            propertyName: "validation",
             label: "Valid",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -388,6 +388,62 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
+      isValid: `{{
+        function(){
+          let parsedRegex = null;
+          if (this.regex) {
+            /*
+            * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+            * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
+            */
+            const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
+
+            if (!regexParts) {
+              parsedRegex = new RegExp(this.regex);
+            } else {
+              /*
+              * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+              /*
+              if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
+                parsedRegex = RegExp(this.regex);
+              }
+              /*
+              * if we have a regex flags, use it to form regexp
+              */
+              parsedRegex = new RegExp(regexParts[2], regexParts[3]);
+            }
+          }
+          if (this.inputType === "EMAIL") {
+            const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
+            return emailRegex.test(this.text);
+          }
+          else if (this.inputType === "NUMBER") {
+            if (parsedRegex) {
+              return parsedRegex.test(this.text);
+            }
+            if (this.isRequired) {
+              return !(this.text === '' || isNaN(this.text));
+            }
+
+            return (this.text === '' || !isNaN(this.text || ''));
+          }
+          else if (this.isRequired) {
+            if(this.text && this.text.length) {
+              if (parsedRegex) {
+                return parsedRegex.test(this.text)
+              } else {
+                return true;
+              }
+            } else {
+              return false;
+            }
+          } if (parsedRegex) {
+            return parsedRegex.test(this.text)
+          } else {
+            return true;
+          }
+        }()
+      }}`,
       value: `{{this.text}}`,
     };
   }
@@ -470,7 +526,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   getPageView() {
     const value = this.props.text || "";
     let isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+      ("isValid" in this.props &&
+        !this.props.isValid &&
+        !!this.props.isDirty) ||
+      !this.props.validation;
     const currencyCountryCode =
       this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
@@ -576,6 +635,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
   tooltip?: string;
   isDisabled?: boolean;
+  validation: boolean;
   text: string;
   regex?: string;
   errorMessage?: string;
