@@ -1,7 +1,7 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import { RawDraftContentState } from "draft-js";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 
 // export enum CommentThreadParentTypes {
 //   widget = "widget",
