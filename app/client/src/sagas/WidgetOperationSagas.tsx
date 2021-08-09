@@ -423,7 +423,7 @@ const getAllWidgetsInTree = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   const widget = canvasWidgets[widgetId];
-  const widgetList = [widget];
+  const widgetList = widget ? [widget] : [];
   if (widget && widget.children) {
     widget.children
       .filter(Boolean)
