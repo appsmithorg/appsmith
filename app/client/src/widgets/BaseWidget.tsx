@@ -321,7 +321,6 @@ abstract class BaseWidget<
         content = this.getCanvasView();
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
-        content = this.addMultiPointerCanvasOverlay(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -330,6 +329,7 @@ abstract class BaseWidget<
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
+        content = this.addMultiPointerCanvasOverlay(content);
         return content;
 
       // return this.getCanvasView();

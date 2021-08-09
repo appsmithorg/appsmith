@@ -20,17 +20,13 @@ const Canvas = styled.canvas`
 function CanvasMultiPointerArena() {
   const { pageId } = useParams<ExplorerURLParams>();
 
-  const delayedShareMousePointer = useCallback(
-    throttle((e) => shareMousePointer(e), 50, { trailing: false }),
-    [],
-  );
-
   const shareMousePointer = (e: any) => {
     if (!!pageLevelSocket) {
       const selectionCanvas: any = document.getElementById(
         "multiplayer-canvas",
       );
       const rect = selectionCanvas.getBoundingClientRect();
+
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       pageLevelSocket.emit("collab:mouse_pointer", {
@@ -39,6 +35,10 @@ function CanvasMultiPointerArena() {
       });
     }
   };
+  const delayedShareMousePointer = useCallback(
+    throttle((e) => shareMousePointer(e), 50, { trailing: false }),
+    [shareMousePointer],
+  );
 
   useEffect(() => {
     pageLevelSocket.connect();
@@ -49,11 +49,32 @@ function CanvasMultiPointerArena() {
     };
   }, []);
 
+  const drawPointers = (eventData: any) => {
+    const selectionCanvas: any = document.getElementById("multiplayer-canvas");
+    const rect = selectionCanvas.getBoundingClientRect();
+    selectionCanvas.width = rect.width;
+    selectionCanvas.height = rect.height;
+    const ctx = selectionCanvas.getContext("2d");
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.font = "16px Georgia";
+    ctx.fillText(
+      `${eventData?.user?.email}`,
+      eventData.data.x,
+      eventData.data.y,
+    );
+  };
+
+  const throttledDrawPointers = useCallback(
+    throttle((e) => drawPointers(e), 10),
+    [drawPointers],
+  );
+
   useEffect(() => {
     pageLevelSocket.on("collab:mouse_pointer", (eventData: any) => {
-      console.log("mouse pointer :", eventData);
+      throttledDrawPointers(eventData);
     });
   }, []);
+
   return (
     <Canvas
       id="multiplayer-canvas"
