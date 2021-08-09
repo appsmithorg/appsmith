@@ -113,6 +113,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Container",
       containerStyle: "card",
+      borderColor: "transparent",
+      borderWidth: "0",
+      borderRadius: "0",
+      boxShadow: ButtonBoxShadowTypes.NONE,
       children: [],
       blueprint: {
         view: [
@@ -709,6 +713,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Form",
       backgroundColor: "white",
+      borderColor: "transparent",
+      borderWidth: 0,
+      borderRadius: 0,
       children: [],
       blueprint: {
         view: [

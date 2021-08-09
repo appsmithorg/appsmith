@@ -20,7 +20,19 @@ describe("Container Widget Functionality", function() {
       commonlocators.containerInnerText,
     );
     /**
-     * @param{Text} Random Colour
+     * @param{Text} Random Border Colour
+     */
+    cy.get(widgetsPage.boadercolorPicker)
+      .first()
+      .click({ force: true });
+    cy.xpath(widgetsPage.yellowColor).click();
+    cy.get(
+      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
+    )
+      .should("have.css", "border-color")
+      .and("eq", "rgb(255, 193, 61)");
+    /**
+     * @param{Text} Random Background Colour
      */
     cy.get(widgetsPage.backgroundcolorPicker)
       .first()
