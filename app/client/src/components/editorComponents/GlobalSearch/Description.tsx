@@ -6,6 +6,11 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+// import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+// import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
+
+// SyntaxHighlighter.registerLanguage("javascript", javascript);
 
 type Props = {
   activeItem: SearchItem;
@@ -15,9 +20,11 @@ type Props = {
 };
 
 const Container = styled.div`
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+  background: white;
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
@@ -33,15 +40,20 @@ const Container = styled.div`
   }
 
   h1 {
-    ${(props) => getTypographyByKey(props, "largeH1")};
+    ${(props) => getTypographyByKey(props, "docHeader")}
     word-break: break-word;
+  }
+
+  h2, h3 {
+    ${(props) => getTypographyByKey(props, "h5")}
+    font-weight: 600;
   }
 
   h1,
   h2,
   h3,
   strong {
-    color: #fff;
+    color: #484848;
   }
 
   .documentation-cta {
@@ -62,15 +74,17 @@ const Container = styled.div`
 
   code {
     word-break: break-word;
+    font-size: 12px;
     background: ${(props) => props.theme.colors.globalSearch.codeBackground};
-    padding: ${(props) => props.theme.spaces[2]}px;
+    // padding: ${(props) => props.theme.spaces[2]}px;
   }
 
   pre {
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
+    background: ${(props) =>
+      props.theme.colors.globalSearch.codeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
-    padding: ${(props) => props.theme.spaces[6]}px;
+    padding: ${(props) => props.theme.spaces[6]}px !important;
   }
 `;
 
@@ -160,6 +174,84 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
+const SnippetContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  .snippet-title {
+    color: #090707;
+    font-size: 17px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    .action-msg {
+      color: #a9a7a7;
+      font-size: 11px;
+      font-weight: 400;
+      flex-shrink: 0;
+    }
+  }
+  .snippet-desc {
+    color: #4b4848;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 10px;
+  }
+  .snippet-group {
+    margin: 5px 0;
+    .header {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .content {
+      font-weight: 400;
+      font-size: 14px;
+    }
+  }
+`;
+
+function SnippetDescription(props: any) {
+  //Add type here
+  const {
+    item: {
+      body: { examples, snippet, summary, title },
+    },
+  } = props;
+  return (
+    <SnippetContainer>
+      <div className="snippet-title">
+        <span>{title}</span>
+        <span className="action-msg">Hit ⏎ to insert</span>
+      </div>
+      <div className="snippet-desc">{summary}</div>
+      <SyntaxHighlighter language="javascript">{snippet}</SyntaxHighlighter>
+      <div className="snippet-group">
+        <div className="header">Arguments</div>
+        <div className="content">array (Array): The array to concatenate.</div>
+      </div>
+      <div className="snippet-group">
+        <div className="header">Returns</div>
+        <div className="content">
+          (Array): Returns the new concatenated array.
+        </div>
+      </div>
+      {/* <pre>{snippet}</pre> */}
+
+      {/* <SnippetArguments args={args} />
+      <SnippetReturnType type={returnType} /> */}
+      {examples &&
+        examples.map((ex: any) => (
+          <>
+            <p>{ex.title}</p>
+            <SyntaxHighlighter language="javascript">
+              {ex.code}
+            </SyntaxHighlighter>
+            <p>{ex.summary}</p>
+          </>
+        ))}
+    </SnippetContainer>
+  );
+}
+
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
@@ -168,6 +260,8 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
+  [SEARCH_ITEM_TYPES.category]: () => null,
+  [SEARCH_ITEM_TYPES.snippet]: SnippetDescription,
 };
 
 function Description(props: Props) {
