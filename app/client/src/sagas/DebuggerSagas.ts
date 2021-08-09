@@ -43,30 +43,55 @@ import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import AppsmithConsole from "utils/AppsmithConsole";
 
-function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
-  if (!payload.source || !payload.state || !request || !request.headers) {
-    return;
+// Saga to format action request values to be shown in the debugger
+function* formatActionRequestSaga(
+  payload: LogActionPayload,
+  requestPath?: any,
+) {
+  // If there are no headers or body we don't format anything.
+  if (!payload.source || !payload.state || !requestPath) {
+    return payload;
   }
 
-  const headers = request.headers;
+  const request = get(payload, requestPath);
 
   const source = payload.source;
   const action: Action | undefined = yield select(getAction, source.id);
+  // Only formatting for apis and not queries
   if (action && action.pluginType === PluginType.API) {
-    let formattedHeaders = [];
+    // Formatting api headers here
+    if (request.headers) {
+      let formattedHeaders = [];
 
-    // Convert headers from Record<string, array>[] to Record<string, string>[]
-    // for showing in the logs
-    formattedHeaders = Object.keys(headers).map((key: string) => {
-      const value = headers[key];
-      return {
-        [key]: value[0],
-      };
-    });
+      // Convert headers from Record<string, array>[] to Record<string, string>[]
+      // for showing in the logs
+      formattedHeaders = Object.keys(request.headers).map((key: string) => {
+        const value = request.headers[key];
+        return {
+          [key]: value[0],
+        };
+      });
 
-    return formattedHeaders;
+      set(payload, `${requestPath}.headers`, formattedHeaders);
+    }
+
+    // Formatting api body
+    if (request.body) {
+      let body = request.body;
+
+      try {
+        body = JSON.parse(body);
+        set(payload, `${requestPath}.body`, body);
+      } catch (e) {
+        // Nothing to do here, we show the api body as it is if it cannot be shown as
+        // an object
+      }
+    }
+
+    // Return the final payload to be logged
+    return payload;
   } else {
-    return;
+    return payload;
   }
 }
 
@@ -163,26 +188,26 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
-        const res = yield call(formatActionRequestSaga, payload, payload.state);
-        const log = { ...payload };
-        res && set(log, "state.headers", res);
-        AppsmithConsole.addError(log);
-        yield put(debuggerLog(log));
+        const formattedLog = yield call(
+          formatActionRequestSaga,
+          payload,
+          "state",
+        );
+        AppsmithConsole.addError(formattedLog);
+        yield put(debuggerLog(formattedLog));
       }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       {
-        const res = yield call(
+        const formattedLog = yield call(
           formatActionRequestSaga,
           payload,
-          payload.state?.request ?? {},
+          "state.request",
         );
 
         AppsmithConsole.deleteError(payload.source?.id ?? "");
 
-        const log = { ...payload };
-        res && set(log, "state.request.headers", res);
-        yield put(debuggerLog(log));
+        yield put(debuggerLog(formattedLog));
       }
       break;
     case LOG_TYPE.ENTITY_DELETED:
