@@ -70,7 +70,11 @@ describe("Comments", function() {
       // wait for the page to load
       cy.get(commonLocators.canvas);
       cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+
+      // wait for comment mode to be set
+      cy.wait(1000);
       cy.get(commonLocators.canvas).click(50, 50);
+
       typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
       cy.get(commentsLocators.mentionsInput).type("{enter}");
       await cy.wait("@createNewThread");
