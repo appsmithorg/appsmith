@@ -120,7 +120,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     .findById(threadId, AclPermission.COMMENT_ON_THREAD)
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
                     .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
-                    .flatMap(commentThread -> create(commentThread, user, comment, originHeader, true))
+                    .flatMap(commentThread -> create(commentThread, user, comment, originHeader))
         );
     }
 
@@ -174,7 +174,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         });
     }
 
-    private Mono<Comment> create(CommentThread commentThread, User user, Comment comment, String originHeader, boolean shouldCreateNotification) {
+    private Mono<Comment> create(CommentThread commentThread, User user, Comment comment, String originHeader) {
         comment.setAuthorId(user.getId());
         comment.setThreadId(commentThread.getId());
         comment.setApplicationId(commentThread.getApplicationId());
@@ -222,7 +222,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     commentThread.getSubscribers()
             );
 
-            if (shouldCreateNotification && !isPrivateThread) {
+            if (!isPrivateThread) {
                 final Set<String> usernames = commentThread.getSubscribers();
                 List<Mono<Notification>> notificationMonos = new ArrayList<>();
                 for (String username : usernames) {
@@ -233,7 +233,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         notificationMonos.add(notificationMono);
                     }
                 }
-                return publishEmail.then(Flux.merge(notificationMonos).then(Mono.just(savedComment)));
+                return publishEmail.then(Flux.merge(notificationMonos).collectList()).thenReturn(savedComment);
             } else {
                 return publishEmail.thenReturn(savedComment);
             }
@@ -294,11 +294,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                         if (!CollectionUtils.isEmpty(thread.getComments())) {
                             thread.getComments().get(0).setLeading(true);
-                            boolean isFirst = true;
                             for (final Comment comment : thread.getComments()) {
                                 comment.setId(null);
-                                commentSaverMonos.add(create(thread, user, comment, originHeader, !isFirst));
-                                isFirst = false;
+                                commentSaverMonos.add(create(thread, user, comment, originHeader));
                             }
                         }
 
