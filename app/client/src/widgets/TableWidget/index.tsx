@@ -41,6 +41,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { isArray } from "lodash";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -85,10 +86,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPropertyValue = (value: any, index: number, preserveCase = false) => {
-    if (value && Array.isArray(value) && isBoolean(value[index])) {
+    if (isBoolean(value)) {
+      return value;
+    }
+    if (Array.isArray(value) && isBoolean(value[index])) {
+      console.log(value, "array");
       return value[index];
     }
     if (value && Array.isArray(value) && value[index]) {
+      console.log(value);
       return preserveCase
         ? value[index].toString()
         : value[index].toString().toUpperCase();
@@ -134,8 +140,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
       isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
       isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
-      isButtonVisible: this.getPropertyValue(
-        columnProperties.isButtonVisible,
+      isCellVisible: this.getPropertyValue(
+        columnProperties.isCellVisible,
         rowIndex,
       ),
       displayText: this.getPropertyValue(
@@ -152,12 +158,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const hiddenColumns: ReactTableColumnProps[] = [];
     const { columnSizeMap } = this.props;
     const { componentWidth } = this.getComponentDimensions();
-
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
 
     for (let index = 0; index < allColumnProperties.length; index++) {
+      const isAllCellVisible: boolean | boolean[] =
+        allColumnProperties[index].isCellVisible;
+      const isColumnVisible: boolean =
+        allColumnProperties[index].isColumnVisible;
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
       const accessor = columnProperties.id;
@@ -197,7 +206,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
-              isButtonVisible: cellProperties.isButtonVisible ?? true,
+              isCellVisible: cellProperties.isCellVisible ?? true,
               columnActions: [
                 {
                   id: columnProperties.id,
@@ -215,6 +224,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             return renderDropdown({
               options: options,
               onItemSelect: this.onItemSelect,
+              isCellVisible: cellProperties.isCellVisible ?? true,
               onOptionChange: columnProperties.onOptionChange || "",
               selectedIndex: isNumber(props.cell.value)
                 ? props.cell.value
@@ -222,6 +232,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             });
           } else if (columnProperties.columnType === "image") {
             const isSelected = !!props.row.isSelected;
+            const isCellVisible = cellProperties.isCellVisible ?? true;
             const onClick = columnProperties.onClick
               ? () =>
                   this.onCommandClick(rowIndex, columnProperties.onClick, noop)
@@ -232,21 +243,40 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isHidden,
               cellProperties,
               componentWidth,
+              isCellVisible,
               onClick,
               isSelected,
             );
           } else {
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+
             return renderCell(
               props.cell.value,
               columnProperties.columnType,
               isHidden,
               cellProperties,
               componentWidth,
+              isCellVisible,
             );
           }
         },
       };
-      if (isHidden) {
+
+      // Hide Column when All cells are hidden
+      if (!isColumnVisible) {
+        if (
+          (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
+          (isArray(isAllCellVisible) &&
+            isAllCellVisible.every((v) => v === false)) ||
+          isHidden
+        ) {
+          columnData.isHidden = true;
+          hiddenColumns.push(columnData);
+        } else {
+          totalColumnSizes += columnData.width;
+          columns.push(columnData);
+        }
+      } else if (isHidden) {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {

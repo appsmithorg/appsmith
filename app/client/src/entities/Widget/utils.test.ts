@@ -161,7 +161,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isVisible":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isButtonVisible":
+        "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {

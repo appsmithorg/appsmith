@@ -355,8 +355,10 @@ export const CellWrapper = styled.div<{
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
+  isCellVisible?: boolean;
 }>`
-  display: flex;
+  display: ${(props) => (props.isCellVisible ? "flex" : "none")};
+
   align-items: center;
   justify-content: flex-start;
   width: 100%;

@@ -828,9 +828,10 @@ const addIsDisabledToButtonColumn = (
         if (currentDSL.primaryColumns[key].columnType === "button") {
           if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
             currentDSL.primaryColumns[key]["isDisabled"] = false;
-            currentDSL.primaryColumns[key]["isButtonVisible"] = true;
           }
         }
+        currentDSL.primaryColumns[key]["isCellVisible"] = true;
+        currentDSL.primaryColumns[key]["isColumnVisible"] = true;
       }
     }
   }

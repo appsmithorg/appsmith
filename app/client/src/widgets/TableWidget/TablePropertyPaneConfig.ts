@@ -337,22 +337,17 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "isVisible",
-                  label: "Visible",
+                  propertyName: "isColumnVisible",
+                  label: "Column Visible",
+                  helpText:
+                    "Controls the visibility of the Column is all cells are not visible",
                   updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
                   controlType: "SWITCH",
-                  isJSConvertible: true,
+                  isJSConvertible: false,
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.BOOLEAN },
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const columnType = get(
-                      props,
-                      `${propertyPath}.columnType`,
-                      "",
-                    );
-                    return columnType === "button";
-                  },
                 },
                 {
                   propertyName: "inputFormat",
@@ -594,6 +589,28 @@ export default [
               ],
             },
             {
+              sectionName: "Cell Control",
+              children: [
+                {
+                  propertyName: "isCellVisible",
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
+                  label: "Cell Visible",
+                  helpText: "Controls the visibility of the cell in the column",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+              ],
+            },
+            {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
                 const columnType = get(props, `${propertyPath}.columnType`, "");
@@ -782,17 +799,6 @@ export default [
                   label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
                   defaultValue: false,
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                },
-                {
-                  propertyName: "isButtonVisible",
-                  label: "Visible",
-                  updateHook: updateDerivedColumnsHook,
-                  defaultValue: true,
                   controlType: "SWITCH",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,

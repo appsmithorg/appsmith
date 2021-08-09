@@ -38,6 +38,7 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  isCellVisible: boolean,
   onClick: () => void = noop,
   isSelected?: boolean,
 ) => {
@@ -45,11 +46,19 @@ export const renderCell = (
     case ColumnTypes.IMAGE:
       if (!value) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          />
         );
       } else if (!isString(value)) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             <div>Invalid Image </div>
           </CellWrapper>
         );
@@ -59,7 +68,11 @@ export const renderCell = (
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
-        <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+        <CellWrapper
+          cellProperties={cellProperties}
+          isCellVisible={isCellVisible}
+          isHidden={isHidden}
+        >
           {value
             .toString()
             // imageSplitRegex matched "," and char before it, so add space before ","
@@ -96,13 +109,18 @@ export const renderCell = (
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper
             cellProperties={cellProperties}
             className="video-cell"
+            isCellVisible={isCellVisible}
             isHidden={isHidden}
           >
             <PopoverVideo url={value} />
@@ -110,7 +128,11 @@ export const renderCell = (
         );
       } else {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             Invalid Video Link
           </CellWrapper>
         );
@@ -120,6 +142,7 @@ export const renderCell = (
         <AutoToolTipComponent
           cellProperties={cellProperties}
           columnType={columnType}
+          isCellVisible={isCellVisible}
           isHidden={isHidden}
           tableWidth={tableWidth}
           title={value.toString()}
@@ -138,7 +161,7 @@ interface RenderActionProps {
   backgroundColor: string;
   buttonLabelColor: string;
   isDisabled: boolean;
-  isButtonVisible: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -148,17 +171,27 @@ export const renderActions = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={isHidden}
+      />
+    );
 
   return (
-    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
-            isButtonVisible={props.isButtonVisible}
+            isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
             key={index}
@@ -176,7 +209,7 @@ function TableAction(props: {
   backgroundColor: string;
   buttonLabelColor: string;
   isDisabled: boolean;
-  isButtonVisible: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -194,7 +227,7 @@ function TableAction(props: {
         }
       }}
     >
-      {props.isButtonVisible ? (
+      {props.isCellVisible ? (
         <Button
           disabled={props.isDisabled}
           filled
@@ -443,7 +476,7 @@ export function getDefaultColumnProperties(
     enableSort: true,
     isVisible: true,
     isDisabled: false,
-    isButtonVisible: true,
+    isCellVisible: true,
     isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived
@@ -507,6 +540,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
 
 export const renderDropdown = (props: {
   options: DropdownOption[];
+  isCellVisible: boolean;
   onItemSelect: (onOptionChange: string, item: DropdownOption) => void;
   onOptionChange: string;
   selectedIndex?: number;
@@ -522,6 +556,9 @@ export const renderDropdown = (props: {
     itemProps: IItemRendererProps,
   ) => {
     if (!itemProps.modifiers.matchesPredicate) {
+      return null;
+    }
+    if (!props.isCellVisible) {
       return null;
     }
     const isSelected: boolean = isOptionSelected(option);
