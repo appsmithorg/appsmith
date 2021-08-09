@@ -9,7 +9,10 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
 
@@ -77,16 +80,11 @@ export const handleIfParentIsListWidgetWhilePasting = (
         let value = currentWidget[key];
 
         if (isString(value) && value.indexOf("currentItem") > -1) {
-          const { jsSnippets } = getDynamicBindings(value);
+          const { jsSnippets, stringSegments } = getDynamicBindings(value);
 
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return prev + `${next}`;
-            },
-            "",
-          );
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
           currentWidget[key] = value;
 
@@ -324,7 +322,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+      if (copiedWidget?.type === WidgetTypes.LIST_WIDGET) {
         return selectedWidget;
       }
     }

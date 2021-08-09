@@ -22,7 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { omit, get } from "lodash";
+import { omit, get, ceil } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -42,6 +42,9 @@ import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { focusWidget } from "actions/widgetActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -54,6 +57,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
@@ -81,6 +85,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const parentWidgetToSelect = getParentToOpenIfAny(
+    props.widgetId,
+    canvasWidgets,
   );
 
   const occupiedSpacesBySiblingWidgets = useMemo(() => {
@@ -179,7 +187,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (
       boundingElementClientRect &&
       newRowCols.rightColumn * props.parentColumnSpace >
-        boundingElementClientRect.width
+        ceil(boundingElementClientRect.width)
     ) {
       return true;
     }
@@ -192,7 +200,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       if (
         boundingElementClientRect &&
         newRowCols.bottomRow * props.parentRowSpace >
-          boundingElementClientRect.height
+          ceil(boundingElementClientRect.height)
       ) {
         return true;
       }
@@ -201,6 +209,10 @@ export const ResizableComponent = memo(function ResizableComponent(
         return true;
       }
     }
+
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision) return false;
+
     // Check if new row cols are occupied by sibling widgets
     return isDropZoneOccupied(
       {
@@ -250,7 +262,20 @@ export const ResizableComponent = memo(function ResizableComponent(
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
       selectedWidget !== props.widgetId &&
+      parentWidgetToSelect?.widgetId !== props.widgetId &&
       selectWidget(props.widgetId);
+
+    if (parentWidgetToSelect) {
+      selectWidget &&
+        selectedWidget !== parentWidgetToSelect.widgetId &&
+        selectWidget(parentWidgetToSelect.widgetId);
+      focusWidget(parentWidgetToSelect.widgetId);
+    } else {
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+    }
+
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.

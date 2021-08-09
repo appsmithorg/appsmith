@@ -73,8 +73,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       data-testid="test-widget"
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
-      onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
+      onClick={stopEventPropagation}
       onClickCapture={openPropPane}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
