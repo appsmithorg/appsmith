@@ -330,10 +330,10 @@ public class PostgresPlugin extends BasePlugin {
                             // Only check the data size at low frequency to ensure the performance is not impacted heavily
                             if (iterator% HEAVY_OP_FREQUENCY == 0) {
                                 int objectSize = sizeof(rowsList);
-                                System.out.println("current size of results : " + objectSize);
 
                                 if (objectSize > MAX_SIZE_SUPPORTED) {
-                                    System.out.println("Erroring out because current size of results : " + objectSize);
+                                    System.out.println(Thread.currentThread().getName() +
+                                            "[PostgresPlugin] Result size exceeded. Current size : " + objectSize);
                                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED));
                                 }
                             }
