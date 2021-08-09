@@ -37,7 +37,8 @@ class TreeSingleSelectWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Allows users to select options. Values must be unique",
+            helpText:
+              "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
@@ -67,6 +68,37 @@ class TreeSingleSelectWidget extends BaseWidget<
                         params: {
                           default: "",
                           required: true,
+                        },
+                      },
+                      {
+                        name: "children",
+                        type: ValidationTypes.NESTED_OBJECT_ARRAY,
+                        unique: ["value"],
+                        required: false,
+                        params: {
+                          children: {
+                            type: ValidationTypes.OBJECT,
+                            params: {
+                              allowedKeys: [
+                                {
+                                  name: "label",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                    required: true,
+                                  },
+                                },
+                                {
+                                  name: "value",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                    required: true,
+                                  },
+                                },
+                              ],
+                            },
+                          },
                         },
                       },
                     ],
@@ -283,7 +315,11 @@ class TreeSingleSelectWidget extends BaseWidget<
   }
 
   getPageView() {
-    const options = isArray(this.props.options) ? this.props.options : [];
+    const options =
+      isArray(this.props.options) &&
+      !this.props.__evaluation__?.errors.options.length
+        ? this.props.options
+        : [];
     const values: string | undefined = isString(this.props.selectedOption)
       ? this.props.selectedOption
       : undefined;

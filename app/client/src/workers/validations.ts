@@ -122,6 +122,7 @@ function validateArray(
       _messages.push(`Array must be unique. Duplicate values found`);
     }
   }
+  console.log(value, "value");
   return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
 }
 
@@ -467,6 +468,55 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return { isValid: true, parsed };
     }
     return invalidResponse;
+  },
+
+  [ValidationTypes.NESTED_OBJECT_ARRAY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    const { isValid, message, parsed, transformed } = VALIDATORS.ARRAY(
+      config,
+      value,
+      props,
+    );
+
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message,
+        transformed,
+      };
+    }
+    for (const entry of parsed as Record<string, string | []>[]) {
+      if (entry.children && entry.children?.length) {
+        const {
+          isValid,
+          message,
+          parsed,
+          transformed,
+        } = VALIDATORS.NESTED_OBJECT_ARRAY(config, entry.children, props);
+        console.log(isValid, message, entry.children, parsed);
+
+        if (!isValid) {
+          return {
+            isValid,
+            parsed,
+            message,
+            transformed,
+          };
+        }
+      }
+    }
+    console.log(isValid, message, parsed, "last");
+
+    return {
+      isValid,
+      message,
+      parsed,
+      transformed,
+    };
   },
   [ValidationTypes.DATE_ISO_STRING]: (
     config: ValidationConfig,

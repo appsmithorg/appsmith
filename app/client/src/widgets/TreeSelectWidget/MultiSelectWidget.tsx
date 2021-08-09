@@ -108,7 +108,7 @@ class TreeMultiSelectWidget extends BaseWidget<
                       },
                       {
                         name: "children",
-                        type: ValidationTypes.ARRAY,
+                        type: ValidationTypes.NESTED_OBJECT_ARRAY,
                         unique: ["value"],
                         required: false,
                         params: {
@@ -349,7 +349,11 @@ class TreeMultiSelectWidget extends BaseWidget<
     };
   }
   getPageView() {
-    const options = isArray(this.props.options) ? this.props.options : [];
+    const options =
+      isArray(this.props.options) &&
+      !this.props.__evaluation__?.errors.options.length
+        ? this.props.options
+        : [];
 
     const values = isArray(this.props.selectedOptionValueArr)
       ? this.props.selectedOptionValueArr
