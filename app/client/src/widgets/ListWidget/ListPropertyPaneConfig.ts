@@ -83,6 +83,18 @@ const PropertyPaneConfig = [
           type: ValidationTypes.BOOLEAN,
         },
       },
+      {
+        propertyName: "isVirtualized",
+        label: "Virtualized",
+        helpText: "Controls the virtualized of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
     ],
   },
   {

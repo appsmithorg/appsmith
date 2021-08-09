@@ -17,6 +17,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { ListChildComponentProps, FixedSizeList as List } from "react-window";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -113,6 +114,11 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
+    // if container is virtualized, render a virtualized list
+    if (this.props.isVirtualized) {
+      return this.renderVirtualizedContainer();
+    }
+
     return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
@@ -137,6 +143,44 @@ class ContainerWidget extends BaseWidget<
       </ContainerComponent>
     );
   }
+
+  /**
+   * creates a virtualized list component using react-window's VariableList
+   *
+   * @param props
+   */
+  renderVirtualizedContainer = () => {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const snapSpaces = this.getSnapSpaces();
+    const sortedChildren = sortBy(
+      compact(this.props.children),
+      (child) => child.topRow,
+    );
+
+    const renderChildWidget = this.renderChildWidget;
+
+    const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
+
+    function Row(childProps: ListChildComponentProps) {
+      return <>{renderChildWidget(sortedChildren[childProps.index])}</>;
+    }
+
+    function Example() {
+      return (
+        <List
+          className="appsmith-virtualized-container"
+          height={componentHeight}
+          itemCount={sortedChildren.length}
+          itemSize={rowHeight}
+          width={componentWidth}
+        >
+          {Row}
+        </List>
+      );
+    }
+
+    return <Example />;
+  };
 
   getPageView() {
     return this.renderAsContainerComponent(this.props);

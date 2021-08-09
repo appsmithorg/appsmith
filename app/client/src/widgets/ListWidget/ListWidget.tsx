@@ -38,7 +38,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
-const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
+const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -273,8 +273,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
+    childWidgetData.isVirtualized = this.props.isVirtualized;
     childWidgetData.bottomRow = shouldPaginate
-      ? componentHeight - LIST_WIDGEY_PAGINATION_HEIGHT
+      ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
@@ -692,10 +693,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const shouldPaginate =
       templateHeight * listData.length +
         parseInt(gridGap) * (listData.length - 1) >
-      componentHeight;
+        componentHeight && !this.props.isVirtualized;
 
     const totalSpaceAvailable =
-      componentHeight - (LIST_WIDGEY_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
+      componentHeight - (LIST_WIDGET_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
       templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
