@@ -30,7 +30,7 @@ import useProceedToNextTourStep, {
 import { getCommentsIntroSeen } from "utils/storage";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 
 import {
   AUTH_LOGIN_URL,
@@ -269,11 +269,14 @@ function CommentModeBtn({
   showSelectedMode: boolean;
 }) {
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+  const commentModeClassName = showUnreadIndicator
+    ? `t--toggle-comment-mode-on--unread`
+    : `t--toggle-comment-mode-on`;
 
   return (
     <ModeButton
       active={isCommentMode}
-      className="t--switch-comment-mode-on"
+      className={`t--switch-comment-mode-on ${commentModeClassName}`}
       onClick={handleSetCommentModeButton}
       showSelectedMode={showSelectedMode}
       type="stroke"
@@ -385,6 +388,7 @@ function ToggleCommentModeButton({
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
+            className="t--switch-comment-mode-off"
             onClick={() => setCommentModeInUrl(false)}
             showSelectedMode={showSelectedMode}
             type="fill"
