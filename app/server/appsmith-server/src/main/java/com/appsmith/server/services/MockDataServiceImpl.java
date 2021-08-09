@@ -68,7 +68,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
 
         return  WebClient
-                .create( baseUrl + "/api/v1/mocks")
+                .create( "http://localhost:8090" + "/api/v1/mocks")
                 .get()
                 .exchange()
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
@@ -102,7 +102,7 @@ public class MockDataServiceImpl implements MockDataService {
             Datasource datasource = new Datasource();
             datasource.setOrganizationId(mockDataSource.getOrganizationId());
             datasource.setPluginId(mockDataSource.getPluginId());
-            datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
+            datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
                     .then(createSuffixedDatasource(datasource));
@@ -119,7 +119,7 @@ public class MockDataServiceImpl implements MockDataService {
         List<Property> listProperty = new ArrayList<>();
         SSLDetails sslDetails = new SSLDetails();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).collect(Collectors.toList()).get(0);
 
         property.setKey("Use Mongo Connection String URI");
         property.setValue("Yes");
@@ -154,7 +154,7 @@ public class MockDataServiceImpl implements MockDataService {
         Endpoint endpoint = new Endpoint();
         List<Endpoint> endpointList = new ArrayList<>();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter( cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter( cred -> cred.getDbname().equalsIgnoreCase(name)).collect(Collectors.toList()).get(0);
 
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
         connection.setSsl(sslDetails);
