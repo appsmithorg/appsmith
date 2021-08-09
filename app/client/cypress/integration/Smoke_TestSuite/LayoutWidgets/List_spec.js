@@ -35,7 +35,7 @@ describe("Container Widget Functionality", function() {
     cy.SearchEntityandOpen("List1");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
     cy.get(publishPage.backToEditor).click({ force: true });
@@ -45,7 +45,7 @@ describe("Container Widget Functionality", function() {
     // Open Property pane
     cy.SearchEntityandOpen("List1");
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
     cy.get(publishPage.backToEditor).click({ force: true });
@@ -232,9 +232,11 @@ describe("Container Widget Functionality", function() {
       widgetsPage.listWidgetName,
       widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
     );
+    cy.closePropertyPane();
     // Change the list widget name from Entity Explorer
     cy.SearchEntityandDblClick("List2").type("List1{enter}");
     // Mouse over to list name
+    cy.SearchEntityandOpen("List1");
     cy.get(widgetsPage.listWidgetName)
       .first()
       .trigger("mouseover", { force: true });
