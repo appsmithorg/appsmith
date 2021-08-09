@@ -253,11 +253,6 @@ export const hideCommentsIntroCarousel = () => ({
   payload: undefined,
 });
 
-export const setAreCommentsEnabled = (flag: boolean) => ({
-  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-  payload: flag,
-});
-
 export const fetchUnreadCommentThreadsCountSuccess = (count?: number) => ({
   type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
   payload: count,

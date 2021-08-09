@@ -13,6 +13,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -85,6 +86,7 @@ const FlexContainer = styled.div`
 const expected = {
   type: FIELD_VALUES.API_ACTION.params,
   example: "",
+  autocompleteDataType: AutocompleteDataType.STRING,
 };
 
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
