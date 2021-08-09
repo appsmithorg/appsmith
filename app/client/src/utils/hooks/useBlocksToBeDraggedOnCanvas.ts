@@ -182,20 +182,37 @@ export const useBlocksToBeDraggedOnCanvas = ({
             widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
           );
 
-          const widgetBottomRow =
-            updateWidgetParams.payload.topRow +
-            (updateWidgetParams.payload.rows ||
-              widget.bottomRow - widget.topRow);
-          persistDropTargetRows &&
-            persistDropTargetRows(widget.widgetId, widgetBottomRow);
-
           return {
             ...each,
             updateWidgetParams,
           };
         });
       dispatchDrop(draggedBlocksToUpdate);
+      persistCanvasRows(
+        draggedBlocksToUpdate[draggedBlocksToUpdate.length - 1],
+      );
     }
+  };
+
+  const persistCanvasRows = (bottomMostBlock: {
+    updateWidgetParams: WidgetOperationParams;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    columnWidth: number;
+    rowHeight: number;
+    widgetId: string;
+    isNotColliding: boolean;
+    detachFromLayout?: boolean | undefined;
+  }) => {
+    const widget = newWidget ? newWidget : allWidgets[bottomMostBlock.widgetId];
+    const { updateWidgetParams } = bottomMostBlock;
+    const widgetBottomRow =
+      updateWidgetParams.payload.topRow +
+      (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+    persistDropTargetRows &&
+      persistDropTargetRows(bottomMostBlock.widgetId, widgetBottomRow);
   };
 
   const dispatchDrop = (
