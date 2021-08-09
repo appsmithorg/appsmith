@@ -379,8 +379,8 @@ export const useSheetColumnHeaders = () => {
                 label: header,
                 value: header,
               });
-              setColumnHeaderList(columnHeaders);
             });
+            setColumnHeaderList(columnHeaders);
           }
         } else {
           let error = "Failed fetching Column headers";

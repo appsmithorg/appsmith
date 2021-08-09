@@ -6,9 +6,9 @@ import { getTypographyByKey } from "../../../constants/DefaultTheme";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   padding: 20px;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 const HeadingContainer = styled.div`
@@ -33,6 +33,7 @@ const SubHeading = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
   margin: 20px 0px;
   color: #000000;
+  text-align: center;
 `;
 
 function GeneratePage() {

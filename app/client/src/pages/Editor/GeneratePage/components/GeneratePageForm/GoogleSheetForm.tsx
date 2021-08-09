@@ -9,11 +9,16 @@ import { SelectWrapper, Label, Bold } from "./styles";
 import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
 import { getSheetUrl } from "./hooks";
+import Tooltip from "components/ads/Tooltip";
+import styled from "styled-components";
 import {
   UseSheetListReturn,
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type Props = {
   googleSheetPluginId: string;
@@ -21,14 +26,59 @@ type Props = {
   selectedSpreadsheet: DropdownOption;
   generatePageAction: (payload: GeneratePagePayload) => void;
   renderSubmitButton: ({
+    disabled,
     onSubmit,
   }: {
     onSubmit: () => void;
+    disabled: boolean;
   }) => ReactElement<any, any>;
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
   sheetColumnsHeaderProps: UseSheetColumnHeadersReturn;
 };
+
+// styles
+
+const RoundBg = styled.div`
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  background-color: ${Colors.GRAY};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+`;
+
+const ColumnName = styled.span`
+  ${(props) => `${getTypographyByKey(props, "p3")}`};
+  color: ${Colors.GRAY};
+`;
+
+const ColumnNameWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0px 8px;
+  margin-bottom: 10px;
+  width: ${DROPDOWN_DIMENSION.WIDTH};
+  overflow: hidden;
+`;
+
+const TooltipWrapper = styled.div`
+  margin-top: 2px;
+`;
+
+const RowHeading = styled.p`
+  ${(props) => `${getTypographyByKey(props, "p1")}`};
+  margin-right: 10px;
+`;
 
 // ---------- GoogleSheetForm Component -------
 
@@ -128,12 +178,6 @@ function GoogleSheetForm(props: Props) {
     }
   };
 
-  const onSelectColumn = () => {
-    //
-  };
-
-  const selectedColumn = DEFAULT_DROPDOWN_OPTION;
-
   const onSubmit = () => {
     if (selectedSpreadsheet.id) {
       const columns: string[] = [];
@@ -155,12 +199,13 @@ function GoogleSheetForm(props: Props) {
   };
 
   const tableHeaderIndexChangeHandler = (value: string) => {
-    setTableHeaderIndex(value);
     if (
       selectedDatasource.id &&
       selectedSpreadsheet.id &&
-      selectedSheet.value
+      selectedSheet.value &&
+      value !== "0"
     ) {
+      setTableHeaderIndex(value);
       fetchColumnHeaderList({
         selectedDatasourceId: selectedDatasource.id,
         selectedSpreadsheetId: selectedSpreadsheet.id,
@@ -193,44 +238,56 @@ function GoogleSheetForm(props: Props) {
       ) : null}
 
       {selectedSheet.value ? (
-        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>Table Header Index</Label>
-          <TextInput
-            cypressSelector="t--org-website-input"
-            dataType="number"
-            defaultValue={tableHeaderIndex}
-            fill
-            onChange={tableHeaderIndexChangeHandler}
-            placeholder="Table Header Index"
-          />
-        </SelectWrapper>
+        <>
+          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+            <Row>
+              <RowHeading>Table Header Index </RowHeading>
+              <TooltipWrapper>
+                <Tooltip
+                  content="Row index of the column headers in the sheet table"
+                  hoverOpenDelay={200}
+                >
+                  <RoundBg>
+                    <Icon
+                      fillColor={Colors.WHITE}
+                      hoverFillColor={Colors.WHITE}
+                      name="help"
+                      size={IconSize.XXS}
+                    />
+                  </RoundBg>
+                </Tooltip>
+              </TooltipWrapper>
+            </Row>
+
+            <TextInput
+              dataType="number"
+              defaultValue={tableHeaderIndex}
+              fill
+              onChange={tableHeaderIndexChangeHandler}
+              placeholder="Table Header Index"
+            />
+          </SelectWrapper>
+          <ColumnNameWrapper>
+            {columnHeaderList.length ? (
+              columnHeaderList.map((column, index) => (
+                <div key={column.id}>
+                  <ColumnName>{column.label}</ColumnName>
+                  {columnHeaderList.length === index - 1 ? null : (
+                    <ColumnName>,&nbsp;</ColumnName>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div>
+                <ColumnName>No columns found</ColumnName>
+              </div>
+            )}
+          </ColumnNameWrapper>
+        </>
       ) : null}
 
-      {selectedSheet.value && (
-        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>
-            Select a searchable column from
-            <Bold> {selectedSheet.label} </Bold>
-          </Label>
-
-          <Dropdown
-            cypressSelector="t--searchColumn-dropdown"
-            disabled={columnHeaderList.length === 0}
-            dropdownMaxHeight={"300px"}
-            height={DROPDOWN_DIMENSION.HEIGHT}
-            isLoading={isFetchingColumnHeaderList}
-            // helperText="* Optional"
-            onSelect={onSelectColumn}
-            optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={columnHeaderList}
-            selected={selectedColumn}
-            showLabelOnly
-            width={DROPDOWN_DIMENSION.WIDTH}
-          />
-        </SelectWrapper>
-      )}
       {selectedSheet.value && columnHeaderList.length
-        ? renderSubmitButton({ onSubmit })
+        ? renderSubmitButton({ onSubmit, disabled: !columnHeaderList.length })
         : null}
     </>
   );

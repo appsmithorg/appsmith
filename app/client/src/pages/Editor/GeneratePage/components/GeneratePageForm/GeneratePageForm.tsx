@@ -581,9 +581,15 @@ function GeneratePageForm() {
           <GoogleSheetForm
             generatePageAction={generatePageAction}
             googleSheetPluginId={selectedDatasourcePluginId}
-            renderSubmitButton={({ onSubmit }: { onSubmit: () => void }) => (
+            renderSubmitButton={({
+              disabled,
+              onSubmit,
+            }: {
+              onSubmit: () => void;
+              disabled: boolean;
+            }) => (
               <GeneratePageSubmitBtn
-                disabled={submitButtonDisable}
+                disabled={disabled}
                 isLoading={!!isGeneratingTemplatePage}
                 onSubmit={onSubmit}
                 showSubmitButton={!!showSubmitButton}
