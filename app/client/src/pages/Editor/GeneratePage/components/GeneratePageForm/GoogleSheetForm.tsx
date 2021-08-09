@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import React, { useState, useEffect, ReactElement, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEditorConfig } from "selectors/entitiesSelector";
 import { AppState } from "reducers/index";
@@ -19,6 +19,7 @@ import {
 import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { debounce } from "lodash";
 
 type Props = {
   googleSheetPluginId: string;
@@ -96,11 +97,7 @@ function GoogleSheetForm(props: Props) {
 
   const { fetchSheetsList, isFetchingSheetsList, sheetsList } = sheetsListProps;
   const { fetchAllSpreadsheets } = spreadSheetsProps;
-  const {
-    columnHeaderList,
-    fetchColumnHeaderList,
-    isFetchingColumnHeaderList,
-  } = sheetColumnsHeaderProps;
+  const { columnHeaderList, fetchColumnHeaderList } = sheetColumnsHeaderProps;
 
   const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("1");
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>(
@@ -198,20 +195,28 @@ function GoogleSheetForm(props: Props) {
     }
   };
 
+  const debouncedFetchColumns = useCallback(
+    debounce((value: string) => {
+      if (
+        selectedDatasource.id &&
+        selectedSpreadsheet.id &&
+        selectedSheet.value
+      ) {
+        fetchColumnHeaderList({
+          selectedDatasourceId: selectedDatasource.id,
+          selectedSpreadsheetId: selectedSpreadsheet.id,
+          sheetName: selectedSheet.value,
+          tableHeaderIndex: value,
+        });
+      }
+    }, 200),
+    [selectedSheet, selectedDatasource, selectedSheet],
+  );
+
   const tableHeaderIndexChangeHandler = (value: string) => {
-    if (
-      selectedDatasource.id &&
-      selectedSpreadsheet.id &&
-      selectedSheet.value &&
-      value !== "0"
-    ) {
+    if (value !== "0" && value) {
       setTableHeaderIndex(value);
-      fetchColumnHeaderList({
-        selectedDatasourceId: selectedDatasource.id,
-        selectedSpreadsheetId: selectedSpreadsheet.id,
-        sheetName: selectedSheet.value,
-        tableHeaderIndex: value,
-      });
+      debouncedFetchColumns(value);
     }
   };
 
