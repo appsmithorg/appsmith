@@ -283,7 +283,10 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  "Search Widgets, Queries, Documentation";
+  `Search Widgets, Queries, Documentation`;
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search Snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search Widgets and Queries";
+export const OMNIBAR_PLACEHOLDER_DOC = () => "Search Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -360,6 +363,9 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+//Editor Page
+export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
 // Generate page from DB Messages
 

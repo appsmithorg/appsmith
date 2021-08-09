@@ -20,11 +20,15 @@ describe("Validates Derived Properties", () => {
     const { getItems } = derivedProperty;
     const input = {
       listData: [1, 2],
+      childrenEntityDefinitions: {
+        TEXT_WIDGET: ["text"],
+      },
       template: {
         Input1: {
           widgetName: "Input1",
           widgetId: "some-random-id",
           text: [1, 2],
+          type: "TEXT_WIDGET",
           dynamicBindingPathList: [{ key: "text" }],
         },
       },
@@ -33,17 +37,11 @@ describe("Validates Derived Properties", () => {
     const expected = [
       {
         Input1: {
-          widgetName: "Input1",
-          widgetId: "some-random-id",
-          dynamicBindingPathList: [{ key: "text" }],
           text: 1,
         },
       },
       {
         Input1: {
-          widgetName: "Input1",
-          widgetId: "some-random-id",
-          dynamicBindingPathList: [{ key: "text" }],
           text: 2,
         },
       },
