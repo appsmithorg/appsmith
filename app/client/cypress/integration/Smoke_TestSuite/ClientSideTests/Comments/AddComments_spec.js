@@ -35,13 +35,25 @@ function typeIntoDraftEditor(selector, text) {
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
 let appName;
+let orgName;
 
 describe("Comments", function() {
   before(() => {
     return cy.wrap(null).then(async () => {
-      cy.addDsl(dsl);
-      appName = localStorage.getItem("AppName");
       await setFlagForTour();
+      cy.NavigateToHome();
+
+      cy.generateUUID().then((uid) => {
+        appName = uid;
+        orgName = uid;
+        cy.createOrg();
+        cy.wait("@createOrg").then((interception) => {
+          const newOrganizationName = interception.response.body.data.name;
+          cy.renameOrg(newOrganizationName, orgName);
+        });
+        cy.CreateAppForOrg(orgName, appName);
+        cy.addDsl(dsl);
+      });
     });
   });
 
