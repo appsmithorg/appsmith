@@ -1,6 +1,9 @@
 import { Datasource } from "entities/Datasource";
 import React from "react";
-import { CommandsCompletion } from "utils/autocomplete/TernServer";
+import {
+  AutocompleteDataType,
+  CommandsCompletion,
+} from "utils/autocomplete/TernServer";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType } from "entities/Action";
@@ -177,7 +180,7 @@ const commandsHeader = (
   className: "CodeMirror-command-header",
   data: { doc: "" },
   origin: "",
-  type: "UNKNOWN",
+  type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
   shortcut: "",
 });
@@ -192,7 +195,7 @@ const generateCreateNewCommand = ({
   displayText: displayText,
   data: { doc: "" },
   origin: "",
-  type: "UNKNOWN",
+  type: AutocompleteDataType.UNKNOWN,
   className: "CodeMirror-commands",
   shortcut: shortcut,
   action: action,

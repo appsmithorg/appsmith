@@ -25,7 +25,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
@@ -42,7 +41,6 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
-  resetCommentMode: () => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -201,7 +199,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode();
+            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -214,7 +212,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode();
+            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
           }}
@@ -256,7 +254,6 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
-    resetCommentMode: () => dispatch(setCommentModeAction(false)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
