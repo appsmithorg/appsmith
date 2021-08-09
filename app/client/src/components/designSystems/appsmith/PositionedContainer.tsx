@@ -48,10 +48,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex:
-        props.selected || props.focused
-          ? Layers.selectedWidget
-          : Layers.positionedWidget,
+      zIndex: props.focused
+        ? Layers.focusedWidget
+        : props.selected
+        ? Layers.selectedWidget
+        : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);
@@ -74,8 +75,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       data-testid="test-widget"
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
-      onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
+      onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}

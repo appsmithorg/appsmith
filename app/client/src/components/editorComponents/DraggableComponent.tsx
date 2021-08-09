@@ -14,6 +14,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+``;
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -166,6 +167,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     focusWidget &&
       !isResizingOrDragging &&
       focusedWidget !== props.widgetId &&
+      !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };

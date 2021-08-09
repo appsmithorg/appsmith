@@ -119,8 +119,8 @@ public class ImportExportApplicationServiceTests {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-    
-    private String invalid_json_file;
+
+    private static final String INVALID_JSON_FILE = "invalid json file";
     private Plugin installedPlugin;
     private String orgId;
     private String testAppId;
@@ -150,8 +150,6 @@ public class ImportExportApplicationServiceTests {
         testApplication.setOrganizationId(orgId);
         Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
         testAppId = savedApplication.getId();
-
-        invalid_json_file = importExportApplicationService.INVALID_JSON_FILE;
 
         Datasource ds1 = new Datasource();
         ds1.setName("DS1");
@@ -428,7 +426,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, invalid_json_file)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
             .verify();
     }
     
@@ -442,7 +440,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, invalid_json_file)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, INVALID_JSON_FILE)))
             .verify();
     }
     
@@ -484,9 +482,10 @@ public class ImportExportApplicationServiceTests {
                 
                 assertThat(application.getName()).isEqualTo("valid_application");
                 assertThat(application.getOrganizationId()).isNotNull();
-                assertThat(application.getPages()).isNotEmpty();
+                assertThat(application.getPages()).hasSize(2);
                 assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                
+                assertThat(application.getPublishedPages()).hasSize(1);
+
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
                     assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
@@ -506,7 +505,7 @@ public class ImportExportApplicationServiceTests {
                     
                 });
                 
-                assertThat(pageList).isNotEmpty();
+                assertThat(pageList).hasSize(2);
     
                 ApplicationPage defaultAppPage = application.getPages()
                     .stream()

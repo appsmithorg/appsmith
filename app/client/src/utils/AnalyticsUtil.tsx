@@ -1,6 +1,5 @@
 // Events
 import * as log from "loglevel";
-import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
@@ -279,7 +278,6 @@ class AnalyticsUtil {
     const { segment, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
-    FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {

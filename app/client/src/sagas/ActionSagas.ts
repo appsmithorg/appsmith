@@ -8,6 +8,8 @@ import {
   all,
   call,
   put,
+  putResolve,
+  race,
   select,
   take,
   takeEvery,
@@ -91,6 +93,11 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -768,6 +775,23 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      // const category = get(
+      //   actionPayload.payload,
+      //   "args.category",
+      //   SEARCH_CATEGORIES.INIT,
+      // );
+      yield putResolve(
+        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.SNIPPETS }),
+      );
+      yield put(toggleShowGlobalSearchModal());
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(effectRaceResult.success.payload);
+      break;
     case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
