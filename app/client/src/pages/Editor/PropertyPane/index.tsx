@@ -78,8 +78,9 @@ interface PropertyPaneState {
 }
 
 export const PropertyControlsWrapper = styled.div`
-  padding: ${(props) => props.theme.spaces[5]}px;
-  padding-top: 0px;
+  overflow: hidden;
+  margin: ${(props) => props.theme.spaces[5]}px;
+  margin-top: 0px;
 `;
 
 export const FixedHeader = styled.div`
@@ -183,7 +184,13 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
       <PropertyPaneBodyWrapper>
-        {!doActionsExist && !hideConnectDataCTA && <ConnectDataCTA />}
+        {!doActionsExist && !hideConnectDataCTA && (
+          <ConnectDataCTA
+            widgetId={widgetProperties.widgetId}
+            widgetTitle={widgetProperties.widgetName}
+            widgetType={widgetProperties?.type}
+          />
+        )}
         <PropertyControlsWrapper>
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}

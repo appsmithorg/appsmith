@@ -30,7 +30,10 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
+import org.springframework.web.server.session.CookieWebSessionIdResolver;
+import org.springframework.web.server.session.WebSessionIdResolver;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -38,6 +41,7 @@ import static com.appsmith.server.constants.Url.ACTION_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -165,6 +169,21 @@ public class SecurityConfig {
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
                 .and().build();
+    }
+
+    /**
+     * This bean configures the parameters that need to be set when a Cookie is created for a logged in user
+     * @return
+     */
+    @Bean
+    public WebSessionIdResolver webSessionIdResolver() {
+        CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
+        // Setting the max age to 30 days so that the cookie doesn't expire on browser close
+        // If the max age is not set, some browsers will default to deleting the cookies on session close.
+        resolver.setCookieMaxAge(Duration.of(30, DAYS));
+        resolver.addCookieInitializer((builder) -> builder.path("/"));
+        resolver.addCookieInitializer((builder) -> builder.sameSite("Lax"));
+        return resolver;
     }
 
     private User createAnonymousUser() {

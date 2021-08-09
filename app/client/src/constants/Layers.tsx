@@ -11,6 +11,7 @@ export enum Indices {
   Layer7,
   Layer8,
   Layer9,
+  Layer10,
   Layer21 = 21,
   LayerMax = 99999,
 }
@@ -31,6 +32,7 @@ export const Layers = {
   // Layers when dragging
   animatedSnappingDropZone: Indices.Layer2,
 
+  focusedWidget: Indices.Layer3,
   animatedDropZone: Indices.Layer3,
   // Must be higher than any widget
   widgetName: Indices.Layer3,
@@ -48,8 +50,10 @@ export const Layers = {
   productUpdates: Indices.Layer7,
   portals: Indices.Layer8,
   header: Indices.Layer9,
+  snipeableZone: Indices.Layer10,
   appComments: Indices.Layer7,
   max: Indices.LayerMax,
+  sideStickyBar: Indices.Layer7,
 };
 
 export const LayersContext = React.createContext(Layers);

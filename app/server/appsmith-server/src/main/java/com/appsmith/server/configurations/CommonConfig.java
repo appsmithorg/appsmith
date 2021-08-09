@@ -42,9 +42,9 @@ public class CommonConfig {
     private String allowedDomainsString;
 
     // Is this instance hosted on Appsmith cloud?
-    // isCloudHosted should be true only for our cloud instance
-    @Value("${is.cloud-hosted:false}")
-    private boolean isCloudHosted;
+    // isCloudHosting should be true only for our cloud instance
+    @Value("${is.cloud-hosting:false}")
+    private boolean isCloudHosting;
 
     @Value("${github_repo}")
     private String repo;
@@ -90,5 +90,4 @@ public class CommonConfig {
 
         return allowedDomains;
     }
-
 }

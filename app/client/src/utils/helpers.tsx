@@ -338,11 +338,20 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   return object;
 };
 
-export const getCanManage = (currentOrg: Org) => {
+// Can be used to check if the user has developer role access to org
+export const getCanCreateApplications = (currentOrg: Org) => {
   const userOrgPermissions = currentOrg.userPermissions || [];
   const canManage = isPermitted(
     userOrgPermissions,
-    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+    PERMISSION_TYPE.CREATE_APPLICATION,
   );
   return canManage;
+};
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    return new URL(redirectURL).origin === window.location.origin;
+  } catch (e) {
+    return false;
+  }
 };

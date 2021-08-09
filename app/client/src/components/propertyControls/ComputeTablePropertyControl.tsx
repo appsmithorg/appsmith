@@ -1,7 +1,9 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -33,7 +35,7 @@ export function InputText(props: {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
@@ -122,7 +124,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.sanitizedTableData.map((currentRow) => { return `.length,
+      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -132,7 +134,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.sanitizedTableData.map((currentRow) => { return ${stringToEvaluate}})}}`;
+    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
