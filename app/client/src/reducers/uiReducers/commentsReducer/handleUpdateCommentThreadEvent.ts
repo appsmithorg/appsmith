@@ -18,7 +18,7 @@ const handleUpdateCommentThreadEvent = (
     action.payload?.pinnedState?.active;
 
   const resolvedStateUpdated =
-    !commentThreadInStore?.resolvedState?.active !==
+    commentThreadInStore?.resolvedState?.active !==
     action.payload?.resolvedState?.active;
 
   const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;

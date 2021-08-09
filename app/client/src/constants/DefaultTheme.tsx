@@ -571,6 +571,134 @@ type ColorType = {
   overlayColor: string;
   button: {
     disabledText: ShadeColor;
+    boxShadow: {
+      default: {
+        variant1: Color;
+        variant2: Color;
+        variant3: Color;
+        variant4: Color;
+        variant5: Color;
+      };
+    };
+    disabled: {
+      bgColor: Color;
+      textColor: Color;
+    };
+    /**
+     * PRIMARY style
+     */
+    primary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * WARNING style
+     */
+    warning: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * DANGER style
+     */
+    danger: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * INFO style
+     */
+    info: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * SECONDARY style
+     */
+    secondary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -1296,6 +1424,94 @@ export const dark: ColorType = {
   },
   button: {
     disabledText: darkShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1771,6 +1987,94 @@ export const light: ColorType = {
   },
   button: {
     disabledText: lightShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#716E6E",
@@ -2411,6 +2715,8 @@ export const theme: Theme = {
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
     dropdownIconBg: Colors.ALTO2,
+    welcomeTourStickySidebarColor: Colors.WHITE,
+    welcomeTourStickySidebarBackground: "#F86A2B",
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
