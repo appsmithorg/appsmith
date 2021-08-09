@@ -38,6 +38,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import CanvasMultiPointerArena from "../pages/common/CanvasMultiPointerArena";
 
 /***
  * BaseWidget
@@ -303,6 +304,15 @@ abstract class BaseWidget<
     );
   }
 
+  addMultiPointerCanvasOverlay(content: ReactNode) {
+    return (
+      <>
+        {content}
+        <CanvasMultiPointerArena />
+      </>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
 
@@ -311,6 +321,7 @@ abstract class BaseWidget<
         content = this.getCanvasView();
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
+        content = this.addMultiPointerCanvasOverlay(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
