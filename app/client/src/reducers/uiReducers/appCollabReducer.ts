@@ -13,6 +13,11 @@ const appCollabReducer = createReducer(initialState, {
   ) => {
     return { ...state, editors: action.payload.users };
   },
+  [ReduxActionTypes.APP_COLLAB_RESET_EDITORS]: (
+    state: AppCollabReducerState,
+  ) => {
+    return { ...state, editors: [] };
+  },
 });
 
 export type AppCollabReducerState = {

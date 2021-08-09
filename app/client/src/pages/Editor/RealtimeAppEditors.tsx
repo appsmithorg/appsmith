@@ -9,6 +9,7 @@ import { AppState } from "reducers";
 import {
   collabStartEditingAppEvent,
   collabStopEditingAppEvent,
+  collabResetAppEditorsEvent,
 } from "actions/appCollabActions";
 
 const UserImageContainer = styled.div`
@@ -44,6 +45,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
       applicationId &&
       dispatch(collabStartEditingAppEvent(applicationId));
     return () => {
+      dispatch(collabResetAppEditorsEvent());
       applicationId && dispatch(collabStopEditingAppEvent(applicationId));
     };
   }, [applicationId, isWebsocketConnected]);

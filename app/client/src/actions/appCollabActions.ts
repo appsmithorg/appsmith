@@ -18,3 +18,7 @@ export const collabListAppEditorsEvent = (payload: any) => ({
   type: ReduxActionTypes.APP_COLLAB_LIST_EDITORS,
   payload,
 });
+
+export const collabResetAppEditorsEvent = () => ({
+  type: ReduxActionTypes.APP_COLLAB_RESET_EDITORS,
+});
