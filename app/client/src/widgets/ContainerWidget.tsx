@@ -18,6 +18,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 import { ListChildComponentProps, FixedSizeList as List } from "react-window";
+import { scrollbarWidth } from "utils/helpers";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -81,7 +82,8 @@ class ContainerWidget extends BaseWidget<
       // Widgets like ListWidget choose to have no container padding so will only have widget padding
       padding = WIDGET_PADDING * 2;
     }
-    let width = componentWidth;
+    let width =
+      componentWidth - (this.props.isVirtualized ? scrollbarWidth() : 0);
     width -= padding;
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
@@ -172,7 +174,10 @@ class ContainerWidget extends BaseWidget<
           height={componentHeight}
           itemCount={sortedChildren.length}
           itemSize={rowHeight}
-          width={componentWidth}
+          style={{
+            overflowX: "hidden",
+          }}
+          width={"100%"}
         >
           {Row}
         </List>
