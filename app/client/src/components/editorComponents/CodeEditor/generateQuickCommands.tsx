@@ -11,10 +11,12 @@ import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
+import { ReactComponent as Function } from "assets/icons/menu/function.svg";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
+  FUNCTION = "FUNCTION",
 }
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
@@ -40,6 +42,12 @@ export const generateQuickCommands = (
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
   });
+  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+  //   text: "",
+  //   displayText: "Insert Snippet",
+  //   shortcut: Shortcuts.FUNCTION,
+  //   action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
+  // });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
@@ -99,7 +107,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []),
+    ...matchingCommands([newBinding], searchText, []), //insertSnippet
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {
@@ -188,6 +196,12 @@ const generateCreateNewCommand = ({
   },
 });
 
+const iconsByType = {
+  [Shortcuts.BINDING]: <Binding />,
+  [Shortcuts.PLUS]: <NewPlus />,
+  [Shortcuts.FUNCTION]: <Function />,
+};
+
 function Command(props: {
   pluginType?: PluginType;
   imgSrc?: string;
@@ -205,10 +219,7 @@ function Command(props: {
             SAAS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
-        {props.shortcut &&
-          { [Shortcuts.BINDING]: <Binding />, [Shortcuts.PLUS]: <NewPlus /> }[
-            props.shortcut
-          ]}
+        {props.shortcut && iconsByType[props.shortcut]}
         <span>{props.name}</span>
       </div>
     </div>
