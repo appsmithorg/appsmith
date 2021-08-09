@@ -319,8 +319,6 @@ public class PostgresPlugin extends BasePlugin {
 
                     } else {
 
-                        int fetchSize = resultSet.getFetchSize();
-                        System.out.println("Fetch size : " + fetchSize);
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
                         columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
@@ -329,6 +327,7 @@ public class PostgresPlugin extends BasePlugin {
                         while (resultSet.next()) {
                             iterator++;
 
+                            // Only check the data size at low frequency to ensure the performance is not impacted heavily
                             if (iterator% HEAVY_OP_FREQUENCY == 0) {
                                 int objectSize = sizeof(rowsList);
                                 System.out.println("current size of results : " + objectSize);
