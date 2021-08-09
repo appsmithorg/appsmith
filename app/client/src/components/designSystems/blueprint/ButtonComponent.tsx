@@ -240,12 +240,7 @@ function RecaptchaV3Component(
 ) {
   // Check if a string is a valid JSON string
   const checkValidJson = (inputString: string): boolean => {
-    try {
-      JSON.parse(inputString);
-      return true;
-    } catch (err) {
-      return false;
-    }
+    return !inputString.includes('"');
   };
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -278,11 +273,9 @@ function RecaptchaV3Component(
   };
 
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
-
-  if (validGoogleRecaptchaKey && checkValidJson(validGoogleRecaptchaKey)) {
+  if (validGoogleRecaptchaKey && !checkValidJson(validGoogleRecaptchaKey)) {
     validGoogleRecaptchaKey = undefined;
   }
-
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
   );
