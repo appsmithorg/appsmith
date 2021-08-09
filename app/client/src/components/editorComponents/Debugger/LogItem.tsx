@@ -216,8 +216,7 @@ function LogItem(props: LogItemProps) {
         console.log(window.Intercom, "window.Intercom");
         if (intercomAppID && window.Intercom) {
           console.log("open intercom");
-          window.Intercom("show");
-          window.Intercom("showMessage", text);
+          window.Intercom("showNewMessage", text);
         }
     }
   }, []);
