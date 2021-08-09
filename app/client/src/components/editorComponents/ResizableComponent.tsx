@@ -41,9 +41,9 @@ import { getNearestParentCanvas } from "utils/generators";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
