@@ -344,7 +344,7 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: VALIDATION_TYPES.BOOLEAN,
+                  validation: { type: ValidationTypes.BOOLEAN },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const columnType = get(
                       props,
