@@ -48,7 +48,7 @@ describe("Checkbox Group Widget Functionality", function() {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert(commonlocators.optionchangeRadioselect);
-    cy.get(formWidgetsPage.defaultSelect);
+    cy.get(formWidgetsPage.defaultSelectValues);
     cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
       .get(commonlocators.dropdownSelectButton)
       .click({ force: true })
