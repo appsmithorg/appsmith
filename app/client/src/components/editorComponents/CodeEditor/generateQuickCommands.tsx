@@ -31,7 +31,8 @@ export const generateQuickCommands = (
     recentEntities: string[];
   },
   expectedType: string,
-  entityId: string,
+  entityId: any,
+  propertyPath: any,
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
@@ -52,6 +53,10 @@ export const generateQuickCommands = (
           entityType: currentEntityType,
           expectedType: expectedType,
           entityId: entityId,
+          propertyPath: propertyPath
+            .split(".")
+            .slice(-1)
+            .pop(),
         },
       }),
   });

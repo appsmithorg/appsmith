@@ -371,9 +371,10 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: HintEntityInformation = {
       expectedType: expected?.type,
     };
-    let entityId = null;
     if (dataTreePath) {
-      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
       if (entity && "ENTITY_TYPE" in entity) {
@@ -384,14 +385,14 @@ class CodeEditor extends Component<Props, State> {
         ) {
           entityInformation.entityType = entityType;
         }
-        if (isActionEntity(entity)) entityId = entity.actionId;
-        if (isWidgetEntity(entity)) entityId = entity.widgetId;
       }
+      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
+      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
+      entityInformation.propertyPath = propertyPath;
     }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
-        entityId: entityId,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,

@@ -781,13 +781,15 @@ function* executeCommand(
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      const entityType = get(actionPayload, "payload.args.entityType");
-      const expectedType = get(actionPayload, "payload.args.expectedType");
-      const entityId = get(actionPayload, "payload.args.entityId");
+      const { entityId, entityType, expectedType, propertyPath } = get(
+        actionPayload,
+        "payload.args",
+      );
       const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
         expectedType,
+        propertyPath,
       );
       yield putResolve(
         setGlobalSearchFilterContext({
@@ -856,10 +858,12 @@ function* buildMetaForSnippets(
   entityId: any,
   entityType: string,
   expectedType: string,
+  propertyPath: string,
 ) {
   const refinements: any = {};
   const fieldMeta = {
     dataType: expectedType,
+    fields: `${propertyPath}<score=2>`,
   };
   let currentEntity, type;
   if (entityType === ENTITY_TYPE.ACTION) {
