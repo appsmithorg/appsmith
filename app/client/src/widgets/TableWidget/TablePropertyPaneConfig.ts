@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get, isNumber } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
@@ -161,8 +161,36 @@ const updateDerivedColumnsHook = (
         ];
       }
 
+      const isDerived = propertyValue.isDerived;
+      const columnIndex = propertyValue.columnIndex;
       const oldColumnOrder = props.columnOrder || [];
-      const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+      let newColumnOrder;
+      if (isDerived && oldColumnOrder.length && isNumber(columnIndex)) {
+        // derivedColumns getting updated so preserv index in columnOrder
+        newColumnOrder = [];
+        if (columnIndex === 0) {
+          newColumnOrder = [newId, ...oldColumnOrder];
+        } else if (columnIndex >= oldColumnOrder.length) {
+          newColumnOrder = [...oldColumnOrder, newId];
+        } else {
+          // previous column removed from columnOrder
+          // so add new columnName at their position using propertyValue.columnIndex
+          for (let index = 0; index < oldColumnOrder.length; index++) {
+            if (index === columnIndex) {
+              newColumnOrder.push(propertyValue.id);
+            }
+            newColumnOrder.push(oldColumnOrder[index]);
+          }
+        }
+        // add dynamicBindingPathList at edit time
+        propertiesToUpdate.push({
+          propertyPath: `primaryColumns.${newId}.computedValue`,
+          propertyValue: propertyValue.computedValue,
+        });
+      } else {
+        // adding new column
+        newColumnOrder = [...oldColumnOrder, propertyValue.id];
+      }
       propertiesToUpdate.push({
         propertyPath: "columnOrder",
         propertyValue: newColumnOrder,

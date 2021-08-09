@@ -18,9 +18,12 @@ import {
   getDefaultColumnProperties,
   getTableStyles,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { Size, Category } from "components/ads/Button";
-import { reorderColumns } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import {
+  removeSpecialChars,
+  reorderColumns,
+} from "components/designSystems/appsmith/TableComponent/TableHelpers";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -320,12 +323,37 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       index,
       this.props.widgetProperties.columnOrder,
     );
-
     if (originalColumn) {
-      this.updateProperty(
-        `${this.props.propertyName}.${originalColumn.id}.label`,
-        updatedLabel,
-      );
+      // update derived column properties
+      if (originalColumn.isDerived) {
+        const newColumnId = removeSpecialChars(updatedLabel);
+        const updatedColumn = {
+          ...this.props.propertyValue[originalColumn.id],
+          id: newColumnId,
+          label: updatedLabel,
+        };
+        // delete existing properties which are updating
+        this.deleteOption(index);
+        // get ordered column index in pane after delete
+        const columnIndex = getOriginalColumn(
+          columns,
+          index,
+          this.props.widgetProperties.columnOrder,
+        )?.index;
+        // set additional data
+        set(updatedColumn, "columnIndex", columnIndex);
+        // updated column data with column settings
+        this.updateProperty(
+          `${this.props.propertyName}.${newColumnId}`,
+          updatedColumn,
+        );
+      } else {
+        // primary column handled
+        this.updateProperty(
+          `${this.props.propertyName}.${originalColumn.id}.label`,
+          updatedLabel,
+        );
+      }
     }
   };
 
