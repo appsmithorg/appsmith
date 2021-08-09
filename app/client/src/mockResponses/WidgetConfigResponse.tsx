@@ -1267,6 +1267,45 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "IconButton",
       version: 1,
     },
+    STATBOX_WIDGET: {
+      rows: 13 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Statbox",
+      backgroundColor: "white",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              version: 1,
+              blueprint: {
+                view: [
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 1, left: 1.5 },
+                    props: {
+                      text: "Page Views",
+                      fontSize: "HEADING1",
+                      version: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
   },
   configVersion: 1,
 };

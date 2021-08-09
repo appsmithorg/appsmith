@@ -363,4 +363,9 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
+  },
 };

@@ -179,6 +179,11 @@ export const WidgetIcons: {
       <IconButtonIcon />
     </IconWrapper>
   ),
+  STATBOX_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IconButtonIcon />
+    </IconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

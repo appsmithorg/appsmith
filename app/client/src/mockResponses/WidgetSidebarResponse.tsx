@@ -134,6 +134,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Icon Button",
     key: generateReactKey(),
   },
+  {
+    type: "STATBOX_WIDGET",
+    widgetCardName: "Stat Box",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

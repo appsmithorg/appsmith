@@ -127,6 +127,10 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import StatboxWidget, {
+  StatboxWidgetProps,
+  ProfiledStatboxWidget,
+} from "widgets/StatboxWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -554,6 +558,21 @@ export default class WidgetBuilderRegistry {
       IconButtonWidget.getDefaultPropertiesMap(),
       IconButtonWidget.getMetaPropertiesMap(),
       IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "STATBOX_WIDGET",
+      {
+        buildWidget(
+          widgetProps: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <ProfiledStatboxWidget {...widgetProps} />;
+        },
+      },
+      StatboxWidget.getDerivedPropertiesMap(),
+      StatboxWidget.getDefaultPropertiesMap(),
+      StatboxWidget.getMetaPropertiesMap(),
+      StatboxWidget.getPropertyPaneConfig(),
     );
   }
 }

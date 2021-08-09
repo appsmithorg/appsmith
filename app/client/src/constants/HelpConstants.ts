@@ -139,6 +139,10 @@ export const HelpMap = {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",
   },
+  STATBOX_WIDGET: {
+    path: "",
+    searchKey: "Stat Box",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
