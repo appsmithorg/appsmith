@@ -112,6 +112,8 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int HEAVY_OP_FREQUENCY = 100;
 
+    private static final int MAX_SIZE_SUPPORTED = 1000000;
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -164,8 +166,6 @@ public class PostgresPlugin extends BasePlugin {
                         "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
-
-//        private static volatile Instrumentation globalInstrumentation;
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -333,8 +333,9 @@ public class PostgresPlugin extends BasePlugin {
                                 int objectSize = sizeof(rowsList);
                                 System.out.println("current size of results : " + objectSize);
 
-                                if (objectSize > 300000) {
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR))
+                                if (objectSize > MAX_SIZE_SUPPORTED) {
+                                    System.out.println("Erroring out because current size of results : " + objectSize);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED));
                                 }
                             }
 

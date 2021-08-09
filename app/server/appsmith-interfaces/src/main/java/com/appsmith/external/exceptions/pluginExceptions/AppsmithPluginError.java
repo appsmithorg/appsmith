@@ -14,7 +14,7 @@ public enum AppsmithPluginError {
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
             "Please increase timeout. This can be found in Settings tab of {0}.", AppsmithErrorAction.DEFAULT, "Timed" +
             " out on query execution"),
-    PLUGIN_MAX_RESULT_SIZE_EXCEEDED(504, 5009, "{0} result size exceeded the supported"
+    PLUGIN_MAX_RESULT_SIZE_EXCEEDED(504, 5009, "Result size exceeded the supported"
             + " size in Appsmith. Please limit the number of data points returned.",
             AppsmithErrorAction.DEFAULT, "Large Result Set Not Supported"),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Timed out when fetching" +
