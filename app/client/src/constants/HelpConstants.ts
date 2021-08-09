@@ -139,6 +139,10 @@ export const HelpMap = {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",
   },
+  RECORDER_WIDGET: {
+    path: "/widget-reference/recorder",
+    searchKey: "Recorder",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

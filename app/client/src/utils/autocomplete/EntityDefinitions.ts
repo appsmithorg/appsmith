@@ -293,6 +293,12 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/icon-button",
     isVisible: isVisible,
   },
+  RECORDER_WIDGET: {
+    "!doc":
+      "Recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
+    "!url": "https://docs.appsmith.com/widget-reference/recorder",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {

@@ -127,6 +127,10 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import RecorderWidget, {
+  ProfiledRecorderWidget,
+  RecorderWidgetProps,
+} from "widgets/RecorderWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -554,6 +558,19 @@ export default class WidgetBuilderRegistry {
       IconButtonWidget.getDefaultPropertiesMap(),
       IconButtonWidget.getMetaPropertiesMap(),
       IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.RECORDER_WIDGET,
+      {
+        buildWidget(widgetData: RecorderWidgetProps): JSX.Element {
+          return <ProfiledRecorderWidget {...widgetData} />;
+        },
+      },
+      RecorderWidget.getDerivedPropertiesMap(),
+      RecorderWidget.getDefaultPropertiesMap(),
+      RecorderWidget.getMetaPropertiesMap(),
+      RecorderWidget.getPropertyPaneConfig(),
     );
   }
 }

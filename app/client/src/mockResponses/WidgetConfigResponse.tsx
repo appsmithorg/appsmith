@@ -1267,6 +1267,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "IconButton",
       version: 1,
     },
+    [WidgetTypes.RECORDER_WIDGET]: {
+      backgroundColor: "#F86A2B",
+      iconColor: "white",
+      isDisabled: false,
+      isVisible: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Recorder",
+      version: 1,
+    },
   },
   configVersion: 1,
 };

@@ -134,6 +134,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Icon Button",
     key: generateReactKey(),
   },
+  {
+    type: "RECORDER_WIDGET",
+    widgetCardName: "Recorder",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
