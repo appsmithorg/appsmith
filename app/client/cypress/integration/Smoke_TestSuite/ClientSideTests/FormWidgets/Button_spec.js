@@ -94,7 +94,7 @@ describe("Button Widget Functionality", function() {
   it("Toggle JS - Button-Disable Validation", function() {
     //Check the disabled checkbox by using JS widget and Validate
     cy.get(widgetsPage.toggleDisable).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleDisable, "true");
+    cy.testJsontext("disabled", "true");
     cy.validateDisableWidget(
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
@@ -108,7 +108,7 @@ describe("Button Widget Functionality", function() {
 
   it("Toggle JS - Button-Enable Validation", function() {
     //Uncheck the disabled checkbox and validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleDisable, "false");
+    cy.testJsontext("disabled", "false");
     cy.validateEnableWidget(
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
@@ -137,14 +137,14 @@ describe("Button Widget Functionality", function() {
   it("Toggle JS - Button-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
   });
 
   it("Toggle JS - Button-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
   });
