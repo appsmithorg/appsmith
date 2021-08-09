@@ -115,5 +115,6 @@
   "currencyType": ".t--property-control-currency  .bp3-popover-target",
   "decimalType": ".t--property-control-decimals  .bp3-popover-target",
   "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
-  "inputCurrencyChangeType": ".t--input-currency-change"
+  "inputCurrencyChangeType": ".t--input-currency-change",
+  "viewerPage": ".t--app-viewer-page"
 }
