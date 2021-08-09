@@ -206,6 +206,7 @@ export const ActionType = {
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
+  jsFunction: "jsFunction",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -298,6 +299,7 @@ const views = {
 
 export const FieldType = {
   ACTION_SELECTOR_FIELD: "ACTION_SELECTOR_FIELD",
+  JS_ACTION_SELECTOR_FIELD: "JS_ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD: "ON_SUCCESS_FIELD",
   ON_ERROR_FIELD: "ON_ERROR_FIELD",
   SHOW_MODAL_FIELD: "SHOW_MODAL_FIELD",
@@ -317,6 +319,7 @@ export const FieldType = {
   NAVIGATION_TARGET_FIELD: "NAVIGATION_TARGET_FIELD",
   WIDGET_NAME_FIELD: "WIDGET_NAME_FIELD",
   RESET_CHILDREN_FIELD: "RESET_CHILDREN_FIELD",
+  ARGUMENT_KEY_VALUE_FIELD: "ARGUMENT_KEY_VALUE_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -393,6 +396,15 @@ const fieldConfigs: FieldConfigs = {
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.KEY_VALUE_FIELD]: {
+    getter: (value: any) => {
+      return value;
+    },
+    setter: (value: any) => {
+      return value;
+    },
+    view: ViewTypes.KEY_VALUE_VIEW,
+  },
+  [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
     getter: (value: any) => {
       return value;
     },
@@ -661,6 +673,10 @@ function renderField(props: {
         value: props.value,
         defaultText: "Select Action",
       });
+      break;
+    case FieldType.ARGUMENT_KEY_VALUE_FIELD:
+      break;
+    case FieldType.JS_ACTION_SELECTOR_FIELD:
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
