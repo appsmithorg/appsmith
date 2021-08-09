@@ -8,6 +8,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +31,8 @@ public class EnvManager {
     private final UserService userService;
     private final PolicyUtils policyUtils;
 
-    private static final Path ENV_FILE_PATH = Path.of("server-controlled.env");
+    @Value("${appsmith.admin.envfile:/opt/appsmith/docker.env}")
+    public String envFilePath;
 
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
@@ -78,23 +80,23 @@ public class EnvManager {
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .filter(user -> policyUtils.isPermissionPresentForUser(
                         user.getPolicies(),
-                        AclPermission.MANAGE_INSTANCE_CONFIG.getValue(),
+                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
                         user.getUsername()
                 ))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(user -> {
                     final String originalContent;
                     try {
-                        originalContent = Files.readString(ENV_FILE_PATH);
+                        originalContent = Files.readString(Path.of(envFilePath));
                     } catch (IOException e) {
-                        log.error("Unable to read env file " + ENV_FILE_PATH, e);
+                        log.error("Unable to read env file " + envFilePath, e);
                         return Mono.error(e);
                     }
 
                     final List<String> changedContent = transformEnvContent(originalContent, changes);
 
                     try {
-                        Files.write(ENV_FILE_PATH, changedContent);
+                        Files.write(Path.of(envFilePath), changedContent);
                     } catch (IOException e) {
                         e.printStackTrace();
                         return Mono.just(false);

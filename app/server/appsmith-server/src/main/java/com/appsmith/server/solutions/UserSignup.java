@@ -155,8 +155,8 @@ public class UserSignup {
                     }
 
                     policyUtils.addPoliciesToExistingObject(Map.of(
-                            AclPermission.MANAGE_INSTANCE_CONFIG.getValue(),
-                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_CONFIG.getValue()).users(Set.of(user.getUsername())).build()
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_ENV.getValue()).users(Set.of(user.getUsername())).build()
                     ), user);
 
                     return signupAndLogin(user, exchange);
