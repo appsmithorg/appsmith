@@ -36,13 +36,21 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
-    private static final Set<String> DISALLOWED_VARIABLES = Set.of(
+    private static final Set<String> VARIABLE_BLACKLIST = Set.of(
             "APPSMITH_ENCRYPTION_PASSWORD",
             "APPSMITH_ENCRYPTION_SALT"
     );
 
+    /**
+     * Updates values of variables in the envContent string, based on the changes map given. This function **only**
+     * updates values of variables that already defined in envContent. It NEVER adds new env variables to it. This is so
+     * a malicious request won't insert new dubious env variables.
+     * @param envContent String content of an env file.
+     * @param changes A map with variable name to new value.
+     * @return List of string lines for updated env file content.
+     */
     public static List<String> transformEnvContent(String envContent, Map<String, String> changes) {
-        for (final String variable : DISALLOWED_VARIABLES) {
+        for (final String variable : VARIABLE_BLACKLIST) {
             if (changes.containsKey(variable)) {
                 throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
             }
