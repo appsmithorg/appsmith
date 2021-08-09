@@ -29,7 +29,10 @@ export const usePositionedContainerZIndex = (
       }
     } else {
       // common use case when nothing is dragged
-      return props.selected || props.focused
+
+      return props.focused
+        ? Layers.focusedWidget
+        : props.selected
         ? Layers.selectedWidget
         : Layers.positionedWidget;
     }
