@@ -44,7 +44,7 @@ import {
 } from "comments/tour/commentsTourSteps";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
-import { getCanManage } from "utils/helpers";
+import { getCanCreateApplications } from "utils/helpers";
 
 import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -141,7 +141,7 @@ const useUserSuggestions = (
 ) => {
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
-  const canManage = getCanManage(currentOrg);
+  const canManage = getCanCreateApplications(currentOrg);
 
   useEffect(() => {
     const result = [] as Array<MentionData>;
