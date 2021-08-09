@@ -7,9 +7,12 @@ import "../src/index.css";
 
 addDecorator(withContexts(contexts));
 addParameters({
-    backgrounds: [
-        { name: 'dark', value: '#090707', default: true },
-        { name: 'light', value: '#fff' },
-    ],
+    backgrounds: {
+        default: 'light',
+        values: [
+            { name: 'dark', value: '#090707'},
+            { name: 'light', value: '#fff' },
+        ]
+    },
 });
 configure(require.context("../src", true, /\.stories\.tsx$/), module);
