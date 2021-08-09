@@ -190,7 +190,10 @@ function LogItem(props: LogItemProps) {
 
   const openHelpModal = useCallback((e, message?: string) => {
     e.stopPropagation();
-    const text = message || props.text;
+    const text =
+      message ||
+      (props.messages?.length ? props.messages[0].message : false) ||
+      props.text;
 
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "DEBUGGER",

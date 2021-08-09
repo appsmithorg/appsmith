@@ -115,6 +115,8 @@ function getLatestEvalPropertyErrors(
         // Add or update
         updatedDebuggerErrors[debuggerKey] = {
           logType: LOG_TYPE.EVAL_ERROR,
+          // Unless the intention is to change the message shown in the debugger please do not
+          // change the text shown here
           text: createMessage(VALUE_IS_INVALID, propertyPath),
           messages: errorMessages,
           severity: error.severity,
