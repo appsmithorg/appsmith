@@ -1423,7 +1423,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "x", "y"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "x", "x"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET, "x", "x"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1535,7 +1535,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "id", "ppu"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "id", "type"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET, "id", "type"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1639,7 +1639,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "url", "url"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET, "url", "url"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1698,7 +1698,7 @@ public class ActionServiceTest {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "CarType", "carID"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET, "CarType", "carID"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1780,7 +1780,6 @@ public class ActionServiceTest {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.LIST_WIDGET));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1928,7 +1927,7 @@ public class ActionServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET,"users","name","id"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET,"users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.LIST_WIDGET,"users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.LIST_WIDGET,"users", "name", "status"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET,"users","name", "status"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -2039,6 +2038,49 @@ public class ActionServiceTest {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionNestedData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{\"data\": {\n" +
+                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
+                "    \"previous\": null,\n" +
+                "    \"users\": []\n" +
+                "}}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();

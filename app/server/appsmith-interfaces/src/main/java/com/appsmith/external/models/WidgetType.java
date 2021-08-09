@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum WidgetType {
     TEXT_WIDGET("data"),
-    LIST_WIDGET("data"),
+    LIST_WIDGET("data, currentItem.img, currentItem.%s, currentItem.%s"),
     DROP_DOWN_WIDGET("data.map( (obj) =>{ return  {'label': obj.%s, 'value': obj.%s } })"),
     CHART_WIDGET("data.map( (obj) =>{ return  {'x': obj.%s, 'y': obj.%s } })"),
     TABLE_WIDGET("data"),

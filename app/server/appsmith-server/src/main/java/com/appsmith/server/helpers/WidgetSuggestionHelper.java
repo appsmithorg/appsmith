@@ -87,8 +87,12 @@ public class WidgetSuggestionHelper {
                             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                         } else {
                             String nestedFieldName = objectFields.get(0);
-                            collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
-                            widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            if(node.get(nestedFieldName).size() == 0) {
+                                widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                            } else {
+                                collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
+                                widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            }
                         }
                     }
 
@@ -150,15 +154,16 @@ public class WidgetSuggestionHelper {
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
                 widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(1)));
+                widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
         widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
         widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         return widgetTypeList;
     }
@@ -185,15 +190,16 @@ public class WidgetSuggestionHelper {
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.LIST_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
             } else {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.LIST_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
         widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET, nestedFieldName));
-        widgetTypeList.add(getWidgetNestedData(WidgetType.LIST_WIDGET, nestedFieldName));
         widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
         return widgetTypeList;
     }
