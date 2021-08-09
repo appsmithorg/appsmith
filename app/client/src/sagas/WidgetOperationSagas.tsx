@@ -540,6 +540,9 @@ export function* deleteAllSelectedWidgetsSaga(
                 type: ENTITY_TYPE.WIDGET,
                 id: widget.widgetId,
               },
+              analytics: {
+                widgetType: widget.type,
+              },
             });
           });
         }
@@ -660,6 +663,9 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
                   name: widget.widgetName,
                   type: ENTITY_TYPE.WIDGET,
                   id: widget.widgetId,
+                },
+                analytics: {
+                  widgetType: widget.type,
                 },
               });
             });

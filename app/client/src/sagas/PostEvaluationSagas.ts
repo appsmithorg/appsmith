@@ -16,13 +16,11 @@ import {
   PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { find, findIndex, get, isMatch, some } from "lodash";
+import { find, get, some } from "lodash";
 import LOG_TYPE from "../entities/AppsmithConsole/logtype";
-import moment from "moment/moment";
 import { put, select } from "redux-saga/effects";
 import {
   ReduxAction,
-  ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { Toaster } from "components/ads/Toast";
@@ -41,12 +39,10 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
-import store from "../store";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
-function getLatestEvalPropertyErrors(
+function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
   evaluationOrder: Array<string>,
@@ -87,8 +83,6 @@ function getLatestEvalPropertyErrors(
       // if debugger has error but data tree does not -> remove
       // if debugger or data tree does not have an error -> no change
 
-      const existingErrorMessages =
-        updatedDebuggerErrors[debuggerKey]?.messages ?? [];
       if (evalErrors.length) {
         // TODO Rank and set the most critical error
         const error = evalErrors[0];
@@ -100,69 +94,8 @@ function getLatestEvalPropertyErrors(
             type: e.errorType,
           };
 
-          // Checks if this is a new error
-          // If it is a new error log an analytics event
-          // for the same
-          if (existingErrorMessages.length) {
-            const exists = findIndex(
-              existingErrorMessages,
-              (existingErrorMessage) => {
-                return isMatch(existingErrorMessage, formattedError);
-              },
-            );
-            if (exists < 0) {
-              store.dispatch(
-                logDebuggerErrorAnalytics({
-                  eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                  entityId: idField,
-                  entityName: nameField,
-                  entityType,
-                  propertyPath,
-                  errorMessage: e.errorMessage,
-                  errorType: e.errorType,
-                }),
-              );
-            }
-          }
-
           return formattedError;
         });
-
-        // If any previous error message no longer exists
-        // logging the same for analytics
-        existingErrorMessages?.map((existingErrorMessage) => {
-          const exists = findIndex(errorMessages, (errorMessage) => {
-            return isMatch(errorMessage, existingErrorMessage);
-          });
-          if (exists < 0) {
-            store.dispatch(
-              logDebuggerErrorAnalytics({
-                eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-                entityId: idField,
-                entityName: nameField,
-                entityType,
-                propertyPath,
-                errorMessage: existingErrorMessage.message,
-                errorType: existingErrorMessage.type,
-              }),
-            );
-          }
-        });
-
-        // If a new error log has been added we log the same
-        // for analytics
-        if (!(debuggerKey in updatedDebuggerErrors)) {
-          store.dispatch(
-            logDebuggerErrorAnalytics({
-              eventName: "DEBUGGER_NEW_ERROR",
-              entityId: idField,
-              entityName: nameField,
-              entityType,
-              propertyPath,
-              errorMessages,
-            }),
-          );
-        }
 
         const analyticsData = isWidget(entity)
           ? {
@@ -171,14 +104,13 @@ function getLatestEvalPropertyErrors(
           : {};
 
         // Add or update
-        updatedDebuggerErrors[debuggerKey] = {
+        AppsmithConsole.addError({
+          id: debuggerKey,
           logType: LOG_TYPE.EVAL_ERROR,
           text: PropertyEvalErrorTypeDebugMessage[error.errorType](
             propertyPath,
           ),
           messages: errorMessages,
-          severity: error.severity,
-          timestamp: moment().format("hh:mm:ss"),
           source: {
             id: idField,
             name: nameField,
@@ -189,41 +121,12 @@ function getLatestEvalPropertyErrors(
             [propertyPath]: evaluatedValue,
           },
           analytics: analyticsData,
-        };
-      } else if (debuggerKey in updatedDebuggerErrors) {
-        const errorMessages = updatedDebuggerErrors[debuggerKey].messages ?? [];
-        store.dispatch(
-          logDebuggerErrorAnalytics({
-            eventName: "DEBUGGER_RESOLVED_ERROR",
-            entityId: idField,
-            entityName: nameField,
-            entityType,
-            propertyPath:
-              updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
-            errorMessages,
-          }),
-        );
-        // Logging analytic events for all error messages as they are resolved
-        errorMessages.map((errorMessage) => {
-          store.dispatch(
-            logDebuggerErrorAnalytics({
-              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              entityId: idField,
-              entityName: nameField,
-              entityType,
-              propertyPath:
-                updatedDebuggerErrors[debuggerKey].source?.propertyPath ?? "",
-              errorMessage: errorMessage.message,
-              errorType: errorMessage.type,
-            }),
-          );
         });
-        // Remove
-        delete updatedDebuggerErrors[debuggerKey];
+      } else if (debuggerKey in updatedDebuggerErrors) {
+        AppsmithConsole.deleteError(debuggerKey);
       }
     }
   }
-  return updatedDebuggerErrors;
 }
 
 export function* evalErrorHandler(
@@ -235,16 +138,12 @@ export function* evalErrorHandler(
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
-    const evalPropertyErrors = getLatestEvalPropertyErrors(
+    // Update latest errors to the debugger
+    logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
       evaluationOrder,
     );
-
-    yield put({
-      type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-      payload: evalPropertyErrors,
-    });
   }
 
   errors.forEach((error) => {

@@ -8,7 +8,7 @@ export enum ENTITY_TYPE {
   WIDGET = "WIDGET",
 }
 
-export type ErrorType = PropertyEvaluationErrorType;
+export type ErrorType = PropertyEvaluationErrorType | "PLUGIN_EXECUTION";
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
@@ -44,6 +44,8 @@ export interface SourceEntity {
 }
 
 export interface LogActionPayload {
+  // Log id, used for updating or deleting
+  id?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
   text: string;

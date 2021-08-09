@@ -1,10 +1,19 @@
-import { debuggerLogInit } from "actions/debuggerActions";
+import {
+  addErrorLogInit,
+  debuggerLogInit,
+  deleteErrorLogInit,
+} from "actions/debuggerActions";
+import { ReduxAction } from "constants/ReduxActionConstants";
 import { Severity, LogActionPayload, Log } from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";
 
+function dispatchAction(action: ReduxAction<unknown>) {
+  store.dispatch(action);
+}
+
 function log(ev: Log) {
-  store.dispatch(debuggerLogInit(ev));
+  dispatchAction(debuggerLogInit(ev));
 }
 
 function getTimeStamp() {
@@ -35,8 +44,24 @@ function error(ev: LogActionPayload) {
   });
 }
 
+function addError(payload: LogActionPayload) {
+  dispatchAction(
+    addErrorLogInit({
+      ...payload,
+      severity: Severity.ERROR,
+      timestamp: getTimeStamp(),
+    }),
+  );
+}
+
+function deleteError(id: string, analytics?: Log["analytics"]) {
+  dispatchAction(deleteErrorLogInit(id, analytics));
+}
+
 export default {
   info,
   warning,
   error,
+  addError,
+  deleteError,
 };
