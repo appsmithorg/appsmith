@@ -24,7 +24,6 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
-  setGlobalSearchFilterContext,
   cancelSnippet,
   insertSnippet,
 } from "actions/globalSearchActions";
