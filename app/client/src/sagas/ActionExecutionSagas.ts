@@ -1,3 +1,4 @@
+import { parseBlobUrl } from "./../utils/AppsmithUtils";
 import {
   ApplicationPayload,
   Page,
@@ -1144,10 +1145,7 @@ export function* watchActionExecutionSagas() {
  * @returns promise that resolves to file content
  */
 function* readBlob(blobUrl: string): any {
-  const urlObj = new URL(blobUrl);
-  const { pathname } = urlObj;
-  const url = `blob:${pathname}`;
-  const fileType = urlObj.searchParams.get("type");
+  const [url, fileType] = parseBlobUrl(blobUrl);
   const file = yield fetch(url).then((r) => r.blob());
 
   const data = yield new Promise((resolve) => {

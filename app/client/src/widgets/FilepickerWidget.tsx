@@ -12,11 +12,12 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
-import _ from "lodash";
+import _, { findIndex } from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import FileDataTypes from "./FileDataTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -341,8 +342,14 @@ class FilePickerWidget extends BaseWidget<
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
+
+      // Storing the file content/blob url in these keys for backward compatability along with data.
+      // Should be removed at some point.
+      // relevant code tagged with #dfd
+      const keyMap = { Base64: "base64", Text: "text", Binary: "raw" };
       const fileReaderPromises = files.map((file) => {
         return new Promise((resolve) => {
+          const dataKey = keyMap[this.props.fileDataType]; //#dfd
           if (file.size < 5000 * 1000) {
             const reader = new FileReader();
             if (this.props.fileDataType === FileDataTypes.Base64) {
@@ -358,18 +365,20 @@ class FilePickerWidget extends BaseWidget<
                 id: file.id,
                 data: reader.result,
                 name: file.meta ? file.meta.name : undefined,
+                size: file.size,
+                [dataKey]: reader.result, //#dfd
               };
               resolve(newFile);
             };
           } else {
-            const data = `${URL.createObjectURL(file.data)}?type=${
-              this.props.fileDataType
-            }`;
+            const data = createBlobUrl(file.data, this.props.fileDataType);
             const newFile = {
               type: file.type,
               id: file.id,
               data: data,
               name: file.meta ? file.meta.name : undefined,
+              size: file.size,
+              [dataKey]: data, //#dfd
             };
             resolve(newFile);
           }
@@ -428,6 +437,21 @@ class FilePickerWidget extends BaseWidget<
     ) {
       this.reinitializeUppy(this.props);
     }
+    this.clearFilesFromMemory(prevProps.selectedFiles);
+  }
+
+  // Reclaim the memory used by blobs.
+  clearFilesFromMemory(previousFiles: any[] = []) {
+    const { selectedFiles: newFiles = [] } = this.props;
+    previousFiles.forEach((file: any) => {
+      let { data: blobUrl } = file;
+      if (isBlobUrl(blobUrl)) {
+        if (findIndex(newFiles, (f) => f.data === blobUrl) === -1) {
+          blobUrl = blobUrl.split("?")[0];
+          URL.revokeObjectURL(blobUrl);
+        }
+      }
+    });
   }
 
   componentDidMount() {
