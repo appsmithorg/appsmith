@@ -45,24 +45,24 @@ export const generateQuickCommands = (
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
   });
-  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "Insert Snippet",
-    shortcut: Shortcuts.FUNCTION,
-    action: () =>
-      executeCommand({
-        actionType: "NEW_SNIPPET",
-        args: {
-          entityType: currentEntityType,
-          expectedType: expectedType,
-          entityId: entityId,
-          propertyPath: propertyPath
-            .split(".")
-            .slice(-1)
-            .pop(),
-        },
-      }),
-  });
+  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+  //   text: "",
+  //   displayText: "Insert Snippet",
+  //   shortcut: Shortcuts.FUNCTION,
+  //   action: () =>
+  //     executeCommand({
+  //       actionType: "NEW_SNIPPET",
+  //       args: {
+  //         entityType: currentEntityType,
+  //         expectedType: expectedType,
+  //         entityId: entityId,
+  //         propertyPath: propertyPath
+  //           .split(".")
+  //           .slice(-1)
+  //           .pop(),
+  //       },
+  //     }),
+  // });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
@@ -122,7 +122,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([insertSnippet, newBinding], searchText, []),
+    ...matchingCommands([newBinding], searchText, []), //insertSnippet
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {
