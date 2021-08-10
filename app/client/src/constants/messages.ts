@@ -356,6 +356,11 @@ export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
+export const DEBUGGER_INTERCOM_TEXT = (text: string) => `
+Hi,
+I'm facing the following error on appsmith, can you please help?
+${text}
+`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 

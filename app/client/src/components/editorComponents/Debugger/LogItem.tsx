@@ -16,7 +16,11 @@ import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import {
+  createMessage,
+  DEBUGGER_INTERCOM_TEXT,
+  TROUBLESHOOT_ISSUE,
+} from "constants/messages";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getAppsmithConfigs } from "configs";
 const { intercomAppID } = getAppsmithConfigs();
@@ -209,6 +213,7 @@ function LogItem(props: LogItemProps) {
         AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
           source: "DEBUGGER",
           searchTerm: text,
+          errorType: PropertyEvaluationErrorType.VALIDATION,
         });
         dispatch(setGlobalSearchQuery(text || ""));
         dispatch(toggleShowGlobalSearchModal());
@@ -216,7 +221,10 @@ function LogItem(props: LogItemProps) {
       default:
         // Prefill the error in intercom
         if (intercomAppID && window.Intercom) {
-          window.Intercom("showNewMessage", text);
+          window.Intercom(
+            "showNewMessage",
+            createMessage(DEBUGGER_INTERCOM_TEXT, text),
+          );
         }
     }
   }, []);
