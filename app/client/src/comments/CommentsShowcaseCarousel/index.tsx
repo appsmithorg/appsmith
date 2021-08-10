@@ -255,7 +255,11 @@ export default function CommentsShowcaseCarousel() {
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel activeIndex={activeIndex} steps={steps as Steps} />
+      <ShowcaseCarousel
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+        steps={steps as Steps}
+      />
     </CommentsCarouselModal>
   );
 }
