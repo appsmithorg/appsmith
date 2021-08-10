@@ -281,6 +281,7 @@ function CheckBoxCheckIcon() {
 export const renderCheckBoxCell = (isChecked: boolean) => (
   <CellCheckboxWrapper
     className="td t--table-multiselect"
+    isCellVisible
     isChecked={isChecked}
   >
     <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
