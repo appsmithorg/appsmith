@@ -244,9 +244,9 @@ function SnippetDescription(props: any) {
             {examples.map((ex: any) => (
               <>
                 <p>{ex.title}</p>
-                <SyntaxHighlighter language={language} style={xcode}>
-                  {ex.code}
-                </SyntaxHighlighter>
+                {/* <SyntaxHighlighter language={language} style={xcode}> */}
+                {ex.code}
+                {/* </SyntaxHighlighter> */}
                 <p>{ex.summary}</p>
               </>
             ))}
