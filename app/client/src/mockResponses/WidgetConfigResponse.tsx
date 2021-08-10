@@ -643,7 +643,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
-      setAdaptiveYMin: "0",
+      setAdaptiveYMin: false,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {

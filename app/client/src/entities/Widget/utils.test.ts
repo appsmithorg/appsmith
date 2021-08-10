@@ -298,10 +298,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "BOOLEAN",
         },
         setAdaptiveYMin: {
-          type: "NUMBER",
-          params: {
-            default: 0,
-          },
+          type: "BOOLEAN",
         },
         xAxisName: {
           type: "TEXT",
