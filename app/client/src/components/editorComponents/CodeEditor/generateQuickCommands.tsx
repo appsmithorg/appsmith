@@ -33,6 +33,9 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
   },
+  expectedType: string,
+  entityId: any,
+  propertyPath: any,
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create New");
@@ -42,12 +45,24 @@ export const generateQuickCommands = (
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
   });
-  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-  //   text: "",
-  //   displayText: "Insert Snippet",
-  //   shortcut: Shortcuts.FUNCTION,
-  //   action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
-  // });
+  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "Insert Snippet",
+    shortcut: Shortcuts.FUNCTION,
+    action: () =>
+      executeCommand({
+        actionType: "NEW_SNIPPET",
+        args: {
+          entityType: currentEntityType,
+          expectedType: expectedType,
+          entityId: entityId,
+          propertyPath: propertyPath
+            .split(".")
+            .slice(-1)
+            .pop(),
+        },
+      }),
+  });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
@@ -107,7 +122,7 @@ export const generateQuickCommands = (
     5,
   );
   suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []), //insertSnippet
+    ...matchingCommands([insertSnippet, newBinding], searchText, []),
   );
   let createNewCommands: any = [];
   if (currentEntityType === "WIDGET") {
