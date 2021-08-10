@@ -2906,7 +2906,7 @@ public class DatabaseChangelog {
         pathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
-        pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFi1e.base64Content");
+        pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
         pathList.add("datasourceConfiguration.sshProxy.privateKey.password");
 
         mongoTemplate.execute("datasource", new CollectionCallback<String>() {
