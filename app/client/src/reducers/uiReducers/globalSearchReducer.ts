@@ -11,7 +11,7 @@ const initialState: GlobalSearchReduxState = {
   recentEntities: [],
   recentEntitiesRestored: false,
   filterContext: {
-    category: SEARCH_CATEGORIES.INIT,
+    category: SEARCH_CATEGORIES.DOCUMENTATION,
   },
 };
 

@@ -163,7 +163,9 @@ function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
-  const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
+  const [category, setCategory] = useState({
+    id: SEARCH_CATEGORIES.DOCUMENTATION,
+  });
   const [snippets, setSnippetsState] = useState([]);
   const initCategoryId = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
@@ -171,20 +173,15 @@ function GlobalSearch() {
   useEffect(() => {
     const triggeredCategory = filterCategories.find(
       (c) => c.id === initCategoryId,
-    );
-    if (triggeredCategory) setCategory(triggeredCategory);
-    return () => {
-      dispatch(
-        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.INIT }),
-      );
-    };
+    ) || { id: SEARCH_CATEGORIES.INIT };
+    setCategory(triggeredCategory);
   }, [initCategoryId]);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
-      setCategory({ id: SEARCH_CATEGORIES.INIT });
+      setCategory(filterCategories[1]);
     }
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());
