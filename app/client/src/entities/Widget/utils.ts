@@ -1,8 +1,10 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyPaneConfig,
+  ValidationConfig,
+} from "constants/PropertyControlConstants";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { WidgetTypes } from "constants/WidgetConstants";
 
@@ -13,7 +15,7 @@ export const getAllPathsFromPropertyConfig = (
 ): {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, true>;
-  validationPaths: Record<string, VALIDATION_TYPES>;
+  validationPaths: Record<string, ValidationConfig>;
 } => {
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   Object.keys(defaultProperties).forEach(
@@ -21,7 +23,7 @@ export const getAllPathsFromPropertyConfig = (
       (bindingPaths[property] = EvaluationSubstitutionType.TEMPLATE),
   );
   const triggerPaths: Record<string, true> = {};
-  const validationPaths: Record<any, VALIDATION_TYPES> = {};
+  const validationPaths: Record<any, ValidationConfig> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {

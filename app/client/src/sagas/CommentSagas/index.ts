@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { put, takeLatest, all, call, fork, select } from "redux-saga/effects";
+import { put, takeLatest, all, call, select } from "redux-saga/effects";
 import {
   createUnpublishedCommentThreadSuccess,
   removeUnpublishedCommentThreads,
@@ -15,8 +15,6 @@ import {
   setVisibleThread,
   updateCommentSuccess,
   deleteCommentThreadSuccess,
-  setAreCommentsEnabled,
-  setCommentMode,
   fetchUnreadCommentThreadsCountSuccess,
   decrementThreadUnreadCount,
 } from "actions/commentActions";
@@ -26,7 +24,6 @@ import {
 } from "comments/utils";
 
 import { waitForInit } from "sagas/InitSagas";
-import { waitForFetchUserSuccess } from "sagas/userSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
@@ -42,11 +39,10 @@ import {
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { get } from "lodash";
-
-import { commentModeSelector } from "selectors/commentsSelectors";
 import { AppState } from "reducers";
+import { TourType } from "entities/Tour";
+import { getActiveTourType } from "selectors/tourSelectors";
+import { resetActiveTour } from "actions/tourActions";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -196,6 +192,20 @@ function* deleteComment(
   }
 }
 
+function* unsubscribeCommentThread(action: ReduxAction<string>) {
+  try {
+    const threadId = action.payload;
+    const response = yield CommentsApi.unsubscribeCommentThread(threadId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
+        payload: null,
+      });
+    }
+  } catch (error) {}
+}
+
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
@@ -261,20 +271,6 @@ function* deleteCommentThread(action: ReduxAction<string>) {
   }
 }
 
-function* setIfCommentsAreEnabled() {
-  yield call(waitForFetchUserSuccess);
-
-  const user = yield select(getCurrentUser);
-  const email = get(user, "email", "");
-  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
-
-  const isCommentModeEnabled = isAppsmithEmail;
-  yield put(setAreCommentsEnabled(isAppsmithEmail));
-
-  const isCommentMode = yield select(commentModeSelector);
-  if (isCommentMode && !isCommentModeEnabled) yield put(setCommentMode(false));
-}
-
 function* addCommentReaction(
   action: ReduxAction<{ emoji: string; commentId: string }>,
 ) {
@@ -318,6 +314,24 @@ function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
   yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
 }
 
+function* handleSetCommentMode(action: ReduxAction<boolean>) {
+  const { payload } = action;
+  if (!payload) {
+    const activeTourType: TourType | undefined = yield select(
+      getActiveTourType,
+    );
+    if (
+      activeTourType &&
+      [
+        TourType.COMMENTS_TOUR_EDIT_MODE,
+        TourType.COMMENTS_TOUR_PUBLISHED_MODE,
+      ].indexOf(activeTourType) !== -1
+    ) {
+      yield put(resetActiveTour());
+    }
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(
@@ -343,11 +357,14 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
+    takeLatest(
+      ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_REQUEST,
+      unsubscribeCommentThread,
+    ),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
-    fork(setIfCommentsAreEnabled),
     takeLatest(
       [
         ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
@@ -355,5 +372,6 @@ export default function* commentSagas() {
       ],
       updateCommentThreadUnreadCount,
     ),
+    takeLatest(ReduxActionTypes.SET_COMMENT_MODE, handleSetCommentMode),
   ]);
 }

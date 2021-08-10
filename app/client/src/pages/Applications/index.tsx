@@ -88,6 +88,8 @@ import {
   getOnboardingFormInProgress,
 } from "utils/storage";
 
+import { getIsSafeRedirectURL } from "utils/helpers";
+
 const OrgDropDown = styled.div`
   display: flex;
   padding: ${(props) => props.theme.spaces[4]}px
@@ -943,7 +945,9 @@ class Applications extends Component<
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
     if (redirectUrl) {
       try {
-        window.location.replace(redirectUrl);
+        if (getIsSafeRedirectURL(redirectUrl)) {
+          window.location.replace(redirectUrl);
+        }
       } catch (e) {
         console.error("Error handling the redirect url");
       }
@@ -970,6 +974,7 @@ class Applications extends Component<
               search={{
                 placeholder: "Search for apps...",
                 queryFn: this.props.searchApplications,
+                defaultValue: this.props.searchKeyword,
               }}
             />
             <ApplicationsSection searchKeyword={this.props.searchKeyword} />

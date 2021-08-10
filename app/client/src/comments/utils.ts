@@ -3,7 +3,11 @@ import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -79,8 +83,10 @@ export const getOffsetPos = (
   );
 
   return {
-    left: offsetLeftPercent,
-    top: offsetTopPercent,
+    leftPercent: offsetLeftPercent,
+    topPercent: offsetTopPercent,
+    left: offsetLeft,
+    top: offsetTop,
   };
 };
 
@@ -120,4 +126,44 @@ export const getCommentThreadURL = ({
   );
 
   return url;
+};
+
+/**
+ * Absolutely position the pins within the
+ * main container canvas since the height
+ * can change dynamically
+ */
+export const getPosition = (props: {
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset?: number;
+  yOffset?: number;
+  offset?: number;
+}) => {
+  const xOffset = props.xOffset || props.offset || 0;
+  const yOffset = props.yOffset || props.offset || 0;
+  if (props.positionAbsolutely) {
+    return `
+      top: ${props.top - 29}px;
+      left: ${props.left - 29}px;
+    `;
+  } else {
+    // The folling syntax is supported: bottom: calc(50% + -6px);
+    // so we can work with both +ve and -ve offset values as
+    // `calc(${100 - props.topPercent}% + ${yOffset}px);`
+    return `
+      bottom: calc(${100 - props.topPercent}% + ${yOffset}px);
+      right: calc(${100 - props.leftPercent}% + ${xOffset}px);
+    `;
+  }
+};
+
+export const getShouldPositionAbsolutely = (commentThread: CommentThread) => {
+  return (
+    commentThread?.refId === MAIN_CONTAINER_WIDGET_ID &&
+    commentThread?.widgetType === WidgetTypes.CANVAS_WIDGET
+  );
 };

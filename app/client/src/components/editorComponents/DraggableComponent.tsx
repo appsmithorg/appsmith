@@ -8,11 +8,14 @@ import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+``;
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -52,20 +55,27 @@ export const canDrag = (
   isDraggingDisabled: boolean,
   props: any,
   isCommentMode: boolean,
+  isSnipingMode: boolean,
 ) => {
   return (
-    !isResizing && !isDraggingDisabled && !props?.dragDisabled && !isCommentMode
+    !isResizing &&
+    !isDraggingDisabled &&
+    !props?.dragDisabled &&
+    !isCommentMode &&
+    !isSnipingMode
   );
 };
 
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
 
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -115,7 +125,8 @@ function DraggableComponent(props: DraggableComponentProps) {
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
-
+      // Make sure that this tableFilterPane should close
+      showTableFilterPane && showTableFilterPane();
       // Tell the rest of the application that a widget has started dragging
       setIsDragging && setIsDragging(true);
 
@@ -144,7 +155,13 @@ function DraggableComponent(props: DraggableComponentProps) {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return canDrag(isResizing, isDraggingDisabled, props, isCommentMode);
+      return canDrag(
+        isResizing,
+        isDraggingDisabled,
+        props,
+        isCommentMode,
+        isSnipingMode,
+      );
     },
   });
 
@@ -156,6 +173,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     focusWidget &&
       !isResizingOrDragging &&
       focusedWidget !== props.widgetId &&
+      !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };

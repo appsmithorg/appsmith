@@ -5,6 +5,7 @@ import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
   closePropertyPane,
+  closeTableFilterPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
@@ -15,18 +16,22 @@ import {
   selectAllWidgetsInCanvasInitAction,
   selectMultipleWidgetsAction,
 } from "actions/widgetSelectionActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import {
+  setGlobalSearchFilterContext,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { setCommentMode as setCommentModeAction } from "actions/commentActions";
+import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -35,12 +40,16 @@ type Props = {
   cutSelectedWidget: () => void;
   groupSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
-  resetCommentMode: () => void;
+  resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
+  closeTableFilterProppane: () => void;
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
+  setGlobalSearchFilterContext: (payload: {
+    category: SEARCH_CATEGORIES;
+  }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -68,6 +77,9 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
+    this.props.setGlobalSearchFilterContext({
+      category: SEARCH_CATEGORIES.NAVIGATION,
+    });
     this.props.toggleShowGlobalSearchModal();
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
@@ -188,9 +200,11 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode();
+            setCommentModeInUrl(false);
+            this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
+            this.props.closeTableFilterProppane();
             e.preventDefault();
           }}
         />
@@ -198,7 +212,11 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="v"
           global
           label="Edit Mode"
-          onKeyDown={this.props.resetCommentMode}
+          onKeyDown={(e: any) => {
+            setCommentModeInUrl(false);
+            this.props.resetSnipingMode();
+            e.preventDefault();
+          }}
         />
         <Hotkey
           combo="c"
@@ -249,12 +267,15 @@ const mapDispatchToProps = (dispatch: any) => {
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
-    resetCommentMode: () => dispatch(setCommentModeAction(false)),
+    resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
+    closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
+    setGlobalSearchFilterContext: (payload: { category: SEARCH_CATEGORIES }) =>
+      dispatch(setGlobalSearchFilterContext(payload)),
   };
 };
 

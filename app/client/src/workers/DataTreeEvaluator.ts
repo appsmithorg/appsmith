@@ -26,6 +26,7 @@ import {
   addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
+  DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
   getEntityNameAndPropertyPath,
@@ -36,6 +37,7 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
+  isDynamicLeaf,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -49,12 +51,6 @@ import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
-
-type EvaluateDataTreeResponse = {
-  dataTree: DataTree;
-  evaluationOrder: string[];
-  removedPaths: string[];
-};
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -78,7 +74,7 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  createFirstTree(unEvalTree: DataTree): EvaluateDataTreeResponse {
+  createFirstTree(unEvalTree: DataTree): DataTree {
     const totalStart = performance.now();
     // Create dependency map
     const createDependencyStart = performance.now();
@@ -121,27 +117,17 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
-    return {
-      dataTree: this.evalTree,
-      evaluationOrder: this.sortedDependencies,
-      removedPaths: [],
-    };
+    return this.evalTree;
   }
 
-  isDynamicLeaf(unEvalTree: DataTree, propertyPath: string) {
-    const [entityName, ...propPathEls] = _.toPath(propertyPath);
-    // Framework feature: Top level items are never leaves
-    if (entityName === propertyPath) return false;
-    // Ignore if this was a delete op
-    if (!(entityName in unEvalTree)) return false;
-
-    const entity = unEvalTree[entityName];
-    if (!isAction(entity) && !isWidget(entity)) return false;
-    const relativePropertyPath = convertPathToString(propPathEls);
-    return relativePropertyPath in entity.bindingPaths;
-  }
-
-  updateDataTree(unEvalTree: DataTree): EvaluateDataTreeResponse {
+  updateDataTree(
+    unEvalTree: DataTree,
+  ): {
+    updates: Diff<DataTree, DataTree>[];
+    evaluationOrder: string[];
+    unEvalUpdates: DataTreeDiff[];
+  } {
+    const oldEvalTree = _.cloneDeep(this.evalTree);
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -150,11 +136,15 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
-        dataTree: this.evalTree,
+        updates: [],
         evaluationOrder: [],
-        removedPaths: [],
+        unEvalUpdates: [],
       };
     }
+    const translatedDiffs = _.flatten(
+      differences.map(translateDiffEventToDataTreeDiffEvent),
+    );
+    this.logs.push({ differences, translatedDiffs });
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
@@ -164,7 +154,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
-    } = this.updateDependencyMap(differences, unEvalTree);
+    } = this.updateDependencyMap(translatedDiffs, unEvalTree);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
@@ -185,7 +175,7 @@ export default class DataTreeEvaluator {
     const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
-      if (this.isDynamicLeaf(unEvalTree, propertyPath)) {
+      if (isDynamicLeaf(unEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
         _.set(this.evalTree, propertyPath, unEvalPropValue);
         return true;
@@ -193,7 +183,6 @@ export default class DataTreeEvaluator {
       return false;
     });
     this.logs.push({
-      evaluationOrder,
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
@@ -203,16 +192,24 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    this.evalTree = this.evaluateTree(this.evalTree, evaluationOrder);
+    const newEvalTree = this.evaluateTree(this.evalTree, evaluationOrder);
     const evalStop = performance.now();
+
+    const evalTreeDiffsStart = performance.now();
+
+    const evaluationChanges = diff(oldEvalTree, newEvalTree);
+
+    const evalTreeDiffsStop = performance.now();
 
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = unEvalTree;
+    this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
+      findEvalDifferences: (evalTreeDiffsStop - evalTreeDiffsStart).toFixed(2),
       updateDependencies: (
         updateDependenciesStop - updateDependenciesStart
       ).toFixed(2),
@@ -223,9 +220,9 @@ export default class DataTreeEvaluator {
     };
     this.logs.push({ timeTakenForSubTreeEval });
     return {
-      dataTree: this.evalTree,
+      updates: evaluationChanges || [],
       evaluationOrder,
-      removedPaths,
+      unEvalUpdates: translatedDiffs,
     };
   }
 
@@ -396,7 +393,6 @@ export default class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
-          this.logs.push(`evaluating ${fullPropertyPath}`);
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
@@ -498,7 +494,10 @@ export default class DataTreeEvaluator {
     }
   }
 
-  sortDependencies(dependencyMap: DependencyMap): Array<string> {
+  sortDependencies(
+    dependencyMap: DependencyMap,
+    diffs?: (DataTreeDiff | DataTreeDiff[])[],
+  ): Array<string> {
     const dependencyTree: Array<[string, string]> = [];
     Object.keys(dependencyMap).forEach((key: string) => {
       if (dependencyMap[key].length) {
@@ -534,6 +533,8 @@ export default class DataTreeEvaluator {
         context: {
           node,
           entityType,
+          dependencyMap,
+          diffs,
         },
       });
       console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
@@ -672,13 +673,13 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
+
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
-      propertyPath,
+      validation,
       valueToValidate,
       widget,
-      validation,
-      currentTree,
     );
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
@@ -741,7 +742,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDependencyMap(
-    differences: Array<Diff<any, any>>,
+    translatedDiffs: Array<DataTreeDiff>,
     unEvalDataTree: DataTree,
   ): {
     dependenciesOfRemovedPaths: Array<string>;
@@ -756,12 +757,8 @@ export default class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    const translatedDiffs = differences.map(
-      translateDiffEventToDataTreeDiffEvent,
-    );
-    this.logs.push({ differences, translatedDiffs });
     // Transform the diff library events to Appsmith evaluator events
-    _.flatten(translatedDiffs).forEach((dataTreeDiff) => {
+    translatedDiffs.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
       let entity = unEvalDataTree[entityName];
       if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
@@ -775,10 +772,7 @@ export default class DataTreeEvaluator {
             // If a new entity/property was added, add all the internal bindings for this entity to the global dependency map
             if (
               (isWidget(entity) || isAction(entity)) &&
-              !this.isDynamicLeaf(
-                unEvalDataTree,
-                dataTreeDiff.payload.propertyPath,
-              )
+              !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
             ) {
               const entityDependencyMap: DependencyMap = this.listEntityDependencies(
                 entity,
@@ -967,7 +961,10 @@ export default class DataTreeEvaluator {
     // global inverse dependency map
     if (didUpdateDependencyMap) {
       // This is being called purely to test for new circular dependencies that might have been added
-      this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+      this.sortedDependencies = this.sortDependencies(
+        this.dependencyMap,
+        translatedDiffs,
+      );
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }
 
@@ -997,7 +994,7 @@ export default class DataTreeEvaluator {
 
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
-      if (!this.isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
+      if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
         // A parent level property has been added or deleted
         /**
          * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.

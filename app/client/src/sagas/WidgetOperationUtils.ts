@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -24,7 +24,10 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  getDynamicBindings,
+  combineDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
@@ -97,17 +100,12 @@ export const handleIfParentIsListWidgetWhilePasting = (
         const key = keys[i];
         let value = currentWidget[key];
 
-        if (_.isString(value) && value.indexOf("currentItem") > -1) {
-          const { jsSnippets } = getDynamicBindings(value);
+        if (isString(value) && value.indexOf("currentItem") > -1) {
+          const { jsSnippets, stringSegments } = getDynamicBindings(value);
 
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return prev + `${next}`;
-            },
-            "",
-          );
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
           currentWidget[key] = value;
 
@@ -345,7 +343,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget.type === WidgetTypes.LIST_WIDGET) {
+      if (copiedWidget?.type === WidgetTypes.LIST_WIDGET) {
         return selectedWidget;
       }
     }

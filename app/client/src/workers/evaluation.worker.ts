@@ -12,11 +12,13 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
+  DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import { Diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -49,26 +51,24 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
-        let dataTreeObject: any = {};
+        let updates: Diff<DataTree, DataTree>[] = [];
         let evaluationOrder: string[] = [];
-        let removedPaths: string[] = [];
+        let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-            dataTreeObject = dataTreeEvaluator.createFirstTree(unevalTree);
-            dataTree = dataTreeObject.dataTree;
-            evaluationOrder = dataTreeObject.evaluationOrder;
-            removedPaths = dataTreeObject.removedPaths;
+            dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
+            evaluationOrder = dataTreeEvaluator.sortedDependencies;
+            // We need to clean it to remove any possible functions inside the tree.
+            // If functions exist, it will crash the web worker
+            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
-            dataTreeObject = dataTreeEvaluator.updateDataTree(unevalTree);
-            dataTree = dataTreeObject.dataTree;
-            evaluationOrder = dataTreeObject.evaluationOrder;
-            removedPaths = dataTreeObject.removedPaths;
+            dataTree = {};
+            const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            updates = JSON.parse(JSON.stringify(updateResponse.updates));
+            evaluationOrder = updateResponse.evaluationOrder;
+            unEvalUpdates = updateResponse.unEvalUpdates;
           }
-
-          // We need to clean it to remove any possible functions inside the tree.
-          // If functions exist, it will crash the web worker
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
@@ -89,14 +89,14 @@ ctx.addEventListener(
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
-        // step 6: eval order
         return {
           dataTree,
           dependencies,
           errors,
           evaluationOrder,
           logs,
-          removedPaths,
+          updates,
+          unEvalUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -171,9 +171,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { property, props, validation, value } = requestData;
+        const { props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(property, value, props, validation),
+          validateWidgetProperty(validation, value, props),
         );
       }
       default: {

@@ -106,7 +106,7 @@ export const TopLeftHandleStyles = styled.div`
   ${CornerHandleStyles};
   left: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
   top: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
-  cursor: ew-resize;
+  cursor: nw-resize;
 `;
 export const TopRightHandleStyles = styled.div`
   ${CornerHandleStyles};

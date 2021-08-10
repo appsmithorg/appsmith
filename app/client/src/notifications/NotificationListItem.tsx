@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import moment from "moment";
 import styled from "styled-components";
 
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import OrgApi from "api/OrgApi";
 
 import {
