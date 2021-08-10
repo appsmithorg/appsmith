@@ -62,7 +62,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WIDGET_DELETE_UNDO_TIMEOUT,
-  WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse, {
@@ -133,6 +132,9 @@ import {
   filterOutSelectedWidgets,
   isSelectedWidgetsColliding,
   getBoundaryWidgetsFromCopiedGroups,
+  getAllWidgetsInTree,
+  createWidgetCopy,
+  getNextWidgetName,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
@@ -418,22 +420,6 @@ export function* addChildrenSaga(
     });
   }
 }
-
-const getAllWidgetsInTree = (
-  widgetId: string,
-  canvasWidgets: CanvasWidgetsReduxState,
-) => {
-  const widget = canvasWidgets[widgetId];
-  const widgetList = [widget];
-  if (widget && widget.children) {
-    widget.children
-      .filter(Boolean)
-      .forEach((childWidgetId: string) =>
-        widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
-      );
-  }
-  return widgetList;
-};
 
 /**
  * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
@@ -1351,18 +1337,6 @@ function* updateCanvasSize(
   }
 }
 
-export function* createWidgetCopy(widget: FlattenedWidgetProps) {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
-  const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
-  return {
-    widgetId: widget.widgetId,
-    list: widgetsToStore,
-    parentId: widget.parentId,
-  };
-}
-
 function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
   if (!selectedWidgets || !selectedWidgets.length) return;
   const widgetListsToStore: {
@@ -1484,30 +1458,6 @@ export function calculateNewWidgetPosition(
 function* getEntityNames() {
   const evalTree = yield select(getDataTree);
   return Object.keys(evalTree);
-}
-
-export function getNextWidgetName(
-  widgets: CanvasWidgetsReduxState,
-  type: WidgetType,
-  evalTree: DataTree,
-  options?: Record<string, unknown>,
-) {
-  // Compute the new widget's name
-  const defaultConfig: any = WidgetConfigResponse.config[type];
-  const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-  const entityNames = Object.keys(evalTree);
-  let prefix = defaultConfig.widgetName;
-  if (options && options.prefix) {
-    prefix = `${options.prefix}${
-      widgetNames.indexOf(options.prefix as string) > -1 ? "Copy" : ""
-    }`;
-  }
-
-  return getNextEntityName(
-    prefix,
-    [...widgetNames, ...entityNames],
-    options?.startWithoutIndex as boolean,
-  );
 }
 
 /**
