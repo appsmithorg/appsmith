@@ -215,7 +215,7 @@ function SnippetDescription(props: any) {
   const {
     item: {
       body: { additionalInfo, examples, snippet, summary, title },
-      language,
+      // language,
     },
   } = props;
   return (

@@ -33,122 +33,124 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
   },
-  expectedType: string,
-  entityId: any,
-  propertyPath: any,
-) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
-  recentEntities.reverse();
-  const newBinding: CommandsCompletion = generateCreateNewCommand({
-    text: "{{}}",
-    displayText: "New Binding",
-    shortcut: Shortcuts.BINDING,
-  });
-  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-  //   text: "",
-  //   displayText: "Insert Snippet",
-  //   shortcut: Shortcuts.FUNCTION,
-  //   action: () =>
-  //     executeCommand({
-  //       actionType: "NEW_SNIPPET",
-  //       args: {
-  //         entityType: currentEntityType,
-  //         expectedType: expectedType,
-  //         entityId: entityId,
-  //         propertyPath: propertyPath
-  //           .split(".")
-  //           .slice(-1)
-  //           .pop(),
-  //       },
-  //     }),
-  // });
-  const newIntegration: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "New Datasource",
-    action: () =>
-      executeCommand({
-        actionType: "NEW_INTEGRATION",
-      }),
-    shortcut: Shortcuts.PLUS,
-  });
-  const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
-    return {
-      text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
-      displayText: `${name}`,
-      className: "CodeMirror-commands",
-      data: suggestion,
-      render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
-        ReactDOM.render(
-          <Command
-            name={data.displayText}
-            pluginType={pluginType}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const datasourceCommands = datasources.map((action: any) => {
-    return {
+) =>
+  // expectedType: string,
+  // entityId: any,
+  // propertyPath: any,
+  {
+    const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
+    const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+    recentEntities.reverse();
+    const newBinding: CommandsCompletion = generateCreateNewCommand({
+      text: "{{}}",
+      displayText: "New Binding",
+      shortcut: Shortcuts.BINDING,
+    });
+    // let insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    //   text: "",
+    //   displayText: "Insert Snippet",
+    //   shortcut: Shortcuts.FUNCTION,
+    //   action: () =>
+    //     executeCommand({
+    //       actionType: "NEW_SNIPPET",
+    //       args: {
+    //         entityType: currentEntityType,
+    //         expectedType: expectedType,
+    //         entityId: entityId,
+    //         propertyPath: propertyPath
+    //           .split(".")
+    //           .slice(-1)
+    //           .pop(),
+    //       },
+    //     }),
+    // });
+    const newIntegration: CommandsCompletion = generateCreateNewCommand({
       text: "",
-      displayText: `${action.name}`,
-      className: "CodeMirror-commands",
-      data: action,
+      displayText: "New Datasource",
       action: () =>
         executeCommand({
-          actionType: "NEW_QUERY",
-          args: { datasource: action },
+          actionType: "NEW_INTEGRATION",
         }),
-      render: (element: HTMLElement, self: any, data: any) => {
-        ReactDOM.render(
-          <Command
-            imgSrc={pluginIdToImageLocation[data.data.pluginId]}
-            name={data.displayText}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const suggestionsMatchingSearchText = matchingCommands(
-    suggestions,
-    searchText,
-    recentEntities,
-    5,
-  );
-  suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []), //insertSnippet
-  );
-  let createNewCommands: any = [];
-  if (currentEntityType === "WIDGET") {
-    createNewCommands = [...datasourceCommands];
-  }
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    [],
-    3,
-  );
-  if (currentEntityType === "WIDGET") {
-    createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText, []),
+      shortcut: Shortcuts.PLUS,
+    });
+    const suggestions = entitiesForSuggestions.map((suggestion: any) => {
+      const name = suggestion.name || suggestion.widgetName;
+      return {
+        text:
+          currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
+        displayText: `${name}`,
+        className: "CodeMirror-commands",
+        data: suggestion,
+        render: (element: HTMLElement, self: any, data: any) => {
+          const pluginType = data.data.pluginType as PluginType;
+          ReactDOM.render(
+            <Command
+              name={data.displayText}
+              pluginType={pluginType}
+              shortcut={data.shortcut}
+            />,
+            element,
+          );
+        },
+      };
+    });
+    const datasourceCommands = datasources.map((action: any) => {
+      return {
+        text: "",
+        displayText: `${action.name}`,
+        className: "CodeMirror-commands",
+        data: action,
+        action: () =>
+          executeCommand({
+            actionType: "NEW_QUERY",
+            args: { datasource: action },
+          }),
+        render: (element: HTMLElement, self: any, data: any) => {
+          ReactDOM.render(
+            <Command
+              imgSrc={pluginIdToImageLocation[data.data.pluginId]}
+              name={data.displayText}
+              shortcut={data.shortcut}
+            />,
+            element,
+          );
+        },
+      };
+    });
+    const suggestionsMatchingSearchText = matchingCommands(
+      suggestions,
+      searchText,
+      recentEntities,
+      5,
     );
-  }
-  let list: CommandsCompletion[] = [];
-  if (suggestionsMatchingSearchText.length) {
-    list = [suggestionsHeader, ...suggestionsMatchingSearchText];
-  }
+    suggestionsMatchingSearchText.push(
+      ...matchingCommands([newBinding], searchText, []), //insertSnippet
+    );
+    let createNewCommands: any = [];
+    if (currentEntityType === "WIDGET") {
+      createNewCommands = [...datasourceCommands];
+    }
+    const createNewCommandsMatchingSearchText = matchingCommands(
+      createNewCommands,
+      searchText,
+      [],
+      3,
+    );
+    if (currentEntityType === "WIDGET") {
+      createNewCommandsMatchingSearchText.push(
+        ...matchingCommands([newIntegration], searchText, []),
+      );
+    }
+    let list: CommandsCompletion[] = [];
+    if (suggestionsMatchingSearchText.length) {
+      list = [suggestionsHeader, ...suggestionsMatchingSearchText];
+    }
 
-  if (createNewCommandsMatchingSearchText.length) {
-    list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
-  }
-  return list;
-};
+    if (createNewCommandsMatchingSearchText.length) {
+      list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
+    }
+    return list;
+  };
 
 const matchingCommands = (
   list: any,
