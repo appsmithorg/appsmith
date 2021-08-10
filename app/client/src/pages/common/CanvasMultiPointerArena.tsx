@@ -4,6 +4,8 @@ import { io } from "socket.io-client";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { throttle } from "lodash";
+import { getCurrentUser } from "../../selectors/usersSelectors";
+import { useSelector } from "react-redux";
 
 const pageLevelSocket = io("/page/edit");
 
@@ -19,7 +21,7 @@ const Canvas = styled.canvas`
 
 function CanvasMultiPointerArena() {
   const { pageId } = useParams<ExplorerURLParams>();
-
+  const currentUser = useSelector(getCurrentUser);
   const shareMousePointer = (e: any) => {
     if (!!pageLevelSocket) {
       const selectionCanvas: any = document.getElementById(
@@ -49,13 +51,21 @@ function CanvasMultiPointerArena() {
     };
   }, []);
 
+  const throttledClearCanvas = useCallback(
+    throttle((ctx, width, height) => ctx.clearRect(0, 0, width, height), 50, {
+      trailing: false,
+    }),
+    [],
+  );
+
   const drawPointers = (eventData: any) => {
     const selectionCanvas: any = document.getElementById("multiplayer-canvas");
     const rect = selectionCanvas.getBoundingClientRect();
     selectionCanvas.width = rect.width;
     selectionCanvas.height = rect.height;
     const ctx = selectionCanvas.getContext("2d");
-    ctx.clearRect(0, 0, rect.width, rect.height);
+    throttledClearCanvas(ctx, rect.width, rect.height);
+    // ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.font = "16px Georgia";
     ctx.fillText(
       `${eventData?.user?.email}`,
@@ -64,14 +74,16 @@ function CanvasMultiPointerArena() {
     );
   };
 
-  const throttledDrawPointers = useCallback(
-    throttle((e) => drawPointers(e), 10),
-    [drawPointers],
-  );
+  // const throttledDrawPointers = useCallback(
+  //   throttle((e) => drawPointers(e), 10),
+  //   [drawPointers],
+  // );
 
   useEffect(() => {
     pageLevelSocket.on("collab:mouse_pointer", (eventData: any) => {
-      throttledDrawPointers(eventData);
+      if (eventData && eventData.user?.email !== currentUser?.email) {
+        drawPointers(eventData);
+      }
     });
   }, []);
 
