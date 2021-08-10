@@ -736,17 +736,10 @@ export function* updateListWidgetPropertiesOnChildDelete(
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   // Get the list of widget and its children which were deleted
-  const allDeletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
+  const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
   const stateWidgets = yield select(getWidgets);
-  const deletedWidgets = allDeletedWidgets.filter((each) => {
-    if (each.parentId && !stateWidgets[each.parentId]) {
-      // undo only widgets that have their parent on the canvas.
-      return false;
-    }
-    return true;
-  });
   const deletedWidgetIds = deletedWidgets.map((each) => {
     return each.widgetId;
   });
@@ -791,7 +784,8 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
             if (
               widget.tabId &&
               widget.type === WidgetTypes.CANVAS_WIDGET &&
-              widget.parentId
+              widget.parentId &&
+              widgets[widget.parentId]
             ) {
               const parent = cloneDeep(widgets[widget.parentId]);
               if (parent.tabsObj) {
@@ -828,17 +822,13 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               }
             }
             let newChildren = [widget.widgetId];
-            if (
-              widget.parentId &&
-              widgets[widget.parentId] &&
-              widgets[widget.parentId].children
-            ) {
-              // Concatenate the list of parents children with the current widgetId
-              newChildren = newChildren.concat(
-                widgets[widget.parentId].children,
-              );
-            }
-            if (widget.parentId) {
+            if (widget.parentId && widgets[widget.parentId]) {
+              if (widgets[widget.parentId].children) {
+                // Concatenate the list of parents children with the current widgetId
+                newChildren = newChildren.concat(
+                  widgets[widget.parentId].children,
+                );
+              }
               widgets = {
                 ...widgets,
                 [widget.parentId]: {
