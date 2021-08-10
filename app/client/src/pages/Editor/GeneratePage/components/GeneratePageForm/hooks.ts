@@ -73,7 +73,7 @@ const GOOGLE_SHEET_METHODS = {
   GET_ALL_COLUMNS: "GET", // Get column names
 };
 
-const demoRequest = {
+const demoRequest: Record<any, string> = {
   method: "",
   sheetUrl: "",
   range: "",
@@ -89,12 +89,16 @@ const demoRequest = {
   deleteFormat: "SHEET",
 };
 
+type FetchAllSpreadSheets = {
+  selectedDatasourceId: string;
+  requestObject?: Record<any, string>;
+};
+
 export type UseSpreadSheetsReturn = {
   fetchAllSpreadsheets: ({
+    requestObject,
     selectedDatasourceId,
-  }: {
-    selectedDatasourceId: string;
-  }) => void;
+  }: FetchAllSpreadSheets) => void;
   isFetchingSpreadsheets: boolean;
   failedFetchingSpreadsheets: boolean;
 };
@@ -158,11 +162,14 @@ export const useSpreadSheets = ({
   );
 
   const fetchAllSpreadsheets = useCallback(
-    ({ selectedDatasourceId }: { selectedDatasourceId: string }) => {
+    ({ requestObject, selectedDatasourceId }: FetchAllSpreadSheets) => {
       setIsFetchingSpreadsheets(true);
       setFailedFetchingSpreadsheets(false);
 
-      const requestData = { ...demoRequest };
+      let requestData = { ...demoRequest };
+      if (isObject(requestObject) && Object.keys(requestObject).length) {
+        requestData = { ...requestObject };
+      }
       requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_SPREADSHEETS;
       const formattedRequestData = Object.entries(
         requestData,
@@ -214,17 +221,21 @@ export type Sheets = Sheet[];
 export const getSheetUrl = (sheetId: string): string =>
   `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;
 
+export type FetchSheetsList = {
+  selectedDatasourceId: string;
+  selectedSpreadsheetId: string;
+  requestObject?: Record<any, string>;
+};
+
 export type UseSheetListReturn = {
   sheetsList: DropdownOption[];
   isFetchingSheetsList: boolean;
   failedFetchingSheetsList: boolean;
   fetchSheetsList: ({
+    requestObject,
     selectedDatasourceId,
     selectedSpreadsheetId,
-  }: {
-    selectedDatasourceId: string;
-    selectedSpreadsheetId: string;
-  }) => void;
+  }: FetchSheetsList) => void;
 };
 
 export const useSheetsList = (): UseSheetListReturn => {
@@ -278,12 +289,19 @@ export const useSheetsList = (): UseSheetListReturn => {
   );
 
   const fetchSheetsList = useCallback(
-    ({ selectedDatasourceId, selectedSpreadsheetId }) => {
+    ({
+      requestObject,
+      selectedDatasourceId,
+      selectedSpreadsheetId,
+    }: FetchSheetsList) => {
       setSheetsList([]);
       setIsFetchingSheetsList(true);
       setFailedFetchingSheetsList(false);
 
-      const requestData = { ...demoRequest };
+      let requestData = { ...demoRequest };
+      if (isObject(requestObject) && Object.keys(requestObject).length) {
+        requestData = { ...requestObject };
+      }
       requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_SHEETS;
       requestData.sheetUrl = getSheetUrl(selectedSpreadsheetId);
       const formattedRequestData = Object.entries(
@@ -322,6 +340,7 @@ export type FetchColumnHeaderListParams = {
   selectedSpreadsheetId: string;
   sheetName: string;
   tableHeaderIndex: string;
+  requestObject?: Record<any, string>;
 };
 
 export type UseSheetColumnHeadersReturn = {
@@ -404,7 +423,13 @@ export const useSheetColumnHeaders = () => {
       setIsFetchingColumnHeaderList(true);
       setErrorFetchingColumnHeaderList("");
 
-      const requestData = { ...demoRequest };
+      let requestData = { ...demoRequest };
+      if (
+        isObject(params.requestObject) &&
+        Object.keys(params.requestObject).length
+      ) {
+        requestData = { ...params.requestObject };
+      }
       requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_COLUMNS;
       requestData.sheetUrl = getSheetUrl(params.selectedSpreadsheetId);
       requestData.tableHeaderIndex = params.tableHeaderIndex;

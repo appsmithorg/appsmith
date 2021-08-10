@@ -109,6 +109,10 @@ function GoogleSheetForm(props: Props) {
     getEditorConfig(state, googleSheetPluginId),
   );
 
+  const [sheetQueryRequest, setSheetQueryRequest] = useState<
+    Record<any, string>
+  >({});
+
   useEffect(() => {
     // Check if google sheet editor config is fetched.
     // if not, fetch it.
@@ -123,6 +127,25 @@ function GoogleSheetForm(props: Props) {
   }, [googleSheetEditorConfig]);
 
   useEffect(() => {
+    if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
+      const requestObject: Record<any, string> = {};
+      const configs = googleSheetEditorConfig[0]?.children;
+      if (Array.isArray(configs)) {
+        for (let index = 0; index < configs.length; index += 2) {
+          const keyConfig = configs[index];
+          const valueConfig = configs[index + 1];
+          if (keyConfig && valueConfig) {
+            const key = keyConfig?.initialValue;
+            const value = valueConfig?.initialValue || "";
+            if (key) requestObject[key] = value;
+          }
+        }
+      }
+      setSheetQueryRequest(requestObject);
+    }
+  }, [googleSheetEditorConfig]);
+
+  useEffect(() => {
     // On change of datasource selection
     // if googleSheetEditorConfig if fetched then get all spreadsheets
     if (
@@ -130,7 +153,10 @@ function GoogleSheetForm(props: Props) {
       selectedDatasource.id &&
       googleSheetEditorConfig
     ) {
-      fetchAllSpreadsheets({ selectedDatasourceId: selectedDatasource.id });
+      fetchAllSpreadsheets({
+        selectedDatasourceId: selectedDatasource.id,
+        requestObject: sheetQueryRequest,
+      });
     }
   }, [selectedDatasource.value, googleSheetEditorConfig, dispatch]);
 
@@ -145,6 +171,7 @@ function GoogleSheetForm(props: Props) {
     ) {
       setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
       fetchSheetsList({
+        requestObject: sheetQueryRequest,
         selectedDatasourceId: selectedDatasource.id,
         selectedSpreadsheetId: selectedSpreadsheet.id,
       });
@@ -170,6 +197,7 @@ function GoogleSheetForm(props: Props) {
           selectedSpreadsheetId: selectedSpreadsheet.id,
           sheetName: sheetValue,
           tableHeaderIndex,
+          requestObject: sheetQueryRequest,
         });
       }
     }
@@ -207,6 +235,7 @@ function GoogleSheetForm(props: Props) {
           selectedSpreadsheetId: selectedSpreadsheet.id,
           sheetName: selectedSheet.value,
           tableHeaderIndex: value,
+          requestObject: sheetQueryRequest,
         });
       }
     }, 200),
