@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
-import { executeAction, disableDragAction } from "actions/widgetActions";
+import { executeTrigger, disableDragAction } from "actions/widgetActions";
 import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
@@ -12,7 +12,7 @@ import {
   BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
@@ -22,7 +22,7 @@ import {
 } from "actions/metaActions";
 
 export type EditorContextType = {
-  executeAction?: (actionPayloads: ExecuteActionPayload) => void;
+  executeTrigger?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -59,7 +59,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     children,
     deleteWidgetProperty,
     disableDrag,
-    executeAction,
+    executeTrigger,
     resetChildrenMetaProperty,
     updateWidget,
     updateWidgetMetaProperty,
@@ -70,7 +70,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
   // unnecessary renders
   const contextValue = useMemo(
     () => ({
-      executeAction,
+      executeAction: executeTrigger,
       updateWidget,
       updateWidgetProperty,
       updateWidgetMetaProperty,
@@ -80,7 +80,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
     }),
     [
-      executeAction,
+      executeTrigger,
       updateWidget,
       updateWidgetProperty,
       updateWidgetMetaProperty,
@@ -110,7 +110,7 @@ const mapDispatchToProps = {
       RenderModes.CANVAS,
     ),
 
-  executeAction,
+  executeTrigger,
   updateWidget,
   updateWidgetMetaProperty,
   resetChildrenMetaProperty,

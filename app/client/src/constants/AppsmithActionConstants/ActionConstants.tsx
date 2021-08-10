@@ -16,14 +16,14 @@ export type ExecutionResult = {
   success: boolean;
 };
 
-export type ExecuteActionPayload = {
+export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
 };
 
 // triggerPropertyName was added as a requirement for logging purposes
-export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+export type WidgetExecuteActionPayload = ExecuteTriggerPayload & {
   triggerPropertyName?: string;
 };
 

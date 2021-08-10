@@ -42,6 +42,7 @@ import TernServer from "utils/autocomplete/TernServer";
 import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
 import { Diff } from "deep-diff";
+import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -222,16 +223,17 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
-        log.debug(error);
+        log.error(error);
+        const message = createMessage(ERROR_EVAL_TRIGGER, error.message);
         Toaster.show({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
+          text: message,
           variant: Variant.danger,
           showDebugButton: true,
         });
         AppsmithConsole.error({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
+          text: message,
         });
-        break;
+        throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);

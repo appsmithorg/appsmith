@@ -26,7 +26,7 @@ import ProvidersApi, {
 } from "api/ProvidersApi";
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
-import { fetchActions } from "actions/actionActions";
+import { fetchActions } from "actions/pluginActionActions";
 import {
   getCurrentApplicationId,
   getPageList,

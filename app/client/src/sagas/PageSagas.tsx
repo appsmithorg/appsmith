@@ -63,7 +63,6 @@ import {
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
@@ -72,9 +71,10 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import {
+  executePageLoadActions,
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";

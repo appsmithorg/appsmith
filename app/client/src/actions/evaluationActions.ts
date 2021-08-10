@@ -2,10 +2,10 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "../entities/DataTree/dataTreeFactory";
-import { DependencyMap } from "../utils/DynamicBindingUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
@@ -30,8 +30,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

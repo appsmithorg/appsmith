@@ -4,7 +4,7 @@ import {
   getActionsForCurrentPage,
   getDBDatasources,
 } from "selectors/entitiesSelector";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import {
   getModalDropdownList,
   getNextModalName,

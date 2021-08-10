@@ -26,7 +26,7 @@ import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
 
 type Props = {
   copySelectedWidget: () => void;

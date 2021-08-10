@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
-  ExecuteActionPayload,
+  ExecuteTriggerPayload,
   ExecuteActionPayloadEvent,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
@@ -20,57 +20,59 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 
+export class TriggerEvaluationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 export function* executeActionTriggers(
   trigger: ActionDescription,
   event: ExecuteActionPayloadEvent,
 ) {
-  try {
-    switch (trigger.type) {
-      case ActionTriggerType.PROMISE:
-        yield call(executePromiseSaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.PLUGIN_ACTION:
-        yield call(executePluginActionTriggerSaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.NAVIGATE_TO:
-        yield call(navigateActionSaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.SHOW_ALERT:
-        yield call(showAlertSaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.SHOW_MODAL_BY_NAME:
-        yield put(trigger);
-        if (event.callback) event.callback({ success: true });
-        break;
-      case ActionTriggerType.CLOSE_MODAL:
-        yield put(trigger);
-        AppsmithConsole.info({
-          text: `closeModal(${trigger.payload.modalName}) was triggered`,
-        });
-        if (event.callback) event.callback({ success: true });
-        break;
-      case ActionTriggerType.STORE_VALUE:
-        yield call(storeValueLocally, trigger.payload, event);
-        break;
-      case ActionTriggerType.DOWNLOAD:
-        yield call(downloadSaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.COPY_TO_CLIPBOARD:
-        yield call(copySaga, trigger.payload, event);
-        break;
-      case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
-        yield call(resetWidgetActionSaga, trigger.payload, event);
-        break;
-      default:
-        log.error("Trigger type unknown", trigger);
-        if (event.callback) event.callback({ success: false });
-    }
-  } catch (e) {
-    if (event.callback) event.callback({ success: false });
+  switch (trigger.type) {
+    case ActionTriggerType.PROMISE:
+      yield call(executePromiseSaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.PLUGIN_ACTION:
+      yield call(executePluginActionTriggerSaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.NAVIGATE_TO:
+      yield call(navigateActionSaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.SHOW_ALERT:
+      yield call(showAlertSaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.SHOW_MODAL_BY_NAME:
+      yield put(trigger);
+      if (event.callback) event.callback({ success: true });
+      break;
+    case ActionTriggerType.CLOSE_MODAL:
+      yield put(trigger);
+      AppsmithConsole.info({
+        text: `closeModal(${trigger.payload.modalName}) was triggered`,
+      });
+      if (event.callback) event.callback({ success: true });
+      break;
+    case ActionTriggerType.STORE_VALUE:
+      yield call(storeValueLocally, trigger.payload, event);
+      break;
+    case ActionTriggerType.DOWNLOAD:
+      yield call(downloadSaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.COPY_TO_CLIPBOARD:
+      yield call(copySaga, trigger.payload, event);
+      break;
+    case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
+      yield call(resetWidgetActionSaga, trigger.payload, event);
+      break;
+    default:
+      log.error("Trigger type unknown", trigger);
+      if (event.callback) event.callback({ success: false });
   }
 }
 
-export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
+export function* executeAppAction(action: ReduxAction<ExecuteTriggerPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug({ dynamicString, responseData });
 
@@ -99,5 +101,7 @@ export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
 }
 
 export function* watchActionExecutionSagas() {
-  yield all([takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction)]);
+  yield all([
+    takeEvery(ReduxActionTypes.EXECUTE_TRIGGER_REQUEST, executeAppAction),
+  ]);
 }

@@ -10,7 +10,7 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
-import { deleteAction, runActionInit } from "actions/actionActions";
+import { deleteAction, runAction } from "actions/pluginActionActions";
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -216,7 +216,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
-  runAction: (actionId: string) => dispatch(runActionInit(actionId)),
+  runAction: (actionId: string) => dispatch(runAction(actionId)),
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },

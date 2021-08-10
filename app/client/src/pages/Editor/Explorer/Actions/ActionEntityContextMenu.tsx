@@ -9,7 +9,7 @@ import {
   moveActionRequest,
   copyActionRequest,
   deleteAction,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";

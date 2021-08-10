@@ -8,7 +8,7 @@ import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ApiActionConfig, Action } from "entities/Action";

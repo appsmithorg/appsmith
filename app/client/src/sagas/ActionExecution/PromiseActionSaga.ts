@@ -6,6 +6,14 @@ import {
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { all, call } from "redux-saga/effects";
 
+export class TriggerFailureError extends Error {
+  reason: string;
+  constructor(message: string, reason: string) {
+    super(message);
+    this.reason = reason;
+  }
+}
+
 export default function* executePromiseSaga(
   trigger: AppsmithPromisePayload,
   event: ExecuteActionPayloadEvent,

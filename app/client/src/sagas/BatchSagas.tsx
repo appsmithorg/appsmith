@@ -2,7 +2,7 @@
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { batchActionSuccess } from "../actions/batchActions";
+import { batchActionSuccess } from "actions/batchActions";
 
 const BATCH_PRIORITY = {
   [ReduxActionTypes.SET_META_PROP]: {
@@ -17,7 +17,7 @@ const BATCH_PRIORITY = {
     priority: 0,
     needsSaga: false,
   },
-  [ReduxActionTypes.EXECUTE_ACTION]: {
+  [ReduxActionTypes.EXECUTE_TRIGGER_REQUEST]: {
     priority: 1,
     needsSaga: true,
   },

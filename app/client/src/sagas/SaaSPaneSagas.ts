@@ -20,7 +20,7 @@ import {
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
-import { setActionProperty } from "actions/actionActions";
+import { setActionProperty } from "actions/pluginActionActions";
 import { autofill } from "redux-form";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {

@@ -6,7 +6,7 @@ import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";

@@ -1,13 +1,14 @@
-import { PaginationField, ActionResponse } from "api/ActionAPI";
+import { ActionResponse, PaginationField } from "api/ActionAPI";
 import {
-  ReduxActionTypes,
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
-  EvaluationReduxAction,
+  ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
+import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -77,19 +78,6 @@ export const runActionViaShortcut = () => {
 export const runAction = (id: string, paginationField?: PaginationField) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,
-    payload: {
-      id,
-      paginationField,
-    },
-  };
-};
-
-export const runActionInit = (
-  id: string,
-  paginationField?: PaginationField,
-) => {
-  return {
-    type: ReduxActionTypes.RUN_ACTION_INIT,
     payload: {
       id,
       paginationField,
@@ -205,19 +193,28 @@ export const copyActionError = (payload: {
   };
 };
 
-export const executeApiActionRequest = (payload: { id: string }) => ({
-  type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
+export const executePluginActionRequest = (payload: { id: string }) => ({
+  type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
   payload: payload,
 });
 
-export const executeApiActionSuccess = (payload: {
+export const executePluginActionSuccess = (payload: {
   id: string;
   response: ActionResponse;
   isPageLoad?: boolean;
 }) => ({
-  type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
+  type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
   payload: payload,
 });
+
+export const executePluginActionError = (
+  executeErrorPayload: ExecuteErrorPayload,
+): ReduxAction<ExecuteErrorPayload> => {
+  return {
+    type: ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+    payload: executeErrorPayload,
+  };
+};
 
 export const saveActionName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
@@ -249,6 +246,10 @@ export const updateActionProperty = (
     payload,
   });
 };
+
+export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
+  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+});
 
 export const executePageLoadActionsComplete = () => {
   return {

@@ -19,7 +19,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   ActionButton,

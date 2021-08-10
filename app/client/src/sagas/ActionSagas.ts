@@ -33,7 +33,7 @@ import {
   updateAction,
   updateActionProperty,
   updateActionSuccess,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import {
   DynamicPath,
   isChildPropertyPath,

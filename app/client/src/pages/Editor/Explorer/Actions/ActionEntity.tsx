@@ -2,7 +2,7 @@ import React, { ReactNode, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
-import { saveActionName } from "actions/actionActions";
+import { saveActionName } from "actions/pluginActionActions";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import PerformanceTracker, {

@@ -24,7 +24,7 @@ import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { useCallback } from "react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { showDebugger } from "actions/debuggerActions";
-import { setActionTabsInitialIndex } from "actions/actionActions";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 const CONNECTION_WIDTH = 113;
