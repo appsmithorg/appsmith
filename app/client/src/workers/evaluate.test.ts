@@ -59,6 +59,7 @@ describe("evaluate", () => {
   `,
           severity: "warning",
           originalBinding: "wrongJS",
+          variables: ["wrongJS", undefined, undefined, undefined],
         },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
