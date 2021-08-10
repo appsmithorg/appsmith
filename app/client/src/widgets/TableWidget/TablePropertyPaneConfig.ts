@@ -339,8 +339,7 @@ export default [
                 {
                   propertyName: "isColumnVisible",
                   label: "Column Visible",
-                  helpText:
-                    "Controls the visibility of the Column is all cells are not visible",
+                  helpText: "Collapse the Column when all cells are hidden",
                   updateHook: updateDerivedColumnsHook,
                   defaultValue: true,
                   controlType: "SWITCH",
