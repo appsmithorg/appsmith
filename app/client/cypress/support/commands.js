@@ -1763,8 +1763,8 @@ Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
   cy.wait(2000);
   cy.get(commonlocators.dropdownmenu)
     .contains(text)
-    .click({ force: true })
-    .should("have.text", text);
+    .click({ force: true });
+  cy.xpath(commonlocators.dropDownOptSelected).should("have.text", text);
 });
 
 Cypress.Commands.add("selectTextSize", (text) => {
