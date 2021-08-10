@@ -830,8 +830,12 @@ const addIsDisabledToButtonColumn = (
             currentDSL.primaryColumns[key]["isDisabled"] = false;
           }
         }
-        currentDSL.primaryColumns[key]["isCellVisible"] = true;
-        currentDSL.primaryColumns[key]["isColumnVisible"] = true;
+        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+          currentDSL.primaryColumns[key]["isCellVisible"] = true;
+        }
+        if (!currentDSL.primaryColumns[key].hasOwnProperty("isColumnVisible")) {
+          currentDSL.primaryColumns[key]["isColumnVisible"] = true;
+        }
       }
     }
   }

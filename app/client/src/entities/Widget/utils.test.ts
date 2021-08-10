@@ -130,7 +130,14 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isColumnVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+
+        "primaryColumns.name.isColumnVisible":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -138,6 +145,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.outputFormat":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isColumnVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
@@ -155,12 +166,12 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonStyle":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.status.isVisible": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.isVisible":
-          EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.createdAt.isVisible":
+        //   EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
@@ -190,6 +201,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
+        },
+        "primaryColumns.createdAt.isColumnVisible": {
+          type: "BOOLEAN",
+        },
+        "primaryColumns.name.isColumnVisible": {
+          type: "BOOLEAN",
+        },
+        "primaryColumns.status.isColumnVisible": {
+          type: "BOOLEAN",
         },
       },
     };

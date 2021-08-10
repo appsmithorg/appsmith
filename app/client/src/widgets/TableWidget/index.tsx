@@ -90,11 +90,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return value;
     }
     if (Array.isArray(value) && isBoolean(value[index])) {
-      console.log(value, "array");
       return value[index];
     }
     if (value && Array.isArray(value) && value[index]) {
-      console.log(value);
       return preserveCase
         ? value[index].toString()
         : value[index].toString().toUpperCase();
