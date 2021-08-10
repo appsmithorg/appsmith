@@ -13,7 +13,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvalErrorTypeDebugMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
@@ -32,6 +31,7 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
+  VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
@@ -85,7 +85,7 @@ function logLatestEvalPropertyErrors(
 
       if (evalErrors.length) {
         // TODO Rank and set the most critical error
-        const error = evalErrors[0];
+        // const error = evalErrors[0];
         // Reformatting eval errors here to a format usable by the debugger
         const errorMessages = evalErrors.map((e) => {
           // Error format required for the debugger
@@ -107,9 +107,9 @@ function logLatestEvalPropertyErrors(
         AppsmithConsole.addError({
           id: debuggerKey,
           logType: LOG_TYPE.EVAL_ERROR,
-          text: PropertyEvalErrorTypeDebugMessage[error.errorType](
-            propertyPath,
-          ),
+          // Unless the intention is to change the message shown in the debugger please do not
+          // change the text shown here
+          text: createMessage(VALUE_IS_INVALID, propertyPath),
           messages: errorMessages,
           source: {
             id: idField,

@@ -193,9 +193,12 @@ function LogItem(props: LogItemProps) {
 
   const openHelpModal = useCallback((e, error?: Message) => {
     e.stopPropagation();
-    const text = error?.message || props.text;
+    const focusedError =
+      error ||
+      (props.messages && props.messages.length ? props.messages[0] : undefined);
+    const text = focusedError?.message || props.text;
 
-    switch (error?.type) {
+    switch (focusedError?.type) {
       case PropertyEvaluationErrorType.PARSE:
       case PropertyEvaluationErrorType.LINT:
         // Search google for the error message
@@ -212,10 +215,7 @@ function LogItem(props: LogItemProps) {
         break;
       default:
         // Prefill the error in intercom
-        console.log(intercomAppID, "intercomAppID");
-        console.log(window.Intercom, "window.Intercom");
         if (intercomAppID && window.Intercom) {
-          console.log("open intercom");
           window.Intercom("showNewMessage", text);
         }
     }
