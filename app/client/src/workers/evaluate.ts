@@ -103,6 +103,7 @@ const getLintingErrors = (
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
       originalBinding,
+      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
     };
   });
 };
@@ -197,7 +198,7 @@ export default function evaluate(
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
-        originalBinding: unescapedJS,
+        originalBinding: js,
       });
     }
 

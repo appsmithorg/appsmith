@@ -320,6 +320,7 @@ export type EvaluationError = {
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
   originalBinding?: string;
+  variables?: (string | undefined)[];
 };
 
 export interface DataTreeEvaluationProps {
