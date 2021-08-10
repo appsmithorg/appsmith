@@ -179,7 +179,11 @@ function GeneratePageForm() {
       dataSourceObj: DropdownOption | undefined,
     ) => {
       if (datasource && dataSourceObj) {
-        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE");
+        const pluginId: string = dataSourceObj.data.pluginId;
+        const pluginPackageName: string = generateCRUDSupportedPlugin[pluginId];
+        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE", {
+          datasourceType: pluginPackageName,
+        });
         selectDataSource(dataSourceObj);
         setSelectedDatasourceTableOptions([]);
         setSelectedTableColumnOptions([]);
@@ -191,6 +195,7 @@ function GeneratePageForm() {
       }
     },
     [
+      generateCRUDSupportedPlugin,
       selectDataSource,
       setSelectedDatasourceTableOptions,
       setSelectedTableColumnOptions,
