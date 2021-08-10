@@ -135,6 +135,7 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -422,7 +423,7 @@ const getAllWidgetsInTree = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   const widget = canvasWidgets[widgetId];
-  const widgetList = [widget];
+  const widgetList = widget ? [widget] : [];
   if (widget && widget.children) {
     widget.children
       .filter(Boolean)
@@ -738,14 +739,20 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
-  const deletedWidgetIds = action.payload.widgetId.split(",");
-  if (deletedWidgets && Array.isArray(deletedWidgets)) {
+  const stateWidgets = yield select(getWidgets);
+  const deletedWidgetIds = deletedWidgets.map((each) => {
+    return each.widgetId;
+  });
+  if (
+    deletedWidgets &&
+    Array.isArray(deletedWidgets) &&
+    deletedWidgets.length
+  ) {
     // Get the current list of widgets from reducer
     const formTree = deletedWidgets.reduce((widgetTree, each) => {
       widgetTree[each.widgetId] = each;
       return widgetTree;
     }, {} as CanvasWidgetsReduxState);
-    const stateWidgets = yield select(getWidgets);
     const deletedWidgetGroups = deletedWidgetIds.map((each) => ({
       widget: formTree[each],
       widgetsToRestore: getAllWidgetsInTree(each, formTree),
@@ -777,7 +784,8 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
             if (
               widget.tabId &&
               widget.type === WidgetTypes.CANVAS_WIDGET &&
-              widget.parentId
+              widget.parentId &&
+              widgets[widget.parentId]
             ) {
               const parent = cloneDeep(widgets[widget.parentId]);
               if (parent.tabsObj) {
@@ -814,13 +822,13 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               }
             }
             let newChildren = [widget.widgetId];
-            if (widget.parentId && widgets[widget.parentId].children) {
-              // Concatenate the list of parents children with the current widgetId
-              newChildren = newChildren.concat(
-                widgets[widget.parentId].children,
-              );
-            }
-            if (widget.parentId) {
+            if (widget.parentId && widgets[widget.parentId]) {
+              if (widgets[widget.parentId].children) {
+                // Concatenate the list of parents children with the current widgetId
+                newChildren = newChildren.concat(
+                  widgets[widget.parentId].children,
+                );
+              }
               widgets = {
                 ...widgets,
                 [widget.parentId]: {
@@ -1393,7 +1401,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return !allWidgets[each].disallowCopy;
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
   });
 
   if (!allAllowedToCopy) {
@@ -1463,15 +1471,10 @@ function* getEntityNames() {
   return Object.keys(evalTree);
 }
 
-function getNextWidgetName(
+export function getNextWidgetName(
   widgets: CanvasWidgetsReduxState,
   type: WidgetType,
-  evalTree: {
-    bottomRow: any;
-    leftColumn: any;
-    rightColumn: any;
-    topRow: any;
-  },
+  evalTree: DataTree,
   options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
@@ -1580,7 +1583,7 @@ function* pasteWidgetSaga() {
           // goToNextAvailableRow = true,
           // persistColumnPosition = false,
 
-          const evalTree = yield select(getDataTree);
+          const evalTree: DataTree = yield select(getDataTree);
 
           // Get a flat list of all the widgets to be updated
           const widgetList = copiedWidgets.list;
