@@ -243,6 +243,7 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
         child.isVisibleDownload = true;
         child.isVisibleCompactMode = true;
         child.isVisiblePagination = true;
+        child.delimeter = ",";
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetHeaderVisibilityProperties(child);
