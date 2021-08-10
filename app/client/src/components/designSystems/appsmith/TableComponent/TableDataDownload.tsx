@@ -54,7 +54,7 @@ interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
   columns: ReactTableColumnProps[];
   widgetName: string;
-  csvSeparator: string;
+  delimeter: string;
 }
 
 type FileDownloadType = "CSV" | "EXCEL";
@@ -82,12 +82,12 @@ const dowloadOptions: DownloadOptionProps[] = [
 
 const downloadDataAsCSV = (props: {
   csvData: Array<Array<any>>;
-  csvSeparator: string;
+  delimeter: string;
   fileName: string;
 }) => {
   let csvContent = "";
   props.csvData.forEach((infoArray: Array<any>, index: number) => {
-    const dataString = infoArray.join(props.csvSeparator);
+    const dataString = infoArray.join(props.delimeter);
     csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
   });
   const anchor = document.createElement("a");
@@ -170,7 +170,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
     });
     downloadDataAsCSV({
       csvData: csvData,
-      csvSeparator: props.csvSeparator,
+      delimeter: props.delimeter,
       fileName: `${props.widgetName}.csv`,
     });
     selectMenu(false);

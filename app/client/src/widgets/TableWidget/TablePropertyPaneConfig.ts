@@ -896,7 +896,7 @@ export default [
     hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
     children: [
       {
-        propertyName: "csvSeparator",
+        propertyName: "delimeter",
         label: "CSV Separator",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter CSV separator",
@@ -906,7 +906,6 @@ export default [
         defaultValue: ",",
         validation: {
           type: ValidationTypes.TEXT,
-          params: { allowedValues: [",", ";"] },
         },
       },
     ],

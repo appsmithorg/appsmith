@@ -77,7 +77,7 @@ interface TableProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
-  csvSeparator: string;
+  delimeter: string;
 }
 
 const defaultColumn = {
@@ -242,8 +242,8 @@ export function Table(props: TableProps) {
                 applyFilter={props.applyFilter}
                 columns={tableHeadercolumns}
                 compactMode={props.compactMode}
-                csvSeparator={props.csvSeparator}
                 currentPageIndex={currentPageIndex}
+                delimeter={props.delimeter}
                 filters={props.filters}
                 isVisibleCompactMode={props.isVisibleCompactMode}
                 isVisibleDownload={props.isVisibleDownload}

@@ -114,7 +114,7 @@ interface TableHeaderProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
-  csvSeparator: string;
+  delimeter: string;
 }
 
 function TableHeader(props: TableHeaderProps) {
@@ -143,8 +143,8 @@ function TableHeader(props: TableHeaderProps) {
           {props.isVisibleDownload && (
             <TableDataDownload
               columns={props.tableColumns}
-              csvSeparator={props.csvSeparator}
               data={props.tableData}
+              delimeter={props.delimeter}
               widgetName={props.widgetName}
             />
           )}
