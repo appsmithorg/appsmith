@@ -200,7 +200,8 @@ class DatasourceHomeScreen extends React.Component<Props> {
                 onClick={() => {
                   AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
                     appName: currentApplication?.name,
-                    plugin: plugin.name,
+                    pluginName: plugin.name,
+                    pluginPackageName: plugin.packageName,
                   });
                   this.goToCreateDatasource(plugin.id, plugin.name, {
                     packageName: plugin.packageName,
