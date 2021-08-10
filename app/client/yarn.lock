@@ -14650,6 +14650,11 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
 
+react-media-recorder@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-media-recorder/-/react-media-recorder-1.5.0.tgz#8cc86ba61c8bd1a94ff1bc2fdf6a8ad203b9c05e"
+  integrity sha512-Wosm8/Wg/VG3CP56yOOkdFCwcbVPjFLPu+aKkyCzxGCK+ol2QZMemNYLJC5KU5jZ7nHlpHq7YEOiVi17vmqnPQ==
+
 react-mentions@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/react-mentions/-/react-mentions-4.1.1.tgz"

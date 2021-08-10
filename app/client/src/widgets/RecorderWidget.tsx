@@ -12,6 +12,8 @@ import withMeta, { WithMeta } from "./MetaHOC";
 import RecorderComponent from "components/designSystems/appsmith/RecorderComponent";
 
 export interface RecorderWidgetProps extends WidgetProps, WithMeta {
+  backgroundColor: string;
+  iconColor: string;
   isDisabled: boolean;
   isValid: boolean;
 }
@@ -97,8 +99,29 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { isDisabled, widgetId } = this.props;
-    return <RecorderComponent isDisabled={isDisabled} widgetId={widgetId} />;
+    const {
+      backgroundColor,
+      bottomRow,
+      iconColor,
+      isDisabled,
+      leftColumn,
+      parentColumnSpace,
+      parentRowSpace,
+      rightColumn,
+      topRow,
+      widgetId,
+    } = this.props;
+
+    return (
+      <RecorderComponent
+        backgroundColor={backgroundColor}
+        height={(bottomRow - topRow) * parentRowSpace}
+        iconColor={iconColor}
+        isDisabled={isDisabled}
+        widgetId={widgetId}
+        width={(rightColumn - leftColumn) * parentColumnSpace}
+      />
+    );
   }
 
   getWidgetType(): WidgetType {
