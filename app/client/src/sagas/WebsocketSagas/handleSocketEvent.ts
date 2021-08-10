@@ -47,6 +47,10 @@ export default function* handleSocketEvent(event: any) {
       );
 
       const isThreadInStoreViewed = threadInStore?.isViewed;
+
+      const isNowResolved =
+        !threadInStore?.resolvedState?.active && thread?.resolvedState?.active;
+
       const isThreadFromEventViewed = thread?.viewedByUsers?.includes(
         currentUser?.username,
       );
@@ -54,13 +58,16 @@ export default function* handleSocketEvent(event: any) {
       yield put(
         updateCommentThreadEvent({
           ...thread,
-          isViewed: isThreadFromEventViewed,
+          isViewed: isThreadFromEventViewed || thread?.resolvedState?.active, // resolved threads can't be unread
         }),
       );
 
       if (isThreadInStoreViewed && !isThreadFromEventViewed) {
         yield put(incrementThreadUnreadCount());
-      } else if (!isThreadInStoreViewed && isThreadFromEventViewed) {
+      } else if (
+        !isThreadInStoreViewed &&
+        (isThreadFromEventViewed || isNowResolved)
+      ) {
         yield put(decrementThreadUnreadCount());
       }
 
