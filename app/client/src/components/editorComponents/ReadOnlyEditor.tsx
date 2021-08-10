@@ -21,7 +21,7 @@ interface Props {
 function ReadOnlyEditor(props: Props) {
   const editorProps: EditorProps = {
     hinting: [],
-    ...props.input,
+    input: props.input,
     marking: [],
     mode: EditorModes.JSON_WITH_BINDING,
     size: EditorSize.EXTENDED,

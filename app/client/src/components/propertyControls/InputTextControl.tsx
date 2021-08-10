@@ -42,13 +42,15 @@ export function InputText(props: {
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
+        input={{
+          value: value,
+          onChange: onChange,
+        }}
         mode={EditorModes.TEXT_WITH_BINDING}
-        onChange={onChange}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}
-        value={value}
       />
     </StyledDynamicInput>
   );

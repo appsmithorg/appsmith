@@ -149,11 +149,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
       showUnsupportedPluginDialog,
     } = this.props;
 
-    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      appName: currentApplication?.name,
-      plugin: pluginName,
-    });
-
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
 
     /* When isGeneratePageMode is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
@@ -166,6 +161,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
         Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.
     */
     if (isGeneratePageInitiator && !params?.skipValidPluginCheck) {
+      AnalyticsUtil.logEvent("GEN_CRUD_PAGE_DATA_SOURCE_CLICK", {
+        appName: currentApplication?.name,
+        plugin: pluginName,
+        packageName: params?.packageName,
+      });
       if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
@@ -187,7 +187,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
   };
 
   render() {
-    const { pluginImages, plugins } = this.props;
+    const { currentApplication, pluginImages, plugins } = this.props;
 
     return (
       <DatasourceHomePage>
@@ -197,9 +197,16 @@ class DatasourceHomeScreen extends React.Component<Props> {
               <DatasourceCard
                 className="eachDatasourceCard"
                 key={`${plugin.id}_${idx}`}
-                onClick={() =>
-                  this.goToCreateDatasource(plugin.id, plugin.name)
-                }
+                onClick={() => {
+                  AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                    appName: currentApplication?.name,
+                    pluginName: plugin.name,
+                    pluginPackageName: plugin.packageName,
+                  });
+                  this.goToCreateDatasource(plugin.id, plugin.name, {
+                    packageName: plugin.packageName,
+                  });
+                }}
               >
                 <DatasourceContentWrapper>
                   <div className="dataSourceImageWrapper">

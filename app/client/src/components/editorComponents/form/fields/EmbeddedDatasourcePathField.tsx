@@ -285,12 +285,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
     const displayValue = `${datasourceUrl}${value}`;
-
-    const props: EditorProps = {
-      ...this.props,
+    const input = {
       ...this.props.input,
       value: displayValue,
       onChange: this.handleOnChange,
+    };
+
+    const props: EditorProps = {
+      ...this.props,
+      input,
       mode: EditorModes.TEXT_WITH_BINDING,
       theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,

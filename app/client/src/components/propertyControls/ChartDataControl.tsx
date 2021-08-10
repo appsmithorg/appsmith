@@ -121,17 +121,6 @@ function DataControlComponent(props: RenderComponentProps) {
     updateOption,
   } = props;
 
-  const onCodeEditorChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement> | string,
-    key: string,
-  ) => {
-    let value: string = event as string;
-    if (typeof event !== "string") {
-      value = event.target.value;
-    }
-    updateOption(index, key, value);
-  };
-
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <ActionHolder>
@@ -151,15 +140,23 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
+          input={{
+            value: item.seriesName,
+            onChange: (
+              event: React.ChangeEvent<HTMLTextAreaElement> | string,
+            ) => {
+              let value: string = event as string;
+              if (typeof event !== "string") {
+                value = event.target.value;
+              }
+              updateOption(index, "seriesName", value);
+            },
+          }}
           mode={EditorModes.TEXT_WITH_BINDING}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement> | string) =>
-            onCodeEditorChange(e, "seriesName")
-          }
           placeholder="Series Name"
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}
-          value={item.seriesName}
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -170,15 +167,23 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}
+          input={{
+            value: item.data,
+            onChange: (
+              event: React.ChangeEvent<HTMLTextAreaElement> | string,
+            ) => {
+              let value: string = event as string;
+              if (typeof event !== "string") {
+                value = event.target.value;
+              }
+              updateOption(index, "data", value);
+            },
+          }}
           mode={EditorModes.JSON_WITH_BINDING}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement> | string) =>
-            onCodeEditorChange(e, "data")
-          }
           placeholder=""
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}
-          value={item.data}
         />
       </StyledDynamicInput>
       <Box />

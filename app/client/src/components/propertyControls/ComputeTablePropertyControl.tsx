@@ -58,8 +58,11 @@ export function InputText(props: {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
+        input={{
+          value: value,
+          onChange: onChange,
+        }}
         mode={EditorModes.TEXT_WITH_BINDING}
-        onChange={onChange}
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
@@ -71,7 +74,6 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={theme}
-        value={value}
       />
     </StyledDynamicInput>
   );
