@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static java.lang.Boolean.FALSE;
@@ -224,21 +225,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             );
 
             if (!isPrivateThread) {
-                final Set<String> usernames = commentThread.getSubscribers();
-                List<Mono<Notification>> notificationMonos = new ArrayList<>();
-                for (String username : usernames) {
-                    if (!username.equals(user.getUsername()) && !username.equals(APPSMITH_BOT_USERNAME)) {
-                        CommentNotificationEvent notificationEvent = CommentNotificationEvent.CREATED;
-                        if(CommentUtils.isUserMentioned(savedComment, username)) {
-                            notificationEvent = CommentNotificationEvent.TAGGED;
-                        }
-                        Mono<Notification> notificationMono = notificationService.createNotification(
-                                savedComment, notificationEvent, username
-                        );
-                        notificationMonos.add(notificationMono);
-                    }
-                }
-                return publishEmail.then(Flux.merge(notificationMonos).collectList()).thenReturn(savedComment);
+                Mono<List<Notification>> commentNotifications = sendCommentNotifications(
+                        commentThread.getSubscribers(), savedComment, CommentNotificationEvent.CREATED
+                );
+                return publishEmail.then(commentNotifications).thenReturn(savedComment);
             } else {
                 return publishEmail.thenReturn(savedComment);
             }
@@ -482,6 +472,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return repository.findById(id, AclPermission.MANAGE_COMMENT)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
                 .flatMap(repository::archive)
+                .flatMap(comment -> threadRepository.findById(comment.getThreadId(), READ_THREAD).flatMap(commentThread ->
+                    sendCommentNotifications(commentThread.getSubscribers(), comment, CommentNotificationEvent.DELETED)
+                            .thenReturn(comment)
+                ))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 
@@ -635,5 +629,22 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(user ->
                         threadRepository.countUnreadThreads(applicationId, user.getUsername())
                 );
+    }
+
+    private Mono<List<Notification>> sendCommentNotifications(
+            Set<String> subscribers, Comment comment, CommentNotificationEvent event) {
+        List<Mono<Notification>> monoList = new ArrayList<>();
+        if(subscribers != null) {
+            for(String username : subscribers) {
+                if(!username.equals(comment.getAuthorUsername())) {
+                    // send notifications to everyone except author of the comment and bot
+                    Mono<Notification> notificationMono = notificationService.createNotification(
+                            comment, event, username
+                    );
+                    monoList.add(notificationMono);
+                }
+            }
+        }
+        return Flux.merge(monoList).collectList();
     }
 }
