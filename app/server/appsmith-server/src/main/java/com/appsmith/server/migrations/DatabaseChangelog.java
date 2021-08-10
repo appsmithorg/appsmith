@@ -63,7 +63,9 @@ import com.mysema.commons.lang.Pair;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -83,6 +85,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
+import javax.print.Doc;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
@@ -2839,31 +2842,66 @@ public class DatabaseChangelog {
         }
     }
 
-    private void documentPathExists(Document document) {
+    private Document getDocumentFromPath(Document document, String path) {
+        String[] pathKeys = path.split("\\.");
+        Document documentPtr = document;
 
+        /**
+         * - Traverse document one key at a time.
+         * - Forced to traverse document one key at a time for the lack of a better API that allows traversal for
+         * chained keys or key list.
+         */
+        for (int i=0; i<pathKeys.length; i++) {
+            if (documentPtr.containsKey(pathKeys[i])) {
+                try {
+                    documentPtr = documentPtr.get(pathKeys[i], Document.class);
+                } catch (ClassCastException e) {
+                    System.out.println("Failed to cast document for path: " + path);
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            else {
+                return null;
+            }
+        }
+
+        return documentPtr;
     }
 
-    private void encryptKeyFile(Document document, String path) {
-        if (documentPathExists(document, path)) {
+    private void encryptPathValueIfExists(Document document, String path, EncryptionService encryptionService) {
+        String[] pathKeys = path.split("\\.");
+        String parentDocumentPath = StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
+        Document parentDocument = getDocumentFromPath(document, parentDocumentPath);
 
+        if (parentDocument != null) {
+            // Replace old value with new encrypted value if the key exists and is non-null.
+            parentDocument.computeIfPresent(
+                    pathKeys[pathKeys.length - 1],
+                    (k, v) -> encryptionService.encryptString((String) v)
+            );
         }
     }
 
-    private void encryptRawValues(Document document) {
-        String path = "";
-        encryptKeyFile(document, path);
+    private void encryptRawValues(Document document, List<String> pathList, EncryptionService encryptionService) {
+        pathList.stream()
+                .forEach(path -> encryptPathValueIfExists(document, path, encryptionService));
     }
 
-    // TODO: check order, id, name
-    @ChangeSet(order = "085", id = "encrypt-certificate-5", author = "")
-    public void encryptCertificateAndPassword5(MongockTemplate mongoTemplate, EncryptionService encryptionService) {
+    @ChangeSet(order = "080", id = "encrypt-certificate", author = "")
+    public void encryptCertificateAndPassword(MongockTemplate mongoTemplate, EncryptionService encryptionService) {
+
+        /**
+         * - List of attributes that need to be encoded.
+         * - Each path represents where the attribute exists in mongo db document.
+         */
         List<String> pathList = new ArrayList<>();
         pathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
         pathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
-        pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+        pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFi1e.base64Content");
         pathList.add("datasourceConfiguration.sshProxy.privateKey.password");
 
         mongoTemplate.execute("datasource", new CollectionCallback<String>() {
@@ -2884,19 +2922,19 @@ public class DatabaseChangelog {
                 List<Pair<Document, Document>> documentPairList = new ArrayList<>();
                 while (cursor.hasNext()) {
                     Document old = (Document) cursor.next();
+                    // This document will have the encrypted values.
                     Document updated = Document.parse(old.toJson());
-
-                    updated
-                            .get("datasourceConfiguration", Document.class)
-                            .get("connection", Document.class)
-                            .get("ssl", Document.class)
-                            .get("caCertificateFile", Document.class)
-                            .computeIfPresent("base64Content", (k, v) -> encryptionService.encryptString((String) v));
-
+                    // Encrypt attributes
+                    encryptRawValues(updated, pathList, encryptionService);
                     documentPairList.add(new Pair(old, updated));
                 }
 
-               documentPairList.stream()
+                /**
+                 * - Replace old document with the updated document that has encrypted values.
+                 * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
+                 * the encryption step succeeded without error for each selected document.
+                 */
+                documentPairList.stream()
                         .forEach(docPair -> collection.findOneAndReplace(docPair.getFirst(), docPair.getSecond()));
 
                 return null;

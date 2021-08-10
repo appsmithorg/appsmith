@@ -24,7 +24,6 @@ public class UploadedFile implements AppsmithDomain {
 
     String name;
 
-    // TODO: uncomment
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String base64Content;
