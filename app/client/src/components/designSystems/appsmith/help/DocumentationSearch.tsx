@@ -342,7 +342,6 @@ if (intercomAppID) {
 }
 
 export function bootIntercom(intercomAppID: string, user?: User) {
-  console.log("Mounting Intercom");
   if (intercomAppID && window.Intercom) {
     window.Intercom("boot", {
       app_id: intercomAppID,
