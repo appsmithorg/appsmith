@@ -1,19 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { createNewQueryName } from "utils/AppsmithUtils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
-import { createActionRequest } from "actions/pluginActionActions";
-import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import DatasourceCard from "./DatasourceCard";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { Toaster } from "../../../components/ads/Toast";
-import { Variant } from "../../../components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "../../../constants/ApiEditorConstants";
+import { keyBy } from "lodash";
+import { createMessage, EMPTY_ACTIVE_DATA_SOURCES } from "constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -46,13 +41,10 @@ const EmptyActiveDatasource = styled.div`
   justify-content: center;
 `;
 
-type ActiveDataSourceProps = {
+type ActiveDataSourcesProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<Action> & { eventData: any }) => void;
-  actions: ActionDataState;
-  isCreating: boolean;
   location: {
     search: string;
   };
@@ -63,101 +55,44 @@ type ActiveDataSourceProps = {
   onCreateNew: () => void;
 };
 
-class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
-  handleCreateNewQuery = (dataSource: Datasource, pluginType: PluginType) => {
-    const { actions, pageId } = this.props;
+function ActiveDataSources(props: ActiveDataSourcesProps) {
+  const { dataSources } = props;
 
-    if (
-      pluginType === "API" &&
-      (!dataSource ||
-        !dataSource.datasourceConfiguration ||
-        !dataSource.datasourceConfiguration.url)
-    ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
-      });
-      return;
-    }
-    if (pageId) {
-      const newQueryName = createNewQueryName(actions, pageId);
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
-      const headers = dataSource?.datasourceConfiguration?.headers ?? [];
-      const defaultApiActionConfig: ApiActionConfig = {
-        ...DEFAULT_API_ACTION_CONFIG,
-        headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
-      };
-
-      this.props.createAction({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSource.id,
-        },
-        eventData: {
-          actionType: "Query",
-          from: "datasources",
-          dataSource: dataSource.name,
-        },
-        pluginId: dataSource.pluginId,
-        actionConfiguration: pluginType === "API" ? defaultApiActionConfig : {},
-      });
-    }
-  };
-
-  render() {
-    const { dataSources, isCreating } = this.props;
-
-    // if (isCreating) {
-    //   return (
-    //     <LoadingContainer>
-    //       <Spinner size={30} />
-    //     </LoadingContainer>
-    //   );
-    // }
-
-    if (dataSources.length === 0) {
-      return (
-        <EmptyActiveDatasource>
-          <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-            No active datasources found.{" "}
-            <CreateButton
-              category={Category.primary}
-              onClick={this.props.onCreateNew}
-              size={Size.medium}
-              tag="button"
-              text="Create New"
-            />
-          </Text>
-        </EmptyActiveDatasource>
-      );
-    }
-
+  if (dataSources.length === 0) {
     return (
-      <QueryHomePage className="t--active-datasource-list">
-        {dataSources.map((datasource, idx) => {
-          return (
-            <DatasourceCard
-              datasource={datasource}
-              isCreating={isCreating}
-              key={`${datasource.id}_${idx}`}
-              onCreateQuery={this.handleCreateNewQuery}
-            />
-          );
-        })}
-      </QueryHomePage>
+      <EmptyActiveDatasource>
+        <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
+          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
+          <CreateButton
+            category={Category.primary}
+            onClick={props.onCreateNew}
+            size={Size.medium}
+            tag="button"
+            text="Create New"
+          />
+        </Text>
+      </EmptyActiveDatasource>
     );
   }
+
+  return (
+    <QueryHomePage className="t--active-datasource-list">
+      {dataSources.map((datasource, idx) => {
+        return (
+          <DatasourceCard
+            datasource={datasource}
+            key={`${datasource.id}_${idx}`}
+            plugin={pluginGroups[datasource.pluginId]}
+          />
+        );
+      })}
+    </QueryHomePage>
+  );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  actions: state.entities.actions,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<Action> & { eventData: any }) => {
-    dispatch(createActionRequest(data));
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSources);
+export default ActiveDataSources;

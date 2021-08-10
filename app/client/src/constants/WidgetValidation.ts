@@ -13,6 +13,7 @@ export enum ValidationTypes {
   DATE_ISO_STRING = "DATE_ISO_STRING",
   IMAGE_URL = "IMAGE_URL",
   FUNCTION = "FUNCTION",
+  SAFE_URL = "SAFE_URL",
 }
 
 export type ValidationResponse = {

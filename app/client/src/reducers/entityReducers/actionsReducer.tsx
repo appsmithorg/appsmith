@@ -121,7 +121,7 @@ const actionsReducer = createReducer(initialState, {
       }
       return a;
     }),
-  [ReduxActionTypes.CREATE_ACTION_ERROR]: (
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<Action>,
   ): ActionDataState =>

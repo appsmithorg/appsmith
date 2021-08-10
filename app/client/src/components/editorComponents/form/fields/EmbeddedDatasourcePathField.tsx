@@ -39,8 +39,9 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
-import { getDatasourceInfo } from "pages/Editor/APIEditor/DatasourceList";
+import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
+import { getQueryParams } from "../../../../utils/AppsmithUtils";
 
 type ReduxStateProps = {
   orgId: string;
@@ -317,6 +318,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   this.props.applicationId,
                   this.props.currentPageId,
                   datasource.id,
+                  getQueryParams(),
                 ),
               )
             }

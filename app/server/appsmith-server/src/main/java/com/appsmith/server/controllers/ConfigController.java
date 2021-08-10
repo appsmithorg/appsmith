@@ -15,10 +15,11 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Url.CONFIG_URL)
-public class ConfigController extends BaseController<ConfigService, Config, String> {
+public class ConfigController {
 
+    private final ConfigService service;
     public ConfigController(ConfigService service) {
-        super(service);
+        this.service = service;
     }
 
     @GetMapping("/name/{name}")

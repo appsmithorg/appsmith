@@ -28,11 +28,18 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showUnsupportedPluginDialog: (callback: any) => void;
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const { applicationId, history, location, pageId } = this.props;
+    const {
+      applicationId,
+      history,
+      location,
+      pageId,
+      showUnsupportedPluginDialog,
+    } = this.props;
 
     return (
       <QueryHomePage>
@@ -41,6 +48,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           history={history}
           location={location}
           pageId={pageId}
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         />
       </QueryHomePage>
     );

@@ -9,6 +9,13 @@ import Axios from "axios";
 import * as log from "loglevel";
 import { DownloadActionDescription } from "entities/DataTree/actionTriggers";
 
+const displayWidgetDownloadError = (message: string) => {
+  return Toaster.show({
+    text: createMessage(ERROR_WIDGET_DOWNLOAD, message),
+    variant: Variant.danger,
+  });
+};
+
 export default async function downloadSaga(
   action: DownloadActionDescription["payload"],
   event: ExecuteActionPayloadEvent,
@@ -16,14 +23,7 @@ export default async function downloadSaga(
   try {
     const { data, name, type } = action;
     if (!name) {
-      Toaster.show({
-        text: createMessage(
-          ERROR_WIDGET_DOWNLOAD,
-          "File name was not provided",
-        ),
-        variant: Variant.danger,
-      });
-
+      displayWidgetDownloadError("File name was not provided");
       if (event.callback) event.callback({ success: false });
       return;
     }
@@ -34,29 +34,15 @@ export default async function downloadSaga(
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
-    } else if (
-      dataType === Types.STRING &&
-      isURL(data) &&
-      type === "application/x-binary"
-    ) {
-      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
-      // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
-      // using axios with the arraybuffer header and then pass it to the downloadjs library.
-      Axios.get(data, { responseType: "arraybuffer" })
-        .then((res) => {
-          downloadjs(res.data, name, type);
-          AppsmithConsole.info({
-            text: `download('${data}', '${name}', '${type}') was triggered`,
-          });
-        })
-        .catch((error) => {
-          log.error(error);
-          Toaster.show({
-            text: createMessage(ERROR_WIDGET_DOWNLOAD, error),
-            variant: Variant.danger,
-          });
-          if (event.callback) event.callback({ success: false });
+    } else if (dataType === Types.STRING && isURL(data)) {
+      // In the event that a url string is supplied, we need to fetch the image with the response type arraybuffer.
+      // This also covers the case where the file to be downloaded is Binary.
+      Axios.get(data, { responseType: "arraybuffer" }).then((res) => {
+        downloadjs(res.data, name, type);
+        AppsmithConsole.info({
+          text: `download('${data}', '${name}', '${type}') was triggered`,
         });
+      });
     } else {
       downloadjs(data, name, type);
       AppsmithConsole.info({
@@ -65,10 +51,8 @@ export default async function downloadSaga(
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
-      variant: Variant.danger,
-    });
+    log.error(err);
+    displayWidgetDownloadError(err);
     if (event.callback) event.callback({ success: false });
   }
 }

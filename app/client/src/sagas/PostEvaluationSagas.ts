@@ -1,6 +1,8 @@
 import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
+  DataTreeDiff,
+  DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
@@ -36,12 +38,11 @@ import {
 import log from "loglevel";
 import { AppState } from "reducers";
 import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
 import { logDebuggerErrorAnalytics } from "actions/debuggerActions";
 import store from "../store";
-import { Diff } from "deep-diff";
 import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -296,39 +297,34 @@ export function* postEvalActionDispatcher(
   }
 }
 
-// Update only the changed entities on tern. We will pick up the updated
-// entities from the evaluation order and create a new def from them.
-// When there is a top level entity removed in removedPaths,
-// we will remove its def
+// We update the data tree definition after every eval so that autocomplete
+// is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  isFirstEvaluation: boolean,
-  updates: Diff<DataTree, DataTree>[],
+  updates?: DataTreeDiff[],
 ) {
-  const updatedEntities: Set<string> = new Set();
-  // If it is the first evaluation, we want to add everything in the data tree
-  if (isFirstEvaluation) {
-    TernServer.resetServer();
-    Object.keys(dataTree).forEach((key) => updatedEntities.add(key));
+  let shouldUpdate: boolean;
+  // No updates means it was a first Eval
+  if (!updates) {
+    shouldUpdate = true;
+  } else if (updates.length === 0) {
+    // update length is 0 means no significant updates
+    shouldUpdate = false;
   } else {
-    updates.forEach((update) => {
-      if (update.kind === "N" && update.path) {
-        updatedEntities.add(update?.path[0]);
-      }
+    // Only when new field is added or deleted, we want to re create the def
+    shouldUpdate = _.some(updates, (update) => {
+      return (
+        update.event === DataTreeDiffEvent.NEW ||
+        update.event === DataTreeDiffEvent.DELETE
+      );
     });
   }
-
-  updatedEntities.forEach((entityName) => {
-    const entity = dataTree[entityName];
-    if (entity) {
-      const { def, name } = dataTreeTypeDefCreator(entity, entityName);
-      TernServer.updateDef(name, def);
-    }
-  });
-  // removedPaths.forEach((path) => {
-  //   // No '.' means that the path is an entity name
-  //   if (path.split(".").length === 1) {
-  //     TernServer.removeDef(path);
-  //   }
-  // });
+  if (shouldUpdate) {
+    const start = performance.now();
+    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    TernServer.updateDef("DATA_TREE", def, entityInfo);
+    const end = performance.now();
+    log.debug("Tern", { updates });
+    log.debug("Tern definitions updated took ", (end - start).toFixed(2));
+  }
 }

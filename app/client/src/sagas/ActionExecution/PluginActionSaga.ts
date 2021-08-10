@@ -39,7 +39,6 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 import _, { get, isString } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -84,9 +83,11 @@ import {
   QUERIES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { PluginActionDescription } from "entities/DataTree/actionTriggers";
 import { ApiResponse } from "api/ApiResponses";
 import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
+import { APP_MODE } from "entities/App";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -310,6 +311,7 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
       INTEGRATION_EDITOR_URL(),
+      SAAS_EDITOR_API_ID_URL(),
     ],
     exact: true,
     strict: false,

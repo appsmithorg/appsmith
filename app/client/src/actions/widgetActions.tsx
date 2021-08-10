@@ -1,9 +1,14 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,
@@ -109,7 +114,7 @@ export const deleteSelectedWidget = (
   disallowUndo = false,
 ) => {
   return {
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       isShortcut,
       disallowUndo,
@@ -123,9 +128,9 @@ export const cutWidget = () => {
   };
 };
 
-export const addTableWidgetFromQuery = (queryName: string) => {
+export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-    payload: queryName,
+    type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
+    payload,
   };
 };

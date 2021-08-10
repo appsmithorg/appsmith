@@ -9,7 +9,7 @@ import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import {
   BUILDER_PAGE_URL,
   convertToQueryParams,
