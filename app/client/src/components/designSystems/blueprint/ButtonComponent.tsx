@@ -40,7 +40,7 @@ const ToolTipWrapper = styled.div`
   height: 100%;
   && .bp3-popover-target {
     height: 100%;
-    div {
+    & > div {
       height: 100%;
     }
   }
