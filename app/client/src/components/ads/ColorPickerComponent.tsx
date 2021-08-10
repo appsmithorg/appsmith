@@ -151,7 +151,7 @@ interface ColorPickerProps {
 
 function ColorPickerComponent(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
-  const [isPopoverOpen, setPopoverOpen] = React.useState(false);
+  const [isOpen, setOpen] = React.useState(false);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
     [props.changeColor],
@@ -165,33 +165,40 @@ function ColorPickerComponent(props: ColorPickerProps) {
     <Popover
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      isOpen={isPopoverOpen}
+      isOpen={isOpen}
       minimal
       modifiers={{
         offset: {
           offset: "0, 24px",
         },
       }}
-      onInteraction={(state) => setPopoverOpen(state)}
       position={Position.BOTTOM}
       usePortal
     >
       <StyledInputGroup
         leftIcon={
           color ? (
-            <ColorIcon color={color} />
+            <ColorIcon color={color} onClick={() => setOpen(true)} />
           ) : (
-            <NoColorIconWrapper>
+            <NoColorIconWrapper onClick={() => setOpen(true)}>
               <NoColorIcon>
                 <div className="line" />
               </NoColorIcon>
             </NoColorIconWrapper>
           )
         }
+        onBlur={() => {
+          // if user clicks on ColorBoard blur is called first and color is not updated
+          // to prevent that make sure to wait for color update before onBlur
+          setTimeout(() => {
+            setOpen(false);
+          }, 100);
+        }}
         onChange={handleChangeColor}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === "Tab") {
-            setPopoverOpen(!isPopoverOpen);
+        onFocus={() => setOpen(true)}
+        onKeyUp={(e) => {
+          if (e.key === "Enter") {
+            setOpen((state) => !state);
           }
         }}
         placeholder="enter color name or hex"
@@ -200,6 +207,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
       <ColorBoard
         selectColor={(color) => {
           setColor(color);
+          setOpen(false);
           props.changeColor(color);
         }}
         selectedColor={color}
