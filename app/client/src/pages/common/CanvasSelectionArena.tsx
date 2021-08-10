@@ -39,12 +39,14 @@ export interface SelectedArenaDimensions {
 
 export function CanvasSelectionArena({
   canExtend,
+  draggableParent,
   snapColumnSpace,
   snapRows,
   snapRowSpace,
   widgetId,
 }: {
   canExtend: boolean;
+  draggableParent: boolean;
   snapColumnSpace: number;
   widgetId: string;
   snapRows: number;
@@ -227,7 +229,7 @@ export function CanvasSelectionArena({
       };
 
       const onMouseDown = (e: any) => {
-        if (canvasRef.current && (widgetId === "0" || e.ctrlKey || e.metaKey)) {
+        if (canvasRef.current && (!draggableParent || e.ctrlKey || e.metaKey)) {
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
           selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;

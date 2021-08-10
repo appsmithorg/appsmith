@@ -42,6 +42,7 @@ const StyledDropTarget = styled.div`
   position: relative;
   background: none;
   user-select: none;
+  z-index: 1;
 `;
 
 function Onboarding() {
