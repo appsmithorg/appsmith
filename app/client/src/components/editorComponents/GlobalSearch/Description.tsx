@@ -6,13 +6,13 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
-import pgsql from "react-syntax-highlighter/dist/esm/languages/hljs/pgsql";
-import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
+// import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+// import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+// import pgsql from "react-syntax-highlighter/dist/esm/languages/hljs/pgsql";
+// import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
 
-SyntaxHighlighter.registerLanguage("javascript", javascript);
-SyntaxHighlighter.registerLanguage("postgres", pgsql);
+// SyntaxHighlighter.registerLanguage("javascript", javascript);
+// SyntaxHighlighter.registerLanguage("postgres", pgsql);
 
 type Props = {
   activeItem: SearchItem;
@@ -225,9 +225,9 @@ function SnippetDescription(props: any) {
         <span className="action-msg">Hit ⏎ to insert</span>
       </div>
       <div className="snippet-desc">{summary}</div>
-      <SyntaxHighlighter language={language} style={xcode}>
-        {snippet}
-      </SyntaxHighlighter>
+      {/* <SyntaxHighlighter language={language} style={xcode}> */}
+      <div>{snippet}</div>
+      {/* </SyntaxHighlighter> */}
       {additionalInfo &&
         additionalInfo.map(
           ({ content, header }: { header: string; content: string }) => (
